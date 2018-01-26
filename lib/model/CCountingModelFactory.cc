@@ -210,6 +210,12 @@ CCountingModelFactory::TStrCRefVec
     return result;
 }
 
+double CCountingModelFactory::minimumSeasonalVarianceScale() const
+{
+    // unused, return something
+    return 0.0;
+}
+
 }
 }
 
