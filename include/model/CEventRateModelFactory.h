@@ -136,6 +136,9 @@ public:
     virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
     //@}
 
+        //! Get the minimum seasonal variance scale
+        virtual double minimumSeasonalVarianceScale() const;
+
 private:
     //! Get the field values which partition the data for modeling.
     virtual TStrCRefVec partitioningFields() const;

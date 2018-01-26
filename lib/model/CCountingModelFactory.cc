@@ -178,5 +178,11 @@ CCountingModelFactory::TStrCRefVec CCountingModelFactory::partitioningFields() c
     }
     return result;
 }
+double CCountingModelFactory::minimumSeasonalVarianceScale() const
+{
+    // unused, return something
+    return 0.0;
+}
+
 }
 }
