@@ -18,7 +18,7 @@ OS=MacOSX
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
 
 CC=clang
-CXX=clang++ -std=c++11 -stdlib=libc++
+CXX=clang++ -std=c++14 -stdlib=libc++
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3
@@ -44,7 +44,7 @@ DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
 LOCALLIBS=
 NETLIBS=
 BOOSTVER=1_65_1
-BOOSTCLANGVER=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
+BOOSTCLANGVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
@@ -63,7 +63,7 @@ XMLLIBS=-lxml2
 JAVANATIVEINCLUDES=-I`/usr/libexec/java_home`/include
 JAVANATIVELDFLAGS=-L`/usr/libexec/java_home`/jre/lib/server
 JAVANATIVELIBS=-ljvm
-ML_VERSION_NUM=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo | sed 's/-.*//')
+ML_VERSION_NUM:=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo | sed 's/-.*//')
 DYNAMICLIBLDFLAGS=-current_version $(ML_VERSION_NUM) -compatibility_version $(ML_VERSION_NUM) -dynamiclib -Wl,-dead_strip_dylibs $(COVERAGE) -Wl,-install_name,@rpath/$(notdir $(TARGET)) -L$(CPP_PLATFORM_HOME)/lib -Wl,-rpath,@loader_path/.
 CPPUNITLIBS=-lcppunit
 LOG4CXXLIBS=-llog4cxx

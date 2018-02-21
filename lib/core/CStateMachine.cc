@@ -268,7 +268,7 @@ const CStateMachine::SMachine &CStateMachine::CMachineDeque::operator[](std::siz
 
 std::size_t CStateMachine::CMachineDeque::size(void) const
 {
-    return m_NumberMachines.load(atomic_t::memory_order_acquire);
+    return m_NumberMachines.load(std::memory_order_acquire);
 }
 
 void CStateMachine::CMachineDeque::push_back(const SMachine &machine)
@@ -279,7 +279,7 @@ void CStateMachine::CMachineDeque::push_back(const SMachine &machine)
         m_Machines.back().reserve(m_Capacity);
     }
     m_Machines.back().push_back(machine);
-    m_NumberMachines.store(this->size() + 1, atomic_t::memory_order_release);
+    m_NumberMachines.store(this->size() + 1, std::memory_order_release);
 }
 
 void CStateMachine::CMachineDeque::clear(void)

@@ -1052,7 +1052,7 @@ void CTimeSeriesModelTest::testPredict(void)
                 double expected{  maths::CBasicStatistics::mean(trends[i]->baseline(time_))
                                 + maths::CBasicStatistics::mean(margin->marginalLikelihoodConfidenceInterval(0.0))};
                 double predicted{model.predict(time_)[i]};
-                --marginalize[std::min(i, marginalize.size())];
+                --marginalize[std::min(i, marginalize.size() -1)];
                 LOG_DEBUG("expected = " << expected
                           << " predicted = " << predicted
                           << " (trend = " << trend_ << ")");

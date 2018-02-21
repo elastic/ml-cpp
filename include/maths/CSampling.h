@@ -405,15 +405,17 @@ static void multivariateNormalSample(CPRNG::CXorShift1024Mult &rng,             
         template<typename RNG, typename ITR>
         static void random_shuffle(RNG &rng, ITR first, ITR last)
         {
-            typedef typename std::iterator_traits<ITR>::difference_type difference_type;
-            difference_type d = last - first;
+            auto d = last - first;
             if (d > 1)
             {
                 CUniform0nGenerator<RNG> rand(rng);
                 for (--last; first < last; ++first, --d)
                 {
-                    difference_type i = rand(d);
-                    std::iter_swap(first, first + i);
+                    auto i = rand(d);
+                    if (i > 0)
+                    {
+                        std::iter_swap(first, first + i);
+                    }
                 }
             }
         }

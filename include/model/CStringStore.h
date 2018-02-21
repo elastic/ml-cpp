@@ -15,7 +15,6 @@
 #ifndef INCLUDED_ml_model_CStringStore_h
 #define INCLUDED_ml_model_CStringStore_h
 
-#include <core/AtomicTypes.h>
 #include <core/CMemory.h>
 #include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
@@ -25,6 +24,7 @@
 
 #include <boost/unordered_set.hpp>
 
+#include <atomic>
 #include <functional>
 #include <string>
 
@@ -128,11 +128,11 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable
     private:
         //! Fence for reading operations (in which case we "leak" a string
         //! if we try to write at the same time). See get for details.
-        atomic_t::atomic_int m_Reading;
+        std::atomic_int m_Reading;
 
         //! Fence for writing operations (in which case we "leak" a string
         //! if we try to read at the same time). See get for details.
-        atomic_t::atomic_int m_Writing;
+        std::atomic_int m_Writing;
 
         //! The empty string is often used so we store it outside the set.
         core::CStoredStringPtr m_EmptyString;

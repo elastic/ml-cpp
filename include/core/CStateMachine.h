@@ -16,12 +16,12 @@
 #ifndef INCLUDED_ml_core_CStateMachine_h
 #define INCLUDED_ml_core_CStateMachine_h
 
-#include <core/AtomicTypes.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
 #include <boost/operators.hpp>
 
+#include <atomic>
 #include <cstddef>
 #include <list>
 #include <vector>
@@ -219,7 +219,7 @@ class CORE_EXPORT CStateMachine
                 std::size_t m_Capacity;
 
                 //! Get the number of available machines.
-                atomic_t::atomic<std::size_t> m_NumberMachines;
+                std::atomic<std::size_t> m_NumberMachines;
 
                 //! The actual machines.
                 TMachineVecList m_Machines;

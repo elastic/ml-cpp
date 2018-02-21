@@ -32,19 +32,25 @@ OPTCPPFLAGS=-DNDEBUG -DEXCLUDE_TRACE_LOGGING
 endif
 
 SHELL:=$(LOCAL_DRIVE):/PROGRA~1/Git/bin/bash.exe
-# On 64 bit Windows Visual Studio 2013 is in C:\Program Files (x86) aka C:\PROGRA~2
+# On 64 bit Windows Visual Studio 2017 is in C:\Program Files (x86) aka C:\PROGRA~2
 
 # compiler and sdk are dependent on your local install, tweak them with overwriting VCBASE and WINSDKBASE in your .bashrc
 # do not override them here
-# default: VS Express 2013
-VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio 12.0")
+# default: VS Professional 2017
+VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional")
 WINSDKBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Windows Kits")
 
-VCINCLUDES=-I$(LOCAL_DRIVE):/$(VCBASE)/VC/include
-VCLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/$(VCBASE)/VC/lib/amd64
-WINSDKINCLUDES=-I$(LOCAL_DRIVE):/$(WINSDKBASE)/8.1/Include/shared -I$(LOCAL_DRIVE):/$(WINSDKBASE)/8.1/Include/um
-WINSDKLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/$(WINSDKBASE)/8.1/Lib/winv6.3/um/x64
-CFLAGS=-nologo $(OPTCFLAGS) -W4 $(CRT_OPT) -EHsc -Zi -Gw -FS -Zc:inline
+# example compiler defaults for VS Build Tools 2017, c&p into your .bashrc, note 8.3 paths might be different on your install
+# export VCBASE=PROGRA~2/MICROS~2/2017/BUILDT~1
+# export WINSDKBASE=PROGRA~2/WI3CF2~1
+
+VCVER:=$(shell ls -1 /$(LOCAL_DRIVE)/$(VCBASE)/VC/Tools/MSVC | tail -1)
+UCRTVER:=$(shell ls -1 /$(LOCAL_DRIVE)/$(WINSDKBASE)/10/Include | tail -1)
+VCINCLUDES=-I$(LOCAL_DRIVE):/$(VCBASE)/VC/Tools/MSVC/$(VCVER)/include
+VCLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/$(VCBASE)/VC/Tools/MSVC/$(VCVER)/lib/x64
+WINSDKINCLUDES=-I$(LOCAL_DRIVE):/$(WINSDKBASE)/10/Include/$(UCRTVER)/ucrt -I$(LOCAL_DRIVE):/$(WINSDKBASE)/8.0/Include/shared -I$(LOCAL_DRIVE):/$(WINSDKBASE)/8.0/Include/um
+WINSDKLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/$(WINSDKBASE)/10/Lib/$(UCRTVER)/ucrt/x64 -LIBPATH:$(LOCAL_DRIVE):/$(WINSDKBASE)/8.0/Lib/win8/um/x64
+CFLAGS=-nologo $(OPTCFLAGS) -W4 $(CRT_OPT) -EHsc -Zi -Gw -FS -Zc:inline -diagnostics:caret -utf-8
 CXXFLAGS=-TP $(CFLAGS) -Zc:rvalueCast -Zc:strictStrings -wd4127 -we4150 -wd4201 -wd4231 -wd4251 -wd4355 -wd4512 -wd4702 -bigobj
 ANALYZEFLAGS=-nologo -analyze:only -analyze:stacksize100000 $(CRT_OPT)
 
@@ -68,7 +74,7 @@ DEP_REFORMAT=sed 's,$<,$(basename $@)$(OBJECT_FILE_EXT) $@ : $<,'
 LOCALLIBS=AdvAPI32.lib shell32.lib Version.lib
 NETLIBS=WS2_32.lib
 BOOSTVER=1_65_1
-BOOSTVCVER=$(shell $(CXX) 2>&1 | head -1 | sed 's/.*Version //' | awk -F. '{ print ($$1 - 6)($$2 / 10); }')
+BOOSTVCVER=141
 BOOSTINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTREGEXLIBS=boost_regex-vc$(BOOSTVCVER)-mt-$(BOOSTVER).lib
@@ -82,7 +88,7 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 # Eigen automatically uses SSE and SSE2 on 64 bit Windows - only the higher
 # versions need to be explicitly enabled
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_VECTORIZE_SSE3 -DEIGEN_VECTORIZE_SSE4_1 -DEIGEN_VECTORIZE_SSE4_2
-XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml
+XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml2
 XMLLIBLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib
 XMLLIBS=libxml2.lib
 DYNAMICLIBLDFLAGS=-nologo -Zi $(CRT_OPT) -LD -link -MAP -OPT:REF -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)

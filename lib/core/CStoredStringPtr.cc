@@ -27,7 +27,7 @@ namespace ml
 namespace core
 {
 
-CStoredStringPtr::CStoredStringPtr()
+CStoredStringPtr::CStoredStringPtr() noexcept
     : m_String{}
 {
 }
@@ -42,57 +42,57 @@ CStoredStringPtr::CStoredStringPtr(std::string &&str)
 {
 }
 
-void CStoredStringPtr::swap(CStoredStringPtr &other)
+void CStoredStringPtr::swap(CStoredStringPtr &other) noexcept
 {
     m_String.swap(other.m_String);
 }
 
-const std::string &CStoredStringPtr::operator*() const
+const std::string &CStoredStringPtr::operator*() const noexcept
 {
     return *m_String;
 }
 
-const std::string *CStoredStringPtr::operator->() const
+const std::string *CStoredStringPtr::operator->() const noexcept
 {
     return m_String.get();
 }
 
-const std::string *CStoredStringPtr::get() const
+const std::string *CStoredStringPtr::get() const noexcept
 {
     return m_String.get();
 }
 
-CStoredStringPtr::operator bool() const
+CStoredStringPtr::operator bool() const noexcept
 {
     return m_String.get() != nullptr;
 }
 
-bool CStoredStringPtr::isUnique() const
+bool CStoredStringPtr::isUnique() const noexcept
 {
     return m_String.unique();
 }
 
-bool CStoredStringPtr::operator==(std::nullptr_t rhs) const
+bool CStoredStringPtr::operator==(std::nullptr_t rhs) const noexcept
 {
     return m_String == rhs;
 }
 
-bool CStoredStringPtr::operator!=(std::nullptr_t rhs) const
+bool CStoredStringPtr::operator!=(std::nullptr_t rhs) const noexcept
 {
     return m_String != rhs;
 }
 
-bool CStoredStringPtr::operator==(const CStoredStringPtr &rhs) const
+bool CStoredStringPtr::operator==(const CStoredStringPtr &rhs) const noexcept
 {
     return m_String == rhs.m_String;
 }
 
-bool CStoredStringPtr::operator!=(const CStoredStringPtr &rhs) const
+bool CStoredStringPtr::operator!=(const CStoredStringPtr &rhs) const noexcept
 {
     return m_String != rhs.m_String;
 }
 
-bool CStoredStringPtr::operator<(const CStoredStringPtr &rhs) const
+bool CStoredStringPtr::operator<(const CStoredStringPtr &rhs) const noexcept
 {
     return m_String < rhs.m_String;
 }

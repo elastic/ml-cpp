@@ -16,7 +16,6 @@
 #ifndef INCLUDED_ml_maths_CTrendTests_h
 #define INCLUDED_ml_maths_CTrendTests_h
 
-#include <core/AtomicTypes.h>
 #include <core/CoreTypes.h>
 #include <core/CMutex.h>
 #include <core/CVectorRange.h>
@@ -30,13 +29,14 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <cstddef>
-#include <vector>
-
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include <atomic>
+#include <cstddef>
+#include <vector>
 
 #include <stdint.h>
 
@@ -209,7 +209,7 @@ class MATHS_EXPORT CRandomizedPeriodicityTest
         using TVector2MeanAccumulator = CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
         using TVector2N = CVectorNx1<CFloatStorage, 2*N>;
         using TVector2NMeanAccumulator = CBasicStatistics::SSampleMean<TVector2N>::TAccumulator;
-        using TAtomicTime = atomic_t::atomic<core_t::TTime>;
+        using TAtomicTime = std::atomic<core_t::TTime>;
 
     private:
         //! The length over which the periodic random projection decoheres.

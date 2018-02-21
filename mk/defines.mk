@@ -51,7 +51,7 @@ ifeq ($(OS),$(linuxOS))
 ifdef CPP_CROSS_COMPILE
 include $(CPP_SRC_HOME)/mk/linux_crosscompile_$(CPP_CROSS_COMPILE).mk
 else
-MUSL=$(shell ldd --version 2>&1 | grep musl)
+MUSL:=$(shell ldd --version 2>&1 | grep musl)
 ifeq ($(MUSL),)
 include $(CPP_SRC_HOME)/mk/linux.mk
 else

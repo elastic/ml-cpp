@@ -33,22 +33,22 @@ RUN \
   mv /tmp/trusted.gpg /etc/apt && \
   rm /tmp/trusted.gpg~ && \
   apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" && \
-  apt-get install --no-install-recommends -y clang-3.8 libclang1-3.8 libllvm3.8 llvm-3.8 llvm-3.8-runtime
+  apt-get install --no-install-recommends -y clang-3.9 libclang1-3.9 libllvm3.9 llvm-3.9 llvm-3.9-runtime
 
 # Add build dependencies transferred from native Mac build server
 RUN \
-  mkdir -p /usr/local/sysroot-x86_64-apple-macosx10.10/usr && \
-  cd /usr/local/sysroot-x86_64-apple-macosx10.10/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.10-2.tar.bz2 | tar jxf - && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/xcode-x86_64-apple-macosx10.10-1.tar.bz2 | tar jxf -
+  mkdir -p /usr/local/sysroot-x86_64-apple-macosx10.11/usr && \
+  cd /usr/local/sysroot-x86_64-apple-macosx10.11/usr && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.11-1.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/xcode-x86_64-apple-macosx10.11-1.tar.bz2 | tar jxf -
 
 # Build cctools-port
 RUN \
   git clone https://github.com/tpoechtrager/cctools-port.git && \
   cd cctools-port/cctools && \
-  git checkout 877.8-ld64-253.9 && \
+  git checkout 895-ld64-274.2 && \
   ./autogen.sh && \
-  ./configure --target=x86_64-apple-macosx10.10 --with-llvm-config=/usr/bin/llvm-config-3.8 && \
+  ./configure --target=x86_64-apple-macosx10.11 --with-llvm-config=/usr/bin/llvm-config-3.9 && \
   make -j`nproc` && \
   make install && \
   cd ../.. && \

@@ -935,35 +935,35 @@ void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator &proj
 
 void CRandomizedPeriodicityTest::resample(core_t::TTime time)
 {
-    if (time >= ms_DayResampled.load(atomic_t::memory_order_acquire) + DAY_RESAMPLE_INTERVAL)
+    if (time >= ms_DayResampled.load(std::memory_order_acquire) + DAY_RESAMPLE_INTERVAL)
     {
         core::CScopedLock lock(ms_Lock);
 
         LOG_TRACE("Updating daily random projections at " << time);
-        if (time >= ms_DayResampled.load(atomic_t::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL)
+        if (time >= ms_DayResampled.load(std::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL)
         {
             resample(DAY,
                      DAY_RESAMPLE_INTERVAL,
                      ms_DayPeriodicProjections,
                      ms_DayRandomProjections);
             ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL),
-                                  atomic_t::memory_order_release);
+                                  std::memory_order_release);
         }
     }
 
-    if (time >= ms_WeekResampled.load(atomic_t::memory_order_acquire) + WEEK_RESAMPLE_INTERVAL)
+    if (time >= ms_WeekResampled.load(std::memory_order_acquire) + WEEK_RESAMPLE_INTERVAL)
     {
         core::CScopedLock lock(ms_Lock);
 
         LOG_TRACE("Updating weekly random projections at " << time);
-        if (time >= ms_WeekResampled.load(atomic_t::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL)
+        if (time >= ms_WeekResampled.load(std::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL)
         {
             resample(WEEK,
                      WEEK_RESAMPLE_INTERVAL,
                      ms_WeekPeriodicProjections,
                      ms_WeekRandomProjections);
             ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL),
-                                   atomic_t::memory_order_release);
+                                   std::memory_order_release);
         }
     }
 }
@@ -1000,10 +1000,10 @@ const core_t::TTime CRandomizedPeriodicityTest::WEEK_RESAMPLE_INTERVAL(2419200);
 boost::random::mt19937_64 CRandomizedPeriodicityTest::ms_Rng = boost::random::mt19937_64();
 TDoubleVec CRandomizedPeriodicityTest::ms_DayRandomProjections[N] = {};
 TDoubleVec CRandomizedPeriodicityTest::ms_DayPeriodicProjections[N] = {};
-atomic_t::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_DayResampled(-DAY_RESAMPLE_INTERVAL);
+std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_DayResampled(-DAY_RESAMPLE_INTERVAL);
 TDoubleVec CRandomizedPeriodicityTest::ms_WeekRandomProjections[N] = {};
 TDoubleVec CRandomizedPeriodicityTest::ms_WeekPeriodicProjections[N] = {};
-atomic_t::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_WeekResampled(-WEEK_RESAMPLE_INTERVAL);
+std::atomic<core_t::TTime> CRandomizedPeriodicityTest::ms_WeekResampled(-WEEK_RESAMPLE_INTERVAL);
 core::CMutex CRandomizedPeriodicityTest::ms_Lock;
 
 //////// CPeriodicityResultTest ////////

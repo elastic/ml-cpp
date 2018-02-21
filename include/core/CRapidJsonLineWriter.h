@@ -43,31 +43,7 @@ class CRapidJsonLineWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_
     public:
 
         using TRapidJsonWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer>;
-
-        //! inherit the constructors
-        //! Note: VS2013 (see #205) does not compile with:
-        //! using TRapidJsonWriterBase::TRapidJsonWriterBase;
-        //! Please remove the following 3 constructors after #205
-
-        //! Constructors
-        /*! \param os Output stream.
-        */
-        explicit
-        CRapidJsonLineWriter(OUTPUT_STREAM &os) :
-        TRapidJsonWriterBase (os)
-        {
-        }
-
-        explicit
-        CRapidJsonLineWriter() :
-        TRapidJsonWriterBase ()
-        {
-        }
-
-        CRapidJsonLineWriter(CRapidJsonLineWriter &&rhs) :
-        TRapidJsonWriterBase(std::move(rhs))
-        {
-        }
+        using TRapidJsonWriterBase::TRapidJsonWriterBase;
 
         //! Overwrites the Writer::StartObject in order to count nested objects
         bool StartObject()

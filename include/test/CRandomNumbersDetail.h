@@ -53,15 +53,17 @@ void CRandomNumbers::generateSamples(RNG &randomNumberGenerator,
 template<typename ITR>
 void CRandomNumbers::random_shuffle(ITR first, ITR last)
 {
-    typedef typename std::iterator_traits<ITR>::difference_type difference_type;
     CUniform0nGenerator rand(m_Generator);
-    difference_type d = last - first;
+    auto d = last - first;
     if (d > 1)
     {
         for (--last; first < last; ++first, --d)
         {
-            difference_type i = rand(d);
-            std::iter_swap(first, first + i);
+            auto i = rand(d);
+            if (i > 0)
+            {
+                std::iter_swap(first, first + i);
+            }
         }
     }
 }

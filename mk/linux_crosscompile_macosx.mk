@@ -17,12 +17,12 @@ OS=MacOSX
 
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
 
-CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.10
+CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.11
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
-CLANGVER=3.8
+CLANGVER=3.9
 CROSS_FLAGS=--sysroot=$(SYSROOT) -B /usr/local/bin -target $(CROSS_TARGET_PLATFORM)
 CC=clang-$(CLANGVER) $(CROSS_FLAGS)
-CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++11 -stdlib=libc++
+CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++14 -stdlib=libc++
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3
@@ -48,7 +48,7 @@ DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
 LOCALLIBS=
 NETLIBS=
 BOOSTVER=1_65_1
-BOOSTCLANGVER=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
+BOOSTCLANGVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS

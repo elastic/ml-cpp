@@ -48,35 +48,35 @@ class CORE_EXPORT CStoredStringPtr
 {
     public:
         //! NULL constructor.
-        CStoredStringPtr();
+        CStoredStringPtr() noexcept;
 
-        void swap(CStoredStringPtr &other);
+        void swap(CStoredStringPtr &other) noexcept;
 
         //! Get a reference to the string.
-        const std::string &operator*() const;
+        const std::string &operator*() const noexcept;
 
         //! Get a pointer to the string.
-        const std::string *operator->() const;
+        const std::string *operator->() const noexcept;
 
         //! Get a pointer to the string.
-        const std::string *get() const;
+        const std::string *get() const noexcept;
 
         //! Is the pointer non-NULL?
-        explicit operator bool() const;
+        explicit operator bool() const noexcept;
 
         //! Is there only one pointer for this stored string?
-        bool isUnique() const;
+        bool isUnique() const noexcept;
 
         //! Equality operator for NULL.
-        bool operator==(std::nullptr_t rhs) const;
-        bool operator!=(std::nullptr_t rhs) const;
+        bool operator==(std::nullptr_t rhs) const noexcept;
+        bool operator!=(std::nullptr_t rhs) const noexcept;
 
         //! Equality operator.
-        bool operator==(const CStoredStringPtr &rhs) const;
-        bool operator!=(const CStoredStringPtr &rhs) const;
+        bool operator==(const CStoredStringPtr &rhs) const noexcept;
+        bool operator!=(const CStoredStringPtr &rhs) const noexcept;
 
         //! Less than operator.
-        bool operator<(const CStoredStringPtr &rhs) const;
+        bool operator<(const CStoredStringPtr &rhs) const noexcept;
 
         //! Claim memory usage is 0 in the main memory usage calculation, on the
         //! assumption that the actual memory usage will be accounted for in a

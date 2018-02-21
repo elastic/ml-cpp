@@ -23,14 +23,6 @@
 namespace
 {
 static const size_t BUFFER_SIZE(1024);
-
-// This is a workaround for a bug in the Visual Studio 2013 C runtime library.
-// See http://connect.microsoft.com/VisualStudio/feedback/details/811093 for
-// more details.  It should be fixed in the next major release of Visual Studio
-// so this code could be removed then.
-#ifdef _M_X64
-int fmaRes(::_set_FMA3_enable(0));
-#endif
 }
 
 

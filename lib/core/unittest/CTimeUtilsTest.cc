@@ -90,11 +90,7 @@ void CTimeUtilsTest::testToLocal(void)
 
     {
         ml::core_t::TTime t(1227710437);
-#ifdef Windows
-        std::string expected("11/26/08 14:40:37");
-#else
         std::string expected("Wed Nov 26 14:40:37 2008");
-#endif
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 
@@ -102,11 +98,7 @@ void CTimeUtilsTest::testToLocal(void)
     }
     {
         ml::core_t::TTime t(1207925624);
-#ifdef Windows
-        std::string expected("04/11/08 15:53:44");
-#else
         std::string expected("Fri Apr 11 15:53:44 2008");
-#endif
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 

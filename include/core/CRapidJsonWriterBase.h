@@ -111,11 +111,6 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
             m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
         }
 
-        CRapidJsonWriterBase(CRapidJsonWriterBase &&rhs) :
-        TRapidJsonWriterBase(std::move(rhs))
-        {
-        }
-
         virtual ~CRapidJsonWriterBase()
         {
             // clean up resources

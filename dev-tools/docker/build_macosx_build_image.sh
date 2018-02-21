@@ -25,13 +25,13 @@
 
 ACCOUNT=droberts195
 REPOSITORY=ml-macosx-build
-VERSION=2
+VERSION=3
 
 set -e
 
 cd `dirname $0`
 
-docker build -t $ACCOUNT/$REPOSITORY:$VERSION macosx_image
+docker build --no-cache -t $ACCOUNT/$REPOSITORY:$VERSION macosx_image
 docker login
 docker push $ACCOUNT/$REPOSITORY:$VERSION
 

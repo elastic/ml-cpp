@@ -43,7 +43,7 @@ namespace core
 // Realistically (or at least hopefully), the %z will always come at the end
 // of a date/time.
 //
-// Also, since strptime() uses the C runtime globals tzname[0] and tzname[1],
+// Also, since strptime() uses the C runtime globals _tzname[0] and _tzname[1],
 // whereas we might want to use a different timezone, we replace %Z in the
 // format string with a string obtained from the CTimezone singleton.
 char *CStrPTime::strPTime(const char *buf,
