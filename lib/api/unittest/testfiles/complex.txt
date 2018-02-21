@@ -1,0 +1,21 @@
+"_cd","_indextime","_kv","_raw","_serial","_si","_sourcetype","_time","date_hour","date_mday","date_minute","date_month","date_second","date_wday","date_year","date_zone",eventtype,host,index,linecount,punct,source,sourcetype,"server",timeendpos,timestartpos
+"1:36",1337704737,1,"2010-01-21 23:59:00+00,source ""has"" \shutdown,109041,91",0,"linux.prelert.com
+main",rmds,1264118340,23,21,59,january,0,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:33",1337704737,1,"2010-01-21 23:59:00+00,service ""has"" \shutdown,109041,91",1,"linux.prelert.com
+main",rmds,1264118340,23,21,59,january,0,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:29",1337704737,1,"2010-01-21 23:45:05+00,service ""has"" \shutdown,109040,98",2,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:26",1337704737,1,"2010-01-21 23:45:05+00,source ""has"" \shutdown,109040,98",3,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:23",1337704737,1,"2010-01-21 23:45:05+00,service ""has"" \shutdown,109040,98",4,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:20",1337704737,1,"2010-01-21 23:45:05+00,service ""has"" \shutdown,109040,98",5,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:17",1337704737,1,"2010-01-21 23:45:05+00,service ""has"" \shutdown,109040,98",6,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:14",1337704737,1,"2010-01-21 23:45:05+00,source ""has"" \shutdown,109040,98",7,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:11",1337704737,1,"2010-01-21 23:45:05+00,source ""has"" \shutdown,109040,98",8,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0
+"1:8",1337704737,1,"2010-01-21 23:45:05+00,source ""has"" \shutdown,109040,98",9,"linux.prelert.com
+main",rmds,1264117505,23,21,45,january,5,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,_""""_\,,","/export/temp/extra",rmds,"linux.prelert.com",22,0

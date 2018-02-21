@@ -1,0 +1,125 @@
+description = 'Uploads the Machine Learning native binaries to s3'
+
+import com.amazonaws.auth.AWSCredentials
+import com.bettercloud.vault.Vault
+import com.bettercloud.vault.VaultConfig
+import com.bettercloud.vault.response.LogicalResponse
+
+import org.elastic.gradle.UploadS3Task
+import org.gradle.util.GradleVersion
+import org.gradle.util.DistributionLocator
+
+import static org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+
+boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
+
+allprojects {
+  group = 'org.elasticsearch.ml'
+  version = elasticsearchVersion
+  if (snapshot) {
+    version += '-SNAPSHOT'
+  }
+}
+
+String artifactGroupPath = project.group.replaceAll("\\.", "/")
+
+// Get AWS credentials from Vault
+String VAULT_BASE_URL = 'https://secrets.elastic.co:8200'
+String VAULT_ROLE_ID = '8e90dd88-5a8e-9c12-0da9-5439f293ff97'
+String VAULT_SECRET_ID = System.env.VAULT_SECRET_ID
+if (VAULT_SECRET_ID == null) {
+  throw new GradleException('Missing VAULT_SECRET_ID environment variable, needed to authenticate with vault for secrets')
+}
+URL vaultUrl = new URL(VAULT_BASE_URL + '/v1/auth/approle/login')
+String vaultAuthBody = "{\"role_id\": \"${VAULT_ROLE_ID}\", \"secret_id\": \"${VAULT_SECRET_ID}\"}"
+HttpURLConnection vaultConn = (HttpURLConnection) vaultUrl.openConnection()
+vaultConn.setRequestProperty('Content-Type', 'application/json')
+vaultConn.setRequestMethod('PUT')
+vaultConn.setDoOutput(true)
+vaultConn.outputStream.withWriter('UTF-8') { writer ->
+  writer.write(vaultAuthBody)
+}
+vaultConn.connect()
+Object authResponse = new groovy.json.JsonSlurper().parseText(vaultConn.content.text)
+VaultConfig config = new VaultConfig(VAULT_BASE_URL, authResponse.auth.client_token)
+Vault vault = new Vault(config)
+LogicalResponse secret = vault.logical().read("aws-dev/creds/prelertartifacts")
+project.ext.mlAwsAccessKey = secret.data.get('access_key')
+project.ext.mlAwsSecretKey = secret.data.get('secret_key')
+// Wait for credentials to propagate through AWS - this would be infuriating if this
+// build file were used interactively, but it's only used by CI, and this simple sleep
+// avoids complex retry logic
+sleep(60000)
+
+allprojects {
+  repositories {
+    if (System.getProperty("repos.mavenlocal") != null) {
+      // with -Drepos.mavenlocal=true we can force checking the local .m2 repo which is useful for building against
+      // elasticsearch snapshots
+      mavenLocal()
+    }
+    maven {
+      url "s3://prelert-artifacts/maven"
+      credentials(AwsCredentials) {
+        accessKey "${mlAwsAccessKey}"
+        secretKey "${mlAwsSecretKey}"
+      }
+    }
+  }
+}
+
+configurations {
+  archives
+}
+
+dependencies {
+  archives group: "${project.group}", name: "${artifactName}", version:"${project.version}", classifier: 'darwin-x86_64', ext: 'zip'
+  archives group: "${project.group}", name: "${artifactName}", version:"${project.version}", classifier: 'linux-x86_64', ext: 'zip'
+  archives group: "${project.group}", name: "${artifactName}", version:"${project.version}", classifier: 'windows-x86_64', ext: 'zip'
+}
+
+task upload(type: UploadS3Task) {
+  bucket 'prelert-artifacts'
+  // Only upload the platform-specific artifacts in this task
+  def zipFileDir = fileTree(dir: "${projectDir}/build/distributions").matching { include "*-x86_64.zip" }
+  for (zipFile in zipFileDir) {
+    upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
+  }
+  description = 'Upload C++ zips to S3 Bucket'
+}
+
+task buildUberZip(type: Zip) {
+  dependsOn configurations.archives
+  baseName = "$artifactName"
+  // The 'from' section must be a closure, otherwise the dependencies will be downloaded during
+  // the configuration phase, which is not what we want when simply using the 'upload' task
+  from {
+    configurations.archives.collect {
+      from(zipTree(it))
+    }
+    duplicatesStrategy 'exclude'
+  }
+  destinationDir = file("${buildDir}/distributions")
+  version = project.version
+  description = 'Download previously created platform-specific C++ zips and combine them into an uber zip'
+}
+
+task uberUpload(type: UploadS3Task, dependsOn: buildUberZip) {
+  bucket 'prelert-artifacts'
+  upload buildUberZip.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZip.outputs.files.singleFile.name}"
+  description = 'Upload C++ uber zip to S3 Bucket'
+}
+
+task wrapper(type: Wrapper) {
+    distributionType = DistributionType.ALL
+
+    doLast {
+        final DistributionLocator locator = new DistributionLocator()
+        final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
+        final URI distributionUri = locator.getDistributionFor(version, wrapper.distributionType.name().toLowerCase(Locale.ENGLISH))
+        final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
+        final String sha256Sum = new String(sha256Uri.toURL().bytes)
+        wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
+    }
+}
+

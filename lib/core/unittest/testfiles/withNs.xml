@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc xmlns="http://elastic.co/default" xmlns:ml="http://elastic.co/named">
+  <title>foo_top</title>
+  <entry>
+    <title>foo_sub</title>
+    <content type="text/xml">
+      <ml:dict>
+        <ml:key name="author">Ml</ml:key>
+        <ml:key name="disabled">0</ml:key>
+      </ml:dict>
+    </content>
+  </entry>
+  <entry>
+    <title>ml</title>
+    <content type="text/xml">
+      <ml:dict>
+        <ml:key name="author">Ml</ml:key>
+        <ml:key name="disabled">1</ml:key>
+      </ml:dict>
+    </content>
+  </entry>
+</doc>

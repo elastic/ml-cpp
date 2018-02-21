@@ -1,0 +1,188 @@
+--- strptime.c	2011-10-31 13:48:28.000000000 +0000
++++ strptime.c.patched	2011-11-01 12:02:49.000000000 +0000
+@@ -29,25 +29,47 @@
+  * POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+-#include <sys/cdefs.h>
+ #if defined(LIBC_SCCS) && !defined(lint)
+ __RCSID("$NetBSD: strptime.c,v 1.35 2009/12/14 20:45:02 matt Exp $");
+ #endif
+ 
+-#include "namespace.h"
+-#include <sys/localedef.h>
+ #include <ctype.h>
++#include <stdint.h>
+ #include <locale.h>
+ #include <string.h>
+ #include <time.h>
+-#include <tzfile.h>
++#define TM_YEAR_BASE    1900
++#define __UNCONST    (char *)
++#include <Windows.h>
++struct __lc_time_data
++{
++        char *wday_abbr[7];
++        char *wday[7];
++        char *month_abbr[12];
++        char *month[12];
++        char *ampm[2];
++        char *ww_sdatefmt;
++        char *ww_ldatefmt;
++        char *ww_timefmt;
++        LCID ww_lcid;
++        int  ww_caltype;
++        int  refcount;
++        wchar_t *_W_wday_abbr[7];
++        wchar_t *_W_wday[7];
++        wchar_t *_W_month_abbr[12];
++        wchar_t *_W_month[12];
++        wchar_t *_W_ampm[2];
++        wchar_t *_W_ww_sdatefmt;
++        wchar_t *_W_ww_ldatefmt;
++        wchar_t *_W_ww_timefmt;
++};
+ #include "private.h"
+ 
+ #ifdef __weak_alias
+ __weak_alias(strptime,_strptime)
+ #endif
+ 
+-#define	_ctloc(x)		(_CurrentTimeLocale->x)
++#define	_ctloc(x)		(const char * const *)(_get_current_locale()->locinfo->lc_time_curr->x)
+ 
+ /*
+  * We do not implement alternate representations. However, we always
+@@ -67,8 +89,8 @@
+        "EDT",    "CDT",    "MDT",    "PDT",    "\0\0\0"
+ };
+ 
+-static const u_char *conv_num(const unsigned char *, int *, uint, uint);
+-static const u_char *find_string(const u_char *, int *, const char * const *,
++static const unsigned char *conv_num(const unsigned char *, int *, unsigned int, unsigned int);
++static const unsigned char *find_string(const unsigned char *, int *, const char * const *,
+ 	const char * const *, int);
+ 
+ 
+@@ -80,7 +102,7 @@
+ 	int alt_format, i, split_year = 0, neg = 0, offs;
+ 	const char *new_fmt;
+ 
+-	bp = (const u_char *)buf;
++	bp = (const unsigned char *)buf;
+ 
+ 	while (bp != NULL && (c = *fmt++) != '\0') {
+ 		/* Clear `alternate' modifier prior to new conversion. */
+@@ -124,7 +146,7 @@
+ 		 * "Complex" conversion rules, implemented through recursion.
+ 		 */
+ 		case 'c':	/* Date and time, using the locale's format. */
+-			new_fmt = _ctloc(d_t_fmt);
++			new_fmt = "%a %b %d %H:%M:%S %Y"; // Locale specified is not easily available on Windows
+ 			goto recurse;
+ 
+ 		case 'D':	/* The date as "%m/%d/%y". */
+@@ -143,7 +165,7 @@
+ 			goto recurse;
+ 
+ 		case 'r':	/* The time in 12-hour clock representation. */
+-			new_fmt =_ctloc(t_fmt_ampm);
++			new_fmt = "%I:%M:%S %p"; // Locale specified is not easily available on Windows
+ 			LEGAL_ALT(0);
+ 			goto recurse;
+ 
+@@ -153,13 +175,13 @@
+ 			goto recurse;
+ 
+ 		case 'X':	/* The time, using the locale's format. */
+-			new_fmt =_ctloc(t_fmt);
++			new_fmt = "%H:%M:%S"; // Locale specified is not easily available on Windows
+ 			goto recurse;
+ 
+ 		case 'x':	/* The date, using the locale's format. */
+-			new_fmt =_ctloc(d_fmt);
++			new_fmt = "%m/%d/%y"; // Locale specified is not easily available on Windows
+ 		    recurse:
+-			bp = (const u_char *)strptime((const char *)bp,
++			bp = (const unsigned char *)strptime((const char *)bp,
+ 							    new_fmt, tm);
+ 			LEGAL_ALT(ALT_E);
+ 			continue;
+@@ -169,16 +191,16 @@
+ 		 */
+ 		case 'A':	/* The day of week, using the locale's form. */
+ 		case 'a':
+-			bp = find_string(bp, &tm->tm_wday, _ctloc(day),
+-					_ctloc(abday), 7);
++			bp = find_string(bp, &tm->tm_wday, _ctloc(wday),
++					_ctloc(wday_abbr), 7);
+ 			LEGAL_ALT(0);
+ 			continue;
+ 
+ 		case 'B':	/* The month, using the locale's form. */
+ 		case 'b':
+ 		case 'h':
+-			bp = find_string(bp, &tm->tm_mon, _ctloc(mon),
+-					_ctloc(abmon), 12);
++			bp = find_string(bp, &tm->tm_mon, _ctloc(month),
++					_ctloc(month_abbr), 12);
+ 			LEGAL_ALT(0);
+ 			continue;
+ 
+@@ -238,7 +260,7 @@
+ 			continue;
+ 
+ 		case 'p':	/* The locale's equivalent of AM/PM. */
+-			bp = find_string(bp, &i, _ctloc(am_pm), NULL, 2);
++			bp = find_string(bp, &i, _ctloc(ampm), NULL, 2);
+ 			if (tm->tm_hour > 11)
+ 				return NULL;
+ 			tm->tm_hour += i * 12;
+@@ -275,7 +297,7 @@
+ 					continue;
+ 				}
+ 
+-				if (localtime_r(&sse, tm) == NULL)
++				if (localtime_s(tm, &sse) != 0)
+ 					bp = NULL;
+ 			}
+ 			continue;
+@@ -522,14 +544,14 @@
+ }
+ 
+ 
+-static const u_char *
+-conv_num(const unsigned char *buf, int *dest, uint llim, uint ulim)
++static const unsigned char *
++conv_num(const unsigned char *buf, int *dest, unsigned int llim, unsigned int ulim)
+ {
+-	uint result = 0;
++	unsigned int result = 0;
+ 	unsigned char ch;
+ 
+ 	/* The limit also determines the number of valid digits. */
+-	uint rulim = ulim;
++	unsigned int rulim = ulim;
+ 
+ 	ch = *buf;
+ 	if (ch < '0' || ch > '9')
+@@ -549,8 +571,8 @@
+ 	return buf;
+ }
+ 
+-static const u_char *
+-find_string(const u_char *bp, int *tgt, const char * const *n1,
++static const unsigned char *
++find_string(const unsigned char *bp, int *tgt, const char * const *n1,
+ 		const char * const *n2, int c)
+ {
+ 	int i;
+@@ -560,7 +582,7 @@
+ 	for (; n1 != NULL; n1 = n2, n2 = NULL) {
+ 		for (i = 0; i < c; i++, n1++) {
+ 			len = strlen(*n1);
+-			if (strncasecmp(*n1, (const char *)bp, len) == 0) {
++			if (strnicmp(*n1, (const char *)bp, len) == 0) {
+ 				*tgt = i;
+ 				return bp + len;
+ 			}

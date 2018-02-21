@@ -1,0 +1,32 @@
+<?xml version='1.0'?>
+<!-- syslog parser configuration file -->
+<syslog_parser>
+    <parsetree>
+        <expression>
+            <description>Transport node error</description>
+            <regexes>
+                <varbind>
+                    <token></token>
+                    <regex function="default" local="BZ">^[[:space:]]*</regex>
+                </varbind>
+                <varbind>
+                    <token>source</token>
+                    <regex><![CDATA[(template[[:space:]]*<[^;:{]+>[[:space:]]*)?]]></regex>
+                </varbind>
+            </regexes>
+        </expression>
+        <expression>
+            <description>Transport read error</description>
+            <regexes>
+                <varbind>
+                    <token></token>
+                    <regex function="date_time">^[[:digit:]]*</regex>
+                </varbind>
+                <varbind>
+                    <token>source</token>
+                    <regex><![CDATA[(class[[:space:]]*<[^;:{]+>[[:space:]]*)?]]></regex>
+                </varbind>
+            </regexes>
+        </expression>
+    </parsetree>
+</syslog_parser>

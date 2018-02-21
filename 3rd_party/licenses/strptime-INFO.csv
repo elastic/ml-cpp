@@ -1,0 +1,2 @@
+name,version,revision,url,license,copyright
+strptime,1.35,,http://cvsweb.netbsd.org/bsdweb.cgi/src/lib/libc/time/strptime.c,BSD-2-Clause-NetBSD,"Copyright (c) 1997, 1998, 2005, 2008 The NetBSD Foundation, Inc."

@@ -1,0 +1,197 @@
+description = 'Builds the Machine Learning native binaries'
+
+import org.gradle.internal.os.OperatingSystem
+import org.gradle.plugins.ide.eclipse.model.SourceFolder
+import org.gradle.util.GradleVersion
+import org.gradle.util.DistributionLocator
+
+import static org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+
+boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
+
+boolean isWindows = OperatingSystem.current().isWindows()
+boolean isLinux = OperatingSystem.current().isLinux()
+boolean isMacOsX = OperatingSystem.current().isMacOsX()
+
+allprojects {
+  group = 'org.elasticsearch.ml'
+  version = elasticsearchVersion
+  if (snapshot) {
+    version += '-SNAPSHOT'
+  }
+}
+
+String cppCrossCompile = System.env.CPP_CROSS_COMPILE
+if (cppCrossCompile == null) {
+  if (project.hasProperty("CPP_CROSS_COMPILE")) {
+    cppCrossCompile = CPP_CROSS_COMPILE
+  } else {
+    cppCrossCompile = ''
+  }
+}
+if (cppCrossCompile != '' && cppCrossCompile != 'macosx') {
+  throw new GradleException("CPP_CROSS_COMPILE property must be empty or 'macosx'")
+}
+
+String artifactClassifier = (isWindows ? "windows-x86_64" : ((isMacOsX || cppCrossCompile == 'macosx') ? "darwin-x86_64" : "linux-x86_64"))
+
+// Always do the C++ build using bash (Git bash on Windows)
+project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
+project.ext.make = (isMacOsX || isWindows) ? "gnumake" : (isLinux ? "make" : "gmake")
+project.ext.numCpus = Runtime.runtime.availableProcessors()
+
+configurations.all {
+  // check for updates every build
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+task clean(type: Exec) {
+  environment 'CPP_CROSS_COMPILE', cppCrossCompile
+  environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
+  commandLine bash
+  args '-c', 'source ./set_env.sh && rm -rf build && ' + make + ' clean'
+  workingDir "${projectDir}"
+}
+
+task compile(type: Exec) {
+  // Only do this fully parallelised compile without linking step on a quad core
+  // machine or better - with fewer cores it's not worth it
+  enabled numCpus >= 4
+  environment 'CPP_CROSS_COMPILE', cppCrossCompile
+  environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
+  commandLine bash
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' objcompile'
+  workingDir "${projectDir}"
+}
+
+task make(type: Exec) {
+  environment 'CPP_CROSS_COMPILE', cppCrossCompile
+  environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
+  commandLine bash
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus
+  workingDir "${projectDir}"
+  dependsOn 'compile'
+}
+
+task strip(type: Exec) {
+  environment 'CPP_CROSS_COMPILE', cppCrossCompile
+  environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
+  commandLine bash
+  args '-c', 'source ./set_env.sh && dev-tools/strip_binaries.sh'
+  workingDir "${projectDir}"
+  dependsOn 'make'
+}
+
+def zipSpec = copySpec {
+  from("${projectDir}/build/distribution") {
+    // Don't copy Windows import libraries
+    exclude "**/*.lib"
+    // Don't copy the test support library
+    exclude "**/libMlTest.*"
+    // Don't copy debug files
+    exclude "**/*-debug"
+    exclude "**/*.pdb"
+    exclude "**/*.dSYM/**"
+    // Don't copy core dumps
+    exclude "**/core*"
+    includeEmptyDirs = false
+  }
+}
+
+task buildZip(type: Zip) {
+  dependsOn strip
+  baseName = artifactName
+  with zipSpec
+  destinationDir = file("${buildDir}/distributions")
+  version = project.version
+  classifier = artifactClassifier
+}
+
+def zipSpecSymbols = copySpec {
+  from("${projectDir}/build/distribution") {
+    // only take debug files
+    include "**/*-debug"
+    include "**/*.pdb"
+    include "**/*.dSYM/**"
+    includeEmptyDirs = false
+  }
+}
+
+task buildZipSymbols(type: Zip) {
+  dependsOn strip
+  baseName = "$artifactName-debug"
+  with zipSpecSymbols
+  destinationDir = file("${buildDir}/distributions")
+  version = project.version
+  classifier = artifactClassifier
+}
+
+// The uber zip contains C++ binaries for as many platforms as possible
+def uberZipSpec = copySpec {
+  // We know we'll have binaries from the current build
+  from(zipTree(buildZip.outputs.files.singleFile))
+  // We might also have binaries for other platforms (e.g. if they've been built in Docker)
+  def localZips = fileTree("${projectDir}/build/distributions").matching {
+      include "${artifactName}-${project.version}-darwin-*.zip"
+      include "${artifactName}-${project.version}-linux-*.zip"
+      include "${artifactName}-${project.version}-windows-*.zip"
+  }
+  for (zipFile in localZips) {
+    from(zipTree(zipFile)) {
+      duplicatesStrategy 'exclude'
+    }
+  }
+}
+
+task buildUberZip(type: Zip) {
+  dependsOn buildZip
+  baseName = "$artifactName"
+  with uberZipSpec
+  destinationDir = file("${buildDir}/distributions")
+  version = project.version
+}
+
+configurations.create('default')
+
+artifacts {
+  'default' buildUberZip
+}
+
+task test(type: Exec) {
+  environment 'CPP_CROSS_COMPILE', cppCrossCompile
+  environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
+  commandLine bash
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' test'
+  workingDir "${projectDir}"
+  dependsOn 'strip'
+  description = 'Run C++ tests'
+}
+
+task check {
+  dependsOn 'test'
+  description = 'Run all verification tasks'
+}
+
+task assemble {
+  dependsOn 'buildUberZip', 'buildZipSymbols'
+  description = 'Assemble the C++ part of Machine Learning'
+}
+
+task build(dependsOn: [check, assemble]) {
+  group = 'Build'
+  description = 'Assemble and test the C++ part of Machine Learning'
+}
+
+task wrapper(type: Wrapper) {
+    distributionType = DistributionType.ALL
+
+    doLast {
+        final DistributionLocator locator = new DistributionLocator()
+        final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
+        final URI distributionUri = locator.getDistributionFor(version, wrapper.distributionType.name().toLowerCase(Locale.ENGLISH))
+        final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
+        final String sha256Sum = new String(sha256Uri.toURL().bytes)
+        wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
+    }
+}
+

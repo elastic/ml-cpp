@@ -1,0 +1,61 @@
+# Please keep this .dockerignore file in-sync with the .gitignore file in the same directory
+
+# intellij files
+.idea/
+*.iml
+*.ipr
+*.iws
+build-idea/
+
+# eclipse files
+.project
+.classpath
+.settings
+build-eclipse/
+
+# netbeans files
+nb-configuration.xml
+nbactions.xml
+
+# gradle stuff
+.gradle/
+build/
+generated-resources/
+
+# testing stuff
+**/.local*
+.vagrant/
+
+# osx stuff
+.DS_Store
+.AppleDouble
+Thumbs.db
+
+# native binary stuff:
+*.o
+*.obj
+*.i
+*.d
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+ml_test
+*.swp
+*.pdb
+*.map
+*.exp
+*.sdf
+*.res
+*.plist
+*.gcno
+*.gcda
+.cproject
+unit_test_skip_dirs.csv
+gcovr-unit-report.xml
+cppunit_results.xml
+**/.objs/*.*
+!**/.objs/.gitignore
+
