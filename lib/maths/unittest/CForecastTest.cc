@@ -67,7 +67,9 @@ maths::CModelParams params(core_t::TTime bucketLength)
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{0.25};
-    return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength, learnRates[bucketLength],
+                               DECAY_RATE, minimumSeasonalVarianceScale,
+                               6 * core::constants::HOUR, core::constants::DAY};
 }
 
 maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers(void)

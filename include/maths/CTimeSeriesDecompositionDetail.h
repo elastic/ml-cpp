@@ -380,7 +380,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 };
 
                 //! Initialize by reading state from \p traverser.
-                bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+                bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+                                            core::CStateRestoreTraverser &traverser);
 
                 //! Persist state by passing information to \p inserter.
                 void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -397,8 +398,17 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Create a new calendar component.
                 virtual void handle(const SDetectedCalendar &message);
 
+                //! Apply \p change at \p time.
+                void shiftLevel(core_t::TTime time, double value, double shift);
+
                 //! Maybe re-interpolate the components.
-                void interpolate(const SMessage &message, bool refine = true);
+                void interpolate(const SMessage &message);
+
+                //! Maybe re-interpolate the components.
+                void interpolateForForecast(core_t::TTime time);
+
+                //! Set the data type.
+                void dataType(maths_t::EDataType dataType);
 
                 //! Set the decay rate.
                 void decayRate(double decayRate);
@@ -412,6 +422,9 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
                 //! Check if the decomposition has any initialized components.
                 bool initialized(void) const;
+
+                //! Force the decomposition to use the trend for predictions.
+                void forceUseTrend(void);
 
                 //! Get the long term trend.
                 const CTrendComponent &trend(void) const;

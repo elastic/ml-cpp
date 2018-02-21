@@ -27,8 +27,10 @@
 #include <maths/CChecksum.h>
 #include <maths/CPrior.h>
 #include <maths/CPriorStateSerialiser.h>
+#include <maths/CRestoreParams.h>
 #include <maths/CTimeSeriesModel.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
@@ -56,15 +58,35 @@ const std::string MAX_TIME_TAG{"c"};
 const std::string CHANGE_MODEL_TAG{"d"};
 const std::string LOG_LIKELIHOOD_TAG{"e"};
 const std::string SHIFT_TAG{"f"};
-const std::string RESIDUAL_MODEL_TAG{"g"};
+const std::string TREND_MODEL_TAG{"g"};
+const std::string RESIDUAL_MODEL_TAG{"h"};
 }
 
-SChangeDescription::SChangeDescription(EDescription description, double value) :
-        s_Description{description}, s_Value{value}
+SChangeDescription::SChangeDescription(EDescription description,
+                                       double value,
+                                       const TPriorPtr &residualModel,
+                                       const TDecompositionPtr &trendModel) :
+        s_Description{description},
+        s_Value{value},
+        s_TrendModel{trendModel},
+        s_ResidualModel{residualModel}
 {}
 
-CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(const CTimeSeriesDecompositionInterface &trendModel,
+std::string SChangeDescription::print() const
+{
+    std::string result;
+    switch (s_Description)
+    {
+    case E_LevelShift: result += "level shift by "; break;
+    case E_TimeShift:  result += "time shift by ";  break;
+    }
+    return result + core::CStringUtils::typeToString(s_Value[0]);
+}
+
+CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(double learnRate,
+                                                                         const TDecompositionPtr &trendModel,
                                                                          const TPriorPtr &residualModel,
+                                                                         const TTimeDoublePrCBuf &slidingWindow,
                                                                          core_t::TTime minimumTimeToDetect,
                                                                          core_t::TTime maximumTimeToDetect,
                                                                          double minimumDeltaBicToDetect) :
@@ -74,12 +96,12 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(const C
         m_SampleCount{0},
         m_CurrentEvidenceOfChange{0.0},
         m_ChangeModels{boost::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
-                       boost::make_shared<CUnivariateTimeSeriesLevelShiftModel>(trendModel, residualModel),
-                       boost::make_shared<CUnivariateTimeSeriesTimeShiftModel>(trendModel, residualModel, -core::constants::HOUR),
-                       boost::make_shared<CUnivariateTimeSeriesTimeShiftModel>(trendModel, residualModel, +core::constants::HOUR)}
+                       boost::make_shared<CUnivariateLevelShiftModel>(learnRate, trendModel, residualModel, slidingWindow),
+                       boost::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, -core::constants::HOUR),
+                       boost::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, +core::constants::HOUR)}
 {}
 
-bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(const SDistributionRestoreParams &params,
+bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                                  core::CStateRestoreTraverser &traverser)
 {
     auto model = m_ChangeModels.begin();
@@ -96,8 +118,8 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(const SDistribu
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
         RESTORE(CHANGE_MODEL_TAG, traverser.traverseSubLevel(boost::bind(
-                                      &CUnivariateTimeSeriesChangeModel::acceptRestoreTraverser,
-                                      (model++)->get(), boost::cref(params), _1)))
+                                          &CUnivariateChangeModel::acceptRestoreTraverser,
+                                          (model++)->get(), boost::cref(params), _1)))
     }
     while (traverser.next());
     return true;
@@ -111,7 +133,7 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
     for (const auto &model : m_ChangeModels)
     {
         inserter.insertLevel(CHANGE_MODEL_TAG,
-                             boost::bind(&CUnivariateTimeSeriesChangeModel::acceptPersistInserter,
+                             boost::bind(&CUnivariateChangeModel::acceptPersistInserter,
                                          model.get(), _1));
     }
 }
@@ -150,18 +172,16 @@ bool CUnivariateTimeSeriesChangeDetector::stopTesting() const
     if (range > m_MinimumTimeToDetect)
     {
         double scale{0.5 + CTools::smoothHeaviside(2.0 * m_CurrentEvidenceOfChange
-                                                       / m_MinimumDeltaBicToDetect, 0.2)};
+                                                       / m_MinimumDeltaBicToDetect, 0.2, 1.0)};
         return  static_cast<double>(range)
               > m_MinimumTimeToDetect + scale * static_cast<double>(
                                                     m_MaximumTimeToDetect - m_MinimumTimeToDetect);
     }
     return false;
 }
-void CUnivariateTimeSeriesChangeDetector::addSamples(maths_t::EDataType dataType,
-                                                     const TWeightStyleVec &weightStyles,
+void CUnivariateTimeSeriesChangeDetector::addSamples(const TWeightStyleVec &weightStyles,
                                                      const TTimeDoublePr1Vec &samples,
-                                                     const TDouble4Vec1Vec &weights,
-                                                     double propagationInterval)
+                                                     const TDouble4Vec1Vec &weights)
 {
     for (const auto &sample : samples)
     {
@@ -172,9 +192,7 @@ void CUnivariateTimeSeriesChangeDetector::addSamples(maths_t::EDataType dataType
 
     for (auto &model : m_ChangeModels)
     {
-        model->addSamples(m_SampleCount, dataType,
-                          weightStyles, samples, weights,
-                          propagationInterval);
+        model->addSamples(m_SampleCount, weightStyles, samples, weights);
     }
 }
 
@@ -198,32 +216,92 @@ uint64_t CUnivariateTimeSeriesChangeDetector::checksum(uint64_t seed) const
 namespace time_series_change_detector_detail
 {
 
-CUnivariateTimeSeriesChangeModel::CUnivariateTimeSeriesChangeModel(const CTimeSeriesDecompositionInterface &trendModel) :
-        m_LogLikelihood{0.0}, m_TrendModel{trendModel}
+CUnivariateChangeModel::CUnivariateChangeModel(const TDecompositionPtr &trendModel,
+                                               const TPriorPtr &residualModel) :
+        m_LogLikelihood{0.0}, m_TrendModel{trendModel}, m_ResidualModel{residualModel}
 {}
 
-double CUnivariateTimeSeriesChangeModel::logLikelihood() const
+void CUnivariateChangeModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
+{
+    core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
+    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
+}
+
+std::size_t CUnivariateChangeModel::memoryUsage() const
+{
+    return  core::CMemory::dynamicSize(m_TrendModel)
+          + core::CMemory::dynamicSize(m_ResidualModel);
+}
+
+uint64_t CUnivariateChangeModel::checksum(uint64_t seed) const
+{
+    seed = CChecksum::calculate(seed, m_LogLikelihood);
+    seed = CChecksum::calculate(seed, m_TrendModel);
+    return CChecksum::calculate(seed, m_ResidualModel);
+}
+
+bool CUnivariateChangeModel::restoreTrendModel(const STimeSeriesDecompositionRestoreParams &params,
+                                               core::CStateRestoreTraverser &traverser)
+{
+    return traverser.traverseSubLevel(boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
+                                                        boost::cref(params),
+                                                        boost::ref(m_TrendModel), _1));
+}
+
+bool CUnivariateChangeModel::restoreResidualModel(const SDistributionRestoreParams &params,
+                                                  core::CStateRestoreTraverser &traverser)
+{
+    return traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
+                                                        boost::cref(params),
+                                                        boost::ref(m_ResidualModel), _1));
+}
+
+double CUnivariateChangeModel::logLikelihood() const
 {
     return m_LogLikelihood;
 }
 
-void CUnivariateTimeSeriesChangeModel::addLogLikelihood(double logLikelihood)
+void CUnivariateChangeModel::addLogLikelihood(double logLikelihood)
 {
     m_LogLikelihood += logLikelihood;
 }
 
-const CTimeSeriesDecompositionInterface &CUnivariateTimeSeriesChangeModel::trendModel() const
+const CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel() const
+{
+    return *m_TrendModel;
+}
+
+CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel()
+{
+    return *m_TrendModel;
+}
+
+CUnivariateChangeModel::TDecompositionPtr CUnivariateChangeModel::trendModelPtr() const
 {
     return m_TrendModel;
 }
 
-CUnivariateNoChangeModel::CUnivariateNoChangeModel(const CTimeSeriesDecompositionInterface &trendModel,
+const CPrior &CUnivariateChangeModel::residualModel() const
+{
+    return *m_ResidualModel;
+}
+
+CPrior &CUnivariateChangeModel::residualModel()
+{
+    return *m_ResidualModel;
+}
+
+CUnivariateChangeModel::TPriorPtr CUnivariateChangeModel::residualModelPtr() const
+{
+    return m_ResidualModel;
+}
+
+CUnivariateNoChangeModel::CUnivariateNoChangeModel(const TDecompositionPtr &trendModel,
                                                    const TPriorPtr &residualModel) :
-        CUnivariateTimeSeriesChangeModel{trendModel},
-        m_ResidualModel{residualModel}
+        CUnivariateChangeModel{trendModel, residualModel}
 {}
 
-bool CUnivariateNoChangeModel::acceptRestoreTraverser(const SDistributionRestoreParams &/*params*/,
+bool CUnivariateNoChangeModel::acceptRestoreTraverser(const SModelRestoreParams &/*params*/,
                                                       core::CStateRestoreTraverser &traverser)
 {
     do
@@ -254,30 +332,26 @@ TOptionalChangeDescription CUnivariateNoChangeModel::change() const
 }
 
 void CUnivariateNoChangeModel::addSamples(std::size_t count,
-                                          maths_t::EDataType /*dataType*/,
                                           const TWeightStyleVec &weightStyles,
                                           const TTimeDoublePr1Vec &samples_,
-                                          const TDouble4Vec1Vec &weights,
-                                          double /*propagationInterval*/)
+                                          const TDouble4Vec1Vec &weights)
 {
-    TDouble1Vec samples;
-    samples.reserve(samples_.size());
-    for (const auto &sample : samples_)
+    if (count >= COUNT_TO_INITIALIZE)
     {
-        samples.push_back(this->trendModel().detrend(sample.first, sample.second, 0.0));
-    }
+        TDouble1Vec samples;
+        samples.reserve(samples_.size());
+        for (const auto &sample : samples_)
+        {
+            samples.push_back(this->trendModel().detrend(sample.first, sample.second, 0.0));
+        }
 
-    double logLikelihood;
-    if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
-                          weightStyles, samples, weights,
-                          logLikelihood) == maths_t::E_FpNoErrors)
-    {
-        this->addLogLikelihood(logLikelihood);
+        double logLikelihood;
+        if (this->residualModel().jointLogMarginalLikelihood(weightStyles, samples, weights,
+                                                             logLikelihood) == maths_t::E_FpNoErrors)
+        {
+            this->addLogLikelihood(logLikelihood);
+        }
     }
-}
-
-void CUnivariateNoChangeModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const
-{
 }
 
 std::size_t CUnivariateNoChangeModel::staticSize() const
@@ -285,28 +359,31 @@ std::size_t CUnivariateNoChangeModel::staticSize() const
     return sizeof(*this);
 }
 
-std::size_t CUnivariateNoChangeModel::memoryUsage() const
-{
-    return 0;
-}
-
 uint64_t CUnivariateNoChangeModel::checksum(uint64_t seed) const
 {
-    seed = CChecksum::calculate(seed, this->logLikelihood());
-    seed = CChecksum::calculate(seed, this->trendModel());
-    return CChecksum::calculate(seed, m_ResidualModel);
+    return this->CUnivariateChangeModel::checksum(seed);
 }
 
-CUnivariateTimeSeriesLevelShiftModel::CUnivariateTimeSeriesLevelShiftModel(const CTimeSeriesDecompositionInterface &trendModel,
-                                                                           const TPriorPtr &residualModel) :
-        CUnivariateTimeSeriesChangeModel{trendModel},
-        m_SampleCount{0.0},
-        m_ResidualModel{residualModel->clone()},
-        m_ResidualModelMode{residualModel->marginalLikelihoodMode()}
-{}
+CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(double learnRate,
+                                                       const TDecompositionPtr &trendModel,
+                                                       const TPriorPtr &residualModel,
+                                                       const TTimeDoublePrCBuf &slidingWindow) :
+        CUnivariateChangeModel{TDecompositionPtr{trendModel->clone()},
+                               TPriorPtr{residualModel->clone()}},
+        m_SampleCount{0.0}
+{
+    if (!this->trendModel().initialized())
+    {
+        this->trendModel().forceUseTrend();
+        CUnivariateTimeSeriesModel::reinitializeResidualModel(learnRate,
+                                                              this->trendModelPtr(),
+                                                              slidingWindow,
+                                                              this->residualModel());
+    }
+}
 
-bool CUnivariateTimeSeriesLevelShiftModel::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                                                  core::CStateRestoreTraverser &traverser)
+bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParams &params,
+                                                        core::CStateRestoreTraverser &traverser)
 {
     do
     {
@@ -317,109 +394,101 @@ bool CUnivariateTimeSeriesLevelShiftModel::acceptRestoreTraverser(const SDistrib
                                this->addLogLikelihood(logLikelihood))
         RESTORE(SHIFT_TAG, m_Shift.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
-        RESTORE(RESIDUAL_MODEL_TAG, traverser.traverseSubLevel(
-                                        boost::bind<bool>(CPriorStateSerialiser(),
-                                                          boost::cref(params),
-                                                          boost::ref(m_ResidualModel), _1)))
+        RESTORE(TREND_MODEL_TAG, this->restoreTrendModel(params.s_DecompositionParams, traverser));
+        RESTORE(RESIDUAL_MODEL_TAG, this->restoreResidualModel(params.s_DistributionParams, traverser))
+
     }
     while (traverser.next());
     return true;
 }
 
-void CUnivariateTimeSeriesLevelShiftModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
+void CUnivariateLevelShiftModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
     inserter.insertValue(LOG_LIKELIHOOD_TAG, this->logLikelihood());
     inserter.insertValue(SHIFT_TAG, m_Shift.toDelimited());
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
+    inserter.insertLevel(TREND_MODEL_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                                            boost::cref(this->trendModel()), _1));
     inserter.insertLevel(RESIDUAL_MODEL_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                               boost::cref(*m_ResidualModel), _1));
+                                                               boost::cref(this->residualModel()), _1));
 }
 
-double CUnivariateTimeSeriesLevelShiftModel::bic() const
+double CUnivariateLevelShiftModel::bic() const
 {
     return -2.0 * this->logLikelihood() + std::log(m_SampleCount);
 }
 
-TOptionalChangeDescription CUnivariateTimeSeriesLevelShiftModel::change() const
+TOptionalChangeDescription CUnivariateLevelShiftModel::change() const
 {
-    return SChangeDescription{SChangeDescription::E_LevelShift, CBasicStatistics::mean(m_Shift)};
+    return SChangeDescription{SChangeDescription::E_LevelShift,
+                              CBasicStatistics::mean(m_Shift),
+                              this->residualModelPtr(), this->trendModelPtr()};
 }
 
-void CUnivariateTimeSeriesLevelShiftModel::addSamples(std::size_t count,
-                                                      maths_t::EDataType dataType,
-                                                      const TWeightStyleVec &weightStyles,
-                                                      const TTimeDoublePr1Vec &samples_,
-                                                      const TDouble4Vec1Vec &weights,
-                                                      double propagationInterval)
+void CUnivariateLevelShiftModel::addSamples(std::size_t count,
+                                            const TWeightStyleVec &weightStyles,
+                                            const TTimeDoublePr1Vec &samples_,
+                                            const TDouble4Vec1Vec &weights)
 {
-    TDouble1Vec samples;
-    samples.reserve(samples_.size());
+    const CTimeSeriesDecompositionInterface &trendModel{this->trendModel()};
+
     for (const auto &sample : samples_)
     {
-        double x{this->trendModel().detrend(sample.first, sample.second, 0.0)};
-        samples.push_back(x);
-        m_Shift.add(x - m_ResidualModelMode);
-    }
-    for (auto &sample : samples)
-    {
-        sample -= CBasicStatistics::mean(m_Shift);
-    }
-    for (const auto &weight : weights)
-    {
-        m_SampleCount += maths_t::count(weightStyles, weight);
+        double x{trendModel.detrend(sample.first, sample.second, 0.0)};
+        m_Shift.add(x);
     }
 
-    m_ResidualModel->dataType(dataType);
-    m_ResidualModel->addSamples(weightStyles, samples, weights);
-    m_ResidualModel->propagateForwardsByTime(propagationInterval);
-
-    // We delay updating the log-likelihood because early on the
-    // level can change giving us a better apparent fit to the
-    // data than a fixed step.
-
-    double logLikelihood;
-    if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
-                          weightStyles, samples, weights,
-                          logLikelihood) == maths_t::E_FpNoErrors)
+    if (count >= COUNT_TO_INITIALIZE)
     {
-        this->addLogLikelihood(logLikelihood);
+        TDouble1Vec samples;
+        samples.reserve(samples_.size());
+        for (std::size_t i = 0u; i < samples_.size(); ++i)
+        {
+            core_t::TTime time{samples_[i].first};
+            double sample{samples_[i].second};
+            double shift{CBasicStatistics::mean(m_Shift)};
+            this->trendModel().addPoint(time, sample - shift, weightStyles, weights[i]);
+            samples.push_back(trendModel.detrend(time, sample, 0.0) - shift);
+        }
+        for (const auto &weight : weights)
+        {
+            m_SampleCount += maths_t::count(weightStyles, weight);
+        }
+
+        CPrior &residualModel{this->residualModel()};
+        residualModel.addSamples(weightStyles, samples, weights);
+        residualModel.propagateForwardsByTime(1.0);
+
+        double logLikelihood;
+        if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
+                                                     logLikelihood) == maths_t::E_FpNoErrors)
+        {
+            this->addLogLikelihood(logLikelihood);
+        }
     }
 }
 
-void CUnivariateTimeSeriesLevelShiftModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
-    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
-}
-
-std::size_t CUnivariateTimeSeriesLevelShiftModel::staticSize() const
+std::size_t CUnivariateLevelShiftModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-std::size_t CUnivariateTimeSeriesLevelShiftModel::memoryUsage() const
+uint64_t CUnivariateLevelShiftModel::checksum(uint64_t seed) const
 {
-    return core::CMemory::dynamicSize(m_ResidualModel);
-}
-
-uint64_t CUnivariateTimeSeriesLevelShiftModel::checksum(uint64_t seed) const
-{
-    seed = CChecksum::calculate(seed, this->logLikelihood());
-    seed = CChecksum::calculate(seed, this->trendModel());
+    seed = this->CUnivariateChangeModel::checksum(seed);
     seed = CChecksum::calculate(seed, m_Shift);
-    seed = CChecksum::calculate(seed, m_SampleCount);
-    return CChecksum::calculate(seed, m_ResidualModel);
+    return CChecksum::calculate(seed, m_SampleCount);
 }
 
-CUnivariateTimeSeriesTimeShiftModel::CUnivariateTimeSeriesTimeShiftModel(const CTimeSeriesDecompositionInterface &trendModel,
-                                                                         const TPriorPtr &residualModel,
-                                                                         core_t::TTime shift) :
-        CUnivariateTimeSeriesChangeModel{trendModel},
-        m_Shift{shift},
-        m_ResidualModel{residualModel->clone()}
+CUnivariateTimeShiftModel::CUnivariateTimeShiftModel(const TDecompositionPtr &trendModel,
+                                                     const TPriorPtr &residualModel,
+                                                     core_t::TTime shift) :
+        CUnivariateChangeModel{trendModel, TPriorPtr{residualModel->clone()}},
+        m_Shift{shift}
 {}
 
-bool CUnivariateTimeSeriesTimeShiftModel::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                                                  core::CStateRestoreTraverser &traverser)
+bool CUnivariateTimeShiftModel::acceptRestoreTraverser(const SModelRestoreParams &params,
+                                                       core::CStateRestoreTraverser &traverser)
 {
     do
     {
@@ -428,80 +497,67 @@ bool CUnivariateTimeSeriesTimeShiftModel::acceptRestoreTraverser(const SDistribu
                                double logLikelihood,
                                core::CStringUtils::stringToType(traverser.value(), logLikelihood),
                                this->addLogLikelihood(logLikelihood))
-        RESTORE(RESIDUAL_MODEL_TAG, traverser.traverseSubLevel(
-                                        boost::bind<bool>(CPriorStateSerialiser(),
-                                                          boost::cref(params),
-                                                          boost::ref(m_ResidualModel), _1)))
+        RESTORE(RESIDUAL_MODEL_TAG, this->restoreResidualModel(params.s_DistributionParams, traverser))
     }
     while (traverser.next());
     return true;
 }
 
-void CUnivariateTimeSeriesTimeShiftModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
+void CUnivariateTimeShiftModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
     inserter.insertValue(LOG_LIKELIHOOD_TAG, this->logLikelihood());
     inserter.insertLevel(RESIDUAL_MODEL_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                               boost::cref(*m_ResidualModel), _1));
+                                                               boost::cref(this->residualModel()), _1));
 }
 
-double CUnivariateTimeSeriesTimeShiftModel::bic() const
+double CUnivariateTimeShiftModel::bic() const
 {
     return -2.0 * this->logLikelihood();
 }
 
-TOptionalChangeDescription CUnivariateTimeSeriesTimeShiftModel::change() const
+TOptionalChangeDescription CUnivariateTimeShiftModel::change() const
 {
-    return SChangeDescription{SChangeDescription::E_TimeShift, static_cast<double>(m_Shift)};
+    return SChangeDescription{SChangeDescription::E_TimeShift,
+                              static_cast<double>(m_Shift),
+                              this->residualModelPtr()};
 }
 
-void CUnivariateTimeSeriesTimeShiftModel::addSamples(std::size_t count,
-                                                     maths_t::EDataType dataType,
-                                                     const TWeightStyleVec &weightStyles,
-                                                     const TTimeDoublePr1Vec &samples_,
-                                                     const TDouble4Vec1Vec &weights,
-                                                     double propagationInterval)
+void CUnivariateTimeShiftModel::addSamples(std::size_t count,
+                                           const TWeightStyleVec &weightStyles,
+                                           const TTimeDoublePr1Vec &samples_,
+                                           const TDouble4Vec1Vec &weights)
 {
-    TDouble1Vec samples;
-    samples.reserve(samples_.size());
-    for (const auto &sample : samples_)
+    if (count >= COUNT_TO_INITIALIZE)
     {
-        samples.push_back(this->trendModel().detrend(sample.first + m_Shift, sample.second, 0.0));
-    }
+        TDouble1Vec samples;
+        samples.reserve(samples_.size());
+        for (const auto &sample : samples_)
+        {
+            samples.push_back(this->trendModel().detrend(sample.first + m_Shift, sample.second, 0.0));
+        }
 
-    m_ResidualModel->dataType(dataType);
-    m_ResidualModel->addSamples(weightStyles, samples, weights);
-    m_ResidualModel->propagateForwardsByTime(propagationInterval);
+        CPrior &residualModel{this->residualModel()};
+        residualModel.addSamples(weightStyles, samples, weights);
+        residualModel.propagateForwardsByTime(1.0);
 
-    double logLikelihood;
-    if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
-                          weightStyles, samples, weights,
-                          logLikelihood) == maths_t::E_FpNoErrors)
-    {
-        this->addLogLikelihood(logLikelihood);
+        double logLikelihood;
+        if (residualModel.jointLogMarginalLikelihood(weightStyles, samples, weights,
+                                                     logLikelihood) == maths_t::E_FpNoErrors)
+        {
+            this->addLogLikelihood(logLikelihood);
+        }
     }
 }
 
-void CUnivariateTimeSeriesTimeShiftModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
-    core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
-}
-
-std::size_t CUnivariateTimeSeriesTimeShiftModel::staticSize() const
+std::size_t CUnivariateTimeShiftModel::staticSize() const
 {
     return sizeof(*this);
 }
 
-std::size_t CUnivariateTimeSeriesTimeShiftModel::memoryUsage() const
+uint64_t CUnivariateTimeShiftModel::checksum(uint64_t seed) const
 {
-    return core::CMemory::dynamicSize(m_ResidualModel);
-}
-
-uint64_t CUnivariateTimeSeriesTimeShiftModel::checksum(uint64_t seed) const
-{
-    seed = CChecksum::calculate(seed, this->logLikelihood());
-    seed = CChecksum::calculate(seed, this->trendModel());
-    seed = CChecksum::calculate(seed, m_Shift);
-    return CChecksum::calculate(seed, m_ResidualModel);
+    seed = this->CUnivariateChangeModel::checksum(seed);
+    return CChecksum::calculate(seed, m_Shift);
 }
 
 }

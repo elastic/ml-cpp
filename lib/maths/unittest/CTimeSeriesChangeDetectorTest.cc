@@ -23,6 +23,7 @@
 
 #include <maths/CGammaRateConjugate.h>
 #include <maths/CLogNormalMeanPrecConjugate.h>
+#include <maths/CModel.h>
 #include <maths/CMultimodalPrior.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/COneOfNPrior.h>
@@ -47,6 +48,9 @@ namespace
 
 using TDoubleVec = std::vector<double>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
+using TTimeDoublePr = std::pair<core_t::TTime, double>;
+using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
+using TDecompositionPtr = boost::shared_ptr<maths::CTimeSeriesDecomposition>;
 using TPriorPtr = boost::shared_ptr<maths::CPrior>;
 using TPriorPtrVec = std::vector<TPriorPtr>;
 
@@ -111,34 +115,33 @@ void CTimeSeriesChangeDetectorTest::testNoChange()
         case 2: rng.generateGammaSamples(10.0, 10.0 * scales[(t/3) % scales.size()], 1000, samples); break;
         }
 
-        maths::CTimeSeriesDecomposition trendModel(DECAY_RATE, BUCKET_LENGTH);
+        TDecompositionPtr trendModel(new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
         TPriorPtr residualModel(makeResidualModel());
 
         auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x)
             {
-                trendModel.addPoint(time, x);
-                double detrended{trendModel.detrend(time, x, 0.0)};
+                trendModel->addPoint(time, x);
+                double detrended{trendModel->detrend(time, x, 0.0)};
                 residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended}, {{1.0}});
                 residualModel->propagateForwardsByTime(1.0);
             };
 
         core_t::TTime time{0};
+        TTimeDoublePrCBuf window(10);
         for (std::size_t i = 0u; i < 950; ++i)
         {
             addSampleToModel(time, samples[i]);
+            window.push_back({time, samples[i]});
             time += BUCKET_LENGTH;
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
+        maths::CUnivariateTimeSeriesChangeDetector detector{1.0, trendModel, residualModel, window,
                                                              6 * core::constants::HOUR,
-                                                            24 * core::constants::HOUR,
-                                                            12.0};
+                                                            24 * core::constants::HOUR, 12.0};
         for (std::size_t i = 950u; i < samples.size(); ++i)
         {
             addSampleToModel(time, samples[i]);
-            detector.addSamples(maths_t::E_ContinuousData,
-                                maths::CConstantWeights::COUNT,
-                                {{time, samples[i]}}, {{1.0}});
+            detector.addSamples(maths::CConstantWeights::COUNT, {{time, samples[i]}}, {{1.0}});
             if (detector.stopTesting())
             {
                 break;
@@ -201,13 +204,13 @@ void CTimeSeriesChangeDetectorTest::testPersist()
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 10.0, 1000, samples);
 
-    maths::CTimeSeriesDecomposition trendModel(DECAY_RATE, BUCKET_LENGTH);
+    TDecompositionPtr trendModel(new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
     TPriorPtr residualModel(makeResidualModel());
 
     auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x)
         {
-            trendModel.addPoint(time, x);
-            double detrended{trendModel.detrend(time, x, 0.0)};
+            trendModel->addPoint(time, x);
+            double detrended{trendModel->detrend(time, x, 0.0)};
             residualModel->addSamples(maths::CConstantWeights::COUNT,
                                       {detrended},
                                       maths::CConstantWeights::SINGLE_UNIT);
@@ -215,19 +218,25 @@ void CTimeSeriesChangeDetectorTest::testPersist()
         };
 
     core_t::TTime time{0};
+    TTimeDoublePrCBuf window(10);
     for (std::size_t i = 0u; i < 990; ++i)
     {
         addSampleToModel(time, samples[i]);
+        window.push_back({time, samples[i]});
         time += BUCKET_LENGTH;
     }
 
-    maths::CUnivariateTimeSeriesChangeDetector origDetector{trendModel, residualModel,
+    maths::CUnivariateTimeSeriesChangeDetector origDetector{1.0, trendModel, residualModel, window,
                                                              6 * core::constants::HOUR,
-                                                            24 * core::constants::HOUR,
-                                                            12.0};
+                                                            24 * core::constants::HOUR, 12.0};
 
-    maths::SDistributionRestoreParams params{maths_t::E_ContinuousData,
-                                             DECAY_RATE, 0.05, 12.0, 1.0};
+    maths::CModelParams modelParams{BUCKET_LENGTH, 1.0, 0.0, 1.0,
+                                     6 * core::constants::HOUR,
+                                    24 * core::constants::HOUR};
+    maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData, DECAY_RATE};
+    maths::STimeSeriesDecompositionRestoreParams decompositionParams{DECAY_RATE, BUCKET_LENGTH, distributionParams};
+    maths::SModelRestoreParams params{modelParams, decompositionParams, distributionParams};
+
     for (std::size_t i = 990u; i < samples.size(); ++i)
     {
         addSampleToModel(time, samples[i]);
@@ -238,10 +247,9 @@ void CTimeSeriesChangeDetectorTest::testPersist()
             inserter.toXml(origXml);
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector restoredDetector{trendModel, residualModel,
+        maths::CUnivariateTimeSeriesChangeDetector restoredDetector{1.0, trendModel, residualModel, window,
                                                                      6 * core::constants::HOUR,
-                                                                    24 * core::constants::HOUR,
-                                                                    12.0};
+                                                                    24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
@@ -298,29 +306,30 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec &trends,
 
         rng.generateNormalSamples(0.0, 1.0, 1000, samples);
 
-        maths::CTimeSeriesDecomposition trendModel(DECAY_RATE, BUCKET_LENGTH);
+        TDecompositionPtr trendModel(new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
         TPriorPtr residualModel(makeResidualModel());
 
         auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x, double weight)
             {
-                trendModel.addPoint(time, x, maths::CConstantWeights::COUNT, {weight});
-                double detrended{trendModel.detrend(time, x, 0.0)};
+                trendModel->addPoint(time, x, maths::CConstantWeights::COUNT, {weight});
+                double detrended{trendModel->detrend(time, x, 0.0)};
                 residualModel->addSamples(maths::CConstantWeights::COUNT, {detrended}, {{weight}});
                 residualModel->propagateForwardsByTime(1.0);
             };
 
         core_t::TTime time{0};
+        TTimeDoublePrCBuf window(10);
         for (std::size_t i = 0u; i < 950; ++i)
         {
             double x{10.0 * trends[t % trends.size()](time) + samples[i]};
             addSampleToModel(time, x, 1.0);
+            window.push_back({time, x});
             time += BUCKET_LENGTH;
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
+        maths::CUnivariateTimeSeriesChangeDetector detector{1.0, trendModel, residualModel, window,
                                                              6 * core::constants::HOUR,
-                                                            24 * core::constants::HOUR,
-                                                            12.0};
+                                                            24 * core::constants::HOUR, 12.0};
 
         TOptionalSize bucketsToDetect;
         for (std::size_t i = 950u; i < samples.size(); ++i)
@@ -328,9 +337,7 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec &trends,
             double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
 
             addSampleToModel(time, x, 0.5);
-            detector.addSamples(maths_t::E_ContinuousData,
-                                maths::CConstantWeights::COUNT,
-                                {{time, x}}, {{1.0}});
+            detector.addSamples(maths::CConstantWeights::COUNT, {{time, x}}, {{1.0}});
 
             auto change = detector.change();
             if (change)

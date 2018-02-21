@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesChangeDetector_h
 #define INCLUDED_ml_maths_CTimeSeriesChangeDetector_h
 
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
@@ -41,16 +42,20 @@ class CModelAddSamplesParams;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 struct SDistributionRestoreParams;
+struct SModelRestoreParams;
+struct STimeSeriesDecompositionRestoreParams;
 
 namespace time_series_change_detector_detail
 {
-class CUnivariateTimeSeriesChangeModel;
+class CUnivariateChangeModel;
 }
 
 //! \brief A description of a time series change.
 struct MATHS_EXPORT SChangeDescription
 {
     using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
+    using TPriorPtr = boost::shared_ptr<CPrior>;
 
     //! The types of change we can detect.
     enum EDescription
@@ -59,13 +64,25 @@ struct MATHS_EXPORT SChangeDescription
         E_TimeShift
     };
 
-    SChangeDescription(EDescription decription, double value);
+    SChangeDescription(EDescription decription,
+                       double value,
+                       const TPriorPtr &residualModel,
+                       const TDecompositionPtr &trendModel = TDecompositionPtr{});
+
+    //! Get a description of this change.
+    std::string print() const;
 
     //! The type of change.
     EDescription s_Description;
 
     //! The change value.
     TDouble2Vec s_Value;
+
+    //! Optionally, the trend model to use after the change.
+    TDecompositionPtr s_TrendModel;
+
+    //! The residual model to use after the change.
+    TPriorPtr s_ResidualModel;
 };
 
 //! \brief Tests a variety of possible changes which might have
@@ -74,23 +91,27 @@ struct MATHS_EXPORT SChangeDescription
 class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
 {
     public:
-        using TTimeDoublePr = std::pair<core_t::TTime, double>;
-        using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
         using TDouble4Vec = core::CSmallVector<double, 4>;
         using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
+        using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
         using TWeightStyleVec = maths_t::TWeightStyleVec;
-        using TOptionalChangeDescription = boost::optional<SChangeDescription>;
+        using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TPriorPtr = boost::shared_ptr<CPrior>;
+        using TOptionalChangeDescription = boost::optional<SChangeDescription>;
 
     public:
-        CUnivariateTimeSeriesChangeDetector(const CTimeSeriesDecompositionInterface &trendModel,
+        CUnivariateTimeSeriesChangeDetector(double learnRate,
+                                            const TDecompositionPtr &trendModel,
                                             const TPriorPtr &residualModel,
-                                            core_t::TTime minimumTimeToDetect,
-                                            core_t::TTime maximumTimeToDetect,
-                                            double minimumDeltaBicToDetect);
+                                            const TTimeDoublePrCBuf &slidingWindow,
+                                            core_t::TTime minimumTimeToDetect = 6 * core::constants::HOUR,
+                                            core_t::TTime maximumTimeToDetect = core::constants::DAY,
+                                            double minimumDeltaBicToDetect = 12.0);
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+        bool acceptRestoreTraverser(const SModelRestoreParams &params,
                                     core::CStateRestoreTraverser &traverser);
 
         //! Persist state by passing information to \p inserter.
@@ -101,11 +122,9 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         TOptionalChangeDescription change();
 
         //! Add \p samples to the change detector.
-        void addSamples(maths_t::EDataType dataType,
-                        const TWeightStyleVec &weightStyles,
+        void addSamples(const TWeightStyleVec &weightStyles,
                         const TTimeDoublePr1Vec &samples,
-                        const TDouble4Vec1Vec &weights,
-                        double propagationInterval = 1.0);
+                        const TDouble4Vec1Vec &weights);
 
         //! Check if we should stop testing.
         bool stopTesting() const;
@@ -120,9 +139,8 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         uint64_t checksum(uint64_t seed = 0) const;
 
     private:
-        using TUnivariateTimeSeriesChangeModel =
-                time_series_change_detector_detail::CUnivariateTimeSeriesChangeModel;
-        using TChangeModelPtr = boost::shared_ptr<TUnivariateTimeSeriesChangeModel>;
+        using TChangeModel = time_series_change_detector_detail::CUnivariateChangeModel;
+        using TChangeModelPtr = boost::shared_ptr<TChangeModel>;
         using TChangeModelPtr4Vec = core::CSmallVector<TChangeModelPtr, 4>;
         using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
 
@@ -155,23 +173,26 @@ namespace time_series_change_detector_detail
 
 //! \brief Helper interface for change detection. Implementations of
 //! this are used to model specific types of changes which can occur.
-class MATHS_EXPORT CUnivariateTimeSeriesChangeModel : private core::CNonCopyable
+class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 {
     public:
-        using TTimeDoublePr = std::pair<core_t::TTime, double>;
-        using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
         using TDouble4Vec = core::CSmallVector<double, 4>;
         using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
+        using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
         using TWeightStyleVec = maths_t::TWeightStyleVec;
+        using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TPriorPtr = boost::shared_ptr<CPrior>;
         using TOptionalChangeDescription = boost::optional<SChangeDescription>;
 
     public:
-        CUnivariateTimeSeriesChangeModel(const CTimeSeriesDecompositionInterface &trendModel);
-        virtual ~CUnivariateTimeSeriesChangeModel() = default;
+        CUnivariateChangeModel(const TDecompositionPtr &trendModel,
+                               const TPriorPtr &residualModel);
+        virtual ~CUnivariateChangeModel() = default;
 
         //! Initialize by reading state from \p traverser.
-        virtual bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+        virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,
                                             core::CStateRestoreTraverser &traverser) = 0;
 
         //! Persist state by passing information to \p inserter.
@@ -185,25 +206,35 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeModel : private core::CNonCopyable
 
         //! Update the change model with \p samples.
         virtual void addSamples(std::size_t count,
-                                maths_t::EDataType dataType,
                                 const TWeightStyleVec &weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights,
-                                double propagationInterval = 1.0) = 0;
+                                const TDouble4Vec1Vec &weights) = 0;
 
         //! Debug the memory used by this object.
-        virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+        //! Get the memory used by this object.
+        std::size_t memoryUsage() const;
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const = 0;
-
-        //! Get the memory used by this object.
-        virtual std::size_t memoryUsage() const = 0;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const = 0;
 
     protected:
+        //! The sample count to initialize a change model.
+        static const std::size_t COUNT_TO_INITIALIZE = 5;
+
+    protected:
+        //! Restore the trend model reading state from \p traverser.
+        bool restoreTrendModel(const STimeSeriesDecompositionRestoreParams &params,
+                               core::CStateRestoreTraverser &traverser);
+
+        //! Restore the residual model reading state from \p traverser.
+        bool restoreResidualModel(const SDistributionRestoreParams &params,
+                                  core::CStateRestoreTraverser &traverser);
+
         //! Get the log-likelihood.
         double logLikelihood() const;
 
@@ -212,24 +243,38 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeModel : private core::CNonCopyable
 
         //! Get the time series trend model.
         const CTimeSeriesDecompositionInterface &trendModel() const;
+        //! Get the time series trend model.
+        CTimeSeriesDecompositionInterface &trendModel();
+        //! Get the time series trend model member variable.
+        TDecompositionPtr trendModelPtr() const;
+
+        //! Get the time series residual model.
+        const CPrior &residualModel() const;
+        //! Get the time series residual model.
+        CPrior &residualModel();
+        //! Get the time series residual model member variable.
+        TPriorPtr residualModelPtr() const;
 
     private:
         //! The likelihood of the data under this model.
         double m_LogLikelihood;
 
         //! A model decomposing the time series trend.
-        const CTimeSeriesDecompositionInterface &m_TrendModel;
+        TDecompositionPtr m_TrendModel;
+
+        //! A reference to the underlying prior.
+        TPriorPtr m_ResidualModel;
 };
 
 //! \brief Used to capture the likelihood of the data given no change.
-class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateTimeSeriesChangeModel
+class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeModel
 {
     public:
-        CUnivariateNoChangeModel(const CTimeSeriesDecompositionInterface &trendModel,
+        CUnivariateNoChangeModel(const TDecompositionPtr &trendModel,
                                  const TPriorPtr &residualModel);
 
         //! Initialize by reading state from \p traverser.
-        virtual bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+        virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,
                                             core::CStateRestoreTraverser &traverser);
 
         //! Persist state by passing information to \p inserter.
@@ -243,39 +288,31 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateTimeSeries
 
         //! Get the log likelihood of \p samples.
         virtual void addSamples(std::size_t count,
-                                maths_t::EDataType dataType,
                                 const TWeightStyleVec &weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights,
-                                double propagationInterval = 1.0);
-
-        //! Debug the memory used by this object.
-        virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+                                const TDouble4Vec1Vec &weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;
-
-        //! Get the memory used by this object.
-        virtual std::size_t memoryUsage() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const;
 
     private:
-        //! A reference to the underlying prior.
-        TPriorPtr m_ResidualModel;
 };
 
 //! \brief Captures the likelihood of the data given an arbitrary
 //! level shift.
-class MATHS_EXPORT CUnivariateTimeSeriesLevelShiftModel final : public CUnivariateTimeSeriesChangeModel
+class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeModel
 {
     public:
-        CUnivariateTimeSeriesLevelShiftModel(const CTimeSeriesDecompositionInterface &trendModel,
-                                             const TPriorPtr &residualModel);
+        CUnivariateLevelShiftModel(double learnRate,
+                                   const TDecompositionPtr &trendModel,
+                                   const TPriorPtr &residualModel,
+                                   const TTimeDoublePrCBuf &slidingWindow);
 
         //! Initialize by reading state from \p traverser.
-        virtual bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+        virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,
                                             core::CStateRestoreTraverser &traverser);
 
         //! Persist state by passing information to \p inserter.
@@ -289,20 +326,12 @@ class MATHS_EXPORT CUnivariateTimeSeriesLevelShiftModel final : public CUnivaria
 
         //! Update with \p samples.
         virtual void addSamples(std::size_t count,
-                                maths_t::EDataType dataType,
                                 const TWeightStyleVec &weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights,
-                                double propagationInterval = 1.0);
-
-        //! Debug the memory used by this object.
-        virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+                                const TDouble4Vec1Vec &weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;
-
-        //! Get the memory used by this object.
-        virtual std::size_t memoryUsage() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const;
@@ -317,26 +346,19 @@ class MATHS_EXPORT CUnivariateTimeSeriesLevelShiftModel final : public CUnivaria
 
         //! Get the number of samples.
         double m_SampleCount;
-
-        //! The prior for the time series' residual model subject
-        //! to the shift.
-        TPriorPtr m_ResidualModel;
-
-        //! The initial residual model mode.
-        double m_ResidualModelMode;
 };
 
 //! \brief Captures the likelihood of the data given a specified
 //! time shift.
-class MATHS_EXPORT CUnivariateTimeSeriesTimeShiftModel final : public CUnivariateTimeSeriesChangeModel
+class MATHS_EXPORT CUnivariateTimeShiftModel final : public CUnivariateChangeModel
 {
     public:
-        CUnivariateTimeSeriesTimeShiftModel(const CTimeSeriesDecompositionInterface &trendModel,
-                                            const TPriorPtr &residualModel,
-                                            core_t::TTime shift);
+        CUnivariateTimeShiftModel(const TDecompositionPtr &trendModel,
+                                  const TPriorPtr &residualModel,
+                                  core_t::TTime shift);
 
         //! Initialize by reading state from \p traverser.
-        virtual bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+        virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,
                                             core::CStateRestoreTraverser &traverser);
 
         //! Persist state by passing information to \p inserter.
@@ -350,20 +372,12 @@ class MATHS_EXPORT CUnivariateTimeSeriesTimeShiftModel final : public CUnivariat
 
         //! Update with \p samples.
         virtual void addSamples(std::size_t count,
-                                maths_t::EDataType dataType,
                                 const TWeightStyleVec &weightStyles,
                                 const TTimeDoublePr1Vec &samples,
-                                const TDouble4Vec1Vec &weights,
-                                double propagationInterval = 1.0);
-
-        //! Debug the memory used by this object.
-        virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+                                const TDouble4Vec1Vec &weights);
 
         //! Get the static size of this object.
         virtual std::size_t staticSize() const;
-
-        //! Get the memory used by this object.
-        virtual std::size_t memoryUsage() const;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const;
@@ -371,10 +385,6 @@ class MATHS_EXPORT CUnivariateTimeSeriesTimeShiftModel final : public CUnivariat
     private:
         //! The shift in time of the time series trend model.
         core_t::TTime m_Shift;
-
-        //! The prior for the time series' residual model subject
-        //! to the shift.
-        TPriorPtr m_ResidualModel;
 };
 
 }

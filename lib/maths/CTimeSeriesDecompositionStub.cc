@@ -31,6 +31,10 @@ CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone(void) const
     return new CTimeSeriesDecompositionStub(*this);
 }
 
+void CTimeSeriesDecompositionStub::dataType(maths_t::EDataType /*dataType*/)
+{
+}
+
 void CTimeSeriesDecompositionStub::decayRate(double /*decayRate*/)
 {
 }
@@ -45,6 +49,10 @@ bool CTimeSeriesDecompositionStub::initialized(void) const
     return false;
 }
 
+void CTimeSeriesDecompositionStub::forceUseTrend(void)
+{
+}
+
 bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
                                             double /*value*/,
                                             const maths_t::TWeightStyleVec &/*weightStyles*/,
@@ -53,19 +61,25 @@ bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
     return false;
 }
 
+void CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
+                                               double /*value*/,
+                                               const SChangeDescription &/*change*/)
+{
+}
+
 void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/)
 {
 }
 
-double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const
+double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const
 {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
-                                                                double /*confidence*/,
-                                                                int /*components*/,
-                                                                bool /*smooth*/) const
+maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
+                                                             double /*confidence*/,
+                                                             int /*components*/,
+                                                             bool /*smooth*/) const
 {
     return {0.0, 0.0};
 }
@@ -75,14 +89,14 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
                                             core_t::TTime /*step*/,
                                             double /*confidence*/,
                                             double /*minimumScale*/,
-                                            TDouble3VecVec &result)
+                                            const TWriteForecastResult &/*writer*/)
 {
-    result.clear();
 }
 
 double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
                                              double value,
-                                             double /*confidence*/) const
+                                             double /*confidence*/,
+                                             int /*components*/) const
 {
     return value;
 }

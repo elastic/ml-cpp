@@ -327,11 +327,6 @@ class MODEL_EXPORT CModelFactory
         //! Set the prune window scale factor maximum
         void pruneWindowScaleMaximum(double factor);
 
-        //! Set the number of times we sample the people's attribute
-        //! distributions to compute raw total probabilities for population
-        //! models.
-        void totalProbabilityCalcSamplingSize(std::size_t samplingSize);
-
         //! Set whether multivariate analysis of correlated 'by' fields should
         //! be performed.
         void multivariateByFields(bool enabled);
