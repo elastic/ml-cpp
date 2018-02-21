@@ -31,6 +31,7 @@ const std::string STATUS_FAILED("failed");
 const std::string CForecastDataSink::JOB_ID("job_id");
 const std::string CForecastDataSink::DETECTOR_INDEX("detector_index");
 const std::string CForecastDataSink::FORECAST_ID("forecast_id");
+const std::string CForecastDataSink::FORECAST_ALIAS("forecast_alias");
 const std::string CForecastDataSink::MODEL_FORECAST("model_forecast");
 const std::string CForecastDataSink::MODEL_FORECAST_STATS("model_forecast_request_stats");
 const std::string CForecastDataSink::PARTITION_FIELD_NAME("partition_field_name");
@@ -89,6 +90,7 @@ CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultS
 
 CForecastDataSink::CForecastDataSink(const std::string &jobId,
                                      const std::string &forecastId,
+                                     const std::string &forecastAlias,
                                      core_t::TTime createTime,
                                      core_t::TTime startTime,
                                      core_t::TTime endTime,
@@ -97,6 +99,7 @@ CForecastDataSink::CForecastDataSink(const std::string &jobId,
                                      core::CJsonOutputStreamWrapper &outStream)
     : m_JobId(jobId),
       m_ForecastId(forecastId),
+      m_ForecastAlias(forecastAlias),
       m_Writer(outStream),
       m_NumRecordsWritten(0),
       m_CreateTime(createTime),
@@ -171,6 +174,10 @@ void CForecastDataSink::writeCommonStatsFields(rapidjson::Value &doc)
 {
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
+    if (m_ForecastAlias.empty() == false)
+    {
+        m_Writer.addStringFieldReferenceToObj(FORECAST_ALIAS, m_ForecastAlias, doc);
+    }
     m_Writer.addTimeFieldToObj(CREATE_TIME, m_CreateTime, doc);
     m_Writer.addTimeFieldToObj(TIMESTAMP, m_StartTime, doc);
     m_Writer.addTimeFieldToObj(START_TIME, m_StartTime, doc);
@@ -215,8 +222,11 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
+    if (m_ForecastAlias.empty() == false)
+    {
+        m_Writer.addStringFieldReferenceToObj(FORECAST_ALIAS, m_ForecastAlias, doc);
+    }
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);
-
     // time is in Java format - milliseconds since the epoch
     m_Writer.addTimeFieldToObj(TIMESTAMP, errorBar.s_Time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);

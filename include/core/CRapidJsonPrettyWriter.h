@@ -35,32 +35,7 @@ class CRapidJsonPrettyWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURC
     public:
         using TRapidJsonPrettyWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING,
                                                                 STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter>;
-
-        //! inherit the constructors
-        //! Note: VS2013 (see #205) does not compile with:
-        //! using TRapidJsonPrettyWriterBase::TRapidJsonPrettyWriterBase;
-        //! Please remove the following 3 constructors after #205
-
-        //! Constructors
-        /*! \param os Output stream.
-        */
-        explicit
-        CRapidJsonPrettyWriter(OUTPUT_STREAM &os) :
-        TRapidJsonPrettyWriterBase (os)
-        {
-        }
-
-        explicit
-        CRapidJsonPrettyWriter() :
-        TRapidJsonPrettyWriterBase ()
-        {
-        }
-
-        CRapidJsonPrettyWriter(CRapidJsonPrettyWriter &&rhs) :
-        TRapidJsonPrettyWriterBase(std::move(rhs))
-        {
-        }
-
+        using TRapidJsonPrettyWriterBase::TRapidJsonPrettyWriterBase;
 };
 
 }

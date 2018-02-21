@@ -22,6 +22,7 @@
 
 #include <boost/unordered_set.hpp>
 
+#include <memory>
 #include <iosfwd>
 #include <string>
 
@@ -90,6 +91,7 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
     private:
         static const std::string JOB_ID;
         static const std::string FORECAST_ID;
+        static const std::string FORECAST_ALIAS;
         static const std::string DETECTOR_INDEX;
         static const std::string MODEL_FORECAST;
         static const std::string MODEL_FORECAST_STATS;
@@ -118,6 +120,7 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
         //! Create a DataSink instance
         CForecastDataSink(const std::string &jobId,
                           const std::string &forecastId,
+                          const std::string &forecastAlias,
                           core_t::TTime createTime,
                           core_t::TTime startTime,
                           core_t::TTime endTime,
@@ -162,6 +165,9 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
 
         //! The forecast ID
         std::string                                 m_ForecastId;
+
+        //! The forecast alias
+        std::string                                 m_ForecastAlias;
 
         //! JSON line writer
         core::CRapidJsonConcurrentLineWriter        m_Writer;

@@ -52,39 +52,6 @@ CTimezone::CTimezone(void)
 
     ::_tzset();
 
-    // HACK - Remove all but upper case letters from Windows's opinion of the
-    // time zone names.  Windows has brain-dead timezone names, e.g. "GMT
-    // Daylight Time".  Not only are they wrong, they're also long, so we use
-    // the same hack as Cygwin to shorten them.
-    for (size_t index = 0; index <= 1; ++index)
-    {
-        // Note that this is not thread-safe, but we should get away with it as
-        // this constructor will be running before main() and hopefully no
-        // threads will have been created at this point
-        const char *readPtr(::tzname[index]);
-        char *writePtr(::tzname[index]);
-        bool seenPlusMinus(false);
-        for (;;)
-        {
-            char curChar(*readPtr);
-            if (curChar == '\0')
-            {
-                break;
-            }
-            if (curChar == '+' || curChar == '-')
-            {
-                seenPlusMinus = true;
-            }
-            if (seenPlusMinus || ::isupper(static_cast<unsigned char>(curChar)))
-            {
-                *writePtr = curChar;
-                ++writePtr;
-            }
-            ++readPtr;
-        }
-        *writePtr = '\0';
-    }
-
     // Try to load the Boost timezone database
     std::string path(CResourceLocator::resourceDir());
     path += "/date_time_zonespec.csv";
@@ -153,7 +120,7 @@ std::string CTimezone::stdAbbrev(void) const
 
     if (m_Timezone == 0)
     {
-        return ::tzname[0];
+        return _tzname[0];
     }
 
     return m_Timezone->std_zone_abbrev();
@@ -165,7 +132,7 @@ std::string CTimezone::dstAbbrev(void) const
 
     if (m_Timezone == 0)
     {
-        return ::tzname[1];
+        return _tzname[1];
     }
 
     return m_Timezone->has_dst() ? m_Timezone->dst_zone_abbrev() : m_Timezone->std_zone_abbrev();

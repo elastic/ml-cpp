@@ -100,6 +100,7 @@ void CForecastRunnerTest::testSummaryCount()
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH)
                         + ",\"forecast_id\": \"42\""
+                        + ",\"forecast_alias\": \"sumcount\""
                         + ",\"create_time\": \"1511370819\""
                         + ",\"expires_in\": \"" + std::to_string(100 * ml::core::constants::DAY) + "\" }";
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
@@ -136,6 +137,7 @@ void CForecastRunnerTest::testSummaryCount()
     const rapidjson::Value &forecastStats = lastElement["model_forecast_request_stats"];
 
     CPPUNIT_ASSERT_EQUAL(std::string("42"), std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("sumcount"), std::string(forecastStats["forecast_alias"].GetString()));
     CPPUNIT_ASSERT_EQUAL(1511370819 * int64_t(1000), forecastStats["forecast_create_timestamp"].GetInt64());
     CPPUNIT_ASSERT(forecastStats.HasMember("processed_record_count"));
     CPPUNIT_ASSERT_EQUAL(13, forecastStats["processed_record_count"].GetInt());
@@ -183,6 +185,7 @@ void CForecastRunnerTest::testPopulation()
 
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("31"), std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT(!forecastStats.HasMember("forecast_alias"));
     CPPUNIT_ASSERT_EQUAL(std::string("failed"), std::string(forecastStats["forecast_status"].GetString()));
     CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS,
                          std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
@@ -226,6 +229,7 @@ void CForecastRunnerTest::testRare()
 
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT_EQUAL(std::string("42"), std::string(forecastStats["forecast_id"].GetString()));
+    CPPUNIT_ASSERT(!forecastStats.HasMember("forecast_alias"));
     CPPUNIT_ASSERT_EQUAL(std::string("failed"), std::string(forecastStats["forecast_status"].GetString()));
     CPPUNIT_ASSERT_EQUAL(ml::api::CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS,
                          std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));

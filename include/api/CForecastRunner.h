@@ -160,6 +160,9 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
             //! The forecast ID
             std::string                 s_ForecastId;
 
+            //! The forecast alias
+            std::string                 s_ForecastAlias;
+
             //! Vector of models/series selected for forecasting (cloned for forecasting)
             TForecastResultSeriesVec    s_ForecastSeries;
 

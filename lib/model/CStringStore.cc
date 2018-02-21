@@ -93,22 +93,21 @@ core::CStoredStringPtr CStringStore::get(const std::string &value)
 
     core::CStoredStringPtr result;
 
-
-    m_Reading.fetch_add(1, atomic_t::memory_order_release);
-    if (m_Writing.load(atomic_t::memory_order_consume) == 0)
+    m_Reading.fetch_add(1, std::memory_order_release);
+    if (m_Writing.load(std::memory_order_consume) == 0)
     {
         auto i = m_Strings.find(value, STR_HASH, STR_EQUAL);
         if (i != m_Strings.end())
         {
             result = *i;
-            m_Reading.fetch_sub(1, atomic_t::memory_order_release);
+            m_Reading.fetch_sub(1, std::memory_order_release);
         }
         else
         {
-            m_Writing.fetch_add(1, atomic_t::memory_order_acq_rel);
+            m_Writing.fetch_add(1, std::memory_order_acq_rel);
             // NB: fetch_sub() returns the OLD value, and we know we added 1 in
             // this thread, hence the test for 1 rather than 0
-            if (m_Reading.fetch_sub(1, atomic_t::memory_order_release) == 1)
+            if (m_Reading.fetch_sub(1, std::memory_order_release) == 1)
             {
                 // This section is expected to occur infrequently so inserts
                 // are synchronized with a mutex.
@@ -119,11 +118,11 @@ core::CStoredStringPtr CStringStore::get(const std::string &value)
                 {
                     m_StoredStringsMemUse += result.actualMemoryUsage();
                 }
-                m_Writing.fetch_sub(1, atomic_t::memory_order_release);
+                m_Writing.fetch_sub(1, std::memory_order_release);
             }
             else
             {
-                m_Writing.fetch_sub(1, atomic_t::memory_order_relaxed);
+                m_Writing.fetch_sub(1, std::memory_order_relaxed);
                 // This is leaked in the sense that it will never be shared and
                 // won't count towards our reported memory usage.  But it is not
                 // leaked in the traditional sense of the word, as its memory
@@ -134,7 +133,7 @@ core::CStoredStringPtr CStringStore::get(const std::string &value)
     }
     else
     {
-        m_Reading.fetch_sub(1, atomic_t::memory_order_relaxed);
+        m_Reading.fetch_sub(1, std::memory_order_relaxed);
         // This is leaked in the sense that it will never be shared and won't
         // count towards our reported memory usage.  But it is not leaked
         // in the traditional sense of the word, as its memory will be freed

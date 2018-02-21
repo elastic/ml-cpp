@@ -6,8 +6,9 @@
 #ifndef INCLUDED_ml_core_CStat_h
 #define INCLUDED_ml_core_CStat_h
 
-#include <core/AtomicTypes.h>
 #include <core/CNonCopyable.h>
+
+#include <atomic>
 
 
 namespace ml
@@ -49,7 +50,7 @@ class CORE_EXPORT CStat : private CNonCopyable
 
     private:
         //! The counter value of this stat
-        atomic_t::atomic_uint_fast64_t m_Value;
+        std::atomic_uint_fast64_t m_Value;
 };
 
 

@@ -29,10 +29,10 @@ Most of the tools are built via a GNU "configure" script. There are some environ
 ```
 export CPP='clang -E'
 export CC=clang
-export CFLAGS='-O3 -msse4.1'
-export CXX='clang++ -std=c++11 -stdlib=libc++'
-export CXXFLAGS='-O3 -msse4.1'
-export CXXCPP='clang++ -std=c++11 -E'
+export CFLAGS='-O3 -msse4.2'
+export CXX='clang++ -std=c++14 -stdlib=libc++'
+export CXXFLAGS='-O3 -msse4.2'
+export CXXCPP='clang++ -std=c++14 -E'
 unset CPATH
 unset C_INCLUDE_PATH
 unset CPLUS_INCLUDE_PATH
@@ -174,8 +174,8 @@ to:
 To complete the build, type:
 
 ```
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++11 -stdlib=libc++" linkflags="-std=c++11 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++11 -stdlib=libc++" linkflags="-std=c++11 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 cd /usr/local/lib
 for FILE in libboost*1_65_1.dylib ; do sudo install_name_tool -id "@rpath/$FILE" $FILE ; done
 sudo install_name_tool -change libboost_system-clang-darwin42-mt-1_65_1.dylib "@rpath/libboost_system-clang-darwin42-mt-1_65_1.dylib" -add_rpath "@loader_path/../lib" libboost_filesystem-clang-darwin42-mt-1_65_1.dylib

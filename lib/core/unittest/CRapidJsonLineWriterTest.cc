@@ -11,14 +11,15 @@
 #include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
 
+// beware: testing internal methods of rapidjson, might break after update
+#include <rapidjson/internal/dtoa.h>
 #include <rapidjson/ostreamwrapper.h>
 
 #include <limits>
 #include <sstream>
+
 #include <stdio.h>
 
-// beware: testing internal methods of rapidjson, might break after update
-#include <rapidjson/internal/dtoa.h>
 namespace
 {
 const std::string STR_NAME("str");
@@ -35,6 +36,7 @@ const std::string DOUBLE_ARRAY_NAME("double[]");
 const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
+
 
 void CRapidJsonLineWriterTest::testDoublePrecission(void)
 {
@@ -78,11 +80,7 @@ void CRapidJsonLineWriterTest::testDoublePrecissionDtoa(void)
     end = rapidjson::internal::dtoa(std::numeric_limits<double>::denorm_min(), buffer);
     CPPUNIT_ASSERT(std::string("0.0") != std::string(buffer, static_cast<size_t>(end - buffer)));
 
-#ifdef Windows
-    int ret = sprintf_s(buffer, sizeof(buffer), "%g", 1e-300);
-#else
-    int ret = snprintf(buffer, sizeof(buffer), "%g", 1e-300);
-#endif
+    int ret = ::snprintf(buffer, sizeof(buffer), "%g", 1e-300);
 
     CPPUNIT_ASSERT_EQUAL(std::string("1e-300"), std::string(buffer, ret));
 }
@@ -109,19 +107,11 @@ void CRapidJsonLineWriterTest::microBenchmark(void)
     stopWatch.start();
     for (size_t i = 0; i < runs; ++i)
     {
-#ifdef Windows
-        sprintf_s(buffer, sizeof(buffer), "%g", 3e-5);
-        sprintf_s(buffer, sizeof(buffer), "%g", 0.0);
-        sprintf_s(buffer, sizeof(buffer), "%g", 0.12345);
-        sprintf_s(buffer, sizeof(buffer), "%g", 1.43e-35);
-        sprintf_s(buffer, sizeof(buffer), "%g", 42.0);
-#else
-        snprintf(buffer, sizeof(buffer), "%g", 3e-5);
-        snprintf(buffer, sizeof(buffer), "%g", 0.0);
-        snprintf(buffer, sizeof(buffer), "%g", 0.12345);
-        snprintf(buffer, sizeof(buffer), "%g", 1.43e-35);
-        snprintf(buffer, sizeof(buffer), "%g", 42.0);
-#endif
+        ::snprintf(buffer, sizeof(buffer), "%g", 3e-5);
+        ::snprintf(buffer, sizeof(buffer), "%g", 0.0);
+        ::snprintf(buffer, sizeof(buffer), "%g", 0.12345);
+        ::snprintf(buffer, sizeof(buffer), "%g", 1.43e-35);
+        ::snprintf(buffer, sizeof(buffer), "%g", 42.0);
     }
 
     elapsed = stopWatch.stop();

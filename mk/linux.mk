@@ -35,7 +35,7 @@ DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
 LOCALLIBS=-lm -lpthread -ldl -lrt
 NETLIBS=-lnsl
 BOOSTVER=1_65_1
-BOOSTGCCVER=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
+BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/gcc62/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS

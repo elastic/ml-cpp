@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CIntegration_h
 #define INCLUDED_ml_maths_CIntegration_h
 
-#include <core/AtomicTypes.h>
 #include <core/CContainerPrinter.h>
 #include <core/CFastMutex.h>
 #include <core/CLogger.h>
@@ -19,6 +18,7 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
+#include <atomic>
 #include <algorithm>
 #include <functional>
 #include <numeric>
@@ -456,15 +456,15 @@ class MATHS_EXPORT CIntegration
             public:
                 static const CSparseGaussLegendreQuadrature &instance(void)
                 {
-                    const CSparseGaussLegendreQuadrature *tmp = ms_Instance.load(atomic_t::memory_order_acquire);
+                    const CSparseGaussLegendreQuadrature *tmp = ms_Instance.load(std::memory_order_acquire);
                     if (!tmp)
                     {
                         core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
-                        tmp = ms_Instance.load(atomic_t::memory_order_relaxed);
+                        tmp = ms_Instance.load(std::memory_order_relaxed);
                         if (!tmp)
                         {
                             tmp = new CSparseGaussLegendreQuadrature();
-                            ms_Instance.store(tmp, atomic_t::memory_order_release);
+                            ms_Instance.store(tmp, std::memory_order_release);
                         }
                     }
                     return *tmp;
@@ -589,7 +589,7 @@ class MATHS_EXPORT CIntegration
                     }
                 }
 
-                static atomic_t::atomic<const CSparseGaussLegendreQuadrature *> ms_Instance;
+                static std::atomic<const CSparseGaussLegendreQuadrature *> ms_Instance;
 
                 TDoubleVec m_Weights;
                 TVectorVec m_Points;
@@ -730,7 +730,7 @@ class MATHS_EXPORT CIntegration
 };
 
 template<CIntegration::EOrder O, CIntegration::EDimension D>
-atomic_t::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D> *>
+std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D> *>
     CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 
 }

@@ -47,6 +47,7 @@ const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Ins
 
 CForecastRunner::SForecast::SForecast()
     :s_ForecastId(),
+     s_ForecastAlias(),
      s_ForecastSeries(),
      s_CreateTime(0),
      s_StartTime(0),
@@ -62,6 +63,7 @@ CForecastRunner::SForecast::SForecast()
 
 CForecastRunner::SForecast::SForecast(SForecast &&other)
     :s_ForecastId(std::move(other.s_ForecastId)),
+     s_ForecastAlias(std::move(other.s_ForecastAlias)),
      s_ForecastSeries(std::move(other.s_ForecastSeries)),
      s_CreateTime(other.s_CreateTime),
      s_StartTime(other.s_StartTime),
@@ -77,7 +79,8 @@ CForecastRunner::SForecast::SForecast(SForecast &&other)
 
 CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&other)
 {
-    s_ForecastId = other.s_ForecastId;
+    s_ForecastId = std::move(other.s_ForecastId);
+    s_ForecastAlias = std::move(other.s_ForecastAlias);
     s_ForecastSeries = std::move(other.s_ForecastSeries);
     s_CreateTime = other.s_CreateTime;
     s_StartTime = other.s_StartTime;
@@ -137,6 +140,7 @@ void CForecastRunner::forecastWorker()
             LOG_TRACE("about to create sink");
             model::CForecastDataSink sink(m_JobId,
                                           forecastJob.s_ForecastId,
+                                          forecastJob.s_ForecastAlias,
                                           forecastJob.s_CreateTime,
                                           forecastJob.s_StartTime,
                                           forecastJob.forecastEnd(),
@@ -381,6 +385,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
         boost::property_tree::read_json(stringStream, properties);
 
         forecastJob.s_ForecastId = properties.get<std::string>("forecast_id", EMPTY_STRING);
+        forecastJob.s_ForecastAlias = properties.get<std::string>("forecast_alias", EMPTY_STRING);
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
 
@@ -458,6 +463,7 @@ void CForecastRunner::sendScheduledMessage(const SForecast &forecastJob) const
     LOG_DEBUG("job passed forecast validation, scheduled for forecasting");
     model::CForecastDataSink sink(m_JobId,
                                   forecastJob.s_ForecastId,
+                                  forecastJob.s_ForecastAlias,
                                   forecastJob.s_CreateTime,
                                   forecastJob.s_StartTime,
                                   forecastJob.forecastEnd(),
@@ -483,6 +489,7 @@ void CForecastRunner::sendMessage(WRITE write, const SForecast &forecastJob, con
 {
     model::CForecastDataSink sink(m_JobId,
                                   forecastJob.s_ForecastId,
+                                  forecastJob.s_ForecastAlias,
                                   forecastJob.s_CreateTime,
                                   forecastJob.s_StartTime,
                                   forecastJob.forecastEnd(),

@@ -95,7 +95,7 @@ case `uname` in
             fi
         else
             if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.10
+                SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
                 APR_LOCATION=
                 BOOST_LOCATION=$SYSROOT/usr/local/lib
                 BOOST_COMPILER=clang
@@ -130,16 +130,17 @@ case `uname` in
         BOOST_LIBRARIES='chrono date_time filesystem iostreams program_options regex system thread'
         LOG4CXX_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         LOG4CXX_EXTENSION=.dll
-        XML_LOCATION=/$LOCAL_DRIVE/usr/local/lib
+        XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         EXPAT_LOCATION=
         GCC_RT_LOCATION=
-        # Read VCBASE from environment if defined, otherwise default to VS Express 2013
-        DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio 12.0"`
+        # Read VCBASE from environment if defined, otherwise default to VS Professional 2017
+        DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
-        STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/redist/x64/Microsoft.VC120.CRT
-        STL_PREFIX=msvc
-        STL_EXTENSION=.dll
+        VCVER=`ls -1 /$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC | tail -1`
+        STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC141.CRT
+        STL_PREFIX=
+        STL_EXTENSION=140.dll
         ATOMIC_LOCATION=
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll

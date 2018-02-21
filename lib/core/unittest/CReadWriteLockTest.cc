@@ -5,7 +5,6 @@
  */
 #include "CReadWriteLockTest.h"
 
-#include <core/AtomicTypes.h>
 #include <core/CFastMutex.h>
 #include <core/CLogger.h>
 #include <core/CMutex.h>
@@ -17,6 +16,8 @@
 #include <core/CSleep.h>
 #include <core/CThread.h>
 #include <core/CTimeUtils.h>
+
+#include <atomic>
 
 #include <stdint.h>
 
@@ -85,7 +86,7 @@ class CAtomicAdder : public ml::core::CThread
         CAtomicAdder(uint32_t sleepTime,
                      uint32_t iterations,
                      uint32_t increment,
-                     atomic_t::atomic_uint_fast32_t &variable)
+                     std::atomic_uint_fast32_t &variable)
             : m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
@@ -112,7 +113,7 @@ class CAtomicAdder : public ml::core::CThread
         uint32_t                       m_SleepTime;
         uint32_t                       m_Iterations;
         uint32_t                       m_Increment;
-        atomic_t::atomic_uint_fast32_t &m_Variable;
+        std::atomic_uint_fast32_t &m_Variable;
 };
 
 class CFastMutexProtectedAdder : public ml::core::CThread
@@ -393,7 +394,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex(void)
         }
     }
     {
-        atomic_t::atomic_uint_fast32_t testVariable(0);
+        std::atomic_uint_fast32_t testVariable(0);
 
         ml::core_t::TTime start(ml::core::CTimeUtils::now());
         LOG_INFO("Starting atomic throughput test at " <<

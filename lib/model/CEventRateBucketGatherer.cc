@@ -32,6 +32,7 @@
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <atomic>
 #include <limits>
 #include <map>
 #include <string>
@@ -871,11 +872,9 @@ void registerMemoryCallbacks(VISITOR &visitor)
 //! Register the callbacks for computing the size of feature data gatherers.
 void registerMemoryCallbacks(void)
 {
-    // TODO switch to std::atomic_flag when Windows compiler is upgraded
-    static bool once = true;
-    if (once)
+    static std::atomic_flag once = ATOMIC_FLAG_INIT;
+    if (once.test_and_set() == false)
     {
-        once = false;
         registerMemoryCallbacks(core::CMemory::anyVisitor());
         registerMemoryCallbacks(core::CMemoryDebug::anyVisitor());
     }
