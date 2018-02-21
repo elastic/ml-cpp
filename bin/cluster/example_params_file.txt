@@ -1,0 +1,39 @@
+# The clustering algorithm. Permitted values are "automatic", "kmeans",
+# "xmeans", "random_projection_kmeans", "random_projection_xmeans" and
+# "agglomerative". 
+# algorithm = automatic
+
+# The imputation method. Permitted values are "random", "nn_plain",
+# "nn_bagged_samples", "nn_bagged_attributes" and "nn_random".
+# imputation_method = nn_bagged_attributes
+
+# The agglomerative clustering method. This only makes sense if the
+# agglomerative clustering algorithm has been selected. Permitted
+# values are "single", "complete", "average", "weighted", "ward".
+# agglomerative_objective = single
+
+# If true we will normalise each dimension of the vectors to cluster
+# separately before clustering.
+# normalize = true
+
+# If true we will treat any missing vector coordinate as zero.
+# treat_missing_as_zero = false
+
+# If true bootstrap the clustering algorithm. This improves stability
+# at the expense of increased runtime.
+# bootstrap = false
+
+# The number of clusters to create. This is only respected if the algorithm
+# allows one to specify the number of clusters so can only be used with
+# "kmeans", "random_projection_kmeans" and "agglomerative".
+# number_of_clusters = 5
+
+# The maximum number of permitted clusters to use when we search for the
+# appropriate number of clusters for the data. This can only be used with
+# "xmeans", "random_projection_xmeans" and "agglomerative".
+# maximum_number_of_clusters = 100
+
+# The number of principle components on which to project the data before
+# clustering. This doesn't make sense with projection clustering so is
+# ignored with "random_projection_kmeans" and "random_projection_xmeans".
+# principle_components = 4
