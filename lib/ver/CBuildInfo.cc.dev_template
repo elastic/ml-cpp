@@ -1,0 +1,54 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+#include <ver/CBuildInfo.h>
+
+#include <core/CProgName.h>
+#include <core/CStringUtils.h>
+
+
+namespace ml
+{
+namespace ver
+{
+
+
+// Initialise static strings
+// The tokens in the template file are substituted by the Makefile
+// @warning.comment@
+const std::string CBuildInfo::VERSION_NUMBER("based on @version.number@");
+const std::string CBuildInfo::BUILD_NUMBER("DEVELOPMENT BUILD by @user.name@");
+const std::string CBuildInfo::COPYRIGHT("Copyright (c) @build.year@ Elasticsearch BV");
+
+
+const std::string &CBuildInfo::versionNumber(void)
+{
+    return VERSION_NUMBER;
+}
+
+const std::string &CBuildInfo::buildNumber(void)
+{
+    return BUILD_NUMBER;
+}
+
+const std::string &CBuildInfo::copyright(void)
+{
+    return COPYRIGHT;
+}
+
+std::string CBuildInfo::fullInfo(void)
+{
+    static const size_t BITS_PER_BYTE(8);
+
+    return core::CProgName::progName() +
+           " (" + core::CStringUtils::typeToString(sizeof(void *) * BITS_PER_BYTE) + " bit):"
+           " Version " + VERSION_NUMBER + " (Build " + BUILD_NUMBER + ") " +
+           COPYRIGHT;
+}
+
+
+}
+}
+

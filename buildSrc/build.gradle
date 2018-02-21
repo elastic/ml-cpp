@@ -1,0 +1,21 @@
+import org.gradle.util.GradleVersion
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+// Gradle 4.3.1 stopped releasing the logging jars to jcenter, just use the last available one
+GradleVersion logVersion = GradleVersion.current() > GradleVersion.version('4.3') ? GradleVersion.version('4.3') : GradleVersion.current()
+
+dependencies {
+  compile gradleApi()
+  compile localGroovy()
+  compile 'com.amazonaws:aws-java-sdk-s3:1.10.33'
+  compile 'org.apache.velocity:velocity:1.7'
+  compileOnly "org.gradle:gradle-logging:${logVersion.getVersion()}"
+}
+

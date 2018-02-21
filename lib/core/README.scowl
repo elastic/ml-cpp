@@ -1,0 +1,16 @@
+The file scowl.dict was generated using the open source word list SCOWL version 7.1
+
+The command used to generate the file (run from the scowl-7.1 directory) was:
+
+./mk-list -f -v1 american british canadian 55 | grep -v roman-numerals | grep -v proper-names | sed 's~^~final/~' | xargs cat | tr 'A-Z' 'a-z' | grep -v '[^a-z]' | grep -v '^[b-hj-z]$' | sort -u > scowl.dict
+
+The intention is to generate a word list that:
+1) Contains US, UK and Canadian spelling variants
+2) Does not contain roman numerals
+3) Contains very few proper names
+4) Is all lower case
+5) Contains only ASCII letters (no apostrophes, hyphens or accented letters)
+6) Does not contain single letter "words" except a and i
+7) Is sorted into ASCII order
+8) Contains no duplicates
+

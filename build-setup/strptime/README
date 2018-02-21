@@ -1,0 +1,15 @@
+The original files were downloaded from the following URLs:
+
+http://cvsweb.netbsd.org/bsdweb.cgi/src/lib/libc/time/strptime.c?rev=HEAD
+http://cvsweb.netbsd.org/bsdweb.cgi/src/lib/libc/time/private.h?rev=HEAD
+
+They must be patched before they'll compile on Windows, using the patches in
+this directory.  For Visual Studio 2015 and above, use the "ucrt" version of
+the patch for strptime.c.
+
+Then build using these commands in the appropriate Visual Studio command
+prompt:
+
+cl -c -nologo -O2 -Oi -MD -DWIN32_LEAN_AND_MEAN -DNDEBUG strptime.c
+lib -NOLOGO strptime.obj
+

@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "elastic/windows-2012_r2-x86_64"
+
+  config.vm.provider "virtualbox" do |v|
+
+    # Customize the amount of memory on the VM
+    v.memory = "4096"
+  end
+
+  config.vm.provision "ml_dependencies", type: "shell", inline: configure_ml_dependencies()
+  config.vm.provision "chocolatey",      type: "shell", inline: configure_chocolatey()
+  # Note: elastic/windows-2012_r2-x86_64 already has Git for Windows and JDK8,
+  # otherwise we'd need those too
+  config.vm.provision "gradle",          type: "shell", inline: configure_gradle()
+  config.vm.provision "vs2013express",   type: "shell", inline: configure_vs2013express()
+
+  config.vm.synced_folder "../../..", "/machine-learning-cpp-synced", disabled: false
+  # Don't need the default synced folder
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+end
+
+# Use the external wget program rather than Powershell's wget as it's much faster
+def configure_ml_dependencies()
+  return <<-SHELL
+    & wget.exe -O C:\\usr-x86_64-windows-2012_r2-1.zip https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-windows-2012_r2-1.zip
+    Add-Type -assembly "system.io.compression.filesystem"
+    [io.compression.zipfile]::ExtractToDirectory("C:\\usr-x86_64-windows-2012_r2-1.zip", "C:\\")
+    Remove-Item "C:\\usr-x86_64-windows-2012_r2-1.zip"
+  SHELL
+end
+
+def configure_chocolatey()
+  return <<-SHELL
+    choco upgrade chocolatey -y
+  SHELL
+end
+
+def configure_gradle()
+  return <<-SHELL
+    choco install gradle -version 3.3 -y
+  SHELL
+end
+
+# Ideally we'd simply use:
+#    choco install visualstudioexpress2013windowsdesktop -y
+# to get the Visual Studio 2013 Express with update 4.  However,
+# unfortunately the author updated his Git repo at
+# https://github.com/jivkok/Chocolatey-Packages/blob/master/VisualStudioExpress2013WindowsDesktop/Tools/ChocolateyInstall.ps1
+# to get update 4 rather than the original release but didn't upload the new
+# package to chocolatey.org!  Therefore we have to do the download ourselves.
+def configure_vs2013express()
+  return <<-SHELL
+    & wget.exe -O C:\\wdexpress_full.exe http://download.microsoft.com/download/9/6/4/96442E58-C65C-4122-A956-CCA83EECCD03/wdexpress_full.exe
+    Start-Process "C:\\wdexpress_full.exe" -ArgumentList "/Passive /NoRestart" -Wait
+    Remove-Item "C:\\wdexpress_full.exe"
+  SHELL
+end
+

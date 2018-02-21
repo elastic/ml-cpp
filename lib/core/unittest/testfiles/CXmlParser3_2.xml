@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<expression>
+    <description>Transport read error</description>
+    <regexes>
+        <varbind>
+            <token></token>
+            <regex function="date_time">^[[:digit:]]*</regex>
+        </varbind>
+        <varbind>
+            <token>source</token>
+            <regex><![CDATA[(template[[:space:]]*<[^;:{]+>[[:space:]]*)?]]></regex>
+        </varbind>
+    </regexes>
+</expression>

@@ -1,0 +1,11 @@
+time,message
+1505292200,Node 1 started
+1505293202,Failed to shutdown [error org.aaaa.bbbb.Cccc line 54 caused by foo exception]
+1505294203,Node 2 started
+1505295204,Failed to shutdown [error but this time completely different]
+1505296205,Node 3 started
+1505297207,Node 2 started
+1505298209,Failed to shutdown [error org.aaaa.bbbb.Cccc line 66 caused by bar exception]
+1505299212,Node 1 started
+1505300213,Failed to shutdown [error org.dd.ee.ff line 88]
+1505311214,Node 3 started

@@ -1,0 +1,31 @@
+"_cd","_indextime","_kv","_raw","_serial","_si","_sourcetype","_time","date_hour","date_mday","date_minute","date_month","date_second","date_wday","date_year","date_zone",eventtype,host,index,linecount,punct,source,sourcetype,"server",timeendpos,timestartpos
+"0:3933816",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",0,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933807",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",1,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933798",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",2,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933780",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",3,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933755",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",4,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933743",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",5,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933740",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",6,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933731",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",7,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933725",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",8,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933713",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",9,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933710",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",10,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933707",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",11,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933698",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",12,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933692",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",13,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0
+"0:3933689",1337698174,1,"2010-02-11 16:11:19+00,service has started,160198,24",14,"linux.prelert.com
+main",rmds,1265904679,16,11,11,february,19,thursday,2010,local,,"linux.prelert.com",main,1,"--_::+,__,,","/export/temp/cs_10feb_reload",rmds,"linux.prelert.com",22,0

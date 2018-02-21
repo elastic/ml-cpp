@@ -1,0 +1,43 @@
+#include <Windows.h>
+
+1 VERSIONINFO
+    FILEVERSION    ML_VERSION,ML_PATCH
+    PRODUCTVERSION ML_VERSION,ML_PATCH
+    FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+    FILEFLAGS      (0 | ML_FILEFLAGS)
+    FILEOS         VOS_NT_WINDOWS32
+    FILETYPE       ML_FILETYPE
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080904E4"
+        BEGIN
+#if ML_FILEFLAGS
+            VALUE "Comments", ML_BUILD_STR " by " ML_USER
+#else
+            VALUE "Comments", ML_BUILD_STR
+#endif
+            VALUE "CompanyName", "Elasticsearch BV"
+            VALUE "FileDescription", ML_FILENAME " (part of " RIGHT_CLICK_PRODUCT_NAME ")"
+            VALUE "FileVersion", ML_VERSION_STR
+            VALUE "InternalName", ML_NAME
+            VALUE "LegalCopyright", "Copyright (c) " ML_YEAR " Elasticsearch BV"
+#if 0
+            VALUE "LegalTrademarks", "TODO"
+#endif
+            VALUE "OriginalFilename", ML_FILENAME
+#if ML_FILEFLAGS
+            VALUE "PrivateBuild", "Built by " ML_USER
+#endif
+            VALUE "ProductName", RIGHT_CLICK_PRODUCT_NAME
+            VALUE "ProductVersion", ML_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0809, 1252
+    END
+END
+
+2 ICON ML_ICON
+
