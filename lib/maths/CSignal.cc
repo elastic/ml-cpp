@@ -181,8 +181,9 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
         }
     }
 
-    TMeanAccumulator autocorrelation;
     double mean = CBasicStatistics::mean(moments);
+
+    TMeanAccumulator autocorrelation;
     for (std::size_t i = 0u; i < values.size(); ++i)
     {
         std::size_t j = (i + offset) % n;
@@ -195,8 +196,10 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
         }
     }
 
-    return CBasicStatistics::mean(autocorrelation) == CBasicStatistics::variance(moments) ?
-           1.0 : CBasicStatistics::mean(autocorrelation) / CBasicStatistics::variance(moments);
+    double a = CBasicStatistics::mean(autocorrelation);
+    double v = CBasicStatistics::maximumLikelihoodVariance(moments);
+
+    return a == v ? 1.0 : a / v;
 }
 
 void CSignal::autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVec &result)
@@ -217,7 +220,7 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVe
         }
     }
     double mean = CBasicStatistics::mean(moments);
-    double variance = CBasicStatistics::variance(moments);
+    double variance = CBasicStatistics::maximumLikelihoodVariance(moments);
 
     TComplexVec f;
     f.reserve(n);

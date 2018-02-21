@@ -405,9 +405,8 @@ void CEventRatePopulationModelTest::testFeatures(void)
         SModelParams params(bucketLength);
         params.s_InitialDecayRateMultiplier = 1.0;
         CEventRatePopulationModelFactory factory(params);
-        CModelFactory::TFeatureVec features;
-        features.push_back(model_t::E_PopulationCountByBucketPersonAndAttribute);
-        features.push_back(model_t::E_PopulationUniquePersonCountByAttribute);
+        CModelFactory::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
+                                            model_t::E_PopulationUniquePersonCountByAttribute};
         factory.features(features);
         CModelFactory::SGathererInitializationData gathererInitData(startTime);
         CModelFactory::TDataGathererPtr gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
@@ -443,7 +442,7 @@ void CEventRatePopulationModelTest::testFeatures(void)
                     numberAttributes = std::max(numberAttributes, cid + 1);
                     numberPeople = std::max(numberPeople, pid + 1);
                     attributePeople[cid].insert(pid);
-                    expectedNonZeroCounts[std::make_pair(pid, cid)] = count.second;
+                    expectedNonZeroCounts[{pid, cid}] = count.second;
                 }
 
                 TSizeDouble2VecVecDouble2Vec4VecVecPrMap populationSamples;
@@ -462,12 +461,12 @@ void CEventRatePopulationModelTest::testFeatures(void)
                     }
 
                     TDoubleVec sample(1, count);
-                    TDouble2Vec4Vec weight{TDouble2Vec{model->sampleRateWeight(pid, cid)},
+                    TDouble2Vec4Vec weight{{model->sampleRateWeight(pid, cid)},
                                            model_->winsorisationWeight(1.0, time, sample)};
-                    populationSamples[cid].first.push_back(TDouble2Vec{sample[0]});
+                    populationSamples[cid].first.push_back({sample[0]});
                     populationSamples[cid].second.push_back(weight);
                 }
-                for (auto &&samples_ : populationSamples)
+                for (auto &samples_ : populationSamples)
                 {
                     std::size_t cid = samples_.first;
                     TDouble2Vec4VecVec &weights = samples_.second.second;

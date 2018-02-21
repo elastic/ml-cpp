@@ -453,7 +453,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 {
                     std::size_t cid = CDataGatherer::extractAttributeId(data_);
                     uint64_t count = CDataGatherer::extractData(data_).s_Count;
-                    fuzzy[cid].add(TDouble2Vec{static_cast<double>(count)});
+                    fuzzy[cid].add({static_cast<double>(count)});
                 }
                 for (auto &&fuzzy_ : fuzzy)
                 {
@@ -496,7 +496,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
                 SValuesAndWeights &attribute = attributes[cid];
                 std::size_t duplicate = data.size() >= this->params().s_MinimumToDeduplicate ?
-                                        fuzzy[cid].duplicate(sampleTime, TDouble2Vec{value}) :
+                                        fuzzy[cid].duplicate(sampleTime, {value}) :
                                         attribute.s_Values.size();
 
                 if (duplicate < attribute.s_Values.size())
@@ -508,11 +508,9 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);
                     attribute.s_Weights.emplace_back(
-                            TDouble2Vec4Vec{TDouble2Vec{  this->sampleRateWeight(pid, cid)
-                                                        * this->learnRate(feature)},
-                                            model->winsorisationWeight(1.0, // no derate
-                                                                       sampleTime,
-                                                                       TDouble2Vec{value})});
+                            TDouble2Vec4Vec{{  this->sampleRateWeight(pid, cid)
+                                             * this->learnRate(feature)},
+                                            model->winsorisationWeight(1.0, sampleTime, {value})});
                 }
             }
 

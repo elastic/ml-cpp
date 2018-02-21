@@ -42,7 +42,6 @@ void CMathsMemoryTest::testTimeSeriesDecompositions(void)
     for (unsigned i = 0; i < 600000; i += 600)
     {
         decomp.addPoint(time + i, (0.55 * (0.2 + (i % 86400))));
-        decomp.testAndInterpolate(time + i);
     }
 
     core::CMemoryUsage mem;

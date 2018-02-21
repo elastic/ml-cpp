@@ -42,7 +42,7 @@ namespace maths
 namespace
 {
 
-typedef maths_t::TDoubleDoublePr TDoubleDoublePr;
+using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 
 const std::string DECOMPOSITION_COMPONENT_TAG{"a"};
 const std::string RNG_TAG{"b"};
@@ -118,7 +118,7 @@ bool CSeasonalComponent::initialized(void) const
 
 bool CSeasonalComponent::initialize(core_t::TTime startTime,
                                     core_t::TTime endTime,
-                                    const TTimeTimePrMeanVarPrVec &values)
+                                    const TFloatMeanAccumulatorVec &values)
 {
     this->clear();
 
@@ -217,24 +217,61 @@ double CSeasonalComponent::meanValue(void) const
     return this->CDecompositionComponent::meanValue();
 }
 
-double CSeasonalComponent::differenceFromMean(core_t::TTime time, core_t::TTime shortPeriod) const
+double CSeasonalComponent::delta(core_t::TTime time,
+                                 core_t::TTime shortPeriod,
+                                 double shortPeriodValue) const
 {
+    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
+    // This is used to adjust how periodic patterns in the trend are
+    // represented in the case that we have two periodic components
+    // one of which is a divisor of the other. We are interested in
+    // two situations:
+    //   1) The long component has a bias at this time, w.r.t. its
+    //      mean, for all repeats of short component,
+    //   2) There is a large difference between the values and the
+    //      mean of the long component for all repeats of the short
+    //      period at this time.
+    // In the first case we can represent the bias using the short
+    // seasonal component; we prefer to do this since the resolution
+    // is better. In the second case we have a bad decomposition of
+    // periodic features at the long period into terms which cancel
+    // out or reinforce. In this case we want to just represent the
+    // periodic features in long component. We can achieve this by
+    // reducing the value in the short seasonal component.
+
     const CSeasonalTime &time_{this->time()};
     core_t::TTime longPeriod{time_.period()};
 
     if (longPeriod > shortPeriod && longPeriod % shortPeriod == 0)
     {
-        CBasicStatistics::CMinMax<double> minmax;
-        double mean = this->CDecompositionComponent::meanValue();
+        TMinAccumulator min;
+        TMinMaxAccumulator minmax;
+        double mean{this->CDecompositionComponent::meanValue()};
         for (core_t::TTime t = time; t < time + longPeriod; t += shortPeriod)
         {
             if (time_.inWindow(t))
             {
                 double difference{CBasicStatistics::mean(this->value(t, 0.0)) - mean};
+                min.add(std::fabs(difference));
                 minmax.add(difference);
             }
         }
-        return minmax.signMargin();
+
+        if (std::fabs(minmax.signMargin()) > 0.0)
+        {
+            return minmax.signMargin();
+        }
+
+        // We have a smooth decision boundary for whether to apply
+        // a delta for the case that the difference from the mean
+        // is 1/3 of the range. We force the delta to zero for values
+        // significantly smaller than this.
+        double scale{CTools::smoothHeaviside(3.0 * min[0] / minmax.range(), 1.0 / 12.0)};
+        scale = CTools::truncate(1.002 * scale - 0.001, 0.0, 1.0);
+
+        return -scale * min[0] * CTools::sign(shortPeriodValue);
     }
 
     return 0.0;
@@ -255,11 +292,6 @@ double CSeasonalComponent::meanVariance(void) const
 double CSeasonalComponent::heteroscedasticity(void) const
 {
     return this->CDecompositionComponent::heteroscedasticity();
-}
-
-double CSeasonalComponent::varianceDueToParameterDrift(core_t::TTime time) const
-{
-    return this->initialized() ? m_Bucketing.varianceDueToParameterDrift(time) : 0.0;
 }
 
 bool CSeasonalComponent::covariances(core_t::TTime time, TMatrix &result) const
@@ -290,9 +322,9 @@ double CSeasonalComponent::slope(void) const
     return m_Bucketing.slope();
 }
 
-bool CSeasonalComponent::sufficientHistoryToPredict(core_t::TTime time) const
+bool CSeasonalComponent::slopeAccurate(core_t::TTime time) const
 {
-    return m_Bucketing.sufficientHistoryToPredict(time);
+    return m_Bucketing.slopeAccurate(time);
 }
 
 uint64_t CSeasonalComponent::checksum(uint64_t seed) const

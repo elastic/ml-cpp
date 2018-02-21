@@ -45,18 +45,23 @@ class CSeasonalComponent;
 class MATHS_EXPORT CTimeSeriesDecompositionInterface
 {
     public:
+        using TDouble3Vec = core::CSmallVector<double, 3>;
+        using TDouble3VecVec = std::vector<TDouble3Vec>;
         using TDoubleAry = boost::array<double, 2>;
         using TWeights = CConstantWeights;
 
         //! The components of the decomposition.
         enum EComponents
         {
-            E_Diurnal    = 0x1,
-            E_NonDiurnal = 0x2,
-            E_Seasonal   = 0x3,
-            E_Trend      = 0x4,
-            E_Calendar   = 0x8,
-            E_All        = 0xf
+            E_Diurnal     = 0x1,
+            E_NonDiurnal  = 0x2,
+            E_Seasonal    = 0x3,
+            E_Trend       = 0x4,
+            E_Calendar    = 0x8,
+            E_All         = 0xf,
+            E_TrendForced = 0x10 //!< Force get the trend component (if
+                                 //!< it's not being used for prediction).
+                                 //!< This needs to be bigger than E_All.
         };
 
     public:
@@ -70,12 +75,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
 
         //! Get the decay rate.
         virtual double decayRate(void) const = 0;
-
-        //! Switch to using this trend to forecast.
-        //!
-        //! \warning This is an irreversible action so if the trend
-        //! is still need it should be copied first.
-        virtual void forForecasting(void) = 0;
 
         //! Check if this is initialized.
         virtual bool initialized(void) const = 0;
@@ -100,30 +99,35 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! Propagate the decomposition forwards to \p time.
         virtual void propagateForwardsTo(core_t::TTime time) = 0;
 
-        //! May be test to see if there are any new seasonal components
-        //! and interpolate.
-        //!
-        //! \param[in] time The current time.
-        //! \return True if the number of seasonal components changed
-        //! and false otherwise.
-        virtual bool testAndInterpolate(core_t::TTime time) = 0;
-
         //! Get the mean value of the baseline in the vicinity of \p time.
         virtual double mean(core_t::TTime time) const = 0;
 
         //! Get the value of the time series baseline at \p time.
         //!
         //! \param[in] time The time of interest.
-        //! \param[in] predictionConfidence The symmetric confidence interval
-        //! for the prediction the baseline as a percentage.
-        //! \param[in] forecastConfidence The symmetric confidence interval
-        //! for long range forecasts as a percentage.
+        //! \param[in] confidence The symmetric confidence interval for the prediction
+        //! the baseline as a percentage.
         //! \param[in] components The components to include in the baseline.
         virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                                  double predictionConfidence = 0.0,
-                                                  double forecastConfidence = 0.0,
-                                                  EComponents components = E_All,
+                                                  double confidence = 0.0,
+                                                  int components = E_All,
                                                   bool smooth = true) const = 0;
+
+        //! Forecast from \p start to \p end at \p dt intervals.
+        //!
+        //! \param[in] startTime The start of the forecast.
+        //! \param[in] endTime The end of the forecast.
+        //! \param[in] step The time increment.
+        //! \param[in] confidence The forecast confidence interval.
+        //! \param[in] minimumScale The minimum permitted seasonal scale.
+        //! \param[in] result Filled in with the forecast lower bound, prediction
+        //! and upper bound.
+        virtual void forecast(core_t::TTime startTime,
+                              core_t::TTime endTime,
+                              core_t::TTime step,
+                              double confidence,
+                              double minimumScale,
+                              TDouble3VecVec &result) = 0;
 
         //! Detrend \p value from the time series being modeled by removing
         //! any periodic component at \p time.
@@ -166,23 +170,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! This is the latest time of any point added to this object or the time skipped to.
         virtual core_t::TTime lastValueTime(void) const = 0;
 };
-
-using TDecompositionPtr = boost::shared_ptr<maths::CTimeSeriesDecompositionInterface>;
-using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
-
-//! Initialize a univariate prior to match the moments of \p decomposition.
-MATHS_EXPORT
-bool initializePrior(core_t::TTime bucketLength,
-                     double learnRate,
-                     const CTimeSeriesDecompositionInterface &decomposition,
-                     CPrior &prior);
-
-//! Initialize a multivariate prior to match the moments of \p decomposition.
-MATHS_EXPORT
-bool initializePrior(core_t::TTime bucketLength,
-                     double learnRate,
-                     const TDecompositionPtr10Vec &decomposition,
-                     CMultivariatePrior &prior);
 
 }
 }

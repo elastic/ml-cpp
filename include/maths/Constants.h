@@ -49,32 +49,62 @@ const double SMALL_PROBABILITY{1e-4};
 //! similar score.
 const double MINUSCULE_PROBABILITY{1e-50};
 
+//! The margin between the smallest value and the support left end
+//! to use for the gamma distribution.
+const double GAMMA_OFFSET_MARGIN{0.1};
+
+//! The margin between the smallest value and the support left end
+//! to use for the log-normal distribution.
+const double LOG_NORMAL_OFFSET_MARGIN{1.0};
+
+//! The minimum amount by which a trend decomposition component can
+//! reduce the prediction error variance and still be worthwhile
+//! modeling. We have different thresholds because we have inductive
+//! bias for particular types of components.
+const double SIGNIFICANT_VARIANCE_REDUCTION[]{0.7, 0.5};
+
+//! The minimum repeated amplitude of a seasonal component, as a
+//! multiple of error standard deviation, to be worthwhile modeling.
+//! We have different thresholds because we have inductive bias for
+//! particular types of components.
+const double SIGNIFICANT_AMPLITUDE[]{1.0, 2.0};
+
+//! The minimum autocorrelation of a seasonal component to be
+//! worthwhile modeling. We have different thresholds because we
+//! have inductive bias for particular types of components.
+const double SIGNIFICANT_AUTOCORRELATION[]{0.5, 0.7};
+
+//! The maximum significance of a test statistic to choose to model
+//! a trend decomposition component.
+const double MAXIMUM_SIGNIFICANCE{0.001};
+
 //! The minimum variance scale for which the likelihood function
-//! can be accurately adjusted. For smaller scales there errors
-//! are introduced for some priors.
+//! can be accurately adjusted. For smaller scales errors are
+//! introduced for some priors.
 const double MINIMUM_ACCURATE_VARIANCE_SCALE{0.5};
 
 //! The maximum variance scale for which the likelihood function
-//! can be accurately adjusted. For larger scales there errors
-//! are introduced for some priors.
+//! can be accurately adjusted. For larger scales errors are
+//! introduced for some priors.
 const double MAXIMUM_ACCURATE_VARIANCE_SCALE{2.0};
 
-//! The confidence interval to compute for the seasonal trend and
+//! The confidence interval to use for the seasonal trend and
 //! variation. We detrend to the nearest point in the confidence
 //! interval and use the upper confidence interval variance when
 //! scaling the likelihood function so that we don't get transient
-//! anomalies after detecting a periodic trend.
+//! anomalies after detecting a periodic trend (when the trend
+//! can be in significant error).
 const double DEFAULT_SEASONAL_CONFIDENCE_INTERVAL{50.0};
 
 //! \brief A collection of weight styles and weights.
 class MATHS_EXPORT CConstantWeights
 {
     public:
-        typedef core::CSmallVector<double, 2> TDouble2Vec;
-        typedef core::CSmallVector<double, 4> TDouble4Vec;
-        typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-        typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-        typedef core::CSmallVector<TDouble2Vec4Vec, 1> TDouble2Vec4Vec1Vec;
+        using TDouble2Vec = core::CSmallVector<double, 2>;
+        using TDouble4Vec = core::CSmallVector<double, 4>;
+        using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
+        using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+        using TDouble2Vec4Vec1Vec = core::CSmallVector<TDouble2Vec4Vec, 1>;
 
     public:
         //! A single count weight style.
@@ -103,13 +133,13 @@ class MATHS_EXPORT CConstantWeights
 };
 
 //! The minimum fractional count of points in a cluster.
-const double MINIMUM_CLUSTER_SPLIT_FRACTION = 0.0;
+const double MINIMUM_CLUSTER_SPLIT_FRACTION{0.0};
 
 //! The default minimum count of points in a cluster.
-const double MINIMUM_CLUSTER_SPLIT_COUNT = 24.0;
+const double MINIMUM_CLUSTER_SPLIT_COUNT{24.0};
 
 //! The minimum count of a category in the sketch to cluster.
-const double MINIMUM_CATEGORY_COUNT = 0.5;
+const double MINIMUM_CATEGORY_COUNT{0.5};
 
 //! Get the maximum amount we'll penalize a model in addSamples.
 MATHS_EXPORT double maxModelPenalty(double numberSamples);
