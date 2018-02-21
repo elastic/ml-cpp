@@ -8,14 +8,14 @@
 #define INCLUDED_ml_maths_CSphericalCluster_h
 
 #include <maths/CAnnotatedVector.h>
-#include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/COrderings.h>
 #include <maths/ImportExport.h>
 
 #include <boost/functional/hash.hpp>
 
-#include <math.h>
+#include <cmath>
 
 namespace ml
 {
@@ -48,8 +48,9 @@ template<typename POINT>
 class CSphericalCluster
 {
     public:
-        typedef CAnnotatedVector<POINT, SCountAndVariance> Type;
+        using Type = CAnnotatedVector<POINT, SCountAndVariance>;
 
+        //! \brief Hashes a spherical cluster.
         class CHash
         {
             public:
@@ -63,6 +64,7 @@ class CSphericalCluster
                 typename POINT::CHash m_PointHash;
         };
 
+        //! \brief Compares two spherical clusters for equality.
         class CEqual
         {
             public:
@@ -74,6 +76,7 @@ class CSphericalCluster
                 }
         };
 
+        //! \brief A total ordering of spherical clusters.
         struct SLess
         {
             bool operator()(const Type &lhs, const Type &rhs) const
@@ -93,46 +96,45 @@ namespace basic_statistics_detail
 
 //! \brief Specialization for the implementation of the spherical
 //! cluster to the sample mean and variance estimator.
-template<typename U, std::size_t N>
-struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance> >
+template<typename POINT>
+struct SCentralMomentsCustomAdd<CAnnotatedVector<POINT, SCountAndVariance>>
 {
-    template<typename T>
-    static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance> &x,
-                           typename SCoordinate<T>::Type n,
-                           CBasicStatistics::SSampleCentralMoments<T, 1> &moments)
+    template<typename OTHER_POINT>
+    static inline void add(const CAnnotatedVector<POINT, SCountAndVariance> &x,
+                           typename SCoordinate<OTHER_POINT>::Type n,
+                           CBasicStatistics::SSampleCentralMoments<OTHER_POINT, 1> &moments)
     {
-        typedef typename SCoordinate<T>::Type TCoordinate;
+        using TCoordinate = typename SCoordinate<OTHER_POINT>::Type;
         moments.add(x, TCoordinate(x.annotation().s_Count) * n, 0);
     }
 
-    template<typename T>
-    static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance> &x,
-                           typename SCoordinate<T>::Type n,
-                           CBasicStatistics::SSampleCentralMoments<T, 2> &moments)
+    template<typename OTHER_POINT>
+    static inline void add(const CAnnotatedVector<POINT, SCountAndVariance> &x,
+                           typename SCoordinate<OTHER_POINT>::Type n,
+                           CBasicStatistics::SSampleCentralMoments<OTHER_POINT, 2> &moments)
     {
-        typedef typename SCoordinate<T>::Type TCoordinate;
-        moments += CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n,
-                                                 T(x),
-                                                 T(x.annotation().s_Variance));
+        using TCoordinate = typename SCoordinate<OTHER_POINT>::Type;
+        n *= TCoordinate(x.annotation().s_Count);
+        OTHER_POINT m(x);
+        TCoordinate v(x.annotation().s_Variance);
+        moments += CBasicStatistics::momentsAccumulator(n, m, las::constant(m, v));
     }
 };
 
 //! \brief Specialization for the implementation of add spherical
 //! cluster to the covariances estimator.
-template<typename T, std::size_t N>
-struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance> >
+template<typename POINT>
+struct SCovariancesCustomAdd<CAnnotatedVector<POINT, SCountAndVariance>>
 {
-    template<typename U>
-    static inline void add(const CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance> &x,
-                           const CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance> &n,
-                           CBasicStatistics::SSampleCovariances<U, N> &covariances)
+    template<typename OTHER_POINT>
+    static inline void add(const CAnnotatedVector<POINT, SCountAndVariance> &x,
+                           CAnnotatedVector<POINT, SCountAndVariance> n,
+                           CBasicStatistics::SSampleCovariances<OTHER_POINT> &covariances)
     {
-        CSymmetricMatrixNxN<U, N> m(0);
-        for (std::size_t i = 0u; i < N; ++i)
-        {
-            m(i, i) = x.annotation().s_Variance;
-        }
-        covariances += CBasicStatistics::SSampleCovariances<U, N>(T(x.annotation().s_Count) * n, x, m);
+        using TCoordinate = typename SCoordinate<OTHER_POINT>::Type;
+        n *= TCoordinate(x.annotation().s_Count);
+        OTHER_POINT diag{las::constant(x, x.annotation().s_Variance)};
+        covariances += CBasicStatistics::SSampleCovariances<OTHER_POINT>(n, x, diag.asDiagonal());
     }
 };
 
@@ -145,35 +147,65 @@ struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarianc
 //!
 //! See http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf
 //! for the details.
-template<typename T, std::size_t N>
-struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance> >
+template<typename POINT>
+struct SCovariancesLedoitWolf<CAnnotatedVector<POINT, SCountAndVariance>>
 {
-    template<typename U>
-    static void estimate(const std::vector<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance> > &points,
-                         CBasicStatistics::SSampleCovariances<U, N> &covariances)
+    template<typename OTHER_POINT>
+    static void estimate(const std::vector<CAnnotatedVector<POINT, SCountAndVariance>> &points,
+                         CBasicStatistics::SSampleCovariances<OTHER_POINT> &covariances)
     {
-        U d = static_cast<U>(N);
-
-        U n = CBasicStatistics::count(covariances);
-        const CVectorNx1<U, N> &m = CBasicStatistics::mean(covariances);
-        const CSymmetricMatrixNxN<U, N> &s = CBasicStatistics::maximumLikelihoodCovariances(covariances);
-
-        double mn = s.trace() / d;
-        double dn = pow2((s - CVectorNx1<U, N>(mn).diagonal()).frobenius()) / d;
-        double bn = 0.0;
-        double z = n * n;
-        for (std::size_t i = 0u; i < points.size(); ++i)
+        if (points.empty())
         {
-            CVectorNx1<U, N> ci(points[i]);
-            U ni = static_cast<U>(points[i].annotation().s_Count);
-            U vi = static_cast<U>(points[i].annotation().s_Variance);
-            bn += ni * pow2(((ci - m).outer() + CVectorNx1<U, N>(vi).diagonal() - s).frobenius()) / d / z;
+            return;
+        }
+
+        using TCoordinate = typename SCoordinate<OTHER_POINT>::Type;
+        using TMatrix = typename SConformableMatrix<OTHER_POINT>::Type;
+
+        std::size_t dimension{las::dimension(points[0])};
+        TCoordinate d{static_cast<TCoordinate>(dimension)};
+
+        TCoordinate n{CBasicStatistics::count(covariances)};
+        const OTHER_POINT &m{CBasicStatistics::mean(covariances)};
+        const TMatrix &s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
+
+        TCoordinate mn{s.trace() / d};
+        TCoordinate norm(0);
+        for (std::size_t i = 0u; i < dimension; ++i)
+        {
+            norm += pow2(s(i,i) - mn);
+            for (std::size_t j = 0u; j < i; ++j)
+            {
+                norm += TCoordinate(2) * pow2(s(i,j));
+            }
+        }
+        TCoordinate dn{norm / d};
+        TCoordinate bn(0);
+        TCoordinate z{n * n};
+        for (const auto &point : points)
+        {
+            TCoordinate ni{static_cast<TCoordinate>(point.annotation().s_Count)};
+            TCoordinate vi{static_cast<TCoordinate>(point.annotation().s_Variance)};
+            norm = TCoordinate(0);
+            for (std::size_t i = 0u; i < dimension; ++i)
+            {
+                norm += pow2(pow2(TCoordinate(point(i)) - m(i)) + vi - s(i,i));
+                for (std::size_t j = 0u; j < i; ++j)
+                {
+                    norm += TCoordinate(2) * pow2(  (TCoordinate(point(i)) - m(i))
+                                                  * (TCoordinate(point(j)) - m(j)) - s(i,j));
+                }
+            }
+            bn += ni * norm / d / z;
         }
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances =  CVectorNx1<U, N>(bn / dn * mn).diagonal()
-                                   + (U(1) - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances *= std::max((TCoordinate(1) - bn / dn), 0.0);
+        for (std::size_t i = 0u; i < dimension; ++i)
+        {
+            covariances.s_Covariances(i,i) += bn / dn * mn;
+        }
     }
 
     template<typename U> static U pow2(U x) { return x * x; }
@@ -188,7 +220,7 @@ std::ostream &operator<<(std::ostream &o,
 {
     return o << static_cast<const POINT&>(cluster)
              << " (" << cluster.annotation().s_Count
-             << "," << ::sqrt(cluster.annotation().s_Variance) << ")";
+             << "," << std::sqrt(cluster.annotation().s_Variance) << ")";
 }
 
 }

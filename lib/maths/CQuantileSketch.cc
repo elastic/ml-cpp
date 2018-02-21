@@ -20,20 +20,20 @@
 #include <boost/random/uniform_01.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 namespace ml
 {
 namespace maths
 {
-
 namespace
 {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef CQuantileSketch::TFloatFloatPr TFloatFloatPr;
-typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
+using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+using TFloatFloatPr = CQuantileSketch::TFloatFloatPr;
+using TFloatFloatPrVec = CQuantileSketch::TFloatFloatPrVec;
 
 //! \brief Orders two indices of a value vector by increasing value.
 class CIndexingGreater
@@ -177,9 +177,9 @@ void CQuantileSketch::add(double x, double n)
 
 void CQuantileSketch::age(double factor)
 {
-    for (std::size_t i = 0u; i < m_Knots.size(); ++i)
+    for (auto &&knot : m_Knots)
     {
-        m_Knots[i].second *= factor;
+        knot.second *= factor;
     }
     m_Count *= factor;
 }
@@ -320,75 +320,49 @@ bool CQuantileSketch::maximum(double &result) const
     return true;
 }
 
-bool CQuantileSketch::quantile(double percentage, double &result) const
+bool CQuantileSketch::mad(double &result) const
 {
-    result = 0.0;
     if (m_Knots.empty())
     {
         LOG_ERROR("No values added to quantile sketch");
         return false;
     }
 
+    double median;
+    quantile(E_Linear, m_Knots, m_Count, 50.0, median);
+    LOG_TRACE("median = " << median);
+
+    TFloatFloatPrVec knots(m_Knots);
+    std::for_each(knots.begin(), knots.end(),
+                  [median](TFloatFloatPr &knot)
+                  { knot.first = std::fabs(knot.first - median); });
+    std::sort(knots.begin(), knots.end(), COrderings::SFirstLess());
+    LOG_TRACE("knots = " << core::CContainerPrinter::print(knots));
+
+    quantile(E_Linear, knots, m_Count, 50.0, result);
+
+    return true;
+}
+
+bool CQuantileSketch::quantile(double percentage, double &result) const
+{
+    if (m_Knots.empty())
+    {
+        LOG_ERROR("No values added to quantile sketch");
+        return false;
+    }
     if (m_Unsorted > 0)
     {
         const_cast<CQuantileSketch*>(this)->reduce();
     }
-
     if (percentage < 0.0 || percentage > 100.0)
     {
         LOG_ERROR("Invalid percentile " << percentage)
         return false;
     }
 
-    std::size_t n = m_Knots.size();
+    quantile(m_Interpolation, m_Knots, m_Count, percentage, result);
 
-    percentage /= 100.0;
-
-    double partial = 0.0;
-    double cutoff  = percentage * m_Count;
-    for (std::size_t i = 0u; i < n; ++i)
-    {
-        partial += m_Knots[i].second;
-        if (partial >= cutoff - m_Count * EPS)
-        {
-            switch (m_Interpolation)
-            {
-            case E_Linear:
-                if (n == 1)
-                {
-                    result = m_Knots[0].first;
-                }
-                else
-                {
-                    double x0 = m_Knots[0].first;
-                    double x1 = m_Knots[1].first;
-                    double xa = i == 0   ? 2.0 * x0 - x1 : static_cast<double>(m_Knots[i-1].first);
-                    double xb = m_Knots[i].first;
-                    double xc = i+1 == n ? 2.0 * xb - xa : static_cast<double>(m_Knots[i+1].first);
-                    xa += 0.5 * (xb - xa);
-                    xb += 0.5 * (xc - xb);
-                    double dx = (xb - xa);
-                    double nb = m_Knots[i].second;
-                    double m  = nb / dx;
-                    result = xb + (cutoff - partial) / m;
-                }
-                return true;
-
-            case E_PiecewiseConstant:
-                if (i+1 == n || partial > cutoff + m_Count * EPS)
-                {
-                    result =  m_Knots[i].first;
-                }
-                else
-                {
-                    result = (m_Knots[i].first + m_Knots[i + 1].first) / 2.0;
-                }
-                return true;
-            }
-        }
-    }
-
-    result = m_Knots[n - 1].second;
     return true;
 }
 
@@ -405,10 +379,7 @@ double CQuantileSketch::count(void) const
 uint64_t CQuantileSketch::checksum(uint64_t seed) const
 {
     seed = CChecksum::calculate(seed, m_MaxSize);
-    for (std::size_t i = 0u; i < m_Knots.size(); ++i)
-    {
-        seed = CChecksum::calculate(seed, m_Knots[i]);
-    }
+    seed = CChecksum::calculate(seed, m_Knots);
     return CChecksum::calculate(seed, m_Count);
 }
 
@@ -446,9 +417,9 @@ bool CQuantileSketch::checkInvariants(void) const
     {
         count += m_Knots[i].second;
     }
-    if (::fabs(m_Count - count) > 10.0 * EPS * m_Count)
+    if (std::fabs(m_Count - count) > 10.0 * EPS * m_Count)
     {
-        LOG_ERROR("Count mismatch: error " << ::fabs(m_Count - count) << "/" << m_Count);
+        LOG_ERROR("Count mismatch: error " << std::fabs(m_Count - count) << "/" << m_Count);
         return false;
     }
     return true;
@@ -459,9 +430,66 @@ std::string CQuantileSketch::print(void) const
     return core::CContainerPrinter::print(m_Knots);
 }
 
+void CQuantileSketch::quantile(EInterpolation interpolation,
+                               const TFloatFloatPrVec &knots,
+                               double count,
+                               double percentage,
+                               double &result)
+{
+    std::size_t n = knots.size();
+
+    percentage /= 100.0;
+
+    double partial = 0.0;
+    double cutoff  = percentage * count;
+    for (std::size_t i = 0u; i < n; ++i)
+    {
+        partial += knots[i].second;
+        if (partial >= cutoff - count * EPS)
+        {
+            switch (interpolation)
+            {
+            case E_Linear:
+                if (n == 1)
+                {
+                    result = knots[0].first;
+                }
+                else
+                {
+                    double x0 = knots[0].first;
+                    double x1 = knots[1].first;
+                    double xa = i == 0   ? 2.0 * x0 - x1 : static_cast<double>(knots[i-1].first);
+                    double xb = knots[i].first;
+                    double xc = i+1 == n ? 2.0 * xb - xa : static_cast<double>(knots[i+1].first);
+                    xa += 0.5 * (xb - xa);
+                    xb += 0.5 * (xc - xb);
+                    double dx = (xb - xa);
+                    double nb = knots[i].second;
+                    double m  = nb / dx;
+                    result = xb + (cutoff - partial) / m;
+                }
+                return;
+
+            case E_PiecewiseConstant:
+                if (i+1 == n || partial > cutoff + count * EPS)
+                {
+                    result =  knots[i].first;
+                }
+                else
+                {
+                    result = (knots[i].first + knots[i+1].first) / 2.0;
+                }
+                return;
+            }
+        }
+    }
+
+    result = knots[n - 1].second;
+}
+
 void CQuantileSketch::reduce(void)
 {
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     CPRNG::CXorOShiro128Plus rng(static_cast<uint64_t>(m_Count));
     boost::random::uniform_01<double> u01;

@@ -12,6 +12,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CCategoricalTools.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraTools.h>
 #include <maths/ImportExport.h>
 
 #include <boost/array.hpp>
@@ -453,6 +454,10 @@ class MATHS_EXPORT CRegression
                 static const std::string UNIT_TIME_COVARIANCES_TAG;
 
             public:
+                CLeastSquaresOnlineParameterProcess(void) :
+                    m_UnitTimeCovariances(N)
+                {}
+
                 //! Restore by traversing a state document.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
@@ -492,26 +497,7 @@ class MATHS_EXPORT CRegression
 
                 //! Compute the variance of the mean zero normal distribution
                 //! due to the drift in the regression parameters over \p time.
-                double predictionVariance(double time) const
-                {
-                    if (time <= 0.0)
-                    {
-                        return 0.0;
-                    }
-
-                    TVector dT;
-                    T dt = static_cast<T>(std::sqrt(time));
-                    T dTi = dt;
-                    for (std::size_t i = 0u; i < N; ++i, dTi *= dt)
-                    {
-                        dT(i) = dTi;
-                    }
-
-                    CSymmetricMatrixNxN<T, N> covariance =
-                            CBasicStatistics::covariances(m_UnitTimeCovariances);
-
-                    return dT.inner(covariance * dT);
-                }
+                double predictionVariance(double time) const;
 
                 //! Get a checksum for this object.
                 uint64_t checksum(void) const;
@@ -520,7 +506,7 @@ class MATHS_EXPORT CRegression
                 std::string print(void) const;
 
             private:
-                using TCovarianceAccumulator = CBasicStatistics::SSampleCovariances<T, N>;
+                using TCovarianceAccumulator = CBasicStatistics::SSampleCovariances<TVector>;
 
             private:
                 //! The estimator of the Wiener process's unit time

@@ -16,14 +16,6 @@ const COutputHandler::TStrVec     COutputHandler::EMPTY_FIELD_NAMES;
 const COutputHandler::TStrStrUMap COutputHandler::EMPTY_FIELD_OVERRIDES;
 
 
-COutputHandler::COutputHandler(void)
-{
-}
-
-COutputHandler::~COutputHandler(void)
-{
-}
-
 void COutputHandler::newOutputStream(void)
 {
     // NOOP unless overridden

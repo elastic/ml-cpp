@@ -10,7 +10,7 @@
 #include <maths/CAgglomerativeClusterer.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CGramSchmidt.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CNaturalBreaksClassifier.h>
@@ -374,7 +374,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
             using TVectorNx1CRefSizeUMap =
                     boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
             using TClusterVec = typename CLUSTERER::TClusterVec;
-            using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<double, N>;
+            using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<TVectorNx1>;
 
             std::size_t b = m_ProjectedData.size();
             std::size_t n = m_ProjectedData[0].size();
@@ -424,7 +424,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     LOG_TRACE("wij = " << wij << ", nsij = " << nsij);
 
                     // Compute the cluster sample mean and covariance matrix.
-                    TSampleCovariancesNxN covariances;
+                    TSampleCovariancesNxN covariances(N);
                     covariances.add(points);
                     TVectorNx1 mij = CBasicStatistics::mean(covariances);
                     TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
@@ -791,10 +791,10 @@ CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
 
 //! \brief Adapts k-means for use by the random projection clusterer.
 template<std::size_t N>
-class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
+class CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>>
 {
     public:
-        using TClusterer = CKMeansFast<CVectorNx1<double, N>>;
+        using TClusterer = CKMeans<CVectorNx1<double, N>>;
         using TClusterVec = typename TClusterer::TClusterVec;
         using TVectorNx1 = CVectorNx1<double, N>;
         using TVectorNx1Vec = std::vector<TVectorNx1>;
@@ -846,12 +846,12 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
 
 //! Makes a k-means adapter for random projection clustering.
 template<std::size_t N>
-CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-    forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>> &kmeans,
+CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>>
+    forRandomProjectionClusterer(const CKMeans<CVectorNx1<double, N>> &kmeans,
                                  std::size_t k,
                                  std::size_t maxIterations)
 {
-    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(kmeans, k, maxIterations);
+    return CRandomProjectionClustererFacade<CKMeans<CVectorNx1<double, N>>>(kmeans, k, maxIterations);
 }
 
 }

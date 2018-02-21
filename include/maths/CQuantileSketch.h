@@ -46,11 +46,11 @@ namespace maths
 //! which are available for the q-digest, so if you know the range of the
 //! variable up front, that is a safer choice for approximate quantile
 //! estimation.
-class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
+class MATHS_EXPORT CQuantileSketch : private boost::addable<CQuantileSketch>
 {
     public:
-        typedef std::pair<CFloatStorage, CFloatStorage> TFloatFloatPr;
-        typedef std::vector<TFloatFloatPr> TFloatFloatPrVec;
+        using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
+        using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
 
         //! The types of interpolation used for computing the quantile.
         enum EInterpolation
@@ -92,6 +92,9 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
         //! Get the maximum value added.
         bool maximum(double &result) const;
 
+        //! Get the estimated median absolute deviation.
+        bool mad(double &result) const;
+
         //! Get the quantile corresponding to \p percentage.
         bool quantile(double percentage, double &result) const;
 
@@ -117,6 +120,13 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
         std::string print(void) const;
 
     private:
+        //! Compute quantiles on the supplied knots.
+        static void quantile(EInterpolation interpolation,
+                             const TFloatFloatPrVec &knots,
+                             double count,
+                             double percentage,
+                             double &result);
+
         //! Reduce to the maximum permitted size.
         void reduce(void);
 

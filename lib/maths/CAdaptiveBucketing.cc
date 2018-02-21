@@ -187,9 +187,9 @@ void CAdaptiveBucketing::initialValues(core_t::TTime time, const TTimeTimePrMean
                 vk.age(w * w);
                 double nk = CBasicStatistics::count(vk);
 
-                auto centre =  CBasicStatistics::accumulator(this->count(k-1),
-                                                             static_cast<double>(m_Centres[k-1]))
-                             + CBasicStatistics::accumulator(nk, (ak + bk) / 2.0);
+                auto centre =  CBasicStatistics::momentsAccumulator(this->count(k-1),
+                                                                    static_cast<double>(m_Centres[k-1]))
+                             + CBasicStatistics::momentsAccumulator(nk, (ak + bk) / 2.0);
 
                 m_Centres[k-1] = CBasicStatistics::mean(centre);
                 this->add(k-1, time, xl, vk);
@@ -212,8 +212,8 @@ void CAdaptiveBucketing::clear(void)
 void CAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double weight)
 {
     TDoubleMeanAccumulator centre{
-        CBasicStatistics::accumulator(this->count(bucket),
-                                      static_cast<double>(m_Centres[bucket]))};
+        CBasicStatistics::momentsAccumulator(this->count(bucket),
+                                             static_cast<double>(m_Centres[bucket]))};
     centre.add(this->offset(time), weight);
     m_Centres[bucket] = CBasicStatistics::mean(centre);
 }

@@ -30,15 +30,14 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/math/distributions/students_t.hpp>
-#include <boost/optional.hpp>
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/tools/precision.hpp>
+#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <ostream>
-
 
 namespace boost
 {
@@ -494,7 +493,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
                                                           double x,
                                                           maths_t::ETail &tail) const
 {
-    x = ::floor(x);
+    x = std::floor(x);
 
     double px = 0.0;
 
@@ -602,8 +601,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
 
         double logOneMinusP = std::log(1 - p);
 
-        b1 = ::floor(m + std::log(  std::max(fx, MIN_DOUBLE)
-                                  / std::max(fm, MIN_DOUBLE)) / logOneMinusP);
+        b1 = std::floor(m + std::log(  std::max(fx, MIN_DOUBLE)
+                                     / std::max(fm, MIN_DOUBLE)) / logOneMinusP);
         f1 = safePdf(negativeBinomial, b1);
         b2 = b1;
         f2 = f1;
@@ -667,11 +666,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
     }
     catch (const std::exception &e)
     {
-        if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
         {
             y = b1;
         }
-        else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
         {
             y = b2;
         }
@@ -738,7 +737,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal &logNo
                         * (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
-        double y = m * ::exp(x > m ? -discriminant : discriminant);
+        double y = m * std::exp(x > m ? -discriminant : discriminant);
         if (x > y)
         {
             std::swap(x, y);
@@ -843,11 +842,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
             }
             catch (const std::exception &e)
             {
-                if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+                if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
                 {
                     y = b1;
                 }
-                else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+                else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
                 {
                     y = b2;
                 }
@@ -901,13 +900,13 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     double s = logt.scale();
 
     // Initialize the bracket.
-    double fl = pdf(logt, ::exp(l));
+    double fl = pdf(logt, std::exp(l));
     double scale = std::sqrt(v) * s;
     double bound = 0.0;
     double fBound = POS_INF;
     if (fl < fx)
     {
-        bound = ::exp(l);
+        bound = std::exp(l);
         fBound = fl;
     }
     else
@@ -915,7 +914,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
         double t1 = l + std::log(fl / fx);
         double t2 = (l - scale) / 8.0 + std::log(scale / 3.0);
         double k0 = 8.0 * (t1 + (v + 1.0) * t2) / (v + 9.0);
-        bound = std::max(::exp(l), ::exp(k0));
+        bound = std::max(std::exp(l), std::exp(k0));
         fBound = pdf(logt, bound);
     }
     double b1 = fBound < fx ? m : bound;
@@ -931,7 +930,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     // of early exit based on an upper bound for the bracket. Note
     // that we accelerate the growth if we don't bracket the root
     // quickly and fallback to the bound if we haven't bracketed
-    double step = std::max(b2, ::exp(l) - b2);
+    double step = std::max(b2, std::exp(l) - b2);
     double growthFactor = 1.0;
     for (;;)
     {
@@ -991,11 +990,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     }
     catch (const std::exception &e)
     {
-        if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
         {
             y = b1;
         }
-        else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
         {
             y = b2;
         }
@@ -1085,7 +1084,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
             y[(i + 1) % 2] = x + m * std::log(y[i % 2] / x);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
             {
                 break;
             }
@@ -1113,10 +1112,10 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
 
         for (;;)
         {
-            y[(i + 1) % 2] = x * ::exp(-(x - y[i % 2]) / m);
+            y[(i + 1) % 2] = x * std::exp(-(x - y[i % 2]) / m);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
             {
                 break;
             }
@@ -1127,7 +1126,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
     double fy = safePdf(gamma_, y[i % 2]);
     LOG_TRACE("f(x) = " << fx << ", f(y) = " << fy);
 
-    if (::fabs(fx - fy) <= PDF_TOLERANCE * std::max(fx, fy))
+    if (std::fabs(fx - fy) <= PDF_TOLERANCE * std::max(fx, fy))
     {
         if (x > y[i % 2])
         {
@@ -1203,18 +1202,18 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
                   << ", iterations = " << maxIterations
                   << ", f(candidate) = " << safePdf(gamma_, candidate) - fx);
 
-        if (::fabs(safePdf(gamma_, candidate) - fx) < ::fabs(fy - fx))
+        if (std::fabs(safePdf(gamma_, candidate) - fx) < std::fabs(fy - fx))
         {
             y[i % 2] = candidate;
         }
     }
     catch (const std::exception &e)
     {
-        if (::fabs(fa - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(fa - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = a;
         }
-        else if (::fabs(fb - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(fb - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = b;
         }
@@ -1344,9 +1343,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         double k = (beta_.alpha() - 1.0) / (beta_.beta() - 1.0);
         for (;;)
         {
-            y[(i + 1) % 2] = 1.0 - ::exp(k * std::log(x / y[i % 2])) * (1.0 - x);
+            y[(i + 1) % 2] = 1.0 - std::exp(k * std::log(x / y[i % 2])) * (1.0 - x);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
             {
                 break;
             }
@@ -1385,9 +1384,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         double k = (beta_.beta() - 1.0) / (beta_.alpha() - 1.0);
         for (;;)
         {
-            y[(i + 1) % 2] = ::exp(k * std::log((1.0 - x) / (1.0 -  y[i % 2]))) * x;
+            y[(i + 1) % 2] = std::exp(k * std::log((1.0 - x) / (1.0 -  y[i % 2]))) * x;
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
             {
                 break;
             }
@@ -1414,7 +1413,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
     try
     {
         double error = sp.second ? fy - fx : fx - fy;
-        if (::fabs(error) <= PDF_TOLERANCE * std::max(fx, fy))
+        if (std::fabs(error) <= PDF_TOLERANCE * std::max(fx, fy))
         {
             if (x > y[i % 2])
             {
@@ -1484,18 +1483,18 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
                   << ", f(candidate) = " << safePdf(beta_, candidate) - fx
                   << ", eps = " << eps);
 
-        if (::fabs(safePdf(beta_, candidate) - fx) < ::fabs(fy - fx))
+        if (std::fabs(safePdf(beta_, candidate) - fx) < std::fabs(fy - fx))
         {
             y[i % 2] = candidate;
         }
     }
     catch (const std::exception &e)
     {
-        if (::fabs(fBracket.first - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(fBracket.first - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = bracket.first;
         }
-        else if (::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = bracket.second;
         }
@@ -1661,8 +1660,8 @@ double CTools::SIntervalExpectation::operator()(const normal &normal_,
     double s  = std::sqrt(2.0) * sd;
     double a_ = a == NEG_INF ? a : (a - mean) / s;
     double b_ = b == POS_INF ? b : (b - mean) / s;
-    double expa = a_ == NEG_INF ? 0.0 : ::exp(-a_ * a_);
-    double expb = b_ == POS_INF ? 0.0 : ::exp(-b_ * b_);
+    double expa = a_ == NEG_INF ? 0.0 : std::exp(-a_ * a_);
+    double expb = b_ == POS_INF ? 0.0 : std::exp(-b_ * b_);
     double erfa = a_ == NEG_INF ? -1.0 : boost::math::erf(a_);
     double erfb = b_ == POS_INF ?  1.0 : boost::math::erf(b_);
 
@@ -1709,8 +1708,8 @@ double CTools::SIntervalExpectation::operator()(const lognormal &logNormal,
 
     if (erfb - erfa < std::sqrt(EPSILON))
     {
-        double expa = loga == NEG_INF ? 0.0 : ::exp(-a_ * a_);
-        double expb = logb == POS_INF ? 0.0 : ::exp(-b_ * b_);
+        double expa = loga == NEG_INF ? 0.0 : std::exp(-a_ * a_);
+        double expb = logb == POS_INF ? 0.0 : std::exp(-b_ * b_);
         return expa == expb ?
                (2.0 * a / (a + b)) * b :
                (expa + expb) / (expa / a + expb / b);
@@ -1746,8 +1745,8 @@ double CTools::SIntervalExpectation::operator()(const gamma &gamma_,
 
     if (gamb - gama < std::sqrt(EPSILON))
     {
-        double expa = a <= 0.0     ? 0.0 : ::exp((shape - 1.0) * std::log(a) - rate * a);
-        double expb = b == POS_INF ? 0.0 : ::exp((shape - 1.0) * std::log(b) - rate * b);
+        double expa = a <= 0.0     ? 0.0 : std::exp((shape - 1.0) * std::log(a) - rate * a);
+        double expb = b == POS_INF ? 0.0 : std::exp((shape - 1.0) * std::log(b) - rate * b);
         return (a * expa + b * expb) / (expa + expb);
     }
 
@@ -2152,19 +2151,19 @@ double CTools::inverseDeviation(double deviation)
     {
         // We invert the linear scaling of the log probability
         // into the range (1.0, 50.0].
-        result = ::exp(-(MINUS_LOG_SMALL_PROBABILITY
-                         + (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY)
-                           * (deviation - SMALL_PROBABILITY_DEVIATION)
-                           / (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION)));
+        result = std::exp(-(MINUS_LOG_SMALL_PROBABILITY
+                            + (MINUS_LOG_MINUSCULE_PROBABILITY - MINUS_LOG_SMALL_PROBABILITY)
+                              * (deviation - SMALL_PROBABILITY_DEVIATION)
+                              / (MINUSCULE_PROBABILITY_DEVIATION - SMALL_PROBABILITY_DEVIATION)));
     }
     else
     {
         // We invert the linear scaling of the log probability
         // into the range (50.0, 100.0].
-        result = ::exp(-(MINUS_LOG_MINUSCULE_PROBABILITY
-                         + (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY)
-                           * (deviation - MINUSCULE_PROBABILITY_DEVIATION)
-                           / (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION)));
+        result = std::exp(-(MINUS_LOG_MINUSCULE_PROBABILITY
+                            + (MINUS_LOG_SMALLEST_PROBABILITY - MINUS_LOG_MINUSCULE_PROBABILITY)
+                              * (deviation - MINUSCULE_PROBABILITY_DEVIATION)
+                              / (MAX_DEVIATION - MINUSCULE_PROBABILITY_DEVIATION)));
     }
 
     if (!(result >= 0.0 && result <= 1.0))

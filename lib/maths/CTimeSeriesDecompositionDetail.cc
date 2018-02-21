@@ -1827,9 +1827,9 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue &messag
             if (m_Trend)
             {
                 TMeanVarAccumulator moments{
-                        CBasicStatistics::accumulator(trend.count(),
-                                                      CBasicStatistics::mean(trend.prediction(time, 0.0)),
-                                                      m_Trend->s_Variance)};
+                        CBasicStatistics::momentsAccumulator(trend.count(),
+                                                             CBasicStatistics::mean(trend.prediction(time, 0.0)),
+                                                             m_Trend->s_Variance)};
                 moments.add(values[0], weight);
                 double t{trend.time(time)};
 

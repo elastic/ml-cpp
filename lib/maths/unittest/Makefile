@@ -28,6 +28,7 @@ SRCS=\
 	CCategoricalToolsTest.cc \
 	CChecksumTest.cc \
 	CClustererTest.cc \
+	CClusterEvaluationTest.cc \
 	CCountMinSketchTest.cc \
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
@@ -35,15 +36,17 @@ SRCS=\
 	CForecastTest.cc \
 	CGammaRateConjugateTest.cc \
 	CGramSchmidtTest.cc \
+	CImputerTest.cc \
 	CInformationCriteriaTest.cc \
 	CIntegerToolsTest.cc \
 	CIntegrationTest.cc \
 	CKdTreeTest.cc \
-	CKMeansFastTest.cc \
+	CKMeansTest.cc \
 	CKMeansOnlineTest.cc \
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
 	CLinearAlgebraTest.cc \
+	CLocalOutlierFactorsTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
 	CMathsFuncsTest.cc \
@@ -62,6 +65,7 @@ SRCS=\
 	COrderingsTest.cc \
 	COrdinalTest.cc \
 	CPackedBitVectorTest.cc \
+	CPcaTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
 	CPRNGTest.cc \

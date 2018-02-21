@@ -9,7 +9,8 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CTypeConversions.h>
+#include <maths/CLinearAlgebraShims.h>
+#include <maths/CTypeTraits.h>
 
 #include <cstddef>
 #include <ostream>
@@ -34,11 +35,10 @@ class CBoundingBox
         {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
         }
-        typedef typename SFloatingPoint<POINT, double>::Type TPointPrecise;
+        using TPointPrecise = typename SFloatingPoint<POINT, double>::Type;
 
     public:
         CBoundingBox(void) : m_Empty(true), m_A(), m_B() {}
-
         CBoundingBox(const POINT &x) : m_Empty(false), m_A(x), m_B(x) {}
 
         //! Clear the bounding box.
@@ -58,8 +58,8 @@ class CBoundingBox
             }
             else
             {
-                m_A = min(m_A, p);
-                m_B = max(m_B, p);
+                las::min(p, m_A);
+                las::max(p, m_B);
             }
             m_Empty = false;
         }
@@ -74,8 +74,8 @@ class CBoundingBox
             }
             else if (!other.m_Empty)
             {
-                m_A = min(m_A, other.m_A);
-                m_B = max(m_B, other.m_B);
+                las::min(other.m_A, m_A);
+                las::max(other.m_B, m_B);
                 m_Empty = false;
             }
         }
@@ -105,12 +105,15 @@ class CBoundingBox
         bool closerToX(const POINT &x, const POINT &y) const
         {
             POINT xy = y - x;
-            POINT f(0);
-            for (std::size_t i = 0u; i < x.dimension(); ++i)
+            POINT f(m_B);
+            for (std::size_t i = 0u; i < las::dimension(x); ++i)
             {
-                f(i) = xy(i) < 0 ? m_A(i) : m_B(i);
+                if (xy(i) < 0)
+                {
+                    f(i) = m_A(i);
+                }
             }
-            return (f - x).euclidean() <= (f - y).euclidean();
+            return las::distance(f, x) <= las::distance(f, y);
         }
 
         //! Print this bounding box.
@@ -128,7 +131,6 @@ class CBoundingBox
         //! The bottom left and top right corner of the bounding box.
         POINT m_A, m_B;
 };
-
 
 }
 }

@@ -16,6 +16,7 @@ class CQuantileSketchTest : public CppUnit::TestFixture
         void testReduce(void);
         void testMerge(void);
         void testMedian(void);
+        void testMad(void);
         void testPropagateForwardByTime(void);
         void testQuantileAccuracy(void);
         void testCdf(void);

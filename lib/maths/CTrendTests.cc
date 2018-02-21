@@ -404,8 +404,8 @@ double residualVariance(const TMeanAccumulator &mean)
 TMeanAccumulator residualVariance(const TMeanVarAccumulator &bucket,
                                   double scale)
 {
-    return CBasicStatistics::accumulator(scale * CBasicStatistics::count(bucket),
-                                         CBasicStatistics::maximumLikelihoodVariance(bucket));
+    return CBasicStatistics::momentsAccumulator(scale * CBasicStatistics::count(bucket),
+                                                CBasicStatistics::maximumLikelihoodVariance(bucket));
 }
 
 //! \brief Partially specialized helper class to get the trend
@@ -651,7 +651,7 @@ double CTrendTest::time(core_t::TTime time) const
 
 const double CTrendTest::MAXIMUM_TREND_VARIANCE_RATIO{0.5};
 
-//////// CRandomizedPeriodicitytest ////////
+//////// CRandomizedPeriodicityTest ////////
 
 CRandomizedPeriodicityTest::CRandomizedPeriodicityTest(void) :
         m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL),

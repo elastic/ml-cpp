@@ -328,14 +328,14 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             TDoubleMeanVarAccumulator value{CBasicStatistics::scaled(m_Values[l-1], w)};
             TDoubleMeanAccumulator centre{
-                    CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l-1]),
-                                                  static_cast<double>(m_Centres[l-1]))};
+                    CBasicStatistics::momentsAccumulator(w * CBasicStatistics::count(m_Values[l-1]),
+                                                         static_cast<double>(m_Centres[l-1]))};
             double count{w * w * CBasicStatistics::count(m_Values[l-1])};
             while (++l < r)
             {
                 value  += m_Values[l-1];
-                centre += CBasicStatistics::accumulator(CBasicStatistics::count(m_Values[l-1]),
-                                                        static_cast<double>(m_Centres[l-1]));
+                centre += CBasicStatistics::momentsAccumulator(CBasicStatistics::count(m_Values[l-1]),
+                                                               static_cast<double>(m_Centres[l-1]));
                 count  += CBasicStatistics::count(m_Values[l-1]);
             }
             xl = endpoints[l-1];
@@ -343,8 +343,8 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
             interval = m_Endpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
             value  += CBasicStatistics::scaled(m_Values[l-1], w);
-            centre += CBasicStatistics::accumulator(w * CBasicStatistics::count(m_Values[l-1]),
-                                                    static_cast<double>(m_Centres[l-1]));
+            centre += CBasicStatistics::momentsAccumulator(w * CBasicStatistics::count(m_Values[l-1]),
+                                                           static_cast<double>(m_Centres[l-1]));
             count  += w * w * CBasicStatistics::count(m_Values[l-1]);
             double scale{count / CBasicStatistics::count(value)};
             values.push_back(CBasicStatistics::scaled(value, scale));

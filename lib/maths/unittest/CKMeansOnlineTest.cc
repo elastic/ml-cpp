@@ -23,6 +23,7 @@ using namespace ml;
 
 namespace
 {
+
 typedef std::vector<double> TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<TSizeVec> TSizeVecVec;
@@ -277,11 +278,7 @@ void CKMeansOnlineTest::testClustering(void)
             rng.generateUniformSamples(a[i], b[i], 200, coordinates);
             for (std::size_t j = 0u; j < coordinates.size(); j += 2)
             {
-                double c[] =
-                    {
-                        coordinates[j+0],
-                        coordinates[j+1]
-                    };
+                double c[]{coordinates[j+0], coordinates[j+1]};
                 points.push_back(TVector2(c));
             }
         }
@@ -290,7 +287,7 @@ void CKMeansOnlineTest::testClustering(void)
         {
             LOG_DEBUG("*** test = " << t << " ***");
 
-            maths::CKMeansFast<TVector2> kmeans;
+            maths::CKMeans<TVector2> kmeans;
             double cost_ = std::numeric_limits<double>::max();
             kmeans.setPoints(points);
             TVector2Vec centres;
@@ -321,8 +318,7 @@ void CKMeansOnlineTest::testClustering(void)
                 criterion.add(clustersOnline);
                 costOnline_ = criterion.calculate();
             }
-            LOG_DEBUG("cost = " << cost_
-                      << ", cost online = " << costOnline_);
+            LOG_DEBUG("cost = " << cost_ << ", cost online = " << costOnline_);
 
             cost.add(cost_);
             costOnline.add(costOnline_);
@@ -350,11 +346,7 @@ void CKMeansOnlineTest::testClustering(void)
         TVector2Vec points;
         for (std::size_t i = 0u; i < coordinates.size(); i += 2)
         {
-            double v[] =
-                {
-                    coordinates[i+0],
-                    coordinates[i+1]
-                };
+            double v[]{coordinates[i+0], coordinates[i+1]};
             points.push_back(TVector2(v));
         }
 
@@ -362,7 +354,7 @@ void CKMeansOnlineTest::testClustering(void)
         {
             LOG_DEBUG("*** test = " << t << " ***");
 
-            maths::CKMeansFast<TVector2> kmeans;
+            maths::CKMeans<TVector2> kmeans;
             maths::CKMeansOnline<TVector2> kmeansOnline(24);
 
             double cost_ = std::numeric_limits<double>::max();
@@ -394,8 +386,7 @@ void CKMeansOnlineTest::testClustering(void)
                 criterion.add(clustersOnline);
                 costOnline_ = criterion.calculate();
             }
-            LOG_DEBUG("cost = " << cost_
-                      << ", cost online = " << costOnline_);
+            LOG_DEBUG("cost = " << cost_ << ", cost online = " << costOnline_);
 
             cost.add(cost_);
             costOnline.add(costOnline_);
@@ -635,7 +626,8 @@ void CKMeansOnlineTest::testSample(void)
     // exactly the points we have added and for a large number
     // of samples we sample the modes of the mixture correctly.
 
-    typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+    using TCovariances2 = maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 2>>;
 
     maths::CSampling::seed();
 
@@ -651,7 +643,7 @@ void CKMeansOnlineTest::testSample(void)
             { 15.0, 5.0, 12.0 }
         };
 
-    maths::CBasicStatistics::SSampleCovariances<double, 2> expectedSampleCovariances[2];
+    TCovariances2 expectedSampleCovariances[2]{TCovariances2(2), TCovariances2(2)};
     TVector2Vec samples;
 
     for (std::size_t i = 0u; i < 2; ++i)
@@ -698,7 +690,7 @@ void CKMeansOnlineTest::testSample(void)
     std::sort(sampled.begin(), sampled.end());
     LOG_DEBUG("sampled = " << core::CContainerPrinter::print(sampled));
 
-    maths::CBasicStatistics::SSampleCovariances<double, 2> sampleCovariances[2];
+    TCovariances2 sampleCovariances[2]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0u; i < sampled.size(); ++i)
     {
         if ((sampled[i] - TVector2(means[0])).euclidean()

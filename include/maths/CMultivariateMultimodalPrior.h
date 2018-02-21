@@ -731,7 +731,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior
         {
             if (m_Modes.size() == 0)
             {
-                return TPoint::largest().diagonal().template toVectors<TDouble10Vec10Vec>();
+                return TPoint::largest().asDiagonal().template toVectors<TDouble10Vec10Vec>();
             }
             if (m_Modes.size() == 1)
             {

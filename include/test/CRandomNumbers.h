@@ -156,9 +156,9 @@ class TEST_EXPORT CRandomNumbers
         //! \param[out] points Filled in with the samples from each cluster.
         template<typename T, std::size_t N>
         void generateRandomMultivariateNormals(const TSizeVec &sizes,
-                                               std::vector<maths::CVectorNx1<T, N> > &means,
-                                               std::vector<maths::CSymmetricMatrixNxN<T, N> > &covariances,
-                                               std::vector<std::vector<maths::CVectorNx1<T, N> > > &points);
+                                               std::vector<maths::CVectorNx1<T, N>> &means,
+                                               std::vector<maths::CSymmetricMatrixNxN<T, N>> &covariances,
+                                               std::vector<std::vector<maths::CVectorNx1<T, N>>> &points);
 
         //! Get a uniform generator in the range [0, n). This can be used
         //! in conjunction with std::random_shuffle if you want a seeded

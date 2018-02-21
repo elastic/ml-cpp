@@ -46,8 +46,8 @@ template<std::size_t N>
 class CCompressedDictionary
 {
     public:
-        typedef boost::array<uint64_t, N> TUInt64Array;
-        typedef const std::string* TStrCPtr;
+        using TUInt64Array = boost::array<uint64_t, N>;
+        using TStrCPtr = const std::string*;
 
         //! \brief A hash representation of a string in the dictionary
         //! with low probability of collision even for relatively large
@@ -161,28 +161,18 @@ class CCompressedDictionary
         };
 
         //! The type of an ordered set of words.
-        typedef std::set<CWord> TWordSet;
+        using TWordSet = std::set<CWord>;
 
         //! The type of an unordered set of words.
-        typedef boost::unordered_set<CWord, CHash> TWordUSet;
+        using TWordUSet = boost::unordered_set<CWord, CHash>;
 
-        //! A "template typedef" of an ordered map from words to
-        //! objects of type T.
+        //! A template typedef of an ordered map from words to objects of type T.
         template<typename T>
-        class CWordMap
-        {
-            public:
-                typedef std::map<CWord, T> Type;
-        };
+        using TWordTMap = std::map<CWord, T, CHash>;
 
-        //! A "template typedef" of an unordered map from words to
-        //! objects of type T.
+        //! A template typedef of an unordered map from words to objects of type T.
         template<typename T>
-        class CWordUMap
-        {
-            public:
-                typedef boost::unordered_map<CWord, T, CHash> Type;
-        };
+        using TWordTUMap = boost::unordered_map<CWord, T, CHash>;
 
     public:
         CCompressedDictionary(void)

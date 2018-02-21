@@ -74,16 +74,16 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
         //! Destructor flushes the stream
         virtual ~CCsvOutputWriter(void);
 
+        // Bring the other overload of fieldNames() into scope
+        using COutputHandler::fieldNames;
+
         //! Set field names, adding extra field names if they're not already
         //! present - this is only allowed once
         virtual bool fieldNames(const TStrVec &fieldNames,
                                 const TStrVec &extraFieldNames);
 
-        //! Get field names
-        virtual const TStrVec &fieldNames(void) const;
-
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+        // Bring the other overload of writeRow() into scope
+        using COutputHandler::writeRow;
 
         //! Write a row to the stream, optionally overriding some of the
         //! original field values.  Where the same field is present in both
@@ -91,9 +91,6 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
         //! overrideDataRowFields will be written.
         virtual bool writeRow(const TStrStrUMap &dataRowFields,
                               const TStrStrUMap &overrideDataRowFields);
-
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
 
         //! Get the contents of the internal string stream - for use with the
         //! zero argument constructor

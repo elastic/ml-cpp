@@ -243,9 +243,9 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
     TRegression &regression{m_Regressions[bucket]};
 
     TDoubleMeanVarAccumulator moments =
-            CBasicStatistics::accumulator(regression.count(),
-                                          prediction,
-                                          static_cast<double>(m_Variances[bucket]));
+            CBasicStatistics::momentsAccumulator(regression.count(),
+                                                 prediction,
+                                                 static_cast<double>(m_Variances[bucket]));
     moments.add(value, weight * weight);
 
     // Note this condition can change as a result adding the new
@@ -534,21 +534,21 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
             double w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             TDoubleRegression regression{m_Regressions[l-1].scaled(w)};
             TDoubleMeanAccumulator centre{
-                    CBasicStatistics::accumulator(w * m_Regressions[l-1].count(),
-                                                  static_cast<double>(m_Centres[l-1]))};
+                    CBasicStatistics::momentsAccumulator(w * m_Regressions[l-1].count(),
+                                                         static_cast<double>(m_Centres[l-1]))};
             TDoubleMeanVarAccumulator variance{
-                    CBasicStatistics::accumulator(w * m_Regressions[l-1].count(),
-                                                  m_Regressions[l-1].mean(),
-                                                  static_cast<double>(m_Variances[l-1]))};
+                    CBasicStatistics::momentsAccumulator(w * m_Regressions[l-1].count(),
+                                                         m_Regressions[l-1].mean(),
+                                                         static_cast<double>(m_Variances[l-1]))};
             double count{w * w * m_Regressions[l-1].count()};
             while (++l < r)
             {
                 regression += m_Regressions[l-1];
-                centre += CBasicStatistics::accumulator(m_Regressions[l-1].count(),
-                                                        static_cast<double>(m_Centres[l-1]));
-                variance += CBasicStatistics::accumulator(m_Regressions[l-1].count(),
-                                                          m_Regressions[l-1].mean(),
-                                                          static_cast<double>(m_Variances[l-1]));
+                centre += CBasicStatistics::momentsAccumulator(m_Regressions[l-1].count(),
+                                                               static_cast<double>(m_Centres[l-1]));
+                variance += CBasicStatistics::momentsAccumulator(m_Regressions[l-1].count(),
+                                                                 m_Regressions[l-1].mean(),
+                                                                 static_cast<double>(m_Variances[l-1]));
                 count += m_Regressions[l-1].count();
             }
             xl = endpoints[l-1];
@@ -556,11 +556,11 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
             interval = m_Endpoints[i] - xl;
             w = CTools::truncate(interval / (xr - xl), 0.0, 1.0);
             regression += m_Regressions[l-1].scaled(w);
-            centre += CBasicStatistics::accumulator(w * m_Regressions[l-1].count(),
-                                                    static_cast<double>(m_Centres[l-1]));
-            variance += CBasicStatistics::accumulator(w * m_Regressions[l-1].count(),
-                                                      m_Regressions[l-1].mean(),
-                                                      static_cast<double>(m_Variances[l-1]));
+            centre += CBasicStatistics::momentsAccumulator(w * m_Regressions[l-1].count(),
+                                                           static_cast<double>(m_Centres[l-1]));
+            variance += CBasicStatistics::momentsAccumulator(w * m_Regressions[l-1].count(),
+                                                             m_Regressions[l-1].mean(),
+                                                             static_cast<double>(m_Variances[l-1]));
             count += w * w * m_Regressions[l-1].count();
             double scale{count == regression.count() ? 1.0 : count / regression.count()};
             regressions.push_back(regression.scaled(scale));
@@ -612,9 +612,9 @@ void CSeasonalComponentAdaptiveBucketing::add(std::size_t bucket,
     core_t::TTime tk{time +  (m_Time->windowStart() + static_cast<core_t::TTime>(offset + 0.5))
                             % m_Time->windowRepeat()};
     TDoubleMeanVarAccumulator variance_{
-            CBasicStatistics::accumulator(regression.count(),
-                                          regression.mean(),
-                                          static_cast<double>(variance)) + value};
+            CBasicStatistics::momentsAccumulator(regression.count(),
+                                                 regression.mean(),
+                                                 static_cast<double>(variance)) + value};
 
     regression.add(m_Time->regression(tk),
                    CBasicStatistics::mean(value),

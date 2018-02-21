@@ -71,11 +71,6 @@ bool COutputChainer::fieldNames(const TStrVec &fieldNames,
     return true;
 }
 
-const COutputHandler::TStrVec &COutputChainer::fieldNames(void) const
-{
-    return m_FieldNames;
-}
-
 bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
                               const TStrStrUMap &overrideDataRowFields)
 {

@@ -9,12 +9,10 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
-#include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CLinearAlgebraFwd.h>
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 #include <maths/ImportExport.h>
 
 #include <boost/array.hpp>
@@ -25,21 +23,13 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace ml
 {
 namespace maths
 {
-namespace basic_statistics_detail
-{
-//! Default undefined custom add function for points to the covariance
-//! estimator.
-template<typename POINT> struct SCovariancesCustomAdd {};
-
-//! Default undefined covariance matrix shrinkage estimator.
-template<typename POINT> struct SCovariancesLedoitWolf {};
-}
 
 //! \brief Some basic stats utilities.
 //!
@@ -78,6 +68,8 @@ class MATHS_EXPORT CBasicStatistics
 
 
         /////////////////////////// ACCUMULATORS ///////////////////////////
+
+        ////////////////////////// Central Moments /////////////////////////
 
         //! Delimiter used to persist basic types to a string.
         static const char INTERNAL_DELIMITER;
@@ -151,14 +143,20 @@ class MATHS_EXPORT CBasicStatistics
             }
 
             //! Copy construction from implicitly convertible type.
+            //!
+            //! \note Because this is template it is *not* an copy constructor
+            //! so this class has implicit move semantics.
             template<typename U>
             SSampleCentralMoments(const SSampleCentralMoments<U, ORDER> &other) :
-                s_Count{other.s_Count}
+                    s_Count{other.s_Count}
             {
                 std::copy(other.s_Moments, other.s_Moments + ORDER, s_Moments);
             }
 
             //! Assignment from implicitly convertible type.
+            //!
+            //! \note Because this is template it is *not* an copy assignment
+            //! operator so this class has implicit move semantics.
             template<typename U>
             const SSampleCentralMoments &
                 operator=(const SSampleCentralMoments<U, ORDER> &other)
@@ -403,7 +401,7 @@ class MATHS_EXPORT CBasicStatistics
             //@}
 
             //! Get a checksum for this object.
-            uint64_t checksum(void) const;
+            std::uint64_t checksum(void) const;
 
             TCoordinate s_Count;
             T s_Moments[ORDER];
@@ -438,7 +436,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 1u>
-            accumulator(const U &count, const T &m1)
+            momentsAccumulator(const U &count, const T &m1)
         {
             SSampleCentralMoments<T, 1u> result;
             result.s_Count = count;
@@ -449,7 +447,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean and variance accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 2u>
-            accumulator(const U &count, const T &m1, const T &m2)
+            momentsAccumulator(const U &count, const T &m1, const T &m2)
         {
             SSampleCentralMoments<T, 2u> result;
             result.s_Count = count;
@@ -461,7 +459,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean, variance and skew accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 3u>
-            accumulator(const U &count, const T &m1, const T &m2, const T &m3)
+            momentsAccumulator(const U &count, const T &m1, const T &m2, const T &m3)
         {
             SSampleCentralMoments<T, 3u> result;
             result.s_Count = count;
@@ -751,6 +749,8 @@ class MATHS_EXPORT CBasicStatistics
             accumulator.s_Count *= typename SSampleCentralMoments<T, N>::TCoordinate{scale};
         }
 
+        //////////////////////////// Covariances ///////////////////////////
+
         //! \brief An accumulator class for vector sample mean and covariances.
         //!
         //! DESCRIPTION:\n
@@ -771,46 +771,42 @@ class MATHS_EXPORT CBasicStatistics
         //! This uses the same recurrence relations as SSampleCentralMoments so
         //! see that class for more information on these.
         //!
-        //! \tparam T The "floating point" type.
-        //! \tparam N The vector dimension.
-        template<typename T, std::size_t N>
-        struct SSampleCovariances : public std::unary_function<CVectorNx1<T, N>, void>
+        //! \tparam POINT The "floating point" vector type.
+        template<typename POINT>
+        struct SSampleCovariances : public std::unary_function<POINT, void>
         {
             //! See core::CMemory.
             static bool dynamicSizeAlwaysZero(void)
             {
-                return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
+                return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
             }
 
-            using TVector = CVectorNx1<T, N>;
-            using TMatrix = CSymmetricMatrixNxN<T, N>;
+            using TVector = POINT;
+            using TMatrix = typename SConformableMatrix<POINT>::Type;
 
-            SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0}
-            {}
-
-            SSampleCovariances(T count,
-                               const TVector &mean,
-                               const TMatrix &covariances) :
-                    s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
-            {}
-
+            explicit SSampleCovariances(std::size_t dimension);
             SSampleCovariances(const TVector &count,
                                const TVector &mean,
                                const TMatrix &covariances) :
                     s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
             {}
-
             //! Copy construction from implicitly convertible type.
-            template<typename U>
-            SSampleCovariances(const SSampleCovariances<U, N> &other) :
+            //!
+            //! \note Because this is template it is *not* a copy constructor
+            //! so this class has implicit move semantics.
+            template<typename OTHER_POINT>
+            SSampleCovariances(const SSampleCovariances<OTHER_POINT> &other) :
                     s_Count{other.s_Count},
                     s_Mean{other.s_Mean},
                     s_Covariances{other.s_Covariances}
             {}
 
             //! Assignment from implicitly convertible type.
-            template<typename U>
-            const SSampleCovariances &operator=(const SSampleCovariances<U, N> &other)
+            //!
+            //! \note Because this is template it is *not* an copy assignment
+            //! operator so this class has implicit move semantics.
+            template<typename OTHER_POINT>
+            const SSampleCovariances &operator=(const SSampleCovariances<OTHER_POINT> &other)
             {
                 s_Count = other.s_Count;
                 s_Mean = other.s_Mean;
@@ -836,91 +832,35 @@ class MATHS_EXPORT CBasicStatistics
             }
 
             //! Update the moments with the collection \p x.
-            template<typename POINT>
-            void add(const std::vector<POINT> &x)
+            template<typename OTHER_POINT>
+            void add(const std::vector<OTHER_POINT> &x)
             {
-                for (const auto &xi : x)
+                for (const auto &x_ : x)
                 {
-                    this->add(xi);
+                    this->add(x_);
                 }
             }
 
             //! Update with a generic point \p x.
-            template<typename POINT>
-            void add(const POINT &x, const POINT &n = POINT(1))
-            {
-                basic_statistics_detail::SCovariancesCustomAdd<POINT>::add(x, n, *this);
-            }
+            template<typename OTHER_POINT>
+            void add(const OTHER_POINT &x);
+
+            //! Update with a generic point \p x with count \p n.
+            template<typename OTHER_POINT>
+            void add(const OTHER_POINT &x, const OTHER_POINT &n);
 
             //! Update the mean and covariances with \p x.
-            void add(const TVector &x, const TVector &n, int)
-            {
-                if (n == TVector{0})
-                {
-                    return;
-                }
-
-                s_Count += n;
-
-                // Note we don't trap the case alpha is less than epsilon,
-                // because then we'd have to compute epsilon and it is very
-                // unlikely the count will get big enough.
-                TVector alpha{n / s_Count};
-                TVector beta{TVector{1} - alpha};
-
-                TVector mean{s_Mean};
-                s_Mean = beta * mean + alpha * x;
-
-                TVector r{x - s_Mean};
-                TMatrix r2{E_OuterProduct, r};
-                TVector dMean{mean - s_Mean};
-                TMatrix dMean2{E_OuterProduct, dMean};
-
-                s_Covariances += dMean2;
-                scaleCovariances(beta, s_Covariances);
-                scaleCovariances(alpha, r2);
-                s_Covariances += r2;
-            }
+            void add(const TVector &x, const TVector &n, int);
 
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
-            template<typename U>
-            const SSampleCovariances &operator+=(const SSampleCovariances<U, N> &rhs)
-            {
-                s_Count = s_Count + rhs.s_Count;
-                if (s_Count == TVector{0})
-                {
-                    return *this;
-                }
-
-                // Note we don't trap the case alpha is less than epsilon,
-                // because then we'd have to compute epsilon and it is very
-                // unlikely the count will get big enough.
-                TVector alpha{rhs.s_Count / s_Count};
-                TVector beta{TVector(1) - alpha};
-
-                TVector meanLhs{s_Mean};
-
-                s_Mean = beta * meanLhs + alpha * rhs.s_Mean;
-
-                TVector dMeanLhs{meanLhs - s_Mean};
-                TMatrix dMean2Lhs{E_OuterProduct, dMeanLhs};
-                TVector dMeanRhs{rhs.s_Mean - s_Mean};
-                TMatrix dMean2Rhs{E_OuterProduct, dMeanRhs};
-
-                s_Covariances += dMean2Lhs;
-                scaleCovariances(beta, s_Covariances);
-                dMean2Rhs += rhs.s_Covariances;
-                scaleCovariances(alpha, dMean2Rhs);
-                s_Covariances += dMean2Rhs;
-
-                return *this;
-            }
+            template<typename OTHER_POINT>
+            const SSampleCovariances &operator+=(const SSampleCovariances<OTHER_POINT> &rhs);
 
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
-            template<typename U>
-            SSampleCovariances operator+(const SSampleCovariances<U, N> &rhs) const
+            template<typename OTHER_POINT>
+            SSampleCovariances operator+(const SSampleCovariances<OTHER_POINT> &rhs) const
             {
                 SSampleCovariances result{*this};
                 return result += rhs;
@@ -932,55 +872,8 @@ class MATHS_EXPORT CBasicStatistics
             //! the count and variance of these covariances must be
             //! larger than \p rhs. The caller must ensure that these
             //! conditions are satisfied.
-            template<typename U>
-            const SSampleCovariances &operator-=(const SSampleCovariances<U, N> &rhs)
-            {
-                using std::max;
-
-                s_Count = max(s_Count - rhs.s_Count, TVector(0));
-                if (s_Count == TVector{0})
-                {
-                    s_Mean = TVector{0};
-                    s_Covariances = TMatrix{0};
-                    return *this;
-                }
-
-                // Note we don't trap the case alpha is less than epsilon,
-                // because then we'd have to compute epsilon and it is very
-                // unlikely the count will get big enough.
-                TVector alpha{rhs.s_Count / s_Count};
-                TVector beta{TVector{1} + alpha};
-
-                TVector meanLhs(s_Mean);
-
-                s_Mean = beta * meanLhs - alpha * rhs.s_Mean;
-
-                TVector dMeanLhs{s_Mean - meanLhs};
-                TMatrix dMean2Lhs{E_OuterProduct, dMeanLhs};
-                TVector dMeanRhs{rhs.s_Mean - meanLhs};
-                TMatrix dMean2Rhs{E_OuterProduct, dMeanRhs};
-
-                s_Covariances = s_Covariances - dMean2Lhs;
-                scaleCovariances(beta, s_Covariances);
-                dMean2Rhs += rhs.s_Covariances - dMean2Lhs;
-                scaleCovariances(alpha, dMean2Rhs);
-                s_Covariances -= dMean2Rhs;
-
-                // If any of the diagonal elements are negative round them
-                // up to zero and zero the corresponding row and column.
-                for (std::size_t i = 0u; i < N; ++i)
-                {
-                    if (s_Covariances(i, i) < T{0})
-                    {
-                        for (std::size_t j = 0u; j < N; ++j)
-                        {
-                            s_Covariances(i, j) = T{0};
-                        }
-                    }
-                }
-
-                return *this;
-            }
+            template<typename OTHER_POINT>
+            const SSampleCovariances &operator-=(const SSampleCovariances<OTHER_POINT> &rhs);
 
             //! Subtract \p rhs from these.
             //!
@@ -988,8 +881,8 @@ class MATHS_EXPORT CBasicStatistics
             //! the count and variance of these covariances must be
             //! larger than \p rhs. The caller must ensure that these
             //! conditions are satisfied.
-            template<typename U>
-            SSampleCovariances operator-(const SSampleCovariances<U, N> &rhs)
+            template<typename OTHER_POINT>
+            SSampleCovariances operator-(const SSampleCovariances<OTHER_POINT> &rhs)
             {
                 SSampleCovariances result{*this};
                 return result -= rhs;
@@ -1002,12 +895,12 @@ class MATHS_EXPORT CBasicStatistics
             //! this method.
             void age(double factor)
             {
-                s_Count = s_Count * T{factor};
+                s_Count = s_Count * typename SCoordinate<POINT>::Type(factor);
             }
             //@}
 
             //! Get a checksum for this object.
-            uint64_t checksum(void) const;
+            std::uint64_t checksum(void) const;
 
             TVector s_Count;
             TVector s_Mean;
@@ -1015,33 +908,23 @@ class MATHS_EXPORT CBasicStatistics
         };
 
         //! Make a covariances accumulator.
-        template<typename T, std::size_t N>
-        static inline SSampleCovariances<T, N> accumulator(T count,
-                                                           const CVectorNx1<T, N> &mean,
-                                                           const CSymmetricMatrixNxN<T, N> &covariances)
+        template<typename POINT>
+        static inline SSampleCovariances<POINT>
+            covariancesAccumulator(const POINT &count,
+                                   const POINT &mean,
+                                   const typename SConformableMatrix<POINT>::Type &covariances)
         {
-            return SSampleCovariances<T, N>(count, mean, covariances);
-        }
-
-        //! Make a covariances accumulator.
-        template<typename T, std::size_t N>
-        static inline SSampleCovariances<T, N> accumulator(const CVectorNx1<T, N> &count,
-                                                           const CVectorNx1<T, N> &mean,
-                                                           const CSymmetricMatrixNxN<T, N> &covariances)
-        {
-            return SSampleCovariances<T, N>(count, mean, covariances);
+            return SSampleCovariances<POINT>(count, mean, covariances);
         }
 
         //! Extract the count from an accumulator object.
-        template<typename T, std::size_t N>
-        static inline T count(const SSampleCovariances<T, N> &accumulator)
-        {
-            return accumulator.s_Count.L1() / static_cast<T>(N);
-        }
+        template<typename POINT>
+        static inline typename SCoordinate<POINT>::Type
+            count(const SSampleCovariances<POINT> &accumulator);
 
         //! Extract the mean vector from an accumulator object.
-        template<typename T, std::size_t N>
-        static inline const CVectorNx1<T, N> &mean(const SSampleCovariances<T, N> &accumulator)
+        template<typename POINT>
+        static inline const POINT &mean(const SSampleCovariances<POINT> &accumulator)
         {
             return accumulator.s_Mean;
         }
@@ -1049,42 +932,29 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the covariance matrix from an accumulator object.
         //!
         //! \note This is the unbiased form.
-        template<typename T, std::size_t N>
-        static inline CSymmetricMatrixNxN<T, N> covariances(const SSampleCovariances<T, N> &accumulator)
-        {
-            CVectorNx1<T, N> bias(accumulator.s_Count);
-            for (std::size_t i = 0u; i < N; ++i)
-            {
-                if (bias(i) <= T{1})
-                {
-                    bias(i) = T{0};
-                }
-            }
-            bias /= (bias - CVectorNx1<T, N>{1});
-            CSymmetricMatrixNxN<T, N> result{accumulator.s_Covariances};
-            scaleCovariances(bias, result);
-            return result;
-        }
+        template<typename POINT>
+        static inline typename SConformableMatrix<POINT>::Type
+            covariances(const SSampleCovariances<POINT> &accumulator);
 
         //! Extract the covariance matrix from an accumulator object.
         //!
         //! \note This is the unbiased form.
-        template<typename T, std::size_t N>
-        static inline const CSymmetricMatrixNxN<T, N> &maximumLikelihoodCovariances(const SSampleCovariances<T, N> &accumulator)
+        template<typename POINT>
+        static inline const typename SConformableMatrix<POINT>::Type &
+            maximumLikelihoodCovariances(const SSampleCovariances<POINT> &accumulator)
         {
             return accumulator.s_Covariances;
         }
 
         //! Print a covariances accumulator.
-        template<typename T, std::size_t N>
-        static inline std::string print(const SSampleCovariances<T, N> &accumulator)
+        template<typename POINT>
+        static inline std::string print(const SSampleCovariances<POINT> &accumulator)
         {
             std::ostringstream result;
             result << "\n{\n"
                    << count(accumulator) << ",\n"
                    << mean(accumulator) << ",\n"
-                   << covariances(accumulator) << "\n"
-                   << "}";
+                   << covariances(accumulator) << "\n}";
             return result.str();
         }
 
@@ -1098,13 +968,11 @@ class MATHS_EXPORT CBasicStatistics
         //! matrix.
         //! \param[out] result Filled in with the count, mean and "shrunk"
         //! covariance matrix estimate.
-        template<typename POINT, typename T, std::size_t N>
+        template<typename POINT, typename OTHER_POINT>
         static void covariancesLedoitWolf(const std::vector<POINT> &points,
-                                         SSampleCovariances<T, N> &result)
-        {
-            result.add(points);
-            basic_statistics_detail::SCovariancesLedoitWolf<POINT>::estimate(points, result);
-        }
+                                          SSampleCovariances<OTHER_POINT> &result);
+
+        ///////////////////////// Order Statistics /////////////////////////
 
     private:
         //! \brief Implementation of an accumulator class for order statistics.
@@ -1332,7 +1200,7 @@ class MATHS_EXPORT CBasicStatistics
                 }
 
                 //! Get a checksum of this object.
-                uint64_t checksum(uint64_t seed) const;
+                std::uint64_t checksum(std::uint64_t seed) const;
 
                 //! Print for debug.
                 std::string print(void) const
@@ -1430,7 +1298,7 @@ class MATHS_EXPORT CBasicStatistics
                 }
 
                 //! Create a member function so this class works with CChecksum.
-                uint64_t checksum(uint64_t seed = 0) const
+                std::uint64_t checksum(std::uint64_t seed = 0) const
                 {
                     return this->TImpl::checksum(seed);
                 }
@@ -1504,7 +1372,7 @@ class MATHS_EXPORT CBasicStatistics
                 }
 
                 //! Create a member function so this class works with CChecksum.
-                uint64_t checksum(uint64_t seed = 0) const
+                std::uint64_t checksum(std::uint64_t seed = 0) const
                 {
                     return this->TImpl::checksum(seed);
                 }
@@ -1526,6 +1394,8 @@ class MATHS_EXPORT CBasicStatistics
             using TAccumulator = COrderStatisticsStack<T, 1>;
         };
         //@}
+
+        ////////////////////////////// Minmax //////////////////////////////
 
         //! \brief An accumulator of the minimum and maximum value in a collection.
         //!
@@ -1625,7 +1495,7 @@ class MATHS_EXPORT CBasicStatistics
                 }
 
                 //! Get a checksum for this object.
-                uint64_t checksum(void) const
+                std::uint64_t checksum(void) const
                 {
                     return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
                 }
@@ -1701,60 +1571,6 @@ struct SCentralMomentsCustomAdd
     }
 };
 
-//! \brief Implementation of add stack vector to the covariances
-//! estimator.
-template<typename T, std::size_t N>
-struct SCovariancesCustomAdd<CVectorNx1<T, N>>
-{
-    static inline void add(const CVectorNx1<T, N> &x,
-                           const CVectorNx1<T, N> &n,
-                           CBasicStatistics::SSampleCovariances<T, N> &covariances)
-    {
-        covariances.add(x, n, 0);
-    }
-};
-
-//! \brief Implementation of a covariance matrix shrinkage estimator
-//! for stack vectors.
-//!
-//! DESCRIPTION:\n
-//! This uses a scaled identity shrinkage which is estimated using
-//! Ledoit and Wolf's approach.
-//!
-//! See http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf
-//! for the details.
-template<typename T, std::size_t N>
-struct SCovariancesLedoitWolf<CVectorNx1<T, N>>
-{
-    template<typename U>
-    static void estimate(const std::vector<CVectorNx1<T, N>> &points,
-                         CBasicStatistics::SSampleCovariances<U, N> &covariances)
-    {
-        U d{static_cast<U>(N)};
-
-        U n{CBasicStatistics::count(covariances)};
-        const CVectorNx1<U, N> &m{CBasicStatistics::mean(covariances)};
-        const CSymmetricMatrixNxN<U, N> &s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
-
-        U mn{s.trace() / d};
-        U dn{pow2((s - CVectorNx1<U, N>{mn}.diagonal()).frobenius()) / d};
-        U bn{0};
-        U z{n * n};
-        for (std::size_t i = 0u; i < points.size(); ++i)
-        {
-            CVectorNx1<U, N> ci{points[i]};
-            bn += pow2(((ci - m).outer() - s).frobenius()) / d / z;
-        }
-        bn = std::min(bn, dn);
-        LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
-
-        covariances.s_Covariances =  CVectorNx1<U, N>{bn / dn * mn}.diagonal()
-                                   + (U{1} - bn / dn) * covariances.s_Covariances;
-    }
-
-    template<typename U> static U pow2(U x) { return x * x; }
-};
-
 }
 
 template<typename T, unsigned int ORDER>
@@ -1764,9 +1580,7 @@ void CBasicStatistics::SSampleCentralMoments<T, ORDER>::add(const U &x, const TC
     basic_statistics_detail::SCentralMomentsCustomAdd<U>::add(x, n, *this);
 }
 
-
 }
 }
 
 #endif // INCLUDED_ml_maths_CBasicStatistics_h
-

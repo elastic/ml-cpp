@@ -565,7 +565,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
                 {
                     result.push_back(CBasicStatistics::mean(sample));
                     sample = nij < ni ?
-                             CBasicStatistics::accumulator(ni - nij, categorySamples[j]) :
+                             CBasicStatistics::momentsAccumulator(ni - nij, categorySamples[j]) :
                              TMeanAccumulator();
                 }
             }

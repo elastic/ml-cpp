@@ -13,6 +13,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegration.h>
 #include <maths/CRegression.h>
@@ -902,7 +903,7 @@ void CRegressionTest::testCovariances(void)
         double n = 75.0;
         double variance = 16.0;
 
-        maths::CBasicStatistics::SSampleCovariances<double, 2> covariances;
+        maths::CBasicStatistics::SSampleCovariances<TVector2> covariances(2);
         for (std::size_t i = 0u; i < 500; ++i)
         {
             TDoubleVec noise;
@@ -936,7 +937,7 @@ void CRegressionTest::testCovariances(void)
         double n = 75.0;
         double variance = 16.0;
 
-        maths::CBasicStatistics::SSampleCovariances<double, 3> covariances;
+        maths::CBasicStatistics::SSampleCovariances<TVector3> covariances(3);
         for (std::size_t i = 0u; i < 500; ++i)
         {
             TDoubleVec noise;

@@ -99,16 +99,6 @@ namespace maths
 template<typename SCALAR, int FLAGS = 0>
 using CSparseMatrix = Eigen::SparseMatrix<SCALAR, FLAGS, std::ptrdiff_t>;
 
-//! \brief Gets a zero sparse matrix with specified dimensions.
-template<typename SCALAR, int FLAGS>
-struct SZero<CSparseMatrix<SCALAR, FLAGS>>
-{
-    static CSparseMatrix<SCALAR, FLAGS> get(std::ptrdiff_t rows, std::ptrdiff_t cols)
-    {
-        return CSparseMatrix<SCALAR, FLAGS>(rows, cols);
-    }
-};
-
 //! The type of an element of a sparse matrix in coordinate form.
 template<typename SCALAR>
 using CSparseMatrixElement = Eigen::Triplet<SCALAR>;
@@ -116,16 +106,6 @@ using CSparseMatrixElement = Eigen::Triplet<SCALAR>;
 //! Rename to follow our conventions and add to ml::maths.
 template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
 using CSparseVector = Eigen::SparseVector<SCALAR, FLAGS, std::ptrdiff_t>;
-
-//! \brief Gets a zero sparse vector with specified dimension.
-template<typename SCALAR, int FLAGS>
-struct SZero<CSparseVector<SCALAR, FLAGS>>
-{
-    static CSparseVector<SCALAR, FLAGS> get(std::ptrdiff_t dimension)
-    {
-        return CSparseVector<SCALAR, FLAGS>(dimension);
-    }
-};
 
 //! The type of an element of a sparse vector in coordinate form.
 template<typename SCALAR>
@@ -212,11 +192,15 @@ using CDenseMatrix = Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic>;
 
 //! \brief Gets a zero dense vector with specified dimension.
 template<typename SCALAR>
-struct SZero<CDenseMatrix<SCALAR>>
+struct SConstant<CDenseMatrix<SCALAR>>
 {
-    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols)
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant)
     {
-        return CDenseMatrix<SCALAR>::Zero(rows, cols);
+        return get(dimension, dimension, constant);
+    }
+    static CDenseMatrix<SCALAR> get(std::ptrdiff_t rows, std::ptrdiff_t cols, SCALAR constant)
+    {
+        return CDenseMatrix<SCALAR>::Constant(rows, cols, constant);
     }
 };
 
@@ -226,11 +210,11 @@ using CDenseVector = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
 
 //! \brief Gets a zero dense vector with specified dimension.
 template<typename SCALAR>
-struct SZero<CDenseVector<SCALAR>>
+struct SConstant<CDenseVector<SCALAR>>
 {
-    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension)
+    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension, SCALAR constant)
     {
-        return CDenseVector<SCALAR>::Zero(dimension);
+        return CDenseVector<SCALAR>::Constant(dimension, constant);
     }
 };
 

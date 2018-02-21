@@ -14,7 +14,9 @@ class CKdTreeTest : public CppUnit::TestFixture
 {
     public:
         void testBuild(void);
+        void testBuildWithMove(void);
         void testNearestNeighbour(void);
+        void testNearestNeighbours(void);
 
         static CppUnit::Test *suite(void);
 };

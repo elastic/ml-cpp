@@ -109,6 +109,7 @@ CStatePersistInserter.cc \
 CStateRestoreTraverser.cc \
 CStatistics.cc \
 CStopWatch.cc \
+CStreamUtils.cc \
 CStoredStringPtr.cc \
 CStringCache.cc \
 CStringSimilarityTester.cc \

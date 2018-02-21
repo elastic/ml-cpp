@@ -210,7 +210,6 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
         static bool everyElement(const F &f, const SYMMETRIC_MATRIX &val);
 };
 
-
 }
 }
 

@@ -35,6 +35,7 @@ CEntropySketch.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
 CGramSchmidt.cc \
+CImputer.cc \
 CInformationCriteria.cc \
 CIntegerTools.cc \
 CIntegration.cc \
@@ -66,6 +67,7 @@ Constants.cc \
 COrderings.cc \
 COrdinal.cc \
 CPackedBitVector.cc \
+CPca.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
 CPriorStateSerialiser.cc \

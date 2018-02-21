@@ -41,11 +41,8 @@ class MODEL_EXPORT CUniqueStringFeatureData
         typedef core::CCompressedDictionary<1> TDictionary1;
         typedef TDictionary1::CWord TWord;
         typedef TDictionary1::TWordSet TWordSet;
-        typedef TWordSet::const_iterator TWordSetCItr;
-        typedef TDictionary1::CWordUMap<std::string>::Type TWordStringUMap;
-        typedef TWordStringUMap::const_iterator TWordStringUMapCItr;
+        typedef TDictionary1::TWordTUMap<std::string> TWordStringUMap;
         typedef boost::unordered_map<core::CStoredStringPtr, TWordSet> TStoredStringPtrWordSetUMap;
-        typedef TStoredStringPtrWordSetUMap::const_iterator TStoredStringPtrWordSetUMapCItr;
         typedef std::vector<TStoredStringPtrWordSetUMap> TStoredStringPtrWordSetUMapVec;
         typedef SEventRateFeatureData::TStrCRef TStrCRef;
         typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;

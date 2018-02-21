@@ -78,7 +78,7 @@ class MODEL_EXPORT CBucketGatherer
         typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
         typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
         typedef core::CCompressedDictionary<2> TDictionary;
-        typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
+        typedef TDictionary::TWordTUMap<std::size_t> TWordSizeUMap;
         typedef TWordSizeUMap::iterator TWordSizeUMapItr;
         typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
         typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;

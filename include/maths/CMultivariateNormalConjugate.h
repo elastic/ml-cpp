@@ -15,7 +15,7 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CChecksum.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CEqualWithTolerance.h>
@@ -87,7 +87,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
         typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
         typedef CSymmetricMatrixNxN<double, N> TMatrix;
         typedef std::vector<TMatrix> TMatrixVec;
-        typedef typename CBasicStatistics::SSampleCovariances<double, N> TCovariance;
+        typedef CBasicStatistics::SSampleCovariances<TPoint> TCovariance;
 
         // Lift all overloads of into scope.
         //{
@@ -250,7 +250,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             //   E[(Z - E[Z])^2] = 1/12 I
 
             TPoint numberSamples(0.0);
-            TCovariance covariancePost;
+            TCovariance covariancePost(N);
             try
             {
                 for (std::size_t i = 0u; i < samples.size(); ++i)
@@ -273,7 +273,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             if (this->isInteger())
             {
                 covariancePost.s_Mean += TPoint(0.5);
-                covariancePost.s_Covariances += TPoint(1.0 / 12.0).diagonal();
+                covariancePost.s_Covariances += TPoint(1.0 / 12.0).asDiagonal();
             }
 
             if (m_WishartDegreesFreedom > 0.0)
@@ -281,9 +281,10 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
                 TPoint scale = TPoint(1.0) / m_GaussianPrecision;
                 TMatrix covariances = m_WishartScaleMatrix;
                 scaleCovariances(scale, covariances);
-                TCovariance covariancePrior = CBasicStatistics::accumulator(m_GaussianPrecision,
-                                                                            m_GaussianMean,
-                                                                            covariances);
+                TCovariance covariancePrior =
+                    CBasicStatistics::covariancesAccumulator(m_GaussianPrecision,
+                                                             m_GaussianMean,
+                                                             covariances);
                 covariancePost += covariancePrior;
             }
             m_GaussianMean = CBasicStatistics::mean(covariancePost);
@@ -1161,7 +1162,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             double d = static_cast<double>(N);
 
             double numberSamples = 0.0;
-            TCovariance covariancePost;
+            TCovariance covariancePost(N);
             double logCountVarianceScales = 0.0;
             try
             {
@@ -1188,9 +1189,9 @@ class CMultivariateNormalConjugate : public CMultivariatePrior
             }
             TPoint scaledNumberSamples = covariancePost.s_Count;
             TCovariance covariancePrior =
-                    CBasicStatistics::accumulator(m_WishartDegreesFreedom,
-                                                  m_GaussianMean,
-                                                  m_WishartScaleMatrix / m_WishartDegreesFreedom);
+                    CBasicStatistics::covariancesAccumulator(TPoint(m_WishartDegreesFreedom),
+                                                             m_GaussianMean,
+                                                             m_WishartScaleMatrix / m_WishartDegreesFreedom);
             covariancePost += covariancePrior;
 
             double logGaussianPrecisionPrior = 0.0;

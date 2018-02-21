@@ -13,6 +13,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CRegression.h>
@@ -294,6 +295,28 @@ template<std::size_t N, typename T>
 void CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
     inserter.insertValue(UNIT_TIME_COVARIANCES_TAG, m_UnitTimeCovariances.toDelimited());
+}
+
+template<std::size_t N, typename T>
+double CRegression::CLeastSquaresOnlineParameterProcess<N, T>::predictionVariance(double time) const
+{
+    if (time <= 0.0)
+    {
+        return 0.0;
+    }
+
+    TVector dT;
+    T dt = static_cast<T>(std::sqrt(time));
+    T dTi = dt;
+    for (std::size_t i = 0u; i < N; ++i, dTi *= dt)
+    {
+        dT(i) = dTi;
+    }
+
+    CSymmetricMatrixNxN<T, N> covariance =
+            CBasicStatistics::covariances(m_UnitTimeCovariances);
+
+    return dT.inner(covariance * dT);
 }
 
 template<std::size_t N, typename T>

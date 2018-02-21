@@ -13,7 +13,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CInformationCriteria.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/COrderings.h>
 
@@ -25,7 +25,6 @@
 #include <vector>
 
 #include <stdint.h>
-
 
 namespace ml
 {
@@ -47,16 +46,15 @@ namespace maths
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC> >
+template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC>>
 class CXMeans
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef boost::unordered_set<uint64_t> TUInt64USet;
-        typedef TUInt64USet::iterator TUInt64USetItr;
-        typedef typename CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
+        using TDoubleVec = std::vector<double>;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TUInt64USet = boost::unordered_set<uint64_t>;
+        using TMeanAccumulator = typename CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
         //! A cluster.
         //!
@@ -144,12 +142,11 @@ class CXMeans
                 uint64_t m_Checksum;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
+        using TClusterVec = std::vector<CCluster>;
 
     public:
         CXMeans(std::size_t kmax) :
-            m_Kmax(kmax),
-            m_MinCost(std::numeric_limits<double>::max())
+            m_Kmax(kmax), m_MinCost(std::numeric_limits<double>::max())
         {
             m_BestCentres.reserve(m_Kmax);
             m_Clusters.reserve(m_Kmax);
@@ -160,17 +157,20 @@ class CXMeans
         //! \note These are swapped in to place.
         void setPoints(TPointVec &points)
         {
-            m_Kmeans.setPoints(points);
-            m_Clusters.clear();
-            m_Clusters.push_back(CCluster());
-            double cost = COST(points).calculate();
-            m_Clusters[0].cost(cost);
-            TMeanAccumulator centroid;
-            centroid.add(points);
-            m_Clusters[0].centre(CBasicStatistics::mean(centroid));
-            m_Clusters[0].points(points);
-            m_MinCost = cost;
-            m_BestCentres.push_back(CBasicStatistics::mean(centroid));
+            if (!points.empty())
+            {
+                m_Kmeans.setPoints(points);
+                m_Clusters.clear();
+                m_Clusters.push_back(CCluster());
+                double cost = COST(points).calculate();
+                TMeanAccumulator centroid(las::zero(points[0]));
+                centroid.add(points);
+                m_MinCost = cost;
+                m_Clusters[0].cost(cost);
+                m_Clusters[0].centre(CBasicStatistics::mean(centroid));
+                m_Clusters[0].points(points);
+                m_BestCentres.push_back(CBasicStatistics::mean(centroid));
+            }
         }
 
         //! Get the best centres found to date.
@@ -220,8 +220,8 @@ class CXMeans
         //! iterations of Lloyd's algorithm to use.
         void improveParams(std::size_t kmeansIterations)
         {
-            typedef const CCluster *TClusterCPtr;
-            typedef std::vector<TClusterCPtr> TClusterCPtrVec;
+            using TClusterCPtr = const CCluster*;
+            using TClusterCPtrVec = std::vector<TClusterCPtr>;
 
             std::size_t n = m_Clusters.size();
 
@@ -236,9 +236,7 @@ class CXMeans
                 oldCentres.push_back(m_Clusters[i].centre());
                 oldClusters.push_back(&m_Clusters[i]);
             }
-            std::sort(oldClusters.begin(),
-                      oldClusters.end(),
-                      COrderings::SPtrLess());
+            std::sort(oldClusters.begin(), oldClusters.end(), COrderings::SPtrLess());
             m_Kmeans.setCentres(oldCentres);
 
             // k-means to improve parameters.
@@ -262,9 +260,8 @@ class CXMeans
                 CCluster &cluster = newClusters.back();
                 cluster.centre(newCentres[i]);
                 cluster.points(newClusterPoints[i]);
-                typename TClusterCPtrVec::const_iterator j =
-                        std::lower_bound(oldClusters.begin(), oldClusters.end(),
-                                         &cluster, COrderings::SPtrLess());
+                auto j = std::lower_bound(oldClusters.begin(), oldClusters.end(),
+                                          &cluster, COrderings::SPtrLess());
                 if (j != oldClusters.end() && **j == cluster)
                 {
                     cluster.cost((*j)->cost());
@@ -279,7 +276,7 @@ class CXMeans
 
             // Refresh the clusters and inactive list.
             m_Clusters.swap(newClusters);
-            for (TUInt64USetItr i = m_Inactive.begin(); i != m_Inactive.end(); /**/)
+            for (auto i = m_Inactive.begin(); i != m_Inactive.end(); /**/)
             {
                 if (preserved.count(*i) > 0)
                 {
@@ -296,9 +293,9 @@ class CXMeans
             if (cost < m_MinCost)
             {
                 m_BestCentres.clear();
-                for (std::size_t i = 0u; i < n; ++i)
+                for (const auto &cluster : m_Clusters)
                 {
-                    m_BestCentres.push_back(m_Clusters[i].centre());
+                    m_BestCentres.push_back(cluster.centre());
                 }
                 m_MinCost = cost;
             }
@@ -320,25 +317,25 @@ class CXMeans
             }
 
             // Declared outside the loop to minimize allocations.
-            CKMeansFast<POINT> kmeans;
+            CKMeans<POINT> kmeans;
             TPointVec points;
+            TPointVec seedCentres;
             TPointVecVec clusterPoints;
             TPointVec bestClusterCentres;
             TPointVecVec bestClusterPoints;
-            TPointVec seedClusterCentres;
 
             std::size_t largest = 0;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            for (const auto &cluster : m_Clusters)
             {
-                largest = std::max(largest, m_Clusters[i].size());
+                largest = std::max(largest, cluster.size());
             }
 
             kmeans.reserve(largest);
             points.reserve(largest);
+            seedCentres.reserve(2);
             clusterPoints.reserve(2);
             bestClusterCentres.reserve(2);
             bestClusterPoints.reserve(2);
-            seedClusterCentres.reserve(2);
 
             bool split = false;
 
@@ -362,11 +359,11 @@ class CXMeans
 
                 for (std::size_t j = 0u; j < clusterSeeds; ++j)
                 {
-                    this->generateSeedCentres(points, 2, seedClusterCentres);
+                    this->generateSeedCentres(points, 2, seedCentres);
                     LOG_TRACE("seed centres = "
-                              << core::CContainerPrinter::print(seedClusterCentres));
+                              << core::CContainerPrinter::print(seedCentres));
 
-                    kmeans.setCentres(seedClusterCentres);
+                    kmeans.setCentres(seedCentres);
                     kmeans.run(kmeansIterations);
 
                     const TPointVec &centres = kmeans.centres();
@@ -427,8 +424,8 @@ class CXMeans
                                  std::size_t k,
                                  TPointVec &result) const
         {
-            CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> kmeansPlusPlus(m_Rng);
-            kmeansPlusPlus.run(points, k, result);
+            CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> initializer(m_Rng);
+            initializer.run(points, k, result);
         }
 
         //! Run k-means to improve the best centres.
@@ -472,7 +469,7 @@ class CXMeans
         TUInt64USet m_Inactive;
 
         //! The fast k-means state for the full set of points.
-        CKMeansFast<POINT> m_Kmeans;
+        CKMeans<POINT> m_Kmeans;
 
         //! The minimum cost clustering found to date.
         double m_MinCost;

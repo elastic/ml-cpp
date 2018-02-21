@@ -61,9 +61,9 @@ void CRandomNumbers::random_shuffle(ITR first, ITR last)
 
 template<typename T, std::size_t N>
 void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec &sizes,
-                                                       std::vector<maths::CVectorNx1<T, N> > &means,
-                                                       std::vector<maths::CSymmetricMatrixNxN<T, N> > &covariances,
-                                                       std::vector<std::vector<maths::CVectorNx1<T, N> > > &points)
+                                                       std::vector<maths::CVectorNx1<T, N>> &means,
+                                                       std::vector<maths::CSymmetricMatrixNxN<T, N>> &covariances,
+                                                       std::vector<std::vector<maths::CVectorNx1<T, N>>> &points)
 {
     means.clear();
     covariances.clear();

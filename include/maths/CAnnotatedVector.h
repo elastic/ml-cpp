@@ -9,7 +9,7 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 
 #include <cstddef>
 
@@ -46,10 +46,18 @@ class CAnnotatedVector : public VECTOR
 
         //! Construct with a vector initialized with \p coordinate
         //! and some default constructed annotation data.
+        //! TODO this needs to be removed since it assumes the dimension
+        //! is available at compile time.
         explicit CAnnotatedVector(TCoordinate coordinate) :
-                VECTOR(coordinate),
-                m_Annotation()
+                VECTOR(coordinate)
         {}
+
+        //! Assign from \p rhs.
+        const CAnnotatedVector &operator=(const VECTOR &rhs)
+        {
+            static_cast<VECTOR&>(*this) = rhs;
+            return *this;
+        }
 
         //! Get the annotation data by constant reference.
         const ANNOTATION &annotation(void) const

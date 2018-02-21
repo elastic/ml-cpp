@@ -67,11 +67,6 @@ class CTestOutputHandler : public COutputHandler
             return true;
         }
 
-        virtual const TStrVec &fieldNames(void) const
-        {
-            return m_FieldNames;
-        }
-
         virtual bool writeRow(const TStrStrUMap &/*dataRowFields*/,
                               const TStrStrUMap &/*overrideDataRowFields*/)
         {

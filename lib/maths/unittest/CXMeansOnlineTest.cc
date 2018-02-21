@@ -27,7 +27,8 @@ namespace
 typedef std::vector<double> TDoubleVec;
 typedef std::vector<TDoubleVec> TDoubleVecVec;
 typedef std::vector<std::size_t> TSizeVec;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
+typedef maths::CVectorNx1<double, 2> TVector2;
+typedef maths::CBasicStatistics::SSampleCovariances<TVector2> TCovariances2;
 typedef std::vector<TCovariances2> TCovariances2Vec;
 typedef maths::CXMeansOnline<double, 2> TXMeans2;
 typedef TXMeans2::TPointPrecise TPoint;
@@ -110,7 +111,7 @@ void CXMeansOnlineTest::testCluster(void)
         };
     double c1[] = { 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
-    TCovariances2 moments;
+    TCovariances2 moments(2);
     for (std::size_t i = 0u; i < boost::size(x1); ++i)
     {
         cluster.add(TPoint(x1[i]), c1[i]);
@@ -148,7 +149,7 @@ void CXMeansOnlineTest::testCluster(void)
     cluster.sample(10, samples);
     LOG_DEBUG("samples = " << core::CContainerPrinter::print(samples));
 
-    TCovariances2 sampleMoments;
+    TCovariances2 sampleMoments(2);
     for (std::size_t i = 0u; i < samples.size(); ++i)
     {
         sampleMoments.add(samples[i]);
@@ -294,8 +295,7 @@ void CXMeansOnlineTest::testClusteringVanilla(void)
         TDoubleVecVec covariance;
         for (std::size_t i = 0u; i < 2; ++i)
         {
-            covariance.push_back(TDoubleVec(&covariances[0][i][0],
-                                            &covariances[0][i][2]));
+            covariance.emplace_back(&covariances[0][i][0], &covariances[0][i][2]);
         }
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 200, samples);
@@ -326,7 +326,7 @@ void CXMeansOnlineTest::testClusteringVanilla(void)
 
         TDoubleVecVec samples;
         TPointVec centres;
-        TCovariances2Vec expectedMoments(boost::size(means));
+        TCovariances2Vec expectedMoments(boost::size(means), TCovariances2(2));
 
         for (std::size_t i = 0u; i < boost::size(means); ++i)
         {
@@ -334,8 +334,7 @@ void CXMeansOnlineTest::testClusteringVanilla(void)
             TDoubleVecVec covariance;
             for (std::size_t j = 0u; j < 2; ++j)
             {
-                covariance.push_back(TDoubleVec(&covariances[i][j][0],
-                                                &covariances[i][j][2]));
+                covariance.emplace_back(&covariances[i][j][0], &covariances[i][j][2]);
             }
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariance, 200, samples_);
@@ -439,7 +438,7 @@ void CXMeansOnlineTest::testClusteringWithOutliers(void)
 
         TDoubleVecVec samples;
         TPointVec centres;
-        TCovariances2Vec expectedMoments(boost::size(means));
+        TCovariances2Vec expectedMoments(boost::size(means), TCovariances2(2));
 
         for (std::size_t i = 0u; i < boost::size(means); ++i)
         {
@@ -662,8 +661,9 @@ void CXMeansOnlineTest::testAdaption(void)
                 {   0,   0, 300, 300 }
             };
 
-        TCovariances2 totalCovariances;
-        TCovariances2 modeCovariances[4];
+        TCovariances2 totalCovariances(2);
+        TCovariances2 modeCovariances[4]{TCovariances2(2), TCovariances2(2),
+                                         TCovariances2(2), TCovariances2(2)};
 
         TXMeans2ForTest clusterer(maths_t::E_ContinuousData,
                                   maths_t::E_ClustersFractionWeight);
@@ -811,10 +811,9 @@ void CXMeansOnlineTest::testLatLongData(void)
 
     std::size_t n = timeseries.size();
 
-    TCovariances2 reference;
+    TCovariances2 reference(2);
     TXMeans2FloatForTest clusterer(maths_t::E_ContinuousData,
-                                   maths_t::E_ClustersFractionWeight,
-                                   0.0005);
+                                   maths_t::E_ClustersFractionWeight, 0.0005);
 
     for (std::size_t i = 0u; i < n; ++i)
     {

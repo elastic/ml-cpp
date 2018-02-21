@@ -86,11 +86,9 @@ bool CCsvInputParser::readStream(const TReaderFunc &readerFunc)
     // name - this avoids the need to repeatedly compute the same hashes
     TStrRefVec fieldValRefs;
     fieldValRefs.reserve(fieldNames.size());
-    for (TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end();
-         ++iter)
+    for (const auto &name : fieldNames)
     {
-        fieldValRefs.push_back(boost::ref(recordFields[*iter]));
+        fieldValRefs.emplace_back(recordFields[name]);
     }
 
     while (!m_NoMoreRecords)
@@ -272,11 +270,9 @@ bool CCsvInputParser::parseFieldNames(void)
 
 bool CCsvInputParser::parseDataRecord(const TStrRefVec &fieldValRefs)
 {
-    for (TStrRefVecCItr iter = fieldValRefs.begin();
-         iter != fieldValRefs.end();
-         ++iter)
+    for (const auto &value : fieldValRefs)
     {
-        if (m_LineParser.parseNext(iter->get()) == false)
+        if (m_LineParser.parseNext(value.get()) == false)
         {
             LOG_ERROR("Failed to get next CSV token");
             return false;

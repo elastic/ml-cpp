@@ -67,10 +67,10 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
     CPPUNIT_ASSERT(::fabs(maths::CBasicStatistics::mean(bias)) < maxBias);
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < maxError);
 
-    meanBias  += maths::CBasicStatistics::accumulator(maths::CBasicStatistics::count(bias),
-                                                      maths::CBasicStatistics::mean(bias) / scale);
-    meanError += maths::CBasicStatistics::accumulator(maths::CBasicStatistics::count(error),
-                                                      maths::CBasicStatistics::mean(error) / scale);
+    meanBias  += maths::CBasicStatistics::momentsAccumulator(maths::CBasicStatistics::count(bias),
+                                                             maths::CBasicStatistics::mean(bias) / scale);
+    meanError += maths::CBasicStatistics::momentsAccumulator(maths::CBasicStatistics::count(error),
+                                                             maths::CBasicStatistics::mean(error) / scale);
 }
 
 }
@@ -430,6 +430,78 @@ void CQuantileSketchTest::testMedian(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.6);
 }
 
+void CQuantileSketchTest::testMad(void)
+{
+    LOG_DEBUG("+--------------------------------+");
+    LOG_DEBUG("|  CQuantileSketchTest::testMad  |");
+    LOG_DEBUG("+--------------------------------+");
+
+    // Check some edge cases and also accuracy verses exact values
+    // some random data.
+
+    test::CRandomNumbers rng;
+
+    double mad = 0.0;
+
+    for (auto interpolation : {maths::CQuantileSketch::E_PiecewiseConstant,
+                               maths::CQuantileSketch::E_Linear})
+    {
+        maths::CQuantileSketch sketch(interpolation, 10);
+
+        CPPUNIT_ASSERT(!sketch.mad(mad));
+
+        sketch.add(1.0);
+        CPPUNIT_ASSERT(sketch.mad(mad));
+        LOG_DEBUG("MAD = " << mad);
+        CPPUNIT_ASSERT_EQUAL(0.0, mad);
+
+        sketch.add(2.0);
+        CPPUNIT_ASSERT(sketch.mad(mad));
+        LOG_DEBUG("MAD = " << mad);
+        CPPUNIT_ASSERT_EQUAL(0.5, mad);
+    }
+
+    TDoubleVec samples;
+    for (auto interpolation : {maths::CQuantileSketch::E_PiecewiseConstant,
+                               maths::CQuantileSketch::E_Linear})
+    {
+        TMeanAccumulator error;
+
+        for (std::size_t t = 0u; t < 100; ++t)
+        {
+            rng.generateNormalSamples(10.0, 10.0, 101, samples);
+
+            maths::CQuantileSketch sketch(interpolation, 20);
+
+            for (auto sample : samples)
+            {
+                sketch.add(sample);
+            }
+            CPPUNIT_ASSERT(sketch.mad(mad));
+
+            std::nth_element(samples.begin(), samples.begin() + 50, samples.end());
+            double median = samples[50];
+            for (auto &&sample : samples)
+            {
+                sample = std::fabs(sample - median);
+            }
+            std::nth_element(samples.begin(), samples.begin() + 50, samples.end());
+            double expectedMad = samples[50];
+
+            if (t % 10 == 0)
+            {
+                LOG_DEBUG("expected MAD = " << expectedMad << " actual MAD = " << mad);
+            }
+
+            error.add(std::fabs(mad - expectedMad));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMad, mad, 0.15 * expectedMad);
+        }
+
+        LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.07);
+    }
+}
+
 void CQuantileSketchTest::testPropagateForwardByTime(void)
 {
     LOG_DEBUG("+---------------------------------------------------+");
@@ -704,6 +776,9 @@ CppUnit::Test* CQuantileSketchTest::suite(void)
     suiteOfTests->addTest( new CppUnit::TestCaller<CQuantileSketchTest>(
                                    "CQuantileSketchTest::testMedian",
                                    &CQuantileSketchTest::testMedian) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CQuantileSketchTest>(
+                                   "CQuantileSketchTest::testMad",
+                                   &CQuantileSketchTest::testMad) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CQuantileSketchTest>(
                                    "CQuantileSketchTest::testPropagateForwardByTime",
                                    &CQuantileSketchTest::testPropagateForwardByTime));

@@ -84,16 +84,16 @@ class CDecreasingMeanInfluence
     public:
         CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
                 m_Tail(tail),
-                m_Mean(maths::CBasicStatistics::accumulator(count, value[0]))
+                m_Mean(maths::CBasicStatistics::momentsAccumulator(count, value[0]))
         {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const
         {
-            TMeanAccumulator l = m_Mean - maths::CBasicStatistics::accumulator(lhs.second.second,
-                                                                              lhs.second.first[0]);
-            TMeanAccumulator r = m_Mean - maths::CBasicStatistics::accumulator(rhs.second.second,
-                                                                               rhs.second.first[0]);
+            TMeanAccumulator l = m_Mean - maths::CBasicStatistics::momentsAccumulator(lhs.second.second,
+                                                                                      lhs.second.first[0]);
+            TMeanAccumulator r = m_Mean - maths::CBasicStatistics::momentsAccumulator(rhs.second.second,
+                                                                                      rhs.second.first[0]);
             double ml = maths::CBasicStatistics::mean(l);
             double nl = maths::CBasicStatistics::count(l);
             double mr = maths::CBasicStatistics::mean(r);
@@ -117,18 +117,18 @@ class CDecreasingVarianceInfluence
     public:
         CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
                 m_Tail(tail),
-                m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0]))
+                m_Variance(maths::CBasicStatistics::momentsAccumulator(count, value[1], value[0]))
         {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const
         {
-            TMeanVarAccumulator l = m_Variance - maths::CBasicStatistics::accumulator(lhs.second.second,
-                                                                                      lhs.second.first[1],
-                                                                                      lhs.second.first[0]);
-            TMeanVarAccumulator r = m_Variance - maths::CBasicStatistics::accumulator(rhs.second.second,
-                                                                                      rhs.second.first[1],
-                                                                                      rhs.second.first[0]);
+            TMeanVarAccumulator l = m_Variance - maths::CBasicStatistics::momentsAccumulator(lhs.second.second,
+                                                                                             lhs.second.first[1],
+                                                                                             lhs.second.first[0]);
+            TMeanVarAccumulator r = m_Variance - maths::CBasicStatistics::momentsAccumulator(rhs.second.second,
+                                                                                             rhs.second.first[1],
+                                                                                             rhs.second.first[0]);
             double vl = maths::CBasicStatistics::maximumLikelihoodVariance(l);
             double nl = maths::CBasicStatistics::count(l);
             double vr = maths::CBasicStatistics::maximumLikelihoodVariance(r);
@@ -248,8 +248,8 @@ class CMeanDifference
                     }
                 }
                 difference[d] = maths::CBasicStatistics::mean(
-                                    maths::CBasicStatistics::accumulator( n,  v[d])
-                                  - maths::CBasicStatistics::accumulator(ni, vi[d]));
+                                    maths::CBasicStatistics::momentsAccumulator( n,  v[d])
+                                  - maths::CBasicStatistics::momentsAccumulator(ni, vi[d]));
             }
         }
 
@@ -272,8 +272,8 @@ class CMeanDifference
                     }
                 }
                 difference[d] = maths::CBasicStatistics::mean(
-                                    maths::CBasicStatistics::accumulator( n[d],  v[d])
-                                  - maths::CBasicStatistics::accumulator(ni[d], vi[d]));
+                                    maths::CBasicStatistics::momentsAccumulator( n[d],  v[d])
+                                  - maths::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
             }
             params.addBucketEmpty(bucketEmpty);
         }
@@ -302,8 +302,8 @@ class CVarianceDifference
                     }
                 }
                 difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
-                                    maths::CBasicStatistics::accumulator( n,  v[dimension + d],  v[d])
-                                  - maths::CBasicStatistics::accumulator(ni, vi[dimension + d], vi[d]));
+                                    maths::CBasicStatistics::momentsAccumulator( n,  v[dimension + d],  v[d])
+                                  - maths::CBasicStatistics::momentsAccumulator(ni, vi[dimension + d], vi[d]));
             }
         }
 
@@ -326,8 +326,8 @@ class CVarianceDifference
                     }
                 }
                 difference[d] =  maths::CBasicStatistics::maximumLikelihoodVariance(
-                                     maths::CBasicStatistics::accumulator( n[d],  v[2 + d],  v[d])
-                                   - maths::CBasicStatistics::accumulator(ni[d], vi[2 + d], vi[d]));
+                                     maths::CBasicStatistics::momentsAccumulator( n[d],  v[2 + d],  v[d])
+                                   - maths::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d], vi[d]));
             }
             params.addBucketEmpty(bucketEmpty);
         }

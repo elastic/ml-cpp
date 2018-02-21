@@ -35,7 +35,7 @@ class MATHS_EXPORT CGradientDescent
         class MATHS_EXPORT CFunction
         {
             public:
-                virtual ~CFunction(void);
+                virtual ~CFunction(void) = default;
                 virtual bool operator()(const TVector &x, double &result) const = 0;
         };
 
@@ -43,7 +43,7 @@ class MATHS_EXPORT CGradientDescent
         class MATHS_EXPORT CGradient
         {
             public:
-                virtual ~CGradient(void);
+                virtual ~CGradient(void) = default;
                 virtual bool operator()(const TVector &x, TVector &result) const = 0;
         };
 

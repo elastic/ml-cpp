@@ -73,9 +73,6 @@ class MODEL_EXPORT CLimits
         //! Default constructor
         CLimits();
 
-        //! Default destructor
-        ~CLimits();
-
         //! Initialise from a config file.  This overwrites current settings
         //! with any found in the config file.  Settings that are not present
         //! in the config file will be reset to their default values.
@@ -90,11 +87,6 @@ class MODEL_EXPORT CLimits
 
         //! Access to the resource monitor
         CResourceMonitor &resourceMonitor(void);
-
-        //! boost::ini_parser doesn't like UTF-8 ini files that begin with byte
-        //! order markers.  This function advances the seek pointer of the
-        //! stream over a UTF-8 BOM, but only if one exists.
-        static void skipUtf8Bom(std::ifstream &strm);
 
     private:
         //! Helper method for init().

@@ -8,6 +8,8 @@
 
 #include <core/CLogger.h>
 
+#include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraPersist.h>
@@ -19,8 +21,8 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 
 void CLinearAlgebraTest::testSymmetricMatrixNxN(void)
 {
@@ -929,6 +931,64 @@ void CLinearAlgebraTest::testUtils(void)
     }
 }
 
+void CLinearAlgebraTest::testScaleCovariances(void)
+{
+    LOG_DEBUG("+--------------------------------------------+");
+    LOG_DEBUG("|  CLinearAlgebraTest::testScaleCovariances  |");
+    LOG_DEBUG("+--------------------------------------------+");
+
+    const double scale_[]{0.8, 1.5, 2.0, 0.5};
+    const double covariance_[][4] =
+        {
+            { 10.0,  0.1,  1.5,  2.0 },
+            {  0.1, 11.0,  2.5,  1.9 },
+            {  1.5,  2.5, 12.0,  2.4 },
+            {  2.0,  1.9,  2.4, 11.5 }
+        };
+
+    LOG_DEBUG("CVectorNx1");
+    {
+        maths::CVectorNx1<double, 4> scale(scale_);
+        maths::CSymmetricMatrixNxN<double, 4> covariance(covariance_);
+        maths::scaleCovariances(scale, covariance);
+        LOG_DEBUG("scaled covariances =" << covariance);
+
+        for (std::size_t i = 0u; i < 4; ++i)
+        {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(scale_[i] * covariance_[i][i], covariance(i, i), 1e-10);
+            for (std::size_t j = i+1; j < 4; ++j)
+            {
+                double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(i, j), 1e-10);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(j, i), 1e-10);
+            }
+        }
+    }
+    LOG_DEBUG("CDenseVector");
+    {
+        maths::CDenseVector<double> scale(4);
+        scale << scale_[0], scale_[1], scale_[2], scale_[3];
+        maths::CDenseMatrix<double> covariance(4, 4);
+        covariance << covariance_[0][0], covariance_[0][1], covariance_[0][2], covariance_[0][3],
+                      covariance_[1][0], covariance_[1][1], covariance_[1][2], covariance_[1][3],
+                      covariance_[2][0], covariance_[2][1], covariance_[2][2], covariance_[2][3],
+                      covariance_[3][0], covariance_[3][1], covariance_[3][2], covariance_[3][3];
+        maths::scaleCovariances(scale, covariance);
+        LOG_DEBUG("scaled covariances =\n" << covariance);
+
+        for (std::size_t i = 0u; i < 4; ++i)
+        {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(scale_[i] * covariance_[i][i], covariance(i, i), 1e-10);
+            for (std::size_t j = i+1; j < 4; ++j)
+            {
+                double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(i, j), 1e-10);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(j, i), 1e-10);
+            }
+        }
+    }
+}
+
 void CLinearAlgebraTest::testGaussianLogLikelihood(void)
 {
     LOG_DEBUG("+-------------------------------------------------+");
@@ -1093,7 +1153,7 @@ void CLinearAlgebraTest::testSampleGaussian(void)
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(99), samples.size());
 
-        maths::CBasicStatistics::SSampleCovariances<double, 4> covariances;
+        maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
@@ -1144,7 +1204,7 @@ void CLinearAlgebraTest::testSampleGaussian(void)
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(100), samples.size());
 
-        maths::CBasicStatistics::SSampleCovariances<double, 4> covariances;
+        maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
         for (std::size_t i = 0u; i < samples.size(); ++i)
         {
@@ -1271,7 +1331,7 @@ void CLinearAlgebraTest::testProjected(void)
     LOG_DEBUG("|  CLinearAlgebraTest::testProjected  |");
     LOG_DEBUG("+-------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
+    using TSizeVec = std::vector<std::size_t>;
 
     const double m[][5] =
         {
@@ -1321,6 +1381,261 @@ void CLinearAlgebraTest::testProjected(void)
         LOG_DEBUG("projectedVector =\n" << projectedVector);
         CPPUNIT_ASSERT_EQUAL(std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"), print(projectedMatrix));
         CPPUNIT_ASSERT_EQUAL(std::string("3.4\n0.3\n5.7"), print(projectedVector));
+    }
+}
+
+void CLinearAlgebraTest::testShims(void)
+{
+    LOG_DEBUG("+---------------------------------+");
+    LOG_DEBUG("|  CLinearAlgebraTest::testShims  |");
+    LOG_DEBUG("+---------------------------------+");
+
+    using TVector4 = maths::CVectorNx1<double, 4>;
+    using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
+    using TVector = maths::CVector<double>;
+    using TMatrix = maths::CSymmetricMatrix<double>;
+    using TDenseVector = maths::CDenseVector<double>;
+    using TDenseMatrix = maths::CDenseMatrix<double>;
+
+    double components[][4]{{ 1.0, 3.1,  4.0, 1.5 },
+                           { 0.9, 3.2,  2.1, 1.7 },
+                           { 1.3, 1.6,  8.9, 0.2 },
+                           {-1.3, 2.7, -4.7, 3.1 }};
+    TVector4 vector1(components[0]);
+    TVector vector2(boost::begin(components[0]), boost::end(components[0]));
+    TDenseVector vector3(4);
+    vector3 << components[0][0], components[0][1], components[0][2], components[0][3];
+
+    LOG_DEBUG("Test dimension");
+    {
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector1));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector2));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector3));
+    }
+    LOG_DEBUG("Test zero");
+    {
+        CPPUNIT_ASSERT(TVector4(0.0) == maths::las::zero(vector1));
+        CPPUNIT_ASSERT(TVector(4, 0.0) == maths::las::zero(vector2));
+        CPPUNIT_ASSERT(TDenseVector::Zero(4) == maths::las::zero(vector3));
+    }
+    LOG_DEBUG("Test conformableZeroMatrix");
+    {
+        CPPUNIT_ASSERT(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
+        CPPUNIT_ASSERT(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
+        CPPUNIT_ASSERT(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector3));
+    }
+    LOG_DEBUG("Test isZero");
+    {
+        CPPUNIT_ASSERT(!maths::las::isZero(vector1));
+        CPPUNIT_ASSERT(!maths::las::isZero(vector2));
+        CPPUNIT_ASSERT(!maths::las::isZero(vector3));
+        CPPUNIT_ASSERT( maths::las::isZero(maths::las::zero(vector1)));
+        CPPUNIT_ASSERT( maths::las::isZero(maths::las::zero(vector2)));
+        CPPUNIT_ASSERT( maths::las::isZero(maths::las::zero(vector3)));
+    }
+    LOG_DEBUG("Test ones");
+    {
+        CPPUNIT_ASSERT(TVector4(1.0) == maths::las::ones(vector1));
+        CPPUNIT_ASSERT(TVector(4, 1.0) == maths::las::ones(vector2));
+        CPPUNIT_ASSERT(TDenseVector::Ones(4) == maths::las::ones(vector3));
+    }
+    LOG_DEBUG("Test constant");
+    {
+        CPPUNIT_ASSERT(TVector4(5.1) == maths::las::constant(vector1, 5.1));
+        CPPUNIT_ASSERT(TVector(4, 5.1) == maths::las::constant(vector2, 5.1));
+        CPPUNIT_ASSERT(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector3, 5.1));
+    }
+    LOG_DEBUG("Test min");
+    {
+        TVector4 vector4(components[1]);
+        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector6(4);
+        vector6 << components[1][0], components[1][1], components[1][2], components[1][3];
+        TVector4 vector7(components[2]);
+        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector9(4);
+        vector9 << components[2][0], components[2][1], components[2][2], components[2][3];
+        maths::las::min(vector1, vector4);
+        maths::las::min(vector2, vector5);
+        maths::las::min(vector3, vector6);
+        maths::las::min(vector1, vector7);
+        maths::las::min(vector2, vector8);
+        maths::las::min(vector3, vector9);
+        LOG_DEBUG(" min1 = " << core::CContainerPrinter::print(vector4));
+        LOG_DEBUG(" min1 = " << core::CContainerPrinter::print(vector5));
+        LOG_DEBUG(" min1 = " << vector6.transpose());
+        LOG_DEBUG(" min2 = " << core::CContainerPrinter::print(vector7));
+        LOG_DEBUG(" min2 = " << core::CContainerPrinter::print(vector8));
+        LOG_DEBUG(" min2 = " << vector9.transpose());
+        std::ostringstream o6;
+        o6 << vector6.transpose();
+        std::ostringstream o9;
+        o9 << vector9.transpose();
+        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"), core::CContainerPrinter::print(vector4));
+        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"), core::CContainerPrinter::print(vector5));
+        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o6.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"), core::CContainerPrinter::print(vector7));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"), core::CContainerPrinter::print(vector8));
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o9.str());
+    }
+    LOG_DEBUG("Test max");
+    {
+        TVector4 vector4(components[1]);
+        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector6(4);
+        vector6 << components[1][0], components[1][1], components[1][2], components[1][3];
+        TVector4 vector7(components[2]);
+        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector9(4);
+        vector9 << components[2][0], components[2][1], components[2][2], components[2][3];
+        maths::las::max(vector1, vector4);
+        maths::las::max(vector2, vector5);
+        maths::las::max(vector3, vector6);
+        maths::las::max(vector1, vector7);
+        maths::las::max(vector2, vector8);
+        maths::las::max(vector3, vector9);
+        LOG_DEBUG(" max1 = " << core::CContainerPrinter::print(vector4));
+        LOG_DEBUG(" max1 = " << core::CContainerPrinter::print(vector5));
+        LOG_DEBUG(" max1 = " << vector6.transpose());
+        LOG_DEBUG(" max2 = " << core::CContainerPrinter::print(vector7));
+        LOG_DEBUG(" max2 = " << core::CContainerPrinter::print(vector8));
+        LOG_DEBUG(" max2 = " << vector9.transpose());
+        std::ostringstream o6;
+        o6 << vector6.transpose();
+        std::ostringstream o9;
+        o9 << vector9.transpose();
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"), core::CContainerPrinter::print(vector4));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"), core::CContainerPrinter::print(vector5));
+        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o6.str());
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"), core::CContainerPrinter::print(vector7));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"), core::CContainerPrinter::print(vector8));
+        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o9.str());
+    }
+    LOG_DEBUG("Test componentwise divide");
+    {
+        TVector4 vector4(components[1]);
+        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector6(4);
+        vector6 << components[1][0], components[1][1], components[1][2], components[1][3];
+        TVector4 d1 = maths::las::componentwise(vector1) / maths::las::componentwise(vector4);
+        TVector d2 = maths::las::componentwise(vector2) / maths::las::componentwise(vector5);
+        TDenseVector d3 = maths::las::componentwise(vector3) / maths::las::componentwise(vector6);
+        LOG_DEBUG(" v1 / v2 = " << core::CContainerPrinter::print(d1));
+        LOG_DEBUG(" v1 / v2 = " << core::CContainerPrinter::print(d2));
+        LOG_DEBUG(" v1 / v2 = " << d3.transpose());
+        std::ostringstream o;
+        o << d3.transpose();
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
+                             core::CContainerPrinter::print(d1));
+        CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
+                             core::CContainerPrinter::print(d2));
+        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o.str());
+    }
+    LOG_DEBUG("Test distance");
+    {
+        TVector4 vector7(components[2]);
+        TVector vector8(boost::begin(components[2]), boost::end(components[2]));
+        TDenseVector vector9(4);
+        vector9 << components[2][0], components[2][1], components[2][2], components[2][3];
+        double d1 = maths::las::distance(vector1, vector7);
+        double d2 = maths::las::distance(vector2, vector8);
+        double d3 = maths::las::distance(vector3, vector9);
+        LOG_DEBUG(" d1 = " << d1);
+        LOG_DEBUG(" d1 = " << d2);
+        LOG_DEBUG(" d1 = " << d3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d1, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d2, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d3, 1e-10);
+    }
+    LOG_DEBUG("Test Euclidean norm");
+    {
+        double n1 = maths::las::norm(vector1);
+        double n2 = maths::las::norm(vector2);
+        double n3 = maths::las::norm(vector3);
+        LOG_DEBUG(" n1 = " << n1);
+        LOG_DEBUG(" n1 = " << n2);
+        LOG_DEBUG(" n1 = " << n3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n1, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n2, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n3, 1e-10);
+    }
+    LOG_DEBUG("Test L1");
+    {
+        TVector4 vector10(components[3]);
+        TVector vector11(boost::begin(components[3]), boost::end(components[3]));
+        TDenseVector vector12(4);
+        vector12 << components[3][0], components[3][1], components[3][2], components[3][3];
+        double l1 = maths::las::L1(vector10);
+        double l2 = maths::las::L1(vector11);
+        double l3 = maths::las::L1(vector12);
+        LOG_DEBUG(" l1 = " << l1);
+        LOG_DEBUG(" l1 = " << l2);
+        LOG_DEBUG(" l1 = " << l3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l1, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l2, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l3, 1e-10);
+    }
+    LOG_DEBUG("Test Frobenius");
+    {
+        double elements[][4]{{ 1.0,  2.3, 2.1, -1.3},
+                             { 2.3,  5.3, 0.1, -0.8},
+                             { 2.1,  0.1, 3.1,  0.0},
+                             {-1.3, -0.8, 0.0,  0.3}};
+        TDoubleVecVec elements_;
+        elements_.emplace_back(boost::begin(elements[0]), boost::end(elements[0]));
+        elements_.emplace_back(boost::begin(elements[1]), boost::end(elements[1]));
+        elements_.emplace_back(boost::begin(elements[2]), boost::end(elements[2]));
+        elements_.emplace_back(boost::begin(elements[3]), boost::end(elements[3]));
+        TMatrix4 matrix1(elements);
+        TMatrix matrix2(elements_);
+        TDenseMatrix matrix3(4, 4);
+        matrix3 << elements[0][0], elements[0][1], elements[0][2], elements[0][3],
+                   elements[1][0], elements[1][1], elements[1][2], elements[1][3],
+                   elements[2][0], elements[2][1], elements[2][2], elements[2][3],
+                   elements[3][0], elements[3][1], elements[3][2], elements[3][3];
+        double f1 = maths::las::frobenius(matrix1);
+        double f2 = maths::las::frobenius(matrix2);
+        double f3 = maths::las::frobenius(matrix3);
+        LOG_DEBUG(" f1 = " << f1);
+        LOG_DEBUG(" f1 = " << f2);
+        LOG_DEBUG(" f1 = " << f3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f1, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f2, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f3, 1e-10);
+    }
+    LOG_DEBUG("Test inner");
+    {
+        TVector4 vector4(components[1]);
+        TVector vector5(boost::begin(components[1]), boost::end(components[1]));
+        TDenseVector vector6(4);
+        vector6 << components[1][0], components[1][1], components[1][2], components[1][3];
+        double i1 = maths::las::inner(vector1, vector4);
+        double i2 = maths::las::inner(vector2, vector5);
+        double i3 = maths::las::inner(vector3, vector6);
+        LOG_DEBUG("i1 = " << i1);
+        LOG_DEBUG("i1 = " << i2);
+        LOG_DEBUG("i1 = " << i3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i1, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i2, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i3, 1e-10);
+    }
+    LOG_DEBUG("Test outer");
+    {
+        TMatrix4 outer1 = maths::las::outer(vector1);
+        TMatrix outer2 = maths::las::outer(vector2);
+        TDenseMatrix outer3 = maths::las::outer(vector3);
+        LOG_DEBUG("outer = " << outer1);
+        LOG_DEBUG("outer = " << outer2);
+        LOG_DEBUG("outer =\n" << outer3);
+        for (std::size_t i = 0u; i < 4; ++i)
+        {
+            for (std::size_t j = 0u; j < 4; ++j)
+            {
+                CPPUNIT_ASSERT_EQUAL(vector1(i) * vector1(j), outer1(i,j));
+                CPPUNIT_ASSERT_EQUAL(vector2(i) * vector2(j), outer2(i,j));
+                CPPUNIT_ASSERT_EQUAL(vector3(i) * vector3(j), outer3(i,j));
+            }
+        }
     }
 }
 
@@ -1414,6 +1729,9 @@ CppUnit::Test *CLinearAlgebraTest::suite(void)
                                    "CLinearAlgebraTest::testUtils",
                                    &CLinearAlgebraTest::testUtils) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
+                                   "CLinearAlgebraTest::testScaleCovariances",
+                                   &CLinearAlgebraTest::testScaleCovariances) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
                                    "CLinearAlgebraTest::testGaussianLogLikelihood",
                                    &CLinearAlgebraTest::testGaussianLogLikelihood) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
@@ -1425,6 +1743,9 @@ CppUnit::Test *CLinearAlgebraTest::suite(void)
     suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
                                    "CLinearAlgebraTest::testProjected",
                                    &CLinearAlgebraTest::testProjected) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
+                                   "CLinearAlgebraTest::testShims",
+                                   &CLinearAlgebraTest::testShims) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLinearAlgebraTest>(
                                    "CLinearAlgebraTest::testPersist",
                                    &CLinearAlgebraTest::testPersist) );

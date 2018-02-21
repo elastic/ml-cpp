@@ -13,6 +13,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 COMPONENTS= \
             autoconfig \
             autodetect \
+            cluster \
             categorize \
             controller \
             normalize \

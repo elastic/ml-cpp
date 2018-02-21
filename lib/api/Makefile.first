@@ -21,6 +21,8 @@ CAnomalyJob.cc \
 CBackgroundPersister.cc \
 CBaseTokenListDataTyper.cc \
 CBenchMarker.cc \
+CClusterer.cc \
+CClustererOutputWriter.cc \
 CCategoryExamplesCollector.cc \
 CCmdSkeleton.cc \
 CConfigUpdater.cc \

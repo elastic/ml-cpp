@@ -12,6 +12,7 @@
 #include <core/CNonInstantiatable.h>
 
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/ImportExport.h>
 
 #include <boost/array.hpp>
@@ -33,31 +34,20 @@ namespace maths
 class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef CVector<double> TVector;
-        typedef std::vector<TVector> TVectorVec;
+        using TDoubleVec = std::vector<double>;
+        using TDoubleVecVec = std::vector<TDoubleVec>;
 
     public:
         //! Compute an orthonormal basis for the vectors in \p x.
         //!
         //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
+        //! orthonormal basis. Overwritten with the basis.
         static bool basis(TDoubleVecVec &x);
 
         //! Compute an orthonormal basis for the vectors in \p x.
         //!
         //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
-        static bool basis(TVectorVec &x);
-
-        //! Compute an orthonormal basis for the vectors in \p x.
-        //!
-        //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
+        //! orthonormal basis. Overwritten with the basis.
         template<std::size_t N>
         static bool basis(boost::array<TDoubleVec, N> &x)
         {
@@ -67,10 +57,9 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
         //! Compute an orthonormal basis for the vectors in \p x.
         //!
         //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
-        template<std::size_t N>
-        static bool basis(boost::array<TVector, N> &x)
+        //! orthonormal basis. Overwritten with the basis.
+        template<typename VECTOR>
+        static bool basis(std::vector<VECTOR> &x)
         {
             return basisImpl(x);
         }
@@ -78,10 +67,9 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
         //! Compute an orthonormal basis for the vectors in \p x.
         //!
         //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
-        template<std::size_t N>
-        static bool basis(std::vector<CVectorNx1<double, N> > &x)
+        //! orthonormal basis. Overwritten with the basis.
+        template<typename VECTOR, std::size_t N>
+        static bool basis(boost::array<VECTOR, N> &x)
         {
             return basisImpl(x);
         }
@@ -90,13 +78,17 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
         //! The Gram-Schmidt process.
         //!
         //! \param[in,out] x The vectors from which to compute the
-        //! orthonormal basis. Overwritten with the orthonormal
-        //! basis.
+        //! orthonormal basis. Overwritten with the basis.
         template<typename VECTORS>
         static bool basisImpl(VECTORS &x)
         {
-            std::size_t i = 0u;
-            std::size_t current = 0u;
+            if (!check(x))
+            {
+                return false;
+            }
+
+            std::size_t i{0u};
+            std::size_t current{0u};
 
             for (/**/; i < x.size(); ++i)
             {
@@ -105,7 +97,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
                     swap(x[current], x[i]);
                 }
 
-                double n = norm(x[current]);
+                double n{norm(x[current])};
                 LOG_TRACE("i = " << i
                           << ", current = " << current
                           << ", x = " << print(x[current])
@@ -114,8 +106,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
                 if (n != 0.0)
                 {
                     divide(x[current], n);
-                    ++current;
-                    ++i;
+                    ++current; ++i;
                     break;
                 }
             }
@@ -129,16 +120,16 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
                         swap(x[current], x[i]);
                     }
 
-                    double eps =  5.0
-                                * norm(x[current])
-                                * std::numeric_limits<double>::epsilon();
+                    double eps{  5.0
+                               * norm(x[current])
+                               * std::numeric_limits<double>::epsilon()};
 
                     for (std::size_t j = 0u; j < i; ++j)
                     {
                         minusProjection(x[current], x[j]);
                     }
 
-                    double n = norm(x[current]);
+                    double n{norm(x[current])};
                     LOG_TRACE("i = " << i
                               << ", current = " << current
                               << ", x = " << print(x[current])
@@ -165,84 +156,78 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
             return true;
         }
 
+        //! Check all the vectors have the same dimension.
+        static bool check(const TDoubleVecVec &x);
+
+        //! Check all the vectors have the same dimension.
+        template<typename VECTORS>
+        static bool check(const VECTORS &x)
+        {
+            if (!x.empty())
+            {
+                std::size_t dimension{las::dimension(x[0])};
+                for (std::size_t i = 1u; i < x.size(); ++i)
+                {
+                    if (las::dimension(x[i]) != dimension)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         //! Efficiently swap \p x and \p y.
         static void swap(TDoubleVec &x, TDoubleVec &y);
 
         //! Efficiently swap \p x and \p y.
-        static void swap(TVector &x, TVector &y);
-
-        //! Efficiently swap \p x and \p y.
-        template<std::size_t N>
-        static void swap(CVectorNx1<double, N> &x, CVectorNx1<double, N> &y)
+        template<typename VECTOR>
+        static void swap(VECTOR &x, VECTOR &y)
         {
-            std::swap(x, y);
+            using std::swap;
+            swap(x, y);
         }
 
         //! Subtract the projection of \p x onto \p e from \p x.
-        static const TDoubleVec &minusProjection(TDoubleVec &x,
-                                                 const TDoubleVec &e);
+        static void minusProjection(TDoubleVec &x, const TDoubleVec &e);
 
         //! Subtract the projection of \p x onto \p e from \p x.
-        static const TVector &minusProjection(TVector &x,
-                                              const TVector &e);
-
-        //! Subtract the projection of \p x onto \p e from \p x.
-        template<std::size_t N>
-        static const CVectorNx1<double, N> &minusProjection(CVectorNx1<double, N> &x,
-                                                            const CVectorNx1<double, N> &e)
+        template<typename VECTOR>
+        static void minusProjection(VECTOR &x, const VECTOR &e)
         {
-            double n = e.inner(x);
-            return x -= n * e;
+            typename SCoordinate<VECTOR>::Type n{las::inner(e, x)};
+            x -= n * e;
         }
 
         //! Divide the vector \p x by the scalar \p s.
-        static const TDoubleVec &divide(TDoubleVec &x, double s);
+        static void divide(TDoubleVec &x, double s);
 
         //! Divide the vector \p x by the scalar \p s.
-        static const TVector &divide(TVector &x, double s);
-
-        //! Divide the vector \p x by the scalar \p s.
-        template<std::size_t N>
-        static const CVectorNx1<double, N> &divide(CVectorNx1<double, N> &x,
-                                                   double s)
+        template<typename VECTOR>
+        static void divide(VECTOR &x, double s)
         {
-            return x /= s;
+            x /= s;
         }
 
         //! Compute the norm of the vector \p x.
         static double norm(const TDoubleVec &x);
 
         //! Compute the norm of the vector \p x.
-        static double norm(const TVector &x);
-
-        //! Compute the norm of the vector \p x.
-        template<std::size_t N>
-        static double norm(const CVectorNx1<double, N> &x)
+        template<typename VECTOR>
+        static double norm(const VECTOR &x)
         {
-            return x.euclidean();
+            return las::norm(x);
         }
 
         //! Compute the inner product of \p x and \p y.
         static double inner(const TDoubleVec &x, const TDoubleVec &y);
 
         //! Compute the inner product of \p x and \p y.
-        static double inner(const TVector &x, const TVector &y);
-
-        //! Compute the inner product of \p x and \p y.
-        template<std::size_t N>
-        static double inner(const CVectorNx1<double, N> &x,
-                            const CVectorNx1<double, N> &y)
+        template<typename VECTOR>
+        static double inner(const VECTOR &x, const VECTOR &y)
         {
-            return x.inner(y);
+            return las::inner(x, y);
         }
-
-        //! Check if \p x and \p y have the same dimension.
-        static void sameDimension(const TDoubleVec &x,
-                                  const TDoubleVec &y);
-
-        //! Check if \p x and \p y have the same dimension.
-        static void sameDimension(const TVector &x,
-                                  const TVector &y);
 
         //! Remove [\p begin, \p end) from \p x.
         template<typename VECTOR>
@@ -269,27 +254,18 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable
         static void zero(TDoubleVec &x);
 
         //! Zero the components of \p x.
-        static void zero(TVector &x);
-
-        //! Zero the components of \p x.
-        template<std::size_t N>
-        static void zero(CVectorNx1<double, N> &x)
+        template<typename VECTOR>
+        static void zero(VECTOR &x)
         {
-            for (std::size_t i = 0u; i < x.size(); ++i)
-            {
-                x(i) = 0.0;
-            }
+            x = las::zero(x);
         }
 
         //! Print \p x for debug.
         static std::string print(const TDoubleVec &x);
 
         //! Print \p x for debug.
-        static std::string print(const TVector &x);
-
-        //! Print \p x for debug.
-        template<std::size_t N>
-        static std::string print(const CVectorNx1<double, N> &x)
+        template<typename VECTOR>
+        static std::string print(const VECTOR &x)
         {
             std::ostringstream result;
             result << x;

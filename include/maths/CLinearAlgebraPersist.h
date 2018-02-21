@@ -7,10 +7,10 @@
 #ifndef INCLUDED_ml_maths_CLinearAlgebraPersist_h
 #define INCLUDED_ml_maths_CLinearAlgebraPersist_h
 
-#include <maths/CLinearAlgebra.h>
-
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
+
+#include <maths/CLinearAlgebra.h>
 
 namespace ml
 {

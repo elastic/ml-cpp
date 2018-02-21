@@ -9,8 +9,9 @@
 
 #include <core/Constants.h>
 
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CSphericalCluster.h>
 #include <maths/ImportExport.h>
 
@@ -25,19 +26,6 @@ namespace maths
 
 namespace information_criteria_detail
 {
-
-//! \brief Defines the sample covariance accumulator.
-template<typename T>
-struct SSampleCovariances
-{
-};
-
-//! \brief Defines the sample covariance accumulator for a CVectorNx1.
-template<typename T, std::size_t N>
-struct SSampleCovariances<CVectorNx1<T, N>>
-{
-    typedef CBasicStatistics::SSampleCovariances<T, N> Type;
-};
 
 //! The confidence interval we use when computing the singular values
 //! of the covariance matrix. This is high to stop x-means creating
@@ -110,12 +98,12 @@ template<typename POINT, EInfoCriterionType TYPE>
 class CSphericalGaussianInfoCriterion
 {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-        typedef typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator TMeanVarAccumulator;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
+        using TMeanVarAccumulator = typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator;
 
     public:
         CSphericalGaussianInfoCriterion(void) :
@@ -144,23 +132,21 @@ class CSphericalGaussianInfoCriterion
         //! Update the sufficient statistics for computing info content.
         void add(const TPointVecVec &x)
         {
-            for (std::size_t i = 0u; i < x.size(); ++i)
+            for (const auto &xi : x)
             {
-                this->add(x[i]);
+                this->add(xi);
             }
         }
 
         //! Update the sufficient statistics for computing info content.
         void add(const TPointVec &x)
         {
-            if (x.empty())
+            if (!x.empty())
             {
-                return;
+                TMeanVarAccumulator moments(las::zero(x[0]));
+                moments.add(x);
+                this->add(moments);
             }
-
-            TMeanVarAccumulator moments;
-            moments.add(x);
-            this->add(moments);
         }
 
         //! Update the sufficient statistics for computing info content.
@@ -169,52 +155,47 @@ class CSphericalGaussianInfoCriterion
             double ni = CBasicStatistics::count(moments);
             const TBarePointPrecise &m = CBasicStatistics::mean(moments);
             const TBarePointPrecise &c = CBasicStatistics::maximumLikelihoodVariance(moments);
-            std::size_t d = c.dimension();
+            std::size_t d = las::dimension(c);
             double vi = 0.0;
             for (std::size_t i = 0u; i < d; ++i)
             {
                 vi += c(i);
             }
-            vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon()
-                                   * m.euclidean());
+            vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() * las::norm(m));
 
-            m_D = static_cast<double>(c.dimension());
+            m_D = static_cast<double>(d);
             m_K += 1.0;
             m_N += ni;
             if (ni > 1.0)
             {
                 double upper = information_criteria_detail::confidence(ni - 1.0);
                 m_Likelihood +=   ni * log(ni)
-                               - 0.5 * m_D * ni * (  1.0
-                                                   + core::constants::LOG_TWO_PI
-                                                   + ::log(upper * vi / m_D));
+                               - 0.5 * m_D * ni * (1.0 + core::constants::LOG_TWO_PI
+                                                       + ::log(upper * vi / m_D));
             }
             else
             {
                 m_Likelihood +=   ni * log(ni)
-                               - 0.5 * m_D * ni * (  1.0
-                                                   + core::constants::LOG_TWO_PI
-                                                   + core::constants::LOG_MAX_DOUBLE);
+                               - 0.5 * m_D * ni * (1.0 + core::constants::LOG_TWO_PI
+                                                       + core::constants::LOG_MAX_DOUBLE);
             }
         }
 
         //! Calculate the information content of the clusters added so far.
         double calculate(void) const
         {
-            if (m_N == 0.0)
+            if (m_N != 0.0)
             {
-                return 0.0;
-            }
-
-            double logN = ::log(m_N);
-            double p = (m_D * m_K + 2.0 * m_K - 1.0);
-            switch (TYPE)
-            {
-            case E_BIC:
-                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-            case E_AICc:
-                return -2.0 * (m_Likelihood - m_N * logN)
-                      + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
+                double logN = ::log(m_N);
+                double p = (m_D * m_K + 2.0 * m_K - 1.0);
+                switch (TYPE)
+                {
+                case E_BIC:
+                    return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+                case E_AICc:
+                    return -2.0 * (m_Likelihood - m_N * logN)
+                          + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
+                }
             }
             return 0.0;
         }
@@ -242,13 +223,13 @@ template<typename POINT, EInfoCriterionType TYPE>
 class CGaussianInfoCriterion
 {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-        typedef typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type TCovariances;
-        typedef typename SConformableMatrix<TBarePointPrecise>::Type TMatrix;
+        using TPointVec = std::vector<POINT>;
+        using TPointVecVec = std::vector<TPointVec>;
+        using TBarePoint = typename SStripped<POINT>::Type;
+        using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
+        using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
+        using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
+        using TMatrix = typename SConformableMatrix<TBarePointPrecise>::Type;
 
     public:
         CGaussianInfoCriterion(void) :
@@ -277,56 +258,51 @@ class CGaussianInfoCriterion
         //! Update the sufficient statistics for computing info content.
         void add(const TPointVecVec &x)
         {
-            for (std::size_t i = 0u; i < x.size(); ++i)
+            for (const auto &xi : x)
             {
-                this->add(x[i]);
+                this->add(xi);
             }
         }
 
         //! Update the sufficient statistics for computing info content.
         void add(const TPointVec &x)
         {
-            if (x.empty())
+            if (!x.empty())
             {
-                return;
+                TCovariances covariances(las::dimension(x[0]));
+                covariances.add(x);
+                this->add(covariances);
             }
-
-            TCovariances covariances;
-            covariances.add(x);
-            this->add(covariances);
         }
 
         //! Update the sufficient statistics for computing info content.
         void add(const TCovariances &covariance)
         {
             double ni = CBasicStatistics::count(covariance);
-            m_D = static_cast<double>(CBasicStatistics::mean(covariance).dimension());
+            m_D = static_cast<double>(las::dimension(CBasicStatistics::mean(covariance)));
             m_K += 1.0;
             m_N += ni;
             m_Likelihood +=   ni * log(ni)
-                           - 0.5 * ni * (  m_D
-                                         + m_D * core::constants::LOG_TWO_PI
-                                         + (ni <= m_D + 1.0 ? core::constants::LOG_MAX_DOUBLE :
-                                                              this->logDeterminant(covariance)));
+                           - 0.5 * ni * (m_D + m_D * core::constants::LOG_TWO_PI
+                                             + (ni <= m_D + 1.0 ? core::constants::LOG_MAX_DOUBLE :
+                                                                  this->logDeterminant(covariance)));
         }
 
         //! Calculate the information content of the clusters added so far.
         double calculate(void) const
         {
-            if (m_N == 0.0)
+            if (m_N != 0.0)
             {
-                return 0.0;
-            }
-
-            double logN = ::log(m_N);
-            double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
-            switch (TYPE)
-            {
-            case E_BIC:
-                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-            case E_AICc:
-                return -2.0 * (m_Likelihood - m_N * logN)
-                      + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
+                double logN = ::log(m_N);
+                double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
+                switch (TYPE)
+                {
+                case E_BIC:
+                    return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+                case E_AICc:
+                    return -2.0 * (m_Likelihood - m_N * logN)
+                          + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
+                }
             }
             return 0.0;
         }

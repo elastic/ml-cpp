@@ -54,11 +54,6 @@ bool CLineifiedXmlOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CLineifiedXmlOutputWriter::TStrVec &CLineifiedXmlOutputWriter::fieldNames(void) const
-{
-    return EMPTY_FIELD_NAMES;
-}
-
 bool CLineifiedXmlOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
                                          const TStrStrUMap &overrideDataRowFields)
 {

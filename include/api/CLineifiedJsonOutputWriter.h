@@ -60,23 +60,20 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
         //! Destructor flushes the stream
         virtual ~CLineifiedJsonOutputWriter(void);
 
+        // Bring the other overload of fieldNames() into scope
+        using COutputHandler::fieldNames;
+
         //! Set field names - this function has no affect it always
         //! returns true
         virtual bool fieldNames(const TStrVec &fieldNames,
                                 const TStrVec &extraFieldNames);
 
-        //! Returns an empty vector
-        virtual const TStrVec &fieldNames(void) const;
-
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+        // Bring the other overload of writeRow() into scope
+        using COutputHandler::writeRow;
 
         //! Write the data row fields as a JSON object
         virtual bool writeRow(const TStrStrUMap &dataRowFields,
                               const TStrStrUMap &overrideDataRowFields);
-
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
 
         //! Get the contents of the internal string stream - for use with the
         //! zero argument constructor

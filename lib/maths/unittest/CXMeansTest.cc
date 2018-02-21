@@ -320,7 +320,7 @@ void CXMeansTest::testImproveParams(void)
             points.insert(points.end(), cluster.begin(), cluster.end());
         }
 
-        maths::CKMeansFast<TVector2> kmeans;
+        maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(points);
 
         CXMeansForTest<TVector2> xmeans(5);

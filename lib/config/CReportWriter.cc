@@ -155,8 +155,6 @@ void writeTable(std::ostream &o,
     }
 }
 
-const TStrVec NO_STRINGS;
-
 }
 
 CReportWriter::CReportWriter(std::ostream &writeStream) : m_WriteStream(writeStream)
@@ -167,11 +165,6 @@ bool CReportWriter::fieldNames(const TStrVec &/*fieldNames*/,
                                const TStrVec &/*extraFieldNames*/)
 {
     return true;
-}
-
-const CReportWriter::TStrVec &CReportWriter::fieldNames(void) const
-{
-    return NO_STRINGS;
 }
 
 bool CReportWriter::writeRow(const TStrStrUMap &/*dataRowFields*/,

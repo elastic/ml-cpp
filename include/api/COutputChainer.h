@@ -49,16 +49,16 @@ class API_EXPORT COutputChainer : public COutputHandler
         //! We're going to be writing to a new output stream
         virtual void newOutputStream(void);
 
+        // Bring the other overload of fieldNames() into scope
+        using COutputHandler::fieldNames;
+
         //! Set field names, adding extra field names if they're not already
         //! present - this is only allowed once
         virtual bool fieldNames(const TStrVec &fieldNames,
                                 const TStrVec &extraFieldNames);
 
-        //! Get field names
-        virtual const TStrVec &fieldNames(void) const;
-
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+        // Bring the other overload of writeRow() into scope
+        using COutputHandler::writeRow;
 
         //! Call the next data processor's input function with some output
         //! values, optionally overriding some of the original field values.
@@ -66,9 +66,6 @@ class API_EXPORT COutputChainer : public COutputHandler
         //! dataRowFields, the value in overrideDataRowFields will be written.
         virtual bool writeRow(const TStrStrUMap &dataRowFields,
                               const TStrStrUMap &overrideDataRowFields);
-
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
 
         //! Perform any final processing once all data for the current search
         //! has been seen.  Chained classes should NOT rely on this method being

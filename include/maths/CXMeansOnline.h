@@ -24,12 +24,12 @@
 #include <maths/Constants.h>
 #include <maths/CPRNG.h>
 #include <maths/CSphericalCluster.h>
-#include <maths/CTypeConversions.h>
+#include <maths/CTypeTraits.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
+#include <cmath>
 #include <cstddef>
+#include <numeric>
 #include <vector>
 
 namespace ml
@@ -73,7 +73,7 @@ namespace maths
 //! unsupervised clustering of the data which identifies reasonably
 //! separated clusters.
 template<typename T, std::size_t N>
-class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
+class CXMeansOnline : public CClusterer<CVectorNx1<T, N>>
 {
     public:
         typedef CVectorNx1<T, N> TPoint;
@@ -89,7 +89,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         typedef std::vector<TSizeVec> TSizeVecVec;
         typedef typename SPromoted<T>::Type TPrecise;
         typedef CSymmetricMatrixNxN<TPrecise, N> TMatrixPrecise;
-        typedef CBasicStatistics::SSampleCovariances<TPrecise, N> TCovariances;
+        typedef CBasicStatistics::SSampleCovariances<TPointPrecise> TCovariances;
         typedef typename CSphericalCluster<TPoint>::Type TSphericalCluster;
         typedef std::vector<TSphericalCluster> TSphericalClusterVec;
         typedef std::vector<TSphericalClusterVec> TSphericalClusterVecVec;
@@ -107,9 +107,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                         m_Index(clusterer.m_ClusterIndexGenerator.next()),
                         m_DataType(clusterer.m_DataType),
                         m_DecayRate(clusterer.m_DecayRate),
+                        m_Covariances(N),
                         m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate)
-                {
-                }
+                {}
 
                 //! Initialize by traversing a state document.
                 bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
@@ -182,7 +182,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Propagate the cluster forwards by \p time.
                 void propagateForwardsByTime(double time)
                 {
-                    double alpha = ::exp(-this->scaledDecayRate() * time);
+                    double alpha = std::exp(-this->scaledDecayRate() * time);
                     m_Covariances.age(alpha);
                     m_Structure.age(alpha);
                 }
@@ -206,8 +206,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! This is defined as the trace of the sample covariance matrix.
                 double spread(void) const
                 {
-                    return ::sqrt(  CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace()
-                                  / static_cast<double>(N));
+                    return std::sqrt(  CBasicStatistics::maximumLikelihoodCovariances(m_Covariances).trace()
+                                     / static_cast<double>(N));
                 }
 
                 //! Get the sample covariance matrix this cluster.
@@ -254,7 +254,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                     {
                         return likelihood;
                     }
-                    return likelihood + ::log(this->weight(calc));
+                    return likelihood + std::log(this->weight(calc));
                 }
 
                 //! Get \p numberSamples from this cluster.
@@ -308,14 +308,14 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                     }
                     LOG_TRACE("split = " << core::CContainerPrinter::print(split));
 
-                    TCovariances covariances[2];
+                    TCovariances covariances[2]{TCovariances(N), TCovariances(N)};
                     TSphericalClusterVec clusters;
                     this->sphericalClusters(clusters);
                     for (std::size_t i = 0u; i < 2; ++i)
                     {
-                        for (std::size_t j = 0u; j < split[i].size(); ++j)
+                        for (auto j : split[i])
                         {
-                            covariances[i].add(clusters[split[i][j]]);
+                            covariances[i].add(clusters[j]);
                         }
                     }
                     TKMeansOnlineVec structure;
@@ -325,7 +325,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                               << " left = " << structure[0].print()
                               << ", right = " << structure[1].print());
 
-                    std::size_t index[] = { indexGenerator.next(), indexGenerator.next() };
+                    std::size_t index[]{indexGenerator.next(), indexGenerator.next()};
                     indexGenerator.recycle(m_Index);
 
                     return TClusterClusterPr(CCluster(index[0], m_DataType, m_DecayRate, covariances[0], structure[0]),
@@ -457,14 +457,11 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                         // which case the variance of the covariance estimates can
                         // be large.
 
-                        TCovariances covariances[2];
+                        TCovariances covariances[2]{TCovariances(N), TCovariances(N)};
                         CBasicStatistics::covariancesLedoitWolf(candidate[0], covariances[0]);
                         CBasicStatistics::covariancesLedoitWolf(candidate[1], covariances[1]);
-                        double n[] =
-                            {
-                                CBasicStatistics::count(covariances[0]),
-                                CBasicStatistics::count(covariances[1])
-                            };
+                        double n[]{CBasicStatistics::count(covariances[0]),
+                                   CBasicStatistics::count(covariances[1])};
                         double nmin = std::min(n[0], n[1]);
 
                         // Check the count constraint.
@@ -505,7 +502,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                             for (std::size_t i = 0u; i < assignment.size(); ++i)
                             {
                                 std::size_t j = assignment[i];
-                                TCovariances ci;
+                                TCovariances ci(N);
                                 ci.add(remainder[i]);
                                 candidate[j].push_back(remainder[i]);
                                 covariances[j] += ci;
@@ -520,30 +517,29 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                             {
                                 LOG_TRACE("splitting");
 
+                                typename CSphericalCluster<TPoint>::SLess less;
+
                                 result.resize(candidate.size());
                                 TSphericalClusterVec clusters;
                                 this->sphericalClusters(clusters);
-                                TSizeVec indexes(boost::counting_iterator<std::size_t>(0),
-                                                 boost::counting_iterator<std::size_t>(clusters.size()));
-                                COrderings::simultaneousSort(clusters,
-                                                             indexes,
-                                                             typename CSphericalCluster<TPoint>::SLess());
+                                TSizeVec indexes(clusters.size());
+                                std::iota(indexes.begin(), indexes.end(), 0);
+                                COrderings::simultaneousSort(
+                                        clusters, indexes, typename CSphericalCluster<TPoint>::SLess());
                                 for (std::size_t i = 0u; i < candidate.size(); ++i)
                                 {
-                                    for (std::size_t j = 0u; j < candidate[i].size(); ++j)
+                                    for (const auto &x : candidate[i])
                                     {
-                                        std::size_t k =  std::lower_bound(clusters.begin(),
-                                                                          clusters.end(),
-                                                                          candidate[i][j],
-                                                                          typename CSphericalCluster<TPoint>::SLess())
-                                                       - clusters.begin();
-                                        if (k >= clusters.size())
+                                        std::size_t j = std::lower_bound(clusters.begin(),
+                                                                         clusters.end(),
+                                                                         x, less) - clusters.begin();
+                                        if (j >= clusters.size())
                                         {
-                                            LOG_ERROR("Missing " << candidate[i][j]
-                                                      << ", clusters = " << core::CContainerPrinter::print(clusters));
+                                            LOG_ERROR("Missing " << x << " from clusters = "
+                                                      << core::CContainerPrinter::print(clusters));
                                             return false;
                                         }
-                                        result[i].push_back(indexes[k]);
+                                        result[i].push_back(indexes[j]);
                                     }
                                 }
                             }
@@ -562,13 +558,11 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                     switch (m_DataType)
                     {
                     case maths_t::E_IntegerData:
-                    {
-                        for (std::size_t i = 0u; i < result.size(); ++i)
+                        for (auto &&x : result)
                         {
-                            result[i].annotation().s_Variance += 1.0 / 12.0;
+                            x.annotation().s_Variance += 1.0 / 12.0;
                         }
                         break;
-                    }
                     case maths_t::E_DiscreteData:
                     case maths_t::E_ContinuousData:
                     case maths_t::E_MixedData:
@@ -579,14 +573,12 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Get the closest (in Mahalanobis distance) cluster to \p x.
                 static std::size_t nearest(const TSphericalCluster &x, const TCovariances (&c)[2])
                 {
-                    TPrecise d[] = { 0, 0 };
+                    TPrecise d[]{0, 0};
                     TPointPrecise x_(x);
                     inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[0]),
-                                         x_ - CBasicStatistics::mean(c[0]),
-                                         d[0]);
+                                         x_ - CBasicStatistics::mean(c[0]), d[0]);
                     inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[1]),
-                                         x_ - CBasicStatistics::mean(c[1]),
-                                         d[1]);
+                                         x_ - CBasicStatistics::mean(c[1]), d[1]);
                     return d[0] < d[1] ? 0 : 1;
                 }
 
@@ -607,7 +599,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 //! Get the scaled decay rate for use by propagateForwardsByTime.
                 double scaledDecayRate(void) const
                 {
-                    return ::pow(0.5, static_cast<double>(N)) * m_DecayRate;
+                    return std::pow(0.5, static_cast<double>(N)) * m_DecayRate;
                 }
 
             private:
@@ -629,7 +621,6 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
 
         typedef std::vector<CCluster> TClusterVec;
         typedef typename TClusterVec::iterator TClusterVecItr;
-        typedef typename TClusterVec::const_iterator TClusterVecCItr;
 
     public:
         //! \name Life-cycle
@@ -808,9 +799,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         virtual void dataType(maths_t::EDataType dataType)
         {
             m_DataType = dataType;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            for (auto &&cluster : m_Clusters)
             {
-                m_Clusters[i].dataType(dataType);
+                cluster.dataType(dataType);
             }
         }
 
@@ -818,9 +809,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         virtual void decayRate(double decayRate)
         {
             m_DecayRate = decayRate;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            for (auto &&cluster : m_Clusters)
             {
-                m_Clusters[i].decayRate(decayRate);
+                cluster.decayRate(decayRate);
             }
         }
 
@@ -886,36 +877,36 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
             //   Z = Sum_i{ P(i | x) }
 
             result.reserve(m_Clusters.size());
-            double renormalizer = boost::numeric::bounds<double>::lowest();
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            double lmax = boost::numeric::bounds<double>::lowest();
+            for (const auto &cluster : m_Clusters)
             {
-                double likelihood = m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, point);
-                result.push_back(std::make_pair(m_Clusters[i].index(), likelihood));
-                renormalizer = std::max(renormalizer, likelihood);
+                double likelihood = cluster.logLikelihoodFromCluster(m_WeightCalc, point);
+                result.emplace_back(cluster.index(), likelihood);
+                lmax = std::max(lmax, likelihood);
             }
-            double normalizer = 0.0;
-            for (std::size_t i = 0u; i < result.size(); ++i)
+            double Z = 0.0;
+            for (auto &&x : result)
             {
-                result[i].second = ::exp(result[i].second - renormalizer);
-                normalizer += result[i].second;
+                x.second = std::exp(x.second - lmax);
+                Z += x.second;
             }
             double pmax = 0.0;
-            for (std::size_t i = 0u; i < result.size(); ++i)
+            for (auto &&x : result)
             {
-                result[i].second /= normalizer;
-                pmax = std::max(pmax, result[i].second);
+                x.second /= Z;
+                pmax = std::max(pmax, x.second);
             }
             result.erase(std::remove_if(result.begin(), result.end(),
                                         CProbabilityLessThan(HARD_ASSIGNMENT_THRESHOLD * pmax)),
                          result.end());
-            normalizer = 0.0;
-            for (std::size_t i = 0u; i < result.size(); ++i)
+            Z = 0.0;
+            for (const auto &x : result)
             {
-                normalizer += result[i].second;
+                Z += x.second;
             }
-            for (std::size_t i = 0u; i < result.size(); ++i)
+            for (auto &&x : result)
             {
-                result[i].second *= count / normalizer;
+                x.second *= count / Z;
             }
         }
 
@@ -929,7 +920,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
             {
                 LOG_TRACE("Adding " << x << " to " << m_Clusters[0].centre());
                 m_Clusters[0].add(x, count);
-                clusters.push_back(std::make_pair(m_Clusters[0].index(), count));
+                clusters.emplace_back(m_Clusters[0].index(), count);
                 if (this->maybeSplit(m_Clusters.begin()))
                 {
                     this->cluster(x, clusters, count);
@@ -937,13 +928,14 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
             }
             else
             {
-                typedef std::pair<double, std::size_t> TSizeDoublePr;
-                typedef CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr> > TMaxAccumulator;
+                using TSizeDoublePr = std::pair<double, std::size_t>;
+                using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2,
+                                                                                std::greater<TSizeDoublePr>>;
 
                 TMaxAccumulator closest;
                 for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
                 {
-                    closest.add(std::make_pair(m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i));
+                    closest.add({m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i});
                 }
                 closest.sort();
                 LOG_TRACE("closest = " << closest.print());
@@ -953,20 +945,20 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
 
                 // Normalize the likelihood values.
                 double p0 = 1.0;
-                double p1 = ::exp(likelihood1 - likelihood0);
+                double p1 = std::exp(likelihood1 - likelihood0);
                 double normalizer = p0 + p1;
                 p0 /= normalizer;
                 p1 /= normalizer;
                 LOG_TRACE("probabilities = [" << p0 << "," << p1 << "]");
 
-                TClusterVecItr cluster0 = m_Clusters.begin() + closest[0].second;
-                TClusterVecItr cluster1 = m_Clusters.begin() + closest[1].second;
+                auto cluster0 = m_Clusters.begin() + closest[0].second;
+                auto cluster1 = m_Clusters.begin() + closest[1].second;
 
                 if (p1 < HARD_ASSIGNMENT_THRESHOLD * p0)
                 {
                     LOG_TRACE("Adding " << x << " to " << cluster0->centre());
                     cluster0->add(x, count);
-                    clusters.push_back(std::make_pair(cluster0->index(), count));
+                    clusters.emplace_back(cluster0->index(), count);
                     if (this->maybeSplit(cluster0) || this->maybeMerge(cluster0))
                     {
                         this->cluster(x, clusters, count);
@@ -980,11 +972,10 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                     LOG_TRACE("Soft adding " << x
                               << " " << count0 << " to " << cluster0->centre()
                               << " and " << count1 << " to " << cluster1->centre());
-
                     cluster0->add(x, count0);
                     cluster1->add(x, count1);
-                    clusters.push_back(std::make_pair(cluster0->index(), count0));
-                    clusters.push_back(std::make_pair(cluster1->index(), count1));
+                    clusters.emplace_back(cluster0->index(), count0);
+                    clusters.emplace_back(cluster1->index(), count1);
                     if (   this->maybeSplit(cluster0)
                         || this->maybeSplit(cluster1)
                         || this->maybeMerge(cluster0)
@@ -1006,12 +997,12 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         {
             if (m_Clusters.empty())
             {
-                m_Clusters.push_back(CCluster(*this));
+                m_Clusters.emplace_back(*this);
             }
             TSizeDoublePr2Vec dummy;
-            for (std::size_t i = 0u; i < x.size(); ++i)
+            for (const auto &x_ : x)
             {
-                this->add(x[i].first, dummy, x[i].second);
+                this->add(x_.first, dummy, x_.second);
             }
         }
 
@@ -1030,10 +1021,10 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 LOG_ERROR("Can't propagate backwards in time");
                 return;
             }
-            m_HistoryLength *= ::exp(-m_DecayRate * time);
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            m_HistoryLength *= std::exp(-m_DecayRate * time);
+            for (auto &&cluster : m_Clusters)
             {
-                m_Clusters[i].propagateForwardsByTime(time);
+                cluster.propagateForwardsByTime(time);
             }
         }
 
@@ -1065,9 +1056,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         {
             double weight = 0.0;
             double Z = 0.0;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
+            for (const auto &cluster : m_Clusters)
             {
-                const CCluster &cluster = m_Clusters[i];
                 if (cluster.index() == index)
                 {
                     weight = cluster.weight(maths_t::E_ClustersFractionWeight);
@@ -1114,9 +1104,9 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
         double count(void) const
         {
             double result = 0.0;
-            for (std::size_t i = 0; i < m_Clusters.size(); ++i)
+            for (const auto &cluster : m_Clusters)
             {
-                result += m_Clusters[i].count();
+                result += cluster.count();
             }
             return result;
         }
@@ -1201,7 +1191,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> >
                 {
                     count += m_Clusters[i].count();
                 }
-                double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
+                double scale = std::max(m_HistoryLength * (1.0 - std::exp(-m_InitialDecayRate)), 1.0);
                 count *= m_MinimumClusterFraction / scale;
                 result = std::max(result, count);
             }

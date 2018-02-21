@@ -18,10 +18,12 @@ class CLinearAlgebraTest : public CppUnit::TestFixture
         void testVector(void);
         void testNorms(void);
         void testUtils(void);
+        void testScaleCovariances(void);
         void testGaussianLogLikelihood(void);
         void testSampleGaussian(void);
         void testLogDeterminant(void);
         void testProjected(void);
+        void testShims(void);
         void testPersist(void);
 
         static CppUnit::Test *suite(void);

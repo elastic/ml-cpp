@@ -42,7 +42,7 @@ class MODEL_EXPORT CDynamicStringIdRegistry
 {
     public:
         typedef core::CCompressedDictionary<2> TDictionary;
-        typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
+        typedef TDictionary::TWordTUMap<std::size_t> TWordSizeUMap;
         typedef TWordSizeUMap::iterator TWordSizeUMapItr;
         typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
         typedef std::vector<std::size_t> TSizeVec;

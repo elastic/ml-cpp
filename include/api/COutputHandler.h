@@ -54,16 +54,13 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
         typedef std::vector<std::string>                       TStrVec;
         typedef TStrVec::iterator                              TStrVecItr;
         typedef TStrVec::const_iterator                        TStrVecCItr;
-
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
         typedef TStrStrUMap::iterator                          TStrStrUMapItr;
         typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
 
     public:
-        COutputHandler(void);
-
         //! Virtual destructor for abstract base class
-        virtual ~COutputHandler(void);
+        virtual ~COutputHandler(void) = default;
 
         //! We're going to be writing to a new output stream
         virtual void newOutputStream(void);
@@ -76,12 +73,9 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
         virtual bool fieldNames(const TStrVec &fieldNames,
                                 const TStrVec &extraFieldNames) = 0;
 
-        //! Get field names
-        virtual const TStrVec &fieldNames(void) const = 0;
-
         //! Write a row to the stream.  The supplied map must contain every
         //! field value.
-        bool writeRow(const TStrStrUMap &dataRowFields);
+        virtual bool writeRow(const TStrStrUMap &dataRowFields);
 
         //! Write a row to the stream, optionally overriding some of the
         //! original field values.  Where the same field is present in both
@@ -130,9 +124,9 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
         //! Used when there are no field overrides
         static const TStrStrUMap EMPTY_FIELD_OVERRIDES;
 
-        typedef std::vector<CPreComputedHash>                  TPreComputedHashVec;
-        typedef TPreComputedHashVec::iterator                  TPreComputedHashVecItr;
-        typedef TPreComputedHashVec::const_iterator            TPreComputedHashVecCItr;
+        typedef std::vector<CPreComputedHash>       TPreComputedHashVec;
+        typedef TPreComputedHashVec::iterator       TPreComputedHashVecItr;
+        typedef TPreComputedHashVec::const_iterator TPreComputedHashVecCItr;
 };
 
 

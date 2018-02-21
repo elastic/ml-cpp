@@ -65,11 +65,6 @@ bool CLineifiedJsonOutputWriter::fieldNames(const TStrVec &/*fieldNames*/,
     return true;
 }
 
-const CLineifiedJsonOutputWriter::TStrVec &CLineifiedJsonOutputWriter::fieldNames(void) const
-{
-    return EMPTY_FIELD_NAMES;
-}
-
 bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
                                           const TStrStrUMap &overrideDataRowFields)
 {

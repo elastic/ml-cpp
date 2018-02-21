@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 //! \brief
-//! Analyse event rates and metrics
+//! Analyse event rates and metric time series for anomalies
 //!
 //! DESCRIPTION:\n
 //! Expects to be streamed CSV or length encoded data on STDIN or a named pipe,
@@ -177,15 +177,16 @@ int main(int argc, char **argv)
     ml::api::CFieldConfig fieldConfig;
 
     ml::model_t::ESummaryMode summaryMode(summaryCountFieldName.empty() ? ml::model_t::E_None
-                                                                             : ml::model_t::E_Manual);
+                                                                        : ml::model_t::E_Manual);
     ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan,
-                                                                   summaryMode,
-                                                                   summaryCountFieldName,
-                                                                   latency,
-                                                                   bucketResultsDelay,
-                                                                   multivariateByFields,
-                                                                   multipleBucketspans);
+                                                                  summaryMode,
+                                                                  summaryCountFieldName,
+                                                                  latency,
+                                                                  bucketResultsDelay,
+                                                                  multivariateByFields,
+                                                                  multipleBucketspans);
+
     modelConfig.perPartitionNormalization(perPartitionNormalization);
     modelConfig.detectionRules(
         ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(fieldConfig.detectionRules()));
@@ -256,8 +257,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
-                                                       delimiter));
+        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
     }
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());

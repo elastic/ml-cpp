@@ -19,6 +19,7 @@ namespace Eigen
 {
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX> class SparseMatrix;
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX> class SparseVector;
+template<typename EXPRESSION> class ArrayWrapper;
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS> class Matrix;
 }
 
@@ -41,12 +42,15 @@ class MATHS_EXPORT CLinearAlgebra
         static const char DELIMITER = ',';
 };
 
-//! \brief Base class to get a zero of type \p TYPE.
+//! \brief Get a constant initialized version of \p TYPE.
 //!
 //! Each of our vector and matrix types provides a specialization
 //! of this class and define a static get method which takes the
-//! dimension(s).
-template<typename TYPE> struct SZero {};
+//! dimension(s) and the constant value.
+template<typename TYPE> struct SConstant
+{
+    static_assert(sizeof(TYPE) < 0, "Missing specialisation of SConstant");
+};
 
 template<typename T, std::size_t> class CVectorNx1;
 template<typename T, std::size_t N> class CSymmetricMatrixNxN;

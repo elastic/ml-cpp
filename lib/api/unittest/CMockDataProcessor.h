@@ -54,9 +54,6 @@ class CMockDataProcessor : public ml::api::CDataProcessor
         //! How many records did we handle?
         virtual uint64_t numRecordsHandled(void) const;
 
-        //! Access the output handler
-        virtual ml::api::COutputHandler &outputHandler(void);
-
     private:
         ml::api::COutputHandler &m_OutputHandler;
 

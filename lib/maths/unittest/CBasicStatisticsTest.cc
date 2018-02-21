@@ -13,6 +13,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBasicStatisticsCovariances.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
@@ -876,36 +877,64 @@ void CBasicStatisticsTest::testCovariances(void)
                 { -0.199460, -0.091192,  0.833710 }
             };
 
-        ml::maths::CBasicStatistics::SSampleCovariances<double, 3> covariances;
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 3>> covariances1(3);
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVector<double>> covariances2(3);
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CDenseVector<double>> covariances3(3);
 
         for (std::size_t i = 0u; i < boost::size(raw); ++i)
         {
-            ml::maths::CVectorNx1<double, 3> v(raw[i]);
-            LOG_DEBUG("v = " << v);
-            covariances.add(v);
+            LOG_DEBUG("v = " << ml::core::CContainerPrinter::print(raw[i]));
+            covariances1.add(ml::maths::CVectorNx1<double, 3>(raw[i]));
+            covariances2.add(ml::maths::CVector<double>(boost::begin(raw[i]), boost::end(raw[i])));
+            ml::maths::CDenseVector<double> v(3);
+            v << raw[i][0], raw[i][1], raw[i][2];
+            covariances3.add(v);
         }
 
-        LOG_DEBUG("count = " << ml::maths::CBasicStatistics::count(covariances));
-        LOG_DEBUG("mean = " << ml::maths::CBasicStatistics::mean(covariances));
-        LOG_DEBUG("covariances = " << ml::maths::CBasicStatistics::covariances(covariances));
+        LOG_DEBUG("count1 = " << ml::maths::CBasicStatistics::count(covariances1));
+        LOG_DEBUG("mean1 = " << ml::maths::CBasicStatistics::mean(covariances1));
+        LOG_DEBUG("covariances1 = " << ml::maths::CBasicStatistics::covariances(covariances1));
+        LOG_DEBUG("count2 = " << ml::maths::CBasicStatistics::count(covariances2));
+        LOG_DEBUG("mean2 = " << ml::maths::CBasicStatistics::mean(covariances2));
+        LOG_DEBUG("covariances2 = " << ml::maths::CBasicStatistics::covariances(covariances2));
+        LOG_DEBUG("count3 = " << ml::maths::CBasicStatistics::count(covariances3));
+        LOG_DEBUG("mean3 = " << ml::maths::CBasicStatistics::mean(covariances3).transpose());
+        LOG_DEBUG("covariances3 =\n" << ml::maths::CBasicStatistics::covariances(covariances3));
 
         CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
-                             ml::maths::CBasicStatistics::count(covariances));
+                             ml::maths::CBasicStatistics::count(covariances1));
+        CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
+                             ml::maths::CBasicStatistics::count(covariances2));
+        CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
+                             ml::maths::CBasicStatistics::count(covariances3));
+
         for (std::size_t i = 0u; i < 3; ++i)
         {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean[i],
-                                         (ml::maths::CBasicStatistics::mean(covariances))(i),
+                                         (ml::maths::CBasicStatistics::mean(covariances1))(i),
+                                         2e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean[i],
+                                         (ml::maths::CBasicStatistics::mean(covariances2))(i),
+                                         2e-6);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean[i],
+                                         (ml::maths::CBasicStatistics::mean(covariances3))(i),
                                          2e-6);
             for (std::size_t j = 0u; j < 3; ++j)
             {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCovariances[i][j],
-                                             (ml::maths::CBasicStatistics::covariances(covariances))(i, j),
+                                             (ml::maths::CBasicStatistics::covariances(covariances1))(i, j),
+                                             2e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCovariances[i][j],
+                                             (ml::maths::CBasicStatistics::covariances(covariances2))(i, j),
+                                             2e-6);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCovariances[i][j],
+                                             (ml::maths::CBasicStatistics::covariances(covariances3))(i, j),
                                              2e-6);
             }
         }
 
         bool dynamicSizeAlwaysZero = ml::core::memory_detail::SDynamicSizeAlwaysZero<
-                                         ml::maths::CBasicStatistics::SSampleCovariances<double, 3> >::value();
+                ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 3>>>::value();
         CPPUNIT_ASSERT_EQUAL(true, dynamicSizeAlwaysZero);
     }
 
@@ -940,12 +969,8 @@ void CBasicStatisticsTest::testCovariances(void)
         TVectorVec samples;
         ml::maths::CSampling::multivariateNormalSample(mean, covariance, n, samples);
 
-        ml::maths::CBasicStatistics::SSampleCovariances<double, 4> sampleCovariance;
-
-        for (std::size_t i = 0u; i < n; ++i)
-        {
-            sampleCovariance.add(samples[i]);
-        }
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 4>> sampleCovariance(4);
+        sampleCovariance.add(samples);
 
         LOG_DEBUG("expected mean = " << mean);
         LOG_DEBUG("expected covariances = " << covariance);
@@ -987,7 +1012,7 @@ void CBasicStatisticsTest::testCovariances(void)
             points.push_back(ml::maths::CVectorNx1<double, 4>(c));
         }
 
-        ml::maths::CBasicStatistics::SSampleCovariances<double, 4> expectedSampleCovariances;
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 4>> expectedSampleCovariances(4);
         for (std::size_t i = 0u; i < points.size(); ++i)
         {
             expectedSampleCovariances.add(points[i]);
@@ -996,7 +1021,7 @@ void CBasicStatisticsTest::testCovariances(void)
         std::string expectedDelimited = expectedSampleCovariances.toDelimited();
         LOG_DEBUG("delimited = " << expectedDelimited);
 
-        ml::maths::CBasicStatistics::SSampleCovariances<double, 4> sampleCovariances;
+        ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 4>> sampleCovariances(4);
         CPPUNIT_ASSERT(sampleCovariances.fromDelimited(expectedDelimited));
 
         CPPUNIT_ASSERT_EQUAL(expectedSampleCovariances.checksum(), sampleCovariances.checksum());
@@ -1017,6 +1042,9 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void)
     typedef ml::maths::CVectorNx1<double, 2> TVector2;
     typedef std::vector<TVector2> TVector2Vec;
     typedef ml::maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
+    typedef ml::maths::CDenseVector<double> TDenseVector;
+    typedef std::vector<TDenseVector> TDenseVectorVec;
+    typedef ml::maths::CDenseMatrix<double> TDenseMatrix;
 
     ml::test::CRandomNumbers rng;
 
@@ -1049,8 +1077,8 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void)
         TDoubleVecVec covariance;
         for (std::size_t j = 0u; j < boost::size(covariances[i]); ++j)
         {
-            covariance.push_back(TDoubleVec(boost::begin(covariances[i][j]),
-                                            boost::end(covariances[i][j])));
+            covariance.emplace_back(boost::begin(covariances[i][j]),
+                                    boost::end(covariances[i][j]));
         }
         TMatrix2 covExpected(covariance);
         LOG_DEBUG("cov expected = " << covExpected);
@@ -1063,19 +1091,35 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void)
         for (std::size_t j = 3u; j < samples.size(); ++j)
         {
             TVector2Vec jsamples;
+            TDenseVectorVec jsamples2;
             for (std::size_t k = 0u; k < j; ++k)
             {
-                jsamples.push_back(TVector2(samples[k]));
+                jsamples.emplace_back(samples[k]);
+                TDenseVector v(2);
+                v << samples[k][0], samples[k][1];
+                jsamples2.push_back(v);
             }
 
-            ml::maths::CBasicStatistics::SSampleCovariances<double, 2> cov;
+            ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 2>> cov(2);
             cov.add(jsamples);
 
-            ml::maths::CBasicStatistics::SSampleCovariances<double, 2> covLW;
+            ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CVectorNx1<double, 2>> covLW(2);
             ml::maths::CBasicStatistics::covariancesLedoitWolf(jsamples, covLW);
+
+            ml::maths::CBasicStatistics::SSampleCovariances<ml::maths::CDenseVector<double>> covLW2(2);
+            ml::maths::CBasicStatistics::covariancesLedoitWolf(jsamples2, covLW2);
 
             const TMatrix2 &covML   = ml::maths::CBasicStatistics::maximumLikelihoodCovariances(cov);
             const TMatrix2 &covLWML = ml::maths::CBasicStatistics::maximumLikelihoodCovariances(covLW);
+            const TDenseMatrix &covLWML2 = ml::maths::CBasicStatistics::maximumLikelihoodCovariances(covLW2);
+
+            for (std::size_t r = 0u; r < 2; ++r)
+            {
+                for (std::size_t c = 0u; c < 2; ++c)
+                {
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(covLWML(r,c), covLWML2(r,c), 1e-10);
+                }
+            }
 
             double errorML   = (covML - covExpected).frobenius();
             double errorLWML = (covLWML - covExpected).frobenius();

@@ -33,7 +33,7 @@ typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
 typedef std::vector<std::size_t> TSizeVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
+typedef maths::CBasicStatistics::SSampleCovariances<TVector2> TCovariances2;
 
 namespace
 {
@@ -518,8 +518,9 @@ void CMultivariateMultimodalPriorTest::testSplitAndMerge(void)
                 {   0,   0, 300, 300 }
             };
 
-        TCovariances2 totalCovariances;
-        TCovariances2 modeCovariances[4];
+        TCovariances2 totalCovariances(2);
+        TCovariances2 modeCovariances[4]{TCovariances2(2), TCovariances2(2),
+                                         TCovariances2(2), TCovariances2(2)};
 
         CMultivariateMultimodalPriorForTest<2> filter(makePrior<2>(maths_t::E_ContinuousData));
 
@@ -946,7 +947,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void)
     TDouble10Vec expectedMean_ = filter.marginalLikelihoodMean();
     TDouble10Vec10Vec expectedCovariance_ = filter.marginalLikelihoodCovariance();
 
-    TCovariances2 sampledCovariances;
+    TCovariances2 sampledCovariances(2);
     for (std::size_t i = 0u; i < sampled.size(); ++i)
     {
         sampledCovariances.add(TVector2(sampled[i]));
@@ -963,7 +964,7 @@ void CMultivariateMultimodalPriorTest::testSampleMarginalLikelihood(void)
     CPPUNIT_ASSERT((sampledMean - expectedMean).euclidean() < 1e-3 * expectedMean.euclidean());
     CPPUNIT_ASSERT((sampledCovariance - expectedCovariance).frobenius() < 5e-3 * expectedCovariance.frobenius());
 
-    TCovariances2 modeSampledCovariances[2];
+    TCovariances2 modeSampledCovariances[2]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0u; i < sampled.size(); ++i)
     {
         double l1, l2;

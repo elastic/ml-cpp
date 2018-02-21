@@ -7,7 +7,7 @@
 #include "CInformationCriteriaTest.h"
 
 #include <maths/CInformationCriteria.h>
-#include <maths/CKMeansFast.h>
+#include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CSampling.h>
@@ -44,8 +44,6 @@ double logfSphericalGaussian(const POINT &mean,
     return -0.5 * (  d * ::log(boost::math::double_constants::two_pi * variance)
                    + r * r / variance);
 }
-
-
 
 template<typename POINT, typename MATRIX>
 double logfGaussian(const POINT &mean,
@@ -205,7 +203,7 @@ void CInformationCriteriaTest::testSphericalGaussian(void)
         TVector2Vec centres;
         maths::CSampling::multivariateNormalSample(mean, covariance, 200, centres);
 
-        maths::CKMeansFast<TVector2> kmeans;
+        maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2)
         {
@@ -441,7 +439,7 @@ void CInformationCriteriaTest::testGaussian(void)
         TVector2Vec centres;
         maths::CSampling::multivariateNormalSample(mean, covariance, 200, centres);
 
-        maths::CKMeansFast<TVector2> kmeans;
+        maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
         for (std::size_t t = 0u; t < centres.size(); t += 2)
         {

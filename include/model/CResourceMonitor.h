@@ -11,6 +11,8 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <functional>
 #include <map>
 
@@ -47,7 +49,7 @@ class MODEL_EXPORT CResourceMonitor
 
     public:
         typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
-        typedef std::map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeMap;
+        typedef boost::unordered_map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeUMap;
         typedef std::function<void(const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
         typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
 
@@ -147,7 +149,7 @@ class MODEL_EXPORT CResourceMonitor
 
     private:
         //! The registered collection of components
-        TModelPtrSizeMap m_Models;
+        TModelPtrSizeUMap m_Models;
 
         //! Is there enough free memory to allow creating new components
         bool m_AllowAllocations;
