@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -13,20 +13,20 @@
  * strictly prohibited.
  */
 
-#ifndef INCLUDED_CNaturalBreaksClassifierTest_h
-#define INCLUDED_CNaturalBreaksClassifierTest_h
+#ifndef INCLUDED_CNaiveBayesTest_h
+#define INCLUDED_CNaiveBayesTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CNaturalBreaksClassifierTest : public CppUnit::TestFixture
+class CNaiveBayesTest : public CppUnit::TestFixture
 {
     public:
-        void testCategories(void);
-        void testPropagateForwardsByTime(void);
-        void testSample(void);
-        void testPersist(void);
+        void testClassification();
+        void testPropagationByTime();
+        void testMemoryUsage();
+        void testPersist();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CNaturalBreaksClassifierTest_h
+#endif // INCLUDED_CNaiveBayesTest_h
