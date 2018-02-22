@@ -24,7 +24,7 @@ use utf8;
 
 my $Github_Key = load_github_key();
 my $Base_URL   = "https://${Github_Key}api.github.com/repos/";
-my $User_Repo  = 'elastic/machine-learning-cpp/';
+my $User_Repo  = 'elastic/ml-cpp/';
 my $Issue_URL  = "http://github.com/${User_Repo}issues/";
 
 my @Groups = (

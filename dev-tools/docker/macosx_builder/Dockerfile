@@ -19,7 +19,7 @@ FROM droberts195/ml-macosx-build:3
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Copy the current Git repository into the container
-COPY . /machine-learning-cpp/
+COPY . /ml-cpp/
 
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE macosx
@@ -29,5 +29,5 @@ ARG SNAPSHOT=yes
 
 # Run the build
 RUN \
-  /machine-learning-cpp/dev-tools/docker/docker_entrypoint.sh
+  /ml-cpp/dev-tools/docker/docker_entrypoint.sh
 
