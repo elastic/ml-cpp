@@ -13,7 +13,7 @@
 # strictly prohibited.
 #
 
-FROM droberts195/fedora:10
+FROM centos:6
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
@@ -22,34 +22,34 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y coreutils curl diffutils file gcc gcc-c++ git libselinux rpm sed tar unzip which zip zlib-devel
+  yum install -y gcc gcc-c++ git unzip wget zip zlib-devel
 
-# For compiling in C++11 mode
-ENV CXX "g++ -std=gnu++0x"
-
-# Build gcc 6.2
+# Build gcc 7.3
 RUN \
-  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-6.2.0/gcc-6.2.0.tar.gz | tar zxf - && \
-  cd gcc-6.2.0 && \
+  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz | tar zxf - && \
+  cd gcc-7.3.0 && \
   contrib/download_prerequisites && \
   cd .. && \
-  mkdir gcc-6.2.0-build && \
-  cd gcc-6.2.0-build && \
-  ../gcc-6.2.0/configure --prefix=/usr/local/gcc62 --enable-languages=c,c++ --with-system-zlib --disable-multilib && \
+  mkdir gcc-7.3.0-build && \
+  cd gcc-7.3.0-build && \
+  ../gcc-7.3.0/configure --prefix=/usr/local/gcc73 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf gcc-6.2.0 gcc-6.2.0-build
+  rm -rf gcc-7.3.0 gcc-7.3.0-build
 
 # Update paths to use the newly built compiler
-ENV LD_LIBRARY_PATH /usr/local/gcc62/lib64:/usr/local/gcc62/lib:/usr/lib:/lib
-ENV PATH /usr/local/gcc62/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV LD_LIBRARY_PATH /usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
+ENV PATH /usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# For compiling in C++14 mode
+ENV CXX "g++ -std=gnu++14"
 
 # Build libxml2
 RUN \
   wget --quiet -O - ftp://anonymous@ftp.xmlsoft.org/libxml2/libxml2-2.9.4.tar.gz | tar zxf - && \
   cd libxml2-2.9.4 && \
-  ./configure --prefix=/usr/local/gcc62 --without-python --without-readline && \
+  ./configure --prefix=/usr/local/gcc73 --without-python --without-readline && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
@@ -59,7 +59,7 @@ RUN \
 RUN \
   wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2 | tar jxf - && \
   cd apr-1.5.2 && \
-  ./configure --prefix=/usr/local/gcc62 && \
+  ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
@@ -69,7 +69,7 @@ RUN \
 RUN \
   wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2 | tar jxf - && \
   cd apr-util-1.5.4 && \
-  ./configure --prefix=/usr/local/gcc62 --with-apr=/usr/local/gcc62/bin/apr-1-config --with-expat=builtin && \
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
@@ -89,7 +89,7 @@ RUN \
   sed -i -e '39s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp && \
   sed -i -e '84,92s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp && \
   sed -i -e '193,214s/0x/(char)0x/g' src/test/cpp/xml/domtestcase.cpp && \
-  ./configure --prefix=/usr/local/gcc62 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc62 --with-apr-util=/usr/local/gcc62 && \
+  ./configure --prefix=/usr/local/gcc73 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc73 --with-apr-util=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
@@ -99,11 +99,11 @@ RUN \
 RUN \
   wget --quiet -O - http://sourceforge.mirrorservice.org/b/bo/boost/boost/1.65.1/boost_1_65_1.tar.bz2 | tar jxf - && \
   cd boost_1_65_1 && \
-  ./bootstrap.sh cxxflags=-std=gnu++0x --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu && \
+  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp && \
   ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
-  ./b2 install --prefix=/usr/local/gcc62 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
   cd .. && \
   rm -rf boost_1_65_1
 
@@ -111,7 +111,7 @@ RUN \
 RUN \
   wget --quiet -O - http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz | tar zxf - && \
   cd cppunit-1.13.2 && \
-  ./configure --prefix=/usr/local/gcc62 && \
+  ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
@@ -119,11 +119,11 @@ RUN \
 
 # Build patchelf
 RUN \
-  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.8/patchelf-0.8.tar.gz | tar zxf - && \
-  cd patchelf-0.8 && \
-  ./configure --prefix=/usr/local/gcc62 && \
+  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | tar zxf - && \
+  cd patchelf-0.9 && \
+  ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf patchelf-0.8
+  rm -rf patchelf-0.9
 

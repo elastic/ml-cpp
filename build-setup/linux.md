@@ -6,16 +6,16 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
-- `PATH` - Must have `/usr/local/gcc62/bin` before `/usr/bin` and `/bin`.
-- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc62/lib64` and `/usr/local/gcc62/lib` before `/usr/lib` and `/lib`.
+- `PATH` - Must have `/usr/local/gcc73/bin` before `/usr/bin` and `/bin`.
+- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc73/lib64` and `/usr/local/gcc73/lib` before `/usr/lib` and `/lib`.
 
 For example, you might create a `.bashrc` file in your home directory containing something like this:
 
 ```
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
-export LD_LIBRARY_PATH=/usr/local/gcc62/lib64:/usr/local/gcc62/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/usr/local/gcc62/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
@@ -38,7 +38,7 @@ On other Linux distributions the package names are generally the same and you ju
 Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variable:
 
 ```
-export CXX='g++ -std=gnu++0x'
+export CXX='g++ -std=gnu++14'
 unset LIBRARY_PATH
 ```
 
@@ -48,21 +48,26 @@ The `CXX` environment variable only needs to be set when building tools on Linux
 
 We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
-Download `gcc-6.2.0.tar.bz2` from <http://ftpmirror.gnu.org/gcc/gcc-6.2.0/gcc-6.2.0.tar.bz2>.
+Download `gcc-7.3.0.tar.bz2` from <http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.bz2>.
 
 Unlike most automake-based tools, gcc must be built in a directory adjacent to the directory containing its source code, so build and install it like this:
 
 ```
-tar jxvf gcc-6.2.0.tar.bz2
-cd gcc-6.2.0
+tar jxvf gcc-7.3.0.tar.bz2
+cd gcc-7.3.0
 contrib/download_prerequisites
 cd ..
-mkdir gcc-6.2.0-build
-cd gcc-6.2.0-build
-../gcc-6.2.0/configure --prefix=/usr/local/gcc62 --enable-languages=c,c++ --with-system-zlib --disable-multilib
+mkdir gcc-7.3.0-build
+cd gcc-7.3.0-build
+unset CXX
+unset LD_LIBRARY_PATH
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+../gcc-7.3.0/configure --prefix=/usr/local/gcc73 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
 make -j 6
 sudo make install
 ```
+
+It's important that gcc itself is built using the system compiler in C++98 mode, hence the adjustment to `PATH` and unsetting of `CXX` and `LD_LIBRARY_PATH`.
 
 ### Git
 
@@ -107,7 +112,7 @@ Anonymous FTP to ftp.xmlsoft.org, change directory to libxml2, switch to binary 
 Uncompress and untar the resulting file. Then run:
 
 ```
-./configure --prefix=/usr/local/gcc62 --without-python --without-readline
+./configure --prefix=/usr/local/gcc73 --without-python --without-readline
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -132,7 +137,7 @@ tar xvf apr-1.5.2.tar
 Build using:
 
 ```
-./configure --prefix=/usr/local/gcc62
+./configure --prefix=/usr/local/gcc73
 make
 sudo make install
 ```
@@ -150,7 +155,7 @@ tar xvf apr-util-1.5.4.tar
 Build using:
 
 ```
-./configure --prefix=/usr/local/gcc62 --with-apr=/usr/local/gcc62/bin/apr-1-config --with-expat=builtin
+./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin
 make
 sudo make install
 ```
@@ -179,7 +184,7 @@ to:
 
 ```
 #if LOG4CXX_HELGRIND
-#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase() { exchange(x); 
+#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase() { exchange(x);
 #else
 #define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase(), p(x) {
 #endif
@@ -239,7 +244,7 @@ In `src/test/cpp/xml/domtestcase.cpp` replace `0x` with `(char)0x` on lines 193 
 Once all the changes are made, configure using:
 
 ```
-./configure --prefix=/usr/local/gcc62 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc62 --with-apr-util=/usr/local/gcc62
+./configure --prefix=/usr/local/gcc73 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc73 --with-apr-util=/usr/local/gcc73
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -264,12 +269,12 @@ bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
 In the resulting `boost_1_65_1` directory, run:
 
 ```
-./bootstrap.sh cxxflags=-std=gnu++0x --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu
+./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit boost/unordered/detail/implementation.hpp and change line 270 from:
+Edit `boost/unordered/detail/implementation.hpp` and change line 270 from:
 
 ```
     (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
@@ -297,7 +302,7 @@ Finally, run:
 
 ```
 ./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc62 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)
@@ -309,7 +314,7 @@ Download the latest version of cppunit from <http://dev-www.libreoffice.org/src/
 Untar it to a temporary directory and run:
 
 ```
-./configure --prefix=/usr/local/gcc62
+./configure --prefix=/usr/local/gcc73
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -334,7 +339,7 @@ bzip2 -cd patchelf-0.9.tar.bz2 | tar xvf -
 In the resulting `patchelf-0.9` directory, run the:
 
 ```
-./configure --prefix=/usr/local/gcc62
+./configure --prefix=/usr/local/gcc73
 ```
 
 script. This should build an appropriate Makefile. Assuming it does, run:

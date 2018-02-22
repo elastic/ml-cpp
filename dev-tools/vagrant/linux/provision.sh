@@ -31,48 +31,38 @@ if [ ! -f java.state ]; then
   touch java.state
 fi
 
-# Install Gradle
-if [ ! -f gradle.state ]; then
-  echo "Installing Gradle..."
-  echo "  Downloading Gradle..."
-  wget --quiet -O gradle.zip https://services.gradle.org/distributions/gradle-3.3-all.zip
-  unzip -qq gradle.zip -d gradle
-  rm gradle.zip
-  touch gradle.state
-fi
-
-# Various env variables
-echo "Setting env variables..."
-export CXX='g++ -std=gnu++0x'
-
-# ----------------- Compile gcc 6.2 -------------------------
+# ----------------- Compile gcc 7.3 -------------------------
 if [ ! -f gcc.state ]; then
-  echo "Compiling GCC 6.2..."
+  echo "Compiling GCC 7.3..."
   echo "  Downloading..."
-  wget --quiet http://ftpmirror.gnu.org/gcc/gcc-6.2.0/gcc-6.2.0.tar.gz
+  wget --quiet http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz
   # gcc needs different source and build directories
   mkdir gcc-source
-  tar xfz gcc-6.2.0.tar.gz -C gcc-source --strip-components=1
+  tar xfz gcc-7.3.0.tar.gz -C gcc-source --strip-components=1
   cd gcc-source
   contrib/download_prerequisites
   cd ..
   mkdir gcc-build
   cd gcc-build
   echo "  Configuring..."
-  ../gcc-source/configure --prefix=/usr/local/gcc62 --enable-languages=c,c++ --with-system-zlib --disable-multilib > configure.log 2>&1
+  ../gcc-source/configure --prefix=/usr/local/gcc73 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm gcc-6.2.0.tar.gz
+  rm gcc-7.3.0.tar.gz
   touch gcc.state
 fi
 
 # Update paths to use the newly built compiler
-export LD_LIBRARY_PATH=/usr/local/gcc62/lib64:/usr/local/gcc62/lib:/usr/lib:/lib
-export PATH=/usr/local/gcc62/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
+export PATH=/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 
-# ----------------- Compile libxml -------------------------
+# Various env variables
+echo "Setting env variables..."
+export CXX='g++ -std=gnu++14'
+
+# ----------------- Compile libxml2 -------------------------
 if [ ! -f libxml2.state ]; then
   echo "Compiling libxml..."
   echo "  Downloading..."
@@ -82,7 +72,7 @@ if [ ! -f libxml2.state ]; then
   cd libxml
   sed -i -e 's/-O2/-O3/g' configure
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc62 --without-python --without-readline > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 --without-python --without-readline > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
@@ -100,7 +90,7 @@ if [ ! -f apr.state ]; then
   tar xfz apr-1.5.2.tar.gz -C apr --strip-components=1
   cd apr
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc62 > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
@@ -118,7 +108,7 @@ if [ ! -f apr-util.state ]; then
   tar xfz apr-util-1.5.4.tar.gz -C apr-util --strip-components=1
   cd apr-util
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc62 --with-apr=/usr/local/gcc62/bin/apr-1-config --with-expat=builtin > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
@@ -151,7 +141,7 @@ if [ ! -f log4cxx.state ]; then
   sed -i -e '84,92s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp
   sed -i -e '193,214s/0x/(char)0x/g' src/test/cpp/xml/domtestcase.cpp
 
-  ./configure --prefix=/usr/local/gcc62 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc62 --with-apr-util=/usr/local/gcc62
+  ./configure --prefix=/usr/local/gcc73 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc73 --with-apr-util=/usr/local/gcc73
 
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
@@ -171,7 +161,7 @@ if [ ! -f boost.state ]; then
 
   cd boost
   echo "  Bootstrapping..."
-  ./bootstrap.sh cxxflags=-std=gnu++0x --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu > bootstrap.log 2>&1
+  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu > bootstrap.log 2>&1
 
   echo "  Configuring..."
 
@@ -180,7 +170,7 @@ if [ ! -f boost.state ]; then
 
   echo "  Building..."
   ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make.log 2>&1
-  ./b2 install --prefix=/usr/local/gcc62 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make_install.log 2>&1
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make_install.log 2>&1
 
   cd ..
   rm boost_1_65_1.tar.gz
@@ -197,7 +187,7 @@ if [ ! -f cppunit.state ]; then
   tar xfz cppunit-1.13.2.tar.gz -C cppunit --strip-components=1
   cd cppunit
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc62 > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
@@ -210,17 +200,17 @@ fi
 if [ ! -f patchelf.state ]; then
   echo "Compiling patchelf..."
   echo "  Downloading..."
-  wget --quiet http://nixos.org/releases/patchelf/patchelf-0.8/patchelf-0.8.tar.gz
+  wget --quiet http://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz
   mkdir patchelf
-  tar xfz patchelf-0.8.tar.gz -C patchelf --strip-components=1
+  tar xfz patchelf-0.9.tar.gz -C patchelf --strip-components=1
   cd patchelf
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc62 > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm patchelf-0.8.tar.gz
+  rm patchelf-0.9.tar.gz
   touch patchelf.state
 fi
 
@@ -244,9 +234,8 @@ umask 0002
 export ML_SRC_HOME=/home/vagrant/ml/src
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 unset JAVA_ROOT
-export GRADLE_HOME=/home/vagrant/gradle/gradle-3.3
-export LD_LIBRARY_PATH=/usr/local/gcc62/lib64:/usr/local/gcc62/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:$GRADLE_HOME/bin:/usr/local/node-v6.9.0-linux-x64/bin:/usr/local/gcc62/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/bin:/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 
 ulimit -c unlimited
 cd /home/vagrant/ml/src
