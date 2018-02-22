@@ -381,16 +381,16 @@ void CClusterer::removeOutliers(TDenseVectorVec &vectors,
     {
         maths::CLocalOutlierFactors::ensemble(vectors, factors);
         double cutoff{m_Params.outlierCutoff()};
-        if (cutoff < 1.0)
+        if (cutoff > 0.0)
         {
             std::size_t n{static_cast<std::size_t>(
                     std::count_if(factors.begin(), factors.end(),
-                                  [cutoff](double factor) { return factor < cutoff; }))};
+                                  [cutoff](double factor) { return factor > cutoff; }))};
             inliers.reserve(vectors.size() - n);
             outliers.reserve(n);
             for (std::size_t i = 0u; i < factors.size(); ++i)
             {
-                (factors[i] < cutoff ? outliers : inliers).push_back(i);
+                (factors[i] > cutoff ? outliers : inliers).push_back(i);
             }
             LOG_DEBUG("Have " << inliers.size() << " inliers"
                       << " and " << outliers.size() << " outliers");
@@ -723,7 +723,7 @@ CClusterer::CParams::CParams(void) :
         m_Normalize(false),
         m_TreatMissingAsZero(false),
         m_ComputeOutlierFactors(false),
-        m_OutlierCutoff(0.005),
+        m_OutlierCutoff(1.0),
         m_Bootstrap(true)
 {}
 

@@ -238,8 +238,6 @@ class MATHS_EXPORT CLocalOutlierFactors
             using TPoint = CAnnotatedVector<POINT, std::size_t>;
             using TPointVec = std::vector<TPoint>;
 
-            scores.assign(points.size(), 0.0);
-
             if (!points.empty())
             {
                 if (!project)
@@ -250,6 +248,7 @@ class MATHS_EXPORT CLocalOutlierFactors
                     {
                         points_.emplace_back(point, points_.size());
                     }
+                    scores.assign(points.size(), 0.0);
                     compute(std::move(points_), scores);
                 }
                 else
@@ -296,6 +295,7 @@ class MATHS_EXPORT CLocalOutlierFactors
                         }
 
                         // Compute the scores and update the overall score.
+                        scores.assign(points.size(), 0.0);
                         compute(std::move(projected_), scores);
                         for (std::size_t j = 0u; j < scores.size(); ++j)
                         {
@@ -443,7 +443,7 @@ class MATHS_EXPORT CLocalOutlierFactors
                     }
                     if (min.count() > 0)
                     {
-                        for (auto &&lrd : m_Lrd)
+                        for (auto &lrd : m_Lrd)
                         {
                             if (lrd < 0.0)
                             {
@@ -645,7 +645,7 @@ class MATHS_EXPORT CLocalOutlierFactors
 
                 virtual void setup(const TPointVec &points)
                 {
-                    for (auto &&method : m_Methods)
+                    for (auto &method : m_Methods)
                     {
                         method->setup(points);
                     }
@@ -672,7 +672,7 @@ class MATHS_EXPORT CLocalOutlierFactors
                     {
                         for (std::size_t j = 0u; j < m_Scores.size(); ++j)
                         {
-                            scores[i] = m_Scores[j][i];
+                            scores[i] += m_Scores[j][i];
                         }
                         scores[i] /= static_cast<double>(m_Scores.size());
                     }
@@ -710,20 +710,46 @@ class MATHS_EXPORT CLocalOutlierFactors
                 if (variance > 0.0)
                 {
                     boost::math::normal normal(mean, std::sqrt(variance));
-                    for (auto &&score : scores)
+                    for (auto &score : scores)
                     {
-                        score = CTools::safeCdfComplement(normal, score);
+                        score = cdfComplementToScore(CTools::safeCdfComplement(normal, score));
                     }
                 }
                 else
                 {
-                    scores.assign(scores.size(), 1.0);
+                    scores.assign(scores.size(), 0.0);
                 }
             }
             catch (const std::exception &e)
             {
                 LOG_ERROR("Failed to normalise scores: " << e.what());
             }
+        }
+
+        //! Convert the c.d.f. complement of an outlier factor into a
+        //! score in the range [0,100] with the higher the score the
+        //! greater the outlier.
+        static double cdfComplementToScore(double cdfComplement)
+        {
+            auto logInterpolate = [](double x, double xa, double fa, double xb, double fb)
+                {
+                    x = CTools::truncate(x, std::min(xa, xb), std::max(xa, xb));
+                    double alpha{  (CTools::fastLog(x)  - CTools::fastLog(xa))
+                                 / (CTools::fastLog(xb) - CTools::fastLog(xa))};
+                    double beta{1.0 - alpha};
+                    return fb * alpha + fa * beta;
+                };
+            if (cdfComplement > 1e-4)
+            {
+                return 1e-4 / cdfComplement;
+            }
+            if (cdfComplement > 1e-20)
+            {
+                return logInterpolate(cdfComplement, 1e-4, 1.0, 1e-20, 50.0);
+            }
+            return logInterpolate(cdfComplement,
+                                  1e-20, 50.0,
+                                  std::numeric_limits<double>::min(), 100.0);
         }
 };
 
