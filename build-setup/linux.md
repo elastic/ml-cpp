@@ -17,7 +17,7 @@ export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc62/lib64:/usr/local/gcc62/lib:/usr/lib:/lib
 export PATH=$JAVA_HOME/bin:/usr/local/gcc62/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
 ### OS Packages

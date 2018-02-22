@@ -6,8 +6,7 @@
 
 FROM alpine:3.4
 
-# This is basically automating the non-Java portion of the setup instructions at
-# https://github.com/elastic/machine-learning-cpp/wiki/Machine-Learning-Development-Setup-for-Linux
+# This is basically automating the setup instructions in build-setup/linux.md
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
