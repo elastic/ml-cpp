@@ -28,7 +28,7 @@ Finally, you need to create an alias `make` for `gnumake`.
 For example, you might create a `.bashrc` file in your home directory containing this:
 
 ```
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 VCBINDIR=/c/PROGRA~2/MICROS~1.0/VC/bin/x86_amd64:/c/PROGRA~2/MICROS~1.0/Common7/IDE:/c/PROGRA~2/MICROS~1/WINDOW~4/8.1/bin/x64:/c/PROGRA~2/WINDOW~4/8.1/bin/x86:/c/PROGRA~2/MICROS~1.0/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~1.0/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
 export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows"

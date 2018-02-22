@@ -6,8 +6,7 @@
 
 FROM ubuntu:16.04
 
-# This is basically automating the non-Java portion of the setup instructions at
-# https://github.com/elastic/machine-learning-cpp/wiki/Machine-Learning-Development-Setup-for-Mac-OS-X-cross-compiled-on-Linux
+# This is basically automating the setup instructions in build-setup/macos_cross_compiled.md
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
