@@ -45,7 +45,6 @@ CResourceMonitor::CResourceMonitor(void) : m_AllowAllocations(true),
     m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
     m_NoLimit(false)
 {
-    this->memoryLimit((sizeof(size_t) < 8) ? 1024: 4096);
 }
 
 CResourceMonitor::CResourceMonitor(std::size_t limit) : m_AllowAllocations(true),
@@ -58,7 +57,6 @@ CResourceMonitor::CResourceMonitor(std::size_t limit) : m_AllowAllocations(true)
     m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
     m_NoLimit(false)
 {
-    this->memoryLimit(std::max(std::size_t(1), limit));
 }
 
 void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc &reporter)
