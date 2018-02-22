@@ -13,7 +13,7 @@ umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export PATH=$JAVA_HOME/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 export CPP_CROSS_COMPILE=macosx
 ```
 
