@@ -39,14 +39,14 @@
 namespace
 {
 
-class CEmptySearcher : public ml::core::CDataSearcher
-{
 //! \brief
 //! Mock object for state restore unit tests.
 //!
 //! DESCRIPTION:\n
 //! CDataSearcher that returns an empty stream.
 //!
+class CEmptySearcher : public ml::core::CDataSearcher
+{
     public:
         //! Do a search that results in an empty input stream.
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)

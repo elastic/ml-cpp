@@ -309,7 +309,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher &restoreSearcher,
 
 bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
 {
-    std::string firstFieldName(traverser.name());
+    const std::string &firstFieldName = traverser.name();
     if (traverser.isEof())
     {
         LOG_ERROR("Expected categorizer persisted state but no state exists");
