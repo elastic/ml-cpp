@@ -24,15 +24,14 @@ const size_t CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS(1000000);
 const size_t CLimits::DEFAULT_RESULTS_MAX_EXAMPLES(4);
 // The probability threshold is stored as a percentage in the config file
 const double CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD(3.5);
-const size_t CLimits::DEFAULT_MEMORY_LIMIT_MB(4096);
 
 
 CLimits::CLimits() : m_AutoConfigEvents(DEFAULT_AUTOCONFIG_EVENTS),
     m_AnomalyMaxTimeBuckets(DEFAULT_ANOMALY_MAX_TIME_BUCKETS),
     m_MaxExamples(DEFAULT_RESULTS_MAX_EXAMPLES),
     m_UnusualProbabilityThreshold(DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD),
-    m_MemoryLimitMB(DEFAULT_MEMORY_LIMIT_MB),
-    m_ResourceMonitor(DEFAULT_MEMORY_LIMIT_MB)
+    m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB),
+    m_ResourceMonitor()
 {
 }
 
@@ -80,7 +79,7 @@ bool CLimits::init(const std::string &configFile)
                              m_UnusualProbabilityThreshold) == false ||
         this->processSetting(propTree,
                              "memory.modelmemorylimit",
-                             DEFAULT_MEMORY_LIMIT_MB,
+                             CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
                              m_MemoryLimitMB) == false)
     {
         LOG_ERROR("Error processing config file " << configFile);
