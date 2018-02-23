@@ -35,6 +35,8 @@ namespace model
 // Only prune once per hour
 const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
 
+const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
+
 CResourceMonitor::CResourceMonitor(void) : m_AllowAllocations(true),
     m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
     m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
@@ -45,18 +47,7 @@ CResourceMonitor::CResourceMonitor(void) : m_AllowAllocations(true),
     m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
     m_NoLimit(false)
 {
-}
-
-CResourceMonitor::CResourceMonitor(std::size_t limit) : m_AllowAllocations(true),
-    m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
-    m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
-    m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
-    m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
-    m_PruneWindow(std::numeric_limits<std::size_t>::max()),
-    m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
-    m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
-    m_NoLimit(false)
-{
+    this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
 void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc &reporter)
@@ -83,13 +74,26 @@ void CResourceMonitor::unRegisterComponent(CAnomalyDetector &detector)
     m_Models.erase(iter);
 }
 
-void CResourceMonitor::memoryLimit(std::size_t limit)
+void CResourceMonitor::memoryLimit(std::size_t limitMBs)
+{
+    this->updateMemoryLimitsAndPruneThreshold(limitMBs);
+
+    if (m_NoLimit)
+    {
+        LOG_INFO("Setting no model memory limit");
+    }
+    else
+    {
+        LOG_INFO("Setting model memory limit to " << limitMBs << " MB");
+    }
+}
+
+void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
 {
     // The threshold for no limit is set such that any negative limit cast to
     // a size_t (which is unsigned) will be taken to mean no limit
-    if (limit > std::numeric_limits<std::size_t>::max() / 2)
+    if (limitMBs > std::numeric_limits<std::size_t>::max() / 2)
     {
-        LOG_INFO("Setting no model memory limit");
         m_NoLimit = true;
         // The high limit is set to around half what it could potentially be.
         // The reason is that other code will do "what if" calculations on this
@@ -99,7 +103,6 @@ void CResourceMonitor::memoryLimit(std::size_t limit)
     }
     else
     {
-        LOG_INFO("Setting model memory limit to " << limit << " MB");
         // Background persist causes the memory size to double due to copying
         // the models. On top of that, after the persist is done we may not
         // be able to retrieve that memory back. Thus, we halve the requested
@@ -109,11 +112,10 @@ void CResourceMonitor::memoryLimit(std::size_t limit)
         // discusses adding an option to perform only foreground persist.
         // If that gets implemented, we should only halve when background
         // persist is configured.
-        m_ByteLimitHigh = static_cast<std::size_t>((limit * 1024 * 1024) / 2);
+        m_ByteLimitHigh = static_cast<std::size_t>((limitMBs * 1024 * 1024) / 2);
     }
     m_ByteLimitLow = m_ByteLimitHigh - 1024;
     m_PruneThreshold = static_cast<std::size_t>(m_ByteLimitHigh / 5 * 3);
-
 }
 
 model_t::EMemoryStatus CResourceMonitor::getMemoryStatus()

@@ -75,9 +75,6 @@ class MODEL_EXPORT CLimits
         //! nothing is anomalous on a whole-system basis
         static const double DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD;
 
-        //! Default memory limit for resource monitor
-        static const size_t DEFAULT_MEMORY_LIMIT_MB;
-
     public:
         //! Default constructor
         CLimits();

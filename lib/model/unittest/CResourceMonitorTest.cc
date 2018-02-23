@@ -111,7 +111,8 @@ void CResourceMonitorTest::testMonitor(void)
     }
     {
         // Test size constructor
-        CResourceMonitor mon(543);
+        CResourceMonitor mon;
+        mon.memoryLimit(543);
         CPPUNIT_ASSERT_EQUAL(std::size_t(569376768 / 2), mon.m_ByteLimitHigh);
         CPPUNIT_ASSERT_EQUAL(std::size_t(569376768 / 2 - 1024), mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
