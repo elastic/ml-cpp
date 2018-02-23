@@ -43,8 +43,7 @@ void CLimitsTest::testTrivial(void)
     CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES, config.maxExamples());
     CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
                          config.unusualProbabilityThreshold());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_MEMORY_LIMIT_MB,
-                         config.memoryLimitMB());
+    CPPUNIT_ASSERT_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB, config.memoryLimitMB());
 }
 
 void CLimitsTest::testValid(void)
