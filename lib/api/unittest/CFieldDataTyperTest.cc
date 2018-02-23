@@ -38,6 +38,22 @@ using namespace api;
 namespace
 {
 
+class CEmptySearcher : public ml::core::CDataSearcher
+{
+//! \brief
+//! Mock object for state restore unit tests.
+//!
+//! DESCRIPTION:\n
+//! CDataSearcher that returns an empty stream.
+//!
+    public:
+        //! Do a search that results in an empty input stream.
+        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
+        {
+            return TIStreamP(new std::istringstream());
+        }
+};
+
 class CTestOutputHandler : public COutputHandler
 {
     public:
@@ -325,6 +341,23 @@ void CFieldDataTyperTest::testHandleControlMessages(void)
                          output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
+void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState(void)
+{
+    model::CLimits limits;
+    CFieldConfig config;
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+
+    std::ostringstream outputStrm;
+    CNullOutput nullOutput;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+    CJsonOutputWriter writer("job", wrappedOutputStream);
+    CFieldDataTyper typer("job", config, limits, nullOutput, writer, nullptr);
+
+    core_t::TTime completeToTime(0);
+    CEmptySearcher restoreSearcher;
+    CPPUNIT_ASSERT(typer.restoreState(restoreSearcher, completeToTime) == false);
+}
+
 CppUnit::Test* CFieldDataTyperTest::suite()
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
@@ -341,6 +374,9 @@ CppUnit::Test* CFieldDataTyperTest::suite()
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
                                    "CFieldDataTyperTest::testHandleControlMessages",
                                    &CFieldDataTyperTest::testHandleControlMessages) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CFieldDataTyperTest>(
+                                   "CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
+                                   &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState) );
     return suiteOfTests;
 }
 

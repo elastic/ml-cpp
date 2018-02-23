@@ -273,14 +273,15 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher &restoreSearcher,
 
         if (strm->bad())
         {
-            LOG_ERROR("State restoration search returned bad stream");
+            LOG_ERROR("Categorizer state restoration returned a bad stream");
             return false;
         }
 
         if (strm->fail())
         {
-            // This is not fatal - we just didn't find the given document number
-            return true;
+            // This is fatal. If the stream exists and has failed then state is missing
+            LOG_ERROR("Categorizer state restoration returned a failed stream");
+            return false;
         }
 
         // We're dealing with streaming JSON state
@@ -308,7 +309,14 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher &restoreSearcher,
 
 bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
 {
-    if (traverser.name() == VERSION_TAG)
+    std::string firstFieldName(traverser.name());
+    if (traverser.isEof())
+    {
+        LOG_ERROR("Expected categorizer persisted state but no state exists");
+        return false;
+    }
+
+    if (firstFieldName == VERSION_TAG)
     {
         std::string version;
         if (core::CStringUtils::stringToType(traverser.value(), version) == false)

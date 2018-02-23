@@ -51,7 +51,7 @@ class CEmptySearcher : public ml::core::CDataSearcher
         //! Do a search that results in an empty input stream.
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
         {
-            return TIStreamP(new std::stringstream());
+            return TIStreamP(new std::istringstream());
         }
 };
 
@@ -1904,7 +1904,7 @@ void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void)
     fieldConfig.initFromClause(clauses);
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-    std::stringstream outputStrm;
+    std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,

@@ -889,6 +889,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher &restoreSearcher,
         if (strm->fail())
         {
             // This is fatal. If the stream exists and has failed then state is missing
+            LOG_ERROR("State restoration search returned failed stream");
             return false;
         }
 
@@ -999,7 +1000,8 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser &traverser,
                  " - ignoring it as current state version is " <<
                  model::CAnomalyDetector::STATE_VERSION);
 
-        return false;
+        // This counts as successful restoration
+        return true;
     }
 
     while (traverser.next())
