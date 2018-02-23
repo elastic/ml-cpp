@@ -795,7 +795,7 @@ void CAnomalyJob::writeOutResults(bool interim, model::CHierarchicalResults &res
         typedef ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter> TScopedAllocator;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
-        
+
         api::CHierarchicalResultsWriter writer(m_Limits, m_ModelConfig,
                                                 boost::bind(&CJsonOutputWriter::acceptResult,
                                                             &m_JsonOutputWriter,
@@ -888,8 +888,8 @@ bool CAnomalyJob::restoreState(core::CDataSearcher &restoreSearcher,
 
         if (strm->fail())
         {
-            // This is not fatal - we just didn't find the given document number
-            return true;
+            // This is fatal. If the stream exists and has failed then state is missing
+            return false;
         }
 
         // We're dealing with streaming JSON state
@@ -960,9 +960,8 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser &traverser,
     if (traverser.isEof())
     {
         m_RestoredStateDetail.s_RestoredStateStatus = E_NoDetectorsRecovered;
-        LOG_DEBUG("No data store results - assuming no state exists");
-        // This is not an error if no data has been persisted
-        return true;
+        LOG_ERROR("Expected persisted state but no state exists");
+        return false;
     }
 
     core_t::TTime lastBucketEndTime(0);
@@ -996,12 +995,11 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser &traverser,
     if (stateVersion != model::CAnomalyDetector::STATE_VERSION)
     {
         m_RestoredStateDetail.s_RestoredStateStatus = E_IncorrectVersion;
-        LOG_INFO("Restored anomaly detector state version is " << stateVersion <<
+        LOG_ERROR("Restored anomaly detector state version is " << stateVersion <<
                  " - ignoring it as current state version is " <<
                  model::CAnomalyDetector::STATE_VERSION);
 
-        // This counts as successful restoration
-        return true;
+        return false;
     }
 
     while (traverser.next())
