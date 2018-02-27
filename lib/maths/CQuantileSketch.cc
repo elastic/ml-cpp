@@ -414,10 +414,7 @@ double CQuantileSketch::count(void) const
 uint64_t CQuantileSketch::checksum(uint64_t seed) const
 {
     seed = CChecksum::calculate(seed, m_MaxSize);
-    for (std::size_t i = 0u; i < m_Knots.size(); ++i)
-    {
-        seed = CChecksum::calculate(seed, m_Knots[i]);
-    }
+    seed = CChecksum::calculate(seed, m_Knots);
     return CChecksum::calculate(seed, m_Count);
 }
 

@@ -84,17 +84,21 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! \param[in] gammaRate The rate parameter of the gamma component of the
         //! prior.
         //! \param[in] decayRate The rate at which to revert to non-informative.
+        //! \param[in] offsetMargin The margin between the smallest value and the support
+        //! left end.
         CLogNormalMeanPrecConjugate(maths_t::EDataType dataType,
                                     double offset,
                                     double gaussianMean,
                                     double gaussianPrecision,
                                     double gammaShape,
                                     double gammaRate,
-                                    double decayRate = 0.0);
+                                    double decayRate = 0.0,
+                                    double offsetMargin = LOG_NORMAL_OFFSET_MARGIN);
 
         //! Construct from part of a state document.
         CLogNormalMeanPrecConjugate(const SDistributionRestoreParams &params,
-                                    core::CStateRestoreTraverser &traverser);
+                                    core::CStateRestoreTraverser &traverser,
+                                    double offsetMargin = LOG_NORMAL_OFFSET_MARGIN);
 
         // Default copy constructor and assignment operator work.
 
@@ -104,10 +108,13 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! for details).
         //! \param[in] offset The offset to apply to the data.
         //! \param[in] decayRate The rate at which to revert to the non-informative prior.
+        //! \param[in] offsetMargin The margin between the smallest value and the support
+        //! left end.
         //! \return A non-informative prior.
         static CLogNormalMeanPrecConjugate nonInformativePrior(maths_t::EDataType dataType,
                                                                double offset = 0.0,
-                                                               double decayRate = 0.0);
+                                                               double decayRate = 0.0,
+                                                               double offsetMargin = LOG_NORMAL_OFFSET_MARGIN);
         //@}
 
         //! \name Prior Contract
@@ -123,6 +130,11 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
 
         //! Reset the prior to non-informative.
         virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
+
+        //! Get the margin between the smallest value and the support left
+        //! end. Priors with non-negative support, automatically adjust the
+        //! offset if a value is seen which is smaller than offset + margin.
+        virtual double offsetMargin(void) const;
 
         //! Returns true.
         virtual bool needsOffset(void) const;
@@ -418,6 +430,9 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! \f$u\f$ is a constant and \f$Y\f$ is normally distributed. This
         //! allows us to model data with negative values greater than \f$-u\f$.
         double m_Offset;
+
+        //! The margin between the smallest value and the support left end.
+        double m_OffsetMargin;
 
         //! The mean of the prior conditional distribution for the mean of the
         //! exponentiated normal (conditioned on its precision).

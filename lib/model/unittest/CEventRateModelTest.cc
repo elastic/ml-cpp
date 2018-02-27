@@ -85,15 +85,14 @@ typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumula
 
 const std::string EMPTY_STRING;
 
-TUInt64Vec rawEventCounts()
+TUInt64Vec rawEventCounts(std::size_t copies = 1)
 {
-    uint64_t counts[] =
-        {
-            54, 67, 39, 58, 46, 50, 42, 48, 53, 51, 50, 57, 53, 49
-        };
-
-    TUInt64Vec result(boost::begin(counts), boost::end(counts));
-
+    uint64_t counts[] = { 54, 67, 39, 58, 46, 50, 42, 48, 53, 51, 50, 57, 53, 49 };
+    TUInt64Vec result;
+    for (std::size_t i = 0u; i < copies; ++i)
+    {
+        result.insert(result.end(), boost::begin(counts), boost::end(counts));
+    }
     return result;
 }
 
@@ -381,7 +380,7 @@ void CEventRateModelTest::testOnlineCountSample(void)
 
     // Generate some events.
     TTimeVec eventTimes;
-    TUInt64Vec expectedEventCounts = rawEventCounts();
+    TUInt64Vec expectedEventCounts(rawEventCounts());
     generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
     core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
     LOG_DEBUG("startTime = " << startTime
@@ -439,7 +438,7 @@ void CEventRateModelTest::testOnlineCountSample(void)
 
     LOG_TRACE("origXml = " << origXml);
     LOG_DEBUG("origXml size = " << origXml.size());
-    CPPUNIT_ASSERT(origXml.size() < 36500);
+    CPPUNIT_ASSERT(origXml.size() < 41000);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
@@ -604,9 +603,9 @@ void CEventRateModelTest::testOnlineRare(void)
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("origXml = " << origXml);
+    LOG_TRACE("origXml = " << origXml);
     LOG_DEBUG("size = " << origXml.size());
-    CPPUNIT_ASSERT(origXml.size() < 15700);
+    CPPUNIT_ASSERT(origXml.size() < 21000);
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
@@ -636,7 +635,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t anomalousBucket = 12u;
+    const std::size_t anomalousBucket = 25u;
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -647,12 +646,11 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
     makeModel(factory, features, m_ResourceMonitor, startTime, bucketLength, gatherer, model_, 1);
     CEventRateModel *model = dynamic_cast<CEventRateModel*>(model_.get());
 
-
     TMinAccumulator minProbabilities(2u);
 
     // Generate some events.
     TTimeVec eventTimes;
-    TUInt64Vec expectedEventCounts = rawEventCounts();
+    TUInt64Vec expectedEventCounts = rawEventCounts(2);
     expectedEventCounts[anomalousBucket] *= 3;
     generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
     core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
@@ -938,9 +936,9 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
             inserter.toXml(origXml);
         }
 
-        //LOG_DEBUG("origXml = " << origXml);
+        LOG_TRACE("origXml = " << origXml);
         LOG_DEBUG("size = " << origXml.size());
-        CPPUNIT_ASSERT(origXml.size() < 134000);
+        CPPUNIT_ASSERT(origXml.size() < 151000);
 
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
@@ -2567,8 +2565,8 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability < 0.05);
     CPPUNIT_ASSERT(annotatedProbability3.s_Probability < 0.05);
     CPPUNIT_ASSERT(p1Baseline[0] > 44.0 && p1Baseline[0] < 46.0);
-    CPPUNIT_ASSERT(p2Baseline[0] > 44.0 && p2Baseline[0] < 46.0);
-    CPPUNIT_ASSERT(p3Baseline[0] > 59.0 && p3Baseline[0] < 61.0);
+    CPPUNIT_ASSERT(p2Baseline[0] > 43.0 && p2Baseline[0] < 47.0);
+    CPPUNIT_ASSERT(p3Baseline[0] > 57.0 && p3Baseline[0] < 62.0);
 
     for (std::size_t i = 0; i < 25; ++i)
     {
@@ -2608,9 +2606,9 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.75);
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.9);
     CPPUNIT_ASSERT(annotatedProbability3.s_Probability < 0.05);
-    CPPUNIT_ASSERT(p1Baseline[0] > 58.0 && p1Baseline[0] < 61.0);
-    CPPUNIT_ASSERT(p2Baseline[0] > 58.0 && p2Baseline[0] < 61.0);
-    CPPUNIT_ASSERT(p3Baseline[0] > 58.0 && p3Baseline[0] < 61.0);
+    CPPUNIT_ASSERT(p1Baseline[0] > 58.0 && p1Baseline[0] < 62.0);
+    CPPUNIT_ASSERT(p2Baseline[0] > 58.0 && p2Baseline[0] < 62.0);
+    CPPUNIT_ASSERT(p3Baseline[0] > 58.0 && p3Baseline[0] < 62.0);
 }
 
 void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
@@ -2949,8 +2947,8 @@ void CEventRateModelTest::testDecayRateControl(void)
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
-        CPPUNIT_ASSERT(        maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.9 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+        CPPUNIT_ASSERT(         maths::CBasicStatistics::mean(meanPredictionError)
+                       < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 
     LOG_DEBUG("*** Test unmodelled cyclic component ***");
@@ -3011,7 +3009,7 @@ void CEventRateModelTest::testDecayRateControl(void)
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(        maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.5 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                       < 0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 

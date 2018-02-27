@@ -82,17 +82,13 @@ double computeWinsorisationWeight(const CPrior &prior, double derate, double sca
     double lowerBound;
     double upperBound;
     if (!prior.minusLogJointCdf(CConstantWeights::SEASONAL_VARIANCE,
-                                TDouble1Vec{value},
-                                TDouble4Vec1Vec{TDouble4Vec{scale}},
-                                lowerBound, upperBound))
+                                {value}, {{scale}}, lowerBound, upperBound))
     {
         return 1.0;
     }
     if (   upperBound < MINUS_LOG_TOLERANCE
         && !prior.minusLogJointCdfComplement(CConstantWeights::SEASONAL_VARIANCE,
-                                             TDouble1Vec{value},
-                                             TDouble4Vec1Vec{TDouble4Vec{scale}},
-                                             lowerBound, upperBound))
+                                             {value}, {{scale}}, lowerBound, upperBound))
     {
         return 1.0;
     }
@@ -173,22 +169,37 @@ enum EDecayRateController
 };
 
 // Models
-const std::string ID_TAG{"a"};
-const std::string CONTROLLER_TAG{"b"};
-const std::string TREND_TAG{"c"};
-const std::string PRIOR_TAG{"d"};
-const std::string ANOMALY_MODEL_TAG{"e"};
-//const std::string MEAN_DECAY_RATES_TAG{"f"}; No longer used.
-const std::string IS_NON_NEGATIVE_TAG{"g"};
-const std::string IS_FORECASTABLE_TAG{"h"};
+
+// Version 6.3
+const std::string VERSION_6_3_TAG("6.3");
+const std::string ID_6_3_TAG{"a"};
+const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
+const std::string IS_FORECASTABLE_6_3_TAG{"c"};
+const std::string RNG_6_3_TAG{"d"};
+const std::string CONTROLLER_6_3_TAG{"e"};
+const std::string TREND_6_3_TAG{"f"};
+const std::string PRIOR_6_3_TAG{"g"};
+const std::string ANOMALY_MODEL_6_3_TAG{"h"};
+const std::string SLIDING_WINDOW_6_3_TAG{"i"};
+// Version < 6.3
+const std::string ID_OLD_TAG{"a"};
+const std::string CONTROLLER_OLD_TAG{"b"};
+const std::string TREND_OLD_TAG{"c"};
+const std::string PRIOR_OLD_TAG{"d"};
+const std::string ANOMALY_MODEL_OLD_TAG{"e"};
+const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
+const std::string IS_FORECASTABLE_OLD_TAG{"h"};
+
 // Anomaly model
 const std::string MEAN_ERROR_TAG{"a"};
 const std::string ANOMALIES_TAG{"b"};
+const std::string PRIOR_TAG{"d"};
 // Anomaly model nested
 const std::string TAG_TAG{"a"};
 const std::string OPEN_TIME_TAG{"b"};
 const std::string SIGN_TAG{"c"};
 const std::string MEAN_ERROR_NORM_TAG{"d"};
+
 // Correlations
 const std::string K_MOST_CORRELATED_TAG{"a"};
 const std::string CORRELATED_LOOKUP_TAG{"b"};
@@ -201,17 +212,14 @@ const std::string CORRELATION_TAG{"d"};
 
 const std::size_t MAXIMUM_CORRELATIONS{5000};
 const double MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT{24.0};
+const std::size_t SLIDING_WINDOW_SIZE{12};
 const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
 
 namespace forecast
 {
 const std::string INFO_INSUFFICIENT_HISTORY("Insufficient history to forecast");
-const std::string INFO_INSUFFICIENT_ACCURACY_STOPPING_EARLY(
-        "Unable to forecast for entire duration as confidence fell outside of acceptable limits");
 const std::string ERROR_MULTIVARIATE("Forecast not supported for multivariate features");
-const double RELATIVE_ERROR_TOLERANCE{0.1};
-const double MAXIMUM_ERROR_GROWTH{10.0};
 }
 }
 
@@ -306,8 +314,8 @@ class CTimeSeriesAnomalyModel
                 //! Get the feature vector for this anomaly.
                 TDouble10Vec features(core_t::TTime time) const
                 {
-                    return TDouble10Vec{static_cast<double>(time - m_OpenTime),
-                                        CBasicStatistics::mean(m_MeanErrorNorm)};
+                    return {static_cast<double>(time - m_OpenTime),
+                            CBasicStatistics::mean(m_MeanErrorNorm)};
                 }
 
                 //! Compute a checksum for this object.
@@ -376,7 +384,7 @@ class CTimeSeriesAnomalyModel
             std::size_t index(anomaly.positive() ? 0 : 1);
             TDouble10Vec1Vec features{anomaly.features(this->scale(time))};
             m_Priors[index].addSamples(CConstantWeights::COUNT, features,
-                                       TDouble10Vec4Vec1Vec{TDouble10Vec4Vec{TDouble10Vec(2, weight)}});
+                                       {{TDouble10Vec(2, weight)}});
         }
 
         //! Get the scaled time.
@@ -430,7 +438,7 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams &param
                                                       [](double n, double x) { return n + x*x; })));
 
             double scale{CBasicStatistics::mean(m_MeanError)};
-            for (auto &&error : errors)
+            for (auto &error : errors)
             {
                 error = scale == 0.0 ? 1.0 : error / scale;
             }
@@ -467,7 +475,7 @@ void CTimeSeriesAnomalyModel::sampleAnomaly(const CModelProbabilityParams &param
 void CTimeSeriesAnomalyModel::reset(void)
 {
     m_MeanError = TMeanAccumulator();
-    for (auto &&prior : m_Priors)
+    for (auto &prior : m_Priors)
     {
         prior = TMultivariateNormalConjugate::nonInformativePrior(maths_t::E_ContinuousData, prior.decayRate());
     }
@@ -584,6 +592,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CModelParams &param
                        boost::make_shared<CTimeSeriesAnomalyModel>(params.bucketLength(),
                                                                    params.decayRate()) :
                        TAnomalyModelPtr()),
+        m_SlidingWindow(SLIDING_WINDOW_SIZE),
         m_Correlations(0)
 {
     if (controllers)
@@ -596,6 +605,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const SModelRestoreParams
                                                        core::CStateRestoreTraverser &traverser):
         CModel(params.s_Params),
         m_IsForecastable(false),
+        m_SlidingWindow(SLIDING_WINDOW_SIZE),
         m_Correlations(0)
 {
     traverser.traverseSubLevel(boost::bind(&CUnivariateTimeSeriesModel::acceptRestoreTraverser,
@@ -632,10 +642,7 @@ CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForPersistence(void
 
 CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForForecast(void) const
 {
-    CUnivariateTimeSeriesModel *forecastModel{new CUnivariateTimeSeriesModel{*this, m_Id}};
-    forecastModel->m_Prior->forForecasting();
-    forecastModel->m_Trend->forForecasting();
-    return forecastModel;
+    return new CUnivariateTimeSeriesModel{*this, m_Id};
 }
 
 bool CUnivariateTimeSeriesModel::isForecastPossible(void) const
@@ -673,7 +680,7 @@ void CUnivariateTimeSeriesModel::addBucketValue(const TTimeDouble2VecSizeTrVec &
     for (const auto &value : values)
     {
         m_Prior->adjustOffset(CConstantWeights::COUNT,
-                              TDouble1Vec{m_Trend->detrend(value.first, value.second[0], 0.0)},
+                              {m_Trend->detrend(value.first, value.second[0], 0.0)},
                               CConstantWeights::SINGLE_UNIT);
     }
 }
@@ -688,21 +695,35 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     }
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
+
+    TSizeVec valueorder(samples.size());
+    std::iota(valueorder.begin(), valueorder.end(), 0);
+    std::stable_sort(valueorder.begin(), valueorder.end(),
+                     [&samples](std::size_t lhs, std::size_t rhs)
+                     {
+                         return samples[lhs].second < samples[rhs].second;
+                     });
+
+    TOptionalTimeDoublePr randomSample;
+
+    double p{SLIDING_WINDOW_SIZE * static_cast<double>(this->params().bucketLength())
+                                 / static_cast<double>(core::constants::DAY)};
+    if (p >= 1.0 || CSampling::uniformSample(m_Rng, 0.0, 1.0) < p)
+    {
+        std::size_t i{CSampling::uniformSample(m_Rng, 0, samples.size())};
+        randomSample.reset({samples[valueorder[i]].first, samples[valueorder[i]].second[0]});
+    }
 
     m_IsNonNegative = params.isNonNegative();
 
     EUpdateResult result{this->updateTrend(params.weightStyles(), samples, params.trendWeights())};
 
-    TMeanAccumulator averageTime;
     for (auto &sample : samples)
     {
-        core_t::TTime time{sample.first};
-        sample.second[0] = m_Trend->detrend(time, sample.second[0], 0.0);
-        averageTime.add(static_cast<double>(time));
+        sample.second[0] = m_Trend->detrend(sample.first, sample.second[0], 0.0);
     }
 
-    TSizeVec valueorder(samples.size());
-    std::iota(valueorder.begin(), valueorder.end(), 0);
     std::stable_sort(valueorder.begin(), valueorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs)
                      {
@@ -716,6 +737,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     TDouble4Vec1Vec weights;
     samples_.reserve(samples.size());
     weights.reserve(samples.size());
+    TMeanAccumulator averageTime;
 
     for (auto i : valueorder)
     {
@@ -727,6 +749,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
             wi[0].push_back(weight[0]);
         }
         weights.push_back(wi[0]);
+        averageTime.add(static_cast<double>(samples[i].first));
     }
 
     m_Prior->addSamples(params.weightStyles(), samples_, weights);
@@ -781,6 +804,11 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         m_Correlations->addSamples(m_Id, type, samples, weights, params.propagationInterval(), multiplier);
     }
 
+    if (randomSample)
+    {
+        m_SlidingWindow.push_back({randomSample->first, randomSample->second});
+    }
+
     return result;
 }
 
@@ -800,8 +828,8 @@ CUnivariateTimeSeriesModel::mode(core_t::TTime time,
     {
         weights.push_back(weight[0]);
     }
-    return TDouble2Vec{  m_Prior->marginalLikelihoodMode(weightStyles, weights)
-                       + CBasicStatistics::mean(m_Trend->baseline(time))};
+    return {  m_Prior->marginalLikelihoodMode(weightStyles, weights)
+            + CBasicStatistics::mean(m_Trend->baseline(time))};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec1Vec
@@ -861,7 +889,7 @@ CUnivariateTimeSeriesModel::residualModes(const maths_t::TWeightStyleVec &weight
     result.reserve(modes.size());
     for (auto mode : modes)
     {
-        result.push_back(TDouble2Vec{mode});
+        result.push_back({mode});
     }
 
     return result;
@@ -951,14 +979,14 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
                                   m_Prior->nearestMarginalLikelihoodMean(hint[0]))};
     double result{scale * (seasonalOffset + median + correlateCorrection)};
 
-    return TDouble2Vec{m_IsNonNegative ? std::max(result, 0.0) : result};
+    return {m_IsNonNegative ? std::max(result, 0.0) : result};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec3Vec
 CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
+                                               double confidenceInterval,
                                                const maths_t::TWeightStyleVec &weightStyles,
-                                               const TDouble2Vec4Vec &weights_,
-                                               double confidenceInterval) const
+                                               const TDouble2Vec4Vec &weights_) const
 {
     if (m_Prior->isNonInformative())
     {
@@ -967,14 +995,8 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
 
     double scale{1.0 - this->params().probabilityBucketEmpty()};
 
-    double seasonalOffset[]{0.0, 0.0, 0.0};
-    if (m_Trend->initialized())
-    {
-        TDoubleDoublePr seasonalOffset_{m_Trend->baseline(time, 0.0, confidenceInterval)};
-        seasonalOffset[0] = seasonalOffset_.first;
-        seasonalOffset[1] = CBasicStatistics::mean(seasonalOffset_);
-        seasonalOffset[2] = seasonalOffset_.second;
-    }
+    double seasonalOffset{m_Trend->initialized() ?
+                          CBasicStatistics::mean(m_Trend->baseline(time, confidenceInterval)) : 0.0};
 
     TDouble4Vec weights;
     weights.reserve(weights_.size());
@@ -988,13 +1010,13 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDoubleDoublePr interval{
             m_Prior->marginalLikelihoodConfidenceInterval(confidenceInterval, weightStyles, weights)};
 
-    double result[]{scale * (seasonalOffset[0] + interval.first),
-                    scale * (seasonalOffset[1] + median),
-                    scale * (seasonalOffset[2] + interval.second)};
+    double result[]{scale * (seasonalOffset + interval.first),
+                    scale * (seasonalOffset + median),
+                    scale * (seasonalOffset + interval.second)};
 
-    return TDouble2Vec3Vec{TDouble2Vec{m_IsNonNegative ? std::max(result[0], 0.0) : result[0]},
-                           TDouble2Vec{m_IsNonNegative ? std::max(result[1], 0.0) : result[1]},
-                           TDouble2Vec{m_IsNonNegative ? std::max(result[2], 0.0) : result[2]}};
+    return {{m_IsNonNegative ? std::max(result[0], 0.0) : result[0]},
+            {m_IsNonNegative ? std::max(result[1], 0.0) : result[1]},
+            {m_IsNonNegative ? std::max(result[2], 0.0) : result[2]}};
 }
 
 bool CUnivariateTimeSeriesModel::forecast(core_t::TTime startTime,
@@ -1005,64 +1027,38 @@ bool CUnivariateTimeSeriesModel::forecast(core_t::TTime startTime,
                                           const TForecastPushDatapointFunc &forecastPushDataPointFunc,
                                           std::string &messageOut)
 {
-    // Should not happen if model has been cloned with cloneForForecast.
-    if (!m_Prior->isForForecasting())
-    {
-        LOG_ERROR("Unexpected error: model hasn't been prepared for forecasting.");
-        return false;
-    }
-
     if (m_Prior->isNonInformative())
     {
         messageOut = forecast::INFO_INSUFFICIENT_HISTORY;
         return true;
     }
 
+    using TDouble3Vec = core::CSmallVector<double, 3>;
+    using TDouble3VecVec = std::vector<TDouble3Vec>;
+
+    core_t::TTime bucketLength{this->params().bucketLength()};
     double minimum{m_IsNonNegative ? std::max(minimum_[0], 0.0) : minimum_[0]};
     double maximum{m_IsNonNegative ? std::max(maximum_[0], 0.0) : maximum_[0]};
 
-    double cutoffInterval{forecast::RELATIVE_ERROR_TOLERANCE * m_Trend->mean(startTime)};
+    TDouble3VecVec predictions;
+    m_Trend->forecast(startTime, endTime, bucketLength, confidenceInterval,
+                      this->params().minimumSeasonalVarianceScale(), predictions);
+
+    core_t::TTime time{startTime};
+    for (const auto &prediction : predictions)
     {
-        TDouble2Vec3Vec prediction(this->confidenceInterval(startTime,
-                                                            CConstantWeights::COUNT,
-                                                            CConstantWeights::unit<TDouble2Vec>(2),
-                                                            confidenceInterval));
-        if (prediction.size() == 3)
-        {
-            cutoffInterval = std::max(cutoffInterval, forecast::MAXIMUM_ERROR_GROWTH
-                                                          * (prediction[2][0] - prediction[0][0]));
-        }
-    }
-
-    core_t::TTime bucketLength{this->params().bucketLength()};
-    for (core_t::TTime time = startTime; time < endTime; time += bucketLength)
-    {
-        TDouble2Vec4Vec weights{this->seasonalWeight(DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)};
-        TDouble2Vec3Vec prediction(this->confidenceInterval(time,
-                                                            CConstantWeights::SEASONAL_VARIANCE,
-                                                            weights, confidenceInterval));
-        double interval{prediction.size() == 3 ?
-                        prediction[2][0] - prediction[0][0] :
-                        boost::numeric::bounds<double>::highest()};
-
-        if (interval < cutoffInterval)
-        {
-            SErrorBar errorBar;
-            errorBar.s_Time         = time;
-            errorBar.s_BucketLength = bucketLength;
-            errorBar.s_LowerBound   = CTools::truncate(prediction[0][0], minimum, maximum);
-            errorBar.s_Predicted    = CTools::truncate(prediction[1][0], minimum, maximum);
-            errorBar.s_UpperBound   = CTools::truncate(prediction[2][0], minimum, maximum);
-            forecastPushDataPointFunc(errorBar);
-        }
-        else
-        {
-            messageOut = forecast::INFO_INSUFFICIENT_ACCURACY_STOPPING_EARLY;
-            return true;
-        }
-
-        m_Trend->testAndInterpolate(time + bucketLength);
-        m_Prior->propagateForwardsByTime(1.0);
+        SErrorBar errorBar;
+        errorBar.s_Time         = time;
+        errorBar.s_BucketLength = bucketLength;
+        errorBar.s_LowerBound   = CTools::truncate(prediction[0],
+                                                   minimum,
+                                                   maximum + prediction[0] - prediction[1]);
+        errorBar.s_Predicted    = CTools::truncate(prediction[1], minimum, maximum);
+        errorBar.s_UpperBound   = CTools::truncate(prediction[2],
+                                                   minimum + prediction[2] - prediction[1],
+                                                   maximum);
+        forecastPushDataPointFunc(errorBar);
+        time += bucketLength;
     }
 
     return true;
@@ -1252,14 +1248,14 @@ CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
 {
     double scale{this->seasonalWeight(0.0, time)[0]};
     double sample{m_Trend->detrend(time, value[0], 0.0)};
-    return TDouble2Vec{computeWinsorisationWeight(*m_Prior, derate, scale, sample)};
+    return {computeWinsorisationWeight(*m_Prior, derate, scale, sample)};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
 CUnivariateTimeSeriesModel::seasonalWeight(double confidence, core_t::TTime time) const
 {
     double scale{m_Trend->scale(time, m_Prior->marginalLikelihoodVariance(), confidence).second};
-    return TDouble2Vec{std::max(scale, this->params().minimumSeasonalVarianceScale())};
+    return {std::max(scale, this->params().minimumSeasonalVarianceScale())};
 }
 
 uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const
@@ -1269,6 +1265,7 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const
     seed = CChecksum::calculate(seed, m_Trend);
     seed = CChecksum::calculate(seed, m_Prior);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
+    seed = CChecksum::calculate(seed, m_SlidingWindow);
     return CChecksum::calculate(seed, m_Correlations != 0);
 }
 
@@ -1279,6 +1276,7 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_Trend", m_Trend, mem);
     core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
+    core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
 }
 
 std::size_t CUnivariateTimeSeriesModel::memoryUsage(void) const
@@ -1286,62 +1284,109 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage(void) const
     return  core::CMemory::dynamicSize(m_Controllers)
           + core::CMemory::dynamicSize(m_Trend)
           + core::CMemory::dynamicSize(m_Prior)
-          + core::CMemory::dynamicSize(m_AnomalyModel);
+          + core::CMemory::dynamicSize(m_AnomalyModel)
+          + core::CMemory::dynamicSize(m_SlidingWindow);
 }
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                         core::CStateRestoreTraverser &traverser)
 {
-    do
+    if (traverser.name() == VERSION_6_3_TAG)
     {
-        const std::string &name{traverser.name()};
-        RESTORE_BUILT_IN(ID_TAG, m_Id)
-        RESTORE_BOOL(IS_NON_NEGATIVE_TAG, m_IsNonNegative)
-        RESTORE_BOOL(IS_FORECASTABLE_TAG, m_IsForecastable)
-        RESTORE_SETUP_TEARDOWN(CONTROLLER_TAG,
-                               m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
-                               core::CPersistUtils::restore(CONTROLLER_TAG, *m_Controllers, traverser),
-                               /**/)
-        RESTORE(TREND_TAG, traverser.traverseSubLevel(boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
-                                                                        boost::cref(params.s_DecompositionParams),
-                                                                        boost::ref(m_Trend), _1)))
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
-                                                                        boost::cref(params.s_DistributionParams),
-                                                                        boost::ref(m_Prior), _1)))
-        RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_TAG,
-                               m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
-                               traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                                                      m_AnomalyModel.get(), boost::cref(params), _1)),
-                               /**/)
+        while (traverser.next())
+        {
+            const std::string &name{traverser.name()};
+            RESTORE_BUILT_IN(ID_6_3_TAG, m_Id)
+            RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
+            RESTORE_BOOL(IS_FORECASTABLE_6_3_TAG, m_IsForecastable)
+            RESTORE(RNG_6_3_TAG, m_Rng.fromString(traverser.value()))
+            RESTORE_SETUP_TEARDOWN(CONTROLLER_6_3_TAG,
+                                   m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                                   core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                                   /**/)
+            RESTORE(TREND_6_3_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CTimeSeriesDecompositionStateSerialiser(),
+                                           boost::cref(params.s_DecompositionParams),
+                                           boost::ref(m_Trend), _1)))
+            RESTORE(PRIOR_6_3_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CPriorStateSerialiser(),
+                                           boost::cref(params.s_DistributionParams),
+                                           boost::ref(m_Prior), _1)))
+            RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_6_3_TAG,
+                                   m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                                   traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                                                                          m_AnomalyModel.get(), boost::cref(params), _1)),
+                                   /**/)
+            RESTORE(SLIDING_WINDOW_6_3_TAG,
+                    core::CPersistUtils::restore(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, traverser))
+        }
     }
-    while (traverser.next());
+    else
+    {
+        // There is no version string this is historic state.
+        do
+        {
+            const std::string &name{traverser.name()};
+            RESTORE_BUILT_IN(ID_OLD_TAG, m_Id)
+            RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
+            RESTORE_BOOL(IS_FORECASTABLE_OLD_TAG, m_IsForecastable)
+            RESTORE_SETUP_TEARDOWN(CONTROLLER_OLD_TAG,
+                                   m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                                   core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
+                                   /**/)
+            RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CTimeSeriesDecompositionStateSerialiser(),
+                                           boost::cref(params.s_DecompositionParams),
+                                           boost::ref(m_Trend), _1)))
+            RESTORE(PRIOR_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CPriorStateSerialiser(),
+                                           boost::cref(params.s_DistributionParams),
+                                           boost::ref(m_Prior), _1)))
+            RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_OLD_TAG,
+                                   m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                                   traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                                                                          m_AnomalyModel.get(), boost::cref(params), _1)),
+                                   /**/)
+        }
+        while (traverser.next());
+    }
     return true;
 }
 
 void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
-    // Note we don't persist this->params() or the correlations because
-    // that state is reinitialized.
-    inserter.insertValue(ID_TAG, m_Id);
-    inserter.insertValue(IS_NON_NEGATIVE_TAG, static_cast<int>(m_IsNonNegative));
-    inserter.insertValue(IS_FORECASTABLE_TAG, static_cast<int>(m_IsForecastable));
+    // Note that we don't persist this->params() or the correlations
+    // because that state is reinitialized.
+    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(ID_6_3_TAG, m_Id);
+    inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
+    inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
+    inserter.insertValue(RNG_6_3_TAG, m_Rng.toString());
     if (m_Controllers)
     {
-        core::CPersistUtils::persist(CONTROLLER_TAG, *m_Controllers, inserter);
+        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
-    inserter.insertLevel(TREND_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                                      boost::cref(*m_Trend), _1));
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(*m_Prior), _1));
+    inserter.insertLevel(TREND_6_3_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                                          boost::cref(*m_Trend), _1));
+    inserter.insertLevel(PRIOR_6_3_TAG, boost::bind<void>(CPriorStateSerialiser(),
+                                                          boost::cref(*m_Prior), _1));
     if (m_AnomalyModel)
     {
-        inserter.insertLevel(ANOMALY_MODEL_TAG, boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                                            m_AnomalyModel.get(), _1));
+        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
+                             boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
+                                         m_AnomalyModel.get(), _1));
     }
+    core::CPersistUtils::persist(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, inserter);
 }
 
 maths_t::EDataType CUnivariateTimeSeriesModel::dataType(void) const
 {
     return m_Prior->dataType();
+}
+
+const CUnivariateTimeSeriesModel::TTimeDoublePrCBuf &CUnivariateTimeSeriesModel::slidingWindow(void) const
+{
+    return m_SlidingWindow;
 }
 
 const CTimeSeriesDecompositionInterface &CUnivariateTimeSeriesModel::trend(void) const
@@ -1360,11 +1405,13 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
         m_Id(id),
         m_IsNonNegative(other.m_IsNonNegative),
         m_IsForecastable(other.m_IsForecastable),
+        m_Rng(other.m_Rng),
         m_Trend(other.m_Trend->clone()),
         m_Prior(other.m_Prior->clone()),
         m_AnomalyModel(other.m_AnomalyModel ?
                        boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel) :
                        TAnomalyModelPtr()),
+        m_SlidingWindow(other.m_SlidingWindow),
         m_Correlations(0)
 {
     if (other.m_Controllers)
@@ -1387,6 +1434,8 @@ CUnivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weightSt
         }
     }
 
+    // Time order is not reliable, for example if the data are polled
+    // or for count feature, the times of all samples will be the same.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -1399,28 +1448,31 @@ CUnivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weightSt
                      });
 
     EUpdateResult result = E_Success;
-    TDouble4Vec weight(weightStyles.size());
-
-    for (auto i : timeorder)
     {
-        core_t::TTime time{samples[i].first};
-        double value{samples[i].second[0]};
-        for (std::size_t j = 0u; j < weights[i].size(); ++j)
+        TDouble4Vec weight(weightStyles.size());
+        for (auto i : timeorder)
         {
-            weight[j] = weights[i][j][0];
-        }
-        if (m_Trend->addPoint(time, value, weightStyles, weight))
-        {
-            result = E_Reset;
+            core_t::TTime time{samples[i].first};
+            double value{samples[i].second[0]};
+            for (std::size_t j = 0u; j < weights[i].size(); ++j)
+            {
+                weight[j] = weights[i][j][0];
+            }
+            if (m_Trend->addPoint(time, value, weightStyles, weight))
+            {
+                result = E_Reset;
+            }
         }
     }
-
     if (result == E_Reset)
     {
-        if (initializePrior(this->params().bucketLength(),
-                            this->params().learnRate(), *m_Trend, *m_Prior))
+        m_Prior->setToNonInformative(0.0, m_Prior->decayRate());
+        TDouble4Vec1Vec weight{{std::max(this->params().learnRate(),
+                                         5.0 / static_cast<double>(SLIDING_WINDOW_SIZE))}};
+        for (const auto &value : m_SlidingWindow)
         {
-            m_Prior->decayRate(this->params().decayRate());
+            TDouble1Vec sample{m_Trend->detrend(value.first, value.second, 0.0)};
+            m_Prior->addSamples(CConstantWeights::COUNT, sample, weight);
         }
         if (m_Correlations)
         {
@@ -1428,9 +1480,11 @@ CUnivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weightSt
         }
         if (m_Controllers)
         {
+            m_Prior->decayRate(  m_Prior->decayRate()
+                               / (*m_Controllers)[E_PriorControl].multiplier());
             m_Trend->decayRate(  m_Trend->decayRate()
                                / (*m_Controllers)[E_TrendControl].multiplier());
-            for (auto &&controller : *m_Controllers)
+            for (auto &controller : *m_Controllers)
             {
                 controller.reset();
             }
@@ -1859,7 +1913,7 @@ void CTimeSeriesCorrelations::removeTimeSeries(std::size_t id)
         }
         this->refreshLookup();
     }
-    m_Correlations.removeVariables(TSizeVec{id});
+    m_Correlations.removeVariables({id});
     m_TimeSeriesModels[id] = 0;
 }
 
@@ -1962,7 +2016,7 @@ void CTimeSeriesCorrelations::refreshLookup(void)
         m_CorrelatedLookup[x0].push_back(x1);
         m_CorrelatedLookup[x1].push_back(x0);
     }
-    for (auto &&prior : m_CorrelatedLookup)
+    for (auto &prior : m_CorrelatedLookup)
     {
         std::sort(prior.second.begin(), prior.second.end());
     }
@@ -1980,7 +2034,8 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CModelParams &p
         m_AnomalyModel(modelAnomalies ?
                        boost::make_shared<CTimeSeriesAnomalyModel>(params.bucketLength(),
                                                                    params.decayRate()) :
-                       TAnomalyModelPtr())
+                       TAnomalyModelPtr()),
+        m_SlidingWindow(SLIDING_WINDOW_SIZE)
 {
     if (controllers)
     {
@@ -1998,7 +2053,8 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
         m_Prior(other.m_Prior->clone()),
         m_AnomalyModel(other.m_AnomalyModel ?
                        boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel) :
-                       TAnomalyModelPtr())
+                       TAnomalyModelPtr()),
+        m_SlidingWindow(other.m_SlidingWindow)
 {
     if (other.m_Controllers)
     {
@@ -2013,7 +2069,8 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
 
 CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const SModelRestoreParams &params,
                                                            core::CStateRestoreTraverser &traverser) :
-        CModel(params.s_Params)
+        CModel(params.s_Params),
+        m_SlidingWindow(SLIDING_WINDOW_SIZE)
 {
     traverser.traverseSubLevel(boost::bind(&CMultivariateTimeSeriesModel::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
@@ -2070,6 +2127,25 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     }
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TOptionalTimeDouble2VecPr = boost::optional<TTimeDouble2VecPr>;
+
+    TSizeVec valueorder(samples.size());
+    std::iota(valueorder.begin(), valueorder.end(), 0);
+    std::stable_sort(valueorder.begin(), valueorder.end(),
+                     [&samples](std::size_t lhs, std::size_t rhs)
+                     {
+                         return samples[lhs].second < samples[rhs].second;
+                     });
+
+    TOptionalTimeDouble2VecPr randomSample;
+
+    double p{SLIDING_WINDOW_SIZE * static_cast<double>(this->params().bucketLength())
+                                 / static_cast<double>(core::constants::DAY)};
+    if (p >= 1.0 || CSampling::uniformSample(m_Rng, 0.0, 1.0) < p)
+    {
+        std::size_t i{CSampling::uniformSample(m_Rng, 0, samples.size())};
+        randomSample.reset({samples[valueorder[i]].first, samples[valueorder[i]].second});
+    }
 
     m_IsNonNegative = params.isNonNegative();
 
@@ -2077,7 +2153,6 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
 
     EUpdateResult result{this->updateTrend(params.weightStyles(), samples, params.trendWeights())};
 
-    TMeanAccumulator averageTime;
     for (auto &sample : samples)
     {
         if (sample.second.size() != dimension)
@@ -2091,11 +2166,8 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         {
             sample.second[d] = m_Trend[d]->detrend(time, sample.second[d], 0.0);
         }
-        averageTime.add(static_cast<double>(time));
     }
 
-    TSizeVec valueorder(samples.size());
-    std::iota(valueorder.begin(), valueorder.end(), 0);
     std::stable_sort(valueorder.begin(), valueorder.end(),
                      [&samples](std::size_t lhs, std::size_t rhs)
                      {
@@ -2109,6 +2181,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     TDouble10Vec4Vec1Vec weights;
     samples_.reserve(samples.size());
     weights.reserve(samples.size());
+    TMeanAccumulator averageTime;
 
     for (auto i : valueorder)
     {
@@ -2123,6 +2196,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
             }
         }
         weights.push_back(wi);
+        averageTime.add(static_cast<double>(samples[i].first));
     }
 
     m_Prior->addSamples(params.weightStyles(), samples_, weights);
@@ -2175,6 +2249,11 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
                 LOG_TRACE("prior decay rate = " << m_Prior->decayRate());
             }
         }
+    }
+
+    if (randomSample)
+    {
+        m_SlidingWindow.push_back({randomSample->first, randomSample->second});
     }
 
     return result;
@@ -2307,9 +2386,9 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
 
 CMultivariateTimeSeriesModel::TDouble2Vec3Vec
 CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
+                                                 double confidenceInterval,
                                                  const maths_t::TWeightStyleVec &weightStyles,
-                                                 const TDouble2Vec4Vec &weights_,
-                                                 double confidenceInterval) const
+                                                 const TDouble2Vec4Vec &weights_) const
 {
     if (m_Prior->isNonInformative())
     {
@@ -2331,13 +2410,11 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDouble4Vec weights;
     for (std::size_t d = 0u; d < dimension; --marginalize[std::min(d, dimension - 2)], ++d)
     {
-        double seasonalOffset{0.0};
-        if (m_Trend[d]->initialized())
-        {
-            seasonalOffset = CBasicStatistics::mean(
-                                 m_Trend[d]->baseline(time, 0.0, confidenceInterval));
-        }
+        double seasonalOffset{m_Trend[d]->initialized() ?
+                              CBasicStatistics::mean(
+                                      m_Trend[d]->baseline(time, confidenceInterval)) : 0.0};
 
+        weights.clear();
         weights.reserve(weights_.size());
         for (const auto &weight : weights_)
         {
@@ -2517,7 +2594,8 @@ uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_Trend);
     seed = CChecksum::calculate(seed, m_Prior);
-    return CChecksum::calculate(seed, m_AnomalyModel);
+    seed = CChecksum::calculate(seed, m_AnomalyModel);
+    return CChecksum::calculate(seed, m_SlidingWindow);
 }
 
 void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
@@ -2527,6 +2605,7 @@ void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryU
     core::CMemoryDebug::dynamicSize("m_Trend", m_Trend, mem);
     core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
+    core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
 }
 
 std::size_t CMultivariateTimeSeriesModel::memoryUsage(void) const
@@ -2534,58 +2613,100 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage(void) const
     return  core::CMemory::dynamicSize(m_Controllers)
           + core::CMemory::dynamicSize(m_Trend)
           + core::CMemory::dynamicSize(m_Prior)
-          + core::CMemory::dynamicSize(m_AnomalyModel);
+          + core::CMemory::dynamicSize(m_AnomalyModel)
+          + core::CMemory::dynamicSize(m_SlidingWindow);
 }
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                           core::CStateRestoreTraverser &traverser)
 {
-    do
+    if (traverser.name() == VERSION_6_3_TAG)
     {
-        const std::string &name{traverser.name()};
-        RESTORE_BOOL(IS_NON_NEGATIVE_TAG, m_IsNonNegative)
-        RESTORE_SETUP_TEARDOWN(CONTROLLER_TAG,
-                               m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
-                               core::CPersistUtils::restore(CONTROLLER_TAG, *m_Controllers, traverser),
-                               /**/)
-        RESTORE_SETUP_TEARDOWN(TREND_TAG,
-                               m_Trend.push_back(TDecompositionPtr()),
-                               traverser.traverseSubLevel(boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
-                                                                            boost::cref(params.s_DecompositionParams),
-                                                                            boost::ref(m_Trend.back()), _1)),
-                               /**/)
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
-                                                                        boost::cref(params.s_DistributionParams),
-                                                                        boost::ref(m_Prior), _1)))
-        RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_TAG,
-                               m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
-                               traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                                                      m_AnomalyModel.get(), boost::cref(params), _1)),
-                               /**/)
+        while (traverser.next())
+        {
+            const std::string &name{traverser.name()};
+            RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
+            RESTORE(RNG_6_3_TAG, m_Rng.fromString(traverser.value()))
+            RESTORE_SETUP_TEARDOWN(CONTROLLER_6_3_TAG,
+                                   m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                                   core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                                   /**/)
+            RESTORE_SETUP_TEARDOWN(TREND_6_3_TAG,
+                                   m_Trend.push_back(TDecompositionPtr()),
+                                   traverser.traverseSubLevel(boost::bind<bool>(
+                                           CTimeSeriesDecompositionStateSerialiser(),
+                                           boost::cref(params.s_DecompositionParams),
+                                           boost::ref(m_Trend.back()), _1)),
+                                   /**/)
+            RESTORE(PRIOR_6_3_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CPriorStateSerialiser(),
+                                           boost::cref(params.s_DistributionParams),
+                                           boost::ref(m_Prior), _1)))
+            RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_6_3_TAG,
+                                   m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                                   traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                                                                          m_AnomalyModel.get(), boost::cref(params), _1)),
+                                   /**/)
+            RESTORE(SLIDING_WINDOW_6_3_TAG,
+                    core::CPersistUtils::restore(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, traverser))
+        }
     }
-    while (traverser.next());
+    else
+    {
+        do
+        {
+            const std::string &name{traverser.name()};
+            RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
+            RESTORE_SETUP_TEARDOWN(CONTROLLER_OLD_TAG,
+                                   m_Controllers = boost::make_shared<TDecayRateController2Ary>(),
+                                   core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                                   /**/)
+            RESTORE_SETUP_TEARDOWN(TREND_OLD_TAG,
+                                   m_Trend.push_back(TDecompositionPtr()),
+                                   traverser.traverseSubLevel(boost::bind<bool>(
+                                           CTimeSeriesDecompositionStateSerialiser(),
+                                           boost::cref(params.s_DecompositionParams),
+                                           boost::ref(m_Trend.back()), _1)),
+                                   /**/)
+            RESTORE(PRIOR_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+                                           CPriorStateSerialiser(),
+                                           boost::cref(params.s_DistributionParams),
+                                           boost::ref(m_Prior), _1)))
+            RESTORE_SETUP_TEARDOWN(ANOMALY_MODEL_OLD_TAG,
+                                   m_AnomalyModel = boost::make_shared<CTimeSeriesAnomalyModel>(),
+                                   traverser.traverseSubLevel(boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                                                                          m_AnomalyModel.get(), boost::cref(params), _1)),
+                                   /**/)
+        }
+        while (traverser.next());
+    }
     return true;
 }
 
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
-    // Note we don't persist this->params() because that state is reinitialized.
-    inserter.insertValue(IS_NON_NEGATIVE_TAG, static_cast<int>(m_IsNonNegative));
+    // Note that we don't persist this->params() because that state
+    // is reinitialized.
+    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     if (m_Controllers)
     {
-        core::CPersistUtils::persist(CONTROLLER_TAG, *m_Controllers, inserter);
+        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
     for (const auto &trend : m_Trend)
     {
-        inserter.insertLevel(TREND_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                                          boost::cref(*trend), _1));
+        inserter.insertLevel(TREND_6_3_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                                               boost::cref(*trend), _1));
     }
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(), boost::cref(*m_Prior), _1));
+    inserter.insertLevel(PRIOR_6_3_TAG, boost::bind<void>(CPriorStateSerialiser(),
+                                                          boost::cref(*m_Prior), _1));
     if (m_AnomalyModel)
     {
-        inserter.insertLevel(ANOMALY_MODEL_TAG, boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                                            m_AnomalyModel.get(), _1));
+        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
+                             boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
+                                         m_AnomalyModel.get(), _1));
     }
+    core::CPersistUtils::persist(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, inserter);
 }
 
 maths_t::EDataType CMultivariateTimeSeriesModel::dataType(void) const
@@ -2593,7 +2714,12 @@ maths_t::EDataType CMultivariateTimeSeriesModel::dataType(void) const
     return m_Prior->dataType();
 }
 
-const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const
+const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeriesModel::slidingWindow(void) const
+{
+    return m_SlidingWindow;
+}
+
+const CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const
 {
     return m_Trend;
 }
@@ -2620,6 +2746,8 @@ CMultivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weight
         }
     }
 
+    // Time order is not reliable, for example if the data are polled
+    // or for count feature, the times of all samples will be the same.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -2632,40 +2760,50 @@ CMultivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weight
                      });
 
     EUpdateResult result{E_Success};
-    TDouble4Vec weight(weightStyles.size());
-
-    for (auto i : timeorder)
     {
-        core_t::TTime time{samples[i].first};
-        TDouble10Vec value(samples[i].second);
-        for (std::size_t d = 0u; d < dimension; ++d)
+        TDouble4Vec weight(weightStyles.size());
+        for (auto i : timeorder)
         {
-            for (std::size_t j = 0u; j < weights[i].size(); ++j)
+            core_t::TTime time{samples[i].first};
+            TDouble10Vec value(samples[i].second);
+            for (std::size_t d = 0u; d < dimension; ++d)
             {
-                weight[j] = weights[i][j][d];
-            }
-            if (m_Trend[d]->addPoint(time, value[d], weightStyles, weight))
-            {
-                result = E_Reset;
+                for (std::size_t j = 0u; j < weights[i].size(); ++j)
+                {
+                    weight[j] = weights[i][j][d];
+                }
+                if (m_Trend[d]->addPoint(time, value[d], weightStyles, weight))
+                {
+                    result = E_Reset;
+                }
             }
         }
     }
-
     if (result == E_Reset)
     {
-        if (initializePrior(this->params().bucketLength(),
-                            this->params().learnRate(), m_Trend, *m_Prior))
+        m_Prior->setToNonInformative(0.0, m_Prior->decayRate());
+        TDouble10Vec4Vec1Vec weight{{TDouble10Vec(
+                dimension, std::max(this->params().learnRate(),
+                                    5.0 / static_cast<double>(SLIDING_WINDOW_SIZE)))}};
+        for (const auto &value : m_SlidingWindow)
         {
-            m_Prior->decayRate(this->params().decayRate());
+            TDouble10Vec1Vec sample{TDouble10Vec(dimension)};
+            for (std::size_t i = 0u; i < dimension; ++i)
+            {
+                sample[0][i] = m_Trend[i]->detrend(value.first, value.second[i], 0.0);
+            }
+            m_Prior->addSamples(CConstantWeights::COUNT, sample, weight);
         }
         if (m_Controllers)
         {
-            for (auto &&trend : m_Trend)
+            m_Prior->decayRate(  m_Prior->decayRate()
+                               / (*m_Controllers)[E_PriorControl].multiplier());
+            for (auto &trend : m_Trend)
             {
                 trend->decayRate(  trend->decayRate()
                                  / (*m_Controllers)[E_TrendControl].multiplier());
             }
-            for (auto &&controller : *m_Controllers)
+            for (auto &controller : *m_Controllers)
             {
                 controller.reset();
             }

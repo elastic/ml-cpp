@@ -121,7 +121,7 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
         TDouble2Vec supportLower(support.first);
         TDouble2Vec supportUpper(support.second);
 
-        TDouble2Vec3Vec interval(model->confidenceInterval(time, WEIGHT_STYLES, weights, boundsPercentile));
+        TDouble2Vec3Vec interval(model->confidenceInterval(time, boundsPercentile, WEIGHT_STYLES, weights));
 
         if (interval.size() == 3)
         {

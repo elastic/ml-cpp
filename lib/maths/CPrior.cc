@@ -68,14 +68,12 @@ const std::size_t ADJUST_OFFSET_TRIALS = 20;
 }
 
 CPrior::CPrior(void) :
-        m_Forecasting(false),
         m_DataType(maths_t::E_DiscreteData),
         m_DecayRate(0.0),
         m_NumberSamples(0)
 {}
 
 CPrior::CPrior(maths_t::EDataType dataType, double decayRate) :
-        m_Forecasting(false),
         m_DataType(dataType),
         m_NumberSamples(0)
 {
@@ -84,20 +82,9 @@ CPrior::CPrior(maths_t::EDataType dataType, double decayRate) :
 
 void CPrior::swap(CPrior &other)
 {
-    std::swap(m_Forecasting, other.m_Forecasting);
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);
-}
-
-void CPrior::forForecasting(void)
-{
-    m_Forecasting = true;
-}
-
-bool CPrior::isForForecasting(void) const
-{
-    return m_Forecasting;
 }
 
 bool CPrior::isDiscrete(void) const
@@ -130,13 +117,13 @@ void CPrior::decayRate(double value)
     detail::setDecayRate(value, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-double CPrior::offsetMargin(void) const
-{
-    return 0.2;
-}
-
 void CPrior::removeModels(CModelFilter &/*filter*/)
 {
+}
+
+double CPrior::offsetMargin(void) const
+{
+    return 0.0;
 }
 
 void CPrior::addSamples(const TWeightStyleVec &weightStyles,
@@ -246,7 +233,6 @@ CPrior::SPlot CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double w
 
 uint64_t CPrior::checksum(uint64_t seed) const
 {
-    seed = CChecksum::calculate(seed, m_Forecasting);
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     return CChecksum::calculate(seed, m_NumberSamples);

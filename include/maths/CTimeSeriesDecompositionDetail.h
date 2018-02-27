@@ -24,44 +24,47 @@
 #include <maths/CSeasonalComponent.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/CTrendTests.h>
+#include <maths/CTrendComponent.h>
+#include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/ImportExport.h>
 
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <vector>
 
 namespace ml
 {
 namespace maths
 {
+class CExpandingWindow;
+class CTimeSeriesDecomposition;
 
 //! \brief Utilities for computing the decomposition.
 class MATHS_EXPORT CTimeSeriesDecompositionDetail
 {
     public:
+        using TPredictor = std::function<double (core_t::TTime)>;
         using TDoubleVec = std::vector<double>;
         using TTimeVec = std::vector<core_t::TTime>;
-        using TRegression = CRegression::CLeastSquaresOnline<3, double>;
-        using TRegressionParameterProcess = CRegression::CLeastSquaresOnlineParameterProcess<4, double>;
         class CMediator;
 
         //! \brief The base message passed.
         struct MATHS_EXPORT SMessage
         {
-            SMessage(void);
             SMessage(core_t::TTime time, core_t::TTime lastTime);
 
             //! The message time.
             core_t::TTime s_Time;
-
             //! The last update time.
             core_t::TTime s_LastTime;
         };
 
         //! \brief The message passed to add a point.
-        struct MATHS_EXPORT SAddValue : public SMessage
+        struct MATHS_EXPORT SAddValue : public SMessage,
+                                        private core::CNonCopyable
         {
             SAddValue(core_t::TTime time,
                       core_t::TTime lastTime,
@@ -69,82 +72,65 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                       const maths_t::TWeightStyleVec &weightStyles,
                       const maths_t::TDouble4Vec &weights,
                       double trend,
-                      double nonDiurnal,
                       double seasonal,
-                      double calendar);
+                      double calendar,
+                      const TPredictor &predictor,
+                      const CPeriodicityHypothesisTestsConfig &periodicityTestConfig);
+
             //! The value to add.
             double s_Value;
-            //! The styles of the weights. Both the count and the Winsorisation
-            //! weight styles have an effect. See maths_t::ESampleWeightStyle
-            //! for more details.
+            //! The styles of the weights.
             const maths_t::TWeightStyleVec &s_WeightStyles;
-            //! The weights of associated with the value. The smaller the count
-            //! weight the less influence the value has on the trend and it's
-            //! local variance.
+            //! The weights of associated with the value.
             const maths_t::TDouble4Vec &s_Weights;
             //! The trend component prediction at the value's time.
             double s_Trend;
-            //! The non daily/weekly seasonal components' prediction at the
-            //! value's time.
-            double s_NonDiurnal;
             //! The seasonal component prediction at the value's time.
             double s_Seasonal;
             //! The calendar component prediction at the value's time.
             double s_Calendar;
+            //! The predictor for value.
+            TPredictor s_Predictor;
+            //! The periodicity test configuration.
+            CPeriodicityHypothesisTestsConfig s_PeriodicityTestConfig;
         };
 
-        //! \brief The message passed to indicate a trend has been detected.
-        struct MATHS_EXPORT SDetectedTrend : public SMessage
+        //! \brief The message passed to indicate periodic components have
+        //! been detected.
+        struct MATHS_EXPORT SDetectedSeasonal : public SMessage
         {
-            SDetectedTrend(core_t::TTime time,
-                           core_t::TTime lastTime,
-                           const CTrendTest &test);
-            const CTrendTest &s_Test;
+            SDetectedSeasonal(core_t::TTime time,
+                              core_t::TTime lastTime,
+                              const CPeriodicityHypothesisTestsResult &result,
+                              const CExpandingWindow &window,
+                              const TPredictor &predictor);
+
+            //! The components found.
+            CPeriodicityHypothesisTestsResult s_Result;
+            //! The window tested.
+            const CExpandingWindow &s_Window;
+            //! The predictor for window values.
+            TPredictor s_Predictor;
         };
 
-        //! \brief The message passed to indicate diurnal periodic components
-        //! have been detected.
-        struct MATHS_EXPORT SDetectedDiurnal : public SMessage
-        {
-            SDetectedDiurnal(core_t::TTime time,
-                             core_t::TTime lastTime,
-                             const CPeriodicityTestResult &result,
-                             const CDiurnalPeriodicityTest &test);
-            CPeriodicityTestResult s_Result;
-            const CDiurnalPeriodicityTest &s_Test;
-        };
-
-        //! \brief The message passed to indicate general periodic components
-        //! have been detected.
-        struct MATHS_EXPORT SDetectedNonDiurnal : public SMessage
-        {
-            SDetectedNonDiurnal(core_t::TTime time,
-                                core_t::TTime lastTime,
-                                bool discardLongTermTrend,
-                                const CPeriodicityTestResult &result,
-                                const CGeneralPeriodicityTest &test);
-            bool s_DiscardLongTermTrend;
-            CPeriodicityTestResult s_Result;
-            const CGeneralPeriodicityTest &s_Test;
-        };
-
-        //! \brief The mssage passed to indicate calendar components have been
-        //! detected.
+        //! \brief The message passed to indicate calendar components have
+        //! been detected.
         struct MATHS_EXPORT SDetectedCalendar : public SMessage
         {
             SDetectedCalendar(core_t::TTime time,
                               core_t::TTime lastTime,
                               CCalendarFeature feature);
+
+            //! The calendar feature found.
             CCalendarFeature s_Feature;
         };
 
-        //! \brief The message passed to indicate new diurnal components are
-        //! being modeled.
+        //! \brief The message passed to indicate new components are being
+        //! modeled.
         struct MATHS_EXPORT SNewComponents : public SMessage
         {
             enum EComponent
             {
-                E_Trend,
                 E_DiurnalSeasonal,
                 E_GeneralSeasonal,
                 E_CalendarCyclic
@@ -169,14 +155,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Add a value.
                 virtual void handle(const SAddValue &message);
 
-                //! Handle when a trend is detected.
-                virtual void handle(const SDetectedTrend &message);
-
                 //! Handle when a diurnal component is detected.
-                virtual void handle(const SDetectedDiurnal &message);
-
-                //! Handle when a non-diurnal seasonal component is detected.
-                virtual void handle(const SDetectedNonDiurnal &message);
+                virtual void handle(const SDetectedSeasonal &message);
 
                 //! Handle when a calendar component is detected.
                 virtual void handle(const SDetectedCalendar &message);
@@ -221,12 +201,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 THandlerRefVec m_Handlers;
         };
 
-        //! \brief Tests for a long term trend.
-        class MATHS_EXPORT CLongTermTrendTest : public CHandler
+        //! \brief Scans through increasingly low frequencies looking for custom
+        //! diurnal and any other large amplitude seasonal components.
+        class MATHS_EXPORT CPeriodicityTest : public CHandler
         {
             public:
-                CLongTermTrendTest(double decayRate);
-                CLongTermTrendTest(const CLongTermTrendTest &other);
+                CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
+                CPeriodicityTest(const CPeriodicityTest &other);
 
                 //! Initialize by reading state from \p traverser.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -235,79 +216,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
                 //! Efficiently swap the state of this and \p other.
-                void swap(CLongTermTrendTest &other);
-
-                //! Update the test with a new value.
-                virtual void handle(const SAddValue &message);
-
-                //! Reset the test if still testing.
-                virtual void handle(const SNewComponents &message);
-
-                //! Check if the time series has shifted level.
-                void test(const SMessage &message);
-
-                //! Set the decay rate.
-                void decayRate(double decayRate);
-
-                //! Age the test to account for the interval \p end - \p start
-                //! elapsed time.
-                void propagateForwards(core_t::TTime start, core_t::TTime end);
-
-                //! Roll time forwards by \p skipInterval.
-                void skipTime(core_t::TTime skipInterval);
-
-                //! Get a checksum for this object.
-                uint64_t checksum(uint64_t seed = 0) const;
-
-                //! Debug the memory used by this object.
-                void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
-
-                //! Get the memory used by this object.
-                std::size_t memoryUsage(void) const;
-
-            private:
-                using TTrendTestPtr = boost::shared_ptr<CTrendTest>;
-
-            private:
-                //! Handle \p symbol.
-                void apply(std::size_t symbol, const SMessage &message);
-
-                //! Check if we should run a test.
-                bool shouldTest(core_t::TTime time);
-
-                //! Get the interval between tests.
-                core_t::TTime testInterval(void) const;
-
-            private:
-                //! The state machine.
-                core::CStateMachine m_Machine;
-
-                //! The maximum rate at which information is lost.
-                double m_MaximumDecayRate;
-
-                //! The next time to test for a long term trend.
-                core_t::TTime m_NextTestTime;
-
-                //! The test for a long term trend.
-                TTrendTestPtr m_Test;
-        };
-
-        //! \brief Tests for daily and weekly periodic components and weekend
-        //! weekday splits of the time series.
-        class MATHS_EXPORT CDiurnalTest : public CHandler
-        {
-            public:
-                CDiurnalTest(double decayRate, core_t::TTime bucketLength);
-                CDiurnalTest(const CDiurnalTest &other);
-
-                //! Initialize by reading state from \p traverser.
-                bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-
-                //! Persist state by passing information to \p inserter.
-                void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-
-                //! Efficiently swap the state of this and \p other.
-                void swap(CDiurnalTest &other);
+                void swap(CPeriodicityTest &other);
 
                 //! Update the test with a new value.
                 virtual void handle(const SAddValue &message);
@@ -316,107 +225,11 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 virtual void handle(const SNewComponents &message);
 
                 //! Test to see whether any seasonal components are present.
-                void test(const SMessage &message);
+                void test(const SAddValue &message);
 
                 //! Age the test to account for the interval \p end - \p start
                 //! elapsed time.
                 void propagateForwards(core_t::TTime start, core_t::TTime end);
-
-                //! Roll time forwards by \p skipInterval.
-                void skipTime(core_t::TTime skipInterval);
-
-                //! Get a checksum for this object.
-                uint64_t checksum(uint64_t seed = 0) const;
-
-                //! Debug the memory used by this object.
-                void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
-
-                //! Get the memory used by this object.
-                std::size_t memoryUsage(void) const;
-
-            private:
-                using TRandomizedPeriodicityTestPtr = boost::shared_ptr<CRandomizedPeriodicityTest>;
-                using TPeriodicityTestPtr = boost::shared_ptr<CDiurnalPeriodicityTest>;
-
-            private:
-                //! Handle \p symbol.
-                void apply(std::size_t symbol, const SMessage &message);
-
-                //! Check if we should run a test.
-                bool shouldTest(core_t::TTime time);
-
-                //! Get the interval between tests.
-                core_t::TTime testInterval(void) const;
-
-                //! Get the time at which to time out the regular test.
-                core_t::TTime timeOutRegularTest(void) const;
-
-                //! Account for memory that is not yet allocated
-                //! during the initial state
-                std::size_t extraMemoryOnInitialization(void) const;
-
-            private:
-                //! The state machine.
-                core::CStateMachine m_Machine;
-
-                //! Controls the rate at which information is lost.
-                double m_DecayRate;
-
-                //! The raw data bucketing interval.
-                core_t::TTime m_BucketLength;
-
-                //! The next time to test for periodic components.
-                core_t::TTime m_NextTestTime;
-
-                //! The time at which we began regular testing.
-                core_t::TTime m_StartedRegularTest;
-
-                //! The time at which we switch to the small test to save memory.
-                core_t::TTime m_TimeOutRegularTest;
-
-                //! The test for periodic components.
-                TPeriodicityTestPtr m_RegularTest;
-
-                //! A small but slower test for periodic components that is used
-                //! after a while if the regular test is inconclusive.
-                TRandomizedPeriodicityTestPtr m_SmallTest;
-
-                //! The result of the last test for periodic components.
-                CPeriodicityTestResult m_Periods;
-        };
-
-        //! \brief Scans through increasingly low frequencies looking for the
-        //! the largest amplitude seasonal components.
-        class MATHS_EXPORT CNonDiurnalTest : public CHandler
-        {
-            public:
-                CNonDiurnalTest(double decayRate, core_t::TTime bucketLength);
-                CNonDiurnalTest(const CNonDiurnalTest &other);
-
-                //! Initialize by reading state from \p traverser.
-                bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-
-                //! Persist state by passing information to \p inserter.
-                void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-
-                //! Efficiently swap the state of this and \p other.
-                void swap(CNonDiurnalTest &other);
-
-                //! Update the test with a new value.
-                virtual void handle(const SAddValue &message);
-
-                //! Reset the test.
-                virtual void handle(const SNewComponents &message);
-
-                //! Test to see whether any seasonal components are present.
-                void test(const SMessage &message);
-
-                //! Age the test to account for the interval \p end - \p start
-                //! elapsed time.
-                void propagateForwards(core_t::TTime start, core_t::TTime end);
-
-                //! Roll time forwards by \p skipInterval.
-                void skipTime(core_t::TTime skipInterval);
 
                 //! Get a checksum for this object.
                 uint64_t checksum(uint64_t seed = 0) const;
@@ -429,16 +242,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
             private:
                 using TTimeAry = boost::array<core_t::TTime, 2>;
-                using TScanningPeriodicityTestPtr = boost::shared_ptr<CScanningPeriodicityTest>;
-                using TScanningPeriodicityTestPtrAry = boost::array<TScanningPeriodicityTestPtr, 2>;
+                using TExpandingWindowPtr = boost::shared_ptr<CExpandingWindow>;
+                using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
 
                 //! Test types (categorised as short and long period tests).
                 enum ETest { E_Short, E_Long };
 
             private:
-                //! The size of the periodicity test.
-                static const std::size_t TEST_SIZE;
-
                 //! The bucket lengths to use to test for short period components.
                 static const TTimeVec SHORT_BUCKET_LENGTHS;
 
@@ -447,12 +257,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
             private:
                 //! Handle \p symbol.
-                void apply(std::size_t symbol,
-                           const SMessage &message,
-                           const TTimeAry &offsets = {{345600, 345600}}); // 4 * DAY
+                void apply(std::size_t symbol, const SMessage &message);
+
+                //! Check if we should run the periodicity test on \p window.
+                bool shouldTest(const TExpandingWindowPtr &window, core_t::TTime time) const;
 
                 //! Get a new \p test. (Warning owned by the caller.)
-                CScanningPeriodicityTest *newTest(ETest test) const;
+                CExpandingWindow *newWindow(ETest test) const;
 
                 //! Account for memory that is not yet allocated
                 //! during the initial state
@@ -468,8 +279,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! The raw data bucketing interval.
                 core_t::TTime m_BucketLength;
 
-                //! The test for arbitrary periodic components.
-                TScanningPeriodicityTestPtrAry m_Tests;
+                //! Expanding windows on the "recent" time series values.
+                TExpandingWindowPtrAry m_Windows;
         };
 
         //! \brief Tests for cyclic calendar components explaining large prediction
@@ -501,9 +312,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Age the test to account for the interval \p end - \p start
                 //! elapsed time.
                 void propagateForwards(core_t::TTime start, core_t::TTime end);
-
-                //! Roll time forwards to \p time.
-                void advanceTimeTo(core_t::TTime time);
 
                 //! Get a checksum for this object.
                 uint64_t checksum(uint64_t seed = 0) const;
@@ -542,66 +350,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
                 //! The test for arbitrary periodic components.
                 TCalendarCyclicTestPtr m_Test;
-        };
-
-        //! \brief A reference to the long term trend.
-        class MATHS_EXPORT CTrendCRef
-        {
-            public:
-                using TMatrix = CSymmetricMatrixNxN<double, 4>;
-
-            public:
-                CTrendCRef(void);
-                CTrendCRef(const TRegression &regression,
-                           double variance,
-                           core_t::TTime timeOrigin,
-                           core_t::TTime lastUpdate,
-                           const TRegressionParameterProcess &process);
-
-                //! Check if the trend has been initialized.
-                bool initialized(void) const;
-
-                //! Get the count of values added to the trend.
-                double count(void) const;
-
-                //! Predict the long term trend at \p time with confidence
-                //! interval \p confidence.
-                maths_t::TDoubleDoublePr prediction(core_t::TTime time, double confidence) const;
-
-                //! Get the variance about the long term trend.
-                double variance(void) const;
-
-                //! Get the covariance matrix of the regression parameters'
-                //! at \p time.
-                //!
-                //! \param[out] result Filled in with the regression parameters'
-                //! covariance matrix.
-                bool covariances(TMatrix &result) const;
-
-                //! Get the variance in the prediction due to drift in the
-                //! regression model parameters expected by \p time.
-                double varianceDueToParameterDrift(core_t::TTime time) const;
-
-                //! Get the time at which to evaluate the regression model
-                //! of the trend.
-                double time(core_t::TTime time) const;
-
-            private:
-                //! The regression model of the trend.
-                const TRegression *m_Trend;
-
-                //! The variance of the prediction residuals.
-                double m_Variance;
-
-                //! The origin of the time coordinate system.
-                core_t::TTime m_TimeOrigin;
-
-                //! The time of the last update of the regression model.
-                core_t::TTime m_LastUpdate;
-
-                //! The Wiener process which describes the evolution of the
-                //! regression model parameters.
-                const TRegressionParameterProcess *m_ParameterProcess;
         };
 
         //! \brief Holds and updates the components of the decomposition.
@@ -643,51 +391,51 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Update the components with a new value.
                 virtual void handle(const SAddValue &message);
 
-                //! Create a new trend component.
-                virtual void handle(const SDetectedTrend &message);
-
-                //! Create new diurnal components.
-                virtual void handle(const SDetectedDiurnal &message);
-
-                //! Create new general seasonal component.
-                virtual void handle(const SDetectedNonDiurnal &message);
+                //! Create new seasonal components.
+                virtual void handle(const SDetectedSeasonal &message);
 
                 //! Create a new calendar component.
                 virtual void handle(const SDetectedCalendar &message);
 
                 //! Maybe re-interpolate the components.
-                void interpolate(const SMessage &message);
+                void interpolate(const SMessage &message, bool refine = true);
 
                 //! Set the decay rate.
                 void decayRate(double decayRate);
+
+                //! Get the decay rate.
+                double decayRate(void) const;
 
                 //! Age the components to account for the interval \p end - \p start
                 //! elapsed time.
                 void propagateForwards(core_t::TTime start, core_t::TTime end);
 
-                //! Check if we're forecasting.
-                bool forecasting(void) const;
-
-                //! Start forecasting.
-                void forecast(void);
-
                 //! Check if the decomposition has any initialized components.
                 bool initialized(void) const;
 
                 //! Get the long term trend.
-                CTrendCRef trend(void) const;
+                const CTrendComponent &trend(void) const;
 
-                //! Get the components.
+                //! Get the seasonal components.
                 const maths_t::TSeasonalComponentVec &seasonal(void) const;
 
                 //! Get the calendar components.
                 const maths_t::TCalendarComponentVec &calendar(void) const;
+
+                //! Return true if we're using the trend for prediction.
+                bool usingTrendForPrediction(void) const;
+
+                //! Get configuration for the periodicity test.
+                CPeriodicityHypothesisTestsConfig periodicityTestConfig(void) const;
 
                 //! Get the mean value of the baseline in the vicinity of \p time.
                 double meanValue(core_t::TTime time) const;
 
                 //! Get the mean variance of the baseline.
                 double meanVariance(void) const;
+
+                //! Get the mean error variance scale for the components.
+                double meanVarianceScale(void) const;
 
                 //! Get a checksum for this object.
                 uint64_t checksum(uint64_t seed = 0) const;
@@ -704,7 +452,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
                 using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
                 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-                using TVector = CVectorNx1<double, 4>;
 
                 //! \brief Tracks prediction errors with and without components.
                 //!
@@ -759,45 +506,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 using TComponentErrorsVec = std::vector<CComponentErrors>;
                 using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
-                //! \brief The long term trend.
-                struct MATHS_EXPORT STrend
-                {
-                    STrend(void);
-
-                    //! Initialize by reading state from \p traverser.
-                    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-
-                    //! Persist state by passing information to \p inserter.
-                    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-
-                    //! Get a reference to this trend.
-                    CTrendCRef reference(void) const;
-
-                    //! Shift the regression's time origin to \p time.
-                    void shiftOrigin(core_t::TTime time);
-
-                    //! Get a checksum for this object.
-                    uint64_t checksum(uint64_t seed = 0) const;
-
-                    //! The regression model of the trend.
-                    TRegression s_Regression;
-
-                    //! The variance of the trend.
-                    double s_Variance;
-
-                    //! The origin of the time coordinate system.
-                    core_t::TTime s_TimeOrigin;
-
-                    //! The time of the last update of the regression model.
-                    core_t::TTime s_LastUpdate;
-
-                    //! The Wiener process which describes the evolution of the
-                    //! regression model parameters.
-                    TRegressionParameterProcess s_ParameterProcess;
-                };
-
-                using TTrendPtr = boost::shared_ptr<STrend>;
-
                 //! \brief The seasonal components of the decomposition.
                 struct MATHS_EXPORT SSeasonal
                 {
@@ -818,9 +526,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
                     //! Get the combined size of the seasonal components.
                     std::size_t size(void) const;
-
-                    //! Check if there is already a component with \p period.
-                    bool haveComponent(core_t::TTime period) const;
 
                     //! Get the state to update.
                     void componentsErrorsAndDeltas(core_t::TTime time,
@@ -928,14 +633,15 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 std::size_t maxSize(void) const;
 
                 //! Add new seasonal components to \p components.
-                void addSeasonalComponents(const CPeriodicityTest &test,
-                                           const CPeriodicityTestResult &result,
-                                           core_t::TTime time,
+                bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult &result,
+                                           const CExpandingWindow &window,
+                                           const TPredictor &predictor,
+                                           CTrendComponent &trend,
                                            maths_t::TSeasonalComponentVec &components,
                                            TComponentErrorsVec &errors) const;
 
                 //! Add a new calendar component to \p components.
-                void addCalendarComponent(const CCalendarFeature &feature,
+                bool addCalendarComponent(const CCalendarFeature &feature,
                                           core_t::TTime time,
                                           maths_t::TCalendarComponentVec &components,
                                           TComponentErrorsVec &errors) const;
@@ -980,7 +686,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 std::size_t m_CalendarComponentSize;
 
                 //! The long term trend.
-                TTrendPtr m_Trend;
+                CTrendComponent m_Trend;
 
                 //! The seasonal components.
                 TSeasonalPtr m_Seasonal;
@@ -988,28 +694,26 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! The calendar components.
                 TCalendarPtr m_Calendar;
 
+                //! The mean error variance scale for the components.
+                TFloatMeanAccumulator m_MeanVarianceScale;
+
+                //! The moments of the values added.
+                TMeanVarAccumulator m_Moments;
+
+                //! The moments of the values added after subtracting a trend.
+                TMeanVarAccumulator m_MomentsMinusTrend;
+
+                //! Set to true if the trend model should be used for prediction.
+                bool m_UsingTrendForPrediction;
+
                 //! Set to true if non-null when the seasonal components change.
                 bool *m_Watcher;
         };
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CLongTermTrendTest &lhs,
-                 CTimeSeriesDecompositionDetail::CLongTermTrendTest &rhs)
-{
-    lhs.swap(rhs);
-}
-
-//! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CDiurnalTest &lhs,
-                 CTimeSeriesDecompositionDetail::CDiurnalTest &rhs)
-{
-    lhs.swap(rhs);
-}
-
-//! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CNonDiurnalTest &lhs,
-                 CTimeSeriesDecompositionDetail::CNonDiurnalTest &rhs)
+inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest &lhs,
+                 CTimeSeriesDecompositionDetail::CPeriodicityTest &rhs)
 {
     lhs.swap(rhs);
 }

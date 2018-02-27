@@ -43,9 +43,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         //! Get the decay rate.
         virtual double decayRate(void) const;
 
-        //! No-op.
-        virtual void forForecasting(void);
-
         //! Returns false.
         virtual bool initialized(void) const;
 
@@ -58,18 +55,22 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         //! No-op.
         virtual void propagateForwardsTo(core_t::TTime time);
 
-        //! No-op returning false.
-        virtual bool testAndInterpolate(core_t::TTime time);
-
         //! Returns 0.
         virtual double mean(core_t::TTime time) const;
 
         //! Returns (0.0, 0.0).
         virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                                  double predictionConfidence = 0.0,
-                                                  double forecastConfidence = 0.0,
-                                                  EComponents components = E_All,
+                                                  double confidence = 0.0,
+                                                  int components = E_All,
                                                   bool smooth = true) const;
+
+        //! Clears \p result.
+        virtual void forecast(core_t::TTime startTime,
+                              core_t::TTime endTime,
+                              core_t::TTime step,
+                              double confidence,
+                              double minimumScale,
+                              TDouble3VecVec &result);
 
         //! Returns \p value.
         virtual double detrend(core_t::TTime time, double value, double confidence) const;

@@ -80,15 +80,6 @@ struct MODEL_EXPORT SModelParams
     //! feature.
     std::string s_MultivariateComponentDelimiter;
 
-    //! The log-normal prior offset.
-    double s_LogNormalOffset;
-
-    //! The gamma prior offset.
-    double s_GammaOffset;
-
-    //! The Poisson prior offset.
-    double s_PoissonOffset;
-
     //! The rate at which the model learns per bucket.
     double s_LearnRate;
 

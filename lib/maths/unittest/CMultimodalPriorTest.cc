@@ -65,16 +65,11 @@ typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
 COneOfNPrior makeModePrior(const double &decayRate = 0.0)
 {
     CGammaRateConjugate gamma(
-            maths::CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData,
-                                                            0.01,
-                                                            decayRate));
+            maths::CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.01, decayRate, 0.0));
     CLogNormalMeanPrecConjugate logNormal(
-            maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
-                                                                    0.01,
-                                                                    decayRate));
+            maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.01, decayRate, 0.0));
     CNormalMeanPrecConjugate normal(
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
-                                                                 decayRate));
+            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, decayRate));
 
     COneOfNPrior::TPriorPtrVec priors;
     priors.push_back(COneOfNPrior::TPriorPtr(gamma.clone()));
@@ -459,7 +454,7 @@ void CMultimodalPriorTest::testSingleMode(void)
                   << ", differential entropy " << differentialEntropy);
 
         CPPUNIT_ASSERT(  maths::CBasicStatistics::mean(L1G)
-                       / maths::CBasicStatistics::mean(differentialEntropy) < 0.05);
+                       / maths::CBasicStatistics::mean(differentialEntropy) < 0.1);
     }
 }
 

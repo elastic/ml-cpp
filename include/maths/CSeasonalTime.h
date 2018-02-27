@@ -39,12 +39,15 @@ namespace maths
 class MATHS_EXPORT CSeasonalTime
 {
     public:
-        typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
+        using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
     public:
         CSeasonalTime(void);
-        CSeasonalTime(core_t::TTime period);
-        virtual ~CSeasonalTime(void);
+        CSeasonalTime(core_t::TTime period, double precedence);
+        virtual ~CSeasonalTime(void) = default;
+
+        //! A total order on seasonal times.
+        bool operator<(const CSeasonalTime &rhs) const;
 
         //! Get a copy of this time.
         //!
@@ -124,15 +127,12 @@ class MATHS_EXPORT CSeasonalTime
         double fractionInWindow(void) const;
         //@}
 
-        //! Get the decay rate scaled from \p fromPeriod period to
-        //! \p toPeriod period.
-        //!
-        //! \param[in] decayRate The decay rate for \p fromPeriod.
-        //! \param[in] fromPeriod The period of \p decayRate.
-        //! \param[in] toPeriod The desired period decay rate.
-        static double scaleDecayRate(double decayRate,
-                                     core_t::TTime fromPeriod,
-                                     core_t::TTime toPeriod);
+        //! Check whether this time's seasonal component time excludes
+        //! modeling \p other's.
+        bool excludes(const CSeasonalTime &other) const;
+
+        //! True if this has a weekend and false otherwise.
+        virtual bool hasWeekend(void) const = 0;
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const = 0;
@@ -155,6 +155,9 @@ class MATHS_EXPORT CSeasonalTime
         //! The origin of the time coordinates used to maintain
         //! a reasonably conditioned Gramian of the design matrix.
         core_t::TTime m_RegressionOrigin;
+        //! The precedence of the corresponding component when
+        //! deciding which to keep amongst alternatives.
+        double m_Precedence;
 };
 
 //! \brief Provides times for daily and weekly period seasonal
@@ -166,7 +169,8 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
         CDiurnalTime(core_t::TTime startOfWeek,
                      core_t::TTime windowStart,
                      core_t::TTime windowEnd,
-                     core_t::TTime period);
+                     core_t::TTime period,
+                     double precedence = 1.0);
 
         //! Get a copy of this time.
         CDiurnalTime *clone(void) const;
@@ -189,6 +193,9 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
         //! Get the end of the window.
         virtual core_t::TTime windowEnd(void) const;
 
+        //! True if this has a weekend and false otherwise.
+        virtual bool hasWeekend(void) const;
+
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
 
@@ -210,8 +217,8 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
 class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime
 {
     public:
-        CGeneralPeriodTime(void);
-        CGeneralPeriodTime(core_t::TTime period);
+        CGeneralPeriodTime(void) = default;
+        CGeneralPeriodTime(core_t::TTime period, double precedence = 1.0);
 
         //! Get a copy of this time.
         CGeneralPeriodTime *clone(void) const;
@@ -234,6 +241,9 @@ class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime
         //! Returns the period.
         virtual core_t::TTime windowEnd(void) const;
 
+        //! Returns false.
+        virtual bool hasWeekend(void) const;
+
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed = 0) const;
 
@@ -253,7 +263,7 @@ class MATHS_EXPORT CSeasonalTimeStateSerializer
     public:
         //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
         //! base class.
-        typedef boost::shared_ptr<CSeasonalTime> TSeasonalTimePtr;
+        using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
 
     public:
         //! Construct the appropriate CSeasonalTime sub-class from its state

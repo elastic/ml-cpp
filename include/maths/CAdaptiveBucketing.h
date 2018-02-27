@@ -80,12 +80,10 @@ namespace maths
 class MATHS_EXPORT CAdaptiveBucketing
 {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<CFloatStorage> TFloatVec;
-        typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TDoubleMeanVarAccumulator;
-        typedef std::pair<TTimeTimePr, TDoubleMeanVarAccumulator> TTimeTimePrMeanVarPr;
-        typedef std::vector<TTimeTimePrMeanVarPr> TTimeTimePrMeanVarPrVec;
+        using TDoubleVec = std::vector<double>;
+        using TFloatVec = std::vector<CFloatStorage>;
+        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
     public:
         //! Restore by traversing a state document
@@ -116,14 +114,17 @@ class MATHS_EXPORT CAdaptiveBucketing
         //! \param[in] n The number of buckets.
         bool initialize(double a, double b, std::size_t n);
 
-        //! Add the function moments \f$([a_i,b_i], S_i)\f$ where
-        //! \f$S_i\f$ are the means and variances of the function
-        //! in the time intervals \f$([a_i,b_i])\f$.
+        //! Add the function mean values \f$([a_i,b_i], m_i)\f$ where
+        //! \f$m_i\f$ are the means of the function in the time intervals
+        //! \f$([a+(i-1)l,b+il])\f$, \f$i\in[n]\f$ and \f$l=(b-a)/n\f$.
         //!
-        //! \param[in] time The start of the period including \p values.
-        //! \param[in] values Time ranges and the corresponding function
-        //! value moments.
-        void initialValues(core_t::TTime time, const TTimeTimePrMeanVarPrVec &values);
+        //! \param[in] startTime The start of the period.
+        //! \param[in] endTime The start of the period.
+        //! \param[in] values The mean values in a regular subdivision
+        //! of [\p start,\p end].
+        void initialValues(core_t::TTime startTime,
+                           core_t::TTime endTime,
+                           const TFloatMeanAccumulatorVec &values);
 
         //! Get the number of buckets.
         std::size_t size(void) const;
@@ -205,20 +206,17 @@ class MATHS_EXPORT CAdaptiveBucketing
         std::size_t memoryUsage(void) const;
 
     private:
-        typedef CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator TFloatMeanAccumulator;
-
-    private:
         //! Compute the values corresponding to the change in end
         //! points from \p endpoints. The values are assigned based
         //! on their intersection with each bucket in the previous
         //! bucket configuration.
         virtual void refresh(const TFloatVec &endpoints) = 0;
 
+        //! Check if \p time is in the this component's window.
+        virtual bool inWindow(core_t::TTime time) const = 0;
+
         //! Add the function value at \p time.
-        virtual void add(std::size_t bucket,
-                         core_t::TTime time,
-                         double offset,
-                         const TDoubleMeanVarAccumulator &value) = 0;
+        virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
 
         //! Get the offset w.r.t. the start of the bucketing of \p time.
         virtual double offset(core_t::TTime time) const = 0;

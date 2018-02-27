@@ -725,6 +725,29 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
 
         //! Shift \p x to the right by \p eps times \p x.
         static double shiftRight(double x, double eps = std::numeric_limits<double>::epsilon());
+
+        //! Sigmoid function of \p p.
+        static double sigmoid(double p)
+        {
+            return 1.0 / (1.0 + 1.0 / p);
+        }
+
+        //! A smooth Heaviside function centred at one.
+        //!
+        //! This is a smooth version of the Heaviside function implemented
+        //! as \f$sigmoid\left(\frac{sign (x - 1)}{wb}\right)\f$ normalized
+        //! to the range [0, 1], where \f$b\f$ is \p boundary and \f$w\f$
+        //! is \p width. Note, if \p sign is one this is a step up and if
+        //! it is -1 it is a step down.
+        //!
+        //! \param[in] x The argument.
+        //! \param[in] width The step width.
+        //! \param[in] sign Determines whether it's a step up or down.
+        static double smoothHeaviside(double x, double width, double sign = 1.0)
+        {
+            return  sigmoid(std::exp(sign * (x - 1.0) / width))
+                  / sigmoid(std::exp(1.0 / width));
+        }
 };
 
 }

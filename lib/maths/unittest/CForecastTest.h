@@ -18,19 +18,34 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <core/CoreTypes.h>
+
+#include <functional>
+
 class CForecastTest : public CppUnit::TestFixture
 {
     public:
-        void testDailyNoLongTermTrend(void);
-        void testDailyConstantLongTermTrend(void);
-        void testDailyVaryingLongTermTrend(void);
-        void testComplexNoLongTermTrend(void);
-        void testComplexConstantLongTermTrend(void);
-        void testComplexVaryingLongTermTrend(void);
-        void testNonNegative(void);
-        void testFinancialIndex(void);
+        void testDailyNoLongTermTrend();
+        void testDailyConstantLongTermTrend();
+        void testDailyVaryingLongTermTrend();
+        void testComplexNoLongTermTrend();
+        void testComplexConstantLongTermTrend();
+        void testComplexVaryingLongTermTrend();
+        void testNonNegative();
+        void testFinancialIndex();
 
-        static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite();
+
+    private:
+        using TTrend = std::function<double (ml::core_t::TTime, double)>;
+
+    private:
+        void test(TTrend trend,
+                  ml::core_t::TTime bucketLength,
+                  std::size_t daysToLearn,
+                  double noiseVariance,
+                  double maximumPercentageOutOfBounds,
+                  double maximumError);
 };
 
 #endif // INCLUDED_CForecastTest_h
