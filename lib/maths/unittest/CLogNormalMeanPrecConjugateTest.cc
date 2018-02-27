@@ -55,10 +55,10 @@ typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAc
 typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
 
 CLogNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
-                                       const double &offset = 0.0,
-                                       const double &decayRate = 0.0)
+                                      const double &offset = 0.0,
+                                      const double &decayRate = 0.0)
 {
-    return CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, offset, decayRate);
+    return CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, offset, decayRate, 0.0);
 }
 
 }
@@ -1907,12 +1907,9 @@ void CLogNormalMeanPrecConjugateTest::testNegativeSample(void)
     rng.generateLogNormalSamples(location, squareScale, 100, samples);
 
     CLogNormalMeanPrecConjugate filter1 =
-            CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0);
+            CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, 0.0, 0.2);
     CLogNormalMeanPrecConjugate filter2 =
-            CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 1.74524);
-
-    filter1.setOffset(0.2);
-    filter2.setOffset(0.2);
+            CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 1.74524, 0.0, 0.2);
 
     filter1.addSamples(samples);
     filter2.addSamples(samples);

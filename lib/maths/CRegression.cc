@@ -23,7 +23,5 @@ namespace regression_detail
 {
 const double CMaxCondition<CFloatStorage>::VALUE = 1e7;
 }
-
-const double CRegression::MINIMUM_RANGE_TO_PREDICT = 1.0;
 }
 }

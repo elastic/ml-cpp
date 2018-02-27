@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ml_TestUtils_h
 #define INCLUDED_ml_TestUtils_h
 
+#include <core/CoreTypes.h>
 #include <core/CSmallVector.h>
 
 #include <maths/CLinearAlgebra.h>
@@ -24,26 +25,29 @@
 #include <maths/CPrior.h>
 
 #include <cstddef>
+#include <cmath>
 
 namespace ml
 {
 namespace handy_typedefs
 {
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef core::CSmallVector<TDouble10Vec, 1> TDouble10Vec1Vec;
-typedef core::CSmallVector<TDouble10Vec, 4> TDouble10Vec4Vec;
-typedef core::CSmallVector<TDouble10Vec, 10> TDouble10Vec10Vec;
-typedef core::CSmallVector<TDouble10Vec4Vec, 1> TDouble10Vec4Vec1Vec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 3> TVector3;
-typedef maths::CSymmetricMatrixNxN<double, 3> TMatrix3;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TDouble4Vec = core::CSmallVector<double, 4>;
+using TDouble10Vec = core::CSmallVector<double, 10>;
+using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
+using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
+using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
+using TDouble10Vec10Vec = core::CSmallVector<TDouble10Vec, 10>;
+using TDouble10Vec4Vec1Vec = core::CSmallVector<TDouble10Vec4Vec, 1>;
+using TVector2 = maths::CVectorNx1<double, 2>;
+using TVector2Vec = std::vector<TVector2>;
+using TVector2VecVec = std::vector<TVector2Vec>;
+using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+using TMatrix2Vec = std::vector<TMatrix2>;
+using TVector3 = maths::CVectorNx1<double, 3>;
+using TMatrix3 = maths::CSymmetricMatrixNxN<double, 3>;
+using TGenerator = double (*)(core_t::TTime);
+using TGeneratorVec = std::vector<TGenerator>;
 }
 
 //! \brief A set of test and utility functions for use in testing only.
@@ -53,10 +57,10 @@ typedef maths::CSymmetricMatrixNxN<double, 3> TMatrix3;
 class CPriorTestInterface
 {
     public:
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef core::CSmallVector<TDoubleDoublePr, 1> TDoubleDoublePr1Vec;
-        typedef maths_t::TWeightStyleVec TWeightStyleVec;
-        typedef maths::CConstantWeights TWeights;
+        using TDoubleDoublePr = std::pair<double, double>;
+        using TDoubleDoublePr1Vec = core::CSmallVector<TDoubleDoublePr, 1>;
+        using TWeightStyleVec = maths_t::TWeightStyleVec;
+        using TWeights = maths::CConstantWeights;
 
     public:
         explicit CPriorTestInterface(maths::CPrior &prior);
@@ -173,17 +177,13 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
     public:
         CPriorTestInterfaceMixin(const PRIOR &prior) :
             PRIOR(prior),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)),
-            m_Offset(0.0)
-        {
-        }
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
+        {}
 
         CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin &other) :
             PRIOR(static_cast<const PRIOR&>(other)),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)),
-            m_Offset(0.0)
-        {
-        }
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
+        {}
 
         virtual ~CPriorTestInterfaceMixin(void) {}
 
@@ -193,39 +193,11 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
             this->PRIOR::swap(other);
         }
 
-        //! Overload assignment.
-        CPriorTestInterfaceMixin &operator=(const CPriorTestInterfaceMixin &other)
-        {
-            if (this != &other)
-            {
-                // This intentionally slices! We don't want to copy the
-                // CPriorTestInterface state.
-                static_cast<PRIOR&>(*this) = static_cast<const PRIOR&>(other);
-                m_Offset = other.m_Offset;
-            }
-            return *this;
-        }
-
         //! Clone the object.
         virtual CPriorTestInterfaceMixin *clone(void) const
         {
             return new CPriorTestInterfaceMixin(*this);
         }
-
-        //! Set the offset margin.
-        void setOffset(double offset)
-        {
-            m_Offset = offset;
-        }
-
-    private:
-        //! Override to zero for nearly all testing.
-        virtual double offsetMargin(void) const
-        {
-            return m_Offset;
-        }
-
-        double m_Offset;
 };
 
 
@@ -256,6 +228,7 @@ class CVarianceKernel
         double m_Mean;
 };
 
+//! \brief A constant unit kernel.
 template<std::size_t N>
 class CUnitKernel
 {
@@ -269,7 +242,7 @@ class CUnitKernel
         {
             m_X[0].assign(x.begin(), x.end());
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, result);
-            result = ::exp(result);
+            result = std::exp(result);
             return true;
         }
 
@@ -284,7 +257,7 @@ class CUnitKernel
 template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
-
+//! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
 class CMeanKernel
 {
@@ -300,7 +273,7 @@ class CMeanKernel
             m_X[0].assign(x.begin(), x.end());
             double likelihood;
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);
-            likelihood = ::exp(likelihood);
+            likelihood = std::exp(likelihood);
             result = x * likelihood;
             return true;
         }
@@ -316,7 +289,7 @@ class CMeanKernel
 template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
-
+//! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>
 class CCovarianceKernel
 {
@@ -334,7 +307,7 @@ class CCovarianceKernel
             m_X[0].assign(x.begin(), x.end());
             double likelihood;
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);
-            likelihood = ::exp(likelihood);
+            likelihood = std::exp(likelihood);
             result = (x - m_Mean).outer() * likelihood;
             return true;
         }
@@ -350,6 +323,33 @@ class CCovarianceKernel
 
 template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CCovarianceKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+
+//! A constant function.
+double constant(core_t::TTime time);
+
+//! A linear ramp.
+double ramp(core_t::TTime time);
+
+//! A Markov process.
+double markov(core_t::TTime time);
+
+//! Smooth daily periodic.
+double smoothDaily(core_t::TTime time);
+
+//! Smooth weekly periodic.
+double smoothWeekly(core_t::TTime time);
+
+//! Spikey daily periodic.
+double spikeyDaily(core_t::TTime time);
+
+//! Spikey weekly periodic.
+double spikeyWeekly(core_t::TTime time);
+
+//! Weekday/weekend periodic.
+double weekends(core_t::TTime time);
+
+//! Scales time input to \p generator.
+double scale(double scale, core_t::TTime time, handy_typedefs::TGenerator generator);
 
 }
 

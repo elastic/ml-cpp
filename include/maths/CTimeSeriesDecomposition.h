@@ -16,7 +16,6 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 #define INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 
-#include <maths/CBasicStatistics.h>
 #include <maths/CTimeSeriesDecompositionDetail.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/ImportExport.h>
@@ -34,6 +33,7 @@ class CStateRestoreTraverser;
 }
 namespace maths
 {
+class CPrior;
 
 //! \brief Decomposes a time series into a linear combination
 //! of periodic functions and a stationary random process.
@@ -63,8 +63,6 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
 {
     public:
         using TSizeVec = std::vector<std::size_t>;
-        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1u>;
-        using TMaxAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 
     public:
         //! The default size to use for the seasonal components.
@@ -106,9 +104,6 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! Get the decay rate.
         virtual double decayRate(void) const;
 
-        //! Switch to using this trend to forecast.
-        virtual void forForecasting(void);
-
         //! Check if the decomposition has any initialized components.
         virtual bool initialized(void) const;
 
@@ -132,30 +127,35 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! Propagate the decomposition forwards to \p time.
         void propagateForwardsTo(core_t::TTime time);
 
-        //! May be test to see if there are any new seasonal components
-        //! and interpolate.
-        //!
-        //! \param[in] time The current time.
-        //! \return True if the number of seasonal components changed
-        //! and false otherwise.
-        virtual bool testAndInterpolate(core_t::TTime time);
-
         //! Get the mean value of the baseline in the vicinity of \p time.
         virtual double mean(core_t::TTime time) const;
 
         //! Get the value of the time series baseline at \p time.
         //!
         //! \param[in] time The time of interest.
-        //! \param[in] predictionConfidence The symmetric confidence interval
-        //! for the prediction the baseline as a percentage.
-        //! \param[in] forecastConfidence The symmetric confidence interval
-        //! for long range forecasts as a percentage.
+        //! \param[in] confidence The symmetric confidence interval for the prediction
+        //! the baseline as a percentage.
         //! \param[in] components The components to include in the baseline.
         virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                                  double predictionConfidence = 0.0,
-                                                  double forecastConfidence = 0.0,
-                                                  EComponents components = E_All,
+                                                  double confidence = 0.0,
+                                                  int components = E_All,
                                                   bool smooth = true) const;
+
+        //! Forecast from \p start to \p end at \p dt intervals.
+        //!
+        //! \param[in] startTime The start of the forecast.
+        //! \param[in] endTime The end of the forecast.
+        //! \param[in] step The time increment.
+        //! \param[in] confidence The forecast confidence interval.
+        //! \param[in] minimumScale The minimum permitted seasonal scale.
+        //! \param[in] result Filled in with the forecast lower bound, prediction
+        //! and upper bound.
+        virtual void forecast(core_t::TTime startTime,
+                              core_t::TTime endTime,
+                              core_t::TTime step,
+                              double confidence,
+                              double minimumScale,
+                              TDouble3VecVec &result);
 
         //! Detrend \p value from the time series being modeled by removing
         //! any trend and periodic component at \p time.
@@ -207,23 +207,20 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! Create from part of a state document.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
-        //! Check if we are forecasting the model.
-        bool forecasting(void) const;
-
         //! The correction to produce a smooth join between periodic
         //! repeats and partitions.
         template<typename F>
         maths_t::TDoubleDoublePr smooth(const F &f,
                                         core_t::TTime time,
-                                        EComponents components) const;
+                                        int components) const;
 
         //! Check if \p component has been selected.
         bool selected(core_t::TTime time,
-                      EComponents components,
+                      int components,
                       const CSeasonalComponent &component) const;
 
         //! Check if \p components match \p component.
-        bool matches(EComponents components, const CSeasonalComponent &component) const;
+        bool matches(int components, const CSeasonalComponent &component) const;
 
     private:
         //! The time over which discontinuities between weekdays
@@ -231,9 +228,6 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         static const core_t::TTime SMOOTHING_INTERVAL;
 
     private:
-        //! Controls the rate at which information is lost.
-        double m_DecayRate;
-
         //! The time of the latest value added.
         core_t::TTime m_LastValueTime;
 
@@ -244,22 +238,14 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! components.
         TMediatorPtr m_Mediator;
 
-        //! The test for a large time scale smooth trend.
-        CLongTermTrendTest m_LongTermTrendTest;
-
-        //! The test for daily and weekly seasonal components.
-        CDiurnalTest m_DiurnalTest;
-
-        //! The test for general seasonal components.
-        CNonDiurnalTest m_GeneralSeasonalityTest;
+        //! The test for seasonal components.
+        CPeriodicityTest m_PeriodicityTest;
 
         //! The test for calendar cyclic components.
         CCalendarTest m_CalendarCyclicTest;
 
         //! The state for modeling the components of the decomposition.
         CComponents m_Components;
-
-        friend class ::CTimeSeriesDecompositionTest;
 };
 
 }

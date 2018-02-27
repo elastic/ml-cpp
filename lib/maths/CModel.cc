@@ -478,9 +478,9 @@ CModelStub::TDouble2Vec CModelStub::predict(core_t::TTime /*time*/,
 }
 
 CModelStub::TDouble2Vec3Vec CModelStub::confidenceInterval(core_t::TTime /*time*/,
+                                                           double /*confidenceInterval*/,
                                                            const maths_t::TWeightStyleVec &/*weightStyles*/,
-                                                           const TDouble2Vec4Vec &/*weights*/,
-                                                           double /*confidence*/) const
+                                                           const TDouble2Vec4Vec &/*weights*/) const
 {
     return TDouble2Vec3Vec();
 }

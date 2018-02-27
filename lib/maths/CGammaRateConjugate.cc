@@ -881,19 +881,22 @@ CGammaRateConjugate::CGammaRateConjugate(maths_t::EDataType dataType,
                                          double offset,
                                          double shape,
                                          double rate,
-                                         double decayRate) :
+                                         double decayRate,
+                                         double offsetMargin) :
         CPrior(dataType, decayRate),
         m_Offset(offset),
+        m_OffsetMargin(offsetMargin),
         m_LikelihoodShape(1.0),
         m_PriorShape(shape),
         m_PriorRate(rate)
-{
-}
+{}
 
 CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams &params,
-                                         core::CStateRestoreTraverser &traverser) :
+                                         core::CStateRestoreTraverser &traverser,
+                                         double offsetMargin) :
         CPrior(params.s_DataType, 0.0),
         m_Offset(0.0),
+        m_OffsetMargin(offsetMargin),
         m_LikelihoodShape(1.0),
         m_PriorShape(0.0),
         m_PriorRate(0.0)
@@ -928,12 +931,12 @@ bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser &t
 
 CGammaRateConjugate CGammaRateConjugate::nonInformativePrior(maths_t::EDataType dataType,
                                                              double offset,
-                                                             double decayRate)
+                                                             double decayRate,
+                                                             double offsetMargin)
 {
-    return CGammaRateConjugate(dataType, offset,
-                               NON_INFORMATIVE_SHAPE,
-                               NON_INFORMATIVE_RATE,
-                               decayRate);
+    return CGammaRateConjugate(dataType, offset + offsetMargin,
+                               NON_INFORMATIVE_SHAPE, NON_INFORMATIVE_RATE,
+                               decayRate, offsetMargin);
 }
 
 CGammaRateConjugate::EPrior CGammaRateConjugate::type(void) const
@@ -949,7 +952,14 @@ CGammaRateConjugate *CGammaRateConjugate::clone(void) const
 void CGammaRateConjugate::setToNonInformative(double offset,
                                               double decayRate)
 {
-    *this = nonInformativePrior(this->dataType(), offset, decayRate);
+    *this = nonInformativePrior(this->dataType(),
+                                offset + this->offsetMargin(),
+                                decayRate, this->offsetMargin());
+}
+
+double CGammaRateConjugate::offsetMargin(void) const
+{
+    return m_OffsetMargin;
 }
 
 bool CGammaRateConjugate::needsOffset(void) const

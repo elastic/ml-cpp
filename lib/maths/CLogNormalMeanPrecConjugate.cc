@@ -751,9 +751,11 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType data
                                                          double gaussianPrecision,
                                                          double gammaShape,
                                                          double gammaRate,
-                                                         double decayRate/*= 0.0*/) :
+                                                         double decayRate,
+                                                         double offsetMargin) :
         CPrior(dataType, decayRate),
         m_Offset(offset),
+        m_OffsetMargin(offsetMargin),
         m_GaussianMean(gaussianMean),
         m_GaussianPrecision(gaussianPrecision),
         m_GammaShape(gammaShape),
@@ -761,9 +763,11 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType data
 {}
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRestoreParams &params,
-                                                         core::CStateRestoreTraverser &traverser) :
+                                                         core::CStateRestoreTraverser &traverser,
+                                                         double offsetMargin) :
         CPrior(params.s_DataType, params.s_DecayRate),
         m_Offset(0.0),
+        m_OffsetMargin(offsetMargin),
         m_GaussianMean(0.0),
         m_GaussianPrecision(0.0),
         m_GammaShape(0.0),
@@ -798,14 +802,13 @@ bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTrav
 
 CLogNormalMeanPrecConjugate CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::EDataType dataType,
                                                                              double offset,
-                                                                             double decayRate)
+                                                                             double decayRate,
+                                                                             double offsetMargin)
 {
-    return CLogNormalMeanPrecConjugate(dataType, offset,
-                                       NON_INFORMATIVE_MEAN,
-                                       NON_INFORMATIVE_PRECISION,
-                                       NON_INFORMATIVE_SHAPE,
-                                       NON_INFORMATIVE_RATE,
-                                       decayRate);
+    return CLogNormalMeanPrecConjugate(dataType, offset + offsetMargin,
+                                       NON_INFORMATIVE_MEAN, NON_INFORMATIVE_PRECISION,
+                                       NON_INFORMATIVE_SHAPE, NON_INFORMATIVE_RATE,
+                                       decayRate, offsetMargin);
 }
 
 CLogNormalMeanPrecConjugate::EPrior CLogNormalMeanPrecConjugate::type(void) const
@@ -821,7 +824,14 @@ CLogNormalMeanPrecConjugate *CLogNormalMeanPrecConjugate::clone(void) const
 void CLogNormalMeanPrecConjugate::setToNonInformative(double offset,
                                                       double decayRate)
 {
-    *this = nonInformativePrior(this->dataType(), offset, decayRate);
+    *this = nonInformativePrior(this->dataType(),
+                                offset + this->offsetMargin(),
+                                decayRate, this->offsetMargin());
+}
+
+double CLogNormalMeanPrecConjugate::offsetMargin(void) const
+{
+    return m_OffsetMargin;
 }
 
 bool CLogNormalMeanPrecConjugate::needsOffset(void) const

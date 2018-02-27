@@ -125,7 +125,7 @@ class MATHS_EXPORT CRegression
                 static const std::string STATISTIC_TAG;
 
             public:
-                CLeastSquaresOnline(void) : m_S() {}
+                CLeastSquaresOnline() : m_S() {}
                 template<typename U>
                 CLeastSquaresOnline(const CLeastSquaresOnline<N_, U> &other) :
                     m_S(other.statistic())
@@ -166,12 +166,30 @@ class MATHS_EXPORT CRegression
                     return *this;
                 }
 
+                //! Differences two regressions.
+                //!
+                //! This creates a regression which is fit on just the points
+                //! add to this and not \p rhs.
+                //!
+                //! \param[in] rhs The regression fit to combine.
+                //! \note This is only meaningful if they have the same time
+                //! origin and the values added to \p rhs are a subset of the
+                //! values add to this.
+                template<typename U>
+                const CLeastSquaresOnline &operator-=(const CLeastSquaresOnline<N_, U> &rhs)
+                {
+                    m_S -= rhs.statistic();
+                    return *this;
+                }
+
                 //! Combines two regressions.
                 //!
                 //! This creates the regression fit on the points fit with
-                //! \p lhs and the points fit with this regression.
+                //! \p rhs and the points fit with this regression.
                 //!
                 //! \param[in] rhs The regression fit to combine.
+                //! \note This is only meaningful if they have the same time
+                //! origin.
                 template<typename U>
                 const CLeastSquaresOnline &operator+=(const CLeastSquaresOnline<N_, U> &rhs)
                 {
@@ -240,6 +258,9 @@ class MATHS_EXPORT CRegression
                     return *this;
                 }
 
+                //! Get the predicted value at \p x.
+                double predict(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
+
                 //! Get the regression parameters.
                 //!
                 //! i.e. The intercept, slope, curvature, etc.
@@ -248,17 +269,16 @@ class MATHS_EXPORT CRegression
                 //! the Gramian this will consider solving. If the condition
                 //! is worse than this it'll fit a lower order polynomial.
                 //! \param[out] result Filled in with the regression parameters.
-                bool parameters(TArray &result,
-                                double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
+                bool parameters(TArray &result, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
                 //! Get the predicted value of the regression parameters at \p x.
                 //!
                 //! \note Returns array of zeros if getting the parameters fails.
-                TArray parameters(double x) const
+                TArray parameters(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const
                 {
                     TArray result;
                     TArray params;
-                    if (this->parameters(params))
+                    if (this->parameters(params, maxCondition))
                     {
                         std::ptrdiff_t n = static_cast<std::ptrdiff_t>(params.size());
                         double xi = x;
@@ -301,17 +321,17 @@ class MATHS_EXPORT CRegression
 
                 //! Get the safe prediction horizon based on the spread
                 //! of the abscissa added to the model so far.
-                double range(void) const
+                double range() const
                 {
+                    // The magic 12 comes from assuming the independent
+                    // variable X is uniform over the range (for our uses
+                    // it typically is). We maintain mean X^2 and X. For
+                    // a uniform variable on a range [a, b] we have that
+                    // E[(X - E(X))^2] = E[X^2] - E[X]^2 = (b - a)^2 / 12.
+
                     double x1 = CBasicStatistics::mean(m_S)(1);
                     double x2 = CBasicStatistics::mean(m_S)(2);
-                    return ::sqrt(12.0 * std::max(x2 - x1 * x1, 0.0));
-                }
-
-                //! Check if the regression has sufficient history to predict.
-                bool sufficientHistoryToPredict(void) const
-                {
-                    return this->range() >= MINIMUM_RANGE_TO_PREDICT;
+                    return std::sqrt(12.0 * std::max(x2 - x1 * x1, 0.0));
                 }
 
                 //! Age out the old points.
@@ -330,13 +350,13 @@ class MATHS_EXPORT CRegression
                 }
 
                 //! Get the effective number of points being fitted.
-                double count(void) const
+                double count() const
                 {
                     return CBasicStatistics::count(m_S);
                 }
 
                 //! Get the mean value of the ordinates.
-                double mean(void) const
+                double mean() const
                 {
                     return CBasicStatistics::mean(m_S)(2*N-1);
                 }
@@ -377,19 +397,19 @@ class MATHS_EXPORT CRegression
                 }
 
                 //! Get the vector statistic.
-                const TVectorMeanAccumulator &statistic(void) const
+                const TVectorMeanAccumulator &statistic() const
                 {
                     return m_S;
                 }
 
                 //! Get a checksum for this object.
-                std::uint64_t checksum(void) const
+                std::uint64_t checksum() const
                 {
                     return m_S.checksum();
                 }
 
                 //! Print this regression out for debug.
-                std::string print(void) const;
+                std::string print() const;
 
             private:
                 //! Get the first \p n regression parameters.
@@ -430,17 +450,9 @@ class MATHS_EXPORT CRegression
         };
 
         //! Get the predicted value of \p r at \p x.
-        template<std::size_t N, typename T>
-        static double predict(const CLeastSquaresOnline<N, T> &r, double x)
+        template<std::size_t N>
+        static double predict(const boost::array<double, N> &params, double x)
         {
-            if (!r.sufficientHistoryToPredict())
-            {
-                return r.mean();
-            }
-
-            typename CLeastSquaresOnline<N, T>::TArray params;
-            r.parameters(params);
-
             double result = params[0];
             double xi = x;
             for (std::size_t i = 1u; i < params.size(); ++i, xi *= x)
@@ -457,6 +469,7 @@ class MATHS_EXPORT CRegression
         {
             public:
                 using TVector = CVectorNx1<T, N>;
+                using TMatrix = CSymmetricMatrixNxN<T, N>;
 
             public:
                 static const std::string UNIT_TIME_COVARIANCES_TAG;
@@ -499,6 +512,9 @@ class MATHS_EXPORT CRegression
                     m_UnitTimeCovariances.age(factor);
                 }
 
+                //! Get the process covariance matrix.
+                TMatrix covariance() const;
+
                 //! Compute the variance of the mean zero normal distribution
                 //! due to the drift in the regression parameters over \p time.
                 double predictionVariance(double time) const
@@ -523,10 +539,10 @@ class MATHS_EXPORT CRegression
                 }
 
                 //! Get a checksum for this object.
-                uint64_t checksum(void) const;
+                uint64_t checksum() const;
 
                 //! Print this process out for debug.
-                std::string print(void) const;
+                std::string print() const;
 
             private:
                 using TCovarianceAccumulator = CBasicStatistics::SSampleCovariances<T, N>;
@@ -536,12 +552,15 @@ class MATHS_EXPORT CRegression
                 //! covariance matrix.
                 TCovarianceAccumulator m_UnitTimeCovariances;
         };
-
-    private:
-        //! The minimum range of the predictor variable for which we'll
-        //! forward predict using the higher order terms.
-        static const double MINIMUM_RANGE_TO_PREDICT;
 };
+
+template<std::size_t N, typename T>
+double CRegression::CLeastSquaresOnline<N, T>::predict(double x, double maxCondition) const
+{
+    TArray params;
+    this->parameters(params, maxCondition);
+    return CRegression::predict(params, x);
+}
 
 template<std::size_t N_, typename T>
 const std::string CRegression::CLeastSquaresOnline<N_, T>::STATISTIC_TAG("a");

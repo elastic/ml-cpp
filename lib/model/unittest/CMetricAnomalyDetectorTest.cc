@@ -443,7 +443,7 @@ void CMetricAnomalyDetectorTest::testPersist(void)
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Event rate detector XML representation:\n" << origXml);
+    LOG_TRACE("Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
     model::CAnomalyDetector restoredDetector(1, // identifier

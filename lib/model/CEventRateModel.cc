@@ -799,7 +799,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
                 value_ += correction;
                 this->currentBucketInterimCorrections().emplace(
                           core::make_triple(feature, pid, params.s_Correlated[i]),
-                          TDouble1Vec(1, correction[params.s_Variables[i][0]]));
+                          TDouble1Vec{correction[params.s_Variables[i][0]]});
             }
         }
     }

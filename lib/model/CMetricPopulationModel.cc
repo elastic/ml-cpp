@@ -382,7 +382,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
         const TTimeVec &attributeLastBucketTimes = this->attributeLastBucketTimes();
 
-        for (auto &&featureData_ : featureData)
+        for (auto &featureData_ : featureData)
         {
             model_t::EFeature feature = featureData_.first;
             std::size_t dimension = model_t::dimension(feature);
@@ -406,7 +406,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         fuzzy[cid].add(TDouble2Vec(sample.value(dimension)));
                     }
                 }
-                for (auto &&fuzzy_ : fuzzy)
+                for (auto &fuzzy_ : fuzzy)
                 {
                     fuzzy_.second.computeEpsilons(bucketLength,
                                                   this->params().s_MinimumToDeduplicate);
@@ -441,7 +441,6 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         // multiple times (once per person)
                         attributeLastBucketTimesMap[cid] = sampleTime;
                     }
-
                     continue;
                 }
 
@@ -460,7 +459,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 }
 
                 std::size_t n = std::count_if(samples.begin(), samples.end(),
-                                              [cutoff](const CSample &sample) { return sample.time() >= cutoff; });
+                                              [cutoff](const CSample &sample)
+                                              { return sample.time() >= cutoff; });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
                 double countWeight =  this->sampleRateWeight(pid, cid)
                                     * this->learnRate(feature)
@@ -494,13 +494,13 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     {
                         attribute.s_Values.emplace_back(sample.time(), value, pid);
                         attribute.s_TrendWeights.push_back(
-                                TDouble2Vec4Vec{TDouble2Vec(dimension, countWeight / vs),
-                                                model->winsorisationWeight(1.0, sample.time(), value),
-                                                TDouble2Vec(dimension, vs)});
+                                {TDouble2Vec(dimension, countWeight / vs),
+                                 model->winsorisationWeight(1.0, sample.time(), value),
+                                 TDouble2Vec(dimension, vs)});
                         attribute.s_PriorWeights.push_back(
-                                TDouble2Vec4Vec{TDouble2Vec(dimension, countWeight),
-                                                model->winsorisationWeight(1.0, sample.time(), value),
-                                                TDouble2Vec(dimension, vs)});
+                                {TDouble2Vec(dimension, countWeight),
+                                 model->winsorisationWeight(1.0, sample.time(), value),
+                                 TDouble2Vec(dimension, vs)});
                     }
                 }
             }

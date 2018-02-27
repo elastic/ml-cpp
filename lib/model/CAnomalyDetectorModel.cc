@@ -101,8 +101,8 @@ bool checkScheduledEvents(const SModelParams::TStrDetectionRulePrVec &scheduledE
 }
 
 CAnomalyDetectorModel::CAnomalyDetectorModel(const SModelParams &params,
-                                           const TDataGathererPtr &dataGatherer,
-                                           const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators) :
+                                             const TDataGathererPtr &dataGatherer,
+                                             const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators) :
         m_Params(params),
         m_DataGatherer(dataGatherer),
         m_BucketCount(0.0),
@@ -150,7 +150,7 @@ const std::string &CAnomalyDetectorModel::personName(std::size_t pid) const
 }
 
 const std::string &CAnomalyDetectorModel::personName(std::size_t pid,
-                                      const std::string &fallback) const
+                                                     const std::string &fallback) const
 {
     return m_DataGatherer->personName(pid, fallback);
 }

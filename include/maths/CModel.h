@@ -356,9 +356,9 @@ class MATHS_EXPORT CModel
         //! Get the prediction and \p confidenceInterval percentage
         //! confidence interval for the time series at \p time.
         virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                                   double confidenceInterval,
                                                    const maths_t::TWeightStyleVec &weightStyles,
-                                                   const TDouble2Vec4Vec &weights,
-                                                   double confidenceInterval) const = 0;
+                                                   const TDouble2Vec4Vec &weights) const = 0;
 
         //! Forecast the time series and get its \p confidenceInterval
         //! percentage confidence interval between \p startTime and
@@ -516,9 +516,9 @@ class MATHS_EXPORT CModelStub : public CModel
 
         //! Returns empty.
         virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                                   double confidenceInterval,
                                                    const maths_t::TWeightStyleVec &weightStyles,
-                                                   const TDouble2Vec4Vec &weights,
-                                                   double percentage) const;
+                                                   const TDouble2Vec4Vec &weights) const;
         //! Returns empty.
         virtual bool forecast(core_t::TTime startTime,
                               core_t::TTime endTime,

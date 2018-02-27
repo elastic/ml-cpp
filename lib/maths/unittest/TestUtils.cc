@@ -21,6 +21,8 @@
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
+#include <cmath>
+
 namespace ml
 {
 using namespace maths;
@@ -28,6 +30,9 @@ using namespace handy_typedefs;
 
 namespace
 {
+const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
+const core_t::TTime DAY{core::constants::DAY};
+const core_t::TTime WEEK{core::constants::WEEK};
 
 //! \brief Computes the c.d.f. of the prior minus the target supplied
 //! to its constructor at specific locations.
@@ -68,11 +73,11 @@ class CCdf : public std::unary_function<double, double>
 
             switch (m_Style)
             {
-            case E_Lower:         return ::exp(-lowerBound) - m_Target;
-            case E_Upper:         return ::exp(-upperBound) - m_Target;
-            case E_GeometricMean: return ::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
+            case E_Lower:         return std::exp(-lowerBound) - m_Target;
+            case E_Upper:         return std::exp(-upperBound) - m_Target;
+            case E_GeometricMean: return std::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
             }
-            return ::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
+            return std::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
         }
 
     private:
@@ -348,6 +353,104 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double &result) cons
     }
 
     return true;
+}
+
+double constant(core_t::TTime /*time*/)
+{
+    return 4.0;
+}
+
+double ramp(core_t::TTime time)
+{
+    return 0.1 * static_cast<double>(time) / static_cast<double>(WEEK);
+}
+
+double markov(core_t::TTime time)
+{
+    static double state{0.2};
+    if (time % WEEK == 0)
+    {
+        core::CHashing::CMurmurHash2BT<core_t::TTime> hasher;
+        state =  2.0 * static_cast<double>(hasher(time))
+                     / static_cast<double>(std::numeric_limits<std::size_t>::max());
+    }
+    return state;
+}
+
+double smoothDaily(core_t::TTime time)
+{
+    return std::sin(  boost::math::double_constants::two_pi
+                    * static_cast<double>(time)
+                    / static_cast<double>(DAY));
+}
+
+double smoothWeekly(core_t::TTime time)
+{
+    return std::sin(  boost::math::double_constants::two_pi
+                    * static_cast<double>(time)
+                    / static_cast<double>(WEEK));
+}
+
+double spikeyDaily(core_t::TTime time)
+{
+    double pattern[]
+        {
+            1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1
+        };
+    return pattern[(time % DAY) / HALF_HOUR];
+}
+
+double spikeyWeekly(core_t::TTime time)
+{
+    double pattern[]
+        {
+            1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+            0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1
+        };
+    return pattern[(time % WEEK) / HALF_HOUR];
+}
+
+double weekends(core_t::TTime time)
+{
+    double amplitude[] = { 1.0, 0.9, 0.8, 0.9, 1.1, 0.2, 0.05 };
+    return amplitude[(time % WEEK) / DAY]
+           * std::sin(  boost::math::double_constants::two_pi
+                      * static_cast<double>(time)
+                      / static_cast<double>(DAY));
+}
+
+double scale(double scale, core_t::TTime time, TGenerator generator)
+{
+    return generator(static_cast<core_t::TTime>(scale * static_cast<double>(time)));
 }
 
 }

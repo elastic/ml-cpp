@@ -289,6 +289,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
     // This might be worth considering at some point.
 
     using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TDoubleMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     std::size_t m{m_Values.size()};
     std::size_t n{endpoints.size()};
@@ -390,12 +391,14 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints)
     m_Centres.swap(centres);
 }
 
-void CCalendarComponentAdaptiveBucketing::add(std::size_t bucket,
-                                              core_t::TTime /*time*/,
-                                              double /*offset*/,
-                                              const TDoubleMeanVarAccumulator &value)
+bool CCalendarComponentAdaptiveBucketing::inWindow(core_t::TTime time) const
 {
-    m_Values[bucket] += value;
+    return m_Feature.inWindow(time);
+}
+
+void CCalendarComponentAdaptiveBucketing::add(std::size_t bucket, core_t::TTime /*time*/, double value, double weight)
+{
+    m_Values[bucket].add(value, weight);
 }
 
 double CCalendarComponentAdaptiveBucketing::offset(core_t::TTime time) const
