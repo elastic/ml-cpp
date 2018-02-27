@@ -38,8 +38,7 @@ class CSeasonalTime;
 class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucketing
 {
     public:
-        typedef CAdaptiveBucketing::TTimeTimePrMeanVarPrVec TTimeTimePrMeanVarPrVec;
-        typedef CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator TFloatMeanVarAccumulator;
+        using TFloatMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
 
     public:
         CCalendarComponentAdaptiveBucketing(void);
@@ -151,7 +150,7 @@ class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucket
         //@}
 
     private:
-        typedef std::vector<TFloatMeanVarAccumulator> TFloatMeanVarVec;
+        using TFloatMeanVarVec = std::vector<TFloatMeanVarAccumulator>;
 
     private:
         //! Restore by traversing a state document
@@ -165,11 +164,11 @@ class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucket
         //! \param[in] endpoints The old end points.
         void refresh(const TFloatVec &endpoints);
 
+        //! Check if \p time is in the this component's window.
+        virtual bool inWindow(core_t::TTime time) const;
+
         //! Add the function value to \p bucket.
-        virtual void add(std::size_t bucket,
-                         core_t::TTime time,
-                         double offset,
-                         const TDoubleMeanVarAccumulator &value);
+        virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
 
         //! Get the offset w.r.t. the start of the bucketing of \p time.
         virtual double offset(core_t::TTime time) const;

@@ -521,10 +521,9 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void)
     params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MaximumUpdatesPerBucket = 0.0;
     CMetricPopulationModelFactory factory(params);
-    CModelFactory::TFeatureVec features;
-    features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
+    CModelFactory::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
+                                        model_t::E_PopulationMinByPersonAndAttribute,
+                                        model_t::E_PopulationMaxByPersonAndAttribute};
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));

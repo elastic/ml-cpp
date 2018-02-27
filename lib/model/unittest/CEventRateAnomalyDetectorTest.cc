@@ -220,7 +220,7 @@ void importData(ml::core_t::TTime firstTime,
 
 void CEventRateAnomalyDetectorTest::testAnomalies(void)
 {
-    static const size_t            EXPECTED_ANOMALOUS_HOURS(13);
+    static const size_t            EXPECTED_ANOMALOUS_HOURS(12);
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(1800);
@@ -231,16 +231,16 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
-                                   ml::model::function_t::E_IndividualRareCount,
-                                   false,
-                                   ml::model_t::E_XF_None,
-                                   EMPTY_STRING, "status");
+                              ml::model::function_t::E_IndividualRareCount,
+                              false,
+                              ml::model_t::E_XF_None,
+                              EMPTY_STRING, "status");
     ml::model::CAnomalyDetector detector(1, // identifier
-                                              limits,
-                                              modelConfig,
-                                              EMPTY_STRING,
-                                              FIRST_TIME,
-                                              modelConfig.factory(key));
+                                         limits,
+                                         modelConfig,
+                                         EMPTY_STRING,
+                                         FIRST_TIME,
+                                         modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
     files.push_back("testfiles/status200.txt");
@@ -254,13 +254,11 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
 
     const TTimeDoubleMap &anomalyScores = writer.anomalyScores();
     TTimeVec peaks;
-    for (TTimeDoubleMapCItr itr = anomalyScores.begin();
-         itr != anomalyScores.end();
-         ++itr)
+    for (const auto &score : anomalyScores)
     {
-        if (itr->second > HIGH_ANOMALY_SCORE)
+        if (score.second > HIGH_ANOMALY_SCORE)
         {
-            peaks.push_back(itr->first);
+            peaks.push_back(score.first);
         }
     }
 
@@ -322,15 +320,15 @@ void CEventRateAnomalyDetectorTest::testPersist(void)
         inserter.toXml(origXml);
     }
 
-    LOG_DEBUG("Event rate detector XML representation:\n" << origXml);
+    LOG_TRACE("Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
     ml::model::CAnomalyDetector restoredDetector(1, // identifier
-                                                      limits,
-                                                      modelConfig,
-                                                      "",
-                                                      0,
-                                                      modelConfig.factory(key));
+                                                 limits,
+                                                 modelConfig,
+                                                 "",
+                                                 0,
+                                                 modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));

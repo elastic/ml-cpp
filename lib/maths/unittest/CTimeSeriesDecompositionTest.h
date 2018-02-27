@@ -13,7 +13,7 @@ class CTimeSeriesDecompositionTest : public CppUnit::TestFixture
 {
     public:
         void testSuperpositionOfSines(void);
-        void testMinimizeComponents(void);
+        void testDistortedPeriodic(void);
         void testMinimizeLongComponents(void);
         void testWeekend(void);
         void testSinglePeriodicity(void);
@@ -21,7 +21,7 @@ class CTimeSeriesDecompositionTest : public CppUnit::TestFixture
         void testVarianceScale(void);
         void testSpikeyDataProblemCase(void);
         void testDiurnalProblemCase(void);
-        void testThirtyMinuteSamplingProblemCase(void);
+        void testComplexDiurnalProblemCase(void);
         void testDiurnalPeriodicityWithMissingValues(void);
         void testLongTermTrend(void);
         void testLongTermTrendAndPeriodicity(void);
@@ -31,6 +31,7 @@ class CTimeSeriesDecompositionTest : public CppUnit::TestFixture
         void testConditionOfTrend(void);
         void testSwap(void);
         void testPersist(void);
+        void testUpgrade(void);
 
         static CppUnit::Test *suite(void);
 };

@@ -23,6 +23,7 @@ class CSeasonalComponentAdaptiveBucketingTest : public CppUnit::TestFixture
         void testShiftValue(void);
         void testSlope(void);
         void testPersist(void);
+        void testUpgrade(void);
 
         static CppUnit::Test *suite(void);
 };

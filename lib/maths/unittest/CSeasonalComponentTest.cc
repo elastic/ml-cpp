@@ -62,12 +62,6 @@ class CTestSeasonalComponent : public maths::CSeasonalComponent
                 m_StartTime(startTime)
         {}
 
-        bool initialize(core_t::TTime time)
-        {
-            TTimeTimePrMeanVarPrVec empty;
-            return this->maths::CSeasonalComponent::initialize(time, time, empty);
-        }
-
         void addPoint(core_t::TTime time,
                       double value,
                       double weight = 1.0)
@@ -167,7 +161,7 @@ void CSeasonalComponentTest::testNoPeriodicity(void)
     double residualMean = maths::CBasicStatistics::mean(residuals);
 
     CTestSeasonalComponent seasonal(startTime, core::constants::DAY, core::constants::DAY, 24);
-    seasonal.initialize(startTime);
+    seasonal.initialize();
 
     //std::ofstream file;
     //file.open("results.m");
@@ -275,7 +269,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
         double residualMean = maths::CBasicStatistics::mean(residuals);
 
         CTestSeasonalComponent seasonal(startTime, core::constants::DAY, core::constants::DAY, 24, 0.01);
-        seasonal.initialize(startTime);
+        seasonal.initialize();
 
         //std::ofstream file;
         //file.open("results.m");
@@ -344,7 +338,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
         totalError2 /= 30.0;
         LOG_DEBUG("totalError1 = " << totalError1);
         LOG_DEBUG("totalError2 = " << totalError2);
-        CPPUNIT_ASSERT(totalError1 < 0.6);
+        CPPUNIT_ASSERT(totalError1 < 0.5);
         CPPUNIT_ASSERT(totalError2 < 0.01);
     }
 
@@ -421,7 +415,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
         double residualMean = maths::CBasicStatistics::mean(residuals);
 
         CTestSeasonalComponent seasonal(startTime, core::constants::DAY, core::constants::DAY, 24, 0.01);
-        seasonal.initialize(startTime);
+        seasonal.initialize();
 
         //std::ofstream file;
         //file.open("results.m");
@@ -473,7 +467,7 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
                 LOG_DEBUG("error1 = " << error1);
                 LOG_DEBUG("error2 = " << error2);
                 CPPUNIT_ASSERT(error1 < 11.0);
-                CPPUNIT_ASSERT(error2 < 4.5);
+                CPPUNIT_ASSERT(error2 < 4.6);
                 totalError1 += error1;
                 totalError2 += error2;
 
@@ -491,8 +485,8 @@ void CSeasonalComponentTest::testConstantPeriodic(void)
         totalError2 /= 40.0;
         LOG_DEBUG("totalError1 = " << totalError1);
         LOG_DEBUG("totalError2 = " << totalError2);
-        CPPUNIT_ASSERT(totalError1 < 6.4);
-        CPPUNIT_ASSERT(totalError2 < 3.1);
+        CPPUNIT_ASSERT(totalError1 < 7.3);
+        CPPUNIT_ASSERT(totalError2 < 4.2);
     }
 }
 
@@ -565,7 +559,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic(void)
     test::CRandomNumbers rng;
 
     CTestSeasonalComponent seasonal(startTime, core::constants::DAY, core::constants::DAY, 24, 0.048);
-    seasonal.initialize(startTime);
+    seasonal.initialize();
 
     core_t::TTime time = startTime;
 
@@ -633,7 +627,7 @@ void CSeasonalComponentTest::testTimeVaryingPeriodic(void)
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG("error1 = " << error1);
             LOG_DEBUG("error2 = " << error2);
-            CPPUNIT_ASSERT(error1 < 29.0);
+            CPPUNIT_ASSERT(error1 < 42.0);
             CPPUNIT_ASSERT(error2 < 20.0);
             totalError1 += error1;
             totalError2 += error2;
@@ -739,7 +733,7 @@ void CSeasonalComponentTest::testVeryLowVariation(void)
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG("deviation = " << deviation);
             LOG_DEBUG("error1 = " << error1 << ", error2 = " << error2);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, error1, 0.5 * deviation);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, error1, 1.0 * deviation);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, error2, 0.1 * deviation);
             totalError1 += error1;
             totalError2 += error2;
@@ -756,7 +750,7 @@ void CSeasonalComponentTest::testVeryLowVariation(void)
     totalError2 /= 30.0;
     LOG_DEBUG("deviation = " << deviation);
     LOG_DEBUG("totalError1 = " << totalError1 << ", totalError2 = " << totalError2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(totalError1, 0.0, 0.15 * deviation);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(totalError1, 0.0, 0.20 * deviation);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(totalError2, 0.0, 0.04 * deviation);
 }
 
@@ -806,13 +800,13 @@ void CSeasonalComponentTest::testVariance(void)
                   << ", v = " << core::CContainerPrinter::print(vv)
                   << ", relative error = " << ::fabs(v - v_) / v_);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(v_, v, 0.3 * v_);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(v_, v, 0.4 * v_);
         CPPUNIT_ASSERT(v_ > vv.first && v_ < vv.second);
         error.add(::fabs(v - v_) / v_);
     }
 
     LOG_DEBUG("mean relative error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.11);
 }
 
 void CSeasonalComponentTest::testPersist(void)

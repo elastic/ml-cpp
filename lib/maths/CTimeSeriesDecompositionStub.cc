@@ -31,10 +31,6 @@ double CTimeSeriesDecompositionStub::decayRate(void) const
     return 0.0;
 }
 
-void CTimeSeriesDecompositionStub::forForecasting(void)
-{
-}
-
 bool CTimeSeriesDecompositionStub::initialized(void) const
 {
     return false;
@@ -52,23 +48,27 @@ void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/)
 {
 }
 
-bool CTimeSeriesDecompositionStub::testAndInterpolate(core_t::TTime /*time*/)
-{
-    return false;
-}
-
 double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const
 {
     return 0.0;
 }
 
 maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::baseline(core_t::TTime /*time*/,
-                                                                double /*predictionConfidence*/,
-                                                                double /*forecastConfidence*/,
-                                                                EComponents /*components*/,
+                                                                double /*confidence*/,
+                                                                int /*components*/,
                                                                 bool /*smooth*/) const
 {
     return {0.0, 0.0};
+}
+
+void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
+                                            core_t::TTime /*endTime*/,
+                                            core_t::TTime /*step*/,
+                                            double /*confidence*/,
+                                            double /*minimumScale*/,
+                                            TDouble3VecVec &result)
+{
+    result.clear();
 }
 
 double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,

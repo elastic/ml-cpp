@@ -12,12 +12,7 @@
 class CTrendTestsTest : public CppUnit::TestFixture
 {
     public:
-        void testDiurnalInitialisation(void);
-        void testTrend(void);
         void testRandomizedPeriodicity(void);
-        void testDiurnalPeriodicity(void);
-        void testDiurnalPeriodicityWithMissingValues(void);
-        void testScanningPeriodicity(void);
         void testCalendarCyclic(void);
         void testPersist(void);
 

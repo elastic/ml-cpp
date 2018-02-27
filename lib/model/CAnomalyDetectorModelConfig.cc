@@ -103,9 +103,6 @@ const CAnomalyDetectorModelConfig::TDoubleDoublePr CAnomalyDetectorModelConfig::
         CAnomalyDetectorModelConfig::TDoubleDoublePr(99.9, 90.0),
         CAnomalyDetectorModelConfig::TDoubleDoublePr(100.0, 100.0)
     };
-const double CAnomalyDetectorModelConfig::DEFAULT_LOG_NORMAL_PRIOR_OFFSET(1.0);
-const double CAnomalyDetectorModelConfig::DEFAULT_GAMMA_PRIOR_OFFSET(0.1);
-const double CAnomalyDetectorModelConfig::DEFAULT_POISSON_PRIOR_OFFSET(0.0);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_RESAMPLING_MAX_SAMPLES(40u);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM(4.0);

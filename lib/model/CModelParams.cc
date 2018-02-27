@@ -31,9 +31,6 @@ const core_t::TTime SAMPLING_AGE_CUTOFF_DEFAULT(2 * core::constants::DAY);
 SModelParams::SModelParams(core_t::TTime bucketLength) :
         s_BucketLength(bucketLength),
         s_MultivariateComponentDelimiter(CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER),
-        s_LogNormalOffset(CAnomalyDetectorModelConfig::DEFAULT_LOG_NORMAL_PRIOR_OFFSET),
-        s_GammaOffset(CAnomalyDetectorModelConfig::DEFAULT_GAMMA_PRIOR_OFFSET),
-        s_PoissonOffset(CAnomalyDetectorModelConfig::DEFAULT_POISSON_PRIOR_OFFSET),
         s_LearnRate(1.0),
         s_DecayRate(0.0),
         s_InitialDecayRateMultiplier(CAnomalyDetectorModelConfig::DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER),

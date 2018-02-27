@@ -490,10 +490,7 @@ void COneOfNPrior::propagateForwardsByTime(double time)
 
     for (auto &&model : m_Models)
     {
-        if (!this->isForForecasting())
-        {
-            model.first.age(alpha);
-        }
+        model.first.age(alpha);
         model.second->propagateForwardsByTime(time);
     }
 

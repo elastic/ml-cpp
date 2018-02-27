@@ -48,7 +48,7 @@ CGammaRateConjugate makePrior(maths_t::EDataType dataType = maths_t::E_Continuou
                               const double &offset = 0.0,
                               const double &decayRate = 0.0)
 {
-    return CGammaRateConjugate::nonInformativePrior(dataType, offset, decayRate);
+    return CGammaRateConjugate::nonInformativePrior(dataType, offset, decayRate, 0.0);
 }
 
 }
@@ -1782,12 +1782,9 @@ void CGammaRateConjugateTest::testNegativeSample(void)
     rng.generateGammaSamples(shape, scale, 100, samples);
 
     CGammaRateConjugate filter1(
-            CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0));
+            CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.0, 0.0, 0.2));
     CGammaRateConjugate filter2(
-            CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 1.2586));
-
-    filter1.setOffset(0.2);
-    filter2.setOffset(0.2);
+            CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 1.2586, 0.0, 0.2));
 
     filter1.addSamples(samples);
     filter2.addSamples(samples);
