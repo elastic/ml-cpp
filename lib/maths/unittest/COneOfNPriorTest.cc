@@ -100,9 +100,9 @@ void COneOfNPriorTest::testFilter(void)
     LOG_DEBUG("+--------------------------------+");
 
     TPriorPtrVec models;
-    models.push_back(TPriorPtr(maths::CGammaRateConjugate::nonInformativePrior(E_IntegerData).clone()));
-    models.push_back(TPriorPtr(maths::CLogNormalMeanPrecConjugate::nonInformativePrior(E_IntegerData).clone()));
-    models.push_back(TPriorPtr(maths::CNormalMeanPrecConjugate::nonInformativePrior(E_IntegerData).clone()));
+    models.push_back(TPriorPtr(maths::CGammaRateConjugate::nonInformativePrior(E_ContinuousData).clone()));
+    models.push_back(TPriorPtr(maths::CLogNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone()));
+    models.push_back(TPriorPtr(maths::CNormalMeanPrecConjugate::nonInformativePrior(E_ContinuousData).clone()));
     models.push_back(TPriorPtr(maths::CPoissonMeanConjugate::nonInformativePrior().clone()));
 
     COneOfNPrior filter(maths::COneOfNPrior(clone(models), E_ContinuousData));

@@ -21,6 +21,7 @@ class CTimeSeriesModelTest : public CppUnit::TestFixture
         void testWeights(void);
         void testMemoryUsage(void);
         void testPersist(void);
+        void testUpgrade(void);
         void testAddSamplesWithCorrelations(void);
         void testProbabilityWithCorrelations(void);
         void testAnomalyModel(void);

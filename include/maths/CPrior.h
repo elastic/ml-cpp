@@ -141,15 +141,6 @@ class MATHS_EXPORT CPrior
         void swap(CPrior &other);
         //@}
 
-        //! Mark the prior as being used for forecasting.
-        //!
-        //! \warning This is an irreversible action so if the prior
-        //! is still need it should be copied first.
-        void forForecasting(void);
-
-        //! Check if this prior is being used for forecasting.
-        bool isForForecasting(void) const;
-
         //! Check if the prior is being used to model discrete data.
         bool isDiscrete(void) const;
 
@@ -178,22 +169,17 @@ class MATHS_EXPORT CPrior
         //! Set the rate at which the prior returns to non-informative.
         virtual void decayRate(double value);
 
-        //! Get the margin between the smallest value and the support left
-        //! end. Priors with non-negative support, automatically adjust the
-        //! offset if a value is seen which is smaller than offset + margin.
-        //! This is to avoid the numerical instability caused by adding
-        //! values close to zero.
-        //!
-        //! \note This is overridden by CPriorTestInterface so don't replace
-        //! it by a static constant in the calling functions.
-        virtual double offsetMargin(void) const;
-
         //! Reset the prior to non-informative.
         virtual void setToNonInformative(double offset = 0.0,
                                          double decayRate = 0.0) = 0;
 
         //! Remove models marked by \p filter.
         virtual void removeModels(CModelFilter &filter);
+
+        //! Get the margin between the smallest value and the support left
+        //! end. Priors with non-negative support, automatically adjust the
+        //! offset if a value is seen which is smaller than offset + margin.
+        virtual double offsetMargin(void) const;
 
         //! Check if the prior needs an offset to be applied.
         virtual bool needsOffset(void) const = 0;
@@ -575,11 +561,6 @@ class MATHS_EXPORT CPrior
         virtual std::string debug(void) const;
 
     private:
-        //! Set to true if this model is being used for forecasting. Note
-        //! we don't have any need to persist forecast models so this is
-        //! is not persisted.
-        bool m_Forecasting;
-
         //! If this is true then the prior is being used to model discrete
         //! data. Note that this is not persisted and deduced from context.
         maths_t::EDataType m_DataType;

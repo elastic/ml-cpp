@@ -12,6 +12,7 @@
 #include <maths/ImportExport.h>
 
 #include <boost/array.hpp>
+#include <boost/circular_buffer.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -33,6 +34,8 @@ struct SModelRestoreParams;
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
 {
     public:
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
         using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
     public:
@@ -113,9 +116,9 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! Get the prediction and \p confidenceInterval percentage
         //! confidence interval for the time series at \p time.
         virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                                   double confidenceInterval,
                                                    const maths_t::TWeightStyleVec &weightStyles,
-                                                   const TDouble2Vec4Vec &weights,
-                                                   double confidenceInterval) const;
+                                                   const TDouble2Vec4Vec &weights) const;
 
         //! Forecast the time series and get its \p confidenceInterval
         //! percentage confidence interval between \p startTime and
@@ -164,11 +167,17 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! Get the type of data being modeled.
         virtual maths_t::EDataType dataType(void) const;
 
+        //! \name Test Functions
+        //@{
+        //! Get the sliding window of recent values.
+        const TTimeDoublePrCBuf &slidingWindow(void) const;
+
         //! Get the trend.
         const CTimeSeriesDecompositionInterface &trend(void) const;
 
         //! Get the prior.
         const CPrior &prior(void) const;
+        //@}
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -212,6 +221,9 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! True if the model can be forecast.
         bool m_IsForecastable;
 
+        //! A random number generator for sampling the sliding window.
+        CPRNG::CXorOShiro128Plus m_Rng;
+
         //! These control the trend and prior decay rates (see CDecayRateController
         //! for more details).
         TDecayRateController2AryPtr m_Controllers;
@@ -225,6 +237,10 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! A model for time periods when the basic model can't predict the value
         //! of the time series.
         TAnomalyModelPtr m_AnomalyModel;
+
+        //! A sliding window of the recent samples (used to reinitialize the
+        //! residual model when a new trend component is detected).
+        TTimeDoublePrCBuf m_SlidingWindow;
 
         //! Models the correlations between time series.
         CTimeSeriesCorrelations *m_Correlations;
@@ -435,6 +451,8 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
 {
     public:
+        using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
+        using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
         using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
         using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
@@ -514,9 +532,9 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! Get the prediction and \p confidenceInterval percentage
         //! confidence interval for the time series at \p time.
         virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                                   double confidenceInterval,
                                                    const maths_t::TWeightStyleVec &weightStyles,
-                                                   const TDouble2Vec4Vec &weights,
-                                                   double confidenceInterval) const;
+                                                   const TDouble2Vec4Vec &weights) const;
 
         //! Not currently supported.
         virtual bool forecast(core_t::TTime startTime,
@@ -563,11 +581,17 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! Get the type of data being modeled.
         virtual maths_t::EDataType dataType(void) const;
 
+        //! \name Test Functions
+        //@{
+        //! Get the sliding window of recent values.
+        const TTimeDouble2VecPrCBuf &slidingWindow(void) const;
+
         //! Get the trend.
         const TDecompositionPtr10Vec &trend(void) const;
 
         //! Get the prior.
         const CMultivariatePrior &prior(void) const;
+        //@}
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -597,6 +621,9 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! True if the data are non-negative.
         bool m_IsNonNegative;
 
+        //! A random number generator for sampling the sliding window.
+        CPRNG::CXorOShiro128Plus m_Rng;
+
         //! These control the trend and prior decay rates (see CDecayRateController
         //! for more details).
         TDecayRateController2AryPtr m_Controllers;
@@ -610,6 +637,10 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! A model for time periods when the basic model can't predict the value
         //! of the time series.
         TAnomalyModelPtr m_AnomalyModel;
+
+        //! A sliding window of the recent samples (used to reinitialize the
+        //! residual model when a new trend component is detected).
+        TTimeDouble2VecPrCBuf m_SlidingWindow;
 };
 
 }

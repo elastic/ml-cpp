@@ -453,10 +453,7 @@ void CMultimodalPrior::propagateForwardsByTime(double time)
     // where w(i) is its weight we can achieve this by multiplying
     // all weights by some factor f in the range [0, 1].
 
-    if (!this->isForForecasting())
-    {
-        m_Clusterer->propagateForwardsByTime(time);
-    }
+    m_Clusterer->propagateForwardsByTime(time);
     for (const auto &mode : m_Modes)
     {
         mode.s_Prior->propagateForwardsByTime(time);
