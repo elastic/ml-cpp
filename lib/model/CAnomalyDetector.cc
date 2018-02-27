@@ -91,7 +91,7 @@ CAnomalyDetector::TModelPtr makeModel(const CAnomalyDetector::TModelFactoryCPtr 
 
 // Increment this every time a change to the state is made that requires
 // existing state to be discarded
-const std::string CAnomalyDetector::STATE_VERSION("35");
+const std::string CAnomalyDetector::STATE_VERSION("34");
 
 const std::string CAnomalyDetector::COUNT_NAME("count");
 const std::string CAnomalyDetector::TIME_NAME("time");
