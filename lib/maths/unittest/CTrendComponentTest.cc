@@ -384,7 +384,7 @@ void CTrendComponentTest::testForecast()
     {
         boost::tie(error, errorAt95) = testForecast(piecewiseLinear, 0, 3200000);
         CPPUNIT_ASSERT(error < 0.17);
-        CPPUNIT_ASSERT(errorAt95 < 0.05);
+        CPPUNIT_ASSERT(errorAt95 < 0.07);
     }
 
     LOG_DEBUG("Staircase");

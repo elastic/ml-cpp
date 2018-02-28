@@ -31,6 +31,7 @@ class CAnomalyJobTest : public CppUnit::TestFixture
         void testBucketSelection(void);
         void testModelPlot(void);
         void testInterimResultEdgeCases(void);
+        void testRestoreFailsWithEmptyStream(void);
 
         static CppUnit::Test *suite(void);
 

@@ -30,7 +30,7 @@ Create a `.bashrc` similar to that recommended in `windows.md`, but with a coupl
 export VCBASE=PROGRA~2/MICROS~2/2017/BUILDT~1
 export WINSDKBASE=PROGRA~2/WI3CF2~1
 
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/$VCBASE/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/$VCBASE/Common7/IDE:/c/$WINSDKBASE/8.0/bin/x64:/c/$WINSDKBASE/8.0/bin/x86:/c/$VCBASE/TEAMTO~1/PERFOR~1/x64:/c/$VCBASE/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121

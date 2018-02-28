@@ -17,7 +17,7 @@ umask 0002
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_121.jdk/Contents/Home
 export PATH=$JAVA_HOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 ```
 
 Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get when you open a new Terminal window) - it reads `~/.bash_profile` or `~/.profile` so you should probably also create a `.bash_profile` file in your home directory which sources `.bashrc`.
@@ -69,7 +69,7 @@ Extract it to a temporary directory, then configure the unzipped source using:
 ./configure --with-charset=utf-8 --with-logchar=utf-8
 ```
 
-If you are running macOS Sierra or above this might fail due to not being able to find APR. To resolve this download the [`apr-1-config`](https://github.com/elastic/machine-learning-cpp/files/1526791/apr-1-config.txt) and [`apu-1-config`](https://github.com/elastic/machine-learning-cpp/files/1526793/apu-1-config.txt) files to a temporary directory.  Remove any `.txt` extension that the download process might add, and add execute permissions to the `apr-1-config` and `apu-1-config` files.  Then run:
+If you are running macOS Sierra or above this might fail due to not being able to find APR. To resolve this download the [`apr-1-config`](https://github.com/elastic/ml-cpp/files/1747602/apr-1-config.txt) and [`apu-1-config`](https://github.com/elastic/ml-cpp/files/1747599/apu-1-config.txt) files to a temporary directory.  Remove any `.txt` extension that the download process might add, and add execute permissions to the `apr-1-config` and `apu-1-config` files.  Then run:
 
 ```
 ./configure --with-charset=utf-8 --with-logchar=utf-8 --with-apr=$HOME/Downloads/apr-1-config --with-apr-util=$HOME/Downloads/apu-1-config

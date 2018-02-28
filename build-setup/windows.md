@@ -29,7 +29,7 @@ Finally, you need to create an alias `make` for `gnumake`.
 For example, you might create a `.bashrc` file in your home directory containing this:
 
 ```
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/PROGRA~2/MICROS~2/2017/Professional/Common7/IDE:/c/PROGRA~2/WINDOW~4/8.0/bin/x64:/c/PROGRA~2/WINDOW~4/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
