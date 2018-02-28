@@ -52,14 +52,18 @@ using TDouble4Vec = core::CSmallVector<double, 4>;
 using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
 using TOptionalChangeDescription = CUnivariateTimeSeriesChangeDetector::TOptionalChangeDescription;
 
-const std::string SAMPLE_COUNT_TAG{"a"};
-const std::string MIN_TIME_TAG{"b"};
-const std::string MAX_TIME_TAG{"c"};
-const std::string CHANGE_MODEL_TAG{"d"};
-const std::string LOG_LIKELIHOOD_TAG{"e"};
-const std::string SHIFT_TAG{"f"};
-const std::string TREND_MODEL_TAG{"g"};
-const std::string RESIDUAL_MODEL_TAG{"h"};
+const std::string MINIMUM_TIME_TO_DETECT{"a"};
+const std::string MAXIMUM_TIME_TO_DETECT{"b"};
+const std::string MINIMUM_DELTA_BIC_TO_DETECT{"c"};
+const std::string SAMPLE_COUNT_TAG{"d"};
+const std::string CURRENT_EVIDENCE_OF_CHANGE{"e"};
+const std::string MIN_TIME_TAG{"f"};
+const std::string MAX_TIME_TAG{"g"};
+const std::string CHANGE_MODEL_TAG{"h"};
+const std::string LOG_LIKELIHOOD_TAG{"i"};
+const std::string SHIFT_TAG{"j"};
+const std::string TREND_MODEL_TAG{"k"};
+const std::string RESIDUAL_MODEL_TAG{"l"};
 }
 
 SChangeDescription::SChangeDescription(EDescription description,
@@ -108,7 +112,11 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(const SModelRes
     do
     {
         const std::string name{traverser.name()};
+        RESTORE_BUILT_IN(MINIMUM_TIME_TO_DETECT, m_MinimumTimeToDetect)
+        RESTORE_BUILT_IN(MAXIMUM_TIME_TO_DETECT, m_MaximumTimeToDetect)
+        RESTORE_BUILT_IN(MINIMUM_DELTA_BIC_TO_DETECT, m_MinimumDeltaBicToDetect)
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
+        RESTORE_BUILT_IN(CURRENT_EVIDENCE_OF_CHANGE, m_CurrentEvidenceOfChange)
         RESTORE_SETUP_TEARDOWN(MIN_TIME_TAG,
                                core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
@@ -127,7 +135,15 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(const SModelRes
 
 void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePersistInserter &inserter) const
 {
+    inserter.insertValue(MINIMUM_TIME_TO_DETECT, m_MinimumTimeToDetect);
+    inserter.insertValue(MAXIMUM_TIME_TO_DETECT, m_MaximumTimeToDetect);
+    inserter.insertValue(MINIMUM_DELTA_BIC_TO_DETECT,
+                         m_MinimumDeltaBicToDetect,
+                         core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
+    inserter.insertValue(CURRENT_EVIDENCE_OF_CHANGE,
+                         m_CurrentEvidenceOfChange,
+                         core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
     inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
     for (const auto &model : m_ChangeModels)

@@ -2167,7 +2167,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities(void)
                 time += bucketLength;
             }
         }
-        level += 30;
+        level += 30.0;
         rng.generateNormalSamples(level, 2.0, 100, samples);
         for (auto sample : samples)
         {

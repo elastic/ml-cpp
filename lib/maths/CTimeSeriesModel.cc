@@ -212,7 +212,7 @@ TOptionalSize randomlySample(CPRNG::CXorOShiro128Plus &rng,
 //! Convert \p value to comma separated string.
 std::string toDelimited(const TTimeDoublePr &value)
 {
-    return  core::CStringUtils::typeToString(value.second) + ','
+    return  core::CStringUtils::typeToString(value.first) + ','
           + core::CStringUtils::typeToStringPrecise(
                 value.second, core::CIEEE754::E_SinglePrecision);
 }
@@ -222,7 +222,7 @@ bool fromDelimited(const std::string &str, TTimeDoublePr &value)
 {
     std::size_t pos{str.find(',')};
     return   pos != std::string::npos
-          && core::CStringUtils::stringToType(str.substr(0, pos + 1), value.first)
+          && core::CStringUtils::stringToType(str.substr(0, pos),  value.first)
           && core::CStringUtils::stringToType(str.substr(pos + 1), value.second);
 }
 
@@ -1327,9 +1327,13 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE(CANDIDATE_CHANGE_POINT_6_3_TAG, fromDelimited(traverser.value(), m_CandidateChangePoint))
             RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
             RESTORE_BUILT_IN(TIME_OF_LAST_CHANGE_POINT_6_3_TAG, m_TimeOfLastChangePoint)
-            RESTORE(CHANGE_DETECTOR_6_3_TAG, traverser.traverseSubLevel(boost::bind(
-                                                     &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
-                                                     m_ChangeDetector.get(), boost::cref(params), _1)))
+            RESTORE_SETUP_TEARDOWN(CHANGE_DETECTOR_6_3_TAG,
+                                   m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
+                                           this->params().learnRate(), m_TrendModel, m_ResidualModel, m_SlidingWindow),
+                                   traverser.traverseSubLevel(boost::bind(
+                                           &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
+                                           m_ChangeDetector.get(), boost::cref(params), _1)),
+                                   /**/)
             RESTORE(SLIDING_WINDOW_6_3_TAG,
                     core::CPersistUtils::restore(SLIDING_WINDOW_6_3_TAG, m_SlidingWindow, traverser))
         }
@@ -1386,8 +1390,11 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(CANDIDATE_CHANGE_POINT_6_3_TAG, toDelimited(m_CandidateChangePoint));
     inserter.insertValue(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval);
     inserter.insertValue(TIME_OF_LAST_CHANGE_POINT_6_3_TAG, m_TimeOfLastChangePoint);
-    inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG, boost::bind(
-            &CUnivariateTimeSeriesChangeDetector::acceptPersistInserter, m_ChangeDetector.get(), _1));
+    if (m_ChangeDetector != nullptr)
+    {
+        inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG, boost::bind(
+                &CUnivariateTimeSeriesChangeDetector::acceptPersistInserter, m_ChangeDetector.get(), _1));
+    }
     if (m_AnomalyModel != nullptr)
     {
         inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
