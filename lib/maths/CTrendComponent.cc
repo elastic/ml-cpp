@@ -331,7 +331,7 @@ void CTrendComponent::propagateForwardsByTime(core_t::TTime interval)
     {
         m_TrendModels[i].s_Weight.age(median);
         m_TrendModels[i].s_Regression.age(factors[i]);
-        m_TrendModels[i].s_ResidualMoments.age(factors[i]);
+        m_TrendModels[i].s_ResidualMoments.age(std::sqrt(factors[i]));
     }
     double interval_{  static_cast<double>(interval)
                      / static_cast<double>(core::constants::DAY)};
@@ -428,11 +428,13 @@ void CTrendComponent::forecast(core_t::TTime startTime,
 
     endTime = startTime + CIntegerTools::ceil(endTime - startTime, step);
 
+    LOG_TRACE("forecasting = " << this->print());
+
     TDoubleVec factors(this->factors(step));
     TDoubleVec modelWeights(this->initialForecastModelWeights());
+    TDoubleVec errorWeights(this->initialForecastErrorWeights());
     TRegressionArrayVec models(NUMBER_MODELS);
     TMatrixVec modelCovariances(NUMBER_MODELS);
-    TDoubleVec residualVarianceWeights(this->initialForecastErrorWeights());
     TDoubleVec residualVariances(NUMBER_MODELS);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i)
     {
@@ -453,6 +455,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
                          m_MagnitudeOfLevelChangeModel,
                          m_TimeOfLastLevelChange};
 
+    TDoubleVec variances(NUMBER_MODELS + 1);
     for (core_t::TTime time = startTime; time < endTime; time += step)
     {
         double scaledDt{scaleTime(time, startTime)};
@@ -464,19 +467,23 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         for (std::size_t j = 0u; j < NUMBER_MODELS; ++j)
         {
             modelWeights[j] *= factors[j];
-            residualVarianceWeights[j] *= CTools::pow2(factors[j]);
+            errorWeights[j] *= CTools::pow2(factors[j]);
         }
 
-        TMeanAccumulator variance_;
-        std::size_t last{NUMBER_MODELS - 1};
-        for (std::size_t j = 0u; j < last; ++j)
+        for (std::size_t j = 0u; j < NUMBER_MODELS; ++j)
         {
-            variance_.add(  times.inner(modelCovariances[j + 1] * times)
-                          + residualVariances[j], residualVarianceWeights[j]);
+            variances[j] = times.inner(modelCovariances[j] * times) + residualVariances[j];
         }
-        variance_.add(residualVariances[last], residualVarianceWeights[last]);
-        variance_.add(CBasicStatistics::variance(m_ValueMoments),
-                      residualVarianceWeights[NUMBER_MODELS]);
+        variances[NUMBER_MODELS] = CBasicStatistics::variance(m_ValueMoments);
+        for (auto v = variances.rbegin(); v != variances.rend(); ++v)
+        {
+            *v = *std::min_element(variances.rbegin(), v+1);
+        }
+        TMeanAccumulator variance_;
+        for (std::size_t j = 0u; j < NUMBER_MODELS; ++j)
+        {
+            variance_.add(variances[j], errorWeights[j]);
+        }
 
         double prediction{this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin))};
         TDouble3Vec seasonal_(seasonal(time));
@@ -564,12 +571,11 @@ CTrendComponent::TDoubleVec CTrendComponent::initialForecastModelWeights() const
 
 CTrendComponent::TDoubleVec CTrendComponent::initialForecastErrorWeights() const
 {
-    TDoubleVec result(NUMBER_MODELS + 1, 1.0);
-    result[0] = std::exp(1.0);
+    TDoubleVec result(NUMBER_MODELS + 1);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i)
     {
-        result[i] *= std::exp(  static_cast<double>(NUMBER_MODELS / 2)
-                              - static_cast<double>(i));
+        result[i] = std::exp(  static_cast<double>(NUMBER_MODELS / 2)
+                             - static_cast<double>(i));
     }
     result[NUMBER_MODELS] = result[NUMBER_MODELS - 1] / std::exp(1.0);
     return result;

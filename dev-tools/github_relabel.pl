@@ -9,7 +9,7 @@ use utf8;
 use Getopt::Long;
 
 my $Base_URL  = "https://api.github.com/repos/";
-my $User_Repo = 'elastic/machine-learning-cpp/';
+my $User_Repo = 'elastic/ml-cpp/';
 my $Issue_URL = "https://github.com/${User_Repo}issues";
 use JSON();
 use URI();

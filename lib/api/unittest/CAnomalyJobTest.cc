@@ -40,6 +40,22 @@ namespace
 {
 
 //! \brief
+//! Mock object for state restore unit tests.
+//!
+//! DESCRIPTION:\n
+//! CDataSearcher that returns an empty stream.
+//!
+class CEmptySearcher : public ml::core::CDataSearcher
+{
+    public:
+        //! Do a search that results in an empty input stream.
+        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
+        {
+            return TIStreamP(new std::istringstream());
+        }
+};
+
+//! \brief
 //! Mock object for unit tests
 //!
 //! DESCRIPTION:\n
@@ -1878,6 +1894,27 @@ void CAnomalyJobTest::testInterimResultEdgeCases(void)
     std::remove(logFile);
 }
 
+void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void)
+{
+    model::CLimits limits;
+    api::CFieldConfig fieldConfig;
+    api::CFieldConfig::TStrVec clauses;
+    clauses.push_back("value");
+    clauses.push_back("partitionfield=greenhouse");
+    fieldConfig.initFromClause(clauses);
+    model::CAnomalyDetectorModelConfig modelConfig =
+        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+    std::ostringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+    api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
+            wrappedOutputStream);
+
+    core_t::TTime completeToTime(0);
+    CEmptySearcher restoreSearcher;
+    CPPUNIT_ASSERT(job.restoreState(restoreSearcher, completeToTime) == false);
+}
+
 CppUnit::Test* CAnomalyJobTest::suite(void)
 {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
@@ -1906,5 +1943,8 @@ CppUnit::Test* CAnomalyJobTest::suite(void)
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
                                    "CAnomalyJobTest::testInterimResultEdgeCases",
                                    &CAnomalyJobTest::testInterimResultEdgeCases) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
+                                   "CAnomalyJobTest::testRestoreFailsWithEmptyStream",
+                                   &CAnomalyJobTest::testRestoreFailsWithEmptyStream) );
     return suiteOfTests;
 }
