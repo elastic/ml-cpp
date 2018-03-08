@@ -48,12 +48,12 @@ The `CXX` environment variable only needs to be set when building tools on Linux
 
 We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
-Download `gcc-7.3.0.tar.bz2` from <http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.bz2>.
+Download `gcc-7.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz>.
 
 Unlike most automake-based tools, gcc must be built in a directory adjacent to the directory containing its source code, so build and install it like this:
 
 ```
-tar jxvf gcc-7.3.0.tar.bz2
+tar zxvf gcc-7.3.0.tar.gz
 cd gcc-7.3.0
 contrib/download_prerequisites
 cd ..
@@ -77,7 +77,7 @@ Modern versions of Linux will come with Git in their package repositories, and (
 sudo yum install git
 ```
 
-on RHEL clones, or for SLES use YaST. **However**, Jenkins requires at minimum version 1.7.9 of Git, so if the version that yum installs is older you'll still have to build it from scratch. In this case, you may need to uninstall the version that yum installed:
+on RHEL clones. **However**, Jenkins requires at minimum version 1.7.9 of Git, so if the version that yum installs is older you'll still have to build it from scratch. In this case, you may need to uninstall the version that yum installed:
 
 ```
 git --version
