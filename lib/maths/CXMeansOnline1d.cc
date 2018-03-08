@@ -304,7 +304,7 @@ void BICGain(maths_t::EDataType dataType,
     double a = pow2(m + gammaOffset) / v;
     double b = (m + gammaOffset) / v;
 
-    double vmin = std::min(MIN_RELATIVE_VARIANCE * v, MIN_ABSOLUTE_VARIANCE);
+    double vmin = std::min(MIN_RELATIVE_VARIANCE * std::max(v,square(offset)), MIN_ABSOLUTE_VARIANCE);
 
     // Mixture of normals
     double wl = CBasicStatistics::count(mvl) / n;
