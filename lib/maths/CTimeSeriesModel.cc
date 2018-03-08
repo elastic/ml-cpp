@@ -1548,11 +1548,6 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription &change)
         }
     }
 
-    if (change.s_TrendModel != nullptr)
-    {
-        change.s_TrendModel->decayRate(m_TrendModel->decayRate());
-        m_TrendModel = change.s_TrendModel;
-    }
     m_TrendModel->applyChange(m_CandidateChangePoint.first, m_CandidateChangePoint.second, change);
     change.s_ResidualModel->decayRate(m_ResidualModel->decayRate());
     m_ResidualModel = change.s_ResidualModel;

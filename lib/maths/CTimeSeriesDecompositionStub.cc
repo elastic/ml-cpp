@@ -49,10 +49,6 @@ bool CTimeSeriesDecompositionStub::initialized(void) const
     return false;
 }
 
-void CTimeSeriesDecompositionStub::forceUseTrend(void)
-{
-}
-
 bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
                                             double /*value*/,
                                             const maths_t::TWeightStyleVec &/*weightStyles*/,

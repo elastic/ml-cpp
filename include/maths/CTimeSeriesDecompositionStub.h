@@ -49,9 +49,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         //! Returns false.
         virtual bool initialized(void) const;
 
-        //! No-op.
-        virtual void forceUseTrend(void);
-
         //! No-op returning false.
         virtual bool addPoint(core_t::TTime time,
                               double value,

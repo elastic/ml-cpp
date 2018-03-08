@@ -233,12 +233,16 @@ CUnivariateChangeModel::CUnivariateChangeModel(const TDecompositionPtr &trendMod
 
 void CUnivariateChangeModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
 {
+    // Note if the trend and residual models are shallow copied their
+    // reference count will be updated so core::CMemory::dynamicSize
+    // will give the correct contribution for these reference.
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
 }
 
 std::size_t CUnivariateChangeModel::memoryUsage() const
 {
+    // See above.
     return  core::CMemory::dynamicSize(m_TrendModel)
           + core::CMemory::dynamicSize(m_ResidualModel);
 }
@@ -248,14 +252,6 @@ uint64_t CUnivariateChangeModel::checksum(uint64_t seed) const
     seed = CChecksum::calculate(seed, m_LogLikelihood);
     seed = CChecksum::calculate(seed, m_TrendModel);
     return CChecksum::calculate(seed, m_ResidualModel);
-}
-
-bool CUnivariateChangeModel::restoreTrendModel(const STimeSeriesDecompositionRestoreParams &params,
-                                               core::CStateRestoreTraverser &traverser)
-{
-    return traverser.traverseSubLevel(boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
-                                                        boost::cref(params),
-                                                        boost::ref(m_TrendModel), _1));
 }
 
 bool CUnivariateChangeModel::restoreResidualModel(const SDistributionRestoreParams &params,
@@ -409,6 +405,11 @@ double CUnivariateLevelShiftModel::bic() const
 
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const
 {
+    // The "magic" 0.9 is due to the fact that the trend is updated
+    // with new values during change detection. As a result, the
+    // estimate is biased (by early values) and too large. This was
+    // an empirical estimate of the degree of bias across a range of
+    // step changes.
     return SChangeDescription{SChangeDescription::E_LevelShift,
                               0.9 * CBasicStatistics::mean(m_Shift),
                               this->residualModelPtr()};

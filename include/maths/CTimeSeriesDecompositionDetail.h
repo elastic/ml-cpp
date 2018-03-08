@@ -423,9 +423,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Check if the decomposition has any initialized components.
                 bool initialized(void) const;
 
-                //! Force the decomposition to use the trend for predictions.
-                void forceUseTrend(void);
-
                 //! Get the long term trend.
                 const CTrendComponent &trend(void) const;
 

@@ -254,11 +254,6 @@ bool CTimeSeriesDecomposition::initialized(void) const
     return m_Components.initialized();
 }
 
-void CTimeSeriesDecomposition::forceUseTrend(void)
-{
-    m_Components.forceUseTrend();
-}
-
 bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TWeightStyleVec &weightStyles,

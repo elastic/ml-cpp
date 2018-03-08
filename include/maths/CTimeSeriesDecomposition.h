@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 #define INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 
+#include <maths/Constants.h>
 #include <maths/CTimeSeriesDecompositionDetail.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/ImportExport.h>
@@ -104,9 +105,6 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
 
         //! Check if the decomposition has any initialized components.
         virtual bool initialized(void) const;
-
-        //! Force the decomposition to use the trend for predictions.
-        virtual void forceUseTrend(void);
 
         //! Adds a time series point \f$(t, f(t))\f$.
         //!

@@ -1469,11 +1469,6 @@ bool CTimeSeriesDecompositionDetail::CComponents::initialized(void) const
           (m_Calendar ? m_Calendar->initialized() : false)));
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::forceUseTrend(void)
-{
-    m_UsingTrendForPrediction = true;
-}
-
 const CTrendComponent &CTimeSeriesDecompositionDetail::CComponents::trend(void) const
 {
     return m_Trend;

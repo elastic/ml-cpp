@@ -54,7 +54,6 @@ class CUnivariateChangeModel;
 struct MATHS_EXPORT SChangeDescription
 {
     using TDouble2Vec = core::CSmallVector<double, 2>;
-    using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = boost::shared_ptr<CPrior>;
 
     //! The types of change we can detect.
@@ -77,9 +76,6 @@ struct MATHS_EXPORT SChangeDescription
     //! The change value.
     TDouble2Vec s_Value;
 
-    //! Optionally, the trend model to use after the change.
-    TDecompositionPtr s_TrendModel;
-
     //! The residual model to use after the change.
     TPriorPtr s_ResidualModel;
 };
@@ -94,7 +90,6 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
-        using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
         using TWeightStyleVec = maths_t::TWeightStyleVec;
         using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TPriorPtr = boost::shared_ptr<CPrior>;
@@ -177,7 +172,6 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
         using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePr1Vec = core::CSmallVector<TTimeDoublePr, 1>;
-        using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
         using TWeightStyleVec = maths_t::TWeightStyleVec;
         using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TPriorPtr = boost::shared_ptr<CPrior>;
@@ -221,13 +215,9 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
 
     protected:
         //! The sample count to initialize a change model.
-        static const std::size_t COUNT_TO_INITIALIZE = 5;
+        static const std::size_t COUNT_TO_INITIALIZE{5u};
 
     protected:
-        //! Restore the trend model reading state from \p traverser.
-        bool restoreTrendModel(const STimeSeriesDecompositionRestoreParams &params,
-                               core::CStateRestoreTraverser &traverser);
-
         //! Restore the residual model reading state from \p traverser.
         bool restoreResidualModel(const SDistributionRestoreParams &params,
                                   core::CStateRestoreTraverser &traverser);

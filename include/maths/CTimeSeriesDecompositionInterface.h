@@ -84,9 +84,6 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! Check if this is initialized.
         virtual bool initialized(void) const = 0;
 
-        //! Force the decomposition to use the trend for predictions.
-        virtual void forceUseTrend(void) = 0;
-
         //! Adds a time series point \f$(t, f(t))\f$.
         //!
         //! \param[in] time The time of the function point.
