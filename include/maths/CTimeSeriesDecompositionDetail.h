@@ -207,7 +207,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         {
             public:
                 CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-                CPeriodicityTest(const CPeriodicityTest &other);
+                CPeriodicityTest(const CPeriodicityTest &other, bool isForForecast = false);
 
                 //! Initialize by reading state from \p traverser.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -289,7 +289,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         {
             public:
                 CCalendarTest(double decayRate, core_t::TTime bucketLength);
-                CCalendarTest(const CCalendarTest &other);
+                CCalendarTest(const CCalendarTest &other, bool isForForecast = false);
 
                 //! Initialize by reading state from \p traverser.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

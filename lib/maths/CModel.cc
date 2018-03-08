@@ -77,7 +77,7 @@ const double EFFECTIVE_COUNT[]{ 1.0, 0.8, 0.7, 0.65, 0.6, 0.57, 0.54, 0.52, 0.51
 //! Get the parameters for the stub model.
 CModelParams stubParameters(void)
 {
-    return CModelParams{0, 1.0, 0.0, 0.0,6 * core::constants::HOUR, core::constants::DAY};
+    return CModelParams{0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY};
 }
 
 }

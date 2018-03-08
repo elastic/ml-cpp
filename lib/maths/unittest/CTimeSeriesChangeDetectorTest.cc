@@ -127,15 +127,13 @@ void CTimeSeriesChangeDetectorTest::testNoChange()
             };
 
         core_t::TTime time{0};
-        TTimeDoublePrCBuf window(10);
         for (std::size_t i = 0u; i < 950; ++i)
         {
             addSampleToModel(time, samples[i]);
-            window.push_back({time, samples[i]});
             time += BUCKET_LENGTH;
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector detector{1.0, trendModel, residualModel, window,
+        maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
                                                              6 * core::constants::HOUR,
                                                             24 * core::constants::HOUR, 12.0};
         for (std::size_t i = 950u; i < samples.size(); ++i)
@@ -218,15 +216,13 @@ void CTimeSeriesChangeDetectorTest::testPersist()
         };
 
     core_t::TTime time{0};
-    TTimeDoublePrCBuf window(10);
     for (std::size_t i = 0u; i < 990; ++i)
     {
         addSampleToModel(time, samples[i]);
-        window.push_back({time, samples[i]});
         time += BUCKET_LENGTH;
     }
 
-    maths::CUnivariateTimeSeriesChangeDetector origDetector{1.0, trendModel, residualModel, window,
+    maths::CUnivariateTimeSeriesChangeDetector origDetector{trendModel, residualModel,
                                                              6 * core::constants::HOUR,
                                                             24 * core::constants::HOUR, 12.0};
 
@@ -247,7 +243,7 @@ void CTimeSeriesChangeDetectorTest::testPersist()
             inserter.toXml(origXml);
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector restoredDetector{1.0, trendModel, residualModel, window,
+        maths::CUnivariateTimeSeriesChangeDetector restoredDetector{trendModel, residualModel,
                                                                      6 * core::constants::HOUR,
                                                                     24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
@@ -318,16 +314,14 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec &trends,
             };
 
         core_t::TTime time{0};
-        TTimeDoublePrCBuf window(10);
         for (std::size_t i = 0u; i < 950; ++i)
         {
             double x{10.0 * trends[t % trends.size()](time) + samples[i]};
             addSampleToModel(time, x, 1.0);
-            window.push_back({time, x});
             time += BUCKET_LENGTH;
         }
 
-        maths::CUnivariateTimeSeriesChangeDetector detector{1.0, trendModel, residualModel, window,
+        maths::CUnivariateTimeSeriesChangeDetector detector{trendModel, residualModel,
                                                              6 * core::constants::HOUR,
                                                             24 * core::constants::HOUR, 12.0};
 

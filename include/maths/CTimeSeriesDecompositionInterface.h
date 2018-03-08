@@ -70,7 +70,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         virtual ~CTimeSeriesDecompositionInterface(void) = default;
 
         //! Clone this decomposition.
-        virtual CTimeSeriesDecompositionInterface *clone(void) const = 0;
+        virtual CTimeSeriesDecompositionInterface *clone(bool isForForecast = false) const = 0;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType dataType) = 0;

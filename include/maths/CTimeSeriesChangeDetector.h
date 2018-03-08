@@ -66,8 +66,7 @@ struct MATHS_EXPORT SChangeDescription
 
     SChangeDescription(EDescription decription,
                        double value,
-                       const TPriorPtr &residualModel,
-                       const TDecompositionPtr &trendModel = TDecompositionPtr{});
+                       const TPriorPtr &residualModel);
 
     //! Get a description of this change.
     std::string print() const;
@@ -102,10 +101,8 @@ class MATHS_EXPORT CUnivariateTimeSeriesChangeDetector
         using TOptionalChangeDescription = boost::optional<SChangeDescription>;
 
     public:
-        CUnivariateTimeSeriesChangeDetector(double learnRate,
-                                            const TDecompositionPtr &trendModel,
+        CUnivariateTimeSeriesChangeDetector(const TDecompositionPtr &trendModel,
                                             const TPriorPtr &residualModel,
-                                            const TTimeDoublePrCBuf &slidingWindow,
                                             core_t::TTime minimumTimeToDetect = 6 * core::constants::HOUR,
                                             core_t::TTime maximumTimeToDetect = core::constants::DAY,
                                             double minimumDeltaBicToDetect = 12.0);
@@ -245,8 +242,6 @@ class MATHS_EXPORT CUnivariateChangeModel : private core::CNonCopyable
         const CTimeSeriesDecompositionInterface &trendModel() const;
         //! Get the time series trend model.
         CTimeSeriesDecompositionInterface &trendModel();
-        //! Get the time series trend model member variable.
-        TDecompositionPtr trendModelPtr() const;
 
         //! Get the time series residual model.
         const CPrior &residualModel() const;
@@ -306,10 +301,8 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeMode
 class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeModel
 {
     public:
-        CUnivariateLevelShiftModel(double learnRate,
-                                   const TDecompositionPtr &trendModel,
-                                   const TPriorPtr &residualModel,
-                                   const TTimeDoublePrCBuf &slidingWindow);
+        CUnivariateLevelShiftModel(const TDecompositionPtr &trendModel,
+                                   const TPriorPtr &residualModel);
 
         //! Initialize by reading state from \p traverser.
         virtual bool acceptRestoreTraverser(const SModelRestoreParams &params,

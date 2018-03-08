@@ -35,7 +35,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
 {
     public:
         //! Clone this decomposition.
-        virtual CTimeSeriesDecompositionStub *clone(void) const;
+        virtual CTimeSeriesDecompositionStub *clone(bool isForForecast = false) const;
 
         //! No-op.
         virtual void dataType(maths_t::EDataType dataType);

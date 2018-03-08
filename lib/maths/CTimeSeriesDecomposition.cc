@@ -137,12 +137,13 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const STimeSeriesDecompositio
     this->initializeMediator();
 }
 
-CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other) :
+CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other,
+                                                   bool isForForecast) :
         m_TimeShift{other.m_TimeShift},
         m_LastValueTime{other.m_LastValueTime},
         m_LastPropagationTime{other.m_LastPropagationTime},
-        m_PeriodicityTest{other.m_PeriodicityTest},
-        m_CalendarCyclicTest{other.m_CalendarCyclicTest},
+        m_PeriodicityTest{other.m_PeriodicityTest, isForForecast},
+        m_CalendarCyclicTest{other.m_CalendarCyclicTest, isForForecast},
         m_Components{other.m_Components}
 {
     this->initializeMediator();
@@ -227,7 +228,7 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
                                                          &m_Components, _1));
 }
 
-CTimeSeriesDecomposition *CTimeSeriesDecomposition::clone(void) const
+CTimeSeriesDecomposition *CTimeSeriesDecomposition::clone(bool isForForecast) const
 {
     return new CTimeSeriesDecomposition{*this};
 }

@@ -703,7 +703,7 @@ CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForPersistence(void
 
 CUnivariateTimeSeriesModel *CUnivariateTimeSeriesModel::cloneForForecast(void) const
 {
-    return new CUnivariateTimeSeriesModel{*this, m_Id};
+    return new CUnivariateTimeSeriesModel{*this, m_Id, true};
 }
 
 bool CUnivariateTimeSeriesModel::isForecastPossible(void) const
@@ -1329,7 +1329,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BUILT_IN(TIME_OF_LAST_CHANGE_POINT_6_3_TAG, m_TimeOfLastChangePoint)
             RESTORE_SETUP_TEARDOWN(CHANGE_DETECTOR_6_3_TAG,
                                    m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
-                                           this->params().learnRate(), m_TrendModel, m_ResidualModel, m_SlidingWindow),
+                                           m_TrendModel, m_ResidualModel),
                                    traverser.traverseSubLevel(boost::bind(
                                            &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
                                            m_ChangeDetector.get(), boost::cref(params), _1)),
@@ -1454,7 +1454,8 @@ const CPrior &CUnivariateTimeSeriesModel::residualModel(void) const
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel &other,
-                                                       std::size_t id) :
+                                                       std::size_t id,
+                                                       bool isForForecast) :
         CModel(other.params()),
         m_Id(id),
         m_IsNonNegative(other.m_IsNonNegative),
@@ -1462,19 +1463,19 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
         m_Rng(other.m_Rng),
         m_TrendModel(other.m_TrendModel->clone()),
         m_ResidualModel(other.m_ResidualModel->clone()),
-        m_AnomalyModel(other.m_AnomalyModel ?
+        m_AnomalyModel(!isForForecast && other.m_AnomalyModel ?
                        boost::make_shared<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel) :
                        TAnomalyModelPtr()),
         m_CandidateChangePoint(other.m_CandidateChangePoint),
         m_CurrentChangeInterval(other.m_CurrentChangeInterval),
         m_TimeOfLastChangePoint(other.m_TimeOfLastChangePoint),
-        m_ChangeDetector(other.m_ChangeDetector ?
+        m_ChangeDetector(!isForForecast && other.m_ChangeDetector ?
                          boost::make_shared<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector) :
                          TChangeDetectorPtr()),
-        m_SlidingWindow(other.m_SlidingWindow),
+        m_SlidingWindow(!isForForecast ? other.m_SlidingWindow : TTimeDoublePrCBuf{}),
         m_Correlations(0)
 {
-    if (other.m_Controllers != nullptr)
+    if (!isForForecast && other.m_Controllers != nullptr)
     {
         m_Controllers = boost::make_shared<TDecayRateController2Ary>(*other.m_Controllers);
     }
@@ -1497,7 +1498,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams &par
             if (this->params().testForChange(m_CurrentChangeInterval))
             {
                 m_ChangeDetector = boost::make_shared<CUnivariateTimeSeriesChangeDetector>(
-                                       this->params().learnRate(), m_TrendModel, m_ResidualModel, m_SlidingWindow,
+                                       m_TrendModel, m_ResidualModel,
                                        this->params().minimumTimeToDetectChange(time - m_TimeOfLastChangePoint),
                                        this->params().maximumTimeToTestForChange());
                 m_CurrentChangeInterval = 0;
@@ -1647,6 +1648,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(void)
     {
         m_AnomalyModel->reset();
     }
+    m_ChangeDetector.reset();
 }
 
 bool CUnivariateTimeSeriesModel::correlationModels(TSize1Vec &correlated,

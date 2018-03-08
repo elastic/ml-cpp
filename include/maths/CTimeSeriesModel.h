@@ -222,7 +222,9 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 
     private:
-        CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel &other, std::size_t id);
+        CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel &other,
+                                   std::size_t id,
+                                   bool isForForecast = false);
 
         //! Test for and apply any change we find.
         EUpdateResult testAndApplyChange(const CModelAddSamplesParams &params,

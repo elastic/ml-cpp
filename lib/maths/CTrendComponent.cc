@@ -253,7 +253,7 @@ void CTrendComponent::shiftLevel(core_t::TTime time, double value, double shift)
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL, {{dt}, {value}});
     }
-    m_MagnitudeOfLevelChangeModel.addSamples({maths_t::E_SampleCountWeight}, {shift}, {{1.0}});
+    m_MagnitudeOfLevelChangeModel.addSamples({maths_t::E_SampleCountWeight}, {1.2 * shift}, {{1.0}});
     m_TimeOfLastLevelChange = time;
 }
 

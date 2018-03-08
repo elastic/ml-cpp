@@ -26,7 +26,7 @@ namespace
 const maths_t::TSeasonalComponentVec NO_COMPONENTS;
 }
 
-CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone(void) const
+CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone(bool /*isForForecast*/) const
 {
     return new CTimeSeriesDecompositionStub(*this);
 }

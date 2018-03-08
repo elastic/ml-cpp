@@ -79,7 +79,7 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
                                  core::CStateRestoreTraverser &traverser);
 
         //! Deep copy.
-        CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other);
+        CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other, bool isForForecast = false);
 
         //! An efficient swap of the state of this and \p other.
         void swap(CTimeSeriesDecomposition &other);
@@ -91,7 +91,7 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Clone this decomposition.
-        virtual CTimeSeriesDecomposition *clone(void) const;
+        virtual CTimeSeriesDecomposition *clone(bool isForForecast = false) const;
 
         //! Set the data type.
         virtual void dataType(maths_t::EDataType dataType);

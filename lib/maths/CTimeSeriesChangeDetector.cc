@@ -68,11 +68,9 @@ const std::string RESIDUAL_MODEL_TAG{"l"};
 
 SChangeDescription::SChangeDescription(EDescription description,
                                        double value,
-                                       const TPriorPtr &residualModel,
-                                       const TDecompositionPtr &trendModel) :
+                                       const TPriorPtr &residualModel) :
         s_Description{description},
         s_Value{value},
-        s_TrendModel{trendModel},
         s_ResidualModel{residualModel}
 {}
 
@@ -87,10 +85,8 @@ std::string SChangeDescription::print() const
     return result + core::CStringUtils::typeToString(s_Value[0]);
 }
 
-CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(double learnRate,
-                                                                         const TDecompositionPtr &trendModel,
+CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(const TDecompositionPtr &trendModel,
                                                                          const TPriorPtr &residualModel,
-                                                                         const TTimeDoublePrCBuf &slidingWindow,
                                                                          core_t::TTime minimumTimeToDetect,
                                                                          core_t::TTime maximumTimeToDetect,
                                                                          double minimumDeltaBicToDetect) :
@@ -100,7 +96,7 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(double 
         m_SampleCount{0},
         m_CurrentEvidenceOfChange{0.0},
         m_ChangeModels{boost::make_shared<CUnivariateNoChangeModel>(trendModel, residualModel),
-                       boost::make_shared<CUnivariateLevelShiftModel>(learnRate, trendModel, residualModel, slidingWindow),
+                       boost::make_shared<CUnivariateLevelShiftModel>(trendModel, residualModel),
                        boost::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, -core::constants::HOUR),
                        boost::make_shared<CUnivariateTimeShiftModel>(trendModel, residualModel, +core::constants::HOUR)}
 {}
@@ -137,13 +133,11 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
 {
     inserter.insertValue(MINIMUM_TIME_TO_DETECT, m_MinimumTimeToDetect);
     inserter.insertValue(MAXIMUM_TIME_TO_DETECT, m_MaximumTimeToDetect);
-    inserter.insertValue(MINIMUM_DELTA_BIC_TO_DETECT,
-                         m_MinimumDeltaBicToDetect,
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(MINIMUM_DELTA_BIC_TO_DETECT, m_MinimumDeltaBicToDetect,
+                                                      core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
-    inserter.insertValue(CURRENT_EVIDENCE_OF_CHANGE,
-                         m_CurrentEvidenceOfChange,
-                         core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(CURRENT_EVIDENCE_OF_CHANGE, m_CurrentEvidenceOfChange,
+                                                     core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
     inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
     for (const auto &model : m_ChangeModels)
@@ -292,11 +286,6 @@ CTimeSeriesDecompositionInterface &CUnivariateChangeModel::trendModel()
     return *m_TrendModel;
 }
 
-CUnivariateChangeModel::TDecompositionPtr CUnivariateChangeModel::trendModelPtr() const
-{
-    return m_TrendModel;
-}
-
 const CPrior &CUnivariateChangeModel::residualModel() const
 {
     return *m_ResidualModel;
@@ -380,23 +369,11 @@ uint64_t CUnivariateNoChangeModel::checksum(uint64_t seed) const
     return this->CUnivariateChangeModel::checksum(seed);
 }
 
-CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(double learnRate,
-                                                       const TDecompositionPtr &trendModel,
-                                                       const TPriorPtr &residualModel,
-                                                       const TTimeDoublePrCBuf &slidingWindow) :
-        CUnivariateChangeModel{TDecompositionPtr{trendModel->clone()},
-                               TPriorPtr{residualModel->clone()}},
+CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const TDecompositionPtr &trendModel,
+                                                       const TPriorPtr &residualModel) :
+        CUnivariateChangeModel{trendModel, TPriorPtr{residualModel->clone()}},
         m_SampleCount{0.0}
-{
-    if (!this->trendModel().initialized())
-    {
-        this->trendModel().forceUseTrend();
-        CUnivariateTimeSeriesModel::reinitializeResidualModel(learnRate,
-                                                              this->trendModelPtr(),
-                                                              slidingWindow,
-                                                              this->residualModel());
-    }
-}
+{}
 
 bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                         core::CStateRestoreTraverser &traverser)
@@ -410,9 +387,7 @@ bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParam
                                this->addLogLikelihood(logLikelihood))
         RESTORE(SHIFT_TAG, m_Shift.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
-        RESTORE(TREND_MODEL_TAG, this->restoreTrendModel(params.s_DecompositionParams, traverser));
         RESTORE(RESIDUAL_MODEL_TAG, this->restoreResidualModel(params.s_DistributionParams, traverser))
-
     }
     while (traverser.next());
     return true;
@@ -423,8 +398,6 @@ void CUnivariateLevelShiftModel::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(LOG_LIKELIHOOD_TAG, this->logLikelihood());
     inserter.insertValue(SHIFT_TAG, m_Shift.toDelimited());
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
-    inserter.insertLevel(TREND_MODEL_TAG, boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                                            boost::cref(this->trendModel()), _1));
     inserter.insertLevel(RESIDUAL_MODEL_TAG, boost::bind<void>(CPriorStateSerialiser(),
                                                                boost::cref(this->residualModel()), _1));
 }
@@ -437,8 +410,8 @@ double CUnivariateLevelShiftModel::bic() const
 TOptionalChangeDescription CUnivariateLevelShiftModel::change() const
 {
     return SChangeDescription{SChangeDescription::E_LevelShift,
-                              CBasicStatistics::mean(m_Shift),
-                              this->residualModelPtr(), this->trendModelPtr()};
+                              0.9 * CBasicStatistics::mean(m_Shift),
+                              this->residualModelPtr()};
 }
 
 void CUnivariateLevelShiftModel::addSamples(std::size_t count,
@@ -458,13 +431,10 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
     {
         TDouble1Vec samples;
         samples.reserve(samples_.size());
-        for (std::size_t i = 0u; i < samples_.size(); ++i)
+        for (const auto &sample : samples_)
         {
-            core_t::TTime time{samples_[i].first};
-            double sample{samples_[i].second};
             double shift{CBasicStatistics::mean(m_Shift)};
-            this->trendModel().addPoint(time, sample - shift, weightStyles, weights[i]);
-            samples.push_back(trendModel.detrend(time, sample, 0.0) - shift);
+            samples.push_back(trendModel.detrend(sample.first, sample.second, 0.0) - shift);
         }
         for (const auto &weight : weights)
         {
