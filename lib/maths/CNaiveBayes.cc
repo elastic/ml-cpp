@@ -181,8 +181,7 @@ void CNaiveBayes::initialClassCounts(const TDoubleSizePrVec &counts)
     }
 }
 
-void CNaiveBayes::addTrainingDataPoint(std::size_t label,
-                                       const TDouble1VecVec &x)
+void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec &x)
 {
     if (!this->validate(x))
     {
@@ -273,6 +272,7 @@ CNaiveBayes::highestClassProbabilities(std::size_t n, const TDouble1VecVec &x) c
         pc.first /= Z;
     }
 
+    n = std::min(n, p.size());
     std::sort(p.begin(), p.begin() + n, std::greater<TDoubleSizePr>());
 
     return TDoubleSizePrVec{p.begin(), p.begin() + n};
