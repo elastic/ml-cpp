@@ -23,9 +23,9 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/ImportExport.h>
 
+#include <boost/function.hpp>
 #include <boost/operators.hpp>
 
-#include <functional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -254,7 +254,8 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
         class CNestedHypotheses
         {
             public:
-                using TTestFunc = std::function<CPeriodicityHypothesisTestsResult (STestStats &)>;
+                // Using boost::function rather than std::function here due to a problem with VS2013
+                using TTestFunc = boost::function<CPeriodicityHypothesisTestsResult (STestStats &)>;
 
                 //! \brief Manages the building of a collection of nested
                 //! hypotheses.
