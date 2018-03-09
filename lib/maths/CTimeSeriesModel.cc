@@ -764,8 +764,8 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         {
             CDecayRateController &controller{(*m_Controllers)[E_TrendControl]};
             core_t::TTime time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
-            TDouble1Vec prediction{m_Trend->mean(time)};
-            multiplier = controller.multiplier(prediction, errors[E_TrendControl],
+            TDouble1Vec trendMean{m_Trend->meanValue(time)};
+            multiplier = controller.multiplier(trendMean, errors[E_TrendControl],
                                                this->params().bucketLength(),
                                                this->params().learnRate(),
                                                this->params().decayRate());
@@ -777,8 +777,8 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_PriorControl]};
-            TDouble1Vec prediction{m_Prior->marginalLikelihoodMean()};
-            multiplier = controller.multiplier(prediction, errors[E_PriorControl],
+            TDouble1Vec residualMean{m_Prior->marginalLikelihoodMean()};
+            multiplier = controller.multiplier(residualMean, errors[E_PriorControl],
                                                this->params().bucketLength(),
                                                this->params().learnRate(),
                                                this->params().decayRate());
@@ -820,7 +820,7 @@ CUnivariateTimeSeriesModel::mode(core_t::TTime time,
         weights.push_back(weight[0]);
     }
     return {  m_Prior->marginalLikelihoodMode(weightStyles, weights)
-            + CBasicStatistics::mean(m_Trend->baseline(time))};
+            + CBasicStatistics::mean(m_Trend->value(time))};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec1Vec
@@ -840,11 +840,11 @@ CUnivariateTimeSeriesModel::correlateModes(core_t::TTime time,
     {
         result.resize(correlated.size(), TDouble10Vec(2));
 
-        double baseline[2];
-        baseline[0] = CBasicStatistics::mean(m_Trend->baseline(time));
+        double trend[2];
+        trend[0] = CBasicStatistics::mean(m_Trend->value(time));
         for (std::size_t i = 0u; i < correlated.size(); ++i)
         {
-            baseline[1] = CBasicStatistics::mean(correlatedTimeSeriesModels[i]->m_Trend->baseline(time));
+            trend[1] = CBasicStatistics::mean(correlatedTimeSeriesModels[i]->m_Trend->value(time));
             TDouble10Vec4Vec weights;
             weights.resize(weights_[i].size(), TDouble10Vec(2));
             for (std::size_t j = 0u; j < weights_[i].size(); ++j)
@@ -855,8 +855,8 @@ CUnivariateTimeSeriesModel::correlateModes(core_t::TTime time,
                 }
             }
             TDouble10Vec mode(correlationDistributionModels[i].first->marginalLikelihoodMode(weightStyles, weights));
-            result[i][variables[i][0]] = baseline[0] + mode[variables[i][0]];
-            result[i][variables[i][1]] = baseline[1] + mode[variables[i][1]];
+            result[i][variables[i][0]] = trend[0] + mode[variables[i][0]];
+            result[i][variables[i][1]] = trend[1] + mode[variables[i][1]];
         }
     }
 
@@ -953,10 +953,10 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
 
     double scale{1.0 - this->params().probabilityBucketEmpty()};
 
-    double seasonalOffset{0.0};
+    double trend{0.0};
     if (m_Trend->initialized())
     {
-        seasonalOffset = CBasicStatistics::mean(m_Trend->baseline(time));
+        trend = CBasicStatistics::mean(m_Trend->value(time));
     }
 
     if (hint.size() == 1)
@@ -968,7 +968,7 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
                   m_Prior->marginalLikelihoodMean() :
                   (hint.empty() ? CBasicStatistics::mean(m_Prior->marginalLikelihoodConfidenceInterval(0.0)) :
                                   m_Prior->nearestMarginalLikelihoodMean(hint[0]))};
-    double result{scale * (seasonalOffset + median + correlateCorrection)};
+    double result{scale * (trend + median + correlateCorrection)};
 
     return {m_IsNonNegative ? std::max(result, 0.0) : result};
 }
@@ -986,8 +986,8 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
 
     double scale{1.0 - this->params().probabilityBucketEmpty()};
 
-    double seasonalOffset{m_Trend->initialized() ?
-                          CBasicStatistics::mean(m_Trend->baseline(time, confidenceInterval)) : 0.0};
+    double trend{m_Trend->initialized() ?
+                 CBasicStatistics::mean(m_Trend->value(time, confidenceInterval)) : 0.0};
 
     TDouble4Vec weights;
     weights.reserve(weights_.size());
@@ -1001,9 +1001,9 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDoubleDoublePr interval{
             m_Prior->marginalLikelihoodConfidenceInterval(confidenceInterval, weightStyles, weights)};
 
-    double result[]{scale * (seasonalOffset + interval.first),
-                    scale * (seasonalOffset + median),
-                    scale * (seasonalOffset + interval.second)};
+    double result[]{scale * (trend + interval.first),
+                    scale * (trend + median),
+                    scale * (trend + interval.second)};
 
     return {{m_IsNonNegative ? std::max(result[0], 0.0) : result[0]},
             {m_IsNonNegative ? std::max(result[1], 0.0) : result[1]},
@@ -2208,13 +2208,13 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_TrendControl]};
-            TDouble1Vec prediction(dimension);
+            TDouble1Vec trendMean(dimension);
             core_t::TTime time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
             for (std::size_t d = 0u; d < dimension; ++d)
             {
-                prediction[d] = m_Trend[d]->mean(time);
+                trendMean[d] = m_Trend[d]->meanValue(time);
             }
-            double multiplier{controller.multiplier(prediction, errors[E_TrendControl],
+            double multiplier{controller.multiplier(trendMean, errors[E_TrendControl],
                                                     this->params().bucketLength(),
                                                     this->params().learnRate(),
                                                     this->params().decayRate())};
@@ -2229,8 +2229,8 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_PriorControl]};
-            TDouble1Vec prediction(m_Prior->marginalLikelihoodMean());
-            double multiplier{controller.multiplier(prediction, errors[E_PriorControl],
+            TDouble1Vec residualMean(m_Prior->marginalLikelihoodMean());
+            double multiplier{controller.multiplier(residualMean, errors[E_PriorControl],
                                                     this->params().bucketLength(),
                                                     this->params().learnRate(),
                                                     this->params().decayRate())};
@@ -2280,7 +2280,7 @@ CMultivariateTimeSeriesModel::mode(core_t::TTime time,
 
     for (std::size_t d = 0u; d < dimension; ++d)
     {
-        result[d] = mode[d] + CBasicStatistics::mean(m_Trend[d]->baseline(time));
+        result[d] = mode[d] + CBasicStatistics::mean(m_Trend[d]->value(time));
     }
 
     return result;
@@ -2353,10 +2353,10 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
     TDouble10Vec mean(m_Prior->marginalLikelihoodMean());
     for (std::size_t d = 0u; d < dimension; --marginalize[std::min(d, dimension - 2)], ++d)
     {
-        double seasonalOffset{0.0};
+        double trend{0.0};
         if (m_Trend[d]->initialized())
         {
-            seasonalOffset = CBasicStatistics::mean(m_Trend[d]->baseline(time));
+            trend = CBasicStatistics::mean(m_Trend[d]->value(time));
         }
         double median{mean[d]};
         if (!m_Prior->isNonInformative())
@@ -2365,7 +2365,7 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
             median = hint.empty() ? CBasicStatistics::mean(marginal->marginalLikelihoodConfidenceInterval(0.0)) :
                                     marginal->nearestMarginalLikelihoodMean(hint[d]);
         }
-        result[d] = scale * (seasonalOffset + median);
+        result[d] = scale * (trend + median);
         if (m_IsNonNegative)
         {
             result[d] = std::max(result[d], 0.0);
@@ -2401,9 +2401,8 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDouble4Vec weights;
     for (std::size_t d = 0u; d < dimension; --marginalize[std::min(d, dimension - 2)], ++d)
     {
-        double seasonalOffset{m_Trend[d]->initialized() ?
-                              CBasicStatistics::mean(
-                                      m_Trend[d]->baseline(time, confidenceInterval)) : 0.0};
+        double trend{m_Trend[d]->initialized() ?
+                     CBasicStatistics::mean(m_Trend[d]->value(time, confidenceInterval)) : 0.0};
 
         weights.clear();
         weights.reserve(weights_.size());
@@ -2417,9 +2416,9 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
         TDoubleDoublePr interval{
                 marginal->marginalLikelihoodConfidenceInterval(confidenceInterval, weightStyles, weights)};
 
-        result[0][d] = scale * (seasonalOffset + interval.first);
-        result[1][d] = scale * (seasonalOffset + median);
-        result[2][d] = scale * (seasonalOffset + interval.second);
+        result[0][d] = scale * (trend + interval.first);
+        result[1][d] = scale * (trend + median);
+        result[2][d] = scale * (trend + interval.second);
         if (m_IsNonNegative)
         {
             result[0][d] = std::max(result[0][d], 0.0);
