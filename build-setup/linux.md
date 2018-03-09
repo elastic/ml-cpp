@@ -126,12 +126,12 @@ to install.
 
 ### APR
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR), and its utilities from <http://mirrors.sonic.net/apache/apr/apr-1.5.2.tar.bz2>.
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar xvf apr-1.5.2.tar
+tar jxvf apr-1.5.2.tar.bz2
 ```
 
 Build using:
@@ -144,12 +144,12 @@ sudo make install
 
 ### APR utilities
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://mirrors.sonic.net/apache/apr/apr-util-1.5.4.tar.bz2>.
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar xvf apr-util-1.5.4.tar
+tar jxvf apr-util-1.5.4.tar.bz2
 ```
 
 Build using:

@@ -85,7 +85,7 @@ fi
 if [ ! -f apr.state ]; then
   echo "Compiling APR..."
   echo "  Downloading..."
-  wget --quiet http://mirrors.sonic.net/apache//apr/apr-1.5.2.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-1.5.2.tar.gz
   mkdir apr
   tar xfz apr-1.5.2.tar.gz -C apr --strip-components=1
   cd apr
@@ -103,7 +103,7 @@ fi
 if [ ! -f apr-util.state ]; then
   echo "Compiling APR-Utilities..."
   echo "  Downloading..."
-  wget --quiet http://mirrors.sonic.net/apache//apr/apr-util-1.5.4.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.gz
   mkdir apr-util
   tar xfz apr-util-1.5.4.tar.gz -C apr-util --strip-components=1
   cd apr-util
