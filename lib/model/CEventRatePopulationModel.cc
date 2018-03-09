@@ -849,14 +849,14 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
 
     for (const auto &feature : m_FeatureCorrelatesModels)
     {
-        for (const auto &prior : feature.s_Models->correlatePriors())
+        for (const auto &model : feature.s_Models->correlationModels())
         {
-            std::size_t cids[]{prior.first.first, prior.first.second};
+            std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) && gatherer.isAttributeActive(cids[1]))
             {
                 uint64_t &hash = hashes[{boost::cref(gatherer.attributeName(cids[0])),
                                          boost::cref(gatherer.attributeName(cids[1]))}];
-                hash = maths::CChecksum::calculate(hash, prior.second);
+                hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
     }

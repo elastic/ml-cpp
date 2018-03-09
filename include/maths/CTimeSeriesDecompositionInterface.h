@@ -99,19 +99,19 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! Propagate the decomposition forwards to \p time.
         virtual void propagateForwardsTo(core_t::TTime time) = 0;
 
-        //! Get the mean value of the baseline in the vicinity of \p time.
-        virtual double mean(core_t::TTime time) const = 0;
+        //! Get the mean value of the time series in the vicinity of \p time.
+        virtual double meanValue(core_t::TTime time) const = 0;
 
-        //! Get the value of the time series baseline at \p time.
+        //! Get the value of the time series at \p time.
         //!
         //! \param[in] time The time of interest.
         //! \param[in] confidence The symmetric confidence interval for the prediction
         //! the baseline as a percentage.
         //! \param[in] components The components to include in the baseline.
-        virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                                  double confidence = 0.0,
-                                                  int components = E_All,
-                                                  bool smooth = true) const = 0;
+        virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                               double confidence = 0.0,
+                                               int components = E_All,
+                                               bool smooth = true) const = 0;
 
         //! Forecast from \p start to \p end at \p dt intervals.
         //!
