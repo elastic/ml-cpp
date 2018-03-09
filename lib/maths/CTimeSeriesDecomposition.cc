@@ -252,13 +252,12 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     this->propagateForwardsTo(time);
 
     SAddValue message{time, lastTime, value, weightStyles, weights,
-                      CBasicStatistics::mean(this->baseline(time, 0.0, E_TrendForced)),
-                      CBasicStatistics::mean(this->baseline(time, 0.0, E_Seasonal)),
-                      CBasicStatistics::mean(this->baseline(time, 0.0, E_Calendar)),
+                      CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
+                      CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
+                      CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
                       [this](core_t::TTime time_)
                       {
-                          return CBasicStatistics::mean(this->baseline(
-                                     time_, 0.0, E_Seasonal | E_Calendar));
+                          return CBasicStatistics::mean(this->value(time_, 0.0, E_Seasonal | E_Calendar));
                       },
                       m_Components.periodicityTestConfig()};
 
@@ -280,15 +279,15 @@ void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time)
     m_LastPropagationTime = std::max(m_LastPropagationTime, time);
 }
 
-double CTimeSeriesDecomposition::mean(core_t::TTime time) const
+double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const
 {
     return m_Components.meanValue(time);
 }
 
-TDoubleDoublePr CTimeSeriesDecomposition::baseline(core_t::TTime time,
-                                                   double confidence,
-                                                   int components,
-                                                   bool smooth) const
+TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
+                                                double confidence,
+                                                int components,
+                                                bool smooth) const
 {
     TVector2x1 baseline{0.0};
 
@@ -329,7 +328,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::baseline(core_t::TTime time,
     if (smooth)
     {
         baseline += vector2x1(this->smooth(
-                boost::bind(&CTimeSeriesDecomposition::baseline,
+                boost::bind(&CTimeSeriesDecomposition::value,
                             this, _1, confidence, components & E_Seasonal, false),
                 time, components));
     }
@@ -408,8 +407,8 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time, double value, doubl
     {
         return value;
     }
-    TDoubleDoublePr baseline{this->baseline(time, confidence)};
-    return std::min(value - baseline.first, 0.0) + std::max(value - baseline.second, 0.0);
+    TDoubleDoublePr interval{this->value(time, confidence)};
+    return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
 
 double CTimeSeriesDecomposition::meanVariance(void) const

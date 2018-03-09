@@ -56,13 +56,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
         virtual void propagateForwardsTo(core_t::TTime time);
 
         //! Returns 0.
-        virtual double mean(core_t::TTime time) const;
+        virtual double meanValue(core_t::TTime time) const;
 
         //! Returns (0.0, 0.0).
-        virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                                  double confidence = 0.0,
-                                                  int components = E_All,
-                                                  bool smooth = true) const;
+        virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                               double confidence = 0.0,
+                                               int components = E_All,
+                                               bool smooth = true) const;
 
         //! Clears \p result.
         virtual void forecast(core_t::TTime startTime,
