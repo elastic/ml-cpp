@@ -75,6 +75,20 @@ After the gcc build is complete, if you are going to work through the rest of th
 export CXX='g++ -std=gnu++14'
 ```
 
+To confirm that everything works correctly run:
+
+```
+g++ --version
+```
+
+It should print:
+
+```
+g++ (GCC) 7.3.0
+```
+
+in the first line of the output. If it doesn't then double check that `/usr/local/gcc73/bin` is near the beginning of your `PATH`.
+
 ### Git
 
 Modern versions of Linux will come with Git in their package repositories, and (since we're not redistributing it so don't really care about the exact version used) this is the easiest way to install it. The command will be:
