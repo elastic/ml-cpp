@@ -416,19 +416,6 @@ class CORE_EXPORT CMemory : private CNonInstantiatable
             }
             return capacity + 1;
 
-#elif defined(Linux) && (!defined(_GLIBCXX_USE_CXX11_ABI) || _GLIBCXX_USE_CXX11_ABI == 0)
-            // All sizes > 0 use the heap, and the string structure is
-            // 1 pointer + 2 sizes + 1 null terminator
-            // We don't handle the reference counting, so may overestimate
-            // Even some 0 length strings may use the heap - see
-            // http://info.prelert.com/blog/clearing-strings
-            if (capacity == 0 &&
-                t.data() == EMPTY_STRING.data())
-            {
-                return 0;
-            }
-            return capacity + sizeof(void *) + (2 * sizeof(std::size_t)) + 1;
-
 #else // Linux with C++11 ABI and Windows
             // For lengths up to 15 bytes there is no allocation
             if (capacity <= 15)
@@ -937,19 +924,6 @@ class CORE_EXPORT CMemoryDebug : private CNonInstantiatable
             else
             {
                 capacity = 0;
-            }
-
-#elif defined(Linux) && (!defined(_GLIBCXX_USE_CXX11_ABI) || _GLIBCXX_USE_CXX11_ABI == 0)
-            // All sizes > 0 use the heap, and the string structure is
-            // 1 pointer + 2 sizes + 1 null terminator
-            // We don't handle the reference counting, so may overestimate
-            // Even some 0 length strings may use the heap - see
-            // http://info.prelert.com/blog/clearing-strings
-            if (capacity > 0 ||
-                t.data() != EMPTY_STRING.data())
-            {
-                unused = capacity - length;
-                capacity += sizeof(void *) + (2 * sizeof(std::size_t)) + 1;
             }
 
 #else // Linux with C++11 ABI and Windows
