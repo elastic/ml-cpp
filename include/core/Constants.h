@@ -9,8 +9,8 @@
 
 #include <core/CoreTypes.h>
 
+#include <cmath>
 #include <limits>
-#include <math.h>
 
 namespace ml
 {
@@ -19,38 +19,41 @@ namespace core
 namespace constants
 {
 
+//! A minute in seconds.
+const core_t::TTime MINUTE{60};
+
 //! An hour in seconds.
-const core_t::TTime HOUR = 3600;
+const core_t::TTime HOUR{3600};
 
 //! A day in seconds.
-const core_t::TTime DAY = 86400;
+const core_t::TTime DAY{86400};
 
 //! A (two day) weekend in seconds.
-const core_t::TTime WEEKEND = 172800;
+const core_t::TTime WEEKEND{172800};
 
 //! Five weekdays in seconds.
-const core_t::TTime WEEKDAYS = 432000;
+const core_t::TTime WEEKDAYS{432000};
 
 //! A week in seconds.
-const core_t::TTime WEEK = 604800;
+const core_t::TTime WEEK{604800};
 
 //! A (364 day) year in seconds.
-const core_t::TTime YEAR = 31449600;
+const core_t::TTime YEAR{31449600};
 
 //! Log of min double.
-const double LOG_MIN_DOUBLE = ::log(std::numeric_limits<double>::min());
+const double LOG_MIN_DOUBLE{std::log(std::numeric_limits<double>::min())};
 
 //! Log of max double.
-const double LOG_MAX_DOUBLE = ::log(std::numeric_limits<double>::max());
+const double LOG_MAX_DOUBLE{std::log(std::numeric_limits<double>::max())};
 
 //! Log of double epsilon.
-const double LOG_DOUBLE_EPSILON = ::log(std::numeric_limits<double>::epsilon());
+const double LOG_DOUBLE_EPSILON{std::log(std::numeric_limits<double>::epsilon())};
 
 //! Log of two.
-const double LOG_TWO = 0.693147180559945;
+const double LOG_TWO{0.693147180559945};
 
 //! Log of two pi.
-const double LOG_TWO_PI = 1.83787706640935;
+const double LOG_TWO_PI{1.83787706640935};
 
 #ifdef Windows
 const char PATH_SEPARATOR = '\\';

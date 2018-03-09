@@ -95,21 +95,21 @@ void generateEvents(const core_t::TTime &startTime,
     // Generate an ordered collection of event arrival times.
     test::CRandomNumbers rng;
     double bucketStartTime = static_cast<double>(startTime);
-    for (std::size_t i = 0u; i < eventCountsPerBucket.size(); ++i)
+    for (auto count : eventCountsPerBucket)
     {
         double bucketEndTime = bucketStartTime + static_cast<double>(bucketLength);
 
         TDoubleVec bucketEventTimes;
         rng.generateUniformSamples(bucketStartTime,
                                    bucketEndTime - 1.0,
-                                   static_cast<std::size_t>(eventCountsPerBucket[i]),
+                                   static_cast<std::size_t>(count),
                                    bucketEventTimes);
 
         std::sort(bucketEventTimes.begin(), bucketEventTimes.end());
 
-        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j)
+        for (auto time_ : bucketEventTimes)
         {
-            core_t::TTime time = static_cast<core_t::TTime>(bucketEventTimes[j]);
+            core_t::TTime time = static_cast<core_t::TTime>(time_);
             time = std::min(static_cast<core_t::TTime>(bucketEndTime - 1.0),
                             std::max(static_cast<core_t::TTime>(bucketStartTime), time));
             eventArrivalTimes.push_back(time);
@@ -127,42 +127,31 @@ void generateSporadicEvents(const core_t::TTime &startTime,
     // Generate an ordered collection of event arrival times.
     test::CRandomNumbers rng;
     double bucketStartTime = static_cast<double>(startTime);
-    for (std::size_t i = 0u; i < nonZeroEventCountsPerBucket.size(); ++i)
+    for (auto count : nonZeroEventCountsPerBucket)
     {
         double bucketEndTime = bucketStartTime + static_cast<double>(bucketLength);
 
         TDoubleVec bucketEventTimes;
         rng.generateUniformSamples(bucketStartTime,
                                    bucketEndTime - 1.0,
-                                   static_cast<std::size_t>(nonZeroEventCountsPerBucket[i]),
+                                   static_cast<std::size_t>(count),
                                    bucketEventTimes);
 
         std::sort(bucketEventTimes.begin(), bucketEventTimes.end());
 
-        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j)
+        for (auto time_ : bucketEventTimes)
         {
-            core_t::TTime time = static_cast<core_t::TTime>(bucketEventTimes[j]);
+            core_t::TTime time = static_cast<core_t::TTime>(time_);
             time = std::min(static_cast<core_t::TTime>(bucketEndTime - 1.0),
                             std::max(static_cast<core_t::TTime>(bucketStartTime), time));
             eventArrivalTimes.push_back(time);
         }
 
         TDoubleVec gap;
-        rng.generateUniformSamples(0.0, 10.0 * static_cast<double>(bucketLength), 1u, gap);
-        bucketStartTime += static_cast<double>(bucketLength)
-                           * ::ceil(gap[0] / static_cast<double>(bucketLength));
+        rng.generateUniformSamples(0.0, 10.0, 1u, gap);
+        bucketStartTime += static_cast<double>(bucketLength) * ::ceil(gap[0]);
     }
 }
-
-class CTimeLess
-{
-    public:
-        bool operator()(const CEventData &lhs,
-                        const CEventData &rhs) const
-        {
-            return lhs.time() < rhs.time();
-        }
-};
 
 std::size_t addPerson(const std::string &p,
                       const CModelFactory::TDataGathererPtr &gatherer,
@@ -184,7 +173,7 @@ std::size_t addPersonWithInfluence(const std::string &p,
     std::string i("i");
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    for (std::size_t j = 0; j < numInfluencers; j++)
+    for (std::size_t j = 0; j < numInfluencers; ++j)
     {
         person.push_back(&i);
     }
@@ -1266,7 +1255,9 @@ void CEventRateModelTest::testPrune(void)
             }
         }
     }
-    std::sort(events.begin(), events.end(), CTimeLess());
+    std::sort(events.begin(), events.end(),
+              [](const CEventData &lhs,
+                 const CEventData &rhs) { return lhs.time() < rhs.time(); });
 
     TEventDataVec expectedEvents;
     expectedEvents.reserve(events.size());
@@ -2377,14 +2368,14 @@ void CEventRateModelTest::testSkipSampling(void)
     // Check priors are the same
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
+                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
+                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum());
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
+                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
+                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->residualModel().checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -2461,14 +2452,14 @@ void CEventRateModelTest::testExplicitNulls(void)
     // Check priors are the same
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
+                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
+                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum());
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
+                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
+                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->residualModel().checksum());
 }
 
 void CEventRateModelTest::testInterimCorrections(void)
@@ -3014,7 +3005,6 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     // At the end the checksums for the underlying models should
     // be the same.
 
-
     // Create a rule to filter buckets where the count > 100
     CRuleCondition condition;
     condition.type(CRuleCondition::E_NumericalActual);
@@ -3104,9 +3094,9 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
 
     uint64_t withSkipChecksum = static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                                    modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum();
+                                    modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum();
     uint64_t noSkipChecksum   = static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                                    modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum();
+                                    modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))->residualModel().checksum();
     CPPUNIT_ASSERT_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // Check the last value times of the underlying models are the same
@@ -3114,12 +3104,12 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
     CPPUNIT_ASSERT(timeSeriesModel != 0);
 
-    core_t::TTime time = timeSeriesModel->trend().lastValueTime();
+    core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_IndividualCountByBucketAndPerson, startTime, bucketLength), time);
 
     // The last times of model with a skip should be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 }
 
 CppUnit::Test *CEventRateModelTest::suite(void)

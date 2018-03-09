@@ -316,7 +316,7 @@ void CTimeSeriesModelTest::testMode(void)
             model.addSamples(params, {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
-        double expectedMode{  maths::CBasicStatistics::mean(trend.baseline(time))
+        double expectedMode{  maths::CBasicStatistics::mean(trend.value(time))
                             + prior.marginalLikelihoodMode()};
         TDouble2Vec mode(model.mode(time, maths::CConstantWeights::COUNT, weight));
 
@@ -373,7 +373,7 @@ void CTimeSeriesModelTest::testMode(void)
             time += bucketLength;
         }
 
-        double expectedMode{  maths::CBasicStatistics::mean(trend.baseline(time))
+        double expectedMode{  maths::CBasicStatistics::mean(trend.value(time))
                             + prior.marginalLikelihoodMode()};
         TDouble2Vec mode(model.mode(time, maths::CConstantWeights::COUNT, weight));
 
@@ -428,7 +428,7 @@ void CTimeSeriesModelTest::testMode(void)
                                                               maths::CConstantWeights::unit<TDouble10Vec>(3)));
         for (std::size_t i = 0u; i < trends.size(); ++i)
         {
-            expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->baseline(time));
+            expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->value(time));
         }
         TDouble2Vec mode(model.mode(time,
                                     maths::CConstantWeights::COUNT,
@@ -504,7 +504,7 @@ void CTimeSeriesModelTest::testMode(void)
                                                               maths::CConstantWeights::unit<TDouble10Vec>(3)));
         for (std::size_t i = 0u; i < trends.size(); ++i)
         {
-            expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->baseline(time));
+            expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->value(time));
         }
         TDouble2Vec mode(model.mode(time,
                                     maths::CConstantWeights::COUNT,
@@ -558,7 +558,7 @@ void CTimeSeriesModelTest::testAddBucketValue(void)
     model.addSamples(params, samples);
     model.addBucketValue({core::make_triple(core_t::TTime{20}, TDouble2Vec{-1.0}, TAG)});
 
-    CPPUNIT_ASSERT_EQUAL(prior.checksum(), model.prior().checksum());
+    CPPUNIT_ASSERT_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
 void CTimeSeriesModelTest::testAddSamples(void)
@@ -604,11 +604,11 @@ void CTimeSeriesModelTest::testAddSamples(void)
         prior.propagateForwardsByTime(1.0);
 
         uint64_t checksum1{trend.checksum()};
-        uint64_t checksum2{model.trend().checksum()};
+        uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
-        checksum2 = model.prior().checksum();
+        checksum2 = model.residualModel().checksum();
         LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
     }
@@ -652,12 +652,12 @@ void CTimeSeriesModelTest::testAddSamples(void)
         for (std::size_t i = 0u; i < trends.size(); ++i)
         {
             uint64_t checksum1{trends[i]->checksum()};
-            uint64_t checksum2{model.trend()[i]->checksum()};
+            uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
         }
         uint64_t checksum1{prior.checksum()};
-        uint64_t checksum2{model.prior().checksum()};
+        uint64_t checksum2{model.residualModel().checksum()};
         LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
     }
@@ -692,7 +692,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
             prior.propagateForwardsByTime(interval[i]);
 
             uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.prior().checksum()};
+            uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
 
@@ -740,7 +740,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
             prior.propagateForwardsByTime(interval[i]);
 
             uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.prior().checksum()};
+            uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
 
@@ -798,7 +798,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
 
             if (trend.initialized())
             {
-                double multiplier{controllers[0].multiplier({trend.mean(time)},
+                double multiplier{controllers[0].multiplier({trend.meanValue(time)},
                                                             {{detrended}},
                                                             bucketLength,
                                                             model.params().learnRate(),
@@ -816,10 +816,10 @@ void CTimeSeriesModelTest::testAddSamples(void)
             }
 
             uint64_t checksum1{trend.checksum()};
-            uint64_t checksum2{model.trend().checksum()};
+            uint64_t checksum2{model.trendModel().checksum()};
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
-            checksum2 = model.prior().checksum();
+            checksum2 = model.residualModel().checksum();
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
@@ -862,7 +862,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
                                  + (time / bucketLength > 1800 ? 10.0 : 0.0) + sample[i];
                 reinitialize |= trends[i]->addPoint(time, sample[i]);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
-                mean[i] = trends[i]->mean(time);
+                mean[i] = trends[i]->meanValue(time);
                 hasTrend |= true;
                 amplitude += 4.0;
             }
@@ -913,11 +913,11 @@ void CTimeSeriesModelTest::testAddSamples(void)
             for (std::size_t i = 0u; i < trends.size(); ++i)
             {
                 uint64_t checksum1{trends[i]->checksum()};
-                uint64_t checksum2{model.trend()[i]->checksum()};
+                uint64_t checksum2{model.trendModel()[i]->checksum()};
                 CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
             }
             uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.prior().checksum()};
+            uint64_t checksum2{model.residualModel().checksum()};
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
@@ -985,7 +985,7 @@ void CTimeSeriesModelTest::testPredict(void)
         {
             double trend_{10.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                              * static_cast<double>(time_) / 86400.0)};
-            double expected{  maths::CBasicStatistics::mean(trend.baseline(time_))
+            double expected{  maths::CBasicStatistics::mean(trend.value(time_))
                             + maths::CBasicStatistics::mean(prior.marginalLikelihoodConfidenceInterval(0.0))};
             double predicted{model.predict(time_)[0]};
             LOG_DEBUG("expected = " << expected
@@ -1106,7 +1106,7 @@ void CTimeSeriesModelTest::testPredict(void)
                 double trend_{mean[i] + 10.0 + 5.0 * ::sin(  boost::math::double_constants::two_pi
                                                            * static_cast<double>(time_) / 86400.0)};
                 maths::CMultivariatePrior::TUnivariatePriorPtr margin{prior.univariate(marginalize, condition).first};
-                double expected{  maths::CBasicStatistics::mean(trends[i]->baseline(time_))
+                double expected{  maths::CBasicStatistics::mean(trends[i]->value(time_))
                                 + maths::CBasicStatistics::mean(margin->marginalLikelihoodConfidenceInterval(0.0))};
                 double predicted{model.predict(time_)[i]};
                 --marginalize[std::min(i, marginalize.size() - 1)];
@@ -1265,17 +1265,17 @@ void CTimeSeriesModelTest::testProbability(void)
                                 weights_.push_back(weight_[0]);
                             }
                             double lb[2], ub[2];
-                            models[0].prior().probabilityOfLessLikelySamples(
-                                                  calculation,
-                                                  weightStyles[i],
-                                                  sample, {weights_},
-                                                  lb[0], ub[0], expectedTail[0]);
-                            models[1].prior().probabilityOfLessLikelySamples(
-                                                  calculation,
-                                                  weightStyles[i],
-                                                  {models[1].trend().detrend(time, sample[0], confidence)},
-                                                  {weights_},
-                                                  lb[1], ub[1], expectedTail[1]);
+                            models[0].residualModel().probabilityOfLessLikelySamples(
+                                          calculation,
+                                          weightStyles[i],
+                                          sample, {weights_},
+                                          lb[0], ub[0], expectedTail[0]);
+                            models[1].residualModel().probabilityOfLessLikelySamples(
+                                          calculation,
+                                          weightStyles[i],
+                                          {models[1].trendModel().detrend(time, sample[0], confidence)},
+                                          {weights_},
+                                          lb[1], ub[1], expectedTail[1]);
                             expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
                             expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
                         }
@@ -1385,21 +1385,23 @@ void CTimeSeriesModelTest::testProbability(void)
                                 weights_.push_back(weight_);
                             }
                             double lb[2], ub[2];
-                            models[0].prior().probabilityOfLessLikelySamples(calculation,
-                                                                             weightStyles[i],
-                                                                             {TDouble10Vec(sample)},
-                                                                             {weights_},
-                                                                             lb[0], ub[0], expectedTail[0]);
+                            models[0].residualModel().probabilityOfLessLikelySamples(
+                                          calculation,
+                                          weightStyles[i],
+                                          {TDouble10Vec(sample)},
+                                          {weights_},
+                                          lb[0], ub[0], expectedTail[0]);
                             TDouble10Vec detrended;
                             for (std::size_t j = 0u; j < sample.size(); ++j)
                             {
-                                detrended.push_back(models[1].trend()[j]->detrend(time, sample[j], confidence));
+                                detrended.push_back(models[1].trendModel()[j]->detrend(time, sample[j], confidence));
                             }
-                            models[1].prior().probabilityOfLessLikelySamples(calculation,
-                                                                             weightStyles[i],
-                                                                             {detrended},
-                                                                             {weights_},
-                                                                             lb[1], ub[1], expectedTail[1]);
+                            models[1].residualModel().probabilityOfLessLikelySamples(
+                                          calculation,
+                                          weightStyles[i],
+                                          {detrended},
+                                          {weights_},
+                                          lb[1], ub[1], expectedTail[1]);
                             expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
                             expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
                         }

@@ -696,7 +696,7 @@ void CMetricModelTest::testMultivariateSample(void)
                 CPPUNIT_ASSERT(latLong == multivariateFeatureData(model, model_t::E_IndividualMeanLatLongByPerson, 0, time));
                 CPPUNIT_ASSERT_EQUAL(expectedMeanPrior->checksum(),
                                      dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
-                                             model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))->prior().checksum());
+                                             model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))->residualModel().checksum());
 
                 // Test persistence. (We check for idempotency.)
                 std::string origXml;
@@ -1758,9 +1758,9 @@ void CMetricModelTest::testSkipSampling(void)
 
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
+                modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
+                modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->residualModel().checksum());
 }
 
 void CMetricModelTest::testExplicitNulls(void)
@@ -1833,9 +1833,9 @@ void CMetricModelTest::testExplicitNulls(void)
 
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
+                modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
+                modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->residualModel().checksum());
 }
 
 void CMetricModelTest::testVarp(void)

@@ -1302,14 +1302,14 @@ void CEventRatePopulationModelTest::testSkipSampling()
     // Check priors are the same
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->prior().checksum(),
+                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->prior().checksum());
+                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))->residualModel().checksum());
     CPPUNIT_ASSERT_EQUAL(
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->prior().checksum(),
+                modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->residualModel().checksum(),
             static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->prior().checksum());
+                modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))->residualModel().checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 and a2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -1593,23 +1593,23 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules(void)
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
     CPPUNIT_ASSERT(timeSeriesModel != 0);
 
-    core_t::TTime time = timeSeriesModel->trend().lastValueTime();
+    core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
     CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute, 200, bucketLength), time);
 
     // The last times of the underlying time series models should all be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 }
 
 CppUnit::Test *CEventRatePopulationModelTest::suite(void)

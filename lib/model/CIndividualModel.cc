@@ -312,14 +312,14 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const
 
     for (const auto &feature : m_FeatureCorrelatesModels)
     {
-        for (const auto &prior : feature.s_Models->correlatePriors())
+        for (const auto &model : feature.s_Models->correlationModels())
         {
-            std::size_t pids[]{prior.first.first, prior.first.second};
+            std::size_t pids[]{model.first.first, model.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1]))
             {
                 uint64_t &hash = hashes2[{boost::cref(this->personName(pids[0])),
                                           boost::cref(this->personName(pids[1]))}];
-                hash = maths::CChecksum::calculate(hash, prior.second);
+                hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
     }
@@ -685,7 +685,7 @@ std::size_t CIndividualModel::numberCorrelations(void) const
     std::size_t result = 0u;
     for (const auto &feature : m_FeatureCorrelatesModels)
     {
-        result += feature.s_Models->correlatePriors().size();
+        result += feature.s_Models->correlationModels().size();
     }
     return result;
 }
