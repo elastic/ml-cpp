@@ -36,7 +36,7 @@ const std::size_t COMPONENT_SIZE(24);
 const std::string COUNT_TREND_TAG("a");
 const std::string COUNT_MEAN_TAG("b");
 
-double meanDecayRate(core_t::TTime bucketLength)
+double decayRate(core_t::TTime bucketLength)
 {
     return  CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE
           * CAnomalyDetectorModelConfig::bucketNormalizationFactor(bucketLength);
@@ -44,7 +44,7 @@ double meanDecayRate(core_t::TTime bucketLength)
 
 double trendDecayRate(core_t::TTime bucketLength)
 {
-    return CAnomalyDetectorModelConfig::trendDecayRate(meanDecayRate(bucketLength), bucketLength);
+    return CAnomalyDetectorModelConfig::trendDecayRate(decayRate(bucketLength), bucketLength);
 }
 }
 
@@ -72,7 +72,7 @@ void CInterimBucketCorrector::update(core_t::TTime time, std::size_t bucketCount
 
     m_CountTrend.addPoint(bucketMidPoint, static_cast<double>(bucketCount));
 
-    double alpha = std::exp(-meanDecayRate(m_BucketLength));
+    double alpha = std::exp(-decayRate(m_BucketLength));
     m_CountMean.age(alpha);
     m_CountMean.add(bucketCount);
 }

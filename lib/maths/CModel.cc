@@ -427,27 +427,27 @@ void CModelStub::modelCorrelations(CTimeSeriesCorrelations &/*model*/)
 
 CModelStub::TSize2Vec1Vec CModelStub::correlates(void) const
 {
-    return TSize2Vec1Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec CModelStub::mode(core_t::TTime /*time*/,
                                          const maths_t::TWeightStyleVec &/*weightStyles*/,
                                          const TDouble2Vec4Vec &/*weights*/) const
 {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec1Vec CModelStub::correlateModes(core_t::TTime /*time*/,
                                                        const maths_t::TWeightStyleVec &/*weightStyles*/,
                                                        const TDouble2Vec4Vec1Vec &/*weights*/) const
 {
-    return TDouble2Vec1Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec1Vec CModelStub::residualModes(const maths_t::TWeightStyleVec &/*weightStyles*/,
                                                       const TDouble2Vec4Vec &/*weights*/) const
 {
-    return TDouble2Vec1Vec();
+    return {};
 }
 
 void CModelStub::addBucketValue(const TTimeDouble2VecSizeTrVec &/*value*/)
@@ -474,7 +474,7 @@ CModelStub::TDouble2Vec CModelStub::predict(core_t::TTime /*time*/,
                                             const TSizeDoublePr1Vec &/*correlated*/,
                                             TDouble2Vec /*hint*/) const
 {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec3Vec CModelStub::confidenceInterval(core_t::TTime /*time*/,
@@ -482,7 +482,7 @@ CModelStub::TDouble2Vec3Vec CModelStub::confidenceInterval(core_t::TTime /*time*
                                                            const maths_t::TWeightStyleVec &/*weightStyles*/,
                                                            const TDouble2Vec4Vec &/*weights*/) const
 {
-    return TDouble2Vec3Vec();
+    return {};
 }
 
 bool CModelStub::forecast(core_t::TTime /*startTime*/,
@@ -515,13 +515,13 @@ CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
                                                         core_t::TTime /*time*/,
                                                         const TDouble2Vec &/*value*/) const
 {
-    return TDouble2Vec();
+    return {};
 }
 
 CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
                                                    core_t::TTime /*time*/) const
 {
-    return TDouble2Vec();
+    return {};
 }
 
 std::uint64_t CModelStub::checksum(std::uint64_t seed) const

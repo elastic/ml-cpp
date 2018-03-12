@@ -726,6 +726,12 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! Shift \p x to the right by \p eps times \p x.
         static double shiftRight(double x, double eps = std::numeric_limits<double>::epsilon());
 
+        //! Compute \f$x^2\f$.
+        static double pow2(double x)
+        {
+            return x * x;
+        }
+
         //! Sigmoid function of \p p.
         static double sigmoid(double p)
         {
@@ -748,6 +754,20 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
             return  sigmoid(std::exp(sign * (x - 1.0) / width))
                   / sigmoid(std::exp(1.0 / width));
         }
+
+        //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
+        //!
+        //! \note It is assumed that p is integer.
+        static double powOneMinusX(double x, double p);
+
+        //! A custom, numerically robust, implementation of \f$1 - (1 - x) ^ p\f$.
+        //!
+        //! \note It is assumed that p is integer.
+        static double oneMinusPowOneMinusX(double x, double p);
+
+        //! A custom implementation of \f$\log(1 - x)\f$ which handles the
+        //! cancellation error for small x.
+        static double logOneMinusX(double x);
 };
 
 }
