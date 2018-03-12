@@ -30,7 +30,6 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTimeSeriesModel.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
-#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTools.h>
 
 #include <boost/bind.hpp>
@@ -189,6 +188,7 @@ bool CUnivariateTimeSeriesChangeDetector::stopTesting() const
     }
     return false;
 }
+
 void CUnivariateTimeSeriesChangeDetector::addSamples(const TWeightStyleVec &weightStyles,
                                                      const TTimeDoublePr1Vec &samples,
                                                      const TDouble4Vec1Vec &weights)
@@ -337,6 +337,9 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
                                           const TTimeDoublePr1Vec &samples_,
                                           const TDouble4Vec1Vec &weights)
 {
+    // See CUnivariateTimeSeriesLevelShiftModel for an explanation
+    // of the delay updating the log-likelihood.
+
     if (count >= COUNT_TO_INITIALIZE)
     {
         TDouble1Vec samples;
@@ -428,6 +431,12 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
         m_Shift.add(x);
     }
 
+    // We delay updating the log-likelihood because early on the
+    // level can change giving us a better apparent fit to the
+    // data than a fixed step. Five updates was found to be the
+    // minimum to get empirically similar sum log-likelihood if
+    // there is no shift in the data.
+
     if (count >= COUNT_TO_INITIALIZE)
     {
         TDouble1Vec samples;
@@ -514,6 +523,9 @@ void CUnivariateTimeShiftModel::addSamples(std::size_t count,
                                            const TTimeDoublePr1Vec &samples_,
                                            const TDouble4Vec1Vec &weights)
 {
+    // See CUnivariateTimeSeriesLevelShiftModel for an explanation
+    // of the delay updating the log-likelihood.
+
     if (count >= COUNT_TO_INITIALIZE)
     {
         TDouble1Vec samples;

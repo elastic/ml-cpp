@@ -16,9 +16,9 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesChangeDetector_h
 #define INCLUDED_ml_maths_CTimeSeriesChangeDetector_h
 
+#include <core/CMemory.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
-#include <core/CMemory.h>
 #include <core/CSmallVector.h>
 #include <core/CTriple.h>
 
@@ -43,7 +43,6 @@ class CPrior;
 class CTimeSeriesDecompositionInterface;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
-struct STimeSeriesDecompositionRestoreParams;
 
 namespace time_series_change_detector_detail
 {
@@ -282,8 +281,6 @@ class MATHS_EXPORT CUnivariateNoChangeModel final : public CUnivariateChangeMode
 
         //! Get a checksum for this object.
         virtual uint64_t checksum(uint64_t seed) const;
-
-    private:
 };
 
 //! \brief Captures the likelihood of the data given an arbitrary

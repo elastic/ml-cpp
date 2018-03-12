@@ -599,7 +599,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
         prior.propagateForwardsByTime(1.0);
 
         uint64_t checksum1{trend.checksum()};
-        uint64_t checksum2{model.trend().checksum()};
+        uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
@@ -640,7 +640,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
         for (std::size_t i = 0u; i < trends.size(); ++i)
         {
             uint64_t checksum1{trends[i]->checksum()};
-            uint64_t checksum2{model.trend()[i]->checksum()};
+            uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG("checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
         }
@@ -784,7 +784,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
             }
 
             uint64_t checksum1{trend.checksum()};
-            uint64_t checksum2{model.trend().checksum()};
+            uint64_t checksum2{model.trendModel().checksum()};
             CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
             checksum2 = model.residualModel().checksum();
@@ -876,7 +876,7 @@ void CTimeSeriesModelTest::testAddSamples(void)
             for (std::size_t i = 0u; i < trends.size(); ++i)
             {
                 uint64_t checksum1{trends[i]->checksum()};
-                uint64_t checksum2{model.trend()[i]->checksum()};
+                uint64_t checksum2{model.trendModel()[i]->checksum()};
                 CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
             }
             uint64_t checksum1{prior.checksum()};
@@ -1210,7 +1210,7 @@ void CTimeSeriesModelTest::testProbability(void)
                                     lb[0], ub[0], expectedTail[0]);
                             models[1].residualModel().probabilityOfLessLikelySamples(
                                     calculation, weightStyles[i],
-                                    {models[1].trend().detrend(time, sample[0], confidence)},
+                                    {models[1].trendModel().detrend(time, sample[0], confidence)},
                                     {weights_},
                                     lb[1], ub[1], expectedTail[1]);
                             expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
@@ -1324,7 +1324,7 @@ void CTimeSeriesModelTest::testProbability(void)
                             TDouble10Vec detrended;
                             for (std::size_t j = 0u; j < sample.size(); ++j)
                             {
-                                detrended.push_back(models[1].trend()[j]->detrend(time, sample[j], confidence));
+                                detrended.push_back(models[1].trendModel()[j]->detrend(time, sample[j], confidence));
                             }
                             models[1].residualModel().probabilityOfLessLikelySamples(
                                     calculation, weightStyles[i],
@@ -1460,7 +1460,7 @@ void CTimeSeriesModelTest::testWeights(void)
             double dataScale{std::pow(1.0 + 0.5 * std::sin(  boost::math::double_constants::two_pi
                                                            * static_cast<double>(time_) / 86400.0), 2.0)};
 
-            double expectedScale{model.trend().scale(
+            double expectedScale{model.trendModel().scale(
                        time_, model.residualModel().marginalLikelihoodVariance(), 0.0).second};
             double scale{model.seasonalWeight(0.0, time_)[0]};
 
@@ -1524,7 +1524,7 @@ void CTimeSeriesModelTest::testWeights(void)
 
             for (std::size_t i = 0u; i < 3; ++i)
             {
-                double expectedScale{model.trend()[i]->scale(
+                double expectedScale{model.trendModel()[i]->scale(
                            time_, model.residualModel().marginalLikelihoodVariances()[i], 0.0).second};
                 double scale{model.seasonalWeight(0.0, time_)[i]};
                 LOG_DEBUG("expected weight = " << expectedScale

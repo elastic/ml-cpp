@@ -33,9 +33,9 @@ class CTimeSeriesChangeDetectorTest : public CppUnit::TestFixture
         static CppUnit::Test *suite();
 
     private:
-        using TGenerator = double (*)(ml::core_t::TTime);
+        using TGenerator = std::function<double (ml::core_t::TTime)>;
         using TGeneratorVec = std::vector<TGenerator>;
-        using TChange = double (TGenerator generator, ml::core_t::TTime);
+        using TChange = std::function<double (TGenerator generator, ml::core_t::TTime)>;
 
     private:
         void testChange(const TGeneratorVec &trends,

@@ -54,7 +54,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
     public:
         //! \param[in] params The model parameters.
         //! \param[in] id The *unique* identifier for this time series.
-        //! \param[in] trend The time series trend decomposition.
+        //! \param[in] trendModel The time series trend decomposition.
         //! \param[in] residualModel The prior for the time series residual model.
         //! \param[in] controllers Optional decay rate controllers for the trend
         //! and residual model.
@@ -62,7 +62,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! the characteristics of anomalous time periods.
         CUnivariateTimeSeriesModel(const CModelParams &params,
                                    std::size_t id,
-                                   const CTimeSeriesDecompositionInterface &trend,
+                                   const CTimeSeriesDecompositionInterface &trendModel,
                                    const CPrior &residualModel,
                                    const TDecayRateController2Ary *controllers = 0,
                                    bool modelAnomalies = true);
@@ -200,7 +200,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         const TTimeDoublePrCBuf &slidingWindow(void) const;
 
         //! Get the trend.
-        const CTimeSeriesDecompositionInterface &trend(void) const;
+        const CTimeSeriesDecompositionInterface &trendModel(void) const;
 
         //! Get the residual model.
         const CPrior &residualModel(void) const;
@@ -518,14 +518,14 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
 
     public:
         //! \param[in] params The model parameters.
-        //! \param[in] trend The time series trend decomposition.
+        //! \param[in] trendModel The time series trend decomposition.
         //! \param[in] residualModel The prior for the time series residual model.
         //! \param[in] controllers Optional decay rate controllers for the trend
         //! and residual model.
         //! \param[in] modelAnomalies If true we use a separate model to capture
         //! the characteristics of anomalous time periods.
         CMultivariateTimeSeriesModel(const CModelParams &params,
-                                     const CTimeSeriesDecompositionInterface &trend,
+                                     const CTimeSeriesDecompositionInterface &trendModel,
                                      const CMultivariatePrior &residualModel,
                                      const TDecayRateController2Ary *controllers = 0,
                                      bool modelAnomalies = true);
@@ -660,7 +660,7 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         const TTimeDouble2VecPrCBuf &slidingWindow(void) const;
 
         //! Get the trend.
-        const TDecompositionPtr10Vec &trend(void) const;
+        const TDecompositionPtr10Vec &trendModel(void) const;
 
         //! Get the residual model.
         const CMultivariatePrior &residualModel(void) const;

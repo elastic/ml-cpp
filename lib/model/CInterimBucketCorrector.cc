@@ -25,6 +25,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CInterimBucketCorrector.h>
 
+#include <cmath>
+
 namespace ml
 {
 namespace model
@@ -77,13 +79,13 @@ void CInterimBucketCorrector::update(core_t::TTime time, std::size_t bucketCount
 double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time,
                                                            std::size_t currentCount) const
 {
-    double baselineCount = 0.0;
     core_t::TTime bucketMidPoint = this->calcBucketMidPoint(time);
-    baselineCount = m_CountTrend.initialized() ?
-                    maths::CBasicStatistics::mean(m_CountTrend.value(bucketMidPoint)) :
-                    maths::CBasicStatistics::mean(m_CountMean);
-    return baselineCount == 0.0 ?
-           1.0 : maths::CTools::truncate(static_cast<double>(currentCount) / baselineCount, 0.0, 1.0);
+    double bucketCount = m_CountTrend.initialized() ?
+                         maths::CBasicStatistics::mean(m_CountTrend.value(bucketMidPoint)) :
+                         maths::CBasicStatistics::mean(m_CountMean);
+    return bucketCount > 0.0 ?
+           maths::CTools::truncate(  static_cast<double>(currentCount)
+                                   / bucketCount, 0.0, 1.0) : 1.0;
 }
 
 double CInterimBucketCorrector::corrections(core_t::TTime time,
@@ -141,10 +143,7 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
         if (name == COUNT_TREND_TAG)
         {
             maths::SDistributionRestoreParams changeModelParams{maths_t::E_ContinuousData,
-                                                                decayRate(m_BucketLength),
-                                                                maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
-                                                                maths::MINIMUM_CLUSTER_SPLIT_COUNT,
-                                                                maths::MINIMUM_CATEGORY_COUNT};
+                                                                decayRate(m_BucketLength)};
             maths::STimeSeriesDecompositionRestoreParams params{trendDecayRate(m_BucketLength),
                                                                 m_BucketLength,
                                                                 COMPONENT_SIZE,
@@ -158,5 +157,6 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
     while (traverser.next());
     return true;
 }
+
 }
 }

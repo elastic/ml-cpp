@@ -230,7 +230,7 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
 
 CTimeSeriesDecomposition *CTimeSeriesDecomposition::clone(bool isForForecast) const
 {
-    return new CTimeSeriesDecomposition{*this};
+    return new CTimeSeriesDecomposition{*this, isForForecast};
 }
 
 void CTimeSeriesDecomposition::dataType(maths_t::EDataType dataType)
@@ -274,8 +274,7 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
                       [this](core_t::TTime time_)
                       {
-                          return CBasicStatistics::mean(this->value(time_, 0.0,
-                                                        E_Seasonal | E_Calendar));
+                          return CBasicStatistics::mean(this->value(time_, 0.0, E_Seasonal | E_Calendar));
                       },
                       m_Components.periodicityTestConfig()};
 
@@ -446,8 +445,8 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
         return value;
     }
     time += m_TimeShift;
-    TDoubleDoublePr prediction{this->value(time, confidence, components)};
-    return std::min(value - prediction.first, 0.0) + std::max(value - prediction.second, 0.0);
+    TDoubleDoublePr interval{this->value(time, confidence, components)};
+    return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
 
 double CTimeSeriesDecomposition::meanVariance(void) const
