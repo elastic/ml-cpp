@@ -60,6 +60,7 @@ CMultivariateNormalConjugateFactory.cc \
 CMultivariateOneOfNPrior.cc \
 CMultivariateOneOfNPriorFactory.cc \
 CMultivariatePrior.cc \
+CNaiveBayes.cc \
 CNaturalBreaksClassifier.cc \
 CNormalMeanPrecConjugate.cc \
 COneOfNPrior.cc \
@@ -85,6 +86,7 @@ CSeasonalTime.cc \
 CSignal.cc \
 CSpline.cc \
 CStatisticalTests.cc \
+CTimeSeriesChangeDetector.cc \
 CTimeSeriesDecomposition.cc \
 CTimeSeriesDecompositionDetail.cc \
 CTimeSeriesDecompositionStateSerialiser.cc \

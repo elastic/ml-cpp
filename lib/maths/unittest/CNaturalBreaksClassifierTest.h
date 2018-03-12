@@ -9,7 +9,6 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-
 class CNaturalBreaksClassifierTest : public CppUnit::TestFixture
 {
     public:

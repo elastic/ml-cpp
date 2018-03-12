@@ -160,7 +160,6 @@ double computeWinsorisationWeight(const CMultivariatePrior &prior,
 }
 
 // Models
-
 // Version 6.3
 const std::string VERSION_6_3_TAG("6.3");
 const std::string ID_6_3_TAG{"a"};
