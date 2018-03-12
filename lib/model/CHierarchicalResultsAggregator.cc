@@ -263,12 +263,12 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode &no
 
         double probability{child->probability()};
         std::size_t key{0};
-        if (   pivot
-                && !isRoot(node)
-                && !influenceProbability(child->s_AnnotatedProbability.s_Influences,
-                                         node.s_Spec.s_PersonFieldName,
-                                         node.s_Spec.s_PersonFieldValue,
-                                         probability, probability)) {
+        if (   pivot &&
+               !isRoot(node) &&
+               !influenceProbability(child->s_AnnotatedProbability.s_Influences,
+                                     node.s_Spec.s_PersonFieldName,
+                                     node.s_Spec.s_PersonFieldValue,
+                                     probability, probability)) {
             LOG_ERROR("Couldn't find influence for " << child->print());
             continue;
         } else {
@@ -318,9 +318,9 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode &node, bo
 
     int fallback{static_cast<int>(model_t::E_AggregatePeople)};
     detector = -3;
-    aggregation = (   pivot
-                      || isPartition(node)
-                      || (isPopulation(node) && isPerson(node))) ? fallback : -1;
+    aggregation = (   pivot ||
+                      isPartition(node) ||
+                      (isPopulation(node) && isPerson(node))) ? fallback : -1;
 
     TIntDouble1VecFMap detectorProbabilities;
     detectorProbabilities.reserve(numberDetectors);

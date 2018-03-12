@@ -193,13 +193,13 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
                 traverser.traverseSubLevel(boost::bind(&CMetricPopulationModel::doAcceptRestoreTraverser,
                                                        this, _1)))
         RESTORE(FEATURE_MODELS_TAG,
-                i == m_FeatureModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
-                                                          &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                i == m_FeatureModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
+                                                       &m_FeatureModels[i++], boost::cref(this->params()), _1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
-                j == m_FeatureCorrelatesModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
-                                                          &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                j == m_FeatureCorrelatesModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
+                                                       &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -263,8 +263,8 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
 }
 
 bool CMetricPopulationModel::bucketStatsAvailable(core_t::TTime time) const {
-    return    time >= m_CurrentBucketStats.s_StartTime
-              && time < m_CurrentBucketStats.s_StartTime + this->bucketLength();
+    return    time >= m_CurrentBucketStats.s_StartTime &&
+              time < m_CurrentBucketStats.s_StartTime + this->bucketLength();
 }
 
 void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
@@ -889,8 +889,8 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     for (std::size_t j = range.first; j < range.second; ++j) {
         std::size_t cids[] {cid, CDataGatherer::extractAttributeId(data[j])};
         for (const auto &correlate : model->correlates()) {
-            if (   (cids[0] == correlate[0] && cids[1] == correlate[1])
-                    || (cids[1] == correlate[0] && cids[0] == correlate[1])) {
+            if (   (cids[0] == correlate[0] && cids[1] == correlate[1]) ||
+                   (cids[1] == correlate[0] && cids[0] == correlate[1])) {
                 return true;
             }
         }

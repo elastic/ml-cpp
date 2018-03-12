@@ -1841,8 +1841,8 @@ void CTimeSeriesModelTest::testUpgrade(void) {
         TStrVec expectedInterval;
         TStrVec interval;
         for (core_t::TTime time = 600000, i = 0;
-                i < static_cast<core_t::TTime>(expectedIntervals.size());
-                time += halfHour, ++i) {
+             i < static_cast<core_t::TTime>(expectedIntervals.size());
+             time += halfHour, ++i) {
             expectedInterval.clear();
             interval.clear();
 
@@ -1892,8 +1892,8 @@ void CTimeSeriesModelTest::testUpgrade(void) {
         TStrVec expectedInterval;
         TStrVec interval;
         for (core_t::TTime time = 600000, i = 0;
-                i < static_cast<core_t::TTime>(expectedIntervals.size());
-                time += halfHour, ++i) {
+             i < static_cast<core_t::TTime>(expectedIntervals.size());
+             time += halfHour, ++i) {
             expectedInterval.clear();
             interval.clear();
 

@@ -201,8 +201,8 @@ void CPopulationModel::sampleOutOfPhase(core_t::TTime startTime,
     }
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         gatherer.sampleNow(time);
         this->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
     }
@@ -281,8 +281,8 @@ double CPopulationModel::attributeFrequency(std::size_t cid) const {
 }
 
 double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) const {
-    if (   cid >= m_PersonAttributeBucketCounts.size()
-            || cid >= m_DistinctPersonCounts.size()) {
+    if (   cid >= m_PersonAttributeBucketCounts.size() ||
+           cid >= m_DistinctPersonCounts.size()) {
         return 1.0;
     }
 
@@ -383,9 +383,9 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
     numberNewAttributes = numberNewAttributes > numberExistingAttributes ?
                           numberNewAttributes - numberExistingAttributes : 0;
 
-    while (   numberNewPeople > 0
-              && resourceMonitor.areAllocationsAllowed()
-              && (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    while (   numberNewPeople > 0 &&
+              resourceMonitor.areAllocationsAllowed() &&
+              (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);
@@ -399,9 +399,9 @@ void CPopulationModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
         }
     }
 
-    while (   numberNewAttributes > 0
-              && resourceMonitor.areAllocationsAllowed()
-              && (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    while (   numberNewAttributes > 0 &&
+              resourceMonitor.areAllocationsAllowed() &&
+              (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
         // We batch attributes in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewAttributes, CHUNK_SIZE);
@@ -526,7 +526,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
     for (std::size_t pid = 0u; pid < m_PersonLastBucketTimes.size(); ++pid) {
         if ((gatherer.isPersonActive(pid)) &&
-                (!CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid]))) {
+            (!CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid]))) {
             std::size_t bucketsSinceLastEvent =
                 static_cast<std::size_t>((time - m_PersonLastBucketTimes[pid])
                                          / gatherer.bucketLength());
@@ -541,7 +541,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
     for (std::size_t cid = 0u; cid < m_AttributeLastBucketTimes.size(); ++cid) {
         if ((gatherer.isAttributeActive(cid)) &&
-                (!CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid]))) {
+            (!CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid]))) {
             std::size_t bucketsSinceLastEvent =
                 static_cast<std::size_t>((time - m_AttributeLastBucketTimes[cid])
                                          / gatherer.bucketLength());
@@ -592,10 +592,10 @@ CPopulationModel::CCorrectionKey::CCorrectionKey(model_t::EFeature feature,
 {}
 
 bool CPopulationModel::CCorrectionKey::operator==(const CCorrectionKey &rhs) const {
-    return   m_Feature == rhs.m_Feature
-             && m_Pid == rhs.m_Pid
-             && m_Cid == rhs.m_Cid
-             && m_Correlate == rhs.m_Correlate;
+    return   m_Feature == rhs.m_Feature &&
+             m_Pid == rhs.m_Pid &&
+             m_Cid == rhs.m_Cid &&
+             m_Correlate == rhs.m_Correlate;
 }
 
 std::size_t CPopulationModel::CCorrectionKey::hash(void) const {

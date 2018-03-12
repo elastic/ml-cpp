@@ -124,7 +124,7 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer,
 
     const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
     if (maths::CBasicStatistics::count(count_)
-            >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
+        >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
         unsigned sampleCountThreshold = 0;
         const CDataGatherer::TFeatureVec &features = gatherer.features();
         for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
@@ -155,11 +155,11 @@ void CSampleCounts::refresh(const CDataGatherer &gatherer) {
         const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
         if (m_SampleCounts[id] > 0) {
             if (maths::CBasicStatistics::count(count_)
-                    >= NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
+                >= NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
                 double count = maths::CBasicStatistics::mean(count_);
                 double scale = count / static_cast<double>(m_SampleCounts[id]);
-                if (   scale < maths::MINIMUM_ACCURATE_VARIANCE_SCALE
-                        || scale > maths::MAXIMUM_ACCURATE_VARIANCE_SCALE) {
+                if (   scale < maths::MINIMUM_ACCURATE_VARIANCE_SCALE ||
+                       scale > maths::MAXIMUM_ACCURATE_VARIANCE_SCALE) {
                     unsigned int oldCount = m_SampleCounts[id];
                     unsigned int newCount = std::max(sampleCountThreshold,
                                                      static_cast<unsigned int>(count + 0.5));
@@ -245,8 +245,8 @@ uint64_t CSampleCounts::checksum(const CDataGatherer &gatherer) const {
     TStrCRefUInt64Map hashes;
     for (std::size_t id = 0u; id < m_SampleCounts.size(); ++id) {
         if (gatherer.isPopulation() ?
-                gatherer.isAttributeActive(id) :
-                gatherer.isPersonActive(id)) {
+            gatherer.isAttributeActive(id) :
+            gatherer.isPersonActive(id)) {
             uint64_t &hash = hashes[TStrCRef(this->name(gatherer, id))];
             hash = maths::CChecksum::calculate(hash, m_SampleCounts[id]);
             hash = maths::CChecksum::calculate(hash, m_MeanNonZeroBucketCounts[id]);

@@ -114,8 +114,8 @@ double CSeasonalTime::fractionInWindow(void) const {
 }
 
 bool CSeasonalTime::excludes(const CSeasonalTime &other) const {
-    return   std::abs(other.m_Period - m_Period) < std::max(other.m_Period, m_Period) / 20
-             && m_Precedence >= other.m_Precedence;
+    return   std::abs(other.m_Period - m_Period) < std::max(other.m_Period, m_Period) / 20 &&
+             m_Precedence >= other.m_Precedence;
 }
 
 core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime offset, core_t::TTime time) const {
@@ -183,8 +183,8 @@ core_t::TTime CDiurnalTime::windowEnd(void) const {
 }
 
 bool CDiurnalTime::hasWeekend(void) const {
-    return   this->windowLength() == core::constants::WEEKEND
-             || this->windowLength() == core::constants::WEEKDAYS;
+    return   this->windowLength() == core::constants::WEEKEND ||
+             this->windowLength() == core::constants::WEEKDAYS;
 }
 
 uint64_t CDiurnalTime::checksum(uint64_t seed) const {

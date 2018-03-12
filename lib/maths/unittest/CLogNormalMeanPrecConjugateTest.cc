@@ -235,7 +235,7 @@ void CLogNormalMeanPrecConjugateTest::testMeanEstimation(void) {
                 TDoubleDoublePr confidenceInterval =
                     filter.confidenceIntervalNormalMean(testIntervals[j]);
                 if (location < confidenceInterval.first ||
-                        location > confidenceInterval.second) {
+                    location > confidenceInterval.second) {
                     ++errors[j];
                 }
             }
@@ -299,7 +299,7 @@ void CLogNormalMeanPrecConjugateTest::testPrecisionEstimation(void) {
                     filter.confidenceIntervalNormalPrecision(testIntervals[j]);
 
                 if (precision < confidenceInterval.first ||
-                        precision > confidenceInterval.second) {
+                    precision > confidenceInterval.second) {
                     ++errors[j];
                 }
             }

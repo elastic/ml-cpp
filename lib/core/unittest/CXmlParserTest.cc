@@ -269,8 +269,8 @@ void CXmlParserTest::testParse3(void) {
     CPPUNIT_ASSERT_EQUAL(size_t(7), arguments.size());
 
     for (ml::core::CXmlParser::TXmlNodeVecItr itr = arguments.begin();
-            itr != arguments.end();
-            ++itr) {
+         itr != arguments.end();
+         ++itr) {
         if (itr->value() == "Service") {
             CPPUNIT_ASSERT(this->testAttribute(*itr, "Value", "AWSECommerceService"));
         } else if (itr->value() == "AssociateTag") {

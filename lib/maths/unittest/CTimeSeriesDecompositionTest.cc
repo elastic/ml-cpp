@@ -279,9 +279,9 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void) {
             double percentileError = 0.0;
 
             for (core_t::TTime tt = lastWeek;
-                    tt < lastWeek + WEEK &&
-                    static_cast<std::size_t>(tt / HOUR) < boost::size(timeseries);
-                    tt += HOUR) {
+                 tt < lastWeek + WEEK &&
+                 static_cast<std::size_t>(tt / HOUR) < boost::size(timeseries);
+                 tt += HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(tt, 70.0);
 
                 double residual = ::fabs(timeseries[tt / HOUR] - mean(baseline));
@@ -612,8 +612,8 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void) {
             double percentileError = 0.0;
 
             for (core_t::TTime t = lastWeek;
-                    t < lastWeek + WEEK;
-                    t += HALF_HOUR) {
+                 t < lastWeek + WEEK;
+                 t += HALF_HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
 
                 double residual = ::fabs(trend[t / HALF_HOUR] + noiseMean - mean(baseline));
@@ -1337,11 +1337,11 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 50; ++t) {
             for (auto value : {
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 1.0
-                    }) {
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 1.0
+                 }) {
                 if (value > 0.0) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
@@ -1383,21 +1383,21 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
         core_t::TTime time = 0;
         for (std::size_t t = 0u; t < 10; ++t) {
             for (auto value : {
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                        20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                        10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                        0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                    }) {
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+                 }) {
                 if (value > 0.0) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
@@ -1530,8 +1530,8 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void) {
         {
             std::size_t i = 0u;
             for (core_t::TTime time = 0;
-                    time < length;
-                    time += HALF_HOUR, (time > drops[i] ? ++i : i)) {
+                 time < length;
+                 time += HALF_HOUR, (time > drops[i] ? ++i : i)) {
                 times.push_back(time);
                 trend.push_back(25.0 * static_cast<double>(time - drops[i-1])
                                 / static_cast<double>(drops[i] - drops[i-1] + 1));
@@ -1973,8 +1973,8 @@ void CTimeSeriesDecompositionTest::testCalendar(void) {
                                               * static_cast<double>(t)
                                               / static_cast<double>(DAY));
         auto i = std::lower_bound(months.begin(), months.end(), t - DAY);
-        if (   t >= *i + 7200
-                && t <  *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR) {
+        if (   t >= *i + 7200 &&
+               t <  *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR) {
             result += errors[(t - (*i + 7200)) / HALF_HOUR];
         }
         return result;
@@ -2222,8 +2222,8 @@ void CTimeSeriesDecompositionTest::testUpgrade(void) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(286374.0, meanVariance, 0.5);
 
         for (core_t::TTime time = 60480000, i = 0;
-                i < static_cast<core_t::TTime>(expectedValues.size());
-                time += HALF_HOUR, ++i) {
+             i < static_cast<core_t::TTime>(expectedValues.size());
+             time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.baseline(time, 10.0)};
@@ -2288,8 +2288,8 @@ void CTimeSeriesDecompositionTest::testUpgrade(void) {
         TMeanAccumulator meanValueError;
         TMeanAccumulator meanScaleError;
         for (core_t::TTime time = 10366200, i = 0;
-                i < static_cast<core_t::TTime>(expectedValues.size());
-                time += HALF_HOUR, ++i) {
+             i < static_cast<core_t::TTime>(expectedValues.size());
+             time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.baseline(time, 10.0)};

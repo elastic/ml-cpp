@@ -336,8 +336,8 @@ void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime ti
     CDetectorRecordDirectAddressTable::TDetectorRecordVec records;
     m_DetectorRecordFactory.detectorRecords(time, fieldValues, m_CandidateDetectors, records);
     m_DetectorCountStatistics.add(records);
-    if (   m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0
-            && time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
+    if (   m_NumberRecords % UPDATE_SCORE_RECORD_COUNT_INTERVAL == 0 &&
+           time >= m_LastTimeScoresWereRefreshed + UPDATE_SCORE_TIME_INTERVAL) {
         this->computeScores(false);
         m_LastTimeScoresWereRefreshed = time;
     }

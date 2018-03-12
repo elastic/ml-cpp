@@ -206,7 +206,7 @@ void CPoissonMeanConjugateTest::testMeanEstimation(void) {
                     filter.meanConfidenceInterval(testIntervals[j]);
 
                 if (rate < confidenceInterval.first ||
-                        rate > confidenceInterval.second) {
+                    rate > confidenceInterval.second) {
                     errors[j] += 1.0;
                 }
             }

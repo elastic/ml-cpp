@@ -1540,11 +1540,11 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
                 for (std::size_t k = 0u; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (std::size_t m = 0u;
-                            m < data_[k].second.s_InfluenceValues.size();
-                            ++m) {
+                         m < data_[k].second.s_InfluenceValues.size();
+                         ++m) {
                         for (std::size_t n = 0u;
-                                n < data_[k].second.s_InfluenceValues[m].size();
-                                ++n) {
+                             n < data_[k].second.s_InfluenceValues[m].size();
+                             ++n) {
                             statistics.push_back(TStrDoubleDoublePrPr(
                                                      data_[k].second.s_InfluenceValues[m][n].first,
                                                      TDoubleDoublePr(data_[k].second.s_InfluenceValues[m][n].second.first[0],

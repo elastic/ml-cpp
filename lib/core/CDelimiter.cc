@@ -63,10 +63,10 @@ CDelimiter::CDelimiter(const std::string &delimiter, const std::string &followin
 
 bool CDelimiter::operator==(const CDelimiter &rhs) const {
     if (m_Valid != rhs.m_Valid ||
-            m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
-            m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime ||
-            m_Quote != rhs.m_Quote ||
-            m_Escape != rhs.m_Escape) {
+        m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
+        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime ||
+        m_Quote != rhs.m_Quote ||
+        m_Escape != rhs.m_Escape) {
         return false;
     }
 
@@ -98,8 +98,8 @@ bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
 
     if (m_HaveFollowingRegex) {
         if (m_WaiveFollowingRegexAfterTime &&
-                timePassed &&
-                searchPos == str.length()) {
+            timePassed &&
+            searchPos == str.length()) {
             answer = true;
         } else {
             size_t foundPos(0);

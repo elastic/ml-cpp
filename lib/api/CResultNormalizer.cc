@@ -119,7 +119,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields) {
         }
         if (levelNormalizer != 0) {
             if (levelNormalizer->canNormalize() &&
-                    levelNormalizer->normalize(score) == false) {
+                levelNormalizer->normalize(score) == false) {
                 LOG_ERROR("Failed to normalize score " << score <<
                           " at level " << level <<
                           " with partition field name " << partition <<
@@ -151,12 +151,12 @@ bool CResultNormalizer::parseDataFields(const TStrStrUMap &dataRowFields,
                                         std::string &level, std::string &partition,
                                         std::string &person, std::string &function,
                                         std::string &valueFieldName, double &probability) {
-    return this->parseDataField(dataRowFields, LEVEL, level)
-           && this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition)
-           && this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person)
-           && this->parseDataField(dataRowFields, FUNCTION_NAME, function)
-           && this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName)
-           && this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
+    return this->parseDataField(dataRowFields, LEVEL, level) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
+           this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
+           this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
 }
 
 bool CResultNormalizer::parseDataFields(const TStrStrUMap &dataRowFields,
@@ -164,13 +164,13 @@ bool CResultNormalizer::parseDataFields(const TStrStrUMap &dataRowFields,
                                         std::string &partitionValue, std::string &person,
                                         std::string &function, std::string &valueFieldName,
                                         double &probability) {
-    return this->parseDataField(dataRowFields, LEVEL, level)
-           && this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition)
-           && this->parseDataField(dataRowFields, PARTITION_FIELD_VALUE, partitionValue)
-           && this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person)
-           && this->parseDataField(dataRowFields, FUNCTION_NAME, function)
-           && this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName)
-           && this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
+    return this->parseDataField(dataRowFields, LEVEL, level) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_NAME, partition) &&
+           this->parseDataField(dataRowFields, PARTITION_FIELD_VALUE, partitionValue) &&
+           this->parseDataField(dataRowFields, PERSON_FIELD_NAME, person) &&
+           this->parseDataField(dataRowFields, FUNCTION_NAME, function) &&
+           this->parseDataField(dataRowFields, VALUE_FIELD_NAME, valueFieldName) &&
+           this->parseDataField(dataRowFields, PROBABILITY_NAME, probability);
 }
 
 }

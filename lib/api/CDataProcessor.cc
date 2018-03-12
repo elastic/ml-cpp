@@ -44,8 +44,8 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields) {
     // values on the next line
 
     for (TStrStrUMapCItr rowIter = dataRowFields.begin();
-            rowIter != dataRowFields.end();
-            ++rowIter) {
+         rowIter != dataRowFields.end();
+         ++rowIter) {
         if (rowIter != dataRowFields.begin()) {
             fieldNames.push_back(',');
             fieldValues.push_back(',');

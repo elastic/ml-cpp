@@ -152,13 +152,13 @@ CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
                                    this->currentBucketPersonCounts().end(),
                                    pid, maths::COrderings::SFirstLess());
 
-    return   result != this->currentBucketPersonCounts().end()
-             && result->first == pid ? result->second : static_cast<uint64_t>(0);
+    return   result != this->currentBucketPersonCounts().end() &&
+             result->first == pid ? result->second : static_cast<uint64_t>(0);
 }
 
 bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
-    return   time >= this->currentBucketStartTime()
-             && time < this->currentBucketStartTime() + this->bucketLength();
+    return   time >= this->currentBucketStartTime() &&
+             time < this->currentBucketStartTime() + this->bucketLength();
 }
 
 void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
@@ -171,8 +171,8 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
     }
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         this->CAnomalyDetectorModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
         // Currently, we only remember one bucket.
@@ -192,8 +192,8 @@ void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime,
     }
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         gatherer.sampleNow(time);
         this->sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
     }
@@ -205,8 +205,8 @@ void CIndividualModel::sample(core_t::TTime startTime,
     const CDataGatherer &gatherer = this->dataGatherer();
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         this->CAnomalyDetectorModel::sample(time, time + bucketLength, resourceMonitor);
 
         this->currentBucketStartTime(time);
@@ -377,13 +377,13 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser &tr
         RESTORE(FIRST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_FirstBucketTimes, traverser))
         RESTORE(LAST_BUCKET_TIME_TAG, core::CPersistUtils::restore(name, m_LastBucketTimes, traverser))
         RESTORE(FEATURE_MODELS_TAG,
-                i == m_FeatureModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
-                                                          &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                i == m_FeatureModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
+                                                       &m_FeatureModels[i++], boost::cref(this->params()), _1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
-                j == m_FeatureCorrelatesModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
-                                                          &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                j == m_FeatureCorrelatesModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
+                                                       &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
         RESTORE(INTERIM_BUCKET_CORRECTOR_TAG, this->interimBucketCorrectorAcceptRestoreTraverser(traverser))
         RESTORE(MEMORY_ESTIMATOR_TAG, core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -419,9 +419,9 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time, CResourceMonito
     numberNewPeople = numberNewPeople > numberExistingPeople ?
                       numberNewPeople - numberExistingPeople : 0;
 
-    while (   numberNewPeople > 0
-              && resourceMonitor.areAllocationsAllowed()
-              && (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
+    while (   numberNewPeople > 0 &&
+              resourceMonitor.areAllocationsAllowed() &&
+              (resourceMonitor.haveNoLimit() || ourUsage < resourceLimit)) {
         // We batch people in CHUNK_SIZE (500) and create models in chunks
         // and test usage after each chunk.
         std::size_t numberToCreate = std::min(numberNewPeople, CHUNK_SIZE);

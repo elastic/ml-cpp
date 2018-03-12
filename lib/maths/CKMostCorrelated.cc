@@ -266,8 +266,8 @@ void CKMostCorrelated::capture(void) {
     m_MaximumCount += 1.0;
 
     for (TSizeVectorUMapCItr i = m_CurrentProjected.begin();
-            i != m_CurrentProjected.end();
-            ++i) {
+         i != m_CurrentProjected.end();
+         ++i) {
         std::size_t X = i->first;
         TSizeVectorPackedBitVectorPrUMapItr j = m_Projected.find(X);
         if (j == m_Projected.end()) {
@@ -280,8 +280,8 @@ void CKMostCorrelated::capture(void) {
         j->second.first += i->second;
     }
     for (TSizeVectorPackedBitVectorPrUMapItr i = m_Projected.begin();
-            i != m_Projected.end();
-            ++i) {
+         i != m_Projected.end();
+         ++i) {
         i->second.second.extend(m_CurrentProjected.count(i->first) > 0);
     }
 
@@ -300,8 +300,8 @@ void CKMostCorrelated::capture(void) {
 
         // Remove any variables for which the correlation will necessarily be zero.
         for (TSizeVectorPackedBitVectorPrUMapItr i = m_Projected.begin();
-                i != m_Projected.end();
-                /**/) {
+             i != m_Projected.end();
+             /**/) {
             const CPackedBitVector &indicator = i->second.second;
             if (indicator.manhattan() <= MINIMUM_FREQUENCY * static_cast<double>(indicator.dimension())) {
                 i = m_Projected.erase(i);
@@ -423,8 +423,8 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
         LOG_TRACE("Exhaustive search");
 
         for (TSizeVectorPackedBitVectorPrUMapCItr x = m_Projected.begin();
-                x != m_Projected.end();
-                ++x) {
+             x != m_Projected.end();
+             ++x) {
             std::size_t X = x->first;
             TSizeVectorPackedBitVectorPrUMapCItr y = x;
             while (++y != m_Projected.end()) {
@@ -452,8 +452,8 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
         TMaxDoubleAccumulator fmax;
         double dimension = 0.0;
         for (TSizeVectorPackedBitVectorPrUMapCItr i = m_Projected.begin();
-                i != m_Projected.end();
-                ++i) {
+             i != m_Projected.end();
+             ++i) {
             const CPackedBitVector &ix = i->second.second;
             dimension = static_cast<double>(ix.dimension());
             fmax.add(ix.manhattan() / dimension);
@@ -467,8 +467,8 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
         TPointSizePrVec points;
         points.reserve(m_Projected.size());
         for (TSizeVectorPackedBitVectorPrUMapCItr i = m_Projected.begin();
-                i != m_Projected.end();
-                ++i) {
+             i != m_Projected.end();
+             ++i) {
             points.emplace_back(i->second.first.to<double>().toBoostArray(), i->first);
         }
         LOG_TRACE("# points = " << points.size());
@@ -500,14 +500,14 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
 
                 nearest.clear();
                 bgi::query(rtree,
-                           bgi::satisfies(CNotEqual(X))
-                           && bgi::satisfies(CPairNotIn(lookup, X))
-                           && bgi::nearest(( px.first.to<double>()).toBoostArray(), k),
+                           bgi::satisfies(CNotEqual(X)) &&
+                           bgi::satisfies(CPairNotIn(lookup, X)) &&
+                           bgi::nearest(( px.first.to<double>()).toBoostArray(), k),
                            std::back_inserter(nearest));
                 bgi::query(rtree,
-                           bgi::satisfies(CNotEqual(X))
-                           && bgi::satisfies(CPairNotIn(lookup, X))
-                           && bgi::nearest((-px.first.to<double>()).toBoostArray(), k),
+                           bgi::satisfies(CNotEqual(X)) &&
+                           bgi::satisfies(CPairNotIn(lookup, X)) &&
+                           bgi::nearest((-px.first.to<double>()).toBoostArray(), k),
                            std::back_inserter(nearest));
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
@@ -545,22 +545,22 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                     bgm::box<TPoint> box((px.first - width).to<double>().toBoostArray(),
                                          (px.first + width).to<double>().toBoostArray());
                     bgi::query(rtree,
-                               bgi::within(box)
-                               && bgi::satisfies(CNotEqual(X))
-                               && bgi::satisfies(CCloserThan(threshold,
-                                                             px.first.to<double>().toBoostArray()))
-                               && bgi::satisfies(CPairNotIn(lookup, X)),
+                               bgi::within(box) &&
+                               bgi::satisfies(CNotEqual(X)) &&
+                               bgi::satisfies(CCloserThan(threshold,
+                                                          px.first.to<double>().toBoostArray())) &&
+                               bgi::satisfies(CPairNotIn(lookup, X)),
                                std::back_inserter(nearest));
                 }
                 {
                     bgm::box<TPoint> box((-px.first - width).to<double>().toBoostArray(),
                                          (-px.first + width).to<double>().toBoostArray());
                     bgi::query(rtree,
-                               bgi::within(box)
-                               && bgi::satisfies(CNotEqual(X))
-                               && bgi::satisfies(CCloserThan(threshold,
-                                                             (-px.first).to<double>().toBoostArray()))
-                               && bgi::satisfies(CPairNotIn(lookup, X)),
+                               bgi::within(box) &&
+                               bgi::satisfies(CNotEqual(X)) &&
+                               bgi::satisfies(CCloserThan(threshold,
+                                                          (-px.first).to<double>().toBoostArray())) &&
+                               bgi::satisfies(CPairNotIn(lookup, X)),
                                std::back_inserter(nearest));
                 }
                 LOG_TRACE("# candidates = " << nearest.size());

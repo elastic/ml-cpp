@@ -56,8 +56,8 @@ uint64_t CTestTimer::totalTime(void) const {
     uint64_t result(0);
 
     for (TStrUInt64MapCItr iter = m_TestTimes.begin();
-            iter != m_TestTimes.end();
-            ++iter) {
+         iter != m_TestTimes.end();
+         ++iter) {
         result += iter->second;
     }
 

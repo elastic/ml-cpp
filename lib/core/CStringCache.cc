@@ -77,8 +77,8 @@ size_t CStringCache::CStrHash::operator()(const std::string &str) const {
     // below
     size_t hash(0);
     for (std::string::const_iterator iter = str.begin();
-            iter != str.end();
-            ++iter) {
+         iter != str.end();
+         ++iter) {
         hash *= 17;
         hash += *iter;
     }

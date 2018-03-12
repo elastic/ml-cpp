@@ -415,9 +415,9 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
                 LOG_DEBUG("canonical clusters = " << core::CContainerPrinter::print(clusters));
             }
 
-            CPPUNIT_ASSERT(   expected[o][0] == core::CContainerPrinter::print(clusters)
-                              || expected[o][1] == core::CContainerPrinter::print(clusters)
-                              || expected[o][2] == core::CContainerPrinter::print(clusters));
+            CPPUNIT_ASSERT(   expected[o][0] == core::CContainerPrinter::print(clusters) ||
+                              expected[o][1] == core::CContainerPrinter::print(clusters) ||
+                              expected[o][2] == core::CContainerPrinter::print(clusters));
             ++count;
         } while (std::next_permutation(boost::begin(p), boost::end(p)));
     }

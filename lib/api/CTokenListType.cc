@@ -76,8 +76,8 @@ CTokenListType::CTokenListType(bool isDryRun,
       m_OrigUniqueTokenWeight(0),
       m_NumMatches(isDryRun ? 0 : 1) {
     for (TSizeSizeMapCItr iter = uniqueTokenIds.begin();
-            iter != uniqueTokenIds.end();
-            ++iter) {
+         iter != uniqueTokenIds.end();
+         ++iter) {
         m_CommonUniqueTokenWeight += iter->second;
     }
     m_OrigUniqueTokenWeight = m_CommonUniqueTokenWeight;
@@ -198,7 +198,7 @@ bool CTokenListType::addString(bool isDryRun,
     TSizeSizeMapCItr newIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end()) {
         if (newIter == uniqueTokenIds.end() ||
-                commonIter->first < newIter->first) {
+            commonIter->first < newIter->first) {
             m_CommonUniqueTokenWeight -= commonIter->second;
             commonIter = m_CommonUniqueTokenIds.erase(commonIter);
             changed = true;
@@ -306,7 +306,7 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenI
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
     TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
-            testIter != uniqueTokenIds.end()) {
+           testIter != uniqueTokenIds.end()) {
         if (commonIter->first == testIter->first) {
             // Don't increment the weight if a given token appears a different
             // number of times in the two strings
@@ -337,7 +337,7 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTo
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
     TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
-            testIter != uniqueTokenIds.end()) {
+           testIter != uniqueTokenIds.end()) {
         if (commonIter->first < testIter->first) {
             return false;
         }
@@ -360,8 +360,8 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTo
 bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec &tokenIds) const {
     TSizeSizePrVecCItr testIter = tokenIds.begin();
     for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin();
-            baseIter != m_BaseTokenIds.end();
-            ++baseIter) {
+         baseIter != m_BaseTokenIds.end();
+         ++baseIter) {
         // Ignore tokens that are not in the common unique tokens
         if (std::binary_search(m_CommonUniqueTokenIds.begin(),
                                m_CommonUniqueTokenIds.end(),
@@ -392,8 +392,8 @@ void CTokenListType::acceptPersistInserter(core::CStatePersistInserter &inserter
     inserter.insertValue(BASE_STRING, m_BaseString);
 
     for (TSizeSizePrVecCItr iter = m_BaseTokenIds.begin();
-            iter != m_BaseTokenIds.end();
-            ++iter) {
+         iter != m_BaseTokenIds.end();
+         ++iter) {
         inserter.insertValue(BASE_TOKEN_ID, iter->first);
         inserter.insertValue(BASE_TOKEN_WEIGHT, iter->second);
     }
@@ -402,8 +402,8 @@ void CTokenListType::acceptPersistInserter(core::CStatePersistInserter &inserter
     inserter.insertValue(OUT_OF_ORDER_COMMON_TOKEN_INDEX, m_OutOfOrderCommonTokenIndex);
 
     for (TSizeSizePrVecCItr iter = m_CommonUniqueTokenIds.begin();
-            iter != m_CommonUniqueTokenIds.end();
-            ++iter) {
+         iter != m_CommonUniqueTokenIds.end();
+         ++iter) {
         inserter.insertValue(COMMON_UNIQUE_TOKEN_ID, iter->first);
         inserter.insertValue(COMMON_UNIQUE_TOKEN_WEIGHT, iter->second);
     }

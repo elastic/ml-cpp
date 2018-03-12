@@ -509,14 +509,14 @@ bool CQDigest::compress(TNodePtrVec &compress) {
 
 bool CQDigest::SLevelLess::operator()(const CNode *lhs,
                                       const CNode *rhs) const {
-    return lhs->span() > rhs->span()
-           || (lhs->span() == rhs->span() && lhs->max() > rhs->max());
+    return lhs->span() > rhs->span() ||
+           (lhs->span() == rhs->span() && lhs->max() > rhs->max());
 }
 
 bool CQDigest::SPostLess::operator()(const CNode *lhs,
                                      const CNode *rhs) const {
-    return lhs->max() < rhs->max()
-           || (lhs->max() == rhs->max() && lhs->span() < rhs->span());
+    return lhs->max() < rhs->max() ||
+           (lhs->max() == rhs->max() && lhs->span() < rhs->span());
 }
 
 
@@ -589,8 +589,8 @@ bool CQDigest::CNode::quantileSublevelSetSupremum(uint64_t n,
     leftCount += m_SubtreeCount;
     for (auto i = m_Descendants.rbegin(); i != m_Descendants.rend(); ++i) {
         leftCount -= (*i)->subtreeCount();
-        if (   leftCount + (*i)->count() < n
-                && (*i)->quantileSublevelSetSupremum(n, leftCount, result)) {
+        if (   leftCount + (*i)->count() < n &&
+               (*i)->quantileSublevelSetSupremum(n, leftCount, result)) {
             break;
         }
     }
@@ -879,8 +879,8 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
                       << " -> " << m_Descendants[i]->print());
             return false;
         }
-        if (i + 1u < m_Descendants.size()
-                && !postLess(m_Descendants[i], m_Descendants[i + 1u])) {
+        if (i + 1u < m_Descendants.size() &&
+            !postLess(m_Descendants[i], m_Descendants[i + 1u])) {
             LOG_ERROR("Bad order: " << m_Descendants[i]->print()
                       << " >= " << m_Descendants[i + 1u]->print());
             return false;
@@ -960,9 +960,9 @@ CQDigest::CNode *CQDigest::CNode::sibling(const CNode &node) const {
 
 bool CQDigest::CNode::isSibling(const CNode &node) const {
     // Check if the nodes are on the same level and share a parent.
-    return this->span() == node.span()
-           && (this->isLeftChild() ?
-               m_Max + 1u == node.m_Min : m_Min == node.m_Max + 1u);
+    return this->span() == node.span() &&
+           (this->isLeftChild() ?
+            m_Max + 1u == node.m_Min : m_Min == node.m_Max + 1u);
 }
 
 bool CQDigest::CNode::isParent(const CNode &node) const {
@@ -972,8 +972,8 @@ bool CQDigest::CNode::isParent(const CNode &node) const {
 
 bool CQDigest::CNode::isAncestor(const CNode &node) const {
     // Check for inclusion of node range.
-    return (m_Min < node.m_Min && m_Max >= node.m_Max)
-           || (m_Min <= node.m_Min && m_Max > node.m_Max);
+    return (m_Min < node.m_Min && m_Max >= node.m_Max) ||
+           (m_Min <= node.m_Min && m_Max > node.m_Max);
 }
 
 bool CQDigest::CNode::isRoot(void) const {

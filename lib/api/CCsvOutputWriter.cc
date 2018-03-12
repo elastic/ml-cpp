@@ -40,8 +40,8 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages,
       m_Escape(escape),
       m_Separator(separator) {
     if (m_Separator == QUOTE ||
-            m_Separator == m_Escape ||
-            m_Separator == RECORD_END) {
+        m_Separator == m_Escape ||
+        m_Separator == RECORD_END) {
         LOG_ERROR("CSV output writer will not generate parsable output because "
                   "separator character (" << m_Separator << ") is the same as "
                   "the quote, escape and/or record end characters");
@@ -59,8 +59,8 @@ CCsvOutputWriter::CCsvOutputWriter(std::ostream &strmOut,
       m_Escape(escape),
       m_Separator(separator) {
     if (m_Separator == QUOTE ||
-            m_Separator == m_Escape ||
-            m_Separator == RECORD_END) {
+        m_Separator == m_Escape ||
+        m_Separator == RECORD_END) {
         LOG_ERROR("CSV output writer will not generate parsable output because "
                   "separator character (" << m_Separator << ") is the same as "
                   "the quote, escape and/or record end characters");
@@ -84,8 +84,8 @@ bool CCsvOutputWriter::fieldNames(const TStrVec &fieldNames,
 
     // Only add extra field names if they're not already present
     for (TStrVecCItr iter = extraFieldNames.begin();
-            iter != extraFieldNames.end();
-            ++iter) {
+         iter != extraFieldNames.end();
+         ++iter) {
         if (std::find(m_FieldNames.begin(),
                       m_FieldNames.end(),
                       *iter) == m_FieldNames.end()) {
@@ -123,8 +123,8 @@ bool CCsvOutputWriter::fieldNames(const TStrVec &fieldNames,
     // Messages are output in arrears - this is not ideal - TODO
     if (m_OutputMessages) {
         for (TStrStrPrSetCItr msgIter = m_Messages.begin();
-                msgIter != m_Messages.end();
-                ++msgIter) {
+             msgIter != m_Messages.end();
+             ++msgIter) {
             m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
             LOG_DEBUG("Forwarded " << msgIter->first << '=' << msgIter->second);
         }
@@ -178,9 +178,9 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     this->appendField(fieldValueIter->second);
 
     for (++fieldNameIter, ++preComputedHashIter;
-            fieldNameIter != m_FieldNames.end() &&
-            preComputedHashIter != m_Hashes.end();
-            ++fieldNameIter, ++preComputedHashIter) {
+         fieldNameIter != m_FieldNames.end() &&
+         preComputedHashIter != m_Hashes.end();
+         ++fieldNameIter, ++preComputedHashIter) {
         m_WorkRecord += m_Separator;
 
         fieldValueIter = overrideDataRowFields.find(*fieldNameIter,
@@ -223,13 +223,13 @@ void CCsvOutputWriter::appendField(const std::string &field) {
     // of possible characters.
     bool needOuterQuotes(false);
     for (std::string::const_iterator iter = field.begin();
-            iter != field.end();
-            ++iter) {
+         iter != field.end();
+         ++iter) {
         char curChar(*iter);
         if (curChar == m_Separator ||
-                curChar == QUOTE ||
-                curChar == RECORD_END ||
-                curChar == m_Escape) {
+            curChar == QUOTE ||
+            curChar == RECORD_END ||
+            curChar == m_Escape) {
             needOuterQuotes = true;
             break;
         }
@@ -239,8 +239,8 @@ void CCsvOutputWriter::appendField(const std::string &field) {
         m_WorkRecord += QUOTE;
 
         for (std::string::const_iterator iter = field.begin();
-                iter != field.end();
-                ++iter) {
+             iter != field.end();
+             ++iter) {
             char curChar(*iter);
             if (curChar == QUOTE || curChar == m_Escape) {
                 m_WorkRecord += m_Escape;

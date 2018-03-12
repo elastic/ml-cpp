@@ -287,8 +287,8 @@ size_t CRegex::literalCount(void) const {
     size_t minSubCount(std::numeric_limits<size_t>::max());
 
     for (std::string::iterator iter = regexStr.begin();
-            iter != regexStr.end();
-            ++iter) {
+         iter != regexStr.end();
+         ++iter) {
         char thisChar(*iter);
 
         switch (thisChar) {
@@ -310,12 +310,12 @@ size_t CRegex::literalCount(void) const {
                 }
                 thisChar = *iter;
                 if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' &&
-                        thisChar != 'D' && thisChar != 'S' && thisChar != 'W' &&
-                        (thisChar < '0' || thisChar > '9')) {
+                    thisChar != 'D' && thisChar != 'S' && thisChar != 'W' &&
+                    (thisChar < '0' || thisChar > '9')) {
                     if (squareBracketCount == 0 && braceCount == 0) {
                         std::string::iterator nextIter(iter + 1);
                         if (nextIter == regexStr.end() ||
-                                (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
+                            (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
                             if (inSubMatch) {
                                 ++subCount;
                             } else {
@@ -370,7 +370,7 @@ size_t CRegex::literalCount(void) const {
                 if (squareBracketCount == 0 && braceCount == 0) {
                     std::string::iterator nextIter(iter + 1);
                     if (nextIter == regexStr.end() ||
-                            (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
+                        (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
                         if (inSubMatch) {
                             ++subCount;
                         } else {
@@ -390,8 +390,8 @@ std::string CRegex::escapeRegexSpecial(const std::string &literal) {
     result.reserve(literal.size());
 
     for (std::string::const_iterator iter = literal.begin();
-            iter != literal.end();
-            ++iter) {
+         iter != literal.end();
+         ++iter) {
         char thisChar = *iter;
 
         switch (thisChar) {

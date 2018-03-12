@@ -1161,14 +1161,14 @@ void CMetricModelTest::testInfluence(void) {
             if (!annotatedProbability.s_Influences.empty()) {
                 std::size_t j = 0u;
                 for (/**/; j < annotatedProbability.s_Influences.size(); ++j) {
-                    if (   feature == model_t::E_IndividualMinByPerson
-                            && *annotatedProbability.s_Influences[j].first.second == min[0].second
-                            && std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
+                    if (   feature == model_t::E_IndividualMinByPerson &&
+                           *annotatedProbability.s_Influences[j].first.second == min[0].second &&
+                           std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
                         break;
                     }
-                    if (   feature == model_t::E_IndividualMaxByPerson
-                            && *annotatedProbability.s_Influences[j].first.second == max[0].second
-                            && std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
+                    if (   feature == model_t::E_IndividualMaxByPerson &&
+                           *annotatedProbability.s_Influences[j].first.second == max[0].second &&
+                           std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
                         break;
                     }
                 }
@@ -1211,8 +1211,8 @@ void CMetricModelTest::testInfluence(void) {
                     bool found{false};
                     for (const auto &actual : annotatedProbability.s_Influences) {
                         if (expected.first == *actual.first.second) {
-                            CPPUNIT_ASSERT(   actual.second >= expected.second
-                                              && actual.second <= expected.third);
+                            CPPUNIT_ASSERT(   actual.second >= expected.second &&
+                                              actual.second <= expected.third);
                             found = true;
                             break;
                         }
@@ -1438,8 +1438,8 @@ void CMetricModelTest::testPrune(void) {
                 rng.generateUniformSamples(0.0, 5.0, static_cast<size_t>(n), samples);
 
                 for (core_t::TTime k = 0, time = bucketStart, dt = bucketLength / n;
-                        k < n;
-                        ++k, time += dt) {
+                     k < n;
+                     ++k, time += dt) {
                     std::size_t pid = addPerson(people[i], gatherer, m_ResourceMonitor);
                     events.push_back(makeEventData(time, pid, samples[static_cast<size_t>(k)]));
                 }

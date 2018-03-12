@@ -174,8 +174,8 @@ size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) c
     size_t hash(0);
 
     for (std::string::const_iterator iter = str.begin();
-            iter != str.end();
-            ++iter) {
+         iter != str.end();
+         ++iter) {
         hash *= 17;
         hash += ::tolower(*iter);
     }

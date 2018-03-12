@@ -89,8 +89,8 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc) {
     TStrRefVec fieldValRefs;
     fieldValRefs.reserve(fieldNames.size());
     for (TStrVecCItr iter = fieldNames.begin();
-            iter != fieldNames.end();
-            ++iter) {
+         iter != fieldNames.end();
+         ++iter) {
         fieldValRefs.push_back(boost::ref(recordFields[*iter]));
     }
 

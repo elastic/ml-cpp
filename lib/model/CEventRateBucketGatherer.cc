@@ -375,7 +375,7 @@ struct SRemovePeople {
         for (auto &&bucket : peopleAttributeUniqueValues) {
             for (auto i = bucket.begin(); i != bucket.end(); /**/) {
                 if (CDataGatherer::extractPersonId(*i) >= lowestPersonToRemove &&
-                        CDataGatherer::extractPersonId(*i) < endPeople) {
+                    CDataGatherer::extractPersonId(*i) < endPeople) {
                     i = bucket.erase(i);
                 } else {
                     ++i;
@@ -395,7 +395,7 @@ struct SRemovePeople {
         for (auto &&bucket : arrivalTimes) {
             for (auto i = bucket.begin(); i != bucket.end(); /**/) {
                 if (CDataGatherer::extractPersonId(*i) >= lowestPersonToRemove &&
-                        CDataGatherer::extractPersonId(*i) < endPeople) {
+                    CDataGatherer::extractPersonId(*i) < endPeople) {
                     i = bucket.erase(i);
                 } else {
                     ++i;
@@ -900,7 +900,7 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
     } else {
         model_t::EFeature feature = m_DataGatherer.feature(0);
         if ((feature == model_t::E_IndividualTimeOfDayByBucketAndPerson) ||
-                (feature == model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute)) {
+            (feature == model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute)) {
             double t = static_cast<double>(result.time() % core::constants::DAY);
             result.addValue(TDouble1Vec(1, t));
         } else if ((feature == model_t::E_IndividualTimeOfWeekByBucketAndPerson) ||
@@ -1065,8 +1065,8 @@ void CEventRateBucketGatherer::featureData(core_t::TTime time, core_t::TTime /*b
                                            TFeatureAnyPrVec &result) const {
     result.clear();
 
-    if (  !this->dataAvailable(time)
-            || time >= this->currentBucketStartTime() + this->bucketLength()) {
+    if (  !this->dataAvailable(time) ||
+          time >= this->currentBucketStartTime() + this->bucketLength()) {
         LOG_DEBUG("No data available at " << time
                   << ", current bucket = " << this->printCurrentBucket());
         return;
@@ -1194,8 +1194,8 @@ void CEventRateBucketGatherer::personCounts(model_t::EFeature feature,
     result.reserve(m_DataGatherer.numberActivePeople());
 
     for (std::size_t pid = 0u, n = m_DataGatherer.numberPeople(); pid < n; ++pid) {
-        if (   !m_DataGatherer.isPersonActive(pid)
-                || this->hasExplicitNullsOnly(time, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)) {
+        if (   !m_DataGatherer.isPersonActive(pid) ||
+               this->hasExplicitNullsOnly(time, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)) {
             continue;
         }
         result.emplace_back(pid, 0);

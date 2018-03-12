@@ -587,9 +587,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
         }
     }
 
-    if (    (x < m && y < m)
-            ||  (x > m && y > m)
-            || !(x >= support.first && x <= support.second)) {
+    if (    (x < m && y < m) ||
+            (x > m && y > m) ||
+            !(x >= support.first && x <= support.second)) {
         LOG_ERROR("Bad root " << y << " (x = " << x << ")");
     }
 
@@ -827,8 +827,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
         if (maxIterations <= 3 * MAX_ITERATIONS / 4) {
             growthFactor *= 3.0;
         }
-        if (   maxIterations <= MAX_ITERATIONS / 2
-                || upperBound - b2 < 2.0 * growthFactor * b2) {
+        if (   maxIterations <= MAX_ITERATIONS / 2 ||
+               upperBound - b2 < 2.0 * growthFactor * b2) {
             step = upperBound - b2;
         } else {
             step = growthFactor * b2;
@@ -937,8 +937,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
         for (;;) {
             y[(i + 1) % 2] = x + m * std::log(y[i % 2] / x);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
-            if (++i == MAX_ITERATIONS
-                    || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
+            if (++i == MAX_ITERATIONS ||
+                ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
                 break;
             }
         }
@@ -964,8 +964,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
         for (;;) {
             y[(i + 1) % 2] = x * ::exp(-(x - y[i % 2]) / m);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
-            if (++i == MAX_ITERATIONS
-                    || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
+            if (++i == MAX_ITERATIONS ||
+                ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1])) {
                 break;
             }
         }
@@ -1160,8 +1160,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         double k = (beta_.alpha() - 1.0) / (beta_.beta() - 1.0);
         for (;;) {
             y[(i + 1) % 2] = 1.0 - ::exp(k * std::log(x / y[i % 2])) * (1.0 - x);
-            if (++i == MAX_ITERATIONS
-                    || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE) {
+            if (++i == MAX_ITERATIONS ||
+                ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE) {
                 break;
             }
         }
@@ -1196,8 +1196,8 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         double k = (beta_.beta() - 1.0) / (beta_.alpha() - 1.0);
         for (;;) {
             y[(i + 1) % 2] = ::exp(k * std::log((1.0 - x) / (1.0 -  y[i % 2]))) * x;
-            if (++i == MAX_ITERATIONS
-                    || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE) {
+            if (++i == MAX_ITERATIONS ||
+                ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE) {
                 break;
             }
         }
@@ -1935,10 +1935,10 @@ bool CTools::CGroup::overlap(const CGroup &other, double separation) const {
     double lr{this->rightEndpoint(separation)};
     double rl{other.leftEndpoint(separation)};
     double rr{other.rightEndpoint(separation)};
-    return !(   TOL * (lr + separation) <= rl
-                || ll >= TOL * (rr + separation)
-                || TOL * (rr + separation) <= ll
-                || rl >= TOL * (lr + separation));
+    return !(   TOL * (lr + separation) <= rl ||
+                ll >= TOL * (rr + separation) ||
+                TOL * (rr + separation) <= ll ||
+                rl >= TOL * (lr + separation));
 }
 
 double CTools::CGroup::leftEndpoint(double separation) const {

@@ -279,8 +279,8 @@ void CSignalTest::testFFTRandomized(void) {
     rng.generateUniformSamples(2, 100, 1000, lengths);
 
     for (std::size_t i = 0u, j = 0u;
-            i < lengths.size() && j + 2 * lengths[i] < components.size();
-            ++i, j += 2*lengths[i]) {
+         i < lengths.size() && j + 2 * lengths[i] < components.size();
+         ++i, j += 2*lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
             expected.push_back(maths::CSignal::TComplex(components[j + 2*k],
@@ -319,8 +319,8 @@ void CSignalTest::testIFFTRandomized(void) {
     rng.generateUniformSamples(2, 100, 1000, lengths);
 
     for (std::size_t i = 0u, j = 0u;
-            i < lengths.size() && j + 2 * lengths[i] < components.size();
-            ++i, j += 2*lengths[i]) {
+         i < lengths.size() && j + 2 * lengths[i] < components.size();
+         ++i, j += 2*lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
             expected.push_back(maths::CSignal::TComplex(components[j + 2*k],
@@ -359,8 +359,8 @@ void CSignalTest::testFFTIFFTIdempotency(void) {
     rng.generateUniformSamples(2, 100, 1000, lengths);
 
     for (std::size_t i = 0u, j = 0u;
-            i < lengths.size() && j + 2 * lengths[i] < components.size();
-            ++i, j += 2*lengths[i]) {
+         i < lengths.size() && j + 2 * lengths[i] < components.size();
+         ++i, j += 2*lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
             expected.push_back(maths::CSignal::TComplex(components[j + 2*k],

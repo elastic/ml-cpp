@@ -302,8 +302,8 @@ class CSymmetricMatrixNxN : private boost::equality_comparable< CSymmetricMatrix
         template<typename ITR>
         CSymmetricMatrixNxN(ITR begin, ITR end) {
             for (std::size_t i = 0u;
-                    i < N * (N + 1) / 2 && begin != end;
-                    ++i, ++begin) {
+                 i < N * (N + 1) / 2 && begin != end;
+                 ++i, ++begin) {
                 TBase::m_LowerTriangle[i] = static_cast<T>(*begin);
             }
         }
@@ -566,8 +566,8 @@ class CSymmetricMatrix : private boost::equality_comparable< CSymmetricMatrix<T>
             m_D = this->dimension(std::distance(begin, end));
             TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
             for (std::size_t i = 0u;
-                    i < m_D * (m_D + 1) / 2 && begin != end;
-                    ++i, ++begin) {
+                 i < m_D * (m_D + 1) / 2 && begin != end;
+                 ++i, ++begin) {
                 TBase::m_LowerTriangle[i] = static_cast<T>(*begin);
             }
         }

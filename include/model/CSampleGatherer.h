@@ -162,11 +162,11 @@ class CSampleGatherer {
                                                   TMetricPartialStatistic(m_Dimension)),
                                               boost::ref(m_BucketStats), _1)))
                 RESTORE(INFLUENCER_BUCKET_STATS_TAG,
-                        i < m_InfluencerBucketStats.size()
-                        && traverser.traverseSubLevel(boost::bind<bool>(TStoredStringPtrStatUMapBucketQueueSerializer(
-                                                                            TStoredStringPtrStatUMap(1),
-                                                                            CStoredStringPtrStatUMapSerializer(m_Dimension)),
-                                                                        boost::ref(m_InfluencerBucketStats[i++]), _1)))
+                        i < m_InfluencerBucketStats.size() &&
+                        traverser.traverseSubLevel(boost::bind<bool>(TStoredStringPtrStatUMapBucketQueueSerializer(
+                                                                         TStoredStringPtrStatUMap(1),
+                                                                         CStoredStringPtrStatUMapSerializer(m_Dimension)),
+                                                                     boost::ref(m_InfluencerBucketStats[i++]), _1)))
             } while (traverser.next());
             return true;
         }

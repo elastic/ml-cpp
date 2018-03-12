@@ -104,7 +104,7 @@ std::string CUname::mlPlatform(void) {
         // that doesn't identify itself as glibc is musl, but it's hard to do
         // better as musl goes out of its way to be hard to detect
         if (::confstr(_CS_GNU_LIBC_VERSION, buffer, sizeof(buffer)) == 0 ||
-                ::strstr(buffer, "glibc") == 0) {
+            ::strstr(buffer, "glibc") == 0) {
             os += "-musl";
         }
     }

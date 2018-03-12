@@ -266,8 +266,8 @@ class CStrKeyPrEqual {
     private:
         template<typename U, typename V>
         bool equal(const U &lhs, const V &rhs) const {
-            return    boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second)
-                      && boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
+            return    boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second) &&
+                      boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
         }
 };
 

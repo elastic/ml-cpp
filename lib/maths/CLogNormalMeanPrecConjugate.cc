@@ -402,8 +402,8 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
                                                         m_Rate,
                                                         m_Mean,
                                                         m_Precision,
-                                                        probability)
-                    || !probability.calculate(result)) {
+                                                        probability) ||
+                   !probability.calculate(result)) {
                 LOG_ERROR("Failed to compute probability of less likely samples"
                           << ", samples = " << core::CContainerPrinter::print(m_Samples)
                           << ", offset = " << m_Offset + x);
@@ -557,8 +557,8 @@ class CLogMarginalLikelihood : core::CNonCopyable {
             try {
                 double logVarianceScaleSum = 0.0;
 
-                if (   maths_t::hasSeasonalVarianceScale(m_WeightStyles, m_Weights)
-                        || maths_t::hasCountVarianceScale(m_WeightStyles, m_Weights)) {
+                if (   maths_t::hasSeasonalVarianceScale(m_WeightStyles, m_Weights) ||
+                       maths_t::hasCountVarianceScale(m_WeightStyles, m_Weights)) {
                     m_Scales.reserve(m_Weights.size());
                     double r = m_Rate / m_Shape;
                     double s = std::exp(-r);
@@ -1153,7 +1153,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyl
 
             detail::CVarianceKernel::TValue variance;
             if (CIntegration::sparseGaussLegendre<CIntegration::OrderThree,
-                    CIntegration::TwoDimensions>(f, a, b, variance)) {
+                CIntegration::TwoDimensions>(f, a, b, variance)) {
                 double vl = variance(0) / variance(1);
                 double alpha = std::min(2.0 * (1.0 - m_GammaShape / MINIMUM_LOGNORMAL_SHAPE), 1.0);
                 return varianceScale * alpha * vl + (1.0 - alpha) * vh;
@@ -1547,8 +1547,8 @@ bool CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProba
 }
 
 bool CLogNormalMeanPrecConjugate::isNonInformative(void) const {
-    return m_GammaRate == NON_INFORMATIVE_RATE
-           || m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
+    return m_GammaRate == NON_INFORMATIVE_RATE ||
+           m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
 }
 
 void CLogNormalMeanPrecConjugate::print(const std::string &indent,
@@ -1748,10 +1748,10 @@ bool CLogNormalMeanPrecConjugate::equalTolerance(const CLogNormalMeanPrecConjuga
               << m_GaussianPrecision << " " << rhs.m_GaussianPrecision << ", "
               << m_GammaShape << " " << rhs.m_GammaShape << ", "
               << m_GammaRate << " " << rhs.m_GammaRate);
-    return    equal(m_GaussianMean, rhs.m_GaussianMean)
-              && equal(m_GaussianPrecision, rhs.m_GaussianPrecision)
-              && equal(m_GammaShape, rhs.m_GammaShape)
-              && equal(m_GammaRate, rhs.m_GammaRate);
+    return    equal(m_GaussianMean, rhs.m_GaussianMean) &&
+              equal(m_GaussianPrecision, rhs.m_GaussianPrecision) &&
+              equal(m_GammaShape, rhs.m_GammaShape) &&
+              equal(m_GammaRate, rhs.m_GammaRate);
 }
 
 double CLogNormalMeanPrecConjugate::mean(void) const {
@@ -1800,11 +1800,11 @@ double CLogNormalMeanPrecConjugate::mean(void) const {
 }
 
 bool CLogNormalMeanPrecConjugate::isBad(void) const {
-    return    !CMathsFuncs::isFinite(m_Offset)
-              || !CMathsFuncs::isFinite(m_GaussianMean)
-              || !CMathsFuncs::isFinite(m_GaussianPrecision)
-              || !CMathsFuncs::isFinite(m_GammaShape)
-              || !CMathsFuncs::isFinite(m_GammaRate);
+    return    !CMathsFuncs::isFinite(m_Offset) ||
+              !CMathsFuncs::isFinite(m_GaussianMean) ||
+              !CMathsFuncs::isFinite(m_GaussianPrecision) ||
+              !CMathsFuncs::isFinite(m_GammaShape) ||
+              !CMathsFuncs::isFinite(m_GammaRate);
 }
 
 std::string CLogNormalMeanPrecConjugate::debug(void) const {

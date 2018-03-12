@@ -44,8 +44,8 @@ std::string CXmlParserIntf::makeValidName(const std::string &str) {
         // Other characters can be numbers, but change all other punctuation to
         // underscores
         for (std::string::iterator iter = result.begin() + 1;
-                iter != result.end();
-                ++iter) {
+             iter != result.end();
+             ++iter) {
             if (!::isalnum(static_cast<unsigned char>(*iter))) {
                 *iter = '_';
             }

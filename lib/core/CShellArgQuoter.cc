@@ -35,8 +35,8 @@ std::string CShellArgQuoter::quote(const std::string &arg) {
     bool insideSingleQuote(false);
 
     for (std::string::const_iterator iter = arg.begin();
-            iter != arg.end();
-            ++iter) {
+         iter != arg.end();
+         ++iter) {
         switch (*iter) {
             case '\'':
             case '!':

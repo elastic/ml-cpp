@@ -42,9 +42,9 @@ typename T::const_iterator CPopulationModel::find(const T &data, std::size_t pid
     auto i = std::lower_bound(data.begin(), data.end(),
                               std::make_pair(pid, cid),
                               maths::COrderings::SFirstLess());
-    if (   i != data.end()
-            && (   CDataGatherer::extractPersonId(*i) != pid
-                   || CDataGatherer::extractAttributeId(*i) != cid)) {
+    if (   i != data.end() &&
+           (   CDataGatherer::extractPersonId(*i) != pid ||
+               CDataGatherer::extractAttributeId(*i) != cid)) {
         i = data.end();
     }
     return i;

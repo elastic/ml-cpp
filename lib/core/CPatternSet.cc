@@ -86,10 +86,10 @@ bool CPatternSet::initFromJson(const std::string &json) {
     this->sortAndPruneDuplicates(prefixPatterns);
     this->sortAndPruneDuplicates(suffixPatterns);
     this->sortAndPruneDuplicates(containsPatterns);
-    return m_FullMatchPatterns.build(fullPatterns)
-           && m_PrefixPatterns.build(prefixPatterns)
-           && m_SuffixPatterns.build(suffixPatterns)
-           && m_ContainsPatterns.build(containsPatterns);
+    return m_FullMatchPatterns.build(fullPatterns) &&
+           m_PrefixPatterns.build(prefixPatterns) &&
+           m_SuffixPatterns.build(suffixPatterns) &&
+           m_ContainsPatterns.build(containsPatterns);
 }
 
 void CPatternSet::sortAndPruneDuplicates(TStrVec &keys) {

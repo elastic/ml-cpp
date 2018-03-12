@@ -711,8 +711,8 @@ class COrderings : private core::CNonInstantiatable {
                                      VALUE1_VECTOR &values1,
                                      VALUE2_VECTOR &values2,
                                      const COMP &comp) {
-            if (   keys.size() != values1.size()
-                    || values1.size() != values2.size()) {
+            if (   keys.size() != values1.size() ||
+                   values1.size() != values2.size()) {
                 return false;
             }
             SIMULTANEOUS_SORT_IMPL
@@ -754,9 +754,9 @@ class COrderings : private core::CNonInstantiatable {
                                      VALUE2_VECTOR &values2,
                                      VALUE3_VECTOR &values3,
                                      const COMP &comp) {
-            if (   keys.size() != values1.size()
-                    || values1.size() != values2.size()
-                    || values2.size() != values3.size()) {
+            if (   keys.size() != values1.size() ||
+                   values1.size() != values2.size() ||
+                   values2.size() != values3.size()) {
                 return false;
             }
             SIMULTANEOUS_SORT_IMPL
@@ -806,10 +806,10 @@ class COrderings : private core::CNonInstantiatable {
                                      VALUE3_VECTOR &values3,
                                      VALUE4_VECTOR &values4,
                                      const COMP &comp) {
-            if (   keys.size() != values1.size()
-                    || values1.size() != values2.size()
-                    || values2.size() != values3.size()
-                    || values3.size() != values4.size()) {
+            if (   keys.size() != values1.size() ||
+                   values1.size() != values2.size() ||
+                   values2.size() != values3.size() ||
+                   values3.size() != values4.size()) {
                 return false;
             }
             SIMULTANEOUS_SORT_IMPL

@@ -998,10 +998,10 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
             CEqualWithTolerance<TPoint> equalVector(toleranceType, TPoint(epsilon));
             CEqualWithTolerance<TMatrix> equalMatrix(toleranceType, TMatrix(epsilon));
 
-            return    equalVector(m_GaussianMean, rhs.m_GaussianMean)
-                      && equalVector(m_GaussianPrecision, rhs.m_GaussianPrecision)
-                      && equalScalar(m_WishartDegreesFreedom, rhs.m_WishartDegreesFreedom)
-                      && equalMatrix(m_WishartScaleMatrix, rhs.m_WishartScaleMatrix);
+            return    equalVector(m_GaussianMean, rhs.m_GaussianMean) &&
+                      equalVector(m_GaussianPrecision, rhs.m_GaussianPrecision) &&
+                      equalScalar(m_WishartDegreesFreedom, rhs.m_WishartDegreesFreedom) &&
+                      equalMatrix(m_WishartScaleMatrix, rhs.m_WishartScaleMatrix);
         }
         //@}
 
@@ -1143,10 +1143,10 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
 
         //! Check that the state is valid.
         bool isBad(void) const {
-            return    !CMathsFuncs::isFinite(m_GaussianMean)
-                      || !CMathsFuncs::isFinite(m_GaussianPrecision)
-                      || !CMathsFuncs::isFinite(m_WishartDegreesFreedom)
-                      || !CMathsFuncs::isFinite(m_WishartScaleMatrix);
+            return    !CMathsFuncs::isFinite(m_GaussianMean) ||
+                      !CMathsFuncs::isFinite(m_GaussianPrecision) ||
+                      !CMathsFuncs::isFinite(m_WishartDegreesFreedom) ||
+                      !CMathsFuncs::isFinite(m_WishartScaleMatrix);
         }
 
         //! Full debug dump of the state of this prior.

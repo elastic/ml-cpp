@@ -869,8 +869,8 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                                      this->isNonInformative(),
                                                      m_Shape,
                                                      m_Rate,
-                                                     probability)
-            || !probability.calculate(value)) {
+                                                     probability) ||
+        !probability.calculate(value)) {
         LOG_ERROR("Failed computing probability for "
                   << core::CContainerPrinter::print(samples));
         return false;

@@ -237,8 +237,8 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
         size_t index(0);
         TScopedCharPArray mergedArgV(new char *[mergedArgC]);
         for (TStrVecCItr iter = process.m_Args.begin();
-                iter != process.m_Args.end();
-                ++iter) {
+             iter != process.m_Args.end();
+             ++iter) {
             mergedArgV[index++] = const_cast<char *>(iter->c_str());
         }
 

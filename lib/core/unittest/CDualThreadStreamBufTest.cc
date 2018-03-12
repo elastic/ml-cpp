@@ -225,14 +225,14 @@ void CDualThreadStreamBufTest::testPutback(void) {
     CPPUNIT_ASSERT_EQUAL(*DATA, c);
     CPPUNIT_ASSERT(strm.putback(c).good());
     for (const char *putbackChar = PUTBACK_CHARS;
-            *putbackChar != '\0';
-            ++putbackChar) {
+         *putbackChar != '\0';
+         ++putbackChar) {
         CPPUNIT_ASSERT(strm.putback(*putbackChar).good());
     }
     std::string actual;
     for (const char *putbackChar = PUTBACK_CHARS;
-            *putbackChar != '\0';
-            ++putbackChar) {
+         *putbackChar != '\0';
+         ++putbackChar) {
         CPPUNIT_ASSERT(strm.get(c).good());
         actual.insert(actual.begin(), c);
     }

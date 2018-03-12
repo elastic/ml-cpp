@@ -286,7 +286,7 @@ void CGammaRateConjugateTest::testRateEstimation(void) {
                     filter.confidenceIntervalRate(testIntervals[j]);
 
                 if (rate < confidenceInterval.first ||
-                        rate > confidenceInterval.second) {
+                    rate > confidenceInterval.second) {
                     ++errors[j];
                 }
             }

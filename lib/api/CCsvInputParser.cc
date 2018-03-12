@@ -87,8 +87,8 @@ bool CCsvInputParser::readStream(const TReaderFunc &readerFunc) {
     TStrRefVec fieldValRefs;
     fieldValRefs.reserve(fieldNames.size());
     for (TStrVecCItr iter = fieldNames.begin();
-            iter != fieldNames.end();
-            ++iter) {
+         iter != fieldNames.end();
+         ++iter) {
         fieldValRefs.push_back(boost::ref(recordFields[*iter]));
     }
 
@@ -240,8 +240,8 @@ bool CCsvInputParser::parseFieldNames(void) {
 
 bool CCsvInputParser::parseDataRecord(const TStrRefVec &fieldValRefs) {
     for (TStrRefVecCItr iter = fieldValRefs.begin();
-            iter != fieldValRefs.end();
-            ++iter) {
+         iter != fieldValRefs.end();
+         ++iter) {
         if (m_LineParser.parseNext(iter->get()) == false) {
             LOG_ERROR("Failed to get next CSV token");
             return false;

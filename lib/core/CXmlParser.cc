@@ -404,8 +404,8 @@ void CXmlParser::convert(size_t indentSpaces,
     const CXmlNode::TStrStrPrVec &attrs = root.attributes();
 
     for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin();
-            attrIter != attrs.end();
-            ++attrIter) {
+         attrIter != attrs.end();
+         ++attrIter) {
         xmlSetProp(rootNode,
                    reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
                    reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
@@ -437,14 +437,14 @@ void CXmlParser::convertChildren(const CXmlNodeWithChildren &current,
     const CXmlNodeWithChildren::TChildNodePVec &childVec = current.children();
 
     for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin();
-            childIter != childVec.end();
-            ++childIter) {
+         childIter != childVec.end();
+         ++childIter) {
         const CXmlNodeWithChildren *child = childIter->get();
         if (child != 0) {
             xmlNode *childRep(0);
 
             if (child->value().empty() &&
-                    !child->children().empty()) {
+                !child->children().empty()) {
                 // It's crucial to specify the value as NULL rather than
                 // an empty string, otherwise the formatting will be messed
                 // up
@@ -462,8 +462,8 @@ void CXmlParser::convertChildren(const CXmlNodeWithChildren &current,
             const CXmlNode::TStrStrPrVec &attrs = child->attributes();
 
             for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin();
-                    attrIter != attrs.end();
-                    ++attrIter) {
+                 attrIter != attrs.end();
+                 ++attrIter) {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
                            reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
@@ -747,7 +747,7 @@ bool CXmlParser::currentNodeValue(std::string &value) {
     const xmlNode *child(m_NavigatedNode->children);
     while (child != 0) {
         if (child->type == XML_TEXT_NODE ||
-                child->type == XML_CDATA_SECTION_NODE) {
+            child->type == XML_CDATA_SECTION_NODE) {
             const xmlChar *textVal(child->content);
             if (textVal != 0) {
                 if (isValueSet) {
@@ -850,8 +850,8 @@ bool CXmlParser::addNewChildNode(const std::string &name,
     }
 
     for (TStrStrMapCItr attrIter = attrs.begin();
-            attrIter != attrs.end();
-            ++attrIter) {
+         attrIter != attrs.end();
+         ++attrIter) {
         xmlSetProp(child,
                    reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
                    reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
@@ -879,7 +879,7 @@ bool CXmlParser::changeChildNodeValue(const std::string &name,
     xmlNode *child(root->children);
     while (child != 0) {
         if (child->type == XML_ELEMENT_NODE &&
-                name == reinterpret_cast<const char *>(child->name)) {
+            name == reinterpret_cast<const char *>(child->name)) {
             // Unlike xmlNewTextChild, xmlNodeSetContent doesn't escape special
             // characters, so we have to call xmlEncodeSpecialChars ourselves to
             // do this
@@ -960,7 +960,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
     const xmlNode *child(parentNode.children);
     while (child != 0) {
         if (child->type == XML_TEXT_NODE ||
-                child->type == XML_CDATA_SECTION_NODE) {
+            child->type == XML_CDATA_SECTION_NODE) {
             const xmlChar *textVal(child->content);
             if (textVal != 0) {
                 if (isValueSet) {
@@ -991,8 +991,8 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
         // but obviously this involves a temporary memory allocation.)
         const xmlNode *propChildren(prop->children);
         if (propChildren != 0 &&
-                propChildren->next == 0 &&
-                propChildren->type == XML_TEXT_NODE) {
+            propChildren->next == 0 &&
+            propChildren->type == XML_TEXT_NODE) {
             const char *propName(reinterpret_cast<const char *>(prop->name));
             const char *propValue(reinterpret_cast<const char *>(propChildren->content));
 

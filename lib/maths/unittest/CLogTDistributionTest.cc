@@ -140,8 +140,8 @@ void CLogTDistributionTest::testCdf(void) {
         rng.generateStudentsSamples(degreesFreedom[test], nSamples, samples);
 
         for (TDoubleVecItr sampleItr = samples.begin();
-                sampleItr != samples.end();
-                ++sampleItr) {
+             sampleItr != samples.end();
+             ++sampleItr) {
             *sampleItr = ::exp(*sampleItr * ::sqrt(squareScales[test]) + locations[test]);
         }
 

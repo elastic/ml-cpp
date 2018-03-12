@@ -61,10 +61,10 @@ class CMinusLogLikelihood : public maths::CGradientDescent::CFunction {
 
         bool operator()(const maths::CGradientDescent::TVector &x, double &result) const {
             if (m_Prior->jointLogMarginalLikelihood(
-                        COUNT_WEIGHT,
-                        TDouble10Vec1Vec(1, TDouble10Vec(x.toVector<TDouble10Vec>())),
-                        SINGLE_UNIT_WEIGHT_2,
-                        result) == maths_t::E_FpNoErrors) {
+                    COUNT_WEIGHT,
+                    TDouble10Vec1Vec(1, TDouble10Vec(x.toVector<TDouble10Vec>())),
+                    SINGLE_UNIT_WEIGHT_2,
+                    result) == maths_t::E_FpNoErrors) {
                 result = -result;
                 return true;
             }

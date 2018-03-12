@@ -155,15 +155,15 @@ void CDataSemantics::add(const std::string &example) {
     if (!value.isNan()) {
         m_Smallest.add(value);
         m_Largest.add(value);
-    } else if ( m_NonNumericValues.size() < 2
-                && std::find(m_NonNumericValues.begin(),
-                             m_NonNumericValues.end(), trimmed) == m_NonNumericValues.end()) {
+    } else if ( m_NonNumericValues.size() < 2 &&
+                std::find(m_NonNumericValues.begin(),
+                          m_NonNumericValues.end(), trimmed) == m_NonNumericValues.end()) {
         m_NonNumericValues.push_back(trimmed);
     }
 
-    if (   m_DistinctValues.size() < 3
-            && std::find(m_DistinctValues.begin(),
-                         m_DistinctValues.end(), example) == m_DistinctValues.end()) {
+    if (   m_DistinctValues.size() < 3 &&
+           std::find(m_DistinctValues.begin(),
+                     m_DistinctValues.end(), example) == m_DistinctValues.end()) {
         m_DistinctValues.push_back(example);
     }
 
@@ -227,8 +227,8 @@ config_t::EDataType CDataSemantics::integerType(void) const {
 }
 
 bool CDataSemantics::isNumeric(void) const {
-    return    m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_STRICT
-              || (m_NonNumericValues.size() < 2 && m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
+    return    m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_STRICT ||
+              (m_NonNumericValues.size() < 2 && m_NumericProportion >= NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES);
 }
 
 bool CDataSemantics::isInteger(void) const {
@@ -255,8 +255,8 @@ bool CDataSemantics::GMMGoodFit(void) const {
 
     double categoricalBIC = static_cast<double>(N - 1) * logc;
     for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-            i != m_EmpiricalDistribution.end();
-            ++i) {
+         i != m_EmpiricalDistribution.end();
+         ++i) {
         double ni = static_cast<double>(i->second);
         categoricalBIC -= 2.0 * ni * ::log(ni / m_Count);
     }
@@ -270,8 +270,8 @@ bool CDataSemantics::GMMGoodFit(void) const {
         {
             CMixtureData scaling(m_Count, N);
             for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-                    i != m_EmpiricalDistribution.end();
-                    ++i) {
+                 i != m_EmpiricalDistribution.end();
+                 ++i) {
                 double xi = i->first.asDouble();
                 double ni = static_cast<double>(i->second);
                 scaling.add(xi, ni);
@@ -283,8 +283,8 @@ bool CDataSemantics::GMMGoodFit(void) const {
         CMixtureData light(m_Count, N);
         CMixtureData heavy(m_Count, N);
         for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-                i != m_EmpiricalDistribution.end();
-                ++i) {
+             i != m_EmpiricalDistribution.end();
+             ++i) {
             double xi = smallest + scale * (i->first.asDouble() - smallest);
             double ni = static_cast<double>(i->second);
             light.add(xi, ni);
@@ -298,8 +298,8 @@ bool CDataSemantics::GMMGoodFit(void) const {
             double lightGmmBIC = light.parameters() * logc;
             double heavyGmmBIC = heavy.parameters() * logc;
             for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-                    i != m_EmpiricalDistribution.end();
-                    ++i) {
+                 i != m_EmpiricalDistribution.end();
+                 ++i) {
                 double xi = smallest + scale * (i->first.asDouble() - smallest);
                 double ni = static_cast<double>(i->second);
                 double fx = light.pdf(xi);

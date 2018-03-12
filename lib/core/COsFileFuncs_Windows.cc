@@ -285,9 +285,9 @@ int COsFileFuncs::lstat(const char *path, TStat *buf) {
     // stat()
     WIN32_FILE_ATTRIBUTE_DATA attributes = { 0 };
     if (path == nullptr ||
-            buf == nullptr ||
-            GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
-            (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
+        buf == nullptr ||
+        GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
+        (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         return COsFileFuncs::stat(path, buf);
     }
 

@@ -44,8 +44,8 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string &
     m_Doc.append_node(m_LevelParent);
 
     for (TStrStrMapCItr iter = rootAttributes.begin();
-            iter != rootAttributes.end();
-            ++iter) {
+         iter != rootAttributes.end();
+         ++iter) {
         const std::string &name = iter->first;
         const std::string &value = iter->second;
         m_LevelParent->append_attribute(m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(),

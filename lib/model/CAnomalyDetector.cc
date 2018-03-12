@@ -272,19 +272,19 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
         const std::string &name = traverser.name();
         if (name == RANDOMIZED_PERIODIC_TAG) {
             if (traverser.traverseSubLevel(
-                        &maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) == false) {
+                    &maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR("Failed to restore randomized periodic test state");
                 return false;
             }
         } else if (name == STATISTICS_TAG) {
             if (traverser.traverseSubLevel(
-                        &core::CStatistics::staticsAcceptRestoreTraverser) == false) {
+                    &core::CStatistics::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR("Failed to restore statistics");
                 return false;
             }
         } else if (name == SAMPLING_TAG) {
             if (traverser.traverseSubLevel(
-                        &maths::CSampling::staticsAcceptRestoreTraverser) == false) {
+                    &maths::CSampling::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR("Failed to restore sampling state");
                 return false;
             }
@@ -480,9 +480,9 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
     if (bucketEndTime <= bucketStartTime) {
         return;
     }
-    if (   terms.empty()
-            || m_DataGatherer->partitionFieldValue().empty()
-            || terms.find(m_DataGatherer->partitionFieldValue()) != terms.end()) {
+    if (   terms.empty() ||
+           m_DataGatherer->partitionFieldValue().empty() ||
+           terms.find(m_DataGatherer->partitionFieldValue()) != terms.end()) {
         const CSearchKey &key = m_DataGatherer->searchKey();
         TModelDetailsViewPtr view = m_Model.get()->details();
         if (view.get()) {

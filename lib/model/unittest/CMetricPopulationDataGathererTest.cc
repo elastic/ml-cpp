@@ -194,8 +194,8 @@ void CMetricPopulationDataGathererTest::testMean(void) {
 
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = accumulators.begin();
-                    itr != accumulators.end();
-                    ++itr) {
+                 itr != accumulators.end();
+                 ++itr) {
                 expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
             }
 
@@ -260,8 +260,8 @@ void CMetricPopulationDataGathererTest::testMin(void) {
 
             TStrStrPrDoubleMap expectedMins;
             for (TStrStrPrMinAccumulatorMapCItr itr = accumulators.begin();
-                    itr != accumulators.end();
-                    ++itr) {
+                 itr != accumulators.end();
+                 ++itr) {
                 expectedMins[itr->first] = itr->second[0];
             }
 
@@ -326,8 +326,8 @@ void CMetricPopulationDataGathererTest::testMax(void) {
 
             TStrStrPrDoubleMap expectedMaxs;
             for (TStrStrPrMaxAccumulatorMapCItr itr = accumulators.begin();
-                    itr != accumulators.end();
-                    ++itr) {
+                 itr != accumulators.end();
+                 ++itr) {
                 expectedMaxs[itr->first] = itr->second[0];
             }
 
@@ -538,8 +538,8 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
                 }
                 TDoubleVec &samples = meanSamples[key];
                 for (std::size_t k = 0u;
-                        k < boost::unwrap_ref(data.second.s_Samples).size();
-                        ++k) {
+                     k < boost::unwrap_ref(data.second.s_Samples).size();
+                     ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
@@ -556,8 +556,8 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
                 }
                 TDoubleVec &samples = minSamples[key];
                 for (std::size_t k = 0u;
-                        k < boost::unwrap_ref(data.second.s_Samples).size();
-                        ++k) {
+                     k < boost::unwrap_ref(data.second.s_Samples).size();
+                     ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
@@ -574,30 +574,30 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
                 }
                 TDoubleVec &samples = maxSamples[key];
                 for (std::size_t k = 0u;
-                        k < boost::unwrap_ref(data.second.s_Samples).size();
-                        ++k) {
+                     k < boost::unwrap_ref(data.second.s_Samples).size();
+                     ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = bucketMeanAccumulators.begin();
-                    itr != bucketMeanAccumulators.end();
-                    ++itr) {
+                 itr != bucketMeanAccumulators.end();
+                 ++itr) {
                 expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
             }
 
             TStrStrPrDoubleMap expectedMins;
             for (TStrStrPrMinAccumulatorMapCItr itr = bucketMinAccumulators.begin();
-                    itr != bucketMinAccumulators.end();
-                    ++itr) {
+                 itr != bucketMinAccumulators.end();
+                 ++itr) {
                 expectedMins[itr->first] = itr->second[0];
             }
 
             TStrStrPrDoubleMap expectedMaxs;
             for (TStrStrPrMaxAccumulatorMapCItr itr = bucketMaxAccumulators.begin();
-                    itr != bucketMaxAccumulators.end();
-                    ++itr) {
+                 itr != bucketMaxAccumulators.end();
+                 ++itr) {
                 expectedMaxs[itr->first] = itr->second[0];
             }
 
@@ -643,7 +643,7 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             sampleMinAccumulators[key].add(messages[i].s_Value);
             sampleMaxAccumulators[key].add(messages[i].s_Value);
             if (maths::CBasicStatistics::count(sampleMeanAccumulators[key])
-                    == ::floor(sampleCount + 0.5)) {
+                == ::floor(sampleCount + 0.5)) {
                 expectedMeanSamples[key].push_back(
                     maths::CBasicStatistics::mean(sampleMeanAccumulators[key]));
                 expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
@@ -1017,11 +1017,11 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics(void) {
                 for (std::size_t k = 0u; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (std::size_t m = 0u;
-                            m < data_[k].second.s_InfluenceValues.size();
-                            ++m) {
+                         m < data_[k].second.s_InfluenceValues.size();
+                         ++m) {
                         for (std::size_t n = 0u;
-                                n < data_[k].second.s_InfluenceValues[m].size();
-                                ++n) {
+                             n < data_[k].second.s_InfluenceValues[m].size();
+                             ++n) {
                             statistics.push_back(TStrDoubleDoublePrPr(
                                                      data_[k].second.s_InfluenceValues[m][n].first,
                                                      TDoubleDoublePr(data_[k].second.s_InfluenceValues[m][n].second.first[0],

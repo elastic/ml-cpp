@@ -132,9 +132,9 @@ TSizeUInt64Pr benchmark(char testId) {
 
 int main(int argc, char **argv) {
     if (argc != 2 ||
-            ::strlen(argv[1]) != 1 ||
-            argv[1][0] < '1' ||
-            argv[1][0] > '9') {
+        ::strlen(argv[1]) != 1 ||
+        argv[1][0] < '1' ||
+        argv[1][0] > '9') {
         std::cerr << "Usage: " << argv[0] << " <1-9>" << std::endl;
         return EXIT_FAILURE;
     }

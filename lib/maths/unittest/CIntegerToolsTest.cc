@@ -56,8 +56,8 @@ void CIntegerToolsTest::testNextPow2(void) {
     test::CRandomNumbers rng;
 
     for (std::size_t test = 1u, shift = 1u;
-            test < (std::numeric_limits<std::size_t>::max() >> 1) + 1;
-            test <<= 1, ++shift) {
+         test < (std::numeric_limits<std::size_t>::max() >> 1) + 1;
+         test <<= 1, ++shift) {
         LOG_DEBUG("Testing shift = " << shift);
 
         // Edge cases.

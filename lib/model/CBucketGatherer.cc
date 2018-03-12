@@ -247,8 +247,8 @@ bool CBucketGatherer::addEventData(CEventData &data) {
     std::size_t pid   = *data.personId();
     std::size_t cid   = *data.attributeId();
     std::size_t count = *data.count();
-    if (   (pid != CDynamicStringIdRegistry::INVALID_ID)
-            && (cid != CDynamicStringIdRegistry::INVALID_ID)) {
+    if (   (pid != CDynamicStringIdRegistry::INVALID_ID) &&
+           (cid != CDynamicStringIdRegistry::INVALID_ID)) {
         // Has the person/attribute been deleted from the gatherer?
         if (!m_DataGatherer.isPersonActive(pid)) {
             LOG_DEBUG("Not adding value for deleted person " << pid);
@@ -513,8 +513,8 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
     }
     const TSizeSizePrUInt64UMap &bucketCounts = m_PersonAttributeCounts.get(time);
     TSizeSizePr pidCid = std::make_pair(pid, cid);
-    return   bucketExplicitNulls.find(pidCid) != bucketExplicitNulls.end()
-             && bucketCounts.find(pidCid) == bucketCounts.end();
+    return   bucketExplicitNulls.find(pidCid) != bucketExplicitNulls.end() &&
+             bucketCounts.find(pidCid) == bucketCounts.end();
 }
 
 uint64_t CBucketGatherer::checksum(void) const {
@@ -591,8 +591,8 @@ bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
         return false;
     }
 
-    if (  !this->dataAvailable(bucketStart)
-            || bucketStart >= this->currentBucketStartTime() + this->bucketLength()) {
+    if (  !this->dataAvailable(bucketStart) ||
+          bucketStart >= this->currentBucketStartTime() + this->bucketLength()) {
         LOG_WARN("No data available at " << bucketStart
                  << ", current bucket = " << this->printCurrentBucket());
         return false;

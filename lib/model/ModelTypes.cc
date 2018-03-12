@@ -432,32 +432,32 @@ CASE_PEERS_METRIC:
 
 bool isMeanFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-              && (category == E_Mean || category == E_MultivariateMean);
+    return    metricCategory(feature, category) &&
+              (category == E_Mean || category == E_MultivariateMean);
 }
 
 bool isMedianFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-              && (category == E_Median);
+    return    metricCategory(feature, category) &&
+              (category == E_Median);
 }
 
 bool isMinFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-              && (category == E_Min || category == E_MultivariateMin);
+    return    metricCategory(feature, category) &&
+              (category == E_Min || category == E_MultivariateMin);
 }
 
 bool isMaxFeature(EFeature feature) {
     EMetricCategory category;
-    return    metricCategory(feature, category)
-              && (category == E_Max || category == E_MultivariateMax);
+    return    metricCategory(feature, category) &&
+              (category == E_Max || category == E_MultivariateMax);
 }
 
 bool isVarianceFeature(EFeature feature) {
     EMetricCategory category;
-    return     metricCategory(feature, category)
-               && (category == E_Variance);
+    return     metricCategory(feature, category) &&
+               (category == E_Variance);
 }
 
 bool isSumFeature(EFeature feature) {
@@ -468,9 +468,9 @@ bool isSumFeature(EFeature feature) {
 double varianceScale(EFeature feature,
                      double sampleCount,
                      double count) {
-    return    isMeanFeature(feature)
-              || isMedianFeature(feature)
-              || isVarianceFeature(feature) ?
+    return    isMeanFeature(feature) ||
+              isMedianFeature(feature) ||
+              isVarianceFeature(feature) ?
               (sampleCount > 0.0 && count > 0.0 ? sampleCount / count : 1.0) : 1.0;
 }
 

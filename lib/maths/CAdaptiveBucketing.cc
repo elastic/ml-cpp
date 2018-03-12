@@ -327,8 +327,8 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
             double e{averagingErrors[i]};
             error += e;
             for (double e_ = step - (error - e);
-                    error >= step;
-                    e_ += step, error -= step) {
+                 error >= step;
+                 e_ += step, error -= step) {
                 double x{h * e_ / averagingErrors[i]};
                 m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
                 force += (ai + x) - endpoints[j];

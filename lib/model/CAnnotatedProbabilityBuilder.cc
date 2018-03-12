@@ -133,8 +133,8 @@ void CAnnotatedProbabilityBuilder::build(void) {
                                  maths::LARGEST_SIGNIFICANT_PROBABILITY);
 
         for (std::size_t i = 0u;
-                i < m_MinAttributeProbabilities.count() && m_MinAttributeProbabilities[i].s_Probability <= cutoff;
-                ++i) {
+             i < m_MinAttributeProbabilities.count() && m_MinAttributeProbabilities[i].s_Probability <= cutoff;
+             ++i) {
             m_Result.s_AttributeProbabilities.push_back(m_MinAttributeProbabilities[i]);
         }
     }

@@ -141,7 +141,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight[0]);
                 double likelihood;
                 if (  prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE, mode, weight, likelihood)
-                        & (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
+                      & (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
                     continue;
                 }
                 if (maxLikelihood.add(::log(w) + likelihood)) {
@@ -249,8 +249,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                           << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
 
                 std::size_t maxIterations = MAX_ITERATIONS;
-                if (   (f10 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f1, maxIterations))
-                        || (f10 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f1, maxIterations))) {
+                if (   (f10 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f1, maxIterations)) ||
+                       (f10 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f1, maxIterations))) {
                     LOG_ERROR("Unable to bracket left percentile = " << p1
                               << ", (a,b) = (" << a << "," << b << ")"
                               << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
@@ -277,8 +277,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 maxIterations = MAX_ITERATIONS;
                 if (percentage == 0.0) {
                     // Fall: nothing to do.
-                } else if (   (f20 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations))
-                              || (f20 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f2, maxIterations))) {
+                } else if (   (f20 < 0  && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations)) ||
+                              (f20 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f2, maxIterations))) {
                     LOG_ERROR("Unable to bracket right percentile = " << p2
                               << ", (a,b) = (" << a << "," << b << ")"
                               << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
@@ -712,8 +712,8 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                         upperBoundCalculator.add(CTools::truncate(sampleUpperBound + p, 0.0, 1.0));
                     }
 
-                    if (   !lowerBoundCalculator.calculate(lowerBound)
-                            || !upperBoundCalculator.calculate(upperBound)) {
+                    if (   !lowerBoundCalculator.calculate(lowerBound) ||
+                           !upperBoundCalculator.calculate(upperBound)) {
                         LOG_ERROR("Couldn't compute probability of less likely samples:"
                                   << " " << lowerBoundCalculator
                                   << " " << upperBoundCalculator);

@@ -65,22 +65,22 @@ bool CLimits::init(const std::string &configFile) {
                              "autoconfig.events",
                              DEFAULT_AUTOCONFIG_EVENTS,
                              m_AutoConfigEvents) == false ||
-            this->processSetting(propTree,
-                                 "anomaly.maxtimebuckets",
-                                 DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                                 m_AnomalyMaxTimeBuckets) == false ||
-            this->processSetting(propTree,
-                                 "results.maxexamples",
-                                 DEFAULT_RESULTS_MAX_EXAMPLES,
-                                 m_MaxExamples) == false ||
-            this->processSetting(propTree,
-                                 "results.unusualprobabilitythreshold",
-                                 DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD,
-                                 m_UnusualProbabilityThreshold) == false ||
-            this->processSetting(propTree,
-                                 "memory.modelmemorylimit",
-                                 CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
-                                 m_MemoryLimitMB) == false) {
+        this->processSetting(propTree,
+                             "anomaly.maxtimebuckets",
+                             DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                             m_AnomalyMaxTimeBuckets) == false ||
+        this->processSetting(propTree,
+                             "results.maxexamples",
+                             DEFAULT_RESULTS_MAX_EXAMPLES,
+                             m_MaxExamples) == false ||
+        this->processSetting(propTree,
+                             "results.unusualprobabilitythreshold",
+                             DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD,
+                             m_UnusualProbabilityThreshold) == false ||
+        this->processSetting(propTree,
+                             "memory.modelmemorylimit",
+                             CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
+                             m_MemoryLimitMB) == false) {
         LOG_ERROR("Error processing config file " << configFile);
         return false;
     }

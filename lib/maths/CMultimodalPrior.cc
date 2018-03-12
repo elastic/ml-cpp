@@ -337,8 +337,8 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
 
     try {
         bool hasSeasonalScale = !this->isNonInformative() && seasonal != missing;
-        double mean = (  !this->isNonInformative()
-                         && maths_t::hasSeasonalVarianceScale(weightStyles_, weights)) ?
+        double mean = (  !this->isNonInformative() &&
+                         maths_t::hasSeasonalVarianceScale(weightStyles_, weights)) ?
                       this->marginalLikelihoodMean() : 0.0;
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {

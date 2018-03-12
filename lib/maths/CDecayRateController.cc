@@ -297,14 +297,14 @@ double CDecayRateController::count(void) const {
 }
 
 double CDecayRateController::change(const double (&stats)[3], core_t::TTime bucketLength) const {
-    if (   ((m_Checks & E_PredictionErrorIncrease) && stats[1] > ERROR_INCREASING * stats[2])
-            || ((m_Checks & E_PredictionErrorDecrease) && stats[2] > ERROR_DECREASING * stats[1])
-            || ((m_Checks & E_PredictionBias)          && stats[0] > BIASED * stats[1])) {
+    if (   ((m_Checks & E_PredictionErrorIncrease) && stats[1] > ERROR_INCREASING * stats[2]) ||
+           ((m_Checks & E_PredictionErrorDecrease) && stats[2] > ERROR_DECREASING * stats[1]) ||
+           ((m_Checks & E_PredictionBias)          && stats[0] > BIASED * stats[1])) {
         return adjustMultiplier(INCREASE_RATE, bucketLength);
     }
-    if (   (!(m_Checks & E_PredictionErrorIncrease) || stats[1] < ERROR_NOT_INCREASING * stats[2])
-            && (!(m_Checks & E_PredictionErrorDecrease) || stats[2] < ERROR_NOT_DECREASING * stats[1])
-            && (!(m_Checks & E_PredictionBias)          || stats[0] < NOT_BIASED * stats[1])) {
+    if (   (!(m_Checks & E_PredictionErrorIncrease) || stats[1] < ERROR_NOT_INCREASING * stats[2]) &&
+           (!(m_Checks & E_PredictionErrorDecrease) || stats[2] < ERROR_NOT_DECREASING * stats[1]) &&
+           (!(m_Checks & E_PredictionBias)          || stats[0] < NOT_BIASED * stats[1])) {
         return adjustMultiplier(DECREASE_RATE, bucketLength);
     }
     return 1.0;

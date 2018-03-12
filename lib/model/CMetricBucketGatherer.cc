@@ -687,9 +687,9 @@ struct SExtractFeatureData {
 
     private:
         bool isSum(model_t::EFeature feature) const {
-            return    feature == model_t::E_IndividualSumByBucketAndPerson
-                      || feature == model_t::E_IndividualLowSumByBucketAndPerson
-                      || feature == model_t::E_IndividualHighSumByBucketAndPerson;
+            return    feature == model_t::E_IndividualSumByBucketAndPerson ||
+                      feature == model_t::E_IndividualLowSumByBucketAndPerson ||
+                      feature == model_t::E_IndividualHighSumByBucketAndPerson;
         }
 
         template<typename T, typename U>
@@ -1127,10 +1127,10 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
         }
         for (std::size_t j = 0u; allOk && i < m_FieldNames.size(); ++i, ++j) {
             model_t::EMetricCategory category = m_FieldMetricCategories[j];
-            if (   fieldValues[i] == 0
-                    || m_DataGatherer.extractMetricFromField(m_FieldNames[i],
-                                                             *fieldValues[i],
-                                                             statistics.first[category]) == false) {
+            if (   fieldValues[i] == 0 ||
+                   m_DataGatherer.extractMetricFromField(m_FieldNames[i],
+                                                         *fieldValues[i],
+                                                         statistics.first[category]) == false) {
                 allOk = false;
             }
         }
@@ -1145,8 +1145,8 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec &fieldValues,
         }
     } else {
         TDouble1Vec value;
-        if (   fieldValues[i] != 0
-                && m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], value) == true) {
+        if (   fieldValues[i] != 0 &&
+               m_DataGatherer.extractMetricFromField(m_FieldNames[i], *fieldValues[i], value) == true) {
             result.addValue(value);
         } else {
             result.addValue();
@@ -1327,8 +1327,8 @@ void CMetricBucketGatherer::featureData(core_t::TTime time, core_t::TTime bucket
                                         TFeatureAnyPrVec &result) const {
     result.clear();
 
-    if (  !this->dataAvailable(time)
-            || time >= this->currentBucketStartTime() + this->bucketLength()) {
+    if (  !this->dataAvailable(time) ||
+          time >= this->currentBucketStartTime() + this->bucketLength()) {
         LOG_DEBUG("No data available at " << time);
         return;
     }

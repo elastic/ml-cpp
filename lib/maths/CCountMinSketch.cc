@@ -373,8 +373,8 @@ void CCountMinSketch::sketch(void) {
         std::size_t sketchSize = SKETCH_SIZE + m_Rows * (m_Columns * FLOAT_SIZE + HASH_SIZE);
 
         if (countsSize > sketchSize) {
-            if (   counts->capacity() > counts->size()
-                    && counts->size() < (sketchSize - VEC_SIZE) / PAIR_SIZE) {
+            if (   counts->capacity() > counts->size() &&
+                   counts->size() < (sketchSize - VEC_SIZE) / PAIR_SIZE) {
                 TUInt32FloatPrVec shrunk;
                 shrunk.reserve((sketchSize - VEC_SIZE) / PAIR_SIZE);
                 shrunk.assign(counts->begin(), counts->end());
@@ -411,8 +411,8 @@ bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTravers
             if (   core::CPersistUtils::fromString(traverser.value(),
                                                    hashFromString,
                                                    s_Hashes,
-                                                   DELIMITER) == false
-                    || s_Hashes.size() != rows) {
+                                                   DELIMITER) == false ||
+                   s_Hashes.size() != rows) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
@@ -420,8 +420,8 @@ bool CCountMinSketch::SSketch::acceptRestoreTraverser(core::CStateRestoreTravers
             s_Counts.push_back(TFloatVec());
             if (   core::CPersistUtils::fromString(traverser.value(),
                                                    s_Counts.back(),
-                                                   DELIMITER) == false
-                    || s_Counts.back().size() != columns) {
+                                                   DELIMITER) == false ||
+                   s_Counts.back().size() != columns) {
                 LOG_ERROR("Invalid counts in " << traverser.value());
                 return false;
             }

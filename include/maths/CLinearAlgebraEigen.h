@@ -144,9 +144,9 @@ class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag,
         {}
 
         bool operator==(const CSparseVectorIndexIterator &rhs) const {
-            return   m_Vector == rhs.m_Vector
-                     && m_Base.row() == rhs.m_Base.row()
-                     && m_Base.col() == rhs.m_Base.col();
+            return   m_Vector == rhs.m_Vector &&
+                     m_Base.row() == rhs.m_Base.row() &&
+                     m_Base.col() == rhs.m_Base.col();
         }
         bool operator!=(const CSparseVectorIndexIterator &rhs) const {
             return !(*this == rhs);

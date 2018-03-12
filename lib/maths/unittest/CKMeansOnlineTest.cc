@@ -647,7 +647,7 @@ void CKMeansOnlineTest::testSample(void) {
     maths::CBasicStatistics::SSampleCovariances<double, 2> sampleCovariances[2];
     for (std::size_t i = 0u; i < sampled.size(); ++i) {
         if ((sampled[i] - TVector2(means[0])).euclidean()
-                < (sampled[i] - TVector2(means[1])).euclidean()) {
+            < (sampled[i] - TVector2(means[1])).euclidean()) {
             sampleCovariances[0].add(sampled[i]);
         } else {
             sampleCovariances[1].add(sampled[i]);

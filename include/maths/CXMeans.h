@@ -317,8 +317,8 @@ class CXMeans {
             bool split = false;
 
             for (std::size_t i = 0u, n = m_Clusters.size();
-                    i < n && m_Clusters.size() < m_Kmax;
-                    ++i) {
+                 i < n && m_Clusters.size() < m_Kmax;
+                 ++i) {
                 if (m_Inactive.count(m_Clusters[i].checksum()) > 0) {
                     continue;
                 }

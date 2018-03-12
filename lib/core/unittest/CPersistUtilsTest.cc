@@ -93,8 +93,8 @@ struct SEqual {
 
     bool operator()(const TSizeDoublePr &lhs,
                     const TSizeDoublePr &rhs) {
-        return    lhs.first == rhs.first
-                  && this->operator()(lhs.second, rhs.second);
+        return    lhs.first == rhs.first  &&
+                  this->operator()(lhs.second, rhs.second);
     }
 
     template<typename A, typename B>
@@ -156,8 +156,8 @@ class CCompareImpl<ContainerCompare> {
 
 template<typename T>
 bool equal(const T &lhs, const T &rhs) {
-    return lhs.size() == rhs.size()
-           && std::equal(lhs.begin(), lhs.end(), rhs.begin(), SEqual());
+    return lhs.size() == rhs.size() &&
+           std::equal(lhs.begin(), lhs.end(), rhs.begin(), SEqual());
 }
 
 template<typename T>

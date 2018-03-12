@@ -1900,8 +1900,8 @@ void CFieldConfigTest::testSlashesFile(TInitFromFileFunc initFunc,
     const ml::api::CFieldConfig::TFieldOptionsMIndex &fields = config.fieldOptions();
 
     for (ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-            iter != fields.end();
-            ++iter) {
+         iter != fields.end();
+         ++iter) {
         CPPUNIT_ASSERT_EQUAL(std::string("host"), iter->partitionFieldName());
     }
 }

@@ -301,8 +301,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     }
 
     std::size_t index;
-    result = (!m_Prior->index(static_cast<double>(attribute), index)
-              || index >= m_Cache.size()) ?
+    result = (!m_Prior->index(static_cast<double>(attribute), index) ||
+              index >= m_Cache.size()) ?
              m_SmallestProbability : m_Cache[index];
     return true;
 }
@@ -388,11 +388,11 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size
                 conditional = right->second.s_Conditional;
                 mostAnomalousCorrelate = right->second.s_MostAnomalousCorrelate;
                 return true;
-            } else if (   right     != probabilities.end()
-                          && right + 1 != probabilities.end()
-                          && right     != probabilities.begin()
-                          && right - 1 != probabilities.begin()
-                          && right - 2 != probabilities.begin()) {
+            } else if (   right     != probabilities.end() &&
+                          right + 1 != probabilities.end() &&
+                          right     != probabilities.begin() &&
+                          right - 1 != probabilities.begin() &&
+                          right - 2 != probabilities.begin()) {
                 auto left = right - 1;
                 double v[] {(left - 1)->first, left->first, right->first, (right + 1)->first};
                 auto beginModes = std::lower_bound(modes.begin(), modes.end(), v[0]);
@@ -407,8 +407,8 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size
                                };
                     LOG_TRACE("p(v) = " << core::CContainerPrinter::print(p));
 
-                    if (   std::is_sorted(p, p + 4, std::less<double>())
-                            || std::is_sorted(p, p + 4, std::greater<double>())) {
+                    if (   std::is_sorted(p, p + 4, std::less<double>()) ||
+                           std::is_sorted(p, p + 4, std::greater<double>())) {
                         auto nearest = x - v[1] < v[2] - x ? left : right;
                         probability = (p[2] * (x - v[1]) + p[1] * (v[2] - x)) / (v[2] - v[1]);
                         tail = nearest->second.s_Tail;

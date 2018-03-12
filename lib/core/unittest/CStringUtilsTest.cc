@@ -521,8 +521,8 @@ void CStringUtilsTest::testTokeniser(const std::string &delim, const std::string
     // so the delimiters for this test have to be one character
     char *brk = 0;
     for (char *line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk);
-            line != 0;
-            line = ml::core::CStrTokR::strTokR(0, delim.c_str(), &brk)) {
+         line != 0;
+         line = ml::core::CStrTokR::strTokR(0, delim.c_str(), &brk)) {
         strtokVec.push_back(line);
         LOG_DEBUG("'" << line << "'");
     }

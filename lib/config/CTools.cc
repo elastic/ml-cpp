@@ -81,8 +81,8 @@ std::string CTools::prettyPrint(double d) {
         std::sprintf(buf, "%.0f", d);
         char *end = std::find(buf, buf + 20, '\0');
         for (char *pos = end;
-                pos - buf > 3 && std::isdigit(static_cast<unsigned char>(pos[-4]));
-                pos -= 3, ++end) {
+             pos - buf > 3 && std::isdigit(static_cast<unsigned char>(pos[-4]));
+             pos -= 3, ++end) {
             std::copy_backward(pos - 3, end, end + 1);
             pos[-3] = ',';
         }

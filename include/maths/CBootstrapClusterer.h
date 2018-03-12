@@ -612,8 +612,8 @@ class CBootstrapClusterer {
                 if (cut.empty()) {
                     TEdgeItr seed = boost::edges(graph).first;
                     for (std::size_t j = 0u;
-                            j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E));
-                            ++j, ++seed) {
+                         j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E));
+                         ++j, ++seed) {
                     }
                     cut.push_back(std::make_pair(boost::source(*seed, graph), boost::target(*seed, graph)));
                 }
@@ -784,8 +784,8 @@ class CBootstrapClusterer {
 
                 //! Check the end vertices' parity.
                 bool operator()(const TEdge &e) const {
-                    return   (*m_Parities)[boost::source(e, *m_Graph)] == m_Parity
-                             && (*m_Parities)[boost::target(e, *m_Graph)] == m_Parity;
+                    return   (*m_Parities)[boost::source(e, *m_Graph)] == m_Parity &&
+                             (*m_Parities)[boost::target(e, *m_Graph)] == m_Parity;
                 }
 
             private:
@@ -964,9 +964,9 @@ class CBootstrapClustererFacadeExtractClusters {
                 for (std::size_t j = 0u; j < clusterPoints.size(); ++j) {
                     std::size_t k = points.size();
                     for (TPointVecCItr l = this->begin(points, clusterPoints[j]),
-                            end = this->end(points, clusterPoints[j]);
-                            l != end;
-                            ++l) {
+                         end = this->end(points, clusterPoints[j]);
+                         l != end;
+                         ++l) {
                         if (*l == clusterPoints[j]) {
                             k = static_cast<std::size_t>(l - points.begin());
                             break;

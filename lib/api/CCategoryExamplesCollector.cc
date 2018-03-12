@@ -121,7 +121,7 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
         const std::string &name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
             if (traverser.traverseSubLevel(
-                        boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
+                    boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
                 LOG_ERROR("Error restoring examples by category");
                 return false;
             }
@@ -163,7 +163,7 @@ std::string CCategoryExamplesCollector::truncateExample(std::string example) {
 
         // Ensure truncation doesn't result in a partial UTF-8 character
         while (replacePos > 0 &&
-                core::CStringUtils::utf8ByteType(example[replacePos]) == -1) {
+               core::CStringUtils::utf8ByteType(example[replacePos]) == -1) {
             --replacePos;
         }
         example.replace(replacePos, example.length() - replacePos, ELLIPSIS);

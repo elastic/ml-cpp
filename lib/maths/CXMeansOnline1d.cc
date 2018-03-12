@@ -958,16 +958,16 @@ void CXMeansOnline1d::add(const double &point,
             LOG_TRACE("Adding " << point << " to " << rightCluster->centre());
             rightCluster->add(point, count);
             clusters.emplace_back(rightCluster->index(), count);
-            if (   this->maybeSplit(rightCluster)
-                    || this->maybeMerge(leftCluster, rightCluster)) {
+            if (   this->maybeSplit(rightCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         } else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft) {
             LOG_TRACE("Adding " << point << " to " << leftCluster->centre());
             leftCluster->add(point, count);
             clusters.emplace_back(leftCluster->index(), count);
-            if (   this->maybeSplit(leftCluster)
-                    || this->maybeMerge(leftCluster, rightCluster)) {
+            if (   this->maybeSplit(leftCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         } else {
@@ -982,9 +982,9 @@ void CXMeansOnline1d::add(const double &point,
             rightCluster->add(point, countRight);
             clusters.emplace_back(leftCluster->index(), countLeft);
             clusters.emplace_back(rightCluster->index(), countRight);
-            if (   this->maybeSplit(leftCluster)
-                    || this->maybeSplit(rightCluster)
-                    || this->maybeMerge(leftCluster, rightCluster)) {
+            if (   this->maybeSplit(leftCluster) ||
+                   this->maybeSplit(rightCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         }
@@ -1304,13 +1304,13 @@ TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const {
     double partialCount = 0.0;
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         double count = m_Clusters[i].count();
-        if (partialCount < leftCount
-                && partialCount + count >= leftCount) {
+        if (partialCount < leftCount &&
+            partialCount + count >= leftCount) {
             double p = 100.0 * (leftCount - partialCount) / count;
             result.first = m_Clusters[i].percentile(p);
         }
-        if (partialCount < rightCount
-                && partialCount + count >= rightCount) {
+        if (partialCount < rightCount &&
+            partialCount + count >= rightCount) {
             double p = 100.0 * (rightCount - partialCount) / count;
             result.second = m_Clusters[i].percentile(p);
             break;
@@ -1502,9 +1502,9 @@ bool CXMeansOnline1d::CCluster::shouldMerge(CCluster &other,
                                             CAvailableModeDistributions distributions,
                                             double smallest,
                                             const TDoubleDoublePr &interval) {
-    if (   m_Structure.buffering()
-            || m_Structure.size() == 0
-            || other.m_Structure.size() == 0) {
+    if (   m_Structure.buffering() ||
+           m_Structure.size() == 0 ||
+           other.m_Structure.size() == 0) {
         return false;
     }
 

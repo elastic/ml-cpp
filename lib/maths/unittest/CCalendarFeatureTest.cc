@@ -153,9 +153,9 @@ void CCalendarFeatureTest::testOffset(void) {
 
             if (month == offsetMonth) {
                 for (const auto &feature : features) {
-                    CPPUNIT_ASSERT(   feature.offset(time) + offset == feature.offset(offsetTime)
-                                      || feature.offset(time) + offset == feature.offset(offsetTime) - 3600
-                                      || feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
+                    CPPUNIT_ASSERT(   feature.offset(time) + offset == feature.offset(offsetTime) ||
+                                      feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
+                                      feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
                     ++tests;
                 }
             }

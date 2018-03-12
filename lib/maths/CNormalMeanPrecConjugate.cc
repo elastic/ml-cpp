@@ -305,8 +305,8 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
                                                         m_Mean,
                                                         m_Precision,
                                                         m_PredictionMean,
-                                                        probability)
-                    || !probability.calculate(result)) {
+                                                        probability) ||
+                   !probability.calculate(result)) {
                 LOG_ERROR("Failed to compute probability of less likely samples");
                 return false;
             }
@@ -1270,8 +1270,8 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(maths_t::EProbabil
 }
 
 bool CNormalMeanPrecConjugate::isNonInformative(void) const {
-    return    m_GammaRate == NON_INFORMATIVE_RATE
-              || m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
+    return    m_GammaRate == NON_INFORMATIVE_RATE ||
+              m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
 }
 
 void CNormalMeanPrecConjugate::print(const std::string &indent,
@@ -1446,17 +1446,17 @@ bool CNormalMeanPrecConjugate::equalTolerance(const CNormalMeanPrecConjugate &rh
               << m_GammaShape << " " << rhs.m_GammaShape << ", "
               << m_GammaRate << " " << rhs.m_GammaRate);
 
-    return    equal(m_GaussianMean, rhs.m_GaussianMean)
-              && equal(m_GaussianPrecision, rhs.m_GaussianPrecision)
-              && equal(m_GammaShape, rhs.m_GammaShape)
-              && equal(m_GammaRate, rhs.m_GammaRate);
+    return    equal(m_GaussianMean, rhs.m_GaussianMean) &&
+              equal(m_GaussianPrecision, rhs.m_GaussianPrecision) &&
+              equal(m_GammaShape, rhs.m_GammaShape) &&
+              equal(m_GammaRate, rhs.m_GammaRate);
 }
 
 bool CNormalMeanPrecConjugate::isBad(void) const {
-    return    !CMathsFuncs::isFinite(m_GaussianMean)
-              || !CMathsFuncs::isFinite(m_GaussianPrecision)
-              || !CMathsFuncs::isFinite(m_GammaShape)
-              || !CMathsFuncs::isFinite(m_GammaRate);
+    return    !CMathsFuncs::isFinite(m_GaussianMean) ||
+              !CMathsFuncs::isFinite(m_GaussianPrecision) ||
+              !CMathsFuncs::isFinite(m_GammaShape) ||
+              !CMathsFuncs::isFinite(m_GammaRate);
 }
 
 std::string CNormalMeanPrecConjugate::debug(void) const {

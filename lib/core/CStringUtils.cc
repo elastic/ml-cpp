@@ -153,8 +153,8 @@ std::string CStringUtils::normaliseWhitespace(const std::string &str) {
 
     bool outputSpace(true);
     for (std::string::const_iterator iter = str.begin();
-            iter != str.end();
-            ++iter) {
+         iter != str.end();
+         ++iter) {
         char current(*iter);
         if (::isspace(static_cast<unsigned char>(current))) {
             if (outputSpace) {
@@ -693,7 +693,7 @@ bool CStringUtils::_stringToType(bool silent,
 
     // Now check if the result is in range for int
     if (ret < std::numeric_limits<int>::min() ||
-            ret > std::numeric_limits<int>::max()) {
+        ret > std::numeric_limits<int>::max()) {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str << "'"
                       " to int - out of range");
@@ -717,7 +717,7 @@ bool CStringUtils::_stringToType(bool silent,
 
     // Now check if the result is in range for short
     if (ret < std::numeric_limits<short>::min() ||
-            ret > std::numeric_limits<short>::max()) {
+        ret > std::numeric_limits<short>::max()) {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str << "'"
                       " to short - out of range");

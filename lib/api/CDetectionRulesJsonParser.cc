@@ -275,8 +275,8 @@ bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value &ruleCondi
         return false;
     }
 
-    return parseConditionOperator(conditionObject, ruleCondition)
-           && parseConditionThreshold(conditionObject, ruleCondition);
+    return parseConditionOperator(conditionObject, ruleCondition) &&
+           parseConditionThreshold(conditionObject, ruleCondition);
 }
 
 bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value &conditionObject,

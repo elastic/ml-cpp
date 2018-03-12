@@ -281,7 +281,7 @@ void CNormalMeanPrecConjugateTest::testPrecisionEstimation(void) {
                     filter.confidenceIntervalPrecision(testIntervals[j]);
 
                 if (precision < confidenceInterval.first ||
-                        precision > confidenceInterval.second) {
+                    precision > confidenceInterval.second) {
                     ++errors[j];
                 }
             }
@@ -1660,7 +1660,7 @@ void CNormalMeanPrecConjugateTest::testCountVarianceScale(void) {
             TDoubleDoublePr confidenceInterval =
                 filter.confidenceIntervalPrecision(testIntervals[i]);
             if (precision < confidenceInterval.first ||
-                    precision > confidenceInterval.second) {
+                precision > confidenceInterval.second) {
                 ++errors[i];
             }
         }

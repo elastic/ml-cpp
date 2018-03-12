@@ -135,8 +135,8 @@ void CHashingTest::testUniversalHash(void) {
 
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 for (std::size_t j = i + 1u; j < samples.size(); ++j) {
-                    if (samples[i] != samples[j]
-                            && uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second) {
+                    if (samples[i] != samples[j] &&
+                        uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second) {
                         uint32_t hx = hash(samples[i]);
                         uint32_t hy = hash(samples[j]);
                         if (hx == hy) {
@@ -197,8 +197,8 @@ void CHashingTest::testUniversalHash(void) {
         double error = 0.0;
 
         for (TUint32PrUIntMapCItr i = uniqueHashedPairs.begin();
-                i != uniqueHashedPairs.end();
-                ++i) {
+             i != uniqueHashedPairs.end();
+             ++i) {
             double p = 2.0 * static_cast<double>(i->second)
                        / 2000.0 / 1999.0
                        / static_cast<double>(hashes.size());

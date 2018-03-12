@@ -247,9 +247,9 @@ bool CNaturalBreaksClassifier::split(const TSizeVec &split, TClassifierVec &resu
     this->reduce();
 
     // Sanity checks.
-    if (   split.empty()
-            || split[split.size() - 1] != m_Categories.size()
-            || !boost::algorithm::is_sorted(split.begin(), split.end())) {
+    if (   split.empty() ||
+           split[split.size() - 1] != m_Categories.size() ||
+           !boost::algorithm::is_sorted(split.begin(), split.end())) {
         LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }
@@ -338,9 +338,9 @@ bool CNaturalBreaksClassifier::categories(const TSizeVec &split, TTupleVec &resu
     result.clear();
 
     // Sanity checks.
-    if (   split.empty()
-            || split[split.size() - 1] != m_Categories.size()
-            || !boost::algorithm::is_sorted(split.begin(), split.end())) {
+    if (   split.empty() ||
+           split[split.size() - 1] != m_Categories.size() ||
+           !boost::algorithm::is_sorted(split.begin(), split.end())) {
         LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }
@@ -621,8 +621,8 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
             TTuple t;
             for (std::size_t j = i; j >= m; --j) {
                 t += categories[j];
-                double c = (D[j - 1][m - 1] == INF
-                            || CBasicStatistics::count(t) < pp) ?
+                double c = (D[j - 1][m - 1] == INF ||
+                            CBasicStatistics::count(t) < pp) ?
                            INF : D[j - 1][m - 1] + objective(target, t);
                 if (c <= d) {
                     b = j;

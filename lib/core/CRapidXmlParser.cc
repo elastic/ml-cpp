@@ -79,8 +79,8 @@ bool CRapidXmlParser::rootElementAttributes(TStrStrMap &rootAttributes) const {
     }
 
     for (const TCharRapidXmlAttribute *attr = root->first_attribute();
-            attr != 0;
-            attr = attr->next_attribute()) {
+         attr != 0;
+         attr = attr->next_attribute()) {
         // NB: where there are multiple attributes with the same name this keeps
         //     the last one (only keeping one attribute with a given name is a
         //     limitation throughout our XML encapsulation classes, but it
@@ -201,8 +201,8 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     // node
     attr = parentNode.first_attribute();
     for (CXmlNode::TStrStrPrVecItr iter = nodePtr->m_Attributes.begin();
-            iter != nodePtr->m_Attributes.end();
-            ++iter) {
+         iter != nodePtr->m_Attributes.end();
+         ++iter) {
         // Here we take advantage of friendship to directly modify the
         // CXmlNode's attributes map, thus avoiding the need to build a
         // separate map and then copy it
@@ -368,8 +368,8 @@ void CRapidXmlParser::convert(bool indent,
     const CXmlNode::TStrStrPrVec &attrs = root.attributes();
 
     for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin();
-            attrIter != attrs.end();
-            ++attrIter) {
+         attrIter != attrs.end();
+         ++attrIter) {
         nameLen = attrIter->first.length();
         valueLen = attrIter->second.length();
         approxLen += 5 + nameLen + valueLen;
@@ -415,8 +415,8 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
     }
 
     for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin();
-            childIter != childVec.end();
-            ++childIter) {
+         childIter != childVec.end();
+         ++childIter) {
         const CXmlNodeWithChildren *child = childIter->get();
         if (child != 0) {
             size_t nameLen(child->name().length());
@@ -433,8 +433,8 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
             const CXmlNode::TStrStrPrVec &attrs = child->attributes();
 
             for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin();
-                    attrIter != attrs.end();
-                    ++attrIter) {
+                 attrIter != attrs.end();
+                 ++attrIter) {
                 nameLen = attrIter->first.length();
                 valueLen = attrIter->second.length();
                 approxLen += 5 + nameLen + valueLen;

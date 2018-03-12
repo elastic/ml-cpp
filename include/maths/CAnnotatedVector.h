@@ -37,8 +37,8 @@ class CAnnotatedVector : public VECTOR {
 
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) {
-            return   core::memory_detail::SDynamicSizeAlwaysZero<VECTOR>::value()
-                     && core::memory_detail::SDynamicSizeAlwaysZero<ANNOTATION>::value();
+            return   core::memory_detail::SDynamicSizeAlwaysZero<VECTOR>::value() &&
+                     core::memory_detail::SDynamicSizeAlwaysZero<ANNOTATION>::value();
         }
 
     public:

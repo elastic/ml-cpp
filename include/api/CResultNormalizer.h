@@ -112,7 +112,7 @@ class API_EXPORT CResultNormalizer {
                             T &result) const {
             TStrStrUMapCItr iter = dataRowFields.find(fieldName);
             if (iter == dataRowFields.end() ||
-                    core::CStringUtils::stringToType(iter->second, result) == false) {
+                core::CStringUtils::stringToType(iter->second, result) == false) {
                 LOG_ERROR("Cannot interpret " << fieldName << " field in record:\n" <<
                           CDataProcessor::debugPrintRecord(dataRowFields));
                 return false;

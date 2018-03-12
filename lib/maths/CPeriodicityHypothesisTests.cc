@@ -493,8 +493,8 @@ CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string &des
 {}
 
 bool CPeriodicityHypothesisTestsResult::SComponent::operator==(const SComponent &other) const {
-    return   s_Description == other.s_Description
-             && s_StartOfPartition == other.s_StartOfPartition;
+    return   s_Description == other.s_Description &&
+             s_StartOfPartition == other.s_StartOfPartition;
 }
 
 CSeasonalTime *CPeriodicityHypothesisTestsResult::SComponent::seasonalTime() const {
@@ -972,10 +972,10 @@ CPeriodicityHypothesisTests::testForDaily(const TTimeTimePr2Vec &windows,
                         SIGNIFICANT_AMPLITUDE[E_LowThreshold],
                         SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
 
-    if (   m_Config.testForDiurnal()
-            && m_BucketLength <= DAY / 4
-            && this->seenSufficientDataToTest(DAY, buckets)
-            && this->testPeriod(windows, buckets, DAY, stats)) {
+    if (   m_Config.testForDiurnal() &&
+           m_BucketLength <= DAY / 4 &&
+           this->seenSufficientDataToTest(DAY, buckets) &&
+           this->testPeriod(windows, buckets, DAY, stats)) {
         this->hypothesis({DAY}, buckets, stats);
         result.add(DIURNAL_COMPONENT_NAMES[E_Day], true, 0,
                    DIURNAL_PERIODS[static_cast<int>(E_Day) % 2],
@@ -998,10 +998,10 @@ CPeriodicityHypothesisTests::testForWeekly(const TTimeTimePr2Vec &windows,
                         SIGNIFICANT_AMPLITUDE[E_LowThreshold],
                         SIGNIFICANT_AUTOCORRELATION[E_LowThreshold]);
 
-    if (   m_Config.testForDiurnal()
-            && m_BucketLength <= WEEK / 4
-            && this->seenSufficientDataToTest(WEEK, buckets)
-            && this->testPeriod(windows, buckets, WEEK, stats)) {
+    if (   m_Config.testForDiurnal() &&
+           m_BucketLength <= WEEK / 4 &&
+           this->seenSufficientDataToTest(WEEK, buckets) &&
+           this->testPeriod(windows, buckets, WEEK, stats)) {
         stats.s_StartOfPartition = 0;
         stats.s_Partition.assign(1, {0, length(buckets, m_BucketLength)});
         this->hypothesis({WEEK}, buckets, stats);
@@ -1029,12 +1029,12 @@ CPeriodicityHypothesisTests::testForDailyWithWeekend(const TFloatMeanAccumulator
     TTimeTimePr2Vec partition{{0, WEEKEND}, {WEEKEND, WEEK}};
     std::size_t bucketsPerWeek(WEEK / m_BucketLength);
 
-    if (   m_Config.testForDiurnal()
-            && m_BucketLength <= DAY / 4
-            && this->seenSufficientDataToTest(WEEK, buckets)
-            && this->testPartition(partition, buckets, DAY,
-                                   weekendPartitionVarianceCorrection(bucketsPerWeek),
-                                   stats)) {
+    if (   m_Config.testForDiurnal() &&
+           m_BucketLength <= DAY / 4 &&
+           this->seenSufficientDataToTest(WEEK, buckets) &&
+           this->testPartition(partition, buckets, DAY,
+                               weekendPartitionVarianceCorrection(bucketsPerWeek),
+                               stats)) {
         stats.s_Partition = partition;
         this->hypothesis({DAY, DAY}, buckets, stats);
         core_t::TTime startOfWeek{stats.s_StartOfPartition};
@@ -1119,10 +1119,10 @@ CPeriodicityHypothesisTests::testForPeriod(const TTimeTimePr2Vec &windows,
 
     CPeriodicityHypothesisTestsResult result{stats.s_H0};
 
-    if (   m_Period != DAY
-            && m_Period != WEEK
-            && m_BucketLength <= m_Period / 4
-            && this->seenSufficientDataToTest(m_Period, buckets)) {
+    if (   m_Period != DAY &&
+           m_Period != WEEK &&
+           m_BucketLength <= m_Period / 4 &&
+           this->seenSufficientDataToTest(m_Period, buckets)) {
         stats.s_HasPeriod = false;
         EThreshold index{m_Period % DAY == 0 ? E_LowThreshold : E_HighThreshold};
         stats.setThresholds(SIGNIFICANT_VARIANCE_REDUCTION[index],
@@ -1142,9 +1142,9 @@ CPeriodicityHypothesisTests::testForPeriod(const TTimeTimePr2Vec &windows,
 
 bool CPeriodicityHypothesisTests::seenSufficientDataToTest(core_t::TTime period,
                                                            const TFloatMeanAccumulatorCRng &buckets) const {
-    return  (buckets.size() * m_BucketLength) / period >= 2
-            && m_TimeRange.initialized()
-            && static_cast<double>(m_TimeRange.range())
+    return  (buckets.size() * m_BucketLength) / period >= 2 &&
+            m_TimeRange.initialized() &&
+            static_cast<double>(m_TimeRange.range())
             >= 2.0 * ACCURATE_TEST_POPULATED_FRACTION * static_cast<double>(period);
 }
 
@@ -1285,7 +1285,7 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
     for (std::size_t i = 0u; i < period; ++i) {
         for (std::size_t j = i + period; j < buckets.size(); j += period) {
             if (  CBasicStatistics::count(buckets[j])
-                    * CBasicStatistics::count(buckets[j - period]) > 0.0) {
+                  * CBasicStatistics::count(buckets[j - period]) > 0.0) {
                 repeats += 1.0;
                 break;
             }
@@ -1452,8 +1452,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     TDoubleTimePrVec candidates;
     candidates.reserve(period);
     for (core_t::TTime time = m_BucketLength;
-            time < repeat;
-            time += m_BucketLength) {
+         time < repeat;
+         time += m_BucketLength) {
         for (std::size_t i = 0u; i < 2; ++i) {
             for (auto &&delta : deltas[i]) {
                 delta = (delta + m_BucketLength) % windowLength;

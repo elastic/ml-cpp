@@ -820,8 +820,8 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
         //! Check if this is a non-informative prior.
         virtual bool isNonInformative(void) const {
-            return m_Modes.empty() || (   m_Modes.size() == 1
-                                          && m_Modes[0].s_Prior->isNonInformative());
+            return m_Modes.empty() || (   m_Modes.size() == 1 &&
+                                          m_Modes[0].s_Prior->isNonInformative());
         }
 
         //! Get a human readable description of the prior.

@@ -169,10 +169,10 @@ void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults &result
 
 void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchicalResults &results,
                                                        const TNode &node) {
-    if (    this->isSimpleCount(node)
-            || !this->isLeaf(node)
-            || !this->isPopulation(node)
-            || !this->shouldWriteResult(m_Limits, results, node, false)) {
+    if (    this->isSimpleCount(node) ||
+            !this->isLeaf(node) ||
+            !this->isPopulation(node) ||
+            !this->shouldWriteResult(m_Limits, results, node, false)) {
         return;
     }
 
@@ -284,10 +284,10 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
 
 void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchicalResults &results,
                                                        const TNode &node) {
-    if (    this->isSimpleCount(node)
-            || !this->isLeaf(node)
-            ||  this->isPopulation(node)
-            || !this->shouldWriteResult(m_Limits, results, node, false)) {
+    if (    this->isSimpleCount(node) ||
+            !this->isLeaf(node) ||
+            this->isPopulation(node) ||
+            !this->shouldWriteResult(m_Limits, results, node, false)) {
         return;
     }
 
@@ -327,11 +327,11 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
 
 void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchicalResults &results,
                                                       const TNode &node) {
-    if (   !m_ModelConfig.perPartitionNormalization()
-            ||  this->isSimpleCount(node)
-            ||  this->isPopulation(node)
-            || !this->isPartition(node)
-            || !this->shouldWriteResult(m_Limits, results, node, false)
+    if (   !m_ModelConfig.perPartitionNormalization() ||
+           this->isSimpleCount(node) ||
+           this->isPopulation(node) ||
+           !this->isPartition(node) ||
+           !this->shouldWriteResult(m_Limits, results, node, false)
        ) {
         return;
     }
@@ -371,8 +371,8 @@ void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchical
 
 void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResults &results,
                                                   const TNode &node) {
-    if (    this->isSimpleCount(node)
-            || !this->shouldWriteResult(m_Limits, results, node, true)) {
+    if (    this->isSimpleCount(node) ||
+            !this->shouldWriteResult(m_Limits, results, node, true)) {
         return;
     }
 
@@ -433,8 +433,8 @@ void CHierarchicalResultsWriter::findParentProbabilities(const TNode &node,
     partitionProbability = node.probability();
 
     for (const TNode *parent = node.s_Parent;
-            parent != 0;
-            parent = parent->s_Parent) {
+         parent != 0;
+         parent = parent->s_Parent) {
         if (CHierarchicalResultsWriter::isPartition(*parent)) {
             partitionProbability = parent->probability();
             // This makes the assumption that partition will be higher than

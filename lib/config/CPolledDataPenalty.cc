@@ -117,8 +117,8 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
     F.cdf(upper + 0.01 * upper, f[3]);
     mass = f[1] - f[0] + f[3] - f[2];
 
-    if (    mass > this->params().polledDataMinimumMassAtInterval()
-            && lower < this->params().polledDataJitter() * upper) {
+    if (    mass > this->params().polledDataMinimumMassAtInterval() &&
+            lower < this->params().polledDataJitter() * upper) {
         return static_cast<core_t::TTime>(upper);
     } else {
     }

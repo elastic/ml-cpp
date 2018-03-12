@@ -204,9 +204,9 @@ CStateMachine::SLookupMachine::SLookupMachine(const TStrVec &alphabet,
 {}
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine &rhs) const {
-    return   boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction
-             && boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet
-             && boost::unwrap_ref(s_States) == rhs.s_States;
+    return   boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
+             boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
+             boost::unwrap_ref(s_States) == rhs.s_States;
 }
 
 CStateMachine::CMachineDeque::CMachineDeque(void) :

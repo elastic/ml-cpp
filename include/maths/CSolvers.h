@@ -173,9 +173,9 @@ class MATHS_EXPORT CSolvers {
                     double td = sLast;
                     sLast = ::fabs(s);
 
-                    if (::fabs(p) >= q * td / 2.0
-                            || p <= q * (a - x)
-                            || p >= q * (b - x)) {
+                    if (::fabs(p) >= q * td / 2.0 ||
+                        p <= q * (a - x) ||
+                        p >= q * (b - x)) {
                         // Minimum not in range or converging too slowly.
                         sLast = (x >= xm) ? x - a : b - x;
                         s = sign * std::max(golden * sLast, t1);
@@ -572,9 +572,9 @@ class MATHS_EXPORT CSolvers {
 
                 double e = (3.0 * a + b) / 4.0;
 
-                if (   (!(((s > e) && (s < b)) || ((s < e) && (s > b))))
-                        || ( bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c)))
-                        || (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d)))) {
+                if (   (!(((s > e) && (s < b)) || ((s < e) && (s > b)))) ||
+                       ( bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c))) ||
+                       (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d)))) {
                     // Use bisection.
                     s = bisect(a, b);
                     bisected = true;

@@ -413,8 +413,8 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation(void) {
                 for (std::size_t k = 0u; k < elementSamples.size(); ++k) {
                     double a = elementSamples[k][l];
                     double b = elementSamples[k][u];
-                    if (   precisionMatrix(ij[k][0], ij[k][1]) < a
-                            || precisionMatrix(ij[k][0], ij[k][1]) > b) {
+                    if (   precisionMatrix(ij[k][0], ij[k][1]) < a ||
+                           precisionMatrix(ij[k][0], ij[k][1]) > b) {
                         ++errors[k][j];
                     }
                 }

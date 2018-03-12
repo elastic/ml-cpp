@@ -232,8 +232,8 @@ bool CLogger::setLoggingLevel(ELevel level) {
     // here as well for appenders that write to a file or the console.
     log4cxx::AppenderList appendersToChange(loggerToChange->getAllAppenders());
     for (log4cxx::AppenderList::iterator iter = appendersToChange.begin();
-            iter != appendersToChange.end();
-            ++iter) {
+         iter != appendersToChange.end();
+         ++iter) {
         log4cxx::Appender *appenderToChange(*iter);
 
         // Unfortunately, thresholds are a concept lower down the inheritance
@@ -402,8 +402,8 @@ void CLogger::massageProperties(log4cxx::helpers::Properties &props) const {
 
     TLogStringVec propNames(props.propertyNames());
     for (TLogStringVecCItr iter = propNames.begin();
-            iter != propNames.end();
-            ++iter) {
+         iter != propNames.end();
+         ++iter) {
         log4cxx::LogString oldKey(*iter);
         log4cxx::LogString newKey;
         newKey.reserve(oldKey.length());
@@ -426,8 +426,8 @@ void CLogger::massageString(const TLogCharLogStrMap &mappings,
     newStr.clear();
 
     for (log4cxx::LogString::const_iterator iter = oldStr.begin();
-            iter != oldStr.end();
-            ++iter) {
+         iter != oldStr.end();
+         ++iter) {
         // We ONLY want to replace the patterns in our map - other patterns are
         // left for log4cxx itself
         if (*iter == static_cast<log4cxx::logchar>('%')) {

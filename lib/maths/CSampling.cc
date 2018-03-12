@@ -800,8 +800,8 @@ void CSampling::weightedSample(std::size_t n,
 
         TDoubleSizePrVec candidates;
         for (std::size_t i = 0u; i < choices.size(); ++i) {
-            if (   (totalRemainder > 0.0 && choices[i] == 0u)
-                    || (totalRemainder < 0.0 && choices[i] == 1u)) {
+            if (   (totalRemainder > 0.0 && choices[i] == 0u) ||
+                   (totalRemainder < 0.0 && choices[i] == 1u)) {
                 candidates.emplace_back(-::fabs(remainders[choices[i]][i]), i);
             }
         }
@@ -810,8 +810,8 @@ void CSampling::weightedSample(std::size_t n,
                   << core::CContainerPrinter::print(candidates));
 
         for (std::size_t i = 0u;
-                i < candidates.size() && ::fabs(totalRemainder) > 0.5;
-                ++i) {
+             i < candidates.size() && ::fabs(totalRemainder) > 0.5;
+             ++i) {
             std::size_t j = candidates[i].second;
             unsigned int choice = choices[j];
             choices[j] = (choice + 1u) % 2u;

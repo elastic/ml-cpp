@@ -214,7 +214,7 @@ class CMessageQueue {
                             // Start the stop watch if it's not running and it
                             // should be
                             if (NUM_TO_TIME > 0 &&
-                                    !m_MessageQueue.m_StopWatch.isRunning()) {
+                                !m_MessageQueue.m_StopWatch.isRunning()) {
                                 m_MessageQueue.m_StopWatch.start();
                             }
 
@@ -238,7 +238,7 @@ class CMessageQueue {
                             // If the stop watch is running, update the history
                             // of readings
                             if (NUM_TO_TIME > 0 &&
-                                    m_MessageQueue.m_StopWatch.isRunning()) {
+                                m_MessageQueue.m_StopWatch.isRunning()) {
                                 m_MessageQueue.m_Readings.push_back(m_MessageQueue.m_StopWatch.lap());
                             }
                         }
@@ -246,7 +246,7 @@ class CMessageQueue {
                         // Stop the stop watch if it's running, as we're
                         // probably about to go to sleep
                         if (NUM_TO_TIME > 0 &&
-                                m_MessageQueue.m_StopWatch.isRunning()) {
+                            m_MessageQueue.m_StopWatch.isRunning()) {
                             m_MessageQueue.m_StopWatch.stop();
                         }
                     }

@@ -164,8 +164,8 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     }
 
     double logMaximumAnomalousProbability = ::log(maximumAnomalousProbability);
-    if (   logPJoint > logMaximumAnomalousProbability
-            && logPExtreme > logMaximumAnomalousProbability) {
+    if (   logPJoint > logMaximumAnomalousProbability &&
+           logPExtreme > logMaximumAnomalousProbability) {
         overallProbability =   ::exp(jointProbabilityWeight * logPJoint)
                                * ::exp(extremeProbabilityWeight * logPExtreme);
         return true;
@@ -290,8 +290,8 @@ bool CAnomalyScore::CNormalizer::normalize(TDoubleVec &scores) const {
 
     // Normalize the individual scores.
     for (TDoubleVecItr scoreItr = scores.begin();
-            scoreItr != scores.end();
-            ++scoreItr) {
+         scoreItr != scores.end();
+         ++scoreItr) {
         *scoreItr *= normalizedScore / origScore;
     }
 
@@ -497,8 +497,8 @@ void CAnomalyScore::CNormalizer::quantile(double score,
         m_RawScoreQuantileSummary.pdf(discreteScore, 0.0, pdfLowerBound, pdfUpperBound);
         lowerBound = maths::CTools::truncate(lowerBound - pdfUpperBound, 0.0, fl);
         upperBound = maths::CTools::truncate(upperBound - pdfLowerBound, 0.0, fu);
-        if (   !(lowerBound >= 0.0 && lowerBound <= 1.0)
-                || !(upperBound >= 0.0 && upperBound <= 1.0)) {
+        if (   !(lowerBound >= 0.0 && lowerBound <= 1.0) ||
+               !(upperBound >= 0.0 && upperBound <= 1.0)) {
             LOG_ERROR("score = " << score
                       << ", cdf = [" << lowerBound << "," << upperBound << "]"
                       << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
@@ -541,8 +541,8 @@ void CAnomalyScore::CNormalizer::quantile(double score,
                                             - pdfLowerBound, 0.0)
                  / std::max(1.0 - cutoffCdfLowerBound,
                             std::numeric_limits<double>::epsilon());
-    if (   !(lowerBound >= 0.0 && lowerBound <= 1.0)
-            || !(upperBound >= 0.0 && upperBound <= 1.0)) {
+    if (   !(lowerBound >= 0.0 && lowerBound <= 1.0) ||
+           !(upperBound >= 0.0 && upperBound <= 1.0)) {
         LOG_ERROR("score = " << score
                   << ", cdf = [" << lowerBound << "," << upperBound << "]"
                   << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
@@ -676,8 +676,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
 
             uint64_t r = L[i0].second;
             for (std::size_t i = i0 + 1;
-                    i < L.size() && L[i0].second + m_RawScoreHighQuantileSummary.n() < n+1;
-                    ++i) {
+                 i < L.size() && L[i0].second + m_RawScoreHighQuantileSummary.n() < n+1;
+                 ++i) {
                 for (/**/; j < H.size() && H[j].first <= L[i].first; ++j) {
                     r += (H[j].second - (j == 0 ?
                                          static_cast<uint64_t>(0) :
@@ -762,9 +762,9 @@ bool CAnomalyScore::CNormalizer::isUpgradable(const std::string &fromVersion,
     // Any changes to this method need to be reflected in the upgrade() method
     // below to prevent an inconsistency where this method says an upgrade is
     // possible but the upgrade() method can't do it.
-    return    (fromVersion == "1" && toVersion == "2")
-              || (fromVersion == "1" && toVersion == "3")
-              || (fromVersion == "2" && toVersion == "3");
+    return    (fromVersion == "1" && toVersion == "2") ||
+              (fromVersion == "1" && toVersion == "3") ||
+              (fromVersion == "2" && toVersion == "3");
 }
 
 bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
@@ -787,10 +787,10 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
     };
 
     std::size_t i, j;
-    if (   !core::CStringUtils::stringToType(loadedVersion, i)
-            || !core::CStringUtils::stringToType(currentVersion, j)
-            || i-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR)
-            || j-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
+    if (   !core::CStringUtils::stringToType(loadedVersion, i) ||
+           !core::CStringUtils::stringToType(currentVersion, j) ||
+           i-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR) ||
+           j-1 >= boost::size(HIGH_SCORE_UPGRADE_FACTOR[0])) {
         LOG_ERROR("Don't know how to upgrade quantiles from version " <<
                   loadedVersion << " to version " << currentVersion);
         return false;
@@ -983,7 +983,7 @@ bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
     }
 
     if (restoredNormalizer &&
-            restoredVersion != CURRENT_FORMAT_VERSION) {
+        restoredVersion != CURRENT_FORMAT_VERSION) {
         LOG_INFO("Restored quantiles JSON version is " << restoredVersion <<
                  "; current JSON version is " << CURRENT_FORMAT_VERSION <<
                  " - will attempt upgrade");

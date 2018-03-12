@@ -75,8 +75,8 @@ bool CMultivariatePrior::isForForecasting(void) const {
 }
 
 bool CMultivariatePrior::isDiscrete(void) const {
-    return    m_DataType == maths_t::E_DiscreteData
-              || m_DataType == maths_t::E_IntegerData;
+    return    m_DataType == maths_t::E_DiscreteData ||
+              m_DataType == maths_t::E_IntegerData;
 }
 
 bool CMultivariatePrior::isInteger(void) const {
@@ -231,10 +231,10 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     }
 
     for (std::size_t i = 0; i < coordinates.size(); ++i) {
-        if (   !lowerBounds_[0][i].calculate(lowerBounds[0][i])
-                || !upperBounds_[0][i].calculate(upperBounds[0][i])
-                || !lowerBounds_[1][i].calculate(lowerBounds[1][i])
-                || !upperBounds_[1][i].calculate(upperBounds[1][i])) {
+        if (   !lowerBounds_[0][i].calculate(lowerBounds[0][i]) ||
+               !upperBounds_[0][i].calculate(upperBounds[0][i]) ||
+               !lowerBounds_[1][i].calculate(lowerBounds[1][i]) ||
+               !upperBounds_[1][i].calculate(upperBounds[1][i])) {
             LOG_ERROR("Failed to compute probability for coordinate " << coordinates[i]);
             return false;
         }
@@ -285,10 +285,10 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     }
 
     double lb[2], ub[2];
-    if (   !lowerBound_[0].calculate(lb[0])
-            || !upperBound_[0].calculate(ub[0])
-            || !lowerBound_[1].calculate(lb[1])
-            || !upperBound_[1].calculate(ub[1])) {
+    if (   !lowerBound_[0].calculate(lb[0]) ||
+           !upperBound_[0].calculate(ub[0]) ||
+           !lowerBound_[1].calculate(lb[1]) ||
+           !upperBound_[1].calculate(ub[1])) {
         return false;
     }
     LOG_TRACE("lb = " << core::CContainerPrinter::print(lb)
@@ -446,11 +446,11 @@ bool CMultivariatePrior::check(const TSize10Vec &marginalize,
                                const TSizeDoublePr10Vec &condition) const {
     static const auto FIRST = [](const TSizeDoublePr &pair) { return pair.first; };
     std::size_t d = this->dimension();
-    if (   (marginalize.size() > 0 && marginalize.back()     >= d)
-            || (condition.size()   > 0 && condition.back().first >= d)
-            ||  CSetTools::setIntersectSize(marginalize.begin(), marginalize.end(),
-                                            boost::make_transform_iterator(condition.begin(), FIRST),
-                                            boost::make_transform_iterator(condition.end(), FIRST)) != 0) {
+    if (   (marginalize.size() > 0 && marginalize.back()     >= d) ||
+           (condition.size()   > 0 && condition.back().first >= d) ||
+           CSetTools::setIntersectSize(marginalize.begin(), marginalize.end(),
+                                       boost::make_transform_iterator(condition.begin(), FIRST),
+                                       boost::make_transform_iterator(condition.end(), FIRST)) != 0) {
         LOG_ERROR("Invalid variables for computing univariate distribution: "
                   << "marginalize '" << marginalize << "'"
                   << ", condition '" << condition << "'");

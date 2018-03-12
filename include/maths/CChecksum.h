@@ -270,8 +270,8 @@ class CChecksumImpl<ContainerChecksum> {
             TCRefVec ordered;
             ordered.reserve(target.size());
             for (typename boost::unordered_set<T>::const_iterator itr = target.begin();
-                    itr != target.end();
-                    ++itr) {
+                 itr != target.end();
+                 ++itr) {
                 ordered.push_back(TCRef(*itr));
             }
 
@@ -291,8 +291,8 @@ class CChecksumImpl<ContainerChecksum> {
             TUCRefVCRefPrVec ordered;
             ordered.reserve(target.size());
             for (typename boost::unordered_map<U, V>::const_iterator itr = target.begin();
-                    itr != target.end();
-                    ++itr) {
+                 itr != target.end();
+                 ++itr) {
                 ordered.push_back(TUCRefVCRefPr(TUCRef(itr->first), TVCRef(itr->second)));
             }
 

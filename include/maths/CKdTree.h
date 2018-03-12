@@ -103,8 +103,8 @@ class CKdTree {
             //! Check node invariants.
             bool checkInvariants(std::size_t dimension) const {
                 if (s_Parent) {
-                    if (   s_Parent->s_LeftChild != this
-                            && s_Parent->s_RightChild != this) {
+                    if (   s_Parent->s_LeftChild != this &&
+                           s_Parent->s_RightChild != this) {
                         LOG_ERROR("Not parent's child");
                         return false;
                     }
@@ -131,8 +131,8 @@ class CKdTree {
             std::size_t depth(void) const {
                 std::size_t depth = 0u;
                 for (const SNode *ancestor = s_Parent;
-                        ancestor;
-                        ancestor = ancestor->s_Parent) {
+                     ancestor;
+                     ancestor = ancestor->s_Parent) {
                     ++depth;
                 }
                 return depth;

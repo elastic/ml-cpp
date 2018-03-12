@@ -77,7 +77,7 @@ void CCompressOStream::CCompressThread::run(void) {
         }
 
         if (m_StreamBuf.endOfFile() &&
-                (m_StreamBuf.in_avail() == 0)) {
+            (m_StreamBuf.in_avail() == 0)) {
             closeMe = true;
         }
     }

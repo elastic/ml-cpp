@@ -423,8 +423,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
     }
 
     for (core_t::TTime lastBucketEndTime = m_LastFinalisedBucketEndTime;
-            lastBucketEndTime + bucketLength + latency <= time;
-            lastBucketEndTime += effectiveBucketLength) {
+         lastBucketEndTime + bucketLength + latency <= time;
+         lastBucketEndTime += effectiveBucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + effectiveBucketLength;
@@ -477,8 +477,8 @@ void CAnomalyJob::flushAndResetResultsQueue(core_t::TTime startTime) {
         core_t::TTime earliestResultTime =
             m_LastFinalisedBucketEndTime - m_ResultsQueue.size() * effectiveBucketLength;
         for (core_t::TTime bucketStart = earliestResultTime;
-                bucketStart < m_LastFinalisedBucketEndTime;
-                bucketStart += effectiveBucketLength) {
+             bucketStart < m_LastFinalisedBucketEndTime;
+             bucketStart += effectiveBucketLength) {
             model::CHierarchicalResults &results = m_ResultsQueue.latest();
             core_t::TTime resultsTime = m_ResultsQueue.chooseResultTime(bucketStart, m_ModelConfig.bucketLength(), results);
             if (resultsTime != 0) {
@@ -555,8 +555,8 @@ bool CAnomalyJob::parseTimeRangeInControlMessage(const std::string &controlMessa
                   " parameters when only zero or two are allowed.");
         return false;
     }
-    if (core::CStringUtils::stringToType(tokens[0], start)
-            && core::CStringUtils::stringToType(tokens[1], end)) {
+    if (core::CStringUtils::stringToType(tokens[0], start) &&
+        core::CStringUtils::stringToType(tokens[1], end)) {
         return true;
     }
     LOG_ERROR("Cannot parse control message: " << controlMessage);
@@ -850,8 +850,8 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser &traverser,
 
     core_t::TTime lastBucketEndTime(0);
     if (traverser.name() != TIME_TAG ||
-            core::CStringUtils::stringToType(traverser.value(),
-                                             lastBucketEndTime) == false) {
+        core::CStringUtils::stringToType(traverser.value(),
+                                         lastBucketEndTime) == false) {
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         LOG_ERROR("Cannot restore anomaly detector - '" << TIME_TAG <<
                   "' element expected but found " <<
@@ -981,7 +981,7 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser &traverser)
     }
 
     if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false ||
-            traverser.haveBadState()) {
+        traverser.haveBadState()) {
         LOG_ERROR("Delegated portion of anomaly detector restore failed");
         m_RestoredStateDetail.s_RestoredStateStatus = E_Failure;
         return false;
@@ -1280,9 +1280,9 @@ void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
     results.pivotsBottomUpBreadthFirst(m_Normalizer);
 
     if ((isInterim == false &&
-            m_Normalizer.hasLastUpdateCausedBigChange()) ||
-            (m_MaxQuantileInterval > 0 &&
-             core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
+         m_Normalizer.hasLastUpdateCausedBigChange()) ||
+        (m_MaxQuantileInterval > 0 &&
+         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
         m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
     }
 }

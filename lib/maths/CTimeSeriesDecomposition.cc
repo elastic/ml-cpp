@@ -468,9 +468,9 @@ TDoubleDoublePr CTimeSeriesDecomposition::smooth(const F &f,
     };
 
     for (const auto &component : m_Components.seasonal()) {
-        if (   !component.initialized()
-                || !this->matches(components, component)
-                || component.time().windowRepeat() <= SMOOTHING_INTERVAL) {
+        if (   !component.initialized() ||
+               !this->matches(components, component) ||
+               component.time().windowRepeat() <= SMOOTHING_INTERVAL) {
             continue;
         }
 
@@ -479,16 +479,16 @@ TDoubleDoublePr CTimeSeriesDecomposition::smooth(const F &f,
         bool timeInWindow{times.inWindow(time)};
         bool inWindowBefore{times.inWindow(time - SMOOTHING_INTERVAL)};
         bool inWindowAfter{times.inWindow(time + SMOOTHING_INTERVAL)};
-        if (  (!timeInWindow && inWindowBefore)
-                || (timeInWindow && inWindowBefore && times.startOfWindow(time) !=
-                    times.startOfWindow(time + SMOOTHING_INTERVAL))) {
+        if (  (!timeInWindow && inWindowBefore) ||
+              (timeInWindow && inWindowBefore && times.startOfWindow(time) !=
+               times.startOfWindow(time + SMOOTHING_INTERVAL))) {
             core_t::TTime discontinuity{  times.startOfWindow(time - SMOOTHING_INTERVAL)
                                           + times.windowLength()};
             return pair(-offset(discontinuity));
         }
-        if (  (!timeInWindow && inWindowAfter)
-                || (timeInWindow && inWindowAfter && times.startOfWindow(time) !=
-                    times.startOfWindow(time + SMOOTHING_INTERVAL))) {
+        if (  (!timeInWindow && inWindowAfter) ||
+              (timeInWindow && inWindowAfter && times.startOfWindow(time) !=
+               times.startOfWindow(time + SMOOTHING_INTERVAL))) {
             core_t::TTime discontinuity{component.time().startOfWindow(time + SMOOTHING_INTERVAL)};
             return pair(offset(discontinuity));
         }
@@ -500,9 +500,9 @@ TDoubleDoublePr CTimeSeriesDecomposition::smooth(const F &f,
 bool CTimeSeriesDecomposition::selected(core_t::TTime time,
                                         int components,
                                         const CSeasonalComponent &component) const {
-    return   component.initialized()
-             && this->matches(components, component)
-             && component.time().inWindow(time);
+    return   component.initialized() &&
+             this->matches(components, component) &&
+             component.time().inWindow(time);
 }
 
 bool CTimeSeriesDecomposition::matches(int components,

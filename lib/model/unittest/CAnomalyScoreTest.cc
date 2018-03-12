@@ -384,8 +384,8 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void) {
     TSizeVec times;
 
     for (TDoubleSizeMapCItr itr = maxScores.begin();
-            itr != maxScores.end();
-            ++itr) {
+         itr != maxScores.end();
+         ++itr) {
         times.push_back(itr->second);
     }
     std::sort(times.begin(), times.end());

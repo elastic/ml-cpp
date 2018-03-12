@@ -128,15 +128,15 @@ class CEqualWithTolerance : public std::binary_function<T, T, bool>,
 
             switch (m_ToleranceType) {
                 case 2: // absolute & relative
-                    return     (norm(difference) <= m_AbsoluteEps)
-                               && (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+                    return     (norm(difference) <= m_AbsoluteEps) &&
+                               (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
                 case 3: // absolute
                     return      norm(difference) <= m_AbsoluteEps;
                 case 6: // relative
                     return      norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
                 case 7: // absolute | relative
-                    return     (norm(difference) <= m_AbsoluteEps)
-                               || (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+                    return     (norm(difference) <= m_AbsoluteEps) ||
+                               (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
             }
             LOG_ERROR("Unexpected tolerance type " << m_ToleranceType);
             return false;

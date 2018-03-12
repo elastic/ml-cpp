@@ -494,8 +494,8 @@ void CBjkstUniqueValues::sketch(void) {
                                                        + 1 * VEC8_SIZE
                                                        + 3 * m_MaxSize * UINT8_SIZE);
         if (valuesSize > sketchSize) {
-            if (   values->capacity() > values->size()
-                    && values->size() < (sketchSize - VEC32_SIZE) / UINT32_SIZE) {
+            if (   values->capacity() > values->size() &&
+                   values->size() < (sketchSize - VEC32_SIZE) / UINT32_SIZE) {
                 TUInt32Vec shrunk;
                 shrunk.reserve((sketchSize - VEC32_SIZE) / UINT32_SIZE);
                 shrunk.assign(values->begin(), values->end());
@@ -541,8 +541,8 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
             if (    core::CPersistUtils::fromString(traverser.value(),
                                                     hashFromString,
                                                     s_G,
-                                                    DELIMITER) == false
-                    || s_G.size() != numberHashes) {
+                                                    DELIMITER) == false ||
+                    s_G.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
@@ -550,8 +550,8 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
             if (    core::CPersistUtils::fromString(traverser.value(),
                                                     hashFromString,
                                                     s_H,
-                                                    DELIMITER) == false
-                    || s_H.size() != numberHashes) {
+                                                    DELIMITER) == false ||
+                    s_H.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
@@ -559,8 +559,8 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
             if (   core::CPersistUtils::fromString(traverser.value(),
                                                    CFromString<int>(),
                                                    s_Z,
-                                                   DELIMITER) == false
-                    || s_Z.size() != numberHashes) {
+                                                   DELIMITER) == false ||
+                   s_Z.size() != numberHashes) {
                 LOG_ERROR("Invalid zeros in " << traverser.value());
                 return false;
             }

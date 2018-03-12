@@ -152,8 +152,8 @@ void CBucketCountStatistics::capture(void) {
 
     m_BucketPartitionCount += m_CurrentBucketPartitionCounts.size();
     for (TSizeSizeSizeTrUInt64UMapCItr i = m_CurrentBucketPartitionCounts.begin();
-            i != m_CurrentBucketPartitionCounts.end();
-            ++i) {
+         i != m_CurrentBucketPartitionCounts.end();
+         ++i) {
         TSizeSizePr id(i->first.first, i->first.third);
         double count = static_cast<double>(i->second);
         m_CountMomentsPerPartition[id].add(count);

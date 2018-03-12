@@ -592,8 +592,8 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(cons
     do {
         if (traverser.name() == MODEL_TAG) {
             if (  !traverser.traverseSubLevel(boost::bind(&maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
-                                                          s_Models.get(), boost::cref(params), _1))
-                    || count++ > 0) {
+                                                          s_Models.get(), boost::cref(params), _1)) ||
+                  count++ > 0) {
                 return false;
             }
         }
@@ -633,8 +633,8 @@ bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::areAllocationsAl
 }
 
 bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::exceedsLimit(std::size_t correlations) const {
-    return  !m_ResourceMonitor->haveNoLimit()
-            && m_MemoryUsage(correlations) >= m_ResourceLimit;
+    return  !m_ResourceMonitor->haveNoLimit() &&
+            m_MemoryUsage(correlations) >= m_ResourceLimit;
 }
 
 std::size_t CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::maxNumberCorrelations(void) const {

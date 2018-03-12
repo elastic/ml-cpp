@@ -269,8 +269,8 @@ void CMapPopulationTest::addInsert(const INPUT_CONTAINER &keys,
                                    const INPUT_CONTAINER &values,
                                    MAP_CONTAINER &maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin();
-            iter != maps.end();
-            ++iter) {
+         iter != maps.end();
+         ++iter) {
         typename MAP_CONTAINER::value_type &map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));
@@ -287,8 +287,8 @@ void CMapPopulationTest::addOpSqBrac(const INPUT_CONTAINER &keys,
                                      const INPUT_CONTAINER &values,
                                      MAP_CONTAINER &maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin();
-            iter != maps.end();
-            ++iter) {
+         iter != maps.end();
+         ++iter) {
         typename MAP_CONTAINER::value_type &map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));

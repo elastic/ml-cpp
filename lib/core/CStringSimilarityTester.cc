@@ -35,9 +35,9 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     size_t secondCompLength(0);
 
     if (m_Compressor.addString(first) == false ||
-            m_Compressor.compressedLength(true, firstCompLength) == false ||
-            m_Compressor.addString(second) == false ||
-            m_Compressor.compressedLength(true, secondCompLength) == false) {
+        m_Compressor.compressedLength(true, firstCompLength) == false ||
+        m_Compressor.addString(second) == false ||
+        m_Compressor.compressedLength(true, secondCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;
@@ -66,11 +66,11 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     size_t secondPlusFirstCompLength(0);
 
     if (m_Compressor.addString(first) == false ||
-            m_Compressor.addString(second) == false ||
-            m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false ||
-            m_Compressor.addString(second) == false ||
-            m_Compressor.addString(first) == false ||
-            m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
+        m_Compressor.addString(second) == false ||
+        m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false ||
+        m_Compressor.addString(second) == false ||
+        m_Compressor.addString(first) == false ||
+        m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;

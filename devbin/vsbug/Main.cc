@@ -36,8 +36,8 @@ int main(int, char **) {
         std::time_t offset = endTime - startTime;
         unsigned long i = 0;
         for (std::time_t bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength) {
             std::time_t bucketEndTime = bucketStartTime + bucketLength;
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::vector<std::time_t> temp;

@@ -462,11 +462,11 @@ void CXMeansTest::testFiveClusters(void) {
                     for (TVector2VecCItr itr = std::lower_bound(points[k].begin(),
                                                                 points[k].end(),
                                                                 clusterPoints[j]),
-                            end = std::upper_bound(points[k].begin(),
-                                                   points[k].end(),
-                                                   clusterPoints[j]);
-                            itr != end;
-                            ++itr) {
+                         end = std::upper_bound(points[k].begin(),
+                                                points[k].end(),
+                                                clusterPoints[j]);
+                         itr != end;
+                         ++itr) {
                         if (clusterPoints[j] == *itr) {
                             goto FoundPoint;
                         }
@@ -588,11 +588,11 @@ void CXMeansTest::testTwentyClusters(void) {
                 for (TVector2VecCItr itr = std::lower_bound(points[k].begin(),
                                                             points[k].end(),
                                                             clusterPoints[j]),
-                        end = std::upper_bound(points[k].begin(),
-                                               points[k].end(),
-                                               clusterPoints[j]);
-                        itr != end;
-                        ++itr) {
+                     end = std::upper_bound(points[k].begin(),
+                                            points[k].end(),
+                                            clusterPoints[j]);
+                     itr != end;
+                     ++itr) {
                     if (clusterPoints[j] == *itr) {
                         goto FoundPoint;
                     }
@@ -712,9 +712,9 @@ void CXMeansTest::testPoorlyConditioned(void) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
             LOG_DEBUG("points = " << core::CContainerPrinter::print(clusterPoints));
-            CPPUNIT_ASSERT(   clusterPoints == cluster1
-                              || clusterPoints == cluster2
-                              || clusterPoints == cluster3);
+            CPPUNIT_ASSERT(   clusterPoints == cluster1 ||
+                              clusterPoints == cluster2 ||
+                              clusterPoints == cluster3);
         }
     }
 }

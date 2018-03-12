@@ -95,7 +95,7 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
             m_TestCases.push_back(argv[i]);
             std::string &testName = m_TestCases.back();
             if (testName.length() > SRC_EXT.length() &&
-                    testName.rfind(SRC_EXT) == testName.length() - SRC_EXT.length()) {
+                testName.rfind(SRC_EXT) == testName.length() - SRC_EXT.length()) {
                 testName.erase(testName.length() - SRC_EXT.length());
                 ++numSrcStrips;
                 lastSrcIndex = i;
@@ -159,7 +159,7 @@ bool CTestRunner::runTests(void) {
     std::string testPath(UNKNOWN_DIR);
     boost::filesystem::path::iterator iter = cwd.end();
     if (--iter != cwd.begin() &&
-            --iter != cwd.begin()) {
+        --iter != cwd.begin()) {
         testPath = iter->string();
         while (--iter != cwd.begin()) {
             if (iter->string() == LIB_DIR) {
@@ -203,8 +203,8 @@ bool CTestRunner::timeTests(const std::string &topPath,
         allPassed = this->run();
     } else {
         for (TStrVecItr itr = m_TestCases.begin();
-                itr != m_TestCases.end() && allPassed;
-                ++itr) {
+             itr != m_TestCases.end() && allPassed;
+             ++itr) {
             try {
                 allPassed = this->run(*itr);
             } catch (std::invalid_argument &) {
@@ -239,9 +239,9 @@ bool CTestRunner::checkSkipFile(const std::string &cwd,
     while (std::getline(strm, line)) {
         size_t commaPos(line.rfind(','));
         if (commaPos != std::string::npos &&
-                line.compare(0, commaPos, cwd) == 0 &&
-                core::CStringUtils::stringToType(line.substr(commaPos + 1),
-                                                 passed) == true) {
+            line.compare(0, commaPos, cwd) == 0 &&
+            core::CStringUtils::stringToType(line.substr(commaPos + 1),
+                                             passed) == true) {
             return true;
         }
     }

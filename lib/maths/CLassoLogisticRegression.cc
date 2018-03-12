@@ -821,8 +821,8 @@ bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
     bool positive = false;
     bool negative = false;
     for (std::size_t i = 0u;
-            (!positive || !negative) && i < m_Y.size();
-            ++i) {
+         (!positive || !negative) && i < m_Y.size();
+         ++i) {
         (m_Y[i] < 0.0 ? negative : positive) = true;
     }
     if (!negative || !positive) {

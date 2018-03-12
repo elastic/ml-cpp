@@ -284,15 +284,15 @@ void CForecastTest::testNonNegative(void) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin();
-                i < prediction.size() && value != noise.end();
-                ++i, ++value, time += bucketLength) {
+             i < prediction.size() && value != noise.end();
+             ++i, ++value, time += bucketLength) {
             CPPUNIT_ASSERT(prediction[i].s_LowerBound >= 0);
             CPPUNIT_ASSERT(prediction[i].s_Predicted  >= 0);
             CPPUNIT_ASSERT(prediction[i].s_UpperBound >= 0);
 
             double y{std::max(*value, 0.0)};
-            outOfBounds += (   y < prediction[i].s_LowerBound
-                               || y > prediction[i].s_UpperBound ? 1 : 0);
+            outOfBounds += (   y < prediction[i].s_LowerBound ||
+                               y > prediction[i].s_UpperBound ? 1 : 0);
             ++count;
             //actual.push_back(y);
             //ly.push_back(prediction[i].s_LowerBound);
@@ -382,11 +382,11 @@ void CForecastTest::testFinancialIndex(void) {
     TMeanAccumulator error;
 
     for (std::size_t i = n, j = 0u;
-            i < timeseries.size() && j < prediction.size();
-            ++i, ++j) {
+         i < timeseries.size() && j < prediction.size();
+         ++i, ++j) {
         double yi{timeseries[i].second};
-        outOfBounds += (   yi < prediction[j].s_LowerBound
-                           || yi > prediction[j].s_UpperBound ? 1 : 0);
+        outOfBounds += (   yi < prediction[j].s_LowerBound ||
+                           yi > prediction[j].s_UpperBound ? 1 : 0);
         ++count;
         error.add(std::fabs(yi - prediction[j].s_Predicted) / std::fabs(yi));
         //actual.push_back(yi);
@@ -504,12 +504,12 @@ void CForecastTest::test(TTrend trend,
         rng.generateNormalSamples(0.0, noiseVariance, 86400 / bucketLength, noise);
         TDoubleVec day;
         for (std::size_t j = 0u;
-                i < prediction.size() && j < noise.size();
-                ++i, ++j, time += bucketLength) {
+             i < prediction.size() && j < noise.size();
+             ++i, ++j, time += bucketLength) {
             double yj{trend(time, noise[j])};
             day.push_back(yj);
-            outOfBounds += (   yj < prediction[i].s_LowerBound
-                               || yj > prediction[i].s_UpperBound ? 1 : 0);
+            outOfBounds += (   yj < prediction[i].s_LowerBound ||
+                               yj > prediction[i].s_UpperBound ? 1 : 0);
             ++count;
             error.add(std::fabs(yj - prediction[i].s_Predicted) / std::fabs(yj));
             //actual.push_back(yj);

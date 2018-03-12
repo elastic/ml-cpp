@@ -301,9 +301,9 @@ class CBucketQueue {
                             // Restore into a temporary
                             T dummy = initial;
                             if (traverser.traverseSubLevel(
-                                        boost::bind<bool>(bucketRestore,
-                                                          dummy,
-                                                          _1)) == false) {
+                                    boost::bind<bool>(bucketRestore,
+                                                      dummy,
+                                                      _1)) == false) {
                                 LOG_ERROR("Invalid bucket");
                             }
                         }
@@ -311,9 +311,9 @@ class CBucketQueue {
                         m_Queue[i] = initial;
                         if (traverser.hasSubLevel()) {
                             if (traverser.traverseSubLevel(
-                                        boost::bind<bool>(bucketRestore,
-                                                          boost::ref(m_Queue[i]),
-                                                          _1)) == false) {
+                                    boost::bind<bool>(bucketRestore,
+                                                      boost::ref(m_Queue[i]),
+                                                      _1)) == false) {
                                 LOG_ERROR("Invalid bucket");
                                 return false;
                             }

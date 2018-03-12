@@ -897,10 +897,10 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     cluster1->add(x, count1);
                     clusters.push_back(std::make_pair(cluster0->index(), count0));
                     clusters.push_back(std::make_pair(cluster1->index(), count1));
-                    if (   this->maybeSplit(cluster0)
-                            || this->maybeSplit(cluster1)
-                            || this->maybeMerge(cluster0)
-                            || this->maybeMerge(cluster1)) {
+                    if (   this->maybeSplit(cluster0) ||
+                           this->maybeSplit(cluster1) ||
+                           this->maybeMerge(cluster0) ||
+                           this->maybeMerge(cluster1)) {
                         this->cluster(x, clusters, count);
                     }
                 }
@@ -1096,7 +1096,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             }
 
             if (TOptionalClusterClusterPr split =
-                        cluster->split(m_Rng, this->minimumSplitCount(), m_ClusterIndexGenerator)) {
+                    cluster->split(m_Rng, this->minimumSplitCount(), m_ClusterIndexGenerator)) {
                 LOG_TRACE("Splitting cluster " << cluster->index()
                           << " at " << cluster->centre());
                 std::size_t index = cluster->index();

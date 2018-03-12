@@ -175,8 +175,8 @@ void CMultinomialConjugateTest::testProbabilityEstimation(void) {
                 CPPUNIT_ASSERT_EQUAL(confidenceIntervals.size(), probabilities.size());
 
                 for (std::size_t k = 0u; k < probabilities.size(); ++k) {
-                    if (probabilities[k] < confidenceIntervals[k].first
-                            || probabilities[k] > confidenceIntervals[k].second) {
+                    if (probabilities[k] < confidenceIntervals[k].first ||
+                        probabilities[k] > confidenceIntervals[k].second) {
                         ++errors[j][k];
                     }
                 }
@@ -708,8 +708,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
             double pc = 0.0;
             TDoubleVecDoubleMap trueProbabilities;
             for (TDoubleDoubleVecMapCItr itr = categoryPairProbabilities.begin();
-                    itr != categoryPairProbabilities.end();
-                    ++itr) {
+                 itr != categoryPairProbabilities.end();
+                 ++itr) {
                 pc += itr->first * static_cast<double>(itr->second.size() / 2u);
                 for (std::size_t i = 0u; i < itr->second.size(); i += 2u) {
                     TDoubleVec categoryPair;
@@ -746,8 +746,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
             double expectedProbabilities[] = { 0.2, 0.32, 0.61, 1.0, 0.04, 0.1 };
 
             for (TDoubleVecDoubleMapCItr itr = trueProbabilities.begin();
-                    itr != trueProbabilities.end();
-                    ++itr) {
+                 itr != trueProbabilities.end();
+                 ++itr) {
                 TDoubleVec categoryPair;
                 categoryPair.push_back(itr->first[0]);
                 categoryPair.push_back(itr->first[1]);

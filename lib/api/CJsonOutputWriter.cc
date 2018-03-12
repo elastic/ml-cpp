@@ -236,7 +236,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
     // If a max number of records to output has not been set or we haven't
     // reached that limit yet just append the new document to the array
     if (m_RecordOutputLimit == 0 ||
-            bucketData.s_RecordCount <= m_RecordOutputLimit) {
+        bucketData.s_RecordCount <= m_RecordOutputLimit) {
         newDoc = m_Writer.makeStorableDoc();
         detectorDocumentsToWrite.push_back(TDocumentWeakPtrIntPr(newDoc, results.s_Identifier));
 
@@ -368,8 +368,8 @@ bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessing
     this->writeModelSnapshotReports();
 
     for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin();
-            iter != m_BucketDataByTime.end();
-            ++iter) {
+         iter != m_BucketDataByTime.end();
+         ++iter) {
         this->writeBucket(isInterim, iter->first, iter->second, bucketProcessingTime);
         if (!isInterim) {
             m_LastNonInterimBucketTime = iter->first;
@@ -402,8 +402,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
     for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
-            fieldValueIter != dataRowFields.end();
-            ++fieldValueIter) {
+         fieldValueIter != dataRowFields.end();
+         ++fieldValueIter) {
         const std::string &name = fieldValueIter->first;
         const std::string &value = fieldValueIter->second;
 
@@ -414,8 +414,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     }
 
     for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin();
-            fieldValueIter != overrideDataRowFields.end();
-            ++fieldValueIter) {
+         fieldValueIter != overrideDataRowFields.end();
+         ++fieldValueIter) {
         const std::string &name = fieldValueIter->first;
         const std::string &value = fieldValueIter->second;
 
@@ -445,8 +445,8 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
 
         // Iterate over the different detectors that we have results for
         for (TDocumentWeakPtrIntPrVecItr detectorIter = bucketData.s_DocumentsToWrite.begin();
-                detectorIter != bucketData.s_DocumentsToWrite.end();
-                ++detectorIter) {
+             detectorIter != bucketData.s_DocumentsToWrite.end();
+             ++detectorIter) {
             // Write the document, adding some extra fields as we go
             int detectorIndex = detectorIter->second;
             TDocumentWeakPtr weakDoc = detectorIter->first;
@@ -476,8 +476,8 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         m_Writer.String(INFLUENCERS);
         m_Writer.StartArray();
         for (TDocumentWeakPtrVecItr influencerIter = bucketData.s_InfluencerDocuments.begin();
-                influencerIter != bucketData.s_InfluencerDocuments.end();
-                ++influencerIter) {
+             influencerIter != bucketData.s_InfluencerDocuments.end();
+             ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
@@ -525,8 +525,8 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         m_Writer.String(BUCKET_INFLUENCERS);
         m_Writer.StartArray();
         for (TDocumentWeakPtrVecItr influencerIter = bucketData.s_BucketInfluencerDocuments.begin();
-                influencerIter != bucketData.s_BucketInfluencerDocuments.end();
-                ++influencerIter) {
+             influencerIter != bucketData.s_BucketInfluencerDocuments.end();
+             ++influencerIter) {
             TDocumentWeakPtr weakDoc = *influencerIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
@@ -551,8 +551,8 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
         m_Writer.String(PARTITION_SCORES);
         m_Writer.StartArray();
         for (TDocumentWeakPtrVecItr partitionScoresIter = bucketData.s_PartitionScoreDocuments.begin();
-                partitionScoresIter != bucketData.s_PartitionScoreDocuments.end();
-                ++partitionScoresIter) {
+             partitionScoresIter != bucketData.s_PartitionScoreDocuments.end();
+             ++partitionScoresIter) {
             TDocumentWeakPtr weakDoc = *partitionScoresIter;
             TDocumentPtr docPtr = weakDoc.lock();
             if (!docPtr) {
@@ -750,8 +750,8 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 
         rapidjson::Value values = m_Writer.makeArray(influences.size());
         for (TCharPtrDoublePrVecIter arrayIter = iter->second.second.begin();
-                arrayIter != iter->second.second.end();
-                ++arrayIter) {
+             arrayIter != iter->second.second.end();
+             ++arrayIter) {
             m_Writer.pushBack(arrayIter->first, values);
         }
 

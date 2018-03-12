@@ -398,8 +398,8 @@ void CKMostCorrelatedTest::testMostCorrelated(void) {
 
     TMaxCorrelationAccumulator expected(200);
     for (CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr x = mostCorrelated.projected().begin();
-            x != mostCorrelated.projected().end();
-            ++x) {
+         x != mostCorrelated.projected().end();
+         ++x) {
         std::size_t X = x->first;
         CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr y = x;
         while (++y != mostCorrelated.projected().end()) {
@@ -639,8 +639,8 @@ void CKMostCorrelatedTest::testChangingCorrelation(void) {
 
     bool present = false;
     for (std::size_t i = 0u; i < mostCorrelated.correlations().size(); ++i) {
-        if (   mostCorrelated.correlations()[i].s_X == 8
-                && mostCorrelated.correlations()[i].s_Y == 9) {
+        if (   mostCorrelated.correlations()[i].s_X == 8 &&
+               mostCorrelated.correlations()[i].s_Y == 9) {
             CPPUNIT_ASSERT(maths::CBasicStatistics::mean(mostCorrelated.correlations()[i].s_Correlation) > 0.7);
             present = true;
         }

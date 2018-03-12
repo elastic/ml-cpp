@@ -53,7 +53,7 @@ bool CJsonStateRestoreTraverser::next(void) {
     }
 
     if (this->nextLevel() == m_DesiredLevel ||
-            (this->currentLevel() == m_DesiredLevel && this->nextLevel() == m_DesiredLevel + 1)) {
+        (this->currentLevel() == m_DesiredLevel && this->nextLevel() == m_DesiredLevel + 1)) {
         return this->advance();
     }
 
@@ -224,7 +224,7 @@ bool CJsonStateRestoreTraverser::skipArray() {
 
     do {
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart ||
-                m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectStart) {
+            m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectStart) {
             ++depth;
         } else if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd ||
                    m_Handler.s_Type == SRapidJsonHandler::E_TokenObjectEnd) {
@@ -263,8 +263,8 @@ bool CJsonStateRestoreTraverser::start(void) {
     // object, but we don't store it
     if (m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectStart) {
         if (m_IsArrayOfObjects &&
-                m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd &&
-                this->isEof()) {
+            m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd &&
+            this->isEof()) {
             LOG_DEBUG("JSON document is an empty array");
             return false;
         }

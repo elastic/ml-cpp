@@ -108,8 +108,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
         // name for next time
         fieldValRefs.reserve(fieldNames.size());
         for (TStrVecCItr iter = fieldNames.begin();
-                iter != fieldNames.end();
-                ++iter) {
+             iter != fieldNames.end();
+             ++iter) {
             fieldValRefs.push_back(boost::ref(recordFields[*iter]));
         }
 
@@ -118,8 +118,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
 
     TStrRefVecItr refIter = fieldValRefs.begin();
     for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-            iter != document.MemberEnd();
-            ++iter, ++refIter) {
+         iter != document.MemberEnd();
+         ++iter, ++refIter) {
         if (refIter == fieldValRefs.end()) {
             LOG_ERROR("More fields than field references");
             return false;
@@ -162,8 +162,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjso
     recordFields.clear();
 
     for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-            iter != document.MemberEnd();
-            ++iter) {
+         iter != document.MemberEnd();
+         ++iter) {
         fieldNames.push_back(std::string(iter->name.GetString(),
                                          iter->name.GetStringLength()));
 

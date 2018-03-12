@@ -69,8 +69,8 @@ void populateJob(TGenerateRecord generateRecord,
     ml::core_t::TTime time = START_TIME;
     ml::api::CAnomalyJob::TStrStrUMap dataRows;
     for (std::size_t bucket = 0u;
-            bucket < 2 * buckets;
-            ++bucket, time += (BUCKET_LENGTH / 2)) {
+         bucket < 2 * buckets;
+         ++bucket, time += (BUCKET_LENGTH / 2)) {
         generateRecord(time, dataRows);
         CPPUNIT_ASSERT(job.handleRecord(dataRows));
     }

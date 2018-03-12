@@ -72,7 +72,7 @@ std::string CTooMuchDataPenalty::name(void) const {
 void CTooMuchDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
     if (config_t::hasDoAndDontIgnoreEmptyVersions(spec.function()) && !spec.isPopulation()) {
         if (const CPartitionDataCountStatistics *partitionStats =
-                    dynamic_cast<const CPartitionDataCountStatistics*>(spec.countStatistics())) {
+                dynamic_cast<const CPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*partitionStats, spec);
         } else if (const CByAndPartitionDataCountStatistics *byAndPartitionStats =
                        dynamic_cast<const CByAndPartitionDataCountStatistics*>(spec.countStatistics())) {

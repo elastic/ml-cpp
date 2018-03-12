@@ -81,8 +81,8 @@ double computeWinsorisationWeight(const CPrior &prior, double derate, double sca
     {value}, {{scale}}, lowerBound, upperBound)) {
         return 1.0;
     }
-    if (   upperBound < MINUS_LOG_TOLERANCE
-            && !prior.minusLogJointCdfComplement(CConstantWeights::SEASONAL_VARIANCE,
+    if (   upperBound < MINUS_LOG_TOLERANCE &&
+           !prior.minusLogJointCdfComplement(CConstantWeights::SEASONAL_VARIANCE,
     {value}, {{scale}}, lowerBound, upperBound)) {
         return 1.0;
     }
@@ -450,11 +450,11 @@ void CTimeSeriesAnomalyModel::probability(const CModelProbabilityParams &params,
         TDouble10Vec1Vec features{anomaly->features(this->scale(time))};
         double pl, pu;
         TTail10Vec tail;
-        if (   probability < LARGEST_ANOMALOUS_PROBABILITY
-                && !m_Priors[index].isNonInformative()
-                &&  m_Priors[index].probabilityOfLessLikelySamples(maths_t::E_OneSidedAbove,
-                                                                   CConstantWeights::COUNT, features, UNIT,
-                                                                   pl, pu, tail)) {
+        if (   probability < LARGEST_ANOMALOUS_PROBABILITY &&
+               !m_Priors[index].isNonInformative() &&
+               m_Priors[index].probabilityOfLessLikelySamples(maths_t::E_OneSidedAbove,
+                                                              CConstantWeights::COUNT, features, UNIT,
+                                                              pl, pu, tail)) {
             double logp{CTools::fastLog(probability)};
             double alpha{0.5 * std::min(  (logp - LOG_LARGEST_ANOMALOUS_PROBABILITY)
                                           / (LOG_SMALL_PROBABILITY - LOG_LARGEST_ANOMALOUS_PROBABILITY), 1.0)};
@@ -1474,8 +1474,8 @@ void CTimeSeriesCorrelations::processSamples(const maths_t::TWeightStyleVec &wei
         LOG_TRACE("correlate samples = " << core::CContainerPrinter::print(multivariateSamples)
                   << ", correlate weights = " << core::CContainerPrinter::print(multivariateWeights));
 
-        prior->dataType(   samples1->s_Type == maths_t::E_IntegerData
-                           || samples2->s_Type == maths_t::E_IntegerData ?
+        prior->dataType(   samples1->s_Type == maths_t::E_IntegerData ||
+                           samples2->s_Type == maths_t::E_IntegerData ?
                            maths_t::E_IntegerData : maths_t::E_ContinuousData);
         prior->addSamples(weightStyles, multivariateSamples, multivariateWeights);
         prior->propagateForwardsByTime(std::min(samples1->s_Interval, samples2->s_Interval));
@@ -1560,12 +1560,12 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator &
         if (allocator.areAllocationsAllowed()) {
             for (std::size_t i = 0u, nextChunk = std::min(allocator.maxNumberCorrelations(),
                                                           initial + allocator.chunkSize());
-                    m_CorrelationDistributionModels.size() < allocator.maxNumberCorrelations()
-                    && i < missing.size()
-                    && (    m_CorrelationDistributionModels.size() <= initial
-                            || !allocator.exceedsLimit(m_CorrelationDistributionModels.size()));
-                    nextChunk = std::min(allocator.maxNumberCorrelations(),
-                                         nextChunk + allocator.chunkSize())) {
+                 m_CorrelationDistributionModels.size() < allocator.maxNumberCorrelations() &&
+                 i < missing.size() &&
+                 (    m_CorrelationDistributionModels.size() <= initial ||
+                      !allocator.exceedsLimit(m_CorrelationDistributionModels.size()));
+                 nextChunk = std::min(allocator.maxNumberCorrelations(),
+                                      nextChunk + allocator.chunkSize())) {
                 for (/**/; i < missing.size() && m_CorrelationDistributionModels.size() < nextChunk; ++i) {
                     m_CorrelationDistributionModels.insert({missing[i], {allocator.newPrior(),
                                                                          correlationCoeffs[missingRank[i]]
@@ -2233,8 +2233,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams &pa
         tail[i] = tail_[0];
     }
     double pl[2], pu[2];
-    if (   !pl_[0].calculate(pl[0]) || !pu_[0].calculate(pu[0])
-            || !pl_[1].calculate(pl[1]) || !pu_[1].calculate(pu[1])) {
+    if (   !pl_[0].calculate(pl[0]) || !pu_[0].calculate(pu[0]) ||
+           !pl_[1].calculate(pl[1]) || !pu_[1].calculate(pu[1])) {
         return false;
     }
 

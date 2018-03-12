@@ -59,7 +59,7 @@ std::string CLongTailPenalty::name(void) const {
 void CLongTailPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
     if (config_t::isRare(spec.function())) {
         if (const CByAndPartitionDataCountStatistics *byAndPartitionStats =
-                    dynamic_cast<const CByAndPartitionDataCountStatistics*>(spec.countStatistics())) {
+                dynamic_cast<const CByAndPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*byAndPartitionStats, spec);
         } else if (const CByOverAndPartitionDataCountStatistics *byOverAndPartitionStats =
                        dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(spec.countStatistics())) {
@@ -134,8 +134,8 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
         std::size_t partition = STATS::partition(*i);
         const TMinAccumulator &min = mins[partition];
         if (   n <= static_cast<uint64_t>(  this->params().highCardinalityInTailFactor()
-                                            * static_cast<double>(min[0]) + 0.5)
-                || n <= this->params().highCardinalityInTailIncrement() + min[0]) {
+                                            * static_cast<double>(min[0]) + 0.5) ||
+               n <= this->params().highCardinalityInTailIncrement() + min[0]) {
             tail[partition] += n;
         }
     }

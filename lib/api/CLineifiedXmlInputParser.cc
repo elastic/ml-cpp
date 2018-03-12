@@ -51,7 +51,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
         }
 
         if (m_Parser.navigateRoot() == false ||
-                m_Parser.navigateFirstChild() == false) {
+            m_Parser.navigateFirstChild() == false) {
             LOG_ERROR("XML document has unexpected structure");
             return false;
         }
@@ -89,8 +89,8 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
         // name for next time
         fieldValRefs.reserve(fieldNames.size());
         for (TStrVecCItr iter = fieldNames.begin();
-                iter != fieldNames.end();
-                ++iter) {
+             iter != fieldNames.end();
+             ++iter) {
             fieldValRefs.push_back(boost::ref(recordFields[*iter]));
         }
 

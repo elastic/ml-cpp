@@ -56,9 +56,9 @@ bool CSample::SFromString::operator()(const std::string &token, CSample &value) 
         tokens.push_back(remainder);
     }
 
-    if (   !core::CStringUtils::stringToType(tokens[0], value.m_Time)
-            || !core::CStringUtils::stringToType(tokens[1], value.m_VarianceScale)
-            || !core::CStringUtils::stringToType(tokens[2], value.m_Count)) {
+    if (   !core::CStringUtils::stringToType(tokens[0], value.m_Time) ||
+           !core::CStringUtils::stringToType(tokens[1], value.m_VarianceScale) ||
+           !core::CStringUtils::stringToType(tokens[2], value.m_Count)) {
         LOG_ERROR("Cannot parse as sample: " << token);
         return false;
     }

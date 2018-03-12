@@ -386,7 +386,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable {
         static std::size_t dynamicSize(const boost::unordered_map<K, V, H, P, A> &t) {
             std::size_t mem = 0;
             if (!(memory_detail::SDynamicSizeAlwaysZero<K>::value() &&
-                    memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
+                  memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
                 for (auto i = t.begin(); i != t.end(); ++i) {
                     mem += dynamicSize(*i);
                 }
@@ -402,7 +402,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable {
             // (colour, parent, left and right child pointers).
             std::size_t mem = 0;
             if (!(memory_detail::SDynamicSizeAlwaysZero<K>::value() &&
-                    memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
+                  memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
                 for (auto i = t.begin(); i != t.end(); ++i) {
                     mem += dynamicSize(*i);
                 }
@@ -416,7 +416,7 @@ class CORE_EXPORT CMemory : private CNonInstantiatable {
         static std::size_t dynamicSize(const boost::container::flat_map<K, V, C, A> &t) {
             std::size_t mem = 0;
             if (!(memory_detail::SDynamicSizeAlwaysZero<K>::value() &&
-                    memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
+                  memory_detail::SDynamicSizeAlwaysZero<V>::value())) {
                 for (auto i = t.begin(); i != t.end(); ++i) {
                     mem += dynamicSize(*i);
                 }

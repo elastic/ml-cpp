@@ -192,10 +192,10 @@ class MATHS_EXPORT CBasicStatistics {
 
             //! Total order based on count then lexicographical less of moments.
             bool operator<(const SSampleCentralMoments &rhs) const {
-                return    s_Count < rhs.s_Count
-                          || (   s_Count == rhs.s_Count
-                                 && std::lexicographical_compare(s_Moments, s_Moments + ORDER,
-                                                                 rhs.s_Moments, rhs.s_Moments + ORDER));
+                return    s_Count < rhs.s_Count ||
+                          (   s_Count == rhs.s_Count &&
+                              std::lexicographical_compare(s_Moments, s_Moments + ORDER,
+                                                           rhs.s_Moments, rhs.s_Moments + ORDER));
             }
 
             //! \name Update

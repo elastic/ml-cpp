@@ -51,8 +51,8 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string &jobId, const model::
     int detectorIndex = data.detectorIndex();
 
     for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin();
-            featureItr != data.end();
-            ++featureItr) {
+         featureItr != data.end();
+         ++featureItr) {
         std::string feature = model_t::print(featureItr->first);
         const TStrByFieldDataUMap &byDataMap = featureItr->second;
         for (TStrByFieldDataUMapCItr byItr = byDataMap.begin(); byItr != byDataMap.end(); ++byItr) {

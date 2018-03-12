@@ -712,8 +712,8 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TWeightStyleVec &weightS
                    - boost::math::lgamma(m_TotalConcentration + numberSamples);
 
         for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
-                countItr != categoryCounts.end();
-                ++countItr) {
+             countItr != categoryCounts.end();
+             ++countItr) {
             double category = countItr->first;
             double count = countItr->second;
             LOG_TRACE("category = " << category << ", count = " << count);
@@ -940,8 +940,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                 jointUpperBound.add(sampleUpperBound, n);
             }
 
-            if (   !jointLowerBound.calculate(lowerBound)
-                    || !jointUpperBound.calculate(upperBound)) {
+            if (   !jointLowerBound.calculate(lowerBound) ||
+                   !jointUpperBound.calculate(upperBound)) {
                 LOG_ERROR("Unable to compute probability for "
                           << core::CContainerPrinter::print(samples)
                           << ": " << jointLowerBound
@@ -1054,8 +1054,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                     // Find the probability equal range [i, j).
                     double p = pCategories[i].get<1>();
                     pCumulative += p;
-                    while (   ++j < pCategories.size()
-                              && pCategories[j].get<1>() == p) {
+                    while (   ++j < pCategories.size() &&
+                              pCategories[j].get<1>() == p) {
                         pCumulative += p;
                     }
 
@@ -1187,8 +1187,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             CJointProbabilityOfLessLikelySamples jointUpperBound;
 
             for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
-                    countItr != categoryCounts.end();
-                    ++countItr) {
+                 countItr != categoryCounts.end();
+                 ++countItr) {
                 double category = countItr->first;
                 double count = countItr->second;
                 LOG_TRACE("category = " << category << ", count = " << count);
@@ -1199,8 +1199,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                     - m_Categories.begin();
 
                 double p = pCategories[index].get<1>();
-                if (   index < m_Categories.size()
-                        && m_Categories[index] == category) {
+                if (   index < m_Categories.size() &&
+                       m_Categories[index] == category) {
                     jointLowerBound.add(p + (p >= pU ? pU : 0.0), count);
                     jointUpperBound.add(p + pU, count);
                 } else {
@@ -1209,8 +1209,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                 }
             }
 
-            if (   !jointLowerBound.calculate(lowerBound)
-                    || !jointUpperBound.calculate(upperBound)) {
+            if (   !jointLowerBound.calculate(lowerBound) ||
+                   !jointUpperBound.calculate(upperBound)) {
                 LOG_ERROR("Unable to compute probability for "
                           << core::CContainerPrinter::print(samples)
                           << ": " << jointLowerBound
@@ -1241,8 +1241,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                 jointUpperBound.add(sampleUpperBound, n);
             }
 
-            if (   !jointLowerBound.calculate(lowerBound)
-                    || !jointUpperBound.calculate(upperBound)) {
+            if (   !jointLowerBound.calculate(lowerBound) ||
+                   !jointUpperBound.calculate(upperBound)) {
                 LOG_ERROR("Unable to compute probability for "
                           << core::CContainerPrinter::print(samples)
                           << ": " << jointLowerBound
@@ -1497,8 +1497,8 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(
                     // Find the probability equal range [i, j).
                     double p = pCategories[i].get<1>();
                     pCumulative += p;
-                    while (++j < pCategories.size()
-                            && pCategories[j].get<1>() == p) {
+                    while (++j < pCategories.size() &&
+                           pCategories[j].get<1>() == p) {
                         pCumulative += p;
                     }
 
@@ -1646,12 +1646,12 @@ bool CMultinomialConjugate::equalTolerance(const CMultinomialConjugate &rhs,
               << core::CContainerPrinter::print(rhs.m_Concentrations));
     LOG_DEBUG(m_TotalConcentration << " " << rhs.m_TotalConcentration);
 
-    return m_NumberAvailableCategories == rhs.m_NumberAvailableCategories
-           && m_Categories == rhs.m_Categories
-           && std::equal(m_Concentrations.begin(),
-                         m_Concentrations.end(),
-                         rhs.m_Concentrations.begin(), equal)
-           && equal(m_TotalConcentration, rhs.m_TotalConcentration);
+    return m_NumberAvailableCategories == rhs.m_NumberAvailableCategories &&
+           m_Categories == rhs.m_Categories &&
+           std::equal(m_Concentrations.begin(),
+                      m_Concentrations.end(),
+                      rhs.m_Concentrations.begin(), equal) &&
+           equal(m_TotalConcentration, rhs.m_TotalConcentration);
 }
 
 void CMultinomialConjugate::shrink(void) {
@@ -1666,7 +1666,7 @@ void CMultinomialConjugate::shrink(void) {
     }
 
     if (m_Concentrations.capacity()
-            > m_Concentrations.size() + m_NumberAvailableCategories) {
+        > m_Concentrations.size() + m_NumberAvailableCategories) {
         TDoubleVec concentrationParameters(m_Concentrations);
         swap(concentrationParameters, m_Concentrations);
         m_Concentrations.reserve(m_Concentrations.size() + m_NumberAvailableCategories);

@@ -275,8 +275,8 @@ class CSampleQueue {
                 double countRatio = sampleCount / count;
                 double countRatioIncludingNext = sampleCount / countIncludingNext;
 
-                if (countIncludingNext >= sampleCount
-                        && (std::abs(1.0 - countRatio) <= std::abs(1.0 - countRatioIncludingNext))) {
+                if (countIncludingNext >= sampleCount &&
+                    (std::abs(1.0 - countRatio) <= std::abs(1.0 - countRatioIncludingNext))) {
                     TDouble1Vec sample = combinedSubSample->s_Statistic.value();
                     core_t::TTime sampleTime = combinedSubSample->s_Statistic.time();
                     double vs = model_t::varianceScale(feature, sampleCount, count);
@@ -429,7 +429,7 @@ class CSampleQueue {
                                      unsigned int count,
                                      unsigned int sampleCount) {
             if (time >= m_Queue[0].s_End &&
-                    this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
+                this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
                 this->pushFrontNewSubSample(measurement, time, count);
             } else {
                 m_Queue[0].add(measurement, time, count);
@@ -445,8 +445,8 @@ class CSampleQueue {
             // If latency is non-zero, we also want to check whether the new measurement
             // is too far from the latest sub-sample or whether they belong in different buckets.
             if (m_Latency > 0) {
-                if (!m_Queue[0].isClose(time, this->targetSubSampleSpan())
-                        || !m_Queue[0].isInSameBucket(time, m_BucketLength)) {
+                if (!m_Queue[0].isClose(time, this->targetSubSampleSpan()) ||
+                    !m_Queue[0].isInSameBucket(time, m_BucketLength)) {
                     return true;
                 }
             }
@@ -475,9 +475,9 @@ class CSampleQueue {
             core_t::TTime targetSubSampleSpan = this->targetSubSampleSpan();
 
             if (upperBound == m_Queue.rbegin()) {
-                if ((upperBound->s_Statistic.count() >= static_cast<double>(this->targetSubSampleCount(sampleCount)))
-                        || !upperBound->isClose(time, targetSubSampleSpan)
-                        || !(*upperBound).isInSameBucket(time, m_BucketLength)) {
+                if ((upperBound->s_Statistic.count() >= static_cast<double>(this->targetSubSampleCount(sampleCount))) ||
+                    !upperBound->isClose(time, targetSubSampleSpan) ||
+                    !(*upperBound).isInSameBucket(time, m_BucketLength)) {
                     this->pushBackNewSubSample(measurement, time, count);
                 } else {
                     upperBound->add(measurement, time, count);
@@ -507,8 +507,8 @@ class CSampleQueue {
                                         rightDistance) ? left : right;
 
             if (candidate.isInSameBucket(time, m_BucketLength) &&
-                    (candidate.isClose(time, targetSubSampleSpan) ||
-                     right.s_Start <= left.s_End + targetSubSampleSpan)) {
+                (candidate.isClose(time, targetSubSampleSpan) ||
+                 right.s_Start <= left.s_End + targetSubSampleSpan)) {
                 candidate.add(measurement, time, count);
                 return;
             }

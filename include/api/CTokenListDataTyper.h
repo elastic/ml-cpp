@@ -94,13 +94,13 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
                 // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
                 // allowing underscores, dots and dashes in the middle
                 if (::isalnum(static_cast<unsigned char>(curChar)) ||
-                        (!temp.empty() &&
-                         (
-                             (ALLOW_UNDERSCORE && curChar == '_') ||
-                             (ALLOW_DOT && curChar == '.') ||
-                             (ALLOW_DASH && curChar == '-')
-                         )
-                        )
+                    (!temp.empty() &&
+                     (
+                         (ALLOW_UNDERSCORE && curChar == '_') ||
+                         (ALLOW_DOT && curChar == '.') ||
+                         (ALLOW_DASH && curChar == '-')
+                     )
+                    )
                    ) {
                     temp += curChar;
                     if (IGNORE_HEX) {
@@ -234,9 +234,9 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
                 // check to be completely compiled away as IGNORE_LEADING_DIGIT
                 // is a template argument
                 if (!IGNORE_LEADING_DIGIT &&
-                        nonHexPos == 1 &&
-                        token.compare(0, 2, "0x") == 0 &&
-                        token.length() != 2) {
+                    nonHexPos == 1 &&
+                    token.compare(0, 2, "0x") == 0 &&
+                    token.length() != 2) {
                     // Implies hex with 0x prefix.
                     return;
                 }

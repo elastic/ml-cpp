@@ -249,12 +249,12 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
     TIntSet handledScheduledEvents;
 
     for (boost::property_tree::ptree::iterator level1Iter = propTree.begin();
-            level1Iter != propTree.end();
-            ++level1Iter) {
+         level1Iter != propTree.end();
+         ++level1Iter) {
         const std::string &level1Key = level1Iter->first;
         const std::string &value = level1Iter->second.data();
         if (level1Key.length() > DETECTOR_PREFIX.length() &&
-                level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
+            level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
             if (this->processDetector(propTree,
                                       level1Key,
                                       value,
@@ -298,8 +298,8 @@ bool CFieldConfig::tokenise(const std::string &clause,
         TCharEscapedListSeparatorTokenizer tokenizer(clause, els);
 
         for (TCharEscapedListSeparatorTokenizer::iterator iter = tokenizer.begin();
-                iter != tokenizer.end();
-                ++iter) {
+             iter != tokenizer.end();
+             ++iter) {
             const std::string &token = *iter;
             if (token.empty()) {
                 // boost::escaped_list_separator creates empty tokens for
@@ -357,7 +357,7 @@ bool CFieldConfig::findLastByOverTokens(const TStrVec &copyTokens,
                                         std::size_t &lastOverTokenIndex) {
     for (size_t index = 0; index < copyTokens.size(); ++index) {
         if (copyTokens[index].length() == BY_TOKEN.length() &&
-                core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), BY_TOKEN.c_str()) == 0) {
+            core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), BY_TOKEN.c_str()) == 0) {
             if (lastByTokenIndex != copyTokens.size()) {
                 LOG_ERROR("Multiple '" << copyTokens[lastByTokenIndex] <<
                           "' tokens in analysis clause - tokens " <<
@@ -371,7 +371,7 @@ bool CFieldConfig::findLastByOverTokens(const TStrVec &copyTokens,
         }
 
         if (copyTokens[index].length() == OVER_TOKEN.length() &&
-                core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), OVER_TOKEN.c_str()) == 0) {
+            core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), OVER_TOKEN.c_str()) == 0) {
             if (lastOverTokenIndex != copyTokens.size()) {
                 LOG_ERROR("Multiple '" << copyTokens[lastOverTokenIndex] <<
                           "' tokens in analysis clause - tokens " <<
@@ -399,7 +399,7 @@ bool CFieldConfig::validateByOverField(const TStrVec &copyTokens,
         }
 
         if (thisIndex + 1 == copyTokens.size() ||
-                thisIndex + 1 == otherIndex) {
+            thisIndex + 1 == otherIndex) {
             LOG_ERROR("No field name follows the '" <<
                       copyTokens[thisIndex] <<
                       "' token in the analysis clause");
@@ -407,7 +407,7 @@ bool CFieldConfig::validateByOverField(const TStrVec &copyTokens,
         }
 
         if (thisIndex + 2 < copyTokens.size() &&
-                thisIndex + 2 < otherIndex) {
+            thisIndex + 2 < otherIndex) {
             LOG_ERROR("Only one field name may follow the '" <<
                       copyTokens[thisIndex] <<
                       "' token in the analysis clause");
@@ -433,9 +433,9 @@ std::string CFieldConfig::findParameter(const std::string &parameter,
         const std::string &token = *iter;
         std::size_t equalPos = token.find('=');
         if (equalPos == parameter.length() &&
-                core::CStrCaseCmp::strNCaseCmp(parameter.c_str(),
-                                               token.c_str(),
-                                               equalPos) == 0) {
+            core::CStrCaseCmp::strNCaseCmp(parameter.c_str(),
+                                           token.c_str(),
+                                           equalPos) == 0) {
             std::string value(token, equalPos + 1, token.length() - equalPos);
             LOG_TRACE("Found parameter " << parameter << " : " << value);
             copyTokens.erase(iter);
@@ -539,7 +539,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     std::string useNullStr = this->findParameter(USE_NULL_OPTION, copyTokens);
     bool useNull(false);
     if (!useNullStr.empty() &&
-            core::CStringUtils::stringToType(useNullStr, useNull) == false) {
+        core::CStringUtils::stringToType(useNullStr, useNull) == false) {
         LOG_ERROR("Cannot convert usenull value to boolean: " << useNullStr);
         return false;
     }
@@ -706,8 +706,8 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree &propTree,
     // Here we pull out the "1" in "detector.1.clause"
     size_t sepPos(key.rfind(SUFFIX_SEPARATOR));
     if (sepPos == std::string::npos ||
-            sepPos <= DETECTOR_PREFIX.length() ||
-            sepPos == key.length() - 1) {
+        sepPos <= DETECTOR_PREFIX.length() ||
+        sepPos == key.length() - 1) {
         LOG_ERROR("Unrecognised configuration option " << key << " = " << value);
         return false;
     }
@@ -836,7 +836,7 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
     bool byFieldInvalid(false);
 
     if (outerToken == FUNCTION_COUNT ||
-            outerToken == FUNCTION_COUNT_ABBREV) {
+        outerToken == FUNCTION_COUNT_ABBREV) {
         function = isPopulation ?
                    model::function_t::E_PopulationCount :
                    model::function_t::E_IndividualRareCount;
@@ -1161,7 +1161,7 @@ bool CFieldConfig::decipherExcludeFrequentSetting(const std::string &excludeFreq
 
     if (!excludeFrequentString.empty()) {
         if (excludeFrequentString.length() == ALL_TOKEN.length() &&
-                core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), ALL_TOKEN.c_str()) == 0) {
+            core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), ALL_TOKEN.c_str()) == 0) {
             byExcludeFrequent = hasByField;
             overExcludeFrequent = isPopulation;
         } else if (excludeFrequentString.length() == BY_TOKEN.length() &&
@@ -1172,7 +1172,7 @@ bool CFieldConfig::decipherExcludeFrequentSetting(const std::string &excludeFreq
             overExcludeFrequent = isPopulation;
         } else {
             if (excludeFrequentString.length() != NONE_TOKEN.length() ||
-                    core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), NONE_TOKEN.c_str()) != 0) {
+                core::CStrCaseCmp::strCaseCmp(excludeFrequentString.c_str(), NONE_TOKEN.c_str()) != 0) {
                 LOG_ERROR("Unexpected excludeFrequent value = " << excludeFrequentString);
                 return false;
             }
@@ -1286,7 +1286,7 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &prop
     // description may contain a '.'
     size_t sepPos(key.find(SUFFIX_SEPARATOR, SCHEDULED_EVENT_PREFIX.length() + 1));
     if (sepPos == std::string::npos ||
-            sepPos == key.length() - 1) {
+        sepPos == key.length() - 1) {
         LOG_ERROR("Unrecognised configuration option " << key << " = " << value);
         return false;
     }

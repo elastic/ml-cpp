@@ -37,8 +37,8 @@ bool COutputChainer::fieldNames(const TStrVec &fieldNames,
 
     // Only add extra field names if they're not already present
     for (TStrVecCItr iter = extraFieldNames.begin();
-            iter != extraFieldNames.end();
-            ++iter) {
+         iter != extraFieldNames.end();
+         ++iter) {
         if (std::find(m_FieldNames.begin(),
                       m_FieldNames.end(),
                       *iter) == m_FieldNames.end()) {
@@ -62,8 +62,8 @@ bool COutputChainer::fieldNames(const TStrVec &fieldNames,
     // the same for our empty overrides map as it is for the ones provided by
     // callers)
     for (TStrVecCItr iter = m_FieldNames.begin();
-            iter != m_FieldNames.end();
-            ++iter) {
+         iter != m_FieldNames.end();
+         ++iter) {
         m_Hashes.push_back(EMPTY_FIELD_OVERRIDES.hash_function()(*iter));
         m_WorkRecordFieldRefs.push_back(boost::ref(m_WorkRecordFields[*iter]));
     }
@@ -88,10 +88,10 @@ bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
     TStrRefVecCItr fieldRefIter = m_WorkRecordFieldRefs.begin();
     for (TStrVecCItr fieldNameIter = m_FieldNames.begin();
-            fieldNameIter != m_FieldNames.end() &&
-            preComputedHashIter != m_Hashes.end() &&
-            fieldRefIter != m_WorkRecordFieldRefs.end();
-            ++fieldNameIter, ++preComputedHashIter, ++fieldRefIter) {
+         fieldNameIter != m_FieldNames.end() &&
+         preComputedHashIter != m_Hashes.end() &&
+         fieldRefIter != m_WorkRecordFieldRefs.end();
+         ++fieldNameIter, ++preComputedHashIter, ++fieldRefIter) {
         TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter,
                                                                     *preComputedHashIter,
                                                                     pred);

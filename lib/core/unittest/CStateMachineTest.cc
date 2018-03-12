@@ -50,17 +50,17 @@ struct SMachine {
     TSizeVecVec s_TransitionFunction;
 
     bool operator==(const SMachine &rhs) const {
-        return s_Alphabet == rhs.s_Alphabet
-               && s_States == rhs.s_States
-               && s_TransitionFunction == rhs.s_TransitionFunction;
+        return s_Alphabet == rhs.s_Alphabet &&
+               s_States == rhs.s_States &&
+               s_TransitionFunction == rhs.s_TransitionFunction;
     }
 
     bool operator<(const SMachine &rhs) const {
-        return   s_Alphabet < rhs.s_Alphabet
-                 || (s_Alphabet == rhs.s_Alphabet && s_States < rhs.s_States)
-                 || (   s_Alphabet == rhs.s_Alphabet
-                        && s_States == rhs.s_States
-                        && s_TransitionFunction < rhs.s_TransitionFunction);
+        return   s_Alphabet < rhs.s_Alphabet ||
+                 (s_Alphabet == rhs.s_Alphabet && s_States < rhs.s_States) ||
+                 (   s_Alphabet == rhs.s_Alphabet &&
+                     s_States == rhs.s_States &&
+                     s_TransitionFunction < rhs.s_TransitionFunction);
     }
 };
 

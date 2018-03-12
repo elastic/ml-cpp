@@ -105,8 +105,8 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun,
     TSizeSizePrListItr bestSoFarIter(m_TypesByCount.end());
     double bestSoFarSimilarity(m_LowerThreshold);
     for (TSizeSizePrListItr iter = m_TypesByCount.begin();
-            iter != m_TypesByCount.end();
-            ++iter) {
+         iter != m_TypesByCount.end();
+         ++iter) {
         const CTokenListType &compType = m_Types[iter->second];
         const TSizeSizePrVec &baseTokenIds = compType.baseTokenIds();
         size_t baseWeight(compType.baseWeight());
@@ -304,8 +304,8 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     size_t cheapestCost(std::numeric_limits<size_t>::max());
     auto cheapestIter = rareIdsWithCost.end();
     for (auto iter = rareIdsWithCost.begin();
-            iter != rareIdsWithCost.end() && availableCost > lowestCost;
-            ++iter) {
+         iter != rareIdsWithCost.end() && availableCost > lowestCost;
+         ++iter) {
         if (iter->second.second < cheapestCost) {
             cheapestCost = iter->second.second;
             cheapestIter = iter;
@@ -610,8 +610,8 @@ CBaseTokenListDataTyper::SIdTranslater::SIdTranslater(const CBaseTokenListDataTy
 std::ostream &operator<<(std::ostream &strm,
                          const CBaseTokenListDataTyper::SIdTranslater &translator) {
     for (auto iter = translator.s_TokenIds.begin();
-            iter != translator.s_TokenIds.end();
-            ++iter) {
+         iter != translator.s_TokenIds.end();
+         ++iter) {
         if (iter != translator.s_TokenIds.begin()) {
             strm << translator.s_Separator;
         }

@@ -46,9 +46,9 @@ class CTriple : private boost::equality_comparable< CTriple<T1, T2, T3>,
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero(void) {
-            return    memory_detail::SDynamicSizeAlwaysZero<T1>::value()
-                      && memory_detail::SDynamicSizeAlwaysZero<T2>::value()
-                      && memory_detail::SDynamicSizeAlwaysZero<T3>::value();
+            return    memory_detail::SDynamicSizeAlwaysZero<T1>::value() &&
+                      memory_detail::SDynamicSizeAlwaysZero<T2>::value() &&
+                      memory_detail::SDynamicSizeAlwaysZero<T3>::value();
         }
 
     public:

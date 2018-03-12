@@ -156,8 +156,8 @@ void CSamplingTest::testMultinomialSample(void) {
     double error = 0.0;
     double pTotal = 0.0;
     for (TSizeVecDoubleMapCItr pItr = empiricalProbabilities.begin();
-            pItr != empiricalProbabilities.end();
-            ++pItr) {
+         pItr != empiricalProbabilities.end();
+         ++pItr) {
         LOG_DEBUG("counts = " << core::CContainerPrinter::print(pItr->first));
         CPPUNIT_ASSERT_EQUAL(size_t(20), std::accumulate(pItr->first.begin(),
                                                          pItr->first.end(),

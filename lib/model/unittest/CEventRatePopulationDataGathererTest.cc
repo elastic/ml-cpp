@@ -292,13 +292,13 @@ void CEventRatePopulationDataGathererTest::testAttributeCounts(void) {
             ++expectedAttributeCounts[std::make_pair(pid, cid)];
             expectedAttributePeople[cid].insert(pid);
             if (expectedAttributeOrder.insert(
-                        TStrSizeMap::value_type(messages[j].s_Attribute,
-                                                attributeOrder)).second) {
+                    TStrSizeMap::value_type(messages[j].s_Attribute,
+                                            attributeOrder)).second) {
                 ++attributeOrder;
             }
             if (expectedPeopleOrder.insert(
-                        TStrSizeMap::value_type(messages[j].s_Person,
-                                                personOrder)).second) {
+                    TStrSizeMap::value_type(messages[j].s_Person,
+                                            personOrder)).second) {
                 ++personOrder;
             }
         }
@@ -580,8 +580,8 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
 
         TSizeSizePrUInt64Map expectedBucketCompressedLengthPerPerson;
         for (TSizeStrSetMapItr iter = bucketPeopleCategories.begin();
-                iter != bucketPeopleCategories.end();
-                ++iter) {
+             iter != bucketPeopleCategories.end();
+             ++iter) {
             TSizeSizePr key(iter->first, 0);
             const TStrSet &uniqueValues = iter->second;
 
@@ -601,8 +601,8 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
         CPPUNIT_ASSERT_EQUAL(expectedBucketCompressedLengthPerPerson.size(),
                              bucketCompressedLengthPerPerson.size());
         for (TSizeSizePrFeatureDataPrVec::const_iterator j =
-                    bucketCompressedLengthPerPerson.begin(); j !=
-                bucketCompressedLengthPerPerson.end(); ++j) {
+                 bucketCompressedLengthPerPerson.begin(); j !=
+             bucketCompressedLengthPerPerson.end(); ++j) {
             double expectedLength = expectedBucketCompressedLengthPerPerson[j->first];
             double actual = j->second.s_Count;
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedLength, actual, expectedLength * 0.1);

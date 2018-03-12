@@ -58,10 +58,10 @@ struct SSumSerializer {
                              core::CPersistUtils::toString(sample, CSample::SToString()));
     }
     bool operator()(TSampleVec &sample, core::CStateRestoreTraverser &traverser) const {
-        if (   traverser.name() != SUM_SAMPLE_TAG
-                || core::CPersistUtils::fromString(traverser.value(),
-                                                   CSample::SFromString(),
-                                                   sample) == false) {
+        if (   traverser.name() != SUM_SAMPLE_TAG ||
+               core::CPersistUtils::fromString(traverser.value(),
+                                               CSample::SFromString(),
+                                               sample) == false) {
             LOG_ERROR("Invalid sample in: " << traverser.value())
             return false;
         }
@@ -210,8 +210,8 @@ SMetricFeatureData CGathererTools::CSumGatherer::featureData(core_t::TTime time,
                 (*sum)[0].varianceScale(),
                 (*sum)[0].count(),
                 influenceValues,
-                m_Classifier.isInteger()
-                && maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
+                m_Classifier.isInteger() &&
+                maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
                 m_Classifier.isNonNegative(), *sum};
     }
     return {m_Classifier.isInteger(), m_Classifier.isNonNegative(), *sum};
@@ -271,18 +271,18 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
             }
         } else if (name == BUCKET_SUM_QUEUE_TAG) {
             if (traverser.traverseSubLevel(
-                        boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(),
-                                          boost::ref(m_BucketSums),
-                                          _1)) == false) {
+                    boost::bind<bool>(TSampleVecQueue::CSerializer<SSumSerializer>(),
+                                      boost::ref(m_BucketSums),
+                                      _1)) == false) {
                 LOG_ERROR("Invalid bucket queue in " << traverser.value());
                 return false;
             }
         } else if (name == INFLUENCER_BUCKET_SUM_QUEUE_TAG) {
-            if (   i < m_InfluencerBucketSums.size()
-                    && traverser.traverseSubLevel(
-                        boost::bind<bool>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(TStoredStringPtrDoubleUMap(1)),
-                                          boost::ref(m_InfluencerBucketSums[i++]),
-                                          _1)) == false) {
+            if (   i < m_InfluencerBucketSums.size() &&
+                   traverser.traverseSubLevel(
+                       boost::bind<bool>(TStoredStringPtrDoubleUMapQueue::CSerializer<SInfluencerSumSerializer>(TStoredStringPtrDoubleUMap(1)),
+                                         boost::ref(m_InfluencerBucketSums[i++]),
+                                         _1)) == false) {
                 LOG_ERROR("Invalid bucket queue in " << traverser.value());
                 return false;
             }

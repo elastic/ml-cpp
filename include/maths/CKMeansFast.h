@@ -106,15 +106,15 @@ class CKMeansFast {
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
                 bool operator==(const CCluster &other) const {
-                    return   m_Checksum == other.m_Checksum
-                             && m_Points == other.m_Points;
+                    return   m_Checksum == other.m_Checksum &&
+                             m_Points == other.m_Points;
                 }
 
                 //! Total ordering by checksum breaking ties using expensive
                 //! comparison on all points.
                 bool operator<(const CCluster &rhs) const {
-                    return    m_Checksum < rhs.m_Checksum
-                              || (m_Checksum == rhs.m_Checksum && m_Points < rhs.m_Points);
+                    return    m_Checksum < rhs.m_Checksum ||
+                              (m_Checksum == rhs.m_Checksum && m_Points < rhs.m_Points);
                 }
 
                 //! Get the number of points in the cluster.

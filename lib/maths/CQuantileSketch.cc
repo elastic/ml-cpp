@@ -213,7 +213,7 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
                 bool loc  = (2.0 * x < xl + xr);
                 double partial = 0.0;
                 for (ptrdiff_t i = left ? 0 : (loc ? k : k+1),
-                        m = left ? (loc ? k-1 : k) : n; i < m; ++i) {
+                     m = left ? (loc ? k-1 : k) : n; i < m; ++i) {
                     partial += m_Knots[i].second;
                 }
                 partial /= m_Count;

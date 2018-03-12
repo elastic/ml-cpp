@@ -189,10 +189,10 @@ bool CDetectorSpecification::canAddPartitioning(std::size_t index, const std::st
     //      than any field currently set.
     //   2) We can't have duplicate fields.
 
-    return   static_cast<int>(index) > this->highestFieldIndex()
-             && std::find(boost::begin(m_FunctionFields),
-                          boost::end(m_FunctionFields),
-                          value) == boost::end(m_FunctionFields);
+    return   static_cast<int>(index) > this->highestFieldIndex() &&
+             std::find(boost::begin(m_FunctionFields),
+                       boost::end(m_FunctionFields),
+                       value) == boost::end(m_FunctionFields);
 }
 
 void CDetectorSpecification::addPartitioning(std::size_t index, const std::string &value) {
@@ -364,14 +364,14 @@ if (rhs < lhs) return false
 }
 
 bool CDetectorSpecification::operator==(const CDetectorSpecification &rhs) const {
-    return   m_Function == rhs.m_Function
-             && m_Side == rhs.m_Side
-             && m_IgnoreEmpty == rhs.m_IgnoreEmpty
-             && m_BucketLength == rhs.m_BucketLength
-             && std::equal(boost::begin(m_FunctionFields),
-                           boost::end(m_FunctionFields),
-                           boost::begin(rhs.m_FunctionFields))
-             && m_Influencers == rhs.m_Influencers;
+    return   m_Function == rhs.m_Function &&
+             m_Side == rhs.m_Side &&
+             m_IgnoreEmpty == rhs.m_IgnoreEmpty &&
+             m_BucketLength == rhs.m_BucketLength &&
+             std::equal(boost::begin(m_FunctionFields),
+                        boost::end(m_FunctionFields),
+                        boost::begin(rhs.m_FunctionFields)) &&
+             m_Influencers == rhs.m_Influencers;
 }
 
 std::size_t CDetectorSpecification::id(void) const {

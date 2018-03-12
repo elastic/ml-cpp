@@ -103,7 +103,7 @@ class CThreadDataReader : public ml::core::CThread {
                     const char *copyFrom = buffer;
                     size_t copyLen = static_cast<size_t>(strm.gcount());
                     if (m_Data.empty() &&
-                            *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
+                        *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                         ++copyFrom;
                         --copyLen;
                     }

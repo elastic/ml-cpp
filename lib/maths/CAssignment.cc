@@ -186,9 +186,9 @@ bool CAssignment::kuhnMunkres(const TDoubleVecVec &costs,
     std::size_t unmatched = N;
     for (std::size_t i = 0u; i < N; ++i) {
         for (std::size_t j = 0u; j < N; ++j) {
-            if (matchColumnByRow[i] == UNMATCHED
-                    && matchRowByColumn[j] == UNMATCHED
-                    && adjustedCost(costs, rowPotential, columnPotential, i, j) == 0.0) {
+            if (matchColumnByRow[i] == UNMATCHED &&
+                matchRowByColumn[j] == UNMATCHED &&
+                adjustedCost(costs, rowPotential, columnPotential, i, j) == 0.0) {
                 match(i, j, matchColumnByRow, matchRowByColumn);
                 --unmatched;
             }

@@ -230,7 +230,7 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
         // Windows, but doing it on *nix too will mean the inability of the Java
         // code to tolerate the test character will be discovered sooner.
         if (forWrite &&
-                COsFileFuncs::write(fd, &TEST_CHAR, sizeof(TEST_CHAR)) <= 0) {
+            COsFileFuncs::write(fd, &TEST_CHAR, sizeof(TEST_CHAR)) <= 0) {
             LOG_ERROR("Unable to test named pipe " << fileName << ": " <<
                       ::strerror(errno));
             COsFileFuncs::close(fd);

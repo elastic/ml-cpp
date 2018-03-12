@@ -185,8 +185,8 @@ void generateTestMessages(core_t::TTime startTime,
     test::CRandomNumbers rng;
 
     for (std::size_t i = 0u;
-            i < numberBuckets;
-            ++i, startTime += bucketLength) {
+         i < numberBuckets;
+         ++i, startTime += bucketLength) {
         for (std::size_t j = 0u; j < numberAttributes; ++j) {
             TUIntVec samples;
             rng.generatePoissonSamples(attributeRates[j], attributePeople[j].size(), samples);
@@ -292,8 +292,8 @@ void CEventRatePopulationModelTest::testBasicAccessors(void) {
 
             // Test the person counts.
             for (TStrUInt64MapCItr j = expectedBucketPersonCounts.begin();
-                    j != expectedBucketPersonCounts.end();
-                    ++j) {
+                 j != expectedBucketPersonCounts.end();
+                 ++j) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(j->first, pid));
 
@@ -306,8 +306,8 @@ void CEventRatePopulationModelTest::testBasicAccessors(void) {
 
             // Test the person attribute counts.
             for (TStrStrPrDoubleMapCItr j = expectedBucketPersonAttributeCounts.begin();
-                    j != expectedBucketPersonAttributeCounts.end();
-                    ++j) {
+                 j != expectedBucketPersonAttributeCounts.end();
+                 ++j) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(j->first.first, pid));
                 std::size_t cid;
@@ -707,10 +707,10 @@ void CEventRatePopulationModelTest::testPrune(void) {
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (   std::binary_search(boost::begin(expectedPeople),
                                   boost::end(expectedPeople),
-                                  messages[i].s_Person)
-                && std::binary_search(boost::begin(expectedAttributes),
-                                      boost::end(expectedAttributes),
-                                      messages[i].s_Attribute)) {
+                                  messages[i].s_Person) &&
+               std::binary_search(boost::begin(expectedAttributes),
+                                  boost::end(expectedAttributes),
+                                  messages[i].s_Attribute)) {
             expectedMessages.push_back(messages[i]);
         }
     }
@@ -835,8 +835,8 @@ void CEventRatePopulationModelTest::testFrequency(void) {
     TMessageVec messages;
     std::size_t bucket = 0u;
     for (core_t::TTime bucketStart = startTime;
-            bucketStart < 100 * bucketLength;
-            bucketStart += bucketLength, ++bucket) {
+         bucketStart < 100 * bucketLength;
+         bucketStart += bucketLength, ++bucket) {
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
             if (bucket % period[i] == 0) {
                 for (std::size_t j = 0u; j < i+1; ++j) {
@@ -935,8 +935,8 @@ void CEventRatePopulationModelTest::testSampleRateWeight(void) {
 
     TMessageVec messages;
     for (core_t::TTime bucketStart = startTime;
-            bucketStart < 100 * bucketLength;
-            bucketStart += bucketLength) {
+         bucketStart < 100 * bucketLength;
+         bucketStart += bucketLength) {
         TSizeVec times;
         rng.generateUniformSamples(static_cast<std::size_t>(bucketStart),
                                    static_cast<std::size_t>(bucketStart + bucketLength),
@@ -1060,8 +1060,8 @@ void CEventRatePopulationModelTest::testPeriodicity(void) {
 
     TMessageVec messages;
     for (core_t::TTime time = startTime;
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
             TUIntVec rates;
             rng.generatePoissonSamples(scales[i] * rate[(time % DAY) / HOUR],

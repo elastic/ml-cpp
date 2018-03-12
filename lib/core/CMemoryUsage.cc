@@ -171,7 +171,7 @@ void CMemoryUsage::compress(void) {
         }
 
         for (TStrSizeMapCItr i = itemsByName.begin();
-                i != itemsByName.end(); ++i) {
+             i != itemsByName.end(); ++i) {
             // For commonly-occuring children, add up their usage
             // then delete them
             if (i->second > 1) {
@@ -184,7 +184,7 @@ void CMemoryUsage::compress(void) {
 
                 TMemoryUsagePtrListItr j = m_Children.begin();
                 while ((j = std::find_if(j, m_Children.end(), comparison)) !=
-                        m_Children.end()) {
+                       m_Children.end()) {
                     LOG_TRACE("Trying to remove " << *j);
                     (*firstChild)->m_Description.s_Memory += (*j)->usage();
                     (*firstChild)->m_Description.s_Unused += (*j)->unusage();

@@ -124,7 +124,7 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
             m_DataPerFeature.clear();
 
             for (TIntStrByFieldDataUMapUMap::const_iterator i = data.begin();
-                    i != data.end(); ++i) {
+                 i != data.end(); ++i) {
                 m_DataPerFeature.insert(TFeatureStrByFieldDataUMapPr(model_t::EFeature(i->first), i->second));
             }
         } else if (name == TIME_TAG) {

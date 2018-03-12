@@ -110,10 +110,10 @@ bool equal(const core::CStoredStringPtr &lhs, const core::CStoredStringPtr &rhs)
 
 //! Check if both underlying strings are equal.
 bool equal(const TStoredStringPtrStoredStringPtrPr &lhs, const TStoredStringPtrStoredStringPtrPr &rhs) {
-    return   unset(lhs.first) == unset(rhs.first)
-             && *lhs.first == *rhs.first
-             && unset(lhs.second) == unset(rhs.second)
-             && *lhs.second == *rhs.second;
+    return   unset(lhs.first) == unset(rhs.first) &&
+             *lhs.first == *rhs.first &&
+             unset(lhs.second) == unset(rhs.second) &&
+             *lhs.second == *rhs.second;
 }
 
 //! Orders nodes by the value of their person field.
@@ -231,9 +231,9 @@ class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
                 for (const auto &child : node.s_Children) {
                     for (const auto &influence : child->s_AnnotatedProbability.s_Influences) {
                         if (   equal({node.s_Spec.s_PartitionFieldName,
-                                      node.s_Spec.s_PartitionFieldValue}, influence.first)
-                                || equal({node.s_Spec.s_PersonFieldName,
-                                          node.s_Spec.s_PersonFieldValue}, influence.first)) {
+                                      node.s_Spec.s_PartitionFieldValue}, influence.first) ||
+                               equal({node.s_Spec.s_PersonFieldName,
+                                      node.s_Spec.s_PersonFieldValue}, influence.first)) {
                             auto i = std::lower_bound(node.s_AnnotatedProbability.s_Influences.begin(),
                                                       node.s_AnnotatedProbability.s_Influences.end(),
                                                       influence.first,
@@ -382,29 +382,29 @@ void SNode::propagateFields(void) {
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
     for (std::size_t i = 1u; i < s_Children.size(); ++i) {
-        if (   !unset(s_Spec.s_PartitionFieldName)
-                && !equal(s_Spec.s_PartitionFieldName,
-                          s_Children[i]->s_Spec.s_PartitionFieldName)) {
+        if (   !unset(s_Spec.s_PartitionFieldName) &&
+               !equal(s_Spec.s_PartitionFieldName,
+                      s_Children[i]->s_Spec.s_PartitionFieldName)) {
             s_Spec.s_PartitionFieldName = UNSET_STRING;
             s_Spec.s_PartitionFieldValue = UNSET_STRING;
             s_Spec.s_PersonFieldName = UNSET_STRING;
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
-        if (   !unset(s_Spec.s_PartitionFieldValue)
-                && !equal(s_Spec.s_PartitionFieldValue,
-                          s_Children[i]->s_Spec.s_PartitionFieldValue)) {
+        if (   !unset(s_Spec.s_PartitionFieldValue) &&
+               !equal(s_Spec.s_PartitionFieldValue,
+                      s_Children[i]->s_Spec.s_PartitionFieldValue)) {
             s_Spec.s_PartitionFieldValue = UNSET_STRING;
             s_Spec.s_PersonFieldName = UNSET_STRING;
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
-        if (   !unset(s_Spec.s_PersonFieldName)
-                && !equal(s_Spec.s_PersonFieldName,
-                          s_Children[i]->s_Spec.s_PersonFieldName)) {
+        if (   !unset(s_Spec.s_PersonFieldName) &&
+               !equal(s_Spec.s_PersonFieldName,
+                      s_Children[i]->s_Spec.s_PersonFieldName)) {
             s_Spec.s_PersonFieldName = UNSET_STRING;
         }
-        if (   !unset(s_Spec.s_PersonFieldValue)
-                && !equal(s_Spec.s_PersonFieldValue,
-                          s_Children[i]->s_Spec.s_PersonFieldValue)) {
+        if (   !unset(s_Spec.s_PersonFieldValue) &&
+               !equal(s_Spec.s_PersonFieldValue,
+                      s_Children[i]->s_Spec.s_PersonFieldValue)) {
             s_Spec.s_PersonFieldValue = UNSET_STRING;
         }
     }
@@ -992,15 +992,15 @@ bool CHierarchicalResultsVisitor::isLeaf(const TNode &node) {
 }
 
 bool CHierarchicalResultsVisitor::isPartitioned(const TNode &node) {
-    return   !((*node.s_Spec.s_PartitionFieldName).empty())
-             && unset(node.s_Spec.s_PartitionFieldValue);
+    return   !((*node.s_Spec.s_PartitionFieldName).empty()) &&
+             unset(node.s_Spec.s_PartitionFieldValue);
 }
 
 bool CHierarchicalResultsVisitor::isPartition(const TNode &node) {
-    return    !((*node.s_Spec.s_PartitionFieldName).empty())
-              && !unset(node.s_Spec.s_PartitionFieldValue)
-              && (   CHierarchicalResultsVisitor::isRoot(node)
-                     || unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
+    return    !((*node.s_Spec.s_PartitionFieldName).empty()) &&
+              !unset(node.s_Spec.s_PartitionFieldValue) &&
+              (   CHierarchicalResultsVisitor::isRoot(node) ||
+                  unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
 }
 
 bool CHierarchicalResultsVisitor::isPerson(const TNode &node) {
@@ -1008,13 +1008,13 @@ bool CHierarchicalResultsVisitor::isPerson(const TNode &node) {
         return false;
     }
     if (!isPopulation(node)) {
-        return    unset(node.s_Spec.s_PersonFieldValue)
-                  || CHierarchicalResultsVisitor::isRoot(node)
-                  || unset(node.s_Parent->s_Spec.s_PersonFieldName);
+        return    unset(node.s_Spec.s_PersonFieldValue) ||
+                  CHierarchicalResultsVisitor::isRoot(node) ||
+                  unset(node.s_Parent->s_Spec.s_PersonFieldName);
     }
-    return    !unset(node.s_Spec.s_PersonFieldValue)
-              && (   CHierarchicalResultsVisitor::isRoot(node)
-                     || (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
+    return    !unset(node.s_Spec.s_PersonFieldValue) &&
+              (   CHierarchicalResultsVisitor::isRoot(node) ||
+                  (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
 }
 
 bool CHierarchicalResultsVisitor::isAttribute(const TNode &node) {
@@ -1039,8 +1039,8 @@ const CHierarchicalResultsVisitor::TNode *
 CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode &node) {
     const TNode *result = &node;
     for (result = result->s_Parent;
-            result && !isTypeForWhichWeWriteResults(*result, false);
-            result = result->s_Parent) {
+         result && !isTypeForWhichWeWriteResults(*result, false);
+         result = result->s_Parent) {
     }
     return result;
 }
@@ -1083,9 +1083,9 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits &limits,
     // nothing.
     static const double OUTPUT_TOLERANCE(1.2);
     const TNode *ancestor = nearestAncestorForWhichWeWriteResults(node);
-    if (   ancestor
-            && p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability
-            && shouldWriteResult(limits, results, *ancestor, pivot)) {
+    if (   ancestor &&
+           p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability &&
+           shouldWriteResult(limits, results, *ancestor, pivot)) {
         return true;
     }
 
@@ -1097,9 +1097,9 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits &limits,
     for (const auto &influence : node.s_AnnotatedProbability.s_Influences) {
         const TNode *influencer = results.influencer(influence.first.first,
                                                      influence.first.second);
-        if (   influencer
-                && p <= OUTPUT_TOLERANCE * influencer->s_SmallestDescendantProbability
-                && shouldWriteResult(limits, results, *influencer, /*pivot = */ true)) {
+        if (   influencer &&
+               p <= OUTPUT_TOLERANCE * influencer->s_SmallestDescendantProbability &&
+               shouldWriteResult(limits, results, *influencer, /*pivot = */ true)) {
             return true;
         }
     }

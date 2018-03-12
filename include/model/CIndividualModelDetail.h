@@ -87,8 +87,8 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
     }
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength();
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         this->CIndividualModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
         gatherer.featureData(time, bucketLength, featureData);

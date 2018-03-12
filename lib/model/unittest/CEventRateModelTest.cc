@@ -295,8 +295,8 @@ void testModelWithValueField(model_t::EFeature feature,
 
     std::size_t i = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-            bucketStartTime < endTime;
-            bucketStartTime += bucketLength, i++) {
+         bucketStartTime < endTime;
+         bucketStartTime += bucketLength, i++) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         for (std::size_t j = 0; j < fields[i].size(); ++j) {
@@ -358,8 +358,8 @@ void CEventRateModelTest::testOnlineCountSample(void) {
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-            bucketStartTime < endTime;
-            bucketStartTime += bucketLength, ++j) {
+         bucketStartTime < endTime;
+         bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
@@ -459,8 +459,8 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void) {
 
     std::size_t i = 0u, j= 0u;
     for (core_t::TTime bucketStartTime = startTime;
-            bucketStartTime < endTime;
-            bucketStartTime += bucketLength) {
+         bucketStartTime < endTime;
+         bucketStartTime += bucketLength) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
@@ -618,8 +618,8 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void) {
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-            bucketStartTime < endTime;
-            bucketStartTime += bucketLength, ++j) {
+         bucketStartTime < endTime;
+         bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
@@ -832,9 +832,9 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void) {
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                          partitioningFields, 1, p));
                 std::string correlated;
-                if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                        &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                        && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
+                        p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 &&
+                        !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -942,9 +942,9 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void) {
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                          partitioningFields, 1, p));
                 std::string correlated;
-                if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                        &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                        && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+                if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
+                        p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 &&
+                        !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -1082,9 +1082,9 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void) {
             CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                      partitioningFields, 1, p));
             std::string correlated;
-            if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                    &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                    && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
+            if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0 &&
+                    p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0 &&
+                    !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
             probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -1462,8 +1462,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1520,8 +1520,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1585,8 +1585,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1652,8 +1652,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1718,8 +1718,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1800,8 +1800,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1867,8 +1867,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -1943,8 +1943,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
@@ -2016,8 +2016,8 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-                bucketStartTime < endTime;
-                bucketStartTime += bucketLength, ++j) {
+             bucketStartTime < endTime;
+             bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;

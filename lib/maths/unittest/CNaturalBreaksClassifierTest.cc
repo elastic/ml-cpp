@@ -100,8 +100,8 @@ bool naturalBreaksBranchAndBound(const TTupleVec &categories,
             }
 
             double categoryDeviation;
-            if (!computeDeviation(category, p, categoryDeviation)
-                    || (deviation >= deviationMin && i < m - 1)) {
+            if (!computeDeviation(category, p, categoryDeviation) ||
+                (deviation >= deviationMin && i < m - 1)) {
                 // We can prune all possible solutions which have
                 // sub-split (split[0], ... split[i]) since their
                 // deviation is necessarily larger than the minimum

@@ -143,8 +143,8 @@ class MATHS_EXPORT CSetTools {
                                          std::vector<T2> &values2,
                                          std::vector<T3> &values3,
                                          const F &pred) {
-            if (   values1.size() != values2.size()
-                    || values2.size() != values3.size()) {
+            if (   values1.size() != values2.size() ||
+                   values2.size() != values3.size()) {
                 return false;
             }
 

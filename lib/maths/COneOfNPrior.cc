@@ -246,8 +246,8 @@ double COneOfNPrior::adjustOffset(const TWeightStyleVec &weightStyles,
     if (CBasicStatistics::mean(result) != 0.0) {
         CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
         for (std::size_t i = 0u; i < penalties.size(); ++i) {
-            if (   m_Models[i].second->participatesInModelSelection()
-                    && CMathsFuncs::isFinite(penalties)) {
+            if (   m_Models[i].second->participatesInModelSelection() &&
+                   CMathsFuncs::isFinite(penalties)) {
                 CModelWeight &weight = m_Models[i].first;
                 weight.logWeight(weight.logWeight() + penalties[i]);
             }
@@ -785,8 +785,8 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
         // Check if we can exit early with reasonable precision.
         if (i+1 < n) {
             logMaximumRemainder = logn(n-i-1) + logWeights[i+1].first;
-            if (   logMaximumRemainder < maxLogLowerBound[0] + LOG_MAXIMUM_RELATIVE_ERROR
-                    && logMaximumRemainder < maxLogUpperBound[0] + LOG_MAXIMUM_RELATIVE_ERROR) {
+            if (   logMaximumRemainder < maxLogLowerBound[0] + LOG_MAXIMUM_RELATIVE_ERROR &&
+                   logMaximumRemainder < maxLogUpperBound[0] + LOG_MAXIMUM_RELATIVE_ERROR) {
                 break;
             }
         }
@@ -877,7 +877,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
         const CPrior &model = *m_Models[logWeights[i].second].second;
 
         if (lowerBound > static_cast<double>(m_Models.size() - i) * weight
-                / MAXIMUM_RELATIVE_ERROR) {
+            / MAXIMUM_RELATIVE_ERROR) {
             // The probability calculation is relatively expensive so don't
             // evaluate the probabilities that aren't needed to get good
             // accuracy.
@@ -902,8 +902,8 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
         tail_.add(TDoubleTailPr(weight * (modelLowerBound + modelUpperBound), modelTail));
     }
 
-    if (   !(lowerBound >= 0.0 && lowerBound <= 1.001)
-            || !(upperBound >= 0.0 && upperBound <= 1.001)) {
+    if (   !(lowerBound >= 0.0 && lowerBound <= 1.001) ||
+           !(upperBound >= 0.0 && upperBound <= 1.001)) {
         LOG_ERROR("Bad probability bounds = ["
                   << lowerBound << ", " << upperBound << "]"
                   << ", " << core::CContainerPrinter::print(logWeights));
@@ -926,8 +926,8 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
 
 bool COneOfNPrior::isNonInformative(void) const {
     for (const auto &model : m_Models) {
-        if (   model.second->participatesInModelSelection()
-                && model.second->isNonInformative()) {
+        if (   model.second->participatesInModelSelection() &&
+               model.second->isNonInformative()) {
             return true;
         }
     }

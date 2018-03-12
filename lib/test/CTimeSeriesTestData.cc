@@ -228,7 +228,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex &tokenRegex,
                                     const std::string &line,
                                     std::vector<std::pair<core_t::TTime, T> > &results) {
     if (line.empty() ||
-            line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
+        line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
         LOG_DEBUG("Ignoring blank line");
         return true;
     }

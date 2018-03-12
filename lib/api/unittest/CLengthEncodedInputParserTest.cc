@@ -143,8 +143,8 @@ class CVisitor {
             // Check the field names
             CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
             for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
-                    iter != dataRowFields.end();
-                    ++iter) {
+                 iter != dataRowFields.end();
+                 ++iter) {
                 LOG_DEBUG("Field " << iter->first << " is " << iter->second);
                 CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first)
                                != m_ExpectedFieldNames.end());

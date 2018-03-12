@@ -100,8 +100,8 @@ class CThreadFarm : private CNonCopyable {
             }
 
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                    itr != m_MessageQueues.end();
-                    ++itr) {
+                 itr != m_MessageQueues.end();
+                 ++itr) {
                 (*itr)->dispatchMsg(msg);
                 ++m_Pending;
             }
@@ -134,8 +134,8 @@ class CThreadFarm : private CNonCopyable {
 
             size_t count(1);
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                    itr != m_MessageQueues.end();
-                    ++itr) {
+                 itr != m_MessageQueues.end();
+                 ++itr) {
                 if ((*itr)->start() == false) {
                     LOG_ERROR("Unable to start message queue " << count <<
                               " for the " << m_Name << " thread farm");
@@ -160,8 +160,8 @@ class CThreadFarm : private CNonCopyable {
 
             size_t count(1);
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
-                    itr != m_MessageQueues.end();
-                    ++itr) {
+                 itr != m_MessageQueues.end();
+                 ++itr) {
                 if ((*itr)->stop() == false) {
                     LOG_ERROR("Unable to stop message queue " << count <<
                               " for the " << m_Name << " thread farm");

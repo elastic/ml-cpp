@@ -30,8 +30,8 @@ std::string CShellArgQuoter::quote(const std::string &arg) {
 
     // Simple command line options should not be quoted
     if (arg.length() == 2 &&
-            (arg[0] == '/' || arg[0] == '-') &&
-            ::isalnum(static_cast<unsigned char>(arg[1]))) {
+        (arg[0] == '/' || arg[0] == '-') &&
+        ::isalnum(static_cast<unsigned char>(arg[1]))) {
         return arg;
     }
 
@@ -62,8 +62,8 @@ std::string CShellArgQuoter::quote(const std::string &arg) {
     result += "^\"";
 
     for (std::string::const_iterator iter = arg.begin();
-            iter != arg.end();
-            ++iter) {
+         iter != arg.end();
+         ++iter) {
         switch (*iter) {
             case '(':
             case ')':

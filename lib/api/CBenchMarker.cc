@@ -67,8 +67,8 @@ void CBenchMarker::addResult(const std::string &message,
     bool scored(false);
     size_t position(0);
     for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
-            measureVecIter != m_Measures.end();
-            ++measureVecIter) {
+         measureVecIter != m_Measures.end();
+         ++measureVecIter) {
         const core::CRegex &regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
             TIntSizeStrPrMap &counts = measureVecIter->second;
@@ -102,14 +102,14 @@ void CBenchMarker::dumpResults(void) const {
     sortVec.reserve(m_Measures.size());
 
     for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
-            measureVecIter != m_Measures.end();
-            ++measureVecIter) {
+         measureVecIter != m_Measures.end();
+         ++measureVecIter) {
         const TIntSizeStrPrMap &counts = measureVecIter->second;
 
         size_t total(0);
         for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-                mapIter != counts.end();
-                ++mapIter) {
+             mapIter != counts.end();
+             ++mapIter) {
             total += mapIter->second.first;
         }
 
@@ -133,8 +133,8 @@ void CBenchMarker::dumpResults(void) const {
     // Iterate backwards through the sorted vector, so that the most common
     // actual types are looked at first
     for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
-            sortedVecIter != sortVec.end();
-            ++sortedVecIter) {
+         sortedVecIter != sortVec.end();
+         ++sortedVecIter) {
         size_t total(sortedVecIter->first);
         if (total > 0) {
             ++observedActuals;
@@ -169,8 +169,8 @@ void CBenchMarker::dumpResults(void) const {
             size_t max(0);
             int maxType(-1);
             for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-                    mapIter != counts.end();
-                    ++mapIter) {
+                 mapIter != counts.end();
+                 ++mapIter) {
                 int type(mapIter->first);
 
                 size_t count(mapIter->second.first);

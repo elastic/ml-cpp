@@ -86,8 +86,8 @@ class CORE_EXPORT CFloatStorage {
         //! Integer promotion. So one can write things like CFloatStorage(1).
         CFloatStorage(int value) : m_Value(float(value)) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
-            if (    value > MAX_PRECISE_INTEGER_FLOAT
-                    || -value < MAX_PRECISE_INTEGER_FLOAT) {
+            if (    value > MAX_PRECISE_INTEGER_FLOAT ||
+                    -value < MAX_PRECISE_INTEGER_FLOAT) {
                 LOG_WARN("Loss of precision assigning int " << value << " to float");
             }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK
@@ -155,15 +155,15 @@ class CORE_EXPORT CFloatStorage {
         //! Utility to actually set the floating point value.
         void set(double value) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
-            if (    value > std::numeric_limits<float>::max()
-                    || -value > std::numeric_limits<float>::max()) {
+            if (    value > std::numeric_limits<float>::max() ||
+                    -value > std::numeric_limits<float>::max()) {
                 LOG_WARN("Value overflows float " << value);
             }
-            if (    value < std::numeric_limits<float>::min()
-                    && -value < std::numeric_limits<float>::min()) {
+            if (    value < std::numeric_limits<float>::min() &&
+                    -value < std::numeric_limits<float>::min()) {
                 LOG_WARN("Value underflows float " << value);
-            } else if (    value < 100 * std::numeric_limits<float>::min()
-                           && -value < 100 * std::numeric_limits<float>::min()) {
+            } else if (    value < 100 * std::numeric_limits<float>::min() &&
+                           -value < 100 * std::numeric_limits<float>::min()) {
                 LOG_WARN("Less than 3 s.f. precision retained for " << value);
             }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK

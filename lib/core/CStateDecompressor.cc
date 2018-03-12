@@ -142,10 +142,10 @@ bool CStateDecompressor::CDechunkFilter::readHeader(void) {
 
     while (this->parseNext()) {
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
-                CStateCompressor::COMPRESSED_ATTRIBUTE.compare(0, CStateCompressor::COMPRESSED_ATTRIBUTE.length(),
-                                                               m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
+            CStateCompressor::COMPRESSED_ATTRIBUTE.compare(0, CStateCompressor::COMPRESSED_ATTRIBUTE.length(),
+                                                           m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
             if (this->parseNext() &&
-                    m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
+                m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
                 m_Initialised = true;
                 m_BufferOffset = 0;
                 return true;
@@ -179,27 +179,27 @@ void CStateDecompressor::CDechunkFilter::handleRead(char *s, std::streamsize n, 
 
     // Expect to have data in an array
     while (bytesDone < n &&
-            this->parseNext()) {
+           this->parseNext()) {
         m_BufferOffset = 0;
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd) {
             LOG_TRACE("Come to end of array");
             if (this->parseNext() &&
-                    m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
-                    CStateCompressor::END_OF_STREAM_ATTRIBUTE.compare(0, CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
-                                                                      m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
+                m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
+                CStateCompressor::END_OF_STREAM_ATTRIBUTE.compare(0, CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
+                                                                  m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength) == 0) {
                 LOG_DEBUG("Explicit end-of-stream marker found in document with index " <<
                           m_CurrentDocNum);
 
                 // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the closing brace
                 if (this->parseNext() &&
-                        m_Handler.s_Type != SRapidJsonHandler::E_TokenBool) {
+                    m_Handler.s_Type != SRapidJsonHandler::E_TokenBool) {
                     LOG_ERROR("Expecting bool value to follow  " <<
                               CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got " << m_Handler.s_Type);
                 }
 
                 while (m_NestedLevel > 0) {
                     if (this->parseNext() &&
-                            m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
+                        m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
                         LOG_ERROR("Expecting end object to follow " <<
                                   CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got " << m_Handler.s_Type);
                     }

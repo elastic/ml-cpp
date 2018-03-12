@@ -221,9 +221,9 @@ void generateTestMessages(std::size_t dimension,
             rng.generatePoissonSamples(attributeRates[j], numberPeople, samples);
 
             for (std::size_t k = 0u; k < numberPeople; ++k) {
-                bool anomaly =   !anomalies[j].empty()
-                                 && anomalies[j].back().first == i
-                                 && anomalies[j].back().second == k;
+                bool anomaly =   !anomalies[j].empty() &&
+                                 anomalies[j].back().first == i &&
+                                 anomalies[j].back().second == k;
                 if (anomaly) {
                     samples[k] += 4;
                     anomalies[j].pop_back();
@@ -418,18 +418,18 @@ void CMetricPopulationModelTest::testBasicAccessors(void) {
                                            model_t::E_PopulationMaxByPersonAndAttribute,
                                            pid, cid, startTime);
 
-                    CPPUNIT_ASSERT(   (!mean.empty() && maths::CBasicStatistics::count(expectedMean) > 0.0)
-                                      || ( mean.empty() && maths::CBasicStatistics::count(expectedMean) == 0.0));
+                    CPPUNIT_ASSERT(   (!mean.empty() && maths::CBasicStatistics::count(expectedMean) > 0.0) ||
+                                      ( mean.empty() && maths::CBasicStatistics::count(expectedMean) == 0.0));
                     if (!mean.empty()) {
                         CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::mean(expectedMean), mean[0]);
                     }
-                    CPPUNIT_ASSERT(   (!min.empty() && expectedMin.count() > 0u)
-                                      || ( min.empty() && expectedMin.count() == 0u));
+                    CPPUNIT_ASSERT(   (!min.empty() && expectedMin.count() > 0u) ||
+                                      ( min.empty() && expectedMin.count() == 0u));
                     if (!min.empty()) {
                         CPPUNIT_ASSERT_EQUAL(expectedMin[0], min[0]);
                     }
-                    CPPUNIT_ASSERT(   (!max.empty() && expectedMax.count() > 0u)
-                                      || ( max.empty() && expectedMax.count() == 0u));
+                    CPPUNIT_ASSERT(   (!max.empty() && expectedMax.count() > 0u) ||
+                                      ( max.empty() && expectedMax.count() == 0u));
                     if (!max.empty()) {
                         CPPUNIT_ASSERT_EQUAL(expectedMax[0], max[0]);
                     }
@@ -954,10 +954,10 @@ void CMetricPopulationModelTest::testPrune(void) {
     for (std::size_t i = 0u; i < messages.size(); ++i) {
         if (   std::binary_search(boost::begin(expectedPeople),
                                   boost::end(expectedPeople),
-                                  messages[i].s_Person)
-                && std::binary_search(boost::begin(expectedAttributes),
-                                      boost::end(expectedAttributes),
-                                      messages[i].s_Attribute)) {
+                                  messages[i].s_Person) &&
+               std::binary_search(boost::begin(expectedAttributes),
+                                  boost::end(expectedAttributes),
+                                  messages[i].s_Attribute)) {
             expectedMessages.push_back(messages[i]);
         }
     }
@@ -1077,8 +1077,8 @@ void CMetricPopulationModelTest::testFrequency(void) {
     TMessageVec messages;
     std::size_t bucket = 0u;
     for (core_t::TTime bucketStart = startTime;
-            bucketStart < 100 * bucketLength;
-            bucketStart += bucketLength, ++bucket) {
+         bucketStart < 100 * bucketLength;
+         bucketStart += bucketLength, ++bucket) {
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
             if (bucket % period[i] == 0) {
                 for (std::size_t j = 0u; j < i+1; ++j) {
@@ -1177,8 +1177,8 @@ void CMetricPopulationModelTest::testSampleRateWeight(void) {
 
     TMessageVec messages;
     for (core_t::TTime bucketStart = startTime;
-            bucketStart < 100 * bucketLength;
-            bucketStart += bucketLength) {
+         bucketStart < 100 * bucketLength;
+         bucketStart += bucketLength) {
         TSizeVec times;
         rng.generateUniformSamples(static_cast<std::size_t>(bucketStart),
                                    static_cast<std::size_t>(bucketStart + bucketLength),
@@ -1302,8 +1302,8 @@ void CMetricPopulationModelTest::testPeriodicity(void) {
 
     TMessageVec messages;
     for (core_t::TTime time = startTime;
-            time < endTime;
-            time += bucketLength) {
+         time < endTime;
+         time += bucketLength) {
         for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
             TDoubleVec values;
             rng.generateNormalSamples(baseline[(time % DAY) / HOUR],

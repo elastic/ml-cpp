@@ -418,8 +418,8 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                 double x = samples[i] + offset;
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
             }
-        } else if (priorShape > 2
-                   && priorShape > likelihoodShape * MINIMUM_GAMMA_SHAPE) {
+        } else if (priorShape > 2 &&
+                   priorShape > likelihoodShape * MINIMUM_GAMMA_SHAPE) {
             // The marginal likelihood is well approximated by a moment matched
             // gamma distribution. By considering:
             //   E[ E[X | a, b] ] = E[ a' / B ]
@@ -600,8 +600,8 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
                                                         m_LikelihoodShape,
                                                         m_PriorShape,
                                                         m_PriorRate,
-                                                        probability)
-                    || !probability.calculate(result)) {
+                                                        probability) ||
+                   !probability.calculate(result)) {
                 LOG_ERROR("Failed to compute probability of less likely samples");
                 return false;
             }
@@ -1591,8 +1591,8 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
 }
 
 bool CGammaRateConjugate::isNonInformative(void) const {
-    return    CBasicStatistics::count(m_SampleMoments) < detail::NON_INFORMATIVE_COUNT
-              || this->priorRate() == NON_INFORMATIVE_RATE;
+    return    CBasicStatistics::count(m_SampleMoments) < detail::NON_INFORMATIVE_COUNT ||
+              this->priorRate() == NON_INFORMATIVE_RATE;
 }
 
 void CGammaRateConjugate::print(const std::string &indent, std::string &result) const {
@@ -1748,9 +1748,9 @@ bool CGammaRateConjugate::equalTolerance(const CGammaRateConjugate &rhs,
     LOG_DEBUG(m_LikelihoodShape << " " << rhs.m_LikelihoodShape << ", "
               << this->priorShape() << " " << rhs.priorShape() << ", "
               << this->priorRate() << " " << rhs.priorRate());
-    return    equal(m_LikelihoodShape, rhs.m_LikelihoodShape)
-              && equal(this->priorShape(), rhs.priorShape())
-              && equal(this->priorRate(), rhs.priorRate());
+    return    equal(m_LikelihoodShape, rhs.m_LikelihoodShape) &&
+              equal(this->priorShape(), rhs.priorShape()) &&
+              equal(this->priorRate(), rhs.priorRate());
 }
 
 double CGammaRateConjugate::mean(void) const {
@@ -1787,15 +1787,15 @@ double CGammaRateConjugate::priorRate(void) const {
 }
 
 bool CGammaRateConjugate::isBad(void) const {
-    return    !CMathsFuncs::isFinite(m_Offset)
-              || !CMathsFuncs::isFinite(m_LikelihoodShape)
-              || !CMathsFuncs::isFinite(CBasicStatistics::count(m_LogSamplesMean))
-              || !CMathsFuncs::isFinite(CBasicStatistics::moment<0>(m_LogSamplesMean))
-              || !CMathsFuncs::isFinite(CBasicStatistics::count(m_SampleMoments))
-              || !CMathsFuncs::isFinite(CBasicStatistics::moment<0>(m_SampleMoments))
-              || !CMathsFuncs::isFinite(CBasicStatistics::moment<1>(m_SampleMoments))
-              || !CMathsFuncs::isFinite(m_PriorShape)
-              || !CMathsFuncs::isFinite(m_PriorRate);
+    return    !CMathsFuncs::isFinite(m_Offset) ||
+              !CMathsFuncs::isFinite(m_LikelihoodShape) ||
+              !CMathsFuncs::isFinite(CBasicStatistics::count(m_LogSamplesMean)) ||
+              !CMathsFuncs::isFinite(CBasicStatistics::moment<0>(m_LogSamplesMean)) ||
+              !CMathsFuncs::isFinite(CBasicStatistics::count(m_SampleMoments)) ||
+              !CMathsFuncs::isFinite(CBasicStatistics::moment<0>(m_SampleMoments)) ||
+              !CMathsFuncs::isFinite(CBasicStatistics::moment<1>(m_SampleMoments)) ||
+              !CMathsFuncs::isFinite(m_PriorShape) ||
+              !CMathsFuncs::isFinite(m_PriorRate);
 }
 
 std::string CGammaRateConjugate::debug(void) const {

@@ -27,7 +27,7 @@ CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlPa
       m_IsNameCacheValid(false),
       m_IsValueCacheValid(false) {
     if (m_CurrentNode != 0 &&
-            m_CurrentNode->type() != rapidxml::node_element) {
+        m_CurrentNode->type() != rapidxml::node_element) {
         LOG_ERROR("Node type " << m_CurrentNode->type() << " not supported");
         m_CurrentNode = 0;
         this->setBadState();
@@ -119,8 +119,8 @@ CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElem
     }
 
     for (CRapidXmlParser::TCharRapidXmlNode *nextNode = m_CurrentNode->next_sibling();
-            nextNode != 0;
-            nextNode = nextNode->next_sibling()) {
+         nextNode != 0;
+         nextNode = nextNode->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (nextNode->type() == rapidxml::node_element) {
@@ -137,8 +137,8 @@ CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::firstChildNo
     }
 
     for (CRapidXmlParser::TCharRapidXmlNode *child = m_CurrentNode->first_node();
-            child != 0;
-            child = child->next_sibling()) {
+         child != 0;
+         child = child->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
         if (child->type() == rapidxml::node_element) {

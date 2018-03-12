@@ -69,9 +69,9 @@ class CSphericalCluster {
         class CEqual {
             public:
                 std::size_t operator()(const Type &lhs, const Type &rhs) const {
-                    return   static_cast<const POINT &>(lhs) == static_cast<const POINT &>(rhs)
-                             && lhs.annotation().s_Count == rhs.annotation().s_Count
-                             && lhs.annotation().s_Variance == rhs.annotation().s_Variance;
+                    return   static_cast<const POINT &>(lhs) == static_cast<const POINT &>(rhs) &&
+                             lhs.annotation().s_Count == rhs.annotation().s_Count &&
+                             lhs.annotation().s_Variance == rhs.annotation().s_Variance;
                 }
         };
 

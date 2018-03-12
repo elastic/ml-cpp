@@ -322,7 +322,7 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
         if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser,
                                                    boost::ref(m_ExamplesCollector),
                                                    _1)) == false ||
-                traverser.haveBadState()) {
+            traverser.haveBadState()) {
             LOG_ERROR("Cannot restore categorizer, unexpected element: " << traverser.value());
             return false;
         }

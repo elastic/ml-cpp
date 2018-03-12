@@ -121,7 +121,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
 
     // We can not get here without a valid header
     if (m_DomainNameFieldIndex >= tokens.size() ||
-            m_TimeFieldIndex >= tokens.size()) {
+        m_TimeFieldIndex >= tokens.size()) {
         LOG_ERROR("Out of range " << tokens.size() << " " << m_DomainNameFieldIndex << " " << m_TimeFieldIndex);
         return false;
     }
@@ -167,7 +167,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
 void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string &time) {
     // Finish all strings and dump
     for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin();
-            itr != m_RegisteredDomainEntropy.end(); ++itr) {
+         itr != m_RegisteredDomainEntropy.end(); ++itr) {
         size_t length;
         if (itr->second->compressedStringLength(true, length) == false) {
             LOG_ERROR("Unable to process " << itr->first);

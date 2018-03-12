@@ -169,8 +169,8 @@ void CJsonLogLayout::format(LogString &output,
             writer.StartObject();
 
             for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin();
-                    i != keySet.end();
-                    ++i) {
+                 i != keySet.end();
+                 ++i) {
                 const LogString &key = *i;
                 LogString value;
                 if (event->getMDC(key, value)) {
@@ -181,8 +181,8 @@ void CJsonLogLayout::format(LogString &output,
                 }
             }
             for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin();
-                    i != propertySet.end();
-                    ++i) {
+                 i != propertySet.end();
+                 ++i) {
                 const LogString &key = *i;
                 LogString value;
                 if (event->getProperty(key, value)) {

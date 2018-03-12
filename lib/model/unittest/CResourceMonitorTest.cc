@@ -454,8 +454,8 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
     std::size_t numBuckets = 0;
 
     for (core_t::TTime time = firstTime;
-            time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
-            time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
+         time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
+         time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
         bool newBucket = false;
         for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {
             detector.buildResults(bucketStart, bucketStart + bucketLength, results);

@@ -525,10 +525,10 @@ double quantile(const CMixtureDistribution<T> &distribution, const double q) {
         std::size_t maxIterations = MAX_ITERATIONS;
         if (   (f0 < 0 && !CSolvers::rightBracket(a, b, fa, fb, fq,
                                                   maxIterations,
-                                                  s.first, s.second))
-                || (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq,
-                                                      maxIterations,
-                                                      s.first, s.second))) {
+                                                  s.first, s.second)) ||
+               (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq,
+                                                  maxIterations,
+                                                  s.first, s.second))) {
             LOG_ERROR("Unable to bracket quantile = " << q
                       << ", (a,b) = (" << a << "," << b << ")"
                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");

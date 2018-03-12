@@ -351,8 +351,8 @@ bool upgradeTrendModelToVersion6p3(const core_t::TTime bucketLength,
 
     CPRNG::CXorOShiro128Plus rng;
     for (core_t::TTime time = lastUpdate - 4 * WEEK;
-            time < lastUpdate;
-            time += bucketLength) {
+         time < lastUpdate;
+         time += bucketLength) {
         double time_{static_cast<double>(time - origin) / static_cast<double>(WEEK)};
         double sample{  regression.predict(time_)
                         + CSampling::normalSample(rng, 0.0, variance)};
@@ -1112,9 +1112,9 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue &messag
                 double df0{CBasicStatistics::count(m_Moments) - 1.0};
                 double df1{CBasicStatistics::count(m_MomentsMinusTrend) - m_Trend.parameters()};
                 m_UsingTrendForPrediction =
-                    v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0
-                    && df0 > 0.0 && df1 > 0.0
-                    && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE;
+                    v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0 &&
+                    df0 > 0.0 && df1 > 0.0 &&
+                    CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE;
                 *m_Watcher = m_UsingTrendForPrediction;
             }
         }
@@ -1489,9 +1489,9 @@ void CTimeSeriesDecompositionDetail::CComponents::apply(std::size_t symbol, cons
 
 bool CTimeSeriesDecompositionDetail::CComponents::shouldInterpolate(core_t::TTime time,
                                                                     core_t::TTime last) {
-    return   m_Machine.state() == SC_NEW_COMPONENTS
-             || (m_Seasonal && m_Seasonal->shouldInterpolate(time, last))
-             || (m_Calendar && m_Calendar->shouldInterpolate(time, last));
+    return   m_Machine.state() == SC_NEW_COMPONENTS ||
+             (m_Seasonal && m_Seasonal->shouldInterpolate(time, last)) ||
+             (m_Calendar && m_Calendar->shouldInterpolate(time, last));
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time) {
@@ -1591,9 +1591,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::remove(core_
     double count{CBasicStatistics::count(m_MeanErrorWithComponent)};
     double errorWithComponent{CBasicStatistics::mean(m_MeanErrorWithComponent)};
     double errorWithoutComponent{CBasicStatistics::mean(m_MeanErrorWithoutComponent)};
-    return   count > static_cast<double>(10 * seasonal.time().period() / bucketLength)
-             && std::max(  errorWithoutComponent
-                           / errorWithComponent, seasonal.heteroscedasticity()) < 1.5;
+    return   count > static_cast<double>(10 * seasonal.time().period() / bucketLength) &&
+             std::max(  errorWithoutComponent
+                        / errorWithComponent, seasonal.heteroscedasticity()) < 1.5;
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::remove(core_t::TTime bucketLength,
@@ -1601,9 +1601,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::remove(core_
     double count{CBasicStatistics::count(m_MeanErrorWithComponent)};
     double errorWithComponent{CBasicStatistics::mean(m_MeanErrorWithComponent)};
     double errorWithoutComponent{CBasicStatistics::mean(m_MeanErrorWithoutComponent)};
-    return   count > static_cast<double>(5 * calendar.feature().window() / bucketLength)
-             && std::max(  errorWithoutComponent
-                           / errorWithComponent, calendar.heteroscedasticity()) < 1.5;
+    return   count > static_cast<double>(5 * calendar.feature().window() / bucketLength) &&
+             std::max(  errorWithoutComponent
+                        / errorWithComponent, calendar.heteroscedasticity()) < 1.5;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::age(double factor) {
@@ -1810,8 +1810,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
                         const CSeasonalTime &time_ = component.time();
                         if (std::find_if(shifted.begin(), shifted.end(),
                         [&time_](const TTimeTimePr &window) {
-                        return !(   time_.windowEnd() <= window.first
-                                    || time_.windowStart() >= window.second);
+                        return !(   time_.windowEnd() <= window.first ||
+                                    time_.windowStart() >= window.second);
                         }) == shifted.end()) {
                             component.shiftLevel(shift.second);
                         }

@@ -118,8 +118,8 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
                 LOG_DEBUG("Checking layer "
                           << core::CContainerPrinter::print(m_Layers[i]));
                 for (TNodeCPtrSetCItr itr = m_Layers[i].begin();
-                        itr != m_Layers[i].end();
-                        ++itr) {
+                     itr != m_Layers[i].end();
+                     ++itr) {
                     if ((*itr)->s_Parent) {
                         std::size_t p = this->layer((*itr)->s_Parent);
                         LOG_DEBUG("layer = " << i << ", parent layer = " << p);
@@ -186,7 +186,7 @@ class CPrinter : public model::CHierarchicalResultsVisitor {
                            const TNode &node,
                            bool pivot) {
             if (m_ShouldPrintWrittenNodesOnly == false ||
-                    shouldWriteResult(m_Limits, results, node, pivot)) {
+                shouldWriteResult(m_Limits, results, node, pivot)) {
                 m_Result = std::string(2 * depth(&node), ' ')
                            + node.print()
                            + (pivot ? " pivot" : "")
@@ -372,8 +372,8 @@ class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodePro
 
                 std::vector<int> detectors;
                 for (TIntDoubleVecMapCItr j = probabilities.s_Probabilities.begin();
-                        j != probabilities.s_Probabilities.end();
-                        ++j) {
+                     j != probabilities.s_Probabilities.end();
+                     ++j) {
                     detectors.push_back(j->first);
                 }
 

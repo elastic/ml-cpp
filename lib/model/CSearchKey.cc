@@ -111,8 +111,8 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
         } else if (name == FUNCTION_NAME_TAG) {
             int function(-1);
             if (core::CStringUtils::stringToType(traverser.value(),
-                                                 function) == false
-                    || function < 0) {
+                                                 function) == false ||
+                function < 0) {
                 LOG_ERROR("Invalid function in " << traverser.value());
                 return false;
             }
@@ -129,7 +129,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
             int excludeFrequent(-1);
             if ((core::CStringUtils::stringToType(traverser.value(),
                                                   excludeFrequent) == false) ||
-                    (excludeFrequent < 0)) {
+                (excludeFrequent < 0)) {
                 LOG_ERROR("Invalid excludeFrequent flag in " << traverser.value());
                 return false;
             }
@@ -181,23 +181,23 @@ void CSearchKey::swap(CSearchKey &other) {
 bool CSearchKey::operator==(const CSearchKey &rhs) const {
     typedef std::equal_to<std::string> TStrEqualTo;
 
-    return    this->hash() == rhs.hash()
-              && m_Identifier == rhs.m_Identifier
-              && m_Function == rhs.m_Function
-              && m_UseNull == rhs.m_UseNull
-              && m_ExcludeFrequent == rhs.m_ExcludeFrequent
-              && m_FieldName == rhs.m_FieldName
-              && m_ByFieldName == rhs.m_ByFieldName
-              && m_OverFieldName == rhs.m_OverFieldName
-              && m_PartitionFieldName == rhs.m_PartitionFieldName
-              && m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
+    return    this->hash() == rhs.hash() &&
+              m_Identifier == rhs.m_Identifier &&
+              m_Function == rhs.m_Function &&
+              m_UseNull == rhs.m_UseNull &&
+              m_ExcludeFrequent == rhs.m_ExcludeFrequent &&
+              m_FieldName == rhs.m_FieldName &&
+              m_ByFieldName == rhs.m_ByFieldName &&
+              m_OverFieldName == rhs.m_OverFieldName &&
+              m_PartitionFieldName == rhs.m_PartitionFieldName &&
+              m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
               // Compare dereferenced strings rather than pointers as there's a
               // (small) possibility that the string store will not always return
-              // the same pointer for the same string
-              && std::equal(m_InfluenceFieldNames.begin(),
-                            m_InfluenceFieldNames.end(),
-                            rhs.m_InfluenceFieldNames.begin(),
-                            core::CFunctional::SDereference<TStrEqualTo>());
+              // the same pointer for the same string &&
+              std::equal(m_InfluenceFieldNames.begin(),
+                         m_InfluenceFieldNames.end(),
+                         rhs.m_InfluenceFieldNames.begin(),
+                         core::CFunctional::SDereference<TStrEqualTo>());
 }
 
 bool CSearchKey::operator<(const CSearchKey &rhs) const {
@@ -338,10 +338,10 @@ model_t::EExcludeFrequent CSearchKey::excludeFrequent(void) const {
 }
 
 bool CSearchKey::hasField(const std::string &name) const {
-    return    *m_PartitionFieldName == name
-              || *m_OverFieldName == name
-              || *m_ByFieldName == name
-              || *m_FieldName == name;
+    return    *m_PartitionFieldName == name ||
+              *m_OverFieldName == name ||
+              *m_ByFieldName == name ||
+              *m_FieldName == name;
 }
 
 const std::string &CSearchKey::fieldName(void) const {

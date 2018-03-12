@@ -380,8 +380,8 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree &propTr
     bool result = true;
 
     for (boost::property_tree::ptree::const_iterator i = propTree.begin();
-            i != propTree.end();
-            ++i) {
+         i != propTree.end();
+         ++i) {
         const std::string &stanzaName = i->first;
         const boost::property_tree::ptree &propertyTree = i->second;
 
@@ -830,8 +830,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == MAXIMUM_UPDATES_PER_BUCKET_PROPERTY) {
             double maximumUpdatesPerBucket;
-            if (   core::CStringUtils::stringToType(propValue, maximumUpdatesPerBucket) == false
-                    || maximumUpdatesPerBucket < 0.0) {
+            if (   core::CStringUtils::stringToType(propValue, maximumUpdatesPerBucket) == false ||
+                   maximumUpdatesPerBucket < 0.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -842,8 +842,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == TOTAL_PROBABILITY_CALC_SAMPLING_SIZE_PROPERTY) {
             int totalProbabilityCalcSamplingSize;
-            if (   core::CStringUtils::stringToType(propValue, totalProbabilityCalcSamplingSize) == false
-                    || totalProbabilityCalcSamplingSize <= 0) {
+            if (   core::CStringUtils::stringToType(propValue, totalProbabilityCalcSamplingSize) == false ||
+                   totalProbabilityCalcSamplingSize <= 0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -853,9 +853,9 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == INDIVIDUAL_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (   core::CStringUtils::stringToType(propValue, fraction) == false
-                    || fraction < 0.0
-                    || fraction > 1.0) {
+            if (   core::CStringUtils::stringToType(propValue, fraction) == false ||
+                   fraction < 0.0 ||
+                   fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -869,9 +869,9 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == POPULATION_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (   core::CStringUtils::stringToType(propValue, fraction) == false
-                    || fraction < 0.0
-                    || fraction > 1.0) {
+            if (   core::CStringUtils::stringToType(propValue, fraction) == false ||
+                   fraction < 0.0 ||
+                   fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -885,9 +885,9 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == PEERS_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (   core::CStringUtils::stringToType(propValue, fraction) == false
-                    || fraction < 0.0
-                    || fraction > 1.0) {
+            if (   core::CStringUtils::stringToType(propValue, fraction) == false ||
+                   fraction < 0.0 ||
+                   fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -898,8 +898,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == COMPONENT_SIZE_PROPERTY) {
             int componentSize;
-            if (   core::CStringUtils::stringToType(propValue, componentSize) == false
-                    || componentSize < 0) {
+            if (   core::CStringUtils::stringToType(propValue, componentSize) == false ||
+                   componentSize < 0) {
                 LOG_ERROR("Invalid value of property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -977,16 +977,16 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             this->maximumAnomalousProbability(probability);
         } else if (propName == NOISE_PERCENTILE_PROPERTY) {
             double percentile;
-            if (   core::CStringUtils::stringToType(propValue, percentile) == false
-                    || this->noisePercentile(percentile) == false) {
+            if (   core::CStringUtils::stringToType(propValue, percentile) == false ||
+                   this->noisePercentile(percentile) == false) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
             }
         } else if (propName == NOISE_MULTIPLIER_PROPERTY) {
             double multiplier;
-            if (   core::CStringUtils::stringToType(propValue, multiplier) == false
-                    || this->noiseMultiplier(multiplier) == false) {
+            if (   core::CStringUtils::stringToType(propValue, multiplier) == false ||
+                   this->noiseMultiplier(multiplier) == false) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;

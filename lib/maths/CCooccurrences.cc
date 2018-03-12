@@ -382,13 +382,13 @@ CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorW
 bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {
         const std::string &name = traverser.name();
-        if (   name == LENGTH_TAG
-                && core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
+        if (   name == LENGTH_TAG &&
+               core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
             LOG_ERROR("Invalid length in " << traverser.value());
             return false;
         }
-        if (   name == OFFSET_TAG
-                && core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
+        if (   name == OFFSET_TAG &&
+               core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
             LOG_ERROR("Invalid offset in " << traverser.value());
             return false;
         }

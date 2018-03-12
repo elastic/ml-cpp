@@ -350,7 +350,7 @@ bool CDualThreadStreamBuf::swapWriteBuffer(void) {
 bool CDualThreadStreamBuf::swapReadBuffer(void) {
     // Wait until the intermediate buffer contains data
     while (!m_Eof &&
-            m_IntermediateBufferEnd == m_IntermediateBuffer.get()) {
+           m_IntermediateBufferEnd == m_IntermediateBuffer.get()) {
         m_IntermediateBufferCondition.wait();
         if (m_FatalError) {
             return false;

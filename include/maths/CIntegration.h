@@ -188,8 +188,8 @@ class MATHS_EXPORT CIntegration {
             for (unsigned int i = 0; i < ORDER; ++i) {
                 U fx;
                 V gx;
-                if (   !f(centre + range * abscissas[i], fx)
-                        || !g(centre + range * abscissas[i], gx)) {
+                if (   !f(centre + range * abscissas[i], fx) ||
+                       !g(centre + range * abscissas[i], gx)) {
                     return false;
                 }
                 double weight = weights[i];
@@ -317,8 +317,8 @@ class MATHS_EXPORT CIntegration {
             }
 
             for (std::size_t i = 0u;
-                    !intervals.empty() && i < refinements;
-                    ++i) {
+                 !intervals.empty() && i < refinements;
+                 ++i) {
                 std::size_t n = intervals.size();
                 double cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
 
@@ -514,8 +514,8 @@ class MATHS_EXPORT CIntegration {
                             TVectorVec points(n, TVector(0.0));
                             for (unsigned int i = 0u; i < n; ++i) {
                                 for (unsigned int i_ = i, j = 0u;
-                                        j < indices.size();
-                                        i_ /= indices[j], ++j) {
+                                     j < indices.size();
+                                     i_ /= indices[j], ++j) {
                                     EOrder order = static_cast<EOrder>(indices[j]);
                                     const double *w = CGaussLegendreQuadrature::weights(order);
                                     const double *a = CGaussLegendreQuadrature::abscissas(order);

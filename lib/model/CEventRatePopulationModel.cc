@@ -207,13 +207,13 @@ bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraver
                              this->params().distributionRestoreParams(maths_t::E_DiscreteData), traverser);
                          m_AttributeProbabilityPrior.swap(restored))
         RESTORE(FEATURE_MODELS_TAG,
-                i == m_FeatureModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
-                                                          &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                i == m_FeatureModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureModels::acceptRestoreTraverser,
+                                                       &m_FeatureModels[i++], boost::cref(this->params()), _1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
-                j == m_FeatureCorrelatesModels.size()
-                || traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
-                                                          &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                j == m_FeatureCorrelatesModels.size() ||
+                traverser.traverseSubLevel(boost::bind(&SFeatureCorrelateModels::acceptRestoreTraverser,
+                                                       &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -291,8 +291,8 @@ CEventRatePopulationModel::baselineBucketMean(model_t::EFeature feature,
 }
 
 bool CEventRatePopulationModel::bucketStatsAvailable(core_t::TTime time) const {
-    return    time >= m_CurrentBucketStats.s_StartTime
-              && time < m_CurrentBucketStats.s_StartTime + this->bucketLength();
+    return    time >= m_CurrentBucketStats.s_StartTime &&
+              time < m_CurrentBucketStats.s_StartTime + this->bucketLength();
 }
 
 void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
@@ -616,12 +616,12 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                 model_t::CResultType type;
                 TSize1Vec mostAnomalousCorrelate;
                 if (pConditional.emplace(cid, pConditionalTemplate)
-                        .first->second.addProbability(feature, cid, *params.s_Model,
-                                                      params.s_ElapsedTime,
-                                                      params.s_ComputeProbabilityParams,
-                                                      params.s_Time, params.s_Value,
-                                                      params.s_Probability, params.s_Tail,
-                                                      type, mostAnomalousCorrelate)) {
+                    .first->second.addProbability(feature, cid, *params.s_Model,
+                                                  params.s_ElapsedTime,
+                                                  params.s_ComputeProbabilityParams,
+                                                  params.s_Time, params.s_Value,
+                                                  params.s_Probability, params.s_Tail,
+                                                  type, mostAnomalousCorrelate)) {
                     LOG_TRACE("P(" << params.describe()
                               << ", attribute = " << gatherer.attributeName(cid)
                               << ", person = " << gatherer.personName(pid) << ") = "
@@ -972,8 +972,8 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
     for (std::size_t j = range.first; j < range.second; ++j) {
         std::size_t cids[] {cid, CDataGatherer::extractAttributeId(data[j])};
         for (const auto &correlate : model->correlates()) {
-            if (   (cids[0] == correlate[0] && cids[1] == correlate[1])
-                    || (cids[1] == correlate[0] && cids[0] == correlate[1])) {
+            if (   (cids[0] == correlate[0] && cids[1] == correlate[1]) ||
+                   (cids[1] == correlate[0] && cids[0] == correlate[1])) {
                 return true;
             }
         }

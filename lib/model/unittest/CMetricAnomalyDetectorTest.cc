@@ -330,8 +330,8 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG("Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
-            CPPUNIT_ASSERT(   doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0])
-                              || doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
+            CPPUNIT_ASSERT(   doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
+                              doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
         }
 
         if (!anomalyFactors.empty()) {
@@ -349,7 +349,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         std::size_t maxStep = 1;
         for (std::size_t j = 2; j < orderedAnomalyRates.size(); ++j) {
             if (orderedAnomalyRates[j] - orderedAnomalyRates[j - 1] >
-                    orderedAnomalyRates[maxStep] - orderedAnomalyRates[maxStep - 1]) {
+                orderedAnomalyRates[maxStep] - orderedAnomalyRates[maxStep - 1]) {
                 maxStep = j;
             }
         }

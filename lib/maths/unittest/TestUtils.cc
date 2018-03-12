@@ -251,8 +251,8 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double &result) const {
     result = 0.0;
 
     double a, b;
-    if (   !this->marginalLikelihoodQuantileForTest(0.001, eps, a)
-            || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
+    if (   !this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
+           !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR("Unable to compute mean likelihood");
         return false;
     }
@@ -290,8 +290,8 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double &result) cons
     result = 0.0;
 
     double a, b;
-    if (   !this->marginalLikelihoodQuantileForTest(0.001, eps, a)
-            || !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
+    if (   !this->marginalLikelihoodQuantileForTest(0.001, eps, a) ||
+           !this->marginalLikelihoodQuantileForTest(99.999, eps, b)) {
         LOG_ERROR("Unable to compute mean likelihood");
         return false;
     }
