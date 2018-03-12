@@ -96,12 +96,6 @@ inline TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<> &bet
     return {boost::math::mode(beta), true};
 }
 
-//! Compute \f$x^2\f$.
-inline double square(double x)
-{
-    return x * x;
-}
-
 //! \brief p.d.f function adapter.
 //!
 //! DESCRIPTION:\n
@@ -667,11 +661,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const negative_binomia
     }
     catch (const std::exception &e)
     {
-        if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
         {
             y = b1;
         }
-        else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
         {
             y = b2;
         }
@@ -731,9 +725,9 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const lognormal &logNo
         //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
         double logx = std::log(x);
-        double squareScale = square(logNormal.scale());
+        double squareScale = pow2(logNormal.scale());
         double discriminant =
-            std::sqrt(square(squareScale)
+            std::sqrt(pow2(squareScale)
                       +   (logx - logNormal.location() + 2.0 * squareScale)
                         * (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
@@ -843,11 +837,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
             }
             catch (const std::exception &e)
             {
-                if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+                if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
                 {
                     y = b1;
                 }
-                else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+                else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
                 {
                     y = b2;
                 }
@@ -991,11 +985,11 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const CLogTDistributio
     }
     catch (const std::exception &e)
     {
-        if (::fabs(f1 - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(f1 - fx) < 10.0 * EPSILON * fx)
         {
             y = b1;
         }
-        else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(f2 - fx) < 10.0 * EPSILON * fx)
         {
             y = b2;
         }
@@ -1085,7 +1079,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
             y[(i + 1) % 2] = x + m * std::log(y[i % 2] / x);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
             {
                 break;
             }
@@ -1116,7 +1110,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
             y[(i + 1) % 2] = x * ::exp(-(x - y[i % 2]) / m);
             LOG_TRACE("y = " << y[(i + 1) % 2]);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE * std::max(y[0], y[1]))
             {
                 break;
             }
@@ -1127,7 +1121,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
     double fy = safePdf(gamma_, y[i % 2]);
     LOG_TRACE("f(x) = " << fx << ", f(y) = " << fy);
 
-    if (::fabs(fx - fy) <= PDF_TOLERANCE * std::max(fx, fy))
+    if (std::fabs(fx - fy) <= PDF_TOLERANCE * std::max(fx, fy))
     {
         if (x > y[i % 2])
         {
@@ -1203,18 +1197,18 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const gamma &gamma_,
                   << ", iterations = " << maxIterations
                   << ", f(candidate) = " << safePdf(gamma_, candidate) - fx);
 
-        if (::fabs(safePdf(gamma_, candidate) - fx) < ::fabs(fy - fx))
+        if (std::fabs(safePdf(gamma_, candidate) - fx) < std::fabs(fy - fx))
         {
             y[i % 2] = candidate;
         }
     }
     catch (const std::exception &e)
     {
-        if (::fabs(fa - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(fa - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = a;
         }
-        else if (::fabs(fb - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(fb - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = b;
         }
@@ -1346,7 +1340,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         {
             y[(i + 1) % 2] = 1.0 - ::exp(k * std::log(x / y[i % 2])) * (1.0 - x);
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
             {
                 break;
             }
@@ -1387,7 +1381,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
         {
             y[(i + 1) % 2] = ::exp(k * std::log((1.0 - x) / (1.0 -  y[i % 2]))) * x;
             if (++i == MAX_ITERATIONS
-                || ::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
+                || std::fabs(y[1] - y[0]) < CONVERGENCE_TOLERANCE)
             {
                 break;
             }
@@ -1414,7 +1408,7 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
     try
     {
         double error = sp.second ? fy - fx : fx - fy;
-        if (::fabs(error) <= PDF_TOLERANCE * std::max(fx, fy))
+        if (std::fabs(error) <= PDF_TOLERANCE * std::max(fx, fy))
         {
             if (x > y[i % 2])
             {
@@ -1484,18 +1478,18 @@ double CTools::CProbabilityOfLessLikelySample::operator()(const beta &beta_,
                   << ", f(candidate) = " << safePdf(beta_, candidate) - fx
                   << ", eps = " << eps);
 
-        if (::fabs(safePdf(beta_, candidate) - fx) < ::fabs(fy - fx))
+        if (std::fabs(safePdf(beta_, candidate) - fx) < std::fabs(fy - fx))
         {
             y[i % 2] = candidate;
         }
     }
     catch (const std::exception &e)
     {
-        if (::fabs(fBracket.first - fx) < 10.0 * EPSILON * fx)
+        if (std::fabs(fBracket.first - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = bracket.first;
         }
-        else if (::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx)
+        else if (std::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx)
         {
             y[i % 2] = bracket.second;
         }
@@ -2225,7 +2219,7 @@ double CTools::differentialEntropy(const lognormal &logNormal)
     double scale = logNormal.scale();
     return 0.5 * std::log(  boost::math::double_constants::two_pi
                           * boost::math::double_constants::e
-                          * square(scale)) + location;
+                          * pow2(scale)) + location;
 }
 
 double CTools::differentialEntropy(const gamma &gamma_)
@@ -2290,6 +2284,23 @@ double CTools::CGroup::rightEndpoint(double separation) const
 const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
 
 
+//////// Miscellaneous Implementations ////////
+
+namespace
+{
+const double EPS{0.1};
+const double COEFFS[]
+    {
+        -1.0,
+        +1.0 / 2.0,
+        -1.0 / 6.0,
+        +1.0 / 24.0,
+        -1.0 / 120.0,
+        +1.0 / 720.0
+    };
+const std::size_t N{boost::size(COEFFS)};
+}
+
 double CTools::shiftLeft(double x, double eps)
 {
     if (x == NEG_INF)
@@ -2306,6 +2317,124 @@ double CTools::shiftRight(double x, double eps)
         return x;
     }
     return (x < 0.0 ? 1.0 - eps : 1.0 + eps) * x;
+}
+
+double CTools::powOneMinusX(double x, double p)
+{
+    // For large p,
+    //   (1 - x) ^ p ~= exp(-p * x).
+    //
+    // and this doesn't suffer from cancellation errors in the limit
+    // p -> inf and x -> 0. For p * x << 1 we get much better precision
+    // using the Taylor expansion:
+    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
+    //
+    // and canceling the leading terms.
+
+    if (x == 1.0)
+    {
+        return 0.0;
+    }
+    if (p == 1.0)
+    {
+        return 1.0 - x;
+    }
+
+    double y = p * x;
+    if (std::fabs(y) < EPS)
+    {
+        double remainder = 0.0;
+        double ti = 1.0;
+        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0)
+        {
+            ti *= p * x;
+            remainder += COEFFS[i] * ti;
+        }
+        return 1.0 + remainder;
+    }
+    else if (p > 1000.0)
+    {
+        return std::exp(-y);
+    }
+
+    if (x > 1.0)
+    {
+        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
+        return sign * std::exp(p * std::log(x - 1.0));
+    }
+
+    return std::exp(p * std::log(1.0 - x));
+}
+
+double CTools::oneMinusPowOneMinusX(double x, double p)
+{
+    // For large p,
+    //   (1 - x) ^ p ~= exp(-p * x).
+    //
+    // and this doesn't suffer from cancellation errors in the limit
+    // p -> inf and x -> 0. For p * x << 1 we get much better precision
+    // using the Taylor expansion:
+    //   (1 - x) ^ p = 1 - p * x + p * (p - 1) * x^2 / 2! + ...
+    //
+    // Note that this doesn't make use of powOneMinusX because we can
+    // avoid the cancellation errors by using:
+    //   1 - (1 - x) ^ p = p * x - p * (p - 1) * x^2 / 2 + ...
+    //
+    // when p * x is small.
+
+    if (x == 1.0)
+    {
+        return 1.0;
+    }
+    if (p == 1.0)
+    {
+        return x;
+    }
+
+    double y = p * x;
+    if (std::fabs(y) < EPS)
+    {
+        double result = 0.0;
+        double ti = 1.0;
+        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0)
+        {
+            ti *= p * x;
+            result -= COEFFS[i] * ti;
+        }
+        return result;
+    }
+    else if (p > 1000.0)
+    {
+        return 1.0 - std::exp(-y);
+    }
+
+    if (x > 1.0)
+    {
+        double sign = static_cast<int>(p) % 2 ? -1.0 : 1.0;
+        return 1.0 - sign * std::exp(p * std::log(x - 1.0));
+    }
+
+    return 1.0 - std::exp(p * std::log(1.0 - x));
+}
+
+double CTools::logOneMinusX(double x)
+{
+    double result = 0.0;
+
+    if (std::fabs(x) < EPS)
+    {
+        double xi = -x;
+        for (std::size_t i = 0u; i < 6; ++i, xi *= -x)
+        {
+            result += xi / static_cast<double>(i + 1);
+        }
+    }
+    else
+    {
+        result = std::log(1.0 - x);
+    }
+
+    return result;
 }
 
 }
