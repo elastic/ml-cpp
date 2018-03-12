@@ -2401,8 +2401,7 @@ const CMultivariateTimeSeriesModel::TTimeDouble2VecPrCBuf &CMultivariateTimeSeri
     return m_SlidingWindow;
 }
 
-const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const
-{
+const CMultivariateTimeSeriesModel::TDecompositionPtr10Vec &CMultivariateTimeSeriesModel::trend(void) const {
     return m_Trend;
 }
 
