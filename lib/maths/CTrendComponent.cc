@@ -342,7 +342,6 @@ void CTrendComponent::forecast(core_t::TTime startTime,
 
     endTime = startTime + CIntegerTools::ceil(endTime - startTime, step);
 
-
     core_t::TTime steps{(endTime - startTime) / step};
     result.resize(steps, TDouble3Vec(3));
 
@@ -364,6 +363,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
                               + CBasicStatistics::variance(m_Models[i].s_ResidualMoments);
         LOG_TRACE("params      = " << core::CContainerPrinter::print(models[i]));
         LOG_TRACE("covariances = " << modelCovariances[i].toDelimited())
+        LOG_TRACE("variances   = " << residualVariances[i]);
     }
     LOG_TRACE("long time variance = " << CBasicStatistics::variance(m_ValueMoments));
 
