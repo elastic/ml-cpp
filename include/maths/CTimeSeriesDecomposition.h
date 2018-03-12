@@ -24,15 +24,12 @@
 
 class CTimeSeriesDecompositionTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CPrior;
 
 //! \brief Decomposes a time series into a linear combination
@@ -59,8 +56,7 @@ class CPrior;
 //! By default this assumes the data has one day and one week
 //! periodicity, i.e. \f${ T_i } = { 86400, 604800 }\f$.
 class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface,
-                                              private CTimeSeriesDecompositionDetail
-{
+    private CTimeSeriesDecompositionDetail {
     public:
         using TSizeVec = std::vector<std::size_t>;
 

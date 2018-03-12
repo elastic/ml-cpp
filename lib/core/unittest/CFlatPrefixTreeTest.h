@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CFlatPrefixTreeTest : public CppUnit::TestFixture
-{
+class CFlatPrefixTreeTest : public CppUnit::TestFixture {
     public:
         void testBuildGivenUnsortedInput(void);
         void testBuildGivenSortedInputWithDuplicates(void);

@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CBase64FilterTest : public CppUnit::TestFixture
-{
+class CBase64FilterTest : public CppUnit::TestFixture {
     public:
         void testDecode(void);
         void testEncode(void);

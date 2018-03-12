@@ -23,10 +23,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //! will iteratively apply each regex to the string until no
 //! match can be found and it will remove all matched substrings.
 //!
-class CORE_EXPORT CRegexFilter
-{
+class CORE_EXPORT CRegexFilter {
     public:
         typedef std::vector<CRegex> TRegexVec;
         typedef std::vector<std::string> TStrVec;

@@ -30,40 +30,37 @@ const size_t CContainerThroughputTest::FILL_SIZE(2);
 const size_t CContainerThroughputTest::TEST_SIZE(10000000);
 
 
-CppUnit::Test *CContainerThroughputTest::suite()
-{
+CppUnit::Test *CContainerThroughputTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CContainerThroughputTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testVector",
-                                   &CContainerThroughputTest::testVector) );
+                               "CContainerThroughputTest::testVector",
+                               &CContainerThroughputTest::testVector) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testList",
-                                   &CContainerThroughputTest::testList) );
+                               "CContainerThroughputTest::testList",
+                               &CContainerThroughputTest::testList) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testDeque",
-                                   &CContainerThroughputTest::testDeque) );
+                               "CContainerThroughputTest::testDeque",
+                               &CContainerThroughputTest::testDeque) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testMap",
-                                   &CContainerThroughputTest::testMap) );
+                               "CContainerThroughputTest::testMap",
+                               &CContainerThroughputTest::testMap) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testCircBuf",
-                                   &CContainerThroughputTest::testCircBuf) );
+                               "CContainerThroughputTest::testCircBuf",
+                               &CContainerThroughputTest::testCircBuf) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerThroughputTest>(
-                                   "CContainerThroughputTest::testMultiIndex",
-                                   &CContainerThroughputTest::testMultiIndex) );
+                               "CContainerThroughputTest::testMultiIndex",
+                               &CContainerThroughputTest::testMultiIndex) );
 
     return suiteOfTests;
 }
 
-void CContainerThroughputTest::setUp(void)
-{
+void CContainerThroughputTest::setUp(void) {
     CPPUNIT_ASSERT(FILL_SIZE > 0);
     CPPUNIT_ASSERT(TEST_SIZE > FILL_SIZE);
 }
 
-void CContainerThroughputTest::testVector(void)
-{
+void CContainerThroughputTest::testVector(void) {
     typedef std::vector<SContent> TContentVec;
     TContentVec testVec;
     testVec.reserve(FILL_SIZE);
@@ -73,14 +70,12 @@ void CContainerThroughputTest::testVector(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testVec.push_back(SContent(count));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testVec.erase(testVec.begin());
         ++count;
         testVec.push_back(SContent(count));
@@ -97,8 +92,7 @@ void CContainerThroughputTest::testVector(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testList(void)
-{
+void CContainerThroughputTest::testList(void) {
     typedef std::list<SContent> TContentList;
     TContentList testList;
 
@@ -107,14 +101,12 @@ void CContainerThroughputTest::testList(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testList.push_back(SContent(count));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testList.pop_front();
         ++count;
         testList.push_back(SContent(count));
@@ -131,8 +123,7 @@ void CContainerThroughputTest::testList(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testDeque(void)
-{
+void CContainerThroughputTest::testDeque(void) {
     typedef std::deque<SContent> TContentDeque;
     TContentDeque testDeque;
 
@@ -141,14 +132,12 @@ void CContainerThroughputTest::testDeque(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testDeque.push_back(SContent(count));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testDeque.pop_front();
         ++count;
         testDeque.push_back(SContent(count));
@@ -165,8 +154,7 @@ void CContainerThroughputTest::testDeque(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMap(void)
-{
+void CContainerThroughputTest::testMap(void) {
     typedef std::map<size_t, SContent> TSizeContentMap;
     TSizeContentMap testMap;
 
@@ -175,14 +163,12 @@ void CContainerThroughputTest::testMap(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testMap.insert(TSizeContentMap::value_type(count, SContent(count)));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testMap.erase(testMap.begin());
         ++count;
         testMap.insert(TSizeContentMap::value_type(count, SContent(count)));
@@ -199,8 +185,7 @@ void CContainerThroughputTest::testMap(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testCircBuf(void)
-{
+void CContainerThroughputTest::testCircBuf(void) {
     typedef boost::circular_buffer<SContent> TContentCircBuf;
     TContentCircBuf testCircBuf(FILL_SIZE);
 
@@ -209,14 +194,12 @@ void CContainerThroughputTest::testCircBuf(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testCircBuf.push_back(SContent(count));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testCircBuf.pop_front();
         ++count;
         testCircBuf.push_back(SContent(count));
@@ -233,15 +216,14 @@ void CContainerThroughputTest::testCircBuf(void)
              " seconds");
 }
 
-void CContainerThroughputTest::testMultiIndex(void)
-{
+void CContainerThroughputTest::testMultiIndex(void) {
     typedef boost::multi_index::multi_index_container<
-        SContent,
-        boost::multi_index::indexed_by<
-            boost::multi_index::hashed_unique<
-                BOOST_MULTI_INDEX_MEMBER(SContent, size_t, s_Size)
-            >
-        >
+    SContent,
+    boost::multi_index::indexed_by<
+    boost::multi_index::hashed_unique<
+    BOOST_MULTI_INDEX_MEMBER(SContent, size_t, s_Size)
+    >
+    >
     > TContentMIndex;
     TContentMIndex testMultiIndex;
 
@@ -250,14 +232,12 @@ void CContainerThroughputTest::testMultiIndex(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     size_t count(0);
-    while (count < FILL_SIZE)
-    {
+    while (count < FILL_SIZE) {
         ++count;
         testMultiIndex.insert(SContent(count));
     }
 
-    while (count < TEST_SIZE)
-    {
+    while (count < TEST_SIZE) {
         testMultiIndex.erase(testMultiIndex.begin());
         ++count;
         testMultiIndex.insert(SContent(count));
@@ -277,7 +257,6 @@ void CContainerThroughputTest::testMultiIndex(void)
 CContainerThroughputTest::SContent::SContent(size_t count)
     : s_Size(count),
       s_Ptr(this),
-      s_Double(double(count))
-{
+      s_Double(double(count)) {
 }
 

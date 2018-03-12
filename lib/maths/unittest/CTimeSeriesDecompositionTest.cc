@@ -39,8 +39,7 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
@@ -51,8 +50,7 @@ using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TSeasonalComponentVec = maths_t::TSeasonalComponentVec;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-double mean(const TDoubleDoublePr &x)
-{
+double mean(const TDoubleDoublePr &x) {
     return (x.first + x.second) / 2.0;
 }
 
@@ -66,16 +64,14 @@ const core_t::TTime YEAR      = core::constants::YEAR;
 
 }
 
-void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
-{
+void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void) {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSuperpositionOfSines  |");
     LOG_DEBUG("+----------------------------------------------------------+");
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK + 1; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 100 * WEEK + 1; time += HALF_HOUR) {
         double weekly = 1200.0 + 1000.0 * ::sin(boost::math::double_constants::two_pi
                                                 * static_cast<double>(time)
                                                 / static_cast<double>(WEEK));
@@ -108,15 +104,13 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
     //TDoubleVec f;
     //TDoubleVec r;
 
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
         decomposition.addPoint(time, value);
 
-        if (time >= lastWeek + WEEK)
-        {
+        if (time >= lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -125,8 +119,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR)
-            {
+            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
                 double residual = ::fabs(trend[t / HALF_HOUR] - mean(baseline));
                 sumResidual += residual;
@@ -143,8 +136,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= 2 * WEEK)
-            {
+            if (time >= 2 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.04 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.04 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.02 * sumValue);
@@ -173,8 +165,7 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
-{
+void CTimeSeriesDecompositionTest::testDistortedPeriodic(void) {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDistortedPeriodic  |");
     LOG_DEBUG("+-------------------------------------------------------+");
@@ -182,80 +173,80 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
     const core_t::TTime bucketLength = HOUR;
     const core_t::TTime startTime = 0;
     const TDoubleVec timeseries{
-            323444,  960510,  880176,  844190,  823993,  814251,  857187,  856791,  862060,  919632,
-            1083704, 2904437, 4601750, 5447896, 5827498, 5924161, 5851895, 5768661, 5927840, 5326236,
-            4037245, 1958521, 1360753, 1005194, 901930,  856605,  838370,  810396,  776815,  751163,
-            793055,  823974,  820458,  840647,  878594,  1192154, 2321550, 2646460, 2760957, 2838611,
-            2784696, 2798327, 2643123, 2028970, 1331199, 1098105, 930971,  907562,  903603,  873554,
-            879375,  852853,  828554,  819726,  872418,  856365,  860880,  867119,  873912,  885405,
-            1053530, 1487664, 1555301, 1637137, 1672030, 1659346, 1514673, 1228543, 1011740, 928749,
-            809702,  838931,  847904,  829188,  822558,  798517,  767446,  750486,  783165,  815612,
-            825365,  873486,  1165250, 2977382, 4868975, 6050263, 6470794, 6271899, 6449326, 6352992,
-            6162712, 6257295, 4570133, 1781374, 1182546, 665858,  522585,  481588,  395139,  380770,
-            379182,  356068,  353498,  347707,  350931,  417253,  989129,  2884728, 4640841, 5423474,
-            6246182, 6432793, 6338419, 6312346, 6294323, 6102676, 4505021, 2168289, 1411233, 1055797,
-            954338,  918498,  904236,  870193,  843259,  682538,  895407,  883550,  897026,  918838,
-            1262303, 3208919, 5193013, 5787263, 6255837, 6337684, 6335017, 6278740, 6191046, 6183259,
-            4455055, 2004058, 1425910, 1069949, 942839,  899157,  895133,  858268,  837338,  820983,
-            870863,  871873,  881182,  918795,  1237336, 3069272, 4708229, 5672066, 6291124, 6407806,
-            6479889, 6533138, 3473382, 6534838, 4800911, 2668073, 1644350, 1282450, 1131734, 1009042,
-            891099,  857339,  842849,  816513,  879200,  848292,  858014,  906642,  1208147, 2964568,
-            5215885, 5777105, 6332104, 6130733, 6284960, 6157055, 6165520, 5771121, 4309930, 2150044,
-            1475275, 1065030, 967267,  890413,  887174,  835741,  814749,  817443,  853085,  851040,
-            866029,  867612,  917833,  1225383, 2326451, 2837337, 2975288, 3034415, 3056379, 3181951,
-            2938511, 2400202, 1444952, 1058781, 845703,  810419,  805781,  789438,  799674,  775703,
-            756145,  727587,  756489,  789886,  784948,  788247,  802013,  832272,  845033,  873396,
-            1018788, 1013089, 1095001, 1022910, 798183,  519186,  320507,  247320,  139372,  129477,
-            145576,  122348,  120286,  89370,   95583,   88985,   89009,   97425,   103628,  153229,
-            675828,  2807240, 4652249, 5170466, 5642965, 5608709, 5697374, 5546758, 5368913, 5161602,
-            3793675, 1375703, 593920,  340764,  197075,  174981,  158274,  130148,  125235,  122526,
-            113896,  116249,  126881,  213814,  816723,  2690434, 4827493, 5723621, 6219650, 6492638,
-            6570160, 6493706, 6495303, 6301872, 4300612, 1543551, 785562,  390012,  234939,  202190,
-            142855,  135218,  124238,  111981,  104807,  107687,  129438,  190294,  779698,  2864053,
-            5079395, 5912629, 6481437, 6284107, 6451007, 6177724, 5993932, 6075918, 4140658, 1481179,
-            682711,  328387,  233915,  182721,  170860,  139540,  137613,  121669,  116906,  121780,
-            127887,  199762,  783099,  2890355, 4658524, 5535842, 6117719, 6322938, 6570422, 6396874,
-            6586615, 6332100, 4715160, 2604366, 1525620, 906137,  499019,  358856,  225543,  171388,
-            153826,  149910,  141092,  136459,  161202,  240704,  766755,  3011958, 5024254, 5901640,
-            6244757, 6257553, 6380236, 6394732, 6385424, 5876960, 4182127, 1868461, 883771,  377159,
-            264435,  196674,  181845,  138307,  136055,  133143,  129791,  133694,  127502,  136351,
-            212305,  777873,  2219051, 2732315, 2965287, 2895288, 2829988, 2818268, 2513817, 1866217,
-            985099,  561287,  205195,  173997,  166428,  165294,  130072,  113917,  113282,  112466,
-            103406,  115687,  159863,  158310,  225454,  516925,  1268760, 1523357, 1607510, 1560200,
-            1483823, 1401526, 999236,  495292,  299905,  286900,  209697,  169881,  157560,  139030,
-            132342,  187941,  126162,  106587,  108759,  109495,  116386,  208504,  676794,  1549362,
-            2080332, 2488707, 2699237, 2862970, 2602994, 2554047, 2364456, 1997686, 1192434, 891293,
-            697769,  391385,  234311,  231839,  160520,  155870,  142220,  139360,  142885,  141589,
-            166792,  443202,  2019645, 4558828, 5982111, 6408009, 6514598, 6567566, 6686935, 6532886,
-            6473927, 5475257, 2889913, 1524673, 938262,  557410,  325965,  186484,  174831,  211765,
-            145477,  148318,  130425,  136431,  182002,  442272,  2078908, 4628945, 5767034, 6212302,
-            6566196, 6527687, 6365204, 6226173, 6401203, 5629733, 3004625, 1555528, 1025549, 492910,
-            347948,  298725,  272955,  238279,  209290,  188551,  175447,  173960,  190875,  468340,
-            1885268, 4133457, 5350137, 5885807, 6331254, 6420279, 6589448, 6483637, 6557769, 5543938,
-            3482732, 2010293, 1278681, 735111,  406042,  283694,  181213,  160207,  136347,  113484,
-            118521,  127725,  151408,  396552,  1900747, 4400918, 5546984, 6213423, 6464686, 6442904,
-            6385002, 6248314, 5880523, 4816342, 2597450, 1374071, 751391,  362615,  215644,  175158,
-            116896,  127935,  110407,  113054,  105841,  113717,  177240,  206515,  616005,  1718878,
-            2391747, 2450915, 2653897, 2922320, 2808467, 2490078, 1829760, 1219997, 643936,  400743,
-            208976,  119623,  110170,  99338,   93661,   100187,  90803,   83980,   75950,   78805,
-            95664,   108467,  128293,  294080,  720811,  965705,  1048021, 1125912, 1194746, 1114704,
-            799721,  512542,  353694,  291046,  229723,  206109,  183482,  192225,  191906,  176942,
-            148163,  145405,  145728,  159016,  181991,  436297,  1983374, 4688246, 5853284, 6243628,
-            6730707, 6660743, 6476024, 6422004, 6335113, 5386230, 2761698, 1230646, 763506,  359071,
-            223956,  189020,  158090,  145730,  135338,  114941,  108313,  120023,  167161,  440103,
-            1781778, 4428615, 5701824, 6296598, 6541586, 6809286, 6716690, 6488941, 6567385, 5633685,
-            2760255, 1316495, 732572,  316496,  225013,  202664,  171295,  143195,  123555,  125327,
-            123357,  135419,  194933,  428197,  2181096, 4672692, 5854393, 6553263, 6653127, 6772664,
-            6899086, 6794041, 6900871, 6087645, 2814928, 1393906, 894417,  413459,  280839,  237468,
-            184947,  214658,  180059,  145215,  134793,  133423,  191388,  417885,  2081899, 4836758,
-            5803495, 6451696, 7270708, 7628500, 7208066, 7403079, 7548585, 6323024, 3763029, 2197174,
-            1359687, 857604,  471729,  338888,  177156,  150619,  145775,  132845,  110888,  121863,
-            141321,  440528,  2020529, 4615833, 5772372, 6318037, 6481658, 6454979, 6489447, 6558612,
-            6114653, 5009113, 2541519, 1329520, 663124,  311088,  200332,  141768,  120845,  120603,
-            114688,  111340,  95757,   91444,   103287,  130905,  551108,  1988083, 2885196, 2962413,
-            3070689, 3061746, 2999362, 2993871, 2287683, 1539262, 763592,  393769,  193094,  126535,
-            131721,  125761,  105550,  89077,   90295,   93853,   84496,   77731,   89389,   101269,
-            153379,  443022,  1114121, 1556021, 1607693, 1589743, 1746231, 1432261, 1022052};
+        323444,  960510,  880176,  844190,  823993,  814251,  857187,  856791,  862060,  919632,
+        1083704, 2904437, 4601750, 5447896, 5827498, 5924161, 5851895, 5768661, 5927840, 5326236,
+        4037245, 1958521, 1360753, 1005194, 901930,  856605,  838370,  810396,  776815,  751163,
+        793055,  823974,  820458,  840647,  878594,  1192154, 2321550, 2646460, 2760957, 2838611,
+        2784696, 2798327, 2643123, 2028970, 1331199, 1098105, 930971,  907562,  903603,  873554,
+        879375,  852853,  828554,  819726,  872418,  856365,  860880,  867119,  873912,  885405,
+        1053530, 1487664, 1555301, 1637137, 1672030, 1659346, 1514673, 1228543, 1011740, 928749,
+        809702,  838931,  847904,  829188,  822558,  798517,  767446,  750486,  783165,  815612,
+        825365,  873486,  1165250, 2977382, 4868975, 6050263, 6470794, 6271899, 6449326, 6352992,
+        6162712, 6257295, 4570133, 1781374, 1182546, 665858,  522585,  481588,  395139,  380770,
+        379182,  356068,  353498,  347707,  350931,  417253,  989129,  2884728, 4640841, 5423474,
+        6246182, 6432793, 6338419, 6312346, 6294323, 6102676, 4505021, 2168289, 1411233, 1055797,
+        954338,  918498,  904236,  870193,  843259,  682538,  895407,  883550,  897026,  918838,
+        1262303, 3208919, 5193013, 5787263, 6255837, 6337684, 6335017, 6278740, 6191046, 6183259,
+        4455055, 2004058, 1425910, 1069949, 942839,  899157,  895133,  858268,  837338,  820983,
+        870863,  871873,  881182,  918795,  1237336, 3069272, 4708229, 5672066, 6291124, 6407806,
+        6479889, 6533138, 3473382, 6534838, 4800911, 2668073, 1644350, 1282450, 1131734, 1009042,
+        891099,  857339,  842849,  816513,  879200,  848292,  858014,  906642,  1208147, 2964568,
+        5215885, 5777105, 6332104, 6130733, 6284960, 6157055, 6165520, 5771121, 4309930, 2150044,
+        1475275, 1065030, 967267,  890413,  887174,  835741,  814749,  817443,  853085,  851040,
+        866029,  867612,  917833,  1225383, 2326451, 2837337, 2975288, 3034415, 3056379, 3181951,
+        2938511, 2400202, 1444952, 1058781, 845703,  810419,  805781,  789438,  799674,  775703,
+        756145,  727587,  756489,  789886,  784948,  788247,  802013,  832272,  845033,  873396,
+        1018788, 1013089, 1095001, 1022910, 798183,  519186,  320507,  247320,  139372,  129477,
+        145576,  122348,  120286,  89370,   95583,   88985,   89009,   97425,   103628,  153229,
+        675828,  2807240, 4652249, 5170466, 5642965, 5608709, 5697374, 5546758, 5368913, 5161602,
+        3793675, 1375703, 593920,  340764,  197075,  174981,  158274,  130148,  125235,  122526,
+        113896,  116249,  126881,  213814,  816723,  2690434, 4827493, 5723621, 6219650, 6492638,
+        6570160, 6493706, 6495303, 6301872, 4300612, 1543551, 785562,  390012,  234939,  202190,
+        142855,  135218,  124238,  111981,  104807,  107687,  129438,  190294,  779698,  2864053,
+        5079395, 5912629, 6481437, 6284107, 6451007, 6177724, 5993932, 6075918, 4140658, 1481179,
+        682711,  328387,  233915,  182721,  170860,  139540,  137613,  121669,  116906,  121780,
+        127887,  199762,  783099,  2890355, 4658524, 5535842, 6117719, 6322938, 6570422, 6396874,
+        6586615, 6332100, 4715160, 2604366, 1525620, 906137,  499019,  358856,  225543,  171388,
+        153826,  149910,  141092,  136459,  161202,  240704,  766755,  3011958, 5024254, 5901640,
+        6244757, 6257553, 6380236, 6394732, 6385424, 5876960, 4182127, 1868461, 883771,  377159,
+        264435,  196674,  181845,  138307,  136055,  133143,  129791,  133694,  127502,  136351,
+        212305,  777873,  2219051, 2732315, 2965287, 2895288, 2829988, 2818268, 2513817, 1866217,
+        985099,  561287,  205195,  173997,  166428,  165294,  130072,  113917,  113282,  112466,
+        103406,  115687,  159863,  158310,  225454,  516925,  1268760, 1523357, 1607510, 1560200,
+        1483823, 1401526, 999236,  495292,  299905,  286900,  209697,  169881,  157560,  139030,
+        132342,  187941,  126162,  106587,  108759,  109495,  116386,  208504,  676794,  1549362,
+        2080332, 2488707, 2699237, 2862970, 2602994, 2554047, 2364456, 1997686, 1192434, 891293,
+        697769,  391385,  234311,  231839,  160520,  155870,  142220,  139360,  142885,  141589,
+        166792,  443202,  2019645, 4558828, 5982111, 6408009, 6514598, 6567566, 6686935, 6532886,
+        6473927, 5475257, 2889913, 1524673, 938262,  557410,  325965,  186484,  174831,  211765,
+        145477,  148318,  130425,  136431,  182002,  442272,  2078908, 4628945, 5767034, 6212302,
+        6566196, 6527687, 6365204, 6226173, 6401203, 5629733, 3004625, 1555528, 1025549, 492910,
+        347948,  298725,  272955,  238279,  209290,  188551,  175447,  173960,  190875,  468340,
+        1885268, 4133457, 5350137, 5885807, 6331254, 6420279, 6589448, 6483637, 6557769, 5543938,
+        3482732, 2010293, 1278681, 735111,  406042,  283694,  181213,  160207,  136347,  113484,
+        118521,  127725,  151408,  396552,  1900747, 4400918, 5546984, 6213423, 6464686, 6442904,
+        6385002, 6248314, 5880523, 4816342, 2597450, 1374071, 751391,  362615,  215644,  175158,
+        116896,  127935,  110407,  113054,  105841,  113717,  177240,  206515,  616005,  1718878,
+        2391747, 2450915, 2653897, 2922320, 2808467, 2490078, 1829760, 1219997, 643936,  400743,
+        208976,  119623,  110170,  99338,   93661,   100187,  90803,   83980,   75950,   78805,
+        95664,   108467,  128293,  294080,  720811,  965705,  1048021, 1125912, 1194746, 1114704,
+        799721,  512542,  353694,  291046,  229723,  206109,  183482,  192225,  191906,  176942,
+        148163,  145405,  145728,  159016,  181991,  436297,  1983374, 4688246, 5853284, 6243628,
+        6730707, 6660743, 6476024, 6422004, 6335113, 5386230, 2761698, 1230646, 763506,  359071,
+        223956,  189020,  158090,  145730,  135338,  114941,  108313,  120023,  167161,  440103,
+        1781778, 4428615, 5701824, 6296598, 6541586, 6809286, 6716690, 6488941, 6567385, 5633685,
+        2760255, 1316495, 732572,  316496,  225013,  202664,  171295,  143195,  123555,  125327,
+        123357,  135419,  194933,  428197,  2181096, 4672692, 5854393, 6553263, 6653127, 6772664,
+        6899086, 6794041, 6900871, 6087645, 2814928, 1393906, 894417,  413459,  280839,  237468,
+        184947,  214658,  180059,  145215,  134793,  133423,  191388,  417885,  2081899, 4836758,
+        5803495, 6451696, 7270708, 7628500, 7208066, 7403079, 7548585, 6323024, 3763029, 2197174,
+        1359687, 857604,  471729,  338888,  177156,  150619,  145775,  132845,  110888,  121863,
+        141321,  440528,  2020529, 4615833, 5772372, 6318037, 6481658, 6454979, 6489447, 6558612,
+        6114653, 5009113, 2541519, 1329520, 663124,  311088,  200332,  141768,  120845,  120603,
+        114688,  111340,  95757,   91444,   103287,  130905,  551108,  1988083, 2885196, 2962413,
+        3070689, 3061746, 2999362, 2993871, 2287683, 1539262, 763592,  393769,  193094,  126535,
+        131721,  125761,  105550,  89077,   90295,   93853,   84496,   77731,   89389,   101269,
+        153379,  443022,  1114121, 1556021, 1607693, 1589743, 1746231, 1432261, 1022052};
 
     core_t::TTime time = startTime;
     core_t::TTime lastWeek = startTime;
@@ -271,12 +262,10 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
     double totalMaxValue = 0.0;
     double totalPercentileError = 0.0;
 
-    for (std::size_t i = 0u; i < timeseries.size(); ++i, time += bucketLength)
-    {
+    for (std::size_t i = 0u; i < timeseries.size(); ++i, time += bucketLength) {
         decomposition.addPoint(time, timeseries[i]);
 
-        if (time >= lastWeek + WEEK || i == boost::size(timeseries) - 1)
-        {
+        if (time >= lastWeek + WEEK || i == boost::size(timeseries) - 1) {
             LOG_DEBUG("Processing week");
 
             //TDoubleVec t;
@@ -292,8 +281,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
             for (core_t::TTime tt = lastWeek;
                  tt < lastWeek + WEEK &&
                  static_cast<std::size_t>(tt / HOUR) < boost::size(timeseries);
-                 tt += HOUR)
-            {
+                 tt += HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(tt, 70.0);
 
                 double residual = ::fabs(timeseries[tt / HOUR] - mean(baseline));
@@ -313,8 +301,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= 2 * WEEK)
-            {
+            if (time >= 2 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.30 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.56 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.21 * sumValue);
@@ -345,8 +332,7 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
-{
+void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void) {
     LOG_DEBUG("+------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testMinimizeLongComponents  |");
     LOG_DEBUG("+------------------------------------------------------------+");
@@ -355,8 +341,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
         double weight = weights[(time / DAY) % 7];
         double daily = 100.0 * ::sin(boost::math::double_constants::two_pi
                                      * static_cast<double>(time)
@@ -389,15 +374,13 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
     double refinements = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
         decomposition.addPoint(time, value);
 
-        if (time >= lastWeek + WEEK)
-        {
+        if (time >= lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -406,8 +389,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR)
-            {
+            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
 
                 double residual = ::fabs(trend[t / HALF_HOUR] - mean(baseline));
@@ -426,8 +408,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= 2 * WEEK)
-            {
+            if (time >= 2 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.16 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.35 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.05 * sumValue);
@@ -438,10 +419,8 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
                 totalMaxValue += maxValue;
                 totalPercentileError += percentileError;
 
-                for (const auto &component : decomposition.seasonalComponents())
-                {
-                    if (component.initialized() && component.time().period() == WEEK)
-                    {
+                for (const auto &component : decomposition.seasonalComponents()) {
+                    if (component.initialized() && component.time().period() == WEEK) {
                         double slope = component.valueSpline().absSlope();
                         meanSlope += slope;
                         LOG_DEBUG("weekly |slope| = " << slope);
@@ -474,8 +453,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
     CPPUNIT_ASSERT(meanSlope < 0.0015);
 }
 
-void CTimeSeriesDecompositionTest::testWeekend(void)
-{
+void CTimeSeriesDecompositionTest::testWeekend(void) {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testWeekend  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -484,8 +462,7 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
         double weight = weights[(time / DAY) % 7];
         double daily = 100.0 * ::sin(boost::math::double_constants::two_pi
                                      * static_cast<double>(time)
@@ -516,15 +493,13 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
     double totalPercentileError = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
         decomposition.addPoint(time, value);
 
-        if (time >= lastWeek + WEEK)
-        {
+        if (time >= lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -533,8 +508,7 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR)
-            {
+            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
 
                 double residual = ::fabs(trend[t / HALF_HOUR] - mean(baseline));
@@ -553,8 +527,7 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= 3 * WEEK)
-            {
+            if (time >= 3 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.07 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.15 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.03 * sumValue);
@@ -584,16 +557,14 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.012 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
-{
+void CTimeSeriesDecompositionTest::testSinglePeriodicity(void) {
     LOG_DEBUG("+-------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSinglePeriodicity  |");
     LOG_DEBUG("+-------------------------------------------------------+");
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
         double daily = 100.0 + 100.0 * ::sin(boost::math::double_constants::two_pi
                                              * static_cast<double>(time)
                                              / static_cast<double>(DAY));
@@ -625,15 +596,13 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
     double totalPercentileError = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
         decomposition.addPoint(time, value);
 
-        if (time >= lastWeek + WEEK)
-        {
+        if (time >= lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -644,8 +613,7 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
 
             for (core_t::TTime t = lastWeek;
                  t < lastWeek + WEEK;
-                 t += HALF_HOUR)
-            {
+                 t += HALF_HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
 
                 double residual = ::fabs(trend[t / HALF_HOUR] + noiseMean - mean(baseline));
@@ -664,8 +632,7 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= 1 * WEEK)
-            {
+            if (time >= 1 * WEEK) {
                 CPPUNIT_ASSERT(sumResidual < 0.06 * sumValue);
                 CPPUNIT_ASSERT(maxResidual < 0.08 * maxValue);
                 CPPUNIT_ASSERT(percentileError < 0.02 * sumValue);
@@ -706,31 +673,26 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
     //file << "plot(t(1:length(r)), r, 'k');\n";
 }
 
-void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
-{
+void CTimeSeriesDecompositionTest::testSeasonalOnset(void) {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSeasonalOnset  |");
     LOG_DEBUG("+---------------------------------------------------+");
 
-    const double daily[] =
-        {
-             0.0,  0.0,  0.0,  0.0,  5.0,  5.0,
-             5.0, 40.0, 40.0, 40.0, 30.0, 30.0,
-            35.0, 35.0, 40.0, 50.0, 60.0, 80.0,
-            80.0, 10.0,  5.0,  0.0,  0.0,  0.0
-        };
-    const double weekly[] =
-        {
-             0.1, 0.1, 1.2, 1.0, 1.0, 0.9, 1.5
-        };
+    const double daily[] = {
+        0.0,  0.0,  0.0,  0.0,  5.0,  5.0,
+        5.0, 40.0, 40.0, 40.0, 30.0, 30.0,
+        35.0, 35.0, 40.0, 50.0, 60.0, 80.0,
+        80.0, 10.0,  5.0,  0.0,  0.0,  0.0
+    };
+    const double weekly[] = {
+        0.1, 0.1, 1.2, 1.0, 1.0, 0.9, 1.5
+    };
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 150 * WEEK + 1; time += HOUR)
-    {
+    for (core_t::TTime time = 0; time < 150 * WEEK + 1; time += HOUR) {
         double baseline = 0.0;
-        if (time > 10 * WEEK)
-        {
+        if (time > 10 * WEEK) {
             baseline += daily[(time % DAY) / HOUR];
             baseline *= weekly[(time % WEEK) / DAY];
         }
@@ -760,15 +722,13 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
     double totalPercentileError = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
         decomposition.addPoint(time, value);
 
-        if (time >= lastWeek + WEEK)
-        {
+        if (time >= lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -776,8 +736,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
             double sumValue = 0.0;
             double maxValue = 0.0;
             double percentileError = 0.0;
-            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HOUR)
-            {
+            for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HOUR) {
                 TDoubleDoublePr baseline = decomposition.baseline(t, 70.0);
 
                 double residual = ::fabs(trend[t / HOUR] - mean(baseline));
@@ -804,22 +763,17 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
             totalPercentileError += percentileError;
 
             const TSeasonalComponentVec &components = decomposition.seasonalComponents();
-            if (time > 11 * WEEK)
-            {
+            if (time > 11 * WEEK) {
                 // Check that both components have been initialized.
                 CPPUNIT_ASSERT(components.size() > 2);
                 CPPUNIT_ASSERT(components[0].initialized());
                 CPPUNIT_ASSERT(components[1].initialized());
                 CPPUNIT_ASSERT(components[2].initialized());
-            }
-            else if (time > 10 * WEEK)
-            {
+            } else if (time > 10 * WEEK) {
                 // Check that both components have been initialized.
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), components.size());
                 CPPUNIT_ASSERT(components[0].initialized());
-            }
-            else
-            {
+            } else {
                 // Check that neither component has been initialized.
                 CPPUNIT_ASSERT(components.empty());
             }
@@ -840,8 +794,7 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 }
 
-void CTimeSeriesDecompositionTest::testVarianceScale(void)
-{
+void CTimeSeriesDecompositionTest::testVarianceScale(void) {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testVarianceScale  |");
     LOG_DEBUG("+---------------------------------------------------+");
@@ -855,14 +808,11 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
         core_t::TTime time = 0;
         maths::CTimeSeriesDecomposition decomposition(0.01, TEN_MINS);
 
-        for (std::size_t i = 0u; i < 50; ++i)
-        {
-            for (core_t::TTime t = 0; t < DAY; t += TEN_MINS)
-            {
+        for (std::size_t i = 0u; i < 50; ++i) {
+            for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
                 double baseline = 1.0;
                 double variance = 1.0;
-                if (t >= 3600 && t < 7200)
-                {
+                if (t >= 3600 && t < 7200) {
                     baseline = 5.0;
                     variance = 10.0;
                 }
@@ -878,11 +828,9 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
         TMeanAccumulator error;
         TMeanAccumulator percentileError;
         TMeanAccumulator meanScale;
-        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS)
-        {
+        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
             double variance = 1.0;
-            if (t >= 3600 && t < 7200)
-            {
+            if (t >= 3600 && t < 7200) {
                 variance = 10.0;
             }
             double expectedScale = variance / meanVariance;
@@ -894,7 +842,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
             error.add(::fabs(scale - expectedScale));
             meanScale.add(scale);
             percentileError.add(std::max(std::max(interval.first - expectedScale,
-                                         expectedScale - interval.second), 0.0));
+                                                  expectedScale - interval.second), 0.0));
         }
 
         LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(error));
@@ -909,16 +857,13 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
         core_t::TTime time = 0;
         maths::CTimeSeriesDecomposition decomposition(0.01, TEN_MINS);
 
-        for (std::size_t i = 0u; i < 50; ++i)
-        {
-            for (core_t::TTime t = 0; t < DAY; t += TEN_MINS)
-            {
+        for (std::size_t i = 0u; i < 50; ++i) {
+            for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
                 double baseline = 5.0 * ::sin(boost::math::double_constants::two_pi
                                               * static_cast<double>(t)
                                               / static_cast<double>(DAY));
                 double variance = 1.0;
-                if (t >= 3600 && t < 7200)
-                {
+                if (t >= 3600 && t < 7200) {
                     variance = 10.0;
                 }
                 TDoubleVec value;
@@ -933,11 +878,9 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
         TMeanAccumulator error;
         TMeanAccumulator percentileError;
         TMeanAccumulator meanScale;
-        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS)
-        {
+        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
             double variance = 1.0;
-            if (t >= 3600 && t < 7200)
-            {
+            if (t >= 3600 && t < 7200) {
                 variance = 10.0;
             }
             double expectedScale = variance / meanVariance;
@@ -949,7 +892,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
             error.add(::fabs(scale - expectedScale));
             meanScale.add(scale);
             percentileError.add(std::max(std::max(interval.first - expectedScale,
-                                         expectedScale - interval.second), 0.0));
+                                                  expectedScale - interval.second), 0.0));
         }
 
         LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(error));
@@ -965,30 +908,27 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
 
         TTimeVec times;
         TDoubleVec trend;
-        for (core_t::TTime time = 0; time < length; time += HALF_HOUR)
-        {
+        for (core_t::TTime time = 0; time < length; time += HALF_HOUR) {
             times.push_back(time);
             double x = static_cast<double>(time);
             trend.push_back(150.0 + 100.0 * ::sin(  boost::math::double_constants::two_pi * x
-                                                  / static_cast<double>(240 * DAY)
-                                                  / (1.0 - x / static_cast<double>(2 * length)))
-                                  +  10.0 * ::sin(  boost::math::double_constants::two_pi * x
-                                                  / static_cast<double>(DAY)));
+                                                    / static_cast<double>(240 * DAY)
+                                                    / (1.0 - x / static_cast<double>(2 * length)))
+                            +  10.0 * ::sin(  boost::math::double_constants::two_pi * x
+                                              / static_cast<double>(DAY)));
         }
 
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, 4.0, times.size(), noise);
 
         maths::CTimeSeriesDecomposition decomposition(0.024, HALF_HOUR);
-        for (std::size_t i = 0u; i < times.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
         }
 
         TMeanAccumulator meanScale;
         double meanVariance = decomposition.meanVariance();
-        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS)
-        {
+        for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
             TDoubleDoublePr interval = decomposition.scale(times.back() + t, meanVariance, 70.0);
             LOG_DEBUG("time = " << t
                       << ", scale = " << core::CContainerPrinter::print(interval));
@@ -1001,8 +941,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
-{
+void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void) {
     LOG_DEBUG("+-----------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSpikeyDataProblemCase  |");
     LOG_DEBUG("+-----------------------------------------------------------+");
@@ -1029,17 +968,15 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
 
     maths::CTimeSeriesDecomposition decomposition(0.01, FIVE_MINS);
     maths::CNormalMeanPrecConjugate model =
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.01);
+        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.01);
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
-        if (time > lastWeek + WEEK)
-        {
+        if (time > lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -1048,8 +985,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j) {
                 TDoubleDoublePr baseline = decomposition.baseline(lastWeekTimeseries[j].first, 70.0);
 
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(baseline));
@@ -1067,8 +1003,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= startTime + WEEK)
-            {
+            if (time >= startTime + WEEK) {
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
                 totalSumValue += sumValue;
@@ -1079,13 +1014,11 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
             lastWeekTimeseries.clear();
             lastWeek += WEEK;
         }
-        if (time > lastWeek)
-        {
+        if (time > lastWeek) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        if (decomposition.addPoint(time, value))
-        {
+        if (decomposition.addPoint(time, value)) {
             model.setToNonInformative(0.0, 0.01);
         }
         model.addSamples(maths_t::TWeightStyleVec{maths_t::E_SampleCountWeight},
@@ -1111,8 +1044,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
 
     double pMinScaled = 1.0;
     double pMinUnscaled = 1.0;
-    for (std::size_t i = 0u; timeseries[i].first < startTime + DAY; ++i)
-    {
+    for (std::size_t i = 0u; timeseries[i].first < startTime + DAY; ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
         double variance = model.marginalLikelihoodVariance();
@@ -1120,11 +1052,11 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
         double lb, ub;
         maths_t::ETail tail;
         model.probabilityOfLessLikelySamples(
-                      maths_t::E_TwoSided,
-                      maths_t::TWeightStyleVec{maths_t::E_SampleSeasonalVarianceScaleWeight},
-                      TDoubleVec{decomposition.detrend(time, value, 70.0)},
-                      TDoubleVecVec{TDoubleVec{std::max(decomposition.scale(time, variance, 70.0).second, 0.25)}},
-                      lb, ub, tail);
+            maths_t::E_TwoSided,
+            maths_t::TWeightStyleVec{maths_t::E_SampleSeasonalVarianceScaleWeight},
+            TDoubleVec{decomposition.detrend(time, value, 70.0)},
+            TDoubleVecVec{TDoubleVec{std::max(decomposition.scale(time, variance, 70.0).second, 0.25)}},
+            lb, ub, tail);
         double pScaled = (lb + ub) / 2.0;
         pMinScaled = std::min(pMinScaled, pScaled);
 
@@ -1135,11 +1067,11 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
         //probs.push_back(-::log(pScaled));
 
         model.probabilityOfLessLikelySamples(
-                      maths_t::E_TwoSided,
-                      maths_t::TWeightStyleVec(1, maths_t::E_SampleSeasonalVarianceScaleWeight),
-                      TDoubleVec(1, decomposition.detrend(time, value, 70.0)),
-                      TDoubleVecVec(1, TDoubleVec(1, 1.0)),
-                      lb, ub, tail);
+            maths_t::E_TwoSided,
+            maths_t::TWeightStyleVec(1, maths_t::E_SampleSeasonalVarianceScaleWeight),
+            TDoubleVec(1, decomposition.detrend(time, value, 70.0)),
+            TDoubleVecVec(1, TDoubleVec(1, 1.0)),
+            lb, ub, tail);
         double pUnscaled = (lb + ub) / 2.0;
         pMinUnscaled = std::min(pMinUnscaled, pUnscaled);
     }
@@ -1159,8 +1091,7 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
     CPPUNIT_ASSERT(pMinScaled > 1e11 * pMinUnscaled);
 }
 
-void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
-{
+void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void) {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDiurnalProblemCase  |");
     LOG_DEBUG("+--------------------------------------------------------+");
@@ -1196,13 +1127,11 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
-        if (time > lastWeek + WEEK)
-        {
+        if (time > lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -1211,8 +1140,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j) {
                 TDoubleDoublePr baseline = decomposition.baseline(lastWeekTimeseries[j].first, 70.0);
 
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(baseline));
@@ -1233,8 +1161,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
             LOG_DEBUG("'max residual' / 'max value' = " << maxResidual / maxValue);
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= startTime + 2 * WEEK)
-            {
+            if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
                 totalSumValue += sumValue;
@@ -1245,8 +1172,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
             lastWeekTimeseries.clear();
             lastWeek += WEEK;
         }
-        if (time > lastWeek)
-        {
+        if (time > lastWeek) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
@@ -1275,8 +1201,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();
     core_t::TTime time = maths::CIntegerTools::floor(endTime, DAY);
-    for (core_t::TTime t = time; t < time + WEEK; t += TEN_MINS)
-    {
+    for (core_t::TTime t = time; t < time + WEEK; t += TEN_MINS) {
         scale.add(mean(decomposition.scale(t, variance, 70.0)));
     }
 
@@ -1284,8 +1209,7 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(scale), 0.07);
 }
 
-void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
-{
+void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void) {
     LOG_DEBUG("+---------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase  |");
     LOG_DEBUG("+---------------------------------------------------------------+");
@@ -1322,13 +1246,11 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
-        if (time > lastWeek + WEEK)
-        {
+        if (time > lastWeek + WEEK) {
             LOG_DEBUG("Processing week");
 
             double sumResidual = 0.0;
@@ -1337,8 +1259,7 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j) {
                 TDoubleDoublePr baseline = decomposition.baseline(lastWeekTimeseries[j].first, 70.0);
 
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(baseline));
@@ -1361,8 +1282,7 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
             LOG_DEBUG("70% error = " << percentileError / sumValue);
 
-            if (time >= startTime + 2 * WEEK)
-            {
+            if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
                 totalSumValue += sumValue;
@@ -1373,8 +1293,7 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
             lastWeekTimeseries.clear();
             lastWeek += WEEK;
         }
-        if (time > lastWeek)
-        {
+        if (time > lastWeek) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
@@ -1399,16 +1318,14 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
     //file << "plot(t(1:length(r)), r, 'k');\n";
 }
 
-void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
-{
+void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void) {
     LOG_DEBUG("+-------------------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues  |");
     LOG_DEBUG("+-------------------------------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Daily Periodic")
-    {
+    LOG_DEBUG("Daily Periodic") {
         //std::ofstream file;
         //file.open("results.m");
         //TDoubleVec times;
@@ -1418,24 +1335,22 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
         TMeanAccumulator error;
         maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
         core_t::TTime time = 0;
-        for (std::size_t t = 0u; t < 50; ++t)
-        {
-            for (auto value : { 0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                               10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 1.0})
-            {
-                if (value > 0.0)
-                {
+        for (std::size_t t = 0u; t < 50; ++t) {
+            for (auto value : {
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 1.0
+                 }) {
+                if (value > 0.0) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
                     decomposition.addPoint(time, value + noise[0]);
-                    if (decomposition.initialized())
-                    {
+                    if (decomposition.initialized()) {
                         error.add(::fabs(
-                             (  value + noise[0]
-                              - maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0))))
-                            / ::fabs(value + noise[0]));
+                                      (  value + noise[0]
+                                         - maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0))))
+                                  / ::fabs(value + noise[0]));
                     }
                     //times.push_back(time);
                     //values.push_back(value + noise[0]);
@@ -1456,8 +1371,7 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
         //file << "plot(t(1:length(fe)), fe);\n";
     }
 
-    LOG_DEBUG("Weekly")
-    {
+    LOG_DEBUG("Weekly") {
         //std::ofstream file;
         //file.open("results.m");
         //TDoubleVec times;
@@ -1467,34 +1381,32 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
         TMeanAccumulator error;
         maths::CTimeSeriesDecomposition decomposition(0.01, HOUR);
         core_t::TTime time = 0;
-        for (std::size_t t = 0u; t < 10; ++t)
-        {
-            for (auto value : { 0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                               10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                               10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                               20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
-                               10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
-                                0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0})
-            {
-                if (value > 0.0)
-                {
+        for (std::size_t t = 0u; t < 10; ++t) {
+            for (auto value : {
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     20.0, 18.0, 10.0, 4.0, 4.0, 4.0, 4.0, 5.0, 6.0, 8.0, 9.0, 9.0,
+                     10.0, 10.0,  8.0, 4.0, 3.0, 1.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+                 }) {
+                if (value > 0.0) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
                     decomposition.addPoint(time, value + noise[0]);
-                    if (decomposition.initialized())
-                    {
+                    if (decomposition.initialized()) {
                         error.add(::fabs(
-                             (  value + noise[0]
-                              - maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0))))
-                            / ::fabs(value + noise[0]));
+                                      (  value + noise[0]
+                                         - maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0))))
+                                  / ::fabs(value + noise[0]));
                     }
                     //times.push_back(time);
                     //values.push_back(value + noise[0]);
@@ -1516,8 +1428,7 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testLongTermTrend(void)
-{
+void CTimeSeriesDecompositionTest::testLongTermTrend(void) {
     LOG_DEBUG("+---------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testLongTermTrend  |");
     LOG_DEBUG("+---------------------------------------------------+");
@@ -1536,10 +1447,8 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
     //TDoubleVec f;
     //TDoubleVec values;
 
-    LOG_DEBUG("Linear Ramp")
-    {
-        for (core_t::TTime time = 0; time < length; time += HALF_HOUR)
-        {
+    LOG_DEBUG("Linear Ramp") {
+        for (core_t::TTime time = 0; time < length; time += HALF_HOUR) {
             times.push_back(time);
             trend.push_back(5.0 + static_cast<double>(time) / static_cast<double>(DAY));
         }
@@ -1552,16 +1461,13 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
         double totalMaxValue = 0.0;
         core_t::TTime lastDay = times[0];
 
-        for (std::size_t i = 0u; i < times.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + noise[i]);
 
-            if (times[i] > lastDay + DAY)
-            {
+            if (times[i] > lastDay + DAY) {
                 LOG_DEBUG("Processing day " << times[i] / DAY);
 
-                if (decomposition.initialized())
-                {
+                if (decomposition.initialized()) {
                     double sumResidual = 0.0;
                     double maxResidual = 0.0;
                     double sumValue = 0.0;
@@ -1569,8 +1475,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
 
                     TDoubleVec baselines;
 
-                    for (std::size_t j = i - 48; j < i; ++j)
-                    {
+                    for (std::size_t j = i - 48; j < i; ++j) {
                         TDoubleDoublePr baseline = decomposition.baseline(times[j], 70.0);
                         baselines.push_back(mean(baseline));
                         double residual = ::fabs(trend[j] - mean(baseline));
@@ -1615,10 +1520,9 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
 
     LOG_DEBUG("Saw Tooth Not Periodic");
     {
-        core_t::TTime drops[] =
-            {
-                0, 30 * DAY, 50 * DAY, 60 * DAY, 85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY
-            };
+        core_t::TTime drops[] = {
+            0, 30 * DAY, 50 * DAY, 60 * DAY, 85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY
+        };
 
         times.clear();
         trend.clear();
@@ -1627,11 +1531,10 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
             std::size_t i = 0u;
             for (core_t::TTime time = 0;
                  time < length;
-                 time += HALF_HOUR, (time > drops[i] ? ++i : i))
-            {
+                 time += HALF_HOUR, (time > drops[i] ? ++i : i)) {
                 times.push_back(time);
                 trend.push_back(25.0 * static_cast<double>(time - drops[i-1])
-                                     / static_cast<double>(drops[i] - drops[i-1] + 1));
+                                / static_cast<double>(drops[i] - drops[i-1] + 1));
             }
         }
 
@@ -1643,16 +1546,13 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
         double totalMaxValue = 0.0;
         core_t::TTime lastDay = times[0];
 
-        for (std::size_t i = 0u; i < times.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
 
-            if (times[i] > lastDay + DAY)
-            {
+            if (times[i] > lastDay + DAY) {
                 LOG_DEBUG("Processing day " << times[i] / DAY);
 
-                if (decomposition.initialized())
-                {
+                if (decomposition.initialized()) {
                     double sumResidual = 0.0;
                     double maxResidual = 0.0;
                     double sumValue = 0.0;
@@ -1660,8 +1560,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
 
                     TDoubleVec baselines;
 
-                    for (std::size_t j = i - 48; j < i; ++j)
-                    {
+                    for (std::size_t j = i - 48; j < i; ++j) {
                         TDoubleDoublePr baseline = decomposition.baseline(times[j], 70.0);
                         baselines.push_back(mean(baseline));
                         double residual = ::fabs(trend[j] - mean(baseline));
@@ -1702,8 +1601,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrend(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
-{
+void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void) {
     LOG_DEBUG("+-----------------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity  |");
     LOG_DEBUG("+-----------------------------------------------------------------+");
@@ -1714,15 +1612,14 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
     TTimeVec times;
     TDoubleVec trend;
     const core_t::TTime length = 120 * DAY;
-    for (core_t::TTime time = 0; time < length; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < length; time += HALF_HOUR) {
         times.push_back(time);
         double x = static_cast<double>(time);
         trend.push_back(150.0 + 100.0 * ::sin(  boost::math::double_constants::two_pi * x
-                                              / static_cast<double>(240 * DAY)
-                                              / (1.0 - x / static_cast<double>(2 * length)))
-                              +  10.0 * ::sin(  boost::math::double_constants::two_pi * x
-                                              / static_cast<double>(DAY)));
+                                                / static_cast<double>(240 * DAY)
+                                                / (1.0 - x / static_cast<double>(2 * length)))
+                        +  10.0 * ::sin(  boost::math::double_constants::two_pi * x
+                                          / static_cast<double>(DAY)));
     }
 
     test::CRandomNumbers rng;
@@ -1742,16 +1639,13 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
     double totalMaxValue = 0.0;
     core_t::TTime lastDay = times[0];
 
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
 
-        if (times[i] > lastDay + DAY)
-        {
+        if (times[i] > lastDay + DAY) {
             LOG_DEBUG("Processing day " << times[i] / DAY);
 
-            if (decomposition.initialized())
-            {
+            if (decomposition.initialized()) {
                 double sumResidual = 0.0;
                 double maxResidual = 0.0;
                 double sumValue = 0.0;
@@ -1759,8 +1653,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
 
                 TDoubleVec baselines;
 
-                for (std::size_t j = i - 48; j < i; ++j)
-                {
+                for (std::size_t j = i - 48; j < i; ++j) {
                     TDoubleDoublePr baseline = decomposition.baseline(times[j], 70.0);
                     baselines.push_back(mean(baseline));
                     double residual = ::fabs(trend[j] - mean(baseline));
@@ -1802,24 +1695,21 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
     CPPUNIT_ASSERT(totalMaxResidual / totalMaxValue < 0.05);
 }
 
-void CTimeSeriesDecompositionTest::testNonDiurnal(void)
-{
+void CTimeSeriesDecompositionTest::testNonDiurnal(void) {
     LOG_DEBUG("+------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testNonDiurnal  |");
     LOG_DEBUG("+------------------------------------------------+");
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG("Hourly")
-    {
+    LOG_DEBUG("Hourly") {
         const core_t::TTime length = 21 * DAY;
 
-        double periodic[]{ 10.0, 1.0, 0.5, 0.5, 1.0, 5.0, 2.0, 1.0, 0.5, 0.5, 1.0, 3.0 };
+        double periodic[] { 10.0, 1.0, 0.5, 0.5, 1.0, 5.0, 2.0, 1.0, 0.5, 0.5, 1.0, 3.0 };
 
         TTimeVec times;
-        TDoubleVec trends[2]{ TDoubleVec(), TDoubleVec(8 * DAY / FIVE_MINS) };
-        for (core_t::TTime time = 0; time < length; time += FIVE_MINS)
-        {
+        TDoubleVec trends[2] { TDoubleVec(), TDoubleVec(8 * DAY / FIVE_MINS) };
+        for (core_t::TTime time = 0; time < length; time += FIVE_MINS) {
             times.push_back(time);
             trends[0].push_back(periodic[(time / FIVE_MINS) % 12]);
             trends[1].push_back(periodic[(time / FIVE_MINS) % 12]);
@@ -1828,11 +1718,10 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, 1.0, trends[1].size(), noise);
 
-        core_t::TTime startTesting[]{3 * HOUR, 16 * DAY};
-        TDoubleVec thresholds[]{ TDoubleVec{0.07, 0.06}, TDoubleVec{0.18, 0.13} };
+        core_t::TTime startTesting[] {3 * HOUR, 16 * DAY};
+        TDoubleVec thresholds[] { TDoubleVec{0.07, 0.06}, TDoubleVec{0.18, 0.13} };
 
-        for (std::size_t t = 0u; t < 2; ++t)
-        {
+        for (std::size_t t = 0u; t < 2; ++t) {
             //std::ofstream file;
             //file.open("results.m");
             //TDoubleVec f;
@@ -1846,16 +1735,13 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
             double totalMaxValue = 0.0;
             core_t::TTime lastHour = times[0] + 3 * DAY;
 
-            for (std::size_t i = 0u; i < times.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < times.size(); ++i) {
                 decomposition.addPoint(times[i], trends[t][i] + noise[i]);
 
-                if (times[i] > lastHour + HOUR)
-                {
+                if (times[i] > lastHour + HOUR) {
                     LOG_DEBUG("Processing hour " << times[i] / HOUR);
 
-                    if (times[i] > startTesting[t])
-                    {
+                    if (times[i] > startTesting[t]) {
                         double sumResidual = 0.0;
                         double maxResidual = 0.0;
                         double sumValue = 0.0;
@@ -1863,8 +1749,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
 
                         TDoubleVec baselines;
 
-                        for (std::size_t j = i - 12; j < i; ++j)
-                        {
+                        for (std::size_t j = i - 12; j < i; ++j) {
                             TDoubleDoublePr baseline = decomposition.baseline(times[j], 70.0);
                             baselines.push_back(mean(baseline));
                             double residual = ::fabs(trends[t][j] - mean(baseline));
@@ -1915,8 +1800,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
 
         TTimeVec times;
         TDoubleVec trend;
-        for (core_t::TTime time = 0; time < length; time += TEN_MINS)
-        {
+        for (core_t::TTime time = 0; time < length; time += TEN_MINS) {
             times.push_back(time);
             trend.push_back(periodic[(time / 4 / HOUR) % 12]);
         }
@@ -1938,16 +1822,13 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
         double totalMaxValue = 0.0;
         core_t::TTime lastTwoDay = times[0] + 3 * DAY;
 
-        for (std::size_t i = 0u; i < times.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + noise[i]);
 
-            if (times[i] > lastTwoDay + 2 * DAY)
-            {
+            if (times[i] > lastTwoDay + 2 * DAY) {
                 LOG_DEBUG("Processing two days " << times[i] / 2 * DAY);
 
-                if (times[i] > startTesting)
-                {
+                if (times[i] > startTesting) {
                     double sumResidual = 0.0;
                     double maxResidual = 0.0;
                     double sumValue = 0.0;
@@ -1955,8 +1836,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
 
                     TDoubleVec baselines;
 
-                    for (std::size_t j = i - 288; j < i; ++j)
-                    {
+                    for (std::size_t j = i - 288; j < i; ++j) {
                         TDoubleDoublePr baseline = decomposition.baseline(times[j], 70.0);
                         baselines.push_back(mean(baseline));
                         double residual = ::fabs(trend[j] - mean(baseline));
@@ -1999,8 +1879,7 @@ void CTimeSeriesDecompositionTest::testNonDiurnal(void)
     }
 }
 
-void CTimeSeriesDecompositionTest::testYearly(void)
-{
+void CTimeSeriesDecompositionTest::testYearly(void) {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testYearly  |");
     LOG_DEBUG("+--------------------------------------------+");
@@ -2011,26 +1890,24 @@ void CTimeSeriesDecompositionTest::testYearly(void)
 
     maths::CTimeSeriesDecomposition decomposition(0.012, 4 * HOUR);
     maths::CDecayRateController controller(
-            maths::CDecayRateController::E_PredictionBias
-          | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
+        maths::CDecayRateController::E_PredictionBias
+        | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
     TDoubleVec noise;
     core_t::TTime time = 0;
-    for (/**/; time < 4 * YEAR; time += 4 * HOUR)
-    {
+    for (/**/; time < 4 * YEAR; time += 4 * HOUR) {
         double trend =  15.0 * (2.0 + ::sin(  boost::math::double_constants::two_pi
-                                            * static_cast<double>(time)
-                                            / static_cast<double>(YEAR)))
-                      +  7.5 * ::sin(  boost::math::double_constants::two_pi
-                                     * static_cast<double>(time)
-                                     / static_cast<double>(DAY));
+                                              * static_cast<double>(time)
+                                              / static_cast<double>(YEAR)))
+                        +  7.5 * ::sin(  boost::math::double_constants::two_pi
+                                         * static_cast<double>(time)
+                                         / static_cast<double>(DAY));
         rng.generateNormalSamples(0.0, 1.0, 1, noise);
         decomposition.addPoint(time, trend + noise[0]);
-        if (decomposition.initialized())
-        {
+        if (decomposition.initialized()) {
             TDouble1Vec prediction{decomposition.mean(time)};
             TDouble1Vec predictionError{decomposition.detrend(time, trend, 0.0)};
             double multiplier{controller.multiplier(
-                    prediction, {predictionError}, 4 * HOUR, 1.0, 0.0005)};
+                                  prediction, {predictionError}, 4 * HOUR, 1.0, 0.0005)};
             decomposition.decayRate(multiplier * decomposition.decayRate());
         }
     }
@@ -2043,22 +1920,20 @@ void CTimeSeriesDecompositionTest::testYearly(void)
 
     // Predict over one year and check we get reasonable accuracy.
     TMeanAccumulator meanError;
-    for (/**/; time < 5 * YEAR; time += 4 * HOUR)
-    {
+    for (/**/; time < 5 * YEAR; time += 4 * HOUR) {
         double trend =  15.0 * (2.0 + ::sin(  boost::math::double_constants::two_pi
-                                            * static_cast<double>(time)
-                                            / static_cast<double>(YEAR)))
-                      +  7.5 * ::sin(  boost::math::double_constants::two_pi
-                                     * static_cast<double>(time)
-                                     / static_cast<double>(DAY));
+                                              * static_cast<double>(time)
+                                              / static_cast<double>(YEAR)))
+                        +  7.5 * ::sin(  boost::math::double_constants::two_pi
+                                         * static_cast<double>(time)
+                                         / static_cast<double>(DAY));
         double prediction = maths::CBasicStatistics::mean(decomposition.baseline(time, 0.0));
         double error = ::fabs((prediction - trend) / trend);
         meanError.add(error);
         times.push_back(time);
         values.push_back(trend);
         f.push_back(prediction);
-        if (time / HOUR % 40 == 0)
-        {
+        if (time / HOUR % 40 == 0) {
             LOG_DEBUG("error = " << error);
         }
         CPPUNIT_ASSERT(error < 0.1);
@@ -2074,8 +1949,7 @@ void CTimeSeriesDecompositionTest::testYearly(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CTimeSeriesDecompositionTest::testCalendar(void)
-{
+void CTimeSeriesDecompositionTest::testCalendar(void) {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testCalendar  |");
     LOG_DEBUG("+----------------------------------------------+");
@@ -2094,19 +1968,17 @@ void CTimeSeriesDecompositionTest::testCalendar(void)
     core_t::TTime end = months.back();
     TDoubleVec errors{ 5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0 };
 
-    auto trend = [&months, &errors](core_t::TTime t)
-                 {
-                     double result = 20.0 + 10.0 * ::sin(  boost::math::double_constants::two_pi
-                                                         * static_cast<double>(t)
-                                                         / static_cast<double>(DAY));
-                     auto i = std::lower_bound(months.begin(), months.end(), t - DAY);
-                     if (   t >= *i + 7200
-                         && t <  *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR)
-                     {
-                         result += errors[(t - (*i + 7200)) / HALF_HOUR];
-                     }
-                     return result;
-                 };
+    auto trend = [&months, &errors](core_t::TTime t) {
+        double result = 20.0 + 10.0 * ::sin(  boost::math::double_constants::two_pi
+                                              * static_cast<double>(t)
+                                              / static_cast<double>(DAY));
+        auto i = std::lower_bound(months.begin(), months.end(), t - DAY);
+        if (   t >= *i + 7200 &&
+               t <  *i + 7200 + static_cast<core_t::TTime>(errors.size()) * HALF_HOUR) {
+            result += errors[(t - (*i + 7200)) / HALF_HOUR];
+        }
+        return result;
+    };
 
     test::CRandomNumbers rng;
 
@@ -2119,25 +1991,21 @@ void CTimeSeriesDecompositionTest::testCalendar(void)
     //TDoubleVec values;
 
     TDoubleVec noise;
-    for (core_t::TTime time = 0, count = 0; time < end; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0, count = 0; time < end; time += HALF_HOUR) {
         rng.generateNormalSamples(0.0, 4.0, 1, noise);
 
         decomposition.addPoint(time, trend(time) + noise[0]);
 
-        if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY))
-        {
+        if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY)) {
             LOG_DEBUG("*** time = " << time << " ***");
 
             std::size_t largeErrorCount = 0u;
 
-            for (core_t::TTime time_ = time - DAY; time_ < time; time_ += TEN_MINS)
-            {
+            for (core_t::TTime time_ = time - DAY; time_ < time; time_ += TEN_MINS) {
                 double prediction = maths::CBasicStatistics::mean(decomposition.baseline(time_));
                 double variance   = 4.0 * maths::CBasicStatistics::mean(decomposition.scale(time_, 4.0, 0.0));
                 double actual     = trend(time_);
-                if (::fabs(prediction - actual) / ::sqrt(variance) > 3.0)
-                {
+                if (::fabs(prediction - actual) / ::sqrt(variance) > 3.0) {
                     LOG_DEBUG("  prediction = " << prediction);
                     LOG_DEBUG("  variance   = " << variance);
                     LOG_DEBUG("  trend      = " << trend(time_));
@@ -2162,16 +2030,14 @@ void CTimeSeriesDecompositionTest::testCalendar(void)
     //file << "plot(t, fe);\n";
 }
 
-void CTimeSeriesDecompositionTest::testConditionOfTrend(void)
-{
+void CTimeSeriesDecompositionTest::testConditionOfTrend(void) {
     LOG_DEBUG("+------------------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testConditionOfTrend  |");
     LOG_DEBUG("+------------------------------------------------------+");
 
-    auto trend = [](core_t::TTime time)
-        {
-            return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
-        };
+    auto trend = [](core_t::TTime time) {
+        return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
+    };
 
     const core_t::TTime bucketLength = 6 * HOUR;
 
@@ -2179,19 +2045,16 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend(void)
 
     maths::CTimeSeriesDecomposition decomposition(0.0005, bucketLength);
     TDoubleVec noise;
-    for (core_t::TTime time = 0; time < 10 * YEAR; time += 6 * HOUR)
-    {
+    for (core_t::TTime time = 0; time < 10 * YEAR; time += 6 * HOUR) {
         rng.generateNormalSamples(0.0, 3.0, 1, noise);
         decomposition.addPoint(time, trend(time) + noise[0]);
-        if (time > 10 * WEEK)
-        {
+        if (time > 10 * WEEK) {
             CPPUNIT_ASSERT(::fabs(decomposition.detrend(time, trend(time), 0.0)) < 3.0);
         }
     }
 }
 
-void CTimeSeriesDecompositionTest::testSwap(void)
-{
+void CTimeSeriesDecompositionTest::testSwap(void) {
     LOG_DEBUG("+------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testSwap  |");
     LOG_DEBUG("+------------------------------------------+");
@@ -2202,8 +2065,7 @@ void CTimeSeriesDecompositionTest::testSwap(void)
     TTimeVec times;
     TDoubleVec trend1;
     TDoubleVec trend2;
-    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
         double daily = 15.0 + 10.0 * ::sin(boost::math::double_constants::two_pi
                                            * static_cast<double>(time)
                                            / static_cast<double>(DAY));
@@ -2219,8 +2081,7 @@ void CTimeSeriesDecompositionTest::testSwap(void)
     maths::CTimeSeriesDecomposition decomposition1(decayRate, bucketLength);
     maths::CTimeSeriesDecomposition decomposition2(2.0 * decayRate, 2 * bucketLength);
 
-    for (std::size_t i = 0u; i < times.size(); i += 2)
-    {
+    for (std::size_t i = 0u; i < times.size(); i += 2) {
         decomposition1.addPoint(times[i], trend1[i] + noise[i]);
         decomposition2.addPoint(times[i], trend2[i] + noise[i+1]);
     }
@@ -2236,8 +2097,7 @@ void CTimeSeriesDecompositionTest::testSwap(void)
     CPPUNIT_ASSERT_EQUAL(checksum2, decomposition1.checksum());
 }
 
-void CTimeSeriesDecompositionTest::testPersist(void)
-{
+void CTimeSeriesDecompositionTest::testPersist(void) {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testPersist  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -2248,8 +2108,7 @@ void CTimeSeriesDecompositionTest::testPersist(void)
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR)
-    {
+    for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
         double daily = 15.0 + 10.0 * ::sin(boost::math::double_constants::two_pi
                                            * static_cast<double>(time)
                                            / static_cast<double>(DAY));
@@ -2263,8 +2122,7 @@ void CTimeSeriesDecompositionTest::testPersist(void)
 
     maths::CTimeSeriesDecomposition origDecomposition(decayRate, bucketLength);
 
-    for (std::size_t i = 0u; i < times.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < times.size(); ++i) {
         origDecomposition.addPoint(times[i], trend[i] + noise[i]);
     }
 
@@ -2296,8 +2154,7 @@ void CTimeSeriesDecompositionTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CTimeSeriesDecompositionTest::testUpgrade(void)
-{
+void CTimeSeriesDecompositionTest::testUpgrade(void) {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testUpgrade  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -2305,24 +2162,22 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;
-    auto load = [](const std::string &name, std::string &result)
-        {
-            std::ifstream file;
-            file.open(name);
-            std::stringbuf buf;
-            file >> &buf;
-            result = buf.str();
-        };
-    auto stringToPair = [](const std::string &str)
-        {
-            double first;
-            double second;
-            std::size_t n{str.find(",")};
-            CPPUNIT_ASSERT(n != std::string::npos);
-            core::CStringUtils::stringToType(str.substr(0, n), first);
-            core::CStringUtils::stringToType(str.substr(n + 1), second);
-            return TDoubleDoublePr{first, second};
-        };
+    auto load = [](const std::string &name, std::string &result) {
+        std::ifstream file;
+        file.open(name);
+        std::stringbuf buf;
+        file >> &buf;
+        result = buf.str();
+    };
+    auto stringToPair = [](const std::string &str) {
+        double first;
+        double second;
+        std::size_t n{str.find(",")};
+        CPPUNIT_ASSERT(n != std::string::npos);
+        core::CStringUtils::stringToType(str.substr(0, n), first);
+        core::CStringUtils::stringToType(str.substr(n + 1), second);
+        return TDoubleDoublePr{first, second};
+    };
 
     std::string empty;
 
@@ -2368,8 +2223,7 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
 
         for (core_t::TTime time = 60480000, i = 0;
              i < static_cast<core_t::TTime>(expectedValues.size());
-             time += HALF_HOUR, ++i)
-        {
+             time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.baseline(time, 10.0)};
@@ -2435,8 +2289,7 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
         TMeanAccumulator meanScaleError;
         for (core_t::TTime time = 10366200, i = 0;
              i < static_cast<core_t::TTime>(expectedValues.size());
-             time += HALF_HOUR, ++i)
-        {
+             time += HALF_HOUR, ++i) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.baseline(time, 10.0)};
@@ -2454,13 +2307,13 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
                                          scale.second,
                                          0.3 * expectedScale.second);
             meanValueError.add(  std::fabs(expectedValue.first - value.first)
-                               / std::fabs(expectedValue.first));
+                                 / std::fabs(expectedValue.first));
             meanValueError.add(  std::fabs(expectedValue.second - value.second)
-                               / std::fabs(expectedValue.second));
+                                 / std::fabs(expectedValue.second));
             meanScaleError.add(  std::fabs(expectedScale.first - scale.first)
-                               / expectedScale.first);
+                                 / expectedScale.first);
             meanScaleError.add(  std::fabs(expectedScale.second - scale.second)
-                               / expectedScale.second);
+                                 / expectedScale.second);
         }
 
         LOG_DEBUG("Mean value error = " << maths::CBasicStatistics::mean(meanValueError));
@@ -2471,70 +2324,69 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
 }
 
 
-CppUnit::Test *CTimeSeriesDecompositionTest::suite(void)
-{
+CppUnit::Test *CTimeSeriesDecompositionTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTimeSeriesDecompositionTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testSuperpositionOfSines",
-                                   &CTimeSeriesDecompositionTest::testSuperpositionOfSines) );
+                               "CTimeSeriesDecompositionTest::testSuperpositionOfSines",
+                               &CTimeSeriesDecompositionTest::testSuperpositionOfSines) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testDistortedPeriodic",
-                                   &CTimeSeriesDecompositionTest::testDistortedPeriodic) );
+                               "CTimeSeriesDecompositionTest::testDistortedPeriodic",
+                               &CTimeSeriesDecompositionTest::testDistortedPeriodic) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testMinimizeLongComponents",
-                                   &CTimeSeriesDecompositionTest::testMinimizeLongComponents) );
+                               "CTimeSeriesDecompositionTest::testMinimizeLongComponents",
+                               &CTimeSeriesDecompositionTest::testMinimizeLongComponents) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testWeekend",
-                                   &CTimeSeriesDecompositionTest::testWeekend) );
+                               "CTimeSeriesDecompositionTest::testWeekend",
+                               &CTimeSeriesDecompositionTest::testWeekend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testSinglePeriodicity",
-                                   &CTimeSeriesDecompositionTest::testSinglePeriodicity) );
+                               "CTimeSeriesDecompositionTest::testSinglePeriodicity",
+                               &CTimeSeriesDecompositionTest::testSinglePeriodicity) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testSeasonalOnset",
-                                   &CTimeSeriesDecompositionTest::testSeasonalOnset) );
+                               "CTimeSeriesDecompositionTest::testSeasonalOnset",
+                               &CTimeSeriesDecompositionTest::testSeasonalOnset) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testVarianceScale",
-                                   &CTimeSeriesDecompositionTest::testVarianceScale) );
+                               "CTimeSeriesDecompositionTest::testVarianceScale",
+                               &CTimeSeriesDecompositionTest::testVarianceScale) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testSpikeyDataProblemCase",
-                                   &CTimeSeriesDecompositionTest::testSpikeyDataProblemCase) );
+                               "CTimeSeriesDecompositionTest::testSpikeyDataProblemCase",
+                               &CTimeSeriesDecompositionTest::testSpikeyDataProblemCase) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testDiurnalProblemCase",
-                                   &CTimeSeriesDecompositionTest::testDiurnalProblemCase) );
+                               "CTimeSeriesDecompositionTest::testDiurnalProblemCase",
+                               &CTimeSeriesDecompositionTest::testDiurnalProblemCase) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase",
-                                   &CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase) );
+                               "CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase",
+                               &CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues",
-                                   &CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues) );
+                               "CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues",
+                               &CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testLongTermTrend",
-                                   &CTimeSeriesDecompositionTest::testLongTermTrend) );
+                               "CTimeSeriesDecompositionTest::testLongTermTrend",
+                               &CTimeSeriesDecompositionTest::testLongTermTrend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity",
-                                   &CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity) );
+                               "CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity",
+                               &CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testNonDiurnal",
-                                   &CTimeSeriesDecompositionTest::testNonDiurnal) );
+                               "CTimeSeriesDecompositionTest::testNonDiurnal",
+                               &CTimeSeriesDecompositionTest::testNonDiurnal) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testYearly",
-                                   &CTimeSeriesDecompositionTest::testYearly) );
+                               "CTimeSeriesDecompositionTest::testYearly",
+                               &CTimeSeriesDecompositionTest::testYearly) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testCalendar",
-                                   &CTimeSeriesDecompositionTest::testCalendar) );
+                               "CTimeSeriesDecompositionTest::testCalendar",
+                               &CTimeSeriesDecompositionTest::testCalendar) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testConditionOfTrend",
-                                   &CTimeSeriesDecompositionTest::testConditionOfTrend) );
+                               "CTimeSeriesDecompositionTest::testConditionOfTrend",
+                               &CTimeSeriesDecompositionTest::testConditionOfTrend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testSwap",
-                                   &CTimeSeriesDecompositionTest::testSwap) );
+                               "CTimeSeriesDecompositionTest::testSwap",
+                               &CTimeSeriesDecompositionTest::testSwap) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testPersist",
-                                   &CTimeSeriesDecompositionTest::testPersist) );
+                               "CTimeSeriesDecompositionTest::testPersist",
+                               &CTimeSeriesDecompositionTest::testPersist) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeSeriesDecompositionTest>(
-                                   "CTimeSeriesDecompositionTest::testUpgrade",
-                                   &CTimeSeriesDecompositionTest::testUpgrade) );
+                               "CTimeSeriesDecompositionTest::testUpgrade",
+                               &CTimeSeriesDecompositionTest::testUpgrade) );
 
     return suiteOfTests;
 }

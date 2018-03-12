@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class COneOfNPriorTest : public CppUnit::TestFixture
-{
+class COneOfNPriorTest : public CppUnit::TestFixture {
     public:
         void testFilter(void);
         void testMultipleUpdate(void);

@@ -21,10 +21,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -41,8 +39,7 @@ namespace core
 //! For the name, just the program name is returned, with no path
 //! or extension.
 //!
-class CORE_EXPORT CProgName : private CNonInstantiatable
-{
+class CORE_EXPORT CProgName : private CNonInstantiatable {
     public:
         //! Get the name of the current program.  On error, an empty string is
         //! returned.

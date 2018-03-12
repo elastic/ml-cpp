@@ -19,10 +19,8 @@
 #include <config/CPenalty.h>
 #include <config/ImportExport.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief A penalty for the information content command if there is
 //! little evidence that the categories are carrying any information.
@@ -35,8 +33,7 @@ namespace config
 //!   -# Any long categories.
 //!   -# Significant empirical entropy in the categories relative to
 //!      their distinct count (which bounds the entropy).
-class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty
-{
+class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty {
     public:
         CLowInformationContentPenalty(const CAutoconfigurerParams &params);
 

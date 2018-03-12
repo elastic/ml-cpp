@@ -23,10 +23,8 @@
 #include <iosfwd>
 #include <stdint.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A representation of an ordinal type.
 //!
@@ -35,8 +33,7 @@ namespace maths
 //! around the loss of precision converting 64 bit integers to
 //! doubles.
 class MATHS_EXPORT COrdinal : private boost::equality_comparable< COrdinal,
-                                      boost::partially_ordered< COrdinal > >
-{
+    boost::partially_ordered< COrdinal > > {
     public:
         //! Create an unset value.
         COrdinal(void);
@@ -61,8 +58,7 @@ class MATHS_EXPORT COrdinal : private boost::equality_comparable< COrdinal,
 
     private:
         //! Enumeration of the types which can be stored.
-        enum EType
-        {
+        enum EType {
             E_Integer,
             E_PositiveInteger,
             E_Real,
@@ -85,8 +81,8 @@ class MATHS_EXPORT COrdinal : private boost::equality_comparable< COrdinal,
         //! The value.
         Value m_Value;
 
-MATHS_EXPORT
-friend std::ostream &operator<<(std::ostream &o, COrdinal ord);
+        MATHS_EXPORT
+        friend std::ostream &operator<<(std::ostream &o, COrdinal ord);
 };
 
 

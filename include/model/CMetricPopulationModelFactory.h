@@ -19,14 +19,11 @@
 #include <model/CModelFactory.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief A factory class implementation for CMetricPopulationModel.
 //!
@@ -34,8 +31,7 @@ namespace model
 //! This concrete factory implements the methods to make new models
 //! and data gatherers, and create default priors suitable for the
 //! CMetricPopulationModel class.
-class MODEL_EXPORT CMetricPopulationModelFactory : public CModelFactory
-{
+class MODEL_EXPORT CMetricPopulationModelFactory : public CModelFactory {
     public:
         //! Lift all overloads into scope.
         using CModelFactory::defaultMultivariatePrior;

@@ -19,44 +19,37 @@
 #include <core/CTicker.h>
 
 
-CppUnit::Test *CTickerTest::suite()
-{
+CppUnit::Test *CTickerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTickerTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CTickerTest>(
-                                   "CTickerTest::testTicker",
-                                   &CTickerTest::testTicker) );
+                               "CTickerTest::testTicker",
+                               &CTickerTest::testTicker) );
 
     return suiteOfTests;
 }
 
-namespace
-{
-    class CReceiver
-    {
-        public:
-            CReceiver(void)
-                : m_Ticks(0)
-            {
-            }
+namespace {
+class CReceiver {
+    public:
+        CReceiver(void)
+            : m_Ticks(0) {
+        }
 
-            void tick(void)
-            {
-                ++m_Ticks;
-            }
+        void tick(void) {
+            ++m_Ticks;
+        }
 
-            size_t ticks(void) const
-            {
-                return m_Ticks;
-            }
+        size_t ticks(void) const {
+            return m_Ticks;
+        }
 
-        private:
-            size_t m_Ticks;
-    };
+    private:
+        size_t m_Ticks;
+};
 }
 
-void CTickerTest::testTicker(void)
-{
+void CTickerTest::testTicker(void) {
     CReceiver receiver;
 
     ml::core::CTicker<CReceiver> ticker(100, receiver);

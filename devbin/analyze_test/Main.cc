@@ -17,10 +17,8 @@
 #include <vector>
 
 template <typename T>
-struct STemplated
-{
-    void printFirst(void)
-    {
+struct STemplated {
+    void printFirst(void) {
         std::cout << s_First << std::endl;
     }
 
@@ -28,10 +26,8 @@ struct STemplated
     std::vector<T> s_Second;
 };
 
-struct SSimple
-{
-    void printFirst(void)
-    {
+struct SSimple {
+    void printFirst(void) {
         std::cout << s_First << std::endl;
     }
 
@@ -39,8 +35,7 @@ struct SSimple
     std::vector<int> s_Second;
 };
 
-int main(int, char **)
-{
+int main(int, char **) {
     {
         SSimple obj;
         obj.printFirst();

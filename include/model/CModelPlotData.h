@@ -26,26 +26,21 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief Data necessary to create a model plot
-class MODEL_EXPORT CModelPlotData
-{
+class MODEL_EXPORT CModelPlotData {
     public:
         typedef std::pair<std::string, double> TStrDoublePr;
         typedef std::vector<TStrDoublePr> TStrDoublePrVec;
 
     public:
-        struct MODEL_EXPORT SByFieldData
-        {
+        struct MODEL_EXPORT SByFieldData {
             SByFieldData(void);
             SByFieldData(double lowerBound, double upperBound, double median);
 
@@ -71,12 +66,12 @@ class MODEL_EXPORT CModelPlotData
     public:
         CModelPlotData(void);
         CModelPlotData(core_t::TTime time,
-                     const std::string &partitionFieldName,
-                     const std::string &partitionFieldValue,
-                     const std::string &overFieldName,
-                     const std::string &byFieldName,
-                     core_t::TTime bucketSpan,
-                     int detectorIndex);
+                       const std::string &partitionFieldName,
+                       const std::string &partitionFieldValue,
+                       const std::string &overFieldName,
+                       const std::string &byFieldName,
+                       core_t::TTime bucketSpan,
+                       int detectorIndex);
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
         TFeatureStrByFieldDataUMapUMapCItr begin(void) const;

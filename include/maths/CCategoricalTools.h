@@ -24,13 +24,10 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-class MATHS_EXPORT CCategoricalTools : core::CNonInstantiatable, core::CNonCopyable
-{
+class MATHS_EXPORT CCategoricalTools : core::CNonInstantiatable, core::CNonCopyable {
     public:
         using TDoubleVec = std::vector<double>;
         using TSizeVec = std::vector<std::size_t>;

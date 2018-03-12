@@ -26,16 +26,13 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace stat_t
-{
+namespace ml {
+namespace stat_t {
 
 //! Changing the order of these enumeration values will corrupt persisted model
 //! state, so don't.  Any new statistics should be added in the penultimate
 //! position in the enum, immediately before E_LastEnumStat.
-enum EStatTypes
-{
+enum EStatTypes {
     //! The number of new people not created in the data gatherer
     //! because there wasn't enough free resource
     E_NumberNewPeopleNotAllowed,
@@ -103,8 +100,7 @@ enum EStatTypes
 
 }
 
-namespace core
-{
+namespace core {
 
 class CStatisticsServer;
 class CStateRestoreTraverser;
@@ -122,8 +118,7 @@ class CStatePersistInserter;
 //! IMPLEMENTATION DECISIONS:\n
 //! A singleton class: there should only be one collection of global stats
 //!
-class CORE_EXPORT CStatistics : private CNonCopyable
-{
+class CORE_EXPORT CStatistics : private CNonCopyable {
     public:
         //! Singleton pattern
         static CStatistics &instance(void);

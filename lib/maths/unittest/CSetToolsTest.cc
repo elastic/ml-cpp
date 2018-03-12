@@ -33,8 +33,7 @@ using namespace ml;
 typedef std::vector<double> TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 
-void CSetToolsTest::testInplaceSetDifference(void)
-{
+void CSetToolsTest::testInplaceSetDifference(void) {
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testInplaceSetDifference  |");
     LOG_DEBUG("+-------------------------------------------+");
@@ -46,11 +45,9 @@ void CSetToolsTest::testInplaceSetDifference(void)
         double a[] = { 1.0, 1.1, 1.2, 3.4, 7.8 };
         TDoubleVec A(boost::begin(a), boost::end(a));
 
-        for (std::size_t i = 0u; i < boost::size(a); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(a); ++i) {
             TDoubleVec left;
-            for (std::size_t j = 0; j < i; ++j)
-            {
+            for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
@@ -66,8 +63,7 @@ void CSetToolsTest::testInplaceSetDifference(void)
                                  core::CContainerPrinter::print(test));
 
             TDoubleVec right;
-            for (std::size_t j = i; j < boost::size(a); ++j)
-            {
+            for (std::size_t j = i; j < boost::size(a); ++j) {
                 right.push_back(a[j]);
             }
             expected.clear();
@@ -88,8 +84,7 @@ void CSetToolsTest::testInplaceSetDifference(void)
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 100; ++t)
-    {
+    for (std::size_t t = 0u; t < 100; ++t) {
         TDoubleVec A;
         rng.generateUniformSamples(0.0, 100.0, t, A);
         std::sort(A.begin(), A.end());
@@ -97,10 +92,8 @@ void CSetToolsTest::testInplaceSetDifference(void)
         TDoubleVec B;
         TDoubleVec mask;
         rng.generateUniformSamples(0.0, 1.0, t, mask);
-        for (std::size_t i = 0u; i < mask.size(); ++i)
-        {
-            if (mask[i] < 0.2)
-            {
+        for (std::size_t i = 0u; i < mask.size(); ++i) {
+            if (mask[i] < 0.2) {
                 B.push_back(A[i]);
             }
         }
@@ -110,16 +103,14 @@ void CSetToolsTest::testInplaceSetDifference(void)
                             B.begin(), B.end(),
                             std::back_inserter(expected));
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A));
             LOG_DEBUG("B = " << core::CContainerPrinter::print(B));
         }
 
         maths::CSetTools::inplace_set_difference(A, B.begin(), B.end());
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("A - B = " << core::CContainerPrinter::print(A));
         }
 
@@ -128,8 +119,7 @@ void CSetToolsTest::testInplaceSetDifference(void)
     }
 }
 
-void CSetToolsTest::testSetSizes(void)
-{
+void CSetToolsTest::testSetSizes(void) {
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testSetSizes  |");
     LOG_DEBUG("+-------------------------------+");
@@ -140,11 +130,9 @@ void CSetToolsTest::testSetSizes(void)
         double a[] = { 1.0, 1.1, 1.2, 3.4, 7.8 };
         TDoubleVec A(boost::begin(a), boost::end(a));
 
-        for (std::size_t i = 0u; i < boost::size(a); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(a); ++i) {
             TDoubleVec left;
-            for (std::size_t j = 0; j < i; ++j)
-            {
+            for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
@@ -159,8 +147,7 @@ void CSetToolsTest::testSetSizes(void)
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             TDoubleVec right;
-            for (std::size_t j = i; j < boost::size(a); ++j)
-            {
+            for (std::size_t j = i; j < boost::size(a); ++j) {
                 right.push_back(a[j]);
             }
             expected.clear();
@@ -191,8 +178,7 @@ void CSetToolsTest::testSetSizes(void)
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 100; ++t)
-    {
+    for (std::size_t t = 0u; t < 100; ++t) {
         TDoubleVec A;
         rng.generateUniformSamples(0.0, 100.0, t, A);
         std::sort(A.begin(), A.end());
@@ -200,10 +186,8 @@ void CSetToolsTest::testSetSizes(void)
         TDoubleVec B;
         TDoubleVec mask;
         rng.generateUniformSamples(0.0, 1.0, t, mask);
-        for (std::size_t i = 0u; i < mask.size(); ++i)
-        {
-            if (mask[i] < 0.2)
-            {
+        for (std::size_t i = 0u; i < mask.size(); ++i) {
+            if (mask[i] < 0.2) {
                 B.push_back(A[i]);
             }
         }
@@ -213,8 +197,7 @@ void CSetToolsTest::testSetSizes(void)
                               B.begin(), B.end(),
                               std::back_inserter(expected));
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A));
             LOG_DEBUG("B = " << core::CContainerPrinter::print(B));
         }
@@ -222,8 +205,7 @@ void CSetToolsTest::testSetSizes(void)
         std::size_t test = maths::CSetTools::setIntersectSize(A.begin(), A.end(),
                                                               B.begin(), B.end());
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("|A ^ B| = " << test);
         }
 
@@ -236,8 +218,7 @@ void CSetToolsTest::testSetSizes(void)
 
         test = maths::CSetTools::setUnionSize(A.begin(), A.end(), B.begin(), B.end());
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("|A U B| = " << test);
         }
 
@@ -245,8 +226,7 @@ void CSetToolsTest::testSetSizes(void)
     }
 }
 
-void CSetToolsTest::testJaccard(void)
-{
+void CSetToolsTest::testJaccard(void) {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testJaccard  |");
     LOG_DEBUG("+------------------------------+");
@@ -267,8 +247,7 @@ void CSetToolsTest::testJaccard(void)
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         TSizeVec sizes;
         rng.generateUniformSamples(t / 2 + 1, (3 * t) / 2 + 2, 2, sizes);
 
@@ -293,12 +272,11 @@ void CSetToolsTest::testJaccard(void)
                        std::back_inserter(AUnionB));
 
         double expected =  static_cast<double>(AIntersectB.size())
-                         / static_cast<double>(AUnionB.size());
+                           / static_cast<double>(AUnionB.size());
         double actual   = maths::CSetTools::jaccard(A.begin(), A.end(),
                                                     B.begin(), B.end());
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("Jaccard expected = " << expected);
             LOG_DEBUG("Jaccard actual   = " << actual);
         }
@@ -306,8 +284,7 @@ void CSetToolsTest::testJaccard(void)
     }
 }
 
-void CSetToolsTest::testOverlap(void)
-{
+void CSetToolsTest::testOverlap(void) {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CSetToolsTest::testOverlap  |");
     LOG_DEBUG("+------------------------------+");
@@ -328,8 +305,7 @@ void CSetToolsTest::testOverlap(void)
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 500; ++t)
-    {
+    for (std::size_t t = 0u; t < 500; ++t) {
         TSizeVec sizes;
         rng.generateUniformSamples(t / 2 + 1, (3 * t) / 2 + 2, 2, sizes);
 
@@ -351,12 +327,11 @@ void CSetToolsTest::testOverlap(void)
         std::size_t min = std::min(A.size(), B.size());
 
         double expected =  static_cast<double>(AIntersectB.size())
-                         / static_cast<double>(min);
+                           / static_cast<double>(min);
         double actual   = maths::CSetTools::overlap(A.begin(), A.end(),
                                                     B.begin(), B.end());
 
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("Overlap expected = " << expected);
             LOG_DEBUG("Overlap actual   = " << actual);
         }
@@ -364,22 +339,21 @@ void CSetToolsTest::testOverlap(void)
     }
 }
 
-CppUnit::Test* CSetToolsTest::suite(void)
-{
+CppUnit::Test* CSetToolsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CSetToolsTest>(
-                                   "CSetToolsTest::testInplaceSetDifference",
-                                   &CSetToolsTest::testInplaceSetDifference) );
+                               "CSetToolsTest::testInplaceSetDifference",
+                               &CSetToolsTest::testInplaceSetDifference) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CSetToolsTest>(
-                                   "CSetToolsTest::testSetSizes",
-                                   &CSetToolsTest::testSetSizes) );
+                               "CSetToolsTest::testSetSizes",
+                               &CSetToolsTest::testSetSizes) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CSetToolsTest>(
-                                   "CSetToolsTest::testJaccard",
-                                   &CSetToolsTest::testJaccard) );
+                               "CSetToolsTest::testJaccard",
+                               &CSetToolsTest::testJaccard) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CSetToolsTest>(
-                                   "CSetToolsTest::testOverlap",
-                                   &CSetToolsTest::testOverlap) );
+                               "CSetToolsTest::testOverlap",
+                               &CSetToolsTest::testOverlap) );
 
     return suiteOfTests;
 }

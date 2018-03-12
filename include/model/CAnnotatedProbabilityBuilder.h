@@ -31,20 +31,16 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CMultinomialConjugate;
 }
-namespace model
-{
+namespace model {
 class CModel;
 
 //! \brief Manages the creation of annotated probabilities using the
 //! builder pattern.
-class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable
-{
+class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable {
     public:
         typedef std::pair<std::size_t, double> TSizeDoublePr;
         typedef core::CSmallVector<double, 1> TDouble1Vec;

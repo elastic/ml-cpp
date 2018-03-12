@@ -35,10 +35,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write visualisation data as a JSON document
@@ -55,8 +53,7 @@ namespace api
 //! The stream is flushed after at the end of each of the public
 //! write.... functions.
 //!
-class API_EXPORT CModelPlotDataJsonWriter final: private core::CNonCopyable
-{
+class API_EXPORT CModelPlotDataJsonWriter final: private core::CNonCopyable {
     private:
 
         static const std::string JOB_ID;

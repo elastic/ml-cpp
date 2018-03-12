@@ -15,20 +15,16 @@
 #include <core/CPOpen.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 FILE *CPOpen::pOpen(const char *command,
-                    const char *mode)
-{
+                    const char *mode) {
     return ::popen(command, mode);
 }
 
-int CPOpen::pClose(FILE *stream)
-{
+int CPOpen::pClose(FILE *stream) {
     return ::pclose(stream);
 }
 

@@ -25,11 +25,9 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 
-class CValueAdaptor
-{
+class CValueAdaptor {
     public:
         typedef double result_type;
 
@@ -39,12 +37,10 @@ class CValueAdaptor
                       double scale) :
             m_Function(&function),
             m_Centre(centre),
-            m_Scale(scale)
-        {
+            m_Scale(scale) {
         }
 
-        bool operator()(double x, double &result) const
-        {
+        bool operator()(double x, double &result) const {
             result = m_Function->value(x, m_Centre, m_Scale);
             return true;
         }
@@ -55,20 +51,17 @@ class CValueAdaptor
         double m_Scale;
 };
 
-class CSquareDerivativeAdaptor
-{
+class CSquareDerivativeAdaptor {
     public:
         CSquareDerivativeAdaptor(const maths::CRadialBasisFunction &function,
                                  double centre,
                                  double scale) :
             m_Function(&function),
             m_Centre(centre),
-            m_Scale(scale)
-        {
+            m_Scale(scale) {
         }
 
-        bool operator()(double x, double &result) const
-        {
+        bool operator()(double x, double &result) const {
             double d = m_Function->derivative(x, m_Centre, m_Scale);
             result = d * d;
             return true;
@@ -82,8 +75,7 @@ class CSquareDerivativeAdaptor
 
 }
 
-void CRadialBasisFunctionTest::testDerivative(void)
-{
+void CRadialBasisFunctionTest::testDerivative(void) {
     LOG_DEBUG("+--------------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testDerivative  |");
     LOG_DEBUG("+--------------------------------------------+");
@@ -97,15 +89,12 @@ void CRadialBasisFunctionTest::testDerivative(void)
 
     LOG_DEBUG("*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
-            for (std::size_t k = 0u; k < 10; ++k)
-            {
+            for (std::size_t k = 0u; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = gaussian.derivative(x, centres[i], scales[j]);
                 double e = (gaussian.value(x + eps, centres[i], scales[j])
@@ -121,15 +110,12 @@ void CRadialBasisFunctionTest::testDerivative(void)
 
     LOG_DEBUG("*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
-            for (std::size_t k = 0u; k < 10; ++k)
-            {
+            for (std::size_t k = 0u; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = inverseQuadratic.derivative(x, centres[i], scales[j]);
                 double e = (inverseQuadratic.value(x + eps, centres[i], scales[j])
@@ -145,8 +131,7 @@ void CRadialBasisFunctionTest::testDerivative(void)
 
 }
 
-void CRadialBasisFunctionTest::testMean(void)
-{
+void CRadialBasisFunctionTest::testMean(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -160,17 +145,14 @@ void CRadialBasisFunctionTest::testMean(void)
 
     LOG_DEBUG("*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CValueAdaptor f(gaussian, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 20; ++k)
-            {
+            for (std::size_t k = 0u; k < 20; ++k) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
@@ -188,17 +170,14 @@ void CRadialBasisFunctionTest::testMean(void)
 
     LOG_DEBUG("*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CValueAdaptor f(inverseQuadratic, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 20; ++k)
-            {
+            for (std::size_t k = 0u; k < 20; ++k) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
@@ -215,8 +194,7 @@ void CRadialBasisFunctionTest::testMean(void)
     }
 }
 
-void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
-{
+void CRadialBasisFunctionTest::testMeanSquareDerivative(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testMean  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -230,17 +208,14 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
 
     LOG_DEBUG("*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CSquareDerivativeAdaptor f(gaussian, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 50; ++k)
-            {
+            for (std::size_t k = 0u; k < 50; ++k) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
@@ -258,17 +233,14 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
 
     LOG_DEBUG("*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
             LOG_DEBUG("centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CSquareDerivativeAdaptor f(inverseQuadratic, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 50; ++k)
-            {
+            for (std::size_t k = 0u; k < 50; ++k) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
@@ -285,8 +257,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void)
     }
 }
 
-void CRadialBasisFunctionTest::testProduct(void)
-{
+void CRadialBasisFunctionTest::testProduct(void) {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CRadialBasisFunctionTest::testProduct  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -300,14 +271,10 @@ void CRadialBasisFunctionTest::testProduct(void)
 
     LOG_DEBUG("*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(centres); ++j)
-        {
-            for (std::size_t k = 0u; k < boost::size(scales); ++k)
-            {
-                for (std::size_t l = 0u; l < boost::size(scales); ++l)
-                {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(centres); ++j) {
+            for (std::size_t k = 0u; k < boost::size(scales); ++k) {
+                for (std::size_t l = 0u; l < boost::size(scales); ++l) {
                     LOG_DEBUG("centre1 = " << centres[i]
                               << ", centre2 = " << centres[j]
                               << ", scale1 = " << scales[k]
@@ -317,10 +284,9 @@ void CRadialBasisFunctionTest::testProduct(void)
                     CValueAdaptor f1(gaussian, centres[i], scales[k]);
                     CValueAdaptor f2(gaussian, centres[j], scales[l]);
                     maths::CCompositeFunctions::CProduct<CValueAdaptor,
-                                                         CValueAdaptor> f(f1, f2);
+                          CValueAdaptor> f(f1, f2);
                     double expectedProduct = 0.0;
-                    for (std::size_t m = 0u; m < 50; ++m)
-                    {
+                    for (std::size_t m = 0u; m < 50; ++m) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;
@@ -344,14 +310,10 @@ void CRadialBasisFunctionTest::testProduct(void)
 
     LOG_DEBUG("*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(centres); ++j)
-        {
-            for (std::size_t k = 0u; k < boost::size(scales); ++k)
-            {
-                for (std::size_t l = 0u; l < boost::size(scales); ++l)
-                {
+    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0u; j < boost::size(centres); ++j) {
+            for (std::size_t k = 0u; k < boost::size(scales); ++k) {
+                for (std::size_t l = 0u; l < boost::size(scales); ++l) {
                     LOG_DEBUG("centre1 = " << centres[i]
                               << ", centre2 = " << centres[j]
                               << ", scale1 = " << scales[k]
@@ -362,9 +324,8 @@ void CRadialBasisFunctionTest::testProduct(void)
                     CValueAdaptor f2(inverseQuadratic, centres[j], scales[l]);
                     double expectedProduct = 0.0;
                     maths::CCompositeFunctions::CProduct<CValueAdaptor,
-                                                         CValueAdaptor> f(f1, f2);
-                    for (std::size_t m = 0u; m < 50; ++m)
-                    {
+                          CValueAdaptor> f(f1, f2);
+                    for (std::size_t m = 0u; m < 50; ++m) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;
@@ -387,22 +348,21 @@ void CRadialBasisFunctionTest::testProduct(void)
     }
 }
 
-CppUnit::Test *CRadialBasisFunctionTest::suite(void)
-{
+CppUnit::Test *CRadialBasisFunctionTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-                                   "CRadialBasisFunctionTest::testDerivative",
-                                   &CRadialBasisFunctionTest::testDerivative) );
+                               "CRadialBasisFunctionTest::testDerivative",
+                               &CRadialBasisFunctionTest::testDerivative) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-                                   "CRadialBasisFunctionTest::testMean",
-                                   &CRadialBasisFunctionTest::testMean) );
+                               "CRadialBasisFunctionTest::testMean",
+                               &CRadialBasisFunctionTest::testMean) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-                                   "CRadialBasisFunctionTest::testMeanSquareDerivative",
-                                   &CRadialBasisFunctionTest::testMeanSquareDerivative) );
+                               "CRadialBasisFunctionTest::testMeanSquareDerivative",
+                               &CRadialBasisFunctionTest::testMeanSquareDerivative) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-                                   "CRadialBasisFunctionTest::testProduct",
-                                   &CRadialBasisFunctionTest::testProduct) );
+                               "CRadialBasisFunctionTest::testProduct",
+                               &CRadialBasisFunctionTest::testProduct) );
 
     return suiteOfTests;
 }

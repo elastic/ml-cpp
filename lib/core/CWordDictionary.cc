@@ -25,25 +25,20 @@
 #include <ctype.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
-namespace
-{
+namespace {
 
 
 const char PART_OF_SPEECH_SEPARATOR('@');
 
 
-CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode)
-{
+CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
     // These codes are taken from the readme file that comes with Moby
     // Part-of-Speech - see http://icon.shef.ac.uk/Moby/mpos.html
-    switch (partOfSpeechCode)
-    {
+    switch (partOfSpeechCode) {
         case '?':
             // This means the word existed in SCOWL but not Moby and none of the
             // heuristics in crossref.py worked
@@ -92,10 +87,8 @@ CFastMutex               CWordDictionary::ms_LoadMutex;
 volatile CWordDictionary *CWordDictionary::ms_Instance(0);
 
 
-const CWordDictionary &CWordDictionary::instance(void)
-{
-    if (ms_Instance == 0)
-    {
+const CWordDictionary &CWordDictionary::instance(void) {
+    if (ms_Instance == 0) {
         CScopedFastLock lock(ms_LoadMutex);
 
         // Even if we get into this code block in more than one thread, whatever
@@ -111,64 +104,53 @@ const CWordDictionary &CWordDictionary::instance(void)
     return *const_cast<const CWordDictionary *>(ms_Instance);
 }
 
-bool CWordDictionary::isInDictionary(const std::string &str) const
-{
+bool CWordDictionary::isInDictionary(const std::string &str) const {
     return m_DictionaryWords.find(str) != m_DictionaryWords.end();
 }
 
-CWordDictionary::EPartOfSpeech CWordDictionary::partOfSpeech(const std::string &str) const
-{
+CWordDictionary::EPartOfSpeech CWordDictionary::partOfSpeech(const std::string &str) const {
     TStrUMapCItr iter = m_DictionaryWords.find(str);
-    if (iter == m_DictionaryWords.end())
-    {
+    if (iter == m_DictionaryWords.end()) {
         return E_NotInDictionary;
     }
     return iter->second;
 }
 
-CWordDictionary::CWordDictionary(void)
-{
+CWordDictionary::CWordDictionary(void) {
     std::string fileToLoad(CResourceLocator::resourceDir() + '/' + DICTIONARY_FILE);
 
     // If the file can't be read for some reason, we just end up with an empty
     // dictionary
     std::ifstream ifs(fileToLoad.c_str());
-    if (ifs.is_open())
-    {
+    if (ifs.is_open()) {
         LOG_DEBUG("Populating word dictionary from file " <<
                   fileToLoad);
 
         std::string word;
-        while (std::getline(ifs, word))
-        {
+        while (std::getline(ifs, word)) {
             CStringUtils::trimWhitespace(word);
-            if (word.empty())
-            {
+            if (word.empty()) {
                 continue;
             }
             size_t sepPos(word.find(PART_OF_SPEECH_SEPARATOR));
-            if (sepPos == std::string::npos)
-            {
+            if (sepPos == std::string::npos) {
                 LOG_ERROR("Found word with no part-of-speech separator: " <<
                           word);
                 continue;
             }
-            if (sepPos == 0)
-            {
+            if (sepPos == 0) {
                 LOG_ERROR("Found part-of-speech separator with no preceding word: " <<
                           word);
                 continue;
             }
-            if (sepPos + 1 >= word.length())
-            {
+            if (sepPos + 1 >= word.length()) {
                 LOG_ERROR("Found word with no part-of-speech code: " <<
                           word);
                 continue;
             }
             char partOfSpeechCode(word[sepPos + 1]);
             EPartOfSpeech partOfSpeech(partOfSpeechFromCode(partOfSpeechCode));
-            if (partOfSpeech == E_NotInDictionary)
-            {
+            if (partOfSpeech == E_NotInDictionary) {
                 LOG_ERROR("Unknown part-of-speech code (" << partOfSpeechCode <<
                           ") for word: " << word);
                 continue;
@@ -179,26 +161,21 @@ CWordDictionary::CWordDictionary(void)
 
         LOG_DEBUG("Populated word dictionary with " <<
                   m_DictionaryWords.size() << " words");
-    }
-    else
-    {
+    } else {
         LOG_ERROR("Failed to open dictionary file " << fileToLoad);
     }
 }
 
-CWordDictionary::~CWordDictionary(void)
-{
+CWordDictionary::~CWordDictionary(void) {
     ms_Instance = 0;
 }
 
-size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) const
-{
+size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) const {
     size_t hash(0);
 
     for (std::string::const_iterator iter = str.begin();
          iter != str.end();
-         ++iter)
-    {
+         ++iter) {
         hash *= 17;
         hash += ::tolower(*iter);
     }
@@ -207,8 +184,7 @@ size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) c
 }
 
 bool CWordDictionary::CStrEqualIgnoreCase::operator()(const std::string &lhs,
-                                                      const std::string &rhs) const
-{
+                                                      const std::string &rhs) const {
     return lhs.length() == rhs.length() &&
            CStrCaseCmp::strCaseCmp(lhs.c_str(), rhs.c_str()) == 0;
 }

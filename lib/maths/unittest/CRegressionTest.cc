@@ -34,15 +34,12 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-namespace
-{
+namespace {
 
 template<typename T>
-T sum(const T &params, const T &delta)
-{
+T sum(const T &params, const T &delta) {
     T result;
-    for (std::size_t i = 0u; i < params.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < params.size(); ++i) {
         result[i] = params[i] + delta[i];
     }
     return result;
@@ -51,15 +48,12 @@ T sum(const T &params, const T &delta)
 template<typename T>
 double squareResidual(const T &params,
                       const TDoubleVec &x,
-                      const TDoubleVec &y)
-{
+                      const TDoubleVec &y) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < x.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < x.size(); ++i) {
         double yi = 0.0;
         double xi = 1.0;
-        for (std::size_t j = 0u; j < params.size(); ++j, xi *= x[i])
-        {
+        for (std::size_t j = 0u; j < params.size(); ++j, xi *= x[i]) {
             yi += params[j] * xi;
         }
         result += (y[i] - yi) * (y[i] - yi);
@@ -73,8 +67,7 @@ using TDoubleArray4 = boost::array<double, 4>;
 
 }
 
-void CRegressionTest::testInvariants(void)
-{
+void CRegressionTest::testInvariants(void) {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testInvariants |");
     LOG_DEBUG("+----------------------------------+");
@@ -89,8 +82,7 @@ void CRegressionTest::testInvariants(void)
     double slope = 2.0;
     double curvature = 0.2;
 
-    for (std::size_t t = 0u; t < 100; ++t)
-    {
+    for (std::size_t t = 0u; t < 100; ++t) {
         maths::CRegression::CLeastSquaresOnline<2, double> ls;
 
         TDoubleVec increments;
@@ -101,8 +93,7 @@ void CRegressionTest::testInvariants(void)
         TDoubleVec xs;
         TDoubleVec ys;
         double x = 0.0;
-        for (std::size_t i = 0u; i < n; ++i)
-        {
+        for (std::size_t i = 0u; i < n; ++i) {
             x += increments[i];
             double y = curvature * x * x + slope * x + intercept + errors[i];
             ls.add(x, y);
@@ -115,16 +106,14 @@ void CRegressionTest::testInvariants(void)
 
         double residual = squareResidual(params, xs, ys);
 
-        if (t % 10 == 0)
-        {
+        if (t % 10 == 0) {
             LOG_DEBUG("params   = " << core::CContainerPrinter::print(params));
             LOG_DEBUG("residual = " << residual);
         }
 
         TDoubleVec delta;
         rng.generateUniformSamples(-1e-4, 1e-4, 15, delta);
-        for (std::size_t j = 0u; j < delta.size(); j += 3)
-        {
+        for (std::size_t j = 0u; j < delta.size(); j += 3) {
             TDoubleArray3 deltaj;
             deltaj[0] = delta[j];
             deltaj[1] = delta[j+1];
@@ -132,8 +121,7 @@ void CRegressionTest::testInvariants(void)
 
             double residualj = squareResidual(sum(params, deltaj), xs, ys);
 
-            if (t % 10 == 0)
-            {
+            if (t % 10 == 0) {
                 LOG_DEBUG("  delta residual " << residualj);
             }
 
@@ -142,8 +130,7 @@ void CRegressionTest::testInvariants(void)
     }
 }
 
-void CRegressionTest::testFit(void)
-{
+void CRegressionTest::testFit(void) {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testFit  |");
     LOG_DEBUG("+----------------------------+");
@@ -159,8 +146,7 @@ void CRegressionTest::testFit(void)
         TMeanAccumulator interceptError;
         TMeanAccumulator slopeError;
 
-        for (std::size_t t = 0u; t < 100; ++t)
-        {
+        for (std::size_t t = 0u; t < 100; ++t) {
             maths::CRegression::CLeastSquaresOnline<1> ls;
 
             TDoubleVec increments;
@@ -169,8 +155,7 @@ void CRegressionTest::testFit(void)
             rng.generateNormalSamples(0.0, 2.0, n, errors);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i)
-            {
+            for (std::size_t i = 0u; i < n; ++i) {
                 double y = slope * x + intercept + errors[i];
                 ls.add(x, y);
                 x += increments[i];
@@ -179,8 +164,7 @@ void CRegressionTest::testFit(void)
             TDoubleArray2 params;
             CPPUNIT_ASSERT(ls.parameters(params));
 
-            if (t % 10 == 0)
-            {
+            if (t % 10 == 0) {
                 LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
             }
 
@@ -199,8 +183,7 @@ void CRegressionTest::testFit(void)
     // Test a variety of the randomly generated polynomial fits.
 
     {
-        for (std::size_t t = 0u; t < 10; ++t)
-        {
+        for (std::size_t t = 0u; t < 10; ++t) {
             maths::CRegression::CLeastSquaresOnline<2, double> ls;
 
             TDoubleVec curve;
@@ -210,8 +193,7 @@ void CRegressionTest::testFit(void)
             rng.generateUniformSamples(1.0, 2.0, n, increments);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i)
-            {
+            for (std::size_t i = 0u; i < n; ++i) {
                 double y = curve[2] * x * x + curve[1] * x + curve[0];
                 ls.add(x, y);
                 x += increments[i];
@@ -222,16 +204,14 @@ void CRegressionTest::testFit(void)
 
             LOG_DEBUG("curve  = " << core::CContainerPrinter::print(curve));
             LOG_DEBUG("params = " << core::CContainerPrinter::print(params));
-            for (std::size_t i = 0u; i < curve.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < curve.size(); ++i) {
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(curve[i], params[i], 0.03 * curve[i]);
             }
         }
     }
 }
 
-void CRegressionTest::testShiftAbscissa(void)
-{
+void CRegressionTest::testShiftAbscissa(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftAbscissa  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -246,8 +226,7 @@ void CRegressionTest::testShiftAbscissa(void)
         maths::CRegression::CLeastSquaresOnline<1> ls;
         maths::CRegression::CLeastSquaresOnline<1> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i)
-        {
+        for (std::size_t i = 0u; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept);
             lss.add((x - 50.0), slope * x + intercept);
@@ -281,8 +260,7 @@ void CRegressionTest::testShiftAbscissa(void)
         maths::CRegression::CLeastSquaresOnline<2, double> ls;
         maths::CRegression::CLeastSquaresOnline<2, double> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i)
-        {
+        for (std::size_t i = 0u; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept);
             lss.add(x - 50.0, curvature * x * x + slope * x + intercept);
@@ -313,8 +291,7 @@ void CRegressionTest::testShiftAbscissa(void)
     }
 }
 
-void CRegressionTest::testShiftOrdinate(void)
-{
+void CRegressionTest::testShiftOrdinate(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftOrdinate  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -324,8 +301,7 @@ void CRegressionTest::testShiftOrdinate(void)
     // of the derivatives.
 
     maths::CRegression::CLeastSquaresOnline<3, double> regression;
-    for (double x = 0.0; x < 100.0; x += 1.0)
-    {
+    for (double x = 0.0; x < 100.0; x += 1.0) {
         regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
     }
 
@@ -346,8 +322,7 @@ void CRegressionTest::testShiftOrdinate(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(         params1[3], params2[3], 1e-6 * ::fabs(params1[3]));
 }
 
-void CRegressionTest::testShiftGradient(void)
-{
+void CRegressionTest::testShiftGradient(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testShiftGradient  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -357,8 +332,7 @@ void CRegressionTest::testShiftGradient(void)
     // of the derivatives.
 
     maths::CRegression::CLeastSquaresOnline<3, double> regression;
-    for (double x = 0.0; x < 100.0; x += 1.0)
-    {
+    for (double x = 0.0; x < 100.0; x += 1.0) {
         regression.add(x, 0.01 * x * x * x - 0.2 * x * x + 1.0 * x + 10.0);
     }
 
@@ -379,8 +353,7 @@ void CRegressionTest::testShiftGradient(void)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(       params1[3], params2[3], 1e-6 * ::fabs(params1[3]));
 }
 
-void CRegressionTest::testAge(void)
-{
+void CRegressionTest::testAge(void) {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testAge  |");
     LOG_DEBUG("+----------------------------+");
@@ -394,8 +367,7 @@ void CRegressionTest::testAge(void)
     {
         maths::CRegression::CLeastSquaresOnline<1> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i)
-        {
+        for (std::size_t i = 0u; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept, 5.0);
         }
@@ -446,8 +418,7 @@ void CRegressionTest::testAge(void)
     {
         maths::CRegression::CLeastSquaresOnline<2, double> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i)
-        {
+        for (std::size_t i = 0u; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept, 5.0);
         }
@@ -504,8 +475,7 @@ void CRegressionTest::testAge(void)
     }
 }
 
-void CRegressionTest::testPrediction(void)
-{
+void CRegressionTest::testPrediction(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testPrediction  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -527,8 +497,7 @@ void CRegressionTest::testPrediction(void)
     TMeanAccumulator e4;
 
     double x0 = 0.0;
-    for (std::size_t i = 0u; i <= 400; ++i)
-    {
+    for (std::size_t i = 0u; i <= 400; ++i) {
         double x = 0.005 * pi * static_cast<double>(i);
         double y = ::sin(x);
 
@@ -544,8 +513,7 @@ void CRegressionTest::testPrediction(void)
         ls3.add(x - x0, y);
         ls3.age(0.95);
 
-        if (x > x0 + 2.0)
-        {
+        if (x > x0 + 2.0) {
             ls1.shiftAbscissa(-2.0);
             ls2.shiftAbscissa(-2.0);
             ls3.shiftAbscissa(-2.0);
@@ -559,18 +527,17 @@ void CRegressionTest::testPrediction(void)
         TDoubleArray3 params3;
         ls2.parameters(params3);
         double y3 =  params3[2] * (x - x0) * (x - x0)
-                   + params3[1] * (x - x0)
-                   + params3[0];
+                     + params3[1] * (x - x0)
+                     + params3[0];
 
         TDoubleArray4 params4;
         ls3.parameters(params4);
         double y4 =  params4[3] * (x - x0) * (x - x0) * (x - x0)
-                   + params4[2] * (x - x0) * (x - x0)
-                   + params4[1] * (x - x0)
-                   + params4[0];
+                     + params4[2] * (x - x0) * (x - x0)
+                     + params4[1] * (x - x0)
+                     + params4[0];
 
-        if (i % 10 == 0)
-        {
+        if (i % 10 == 0) {
             LOG_DEBUG("y = " << y
                       << ", m = " << maths::CBasicStatistics::mean(m)
                       << ", y2 = " << y2
@@ -593,8 +560,7 @@ void CRegressionTest::testPrediction(void)
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) < 0.025 * maths::CBasicStatistics::mean(em));
 }
 
-void CRegressionTest::testCombination(void)
-{
+void CRegressionTest::testCombination(void) {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testCombination  |");
     LOG_DEBUG("+------------------------------------+");
@@ -618,15 +584,13 @@ void CRegressionTest::testCombination(void)
     maths::CRegression::CLeastSquaresOnline<2> lsB;
     maths::CRegression::CLeastSquaresOnline<2> ls;
 
-    for (std::size_t i = 0u; i < (2 * n) / 3; ++i)
-    {
+    for (std::size_t i = 0u; i < (2 * n) / 3; ++i) {
         double x = static_cast<double>(i);
         double y = curvature * x * x + slope * x + intercept + errors[i];
         lsA.add(x, y);
         ls.add(x, y);
     }
-    for (std::size_t i = (2 * n) / 3; i < n; ++i)
-    {
+    for (std::size_t i = (2 * n) / 3; i < n; ++i) {
         double x = static_cast<double>(i);
         double y = curvature * x * x + slope * x + intercept + errors[i];
         lsB.add(x, y);
@@ -649,14 +613,12 @@ void CRegressionTest::testCombination(void)
     LOG_DEBUG("params       = " <<core::CContainerPrinter::print(params));
     LOG_DEBUG("params A + B = " <<core::CContainerPrinter::print(paramsAPlusB));
 
-    for (std::size_t i = 0u; i < params.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < params.size(); ++i) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i], 5e-3 * ::fabs(params[i]));
     }
 }
 
-void CRegressionTest::testSingular(void)
-{
+void CRegressionTest::testSingular(void) {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testSingular  |");
     LOG_DEBUG("+---------------------------------+");
@@ -778,8 +740,7 @@ void CRegressionTest::testSingular(void)
     }
 }
 
-void CRegressionTest::testScale(void)
-{
+void CRegressionTest::testScale(void) {
     LOG_DEBUG("+------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testScale  |");
     LOG_DEBUG("+------------------------------+");
@@ -788,8 +749,7 @@ void CRegressionTest::testScale(void)
 
     maths::CRegression::CLeastSquaresOnline<1, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i)
-    {
+    for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x);
     }
@@ -817,8 +777,7 @@ void CRegressionTest::testScale(void)
 }
 
 template<std::size_t N>
-class CRegressionPrediction
-{
+class CRegressionPrediction {
     public:
         using result_type = double;
 
@@ -827,8 +786,7 @@ class CRegressionPrediction
             m_Regression(regression)
         {}
 
-        bool operator()(double x, double &result) const
-        {
+        bool operator()(double x, double &result) const {
             result = m_Regression.predict(x);
             return true;
         }
@@ -837,8 +795,7 @@ class CRegressionPrediction
         maths::CRegression::CLeastSquaresOnline<N, double> m_Regression;
 };
 
-void CRegressionTest::testMean(void)
-{
+void CRegressionTest::testMean(void) {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CRegressionTest::testMean  |");
     LOG_DEBUG("+-----------------------------+");
@@ -847,17 +804,15 @@ void CRegressionTest::testMean(void)
     // of the regression.
 
     test::CRandomNumbers rng;
-    for (std::size_t i = 0; i < 5; ++i)
-    {
+    for (std::size_t i = 0; i < 5; ++i) {
         TDoubleVec coeffs;
         rng.generateUniformSamples(-1.0, 1.0, 4, coeffs);
         maths::CRegression::CLeastSquaresOnline<3, double> regression;
-        for (double x = 0.0; x < 10.0; x += 1.0)
-        {
+        for (double x = 0.0; x < 10.0; x += 1.0) {
             regression.add(x,  0.2 * coeffs[0] * x * x * x
-                             + 0.4 * coeffs[1] * x * x
-                             + coeffs[2] * x
-                             + 2.0 * coeffs[3]);
+                           + 0.4 * coeffs[1] * x * x
+                           + coeffs[2] * x
+                           + 2.0 * coeffs[3]);
         }
 
         double expected;
@@ -889,8 +844,7 @@ void CRegressionTest::testMean(void)
     }
 }
 
-void CRegressionTest::testCovariances(void)
-{
+void CRegressionTest::testCovariances(void) {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testCovariances  |");
     LOG_DEBUG("+------------------------------------+");
@@ -912,13 +866,11 @@ void CRegressionTest::testCovariances(void)
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<double, 2> covariances;
-        for (std::size_t i = 0u; i < 500; ++i)
-        {
+        for (std::size_t i = 0u; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CRegression::CLeastSquaresOnline<1, double> regression;
-            for (double x = 0.0; x < n; x += 1.0)
-            {
+            for (double x = 0.0; x < n; x += 1.0) {
                 regression.add(x, 1.5 * x + noise[static_cast<std::size_t>(x)]);
             }
             TDoubleArray2 params;
@@ -928,8 +880,7 @@ void CRegressionTest::testCovariances(void)
         TMatrix2 expected = maths::CBasicStatistics::covariances(covariances);
 
         maths::CRegression::CLeastSquaresOnline<1, double> regression;
-        for (double x = 0.0; x < n; x += 1.0)
-        {
+        for (double x = 0.0; x < n; x += 1.0) {
             regression.add(x, 1.5 * x);
         }
         TMatrix2 actual;
@@ -946,13 +897,11 @@ void CRegressionTest::testCovariances(void)
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<double, 3> covariances;
-        for (std::size_t i = 0u; i < 500; ++i)
-        {
+        for (std::size_t i = 0u; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CRegression::CLeastSquaresOnline<2, double> regression;
-            for (double x = 0.0; x < n; x += 1.0)
-            {
+            for (double x = 0.0; x < n; x += 1.0) {
                 regression.add(x, 0.25 * x * x + 1.5 * x + noise[static_cast<std::size_t>(x)]);
             }
             TDoubleArray3 params;
@@ -962,8 +911,7 @@ void CRegressionTest::testCovariances(void)
         TMatrix3 expected = maths::CBasicStatistics::covariances(covariances);
 
         maths::CRegression::CLeastSquaresOnline<2, double> regression;
-        for (double x = 0.0; x < n; x += 1.0)
-        {
+        for (double x = 0.0; x < n; x += 1.0) {
             regression.add(x, 0.25 * x * x + 1.5 * x);
         }
         TMatrix3 actual;
@@ -975,22 +923,19 @@ void CRegressionTest::testCovariances(void)
     }
 }
 
-void CRegressionTest::testParameters(void)
-{
+void CRegressionTest::testParameters(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testParameters  |");
     LOG_DEBUG("+-----------------------------------+");
 
     maths::CRegression::CLeastSquaresOnline<3, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i)
-    {
+    for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x + 0.5 * x * x - 0.03 * x * x * x);
     }
 
-    for (std::size_t i = 20u; i < 25; ++i)
-    {
+    for (std::size_t i = 20u; i < 25; ++i) {
         TDoubleArray4 params1 = regression.parameters(static_cast<double>(i - 19));
 
         maths::CRegression::CLeastSquaresOnline<3, double> regression2(regression);
@@ -1005,8 +950,7 @@ void CRegressionTest::testParameters(void)
     }
 }
 
-void CRegressionTest::testPersist(void)
-{
+void CRegressionTest::testPersist(void) {
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testPersist  |");
     LOG_DEBUG("+--------------------------------+");
@@ -1015,8 +959,7 @@ void CRegressionTest::testPersist(void)
 
     maths::CRegression::CLeastSquaresOnline<2, double> origRegression;
 
-    for (std::size_t i = 0u; i < 20; ++i)
-    {
+    for (std::size_t i = 0u; i < 20; ++i) {
         double x = static_cast<double>(i);
         origRegression.add(x, 5.0 + 0.3 * x + 0.5 * x * x);
     }
@@ -1037,8 +980,8 @@ void CRegressionTest::testPersist(void)
 
     maths::CRegression::CLeastSquaresOnline<2, double> restoredRegression;
     CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &maths::CRegression::CLeastSquaresOnline<2, double>::acceptRestoreTraverser,
-            &restoredRegression, _1)));
+                                                  &maths::CRegression::CLeastSquaresOnline<2, double>::acceptRestoreTraverser,
+                                                  &restoredRegression, _1)));
 
     CPPUNIT_ASSERT_EQUAL(origRegression.checksum(),
                          restoredRegression.checksum());
@@ -1052,8 +995,7 @@ void CRegressionTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
 }
 
-void CRegressionTest::testParameterProcess(void)
-{
+void CRegressionTest::testParameterProcess(void) {
     LOG_DEBUG("+-----------------------------------------+");
     LOG_DEBUG("|  CRegressionTest::testParameterProcess  |");
     LOG_DEBUG("+-----------------------------------------+");
@@ -1078,19 +1020,18 @@ void CRegressionTest::testParameterProcess(void)
                            0.3, 0.5, 1.0, 0.2, 0.3, 0.1, 0.5, 1.4, 0.7, 0.9,
                            0.1, 0.4, 0.8, 1.0, 0.6, 0.5, 0.8, 1.3, 0.3, 1.7,
                            0.3, 1.2, 0.3, 1.2, 0.3, 0.1, 0.5, 0.4, 0.7, 0.9,
-                           0.8, 0.6, 0.8, 1.1, 0.6, 0.5, 0.5, 1.3, 0.3, 0.7 };
+                           0.8, 0.6, 0.8, 1.1, 0.6, 0.5, 0.5, 1.3, 0.3, 0.7
+                         };
 
     TMeanAccumulator error;
 
-    for (std::size_t test = 0u; test < boost::size(variances); ++test)
-    {
+    for (std::size_t test = 0u; test < boost::size(variances); ++test) {
         LOG_DEBUG("variance = " << variances[test]);
 
         TMeanAccumulator actual;
         TMeanAccumulator estimate;
 
-        for (std::size_t run = 0u; run < 25; ++run)
-        {
+        for (std::size_t run = 0u; run < 25; ++run) {
             maths::CRegression::CLeastSquaresOnline<3, double> regression;
             maths::CRegression::CLeastSquaresOnlineParameterProcess<4, double> parameterProcess;
 
@@ -1098,14 +1039,12 @@ void CRegressionTest::testParameterProcess(void)
             double x = 0.0;
             double v = 5.0;
             double a = 1.0;
-            for (std::size_t i = 0u; i < boost::size(intervals); t += intervals[i], ++i)
-            {
+            for (std::size_t i = 0u; i < boost::size(intervals); t += intervals[i], ++i) {
                 double dt = intervals[i];
                 TDoubleVec da;
                 rng.generateNormalSamples(0.0, variances[test],
                                           static_cast<std::size_t>(dt / 0.05), da);
-                for (auto da_ : da)
-                {
+                for (auto da_ : da) {
                     x += (v + 0.5 * a * 0.05) * 0.05;
                     v += a * 0.05;
                     a += da_;
@@ -1115,27 +1054,23 @@ void CRegressionTest::testParameterProcess(void)
                 TVector paramsDrift(regression.parameters(t + dt));
                 regression.add(t + dt, x);
                 paramsDrift -= TVector(regression.parameters(t + dt));
-                if (sufficientHistoryBeforeUpdate && regression.range() >= 1.0)
-                {
+                if (sufficientHistoryBeforeUpdate && regression.range() >= 1.0) {
                     parameterProcess.add(t + dt, paramsDrift, TVector(dt));
                 }
                 parameterProcess.age(std::exp(-0.05 * intervals[i]));
             }
 
             TMeanVarAccumulator moments;
-            for (std::size_t trial = 0u; trial < 500; ++trial)
-            {
+            for (std::size_t trial = 0u; trial < 500; ++trial) {
                 double xt = 0.0;
                 double vt = 0.0;
                 double at = 0.0;
-                for (std::size_t i = 0u; i < 5; ++i)
-                {
+                for (std::size_t i = 0u; i < 5; ++i) {
                     double dt = intervals[i];
                     TDoubleVec da;
                     rng.generateNormalSamples(0.0, variances[test],
                                               static_cast<std::size_t>(dt / 0.05), da);
-                    for (auto da_ : da)
-                    {
+                    for (auto da_ : da) {
                         xt += (vt + 0.5 * at * 0.05) * 0.05;
                         vt += at * 0.05;
                         at += da_;
@@ -1145,8 +1080,7 @@ void CRegressionTest::testParameterProcess(void)
             }
 
             double interval = std::accumulate(intervals, intervals + 5, 0.0);
-            if (run % 5 == 0)
-            {
+            if (run % 5 == 0) {
                 LOG_DEBUG("  " << maths::CBasicStatistics::variance(moments)
                           << " vs " << parameterProcess.predictionVariance(interval));
             }
@@ -1161,62 +1095,61 @@ void CRegressionTest::testParameterProcess(void)
                                      0.25 * maths::CBasicStatistics::mean(actual));
 
         error.add((  maths::CBasicStatistics::mean(actual)
-                   - maths::CBasicStatistics::mean(estimate)) / maths::CBasicStatistics::mean(actual));
+                     - maths::CBasicStatistics::mean(estimate)) / maths::CBasicStatistics::mean(actual));
     }
 
     LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
     CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.08);
 }
 
-CppUnit::Test *CRegressionTest::suite(void)
-{
+CppUnit::Test *CRegressionTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRegressionTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testInvariants",
-                                   &CRegressionTest::testInvariants) );
+                               "CRegressionTest::testInvariants",
+                               &CRegressionTest::testInvariants) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testFit",
-                                   &CRegressionTest::testFit) );
+                               "CRegressionTest::testFit",
+                               &CRegressionTest::testFit) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testShiftAbscissa",
-                                   &CRegressionTest::testShiftAbscissa) );
+                               "CRegressionTest::testShiftAbscissa",
+                               &CRegressionTest::testShiftAbscissa) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testShiftOrdinate",
-                                   &CRegressionTest::testShiftOrdinate) );
+                               "CRegressionTest::testShiftOrdinate",
+                               &CRegressionTest::testShiftOrdinate) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testShiftGradient",
-                                   &CRegressionTest::testShiftGradient) );
+                               "CRegressionTest::testShiftGradient",
+                               &CRegressionTest::testShiftGradient) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testAge",
-                                   &CRegressionTest::testAge) );
+                               "CRegressionTest::testAge",
+                               &CRegressionTest::testAge) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testPrediction",
-                                   &CRegressionTest::testPrediction) );
+                               "CRegressionTest::testPrediction",
+                               &CRegressionTest::testPrediction) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testCombination",
-                                   &CRegressionTest::testCombination) );
+                               "CRegressionTest::testCombination",
+                               &CRegressionTest::testCombination) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testSingular",
-                                   &CRegressionTest::testSingular) );
+                               "CRegressionTest::testSingular",
+                               &CRegressionTest::testSingular) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testScale",
-                                   &CRegressionTest::testScale) );
+                               "CRegressionTest::testScale",
+                               &CRegressionTest::testScale) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testMean",
-                                   &CRegressionTest::testMean) );
+                               "CRegressionTest::testMean",
+                               &CRegressionTest::testMean) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testCovariances",
-                                   &CRegressionTest::testCovariances) );
+                               "CRegressionTest::testCovariances",
+                               &CRegressionTest::testCovariances) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testParameters",
-                                   &CRegressionTest::testParameters) );
+                               "CRegressionTest::testParameters",
+                               &CRegressionTest::testParameters) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testPersist",
-                                   &CRegressionTest::testPersist) );
+                               "CRegressionTest::testPersist",
+                               &CRegressionTest::testPersist) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRegressionTest>(
-                                   "CRegressionTest::testParameterProcess",
-                                   &CRegressionTest::testParameterProcess) );
+                               "CRegressionTest::testParameterProcess",
+                               &CRegressionTest::testParameterProcess) );
 
     return suiteOfTests;
 }

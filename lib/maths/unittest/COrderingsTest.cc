@@ -32,13 +32,11 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 
 using TOptionalDouble = boost::optional<double>;
 
-class CDictionary
-{
+class CDictionary {
     public:
         using TStrVec = std::vector<std::string>;
         static std::size_t ms_Copies;
@@ -46,20 +44,17 @@ class CDictionary
     public:
         CDictionary(const TStrVec &words) : m_Words(words) {}
 
-        CDictionary &operator=(const CDictionary &other)
-        {
+        CDictionary &operator=(const CDictionary &other) {
             ++ms_Copies;
             m_Words = other.m_Words;
             return *this;
         }
 
-        void swap(CDictionary &other)
-        {
+        void swap(CDictionary &other) {
             m_Words.swap(other.m_Words);
         }
 
-        std::string print(void) const
-        {
+        std::string print(void) const {
             return core::CContainerPrinter::print(m_Words);
         }
 
@@ -69,15 +64,13 @@ class CDictionary
 
 std::size_t CDictionary::ms_Copies(0u);
 
-void swap(CDictionary &lhs, CDictionary &rhs)
-{
+void swap(CDictionary &lhs, CDictionary &rhs) {
     lhs.swap(rhs);
 }
 
 }
 
-void COrderingsTest::testOptionalOrdering(void)
-{
+void COrderingsTest::testOptionalOrdering(void) {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testOptionalOrdering  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -116,8 +109,7 @@ void COrderingsTest::testOptionalOrdering(void)
     CPPUNIT_ASSERT(!greater(one, big));
 }
 
-void COrderingsTest::testPtrOrdering(void)
-{
+void COrderingsTest::testPtrOrdering(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testPtrOrdering  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -157,8 +149,7 @@ void COrderingsTest::testPtrOrdering(void)
     CPPUNIT_ASSERT(!greater(one, big));
 }
 
-void COrderingsTest::testLess(void)
-{
+void COrderingsTest::testLess(void) {
     LOG_DEBUG("+----------------------------+");
     LOG_DEBUG("|  COrderingsTest::testLess  |");
     LOG_DEBUG("+----------------------------+");
@@ -239,8 +230,7 @@ void COrderingsTest::testLess(void)
     }
 }
 
-void COrderingsTest::testFirstLess(void)
-{
+void COrderingsTest::testFirstLess(void) {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testFirstLess  |");
     LOG_DEBUG("+---------------------------------+");
@@ -276,8 +266,7 @@ void COrderingsTest::testFirstLess(void)
     CPPUNIT_ASSERT(!less(std::make_pair(&two, &two), &one));
 }
 
-void COrderingsTest::testFirstGreater(void)
-{
+void COrderingsTest::testFirstGreater(void) {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testFirstGreater  |");
     LOG_DEBUG("+------------------------------------+");
@@ -313,8 +302,7 @@ void COrderingsTest::testFirstGreater(void)
     CPPUNIT_ASSERT( greater(std::make_pair(&two, &one), &one));
 }
 
-void COrderingsTest::testSecondLess(void)
-{
+void COrderingsTest::testSecondLess(void) {
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSecondLess  |");
     LOG_DEBUG("+----------------------------------+");
@@ -352,8 +340,7 @@ void COrderingsTest::testSecondLess(void)
     CPPUNIT_ASSERT( less(std::make_pair(&two, &one), &two));
 }
 
-void COrderingsTest::testSecondGreater(void)
-{
+void COrderingsTest::testSecondGreater(void) {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSecondGreater  |");
     LOG_DEBUG("+-------------------------------------+");
@@ -391,8 +378,7 @@ void COrderingsTest::testSecondGreater(void)
     CPPUNIT_ASSERT(!greater(std::make_pair(&two, &two), &two));
 }
 
-void COrderingsTest::testDereference(void)
-{
+void COrderingsTest::testDereference(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testDereference  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -404,23 +390,20 @@ void COrderingsTest::testDereference(void)
     double values_[] = { 10.0, 1.0, 5.0, 3.0, 1.0 };
     TDoubleVec values(boost::begin(values_), boost::end(values_));
     TDoubleVecCItrVec iterators;
-    for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i)
-    {
+    for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
         iterators.push_back(i);
     }
 
     std::sort(iterators.begin(), iterators.end(),
               core::CFunctional::SDereference<maths::COrderings::SLess>());
     std::sort(boost::begin(values_), boost::end(values_));
-    for (std::size_t i = 0u; i < boost::size(values); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(values); ++i) {
         LOG_DEBUG("expected " << values_[i] << ", got " << *iterators[i]);
         CPPUNIT_ASSERT_EQUAL(values_[i], *iterators[i]);
     }
 }
 
-void COrderingsTest::testLexicographicalCompare(void)
-{
+void COrderingsTest::testLexicographicalCompare(void) {
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testLexicographicalCompare  |");
     LOG_DEBUG("+----------------------------------------------+");
@@ -530,8 +513,7 @@ void COrderingsTest::testLexicographicalCompare(void)
     CPPUNIT_ASSERT( maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2, i1, p1, d1, v1, s1, greater));
 }
 
-void COrderingsTest::testSimultaneousSort(void)
-{
+void COrderingsTest::testSimultaneousSort(void) {
     LOG_DEBUG("+----------------------------------------+");
     LOG_DEBUG("|  COrderingsTest::testSimultaneousSort  |");
     LOG_DEBUG("+----------------------------------------+");
@@ -577,11 +559,11 @@ void COrderingsTest::testSimultaneousSort(void)
                         std::string(1, ';'),
                         std::string(1, 'y')};
         TDoubleDoublePrVec values2{{2.0, 1.0},
-                                   {2.1, 1.1},
-                                   {1.3, 1.9},
-                                   {3.2, 12.9},
-                                   {1.2, 10.1},
-                                   {1.3, 6.2}};
+            {2.1, 1.1},
+            {1.3, 1.9},
+            {3.2, 12.9},
+            {1.2, 10.1},
+            {1.3, 6.2}};
 
         std::string expectedKeys("[0.2, 0.7, 1, 1.1, 5, 7]");
         std::string expectedValues1("[~, ;, q, e, y, w]");
@@ -607,18 +589,17 @@ void COrderingsTest::testSimultaneousSort(void)
                         std::string("sss"),
                         std::string("pq")};
         TDoubleDoublePrVec values2{{1.0, 1.0},
-                                   {4.1, 1.1},
-                                   {5.3, 3.9},
-                                   {7.2, 22.9},
-                                   {2.2, 1.1},
-                                   {0.3, 16.2},
-                                   {21.2, 11.1},
-                                   {10.3, 13.2}};
+            {4.1, 1.1},
+            {5.3, 3.9},
+            {7.2, 22.9},
+            {2.2, 1.1},
+            {0.3, 16.2},
+            {21.2, 11.1},
+            {10.3, 13.2}};
         TStrVec rawWords;
         rng.generateWords(5, keys.size() * 5, rawWords);
         TDictionaryVec values3;
-        for (std::size_t i = 0u; i < rawWords.size(); i += 5)
-        {
+        for (std::size_t i = 0u; i < rawWords.size(); i += 5) {
             TStrVec words(rawWords.begin() + i, rawWords.begin() + i + 5);
             values3.push_back(CDictionary(words));
         }
@@ -635,8 +616,7 @@ void COrderingsTest::testSimultaneousSort(void)
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
-        for (const auto &value : values3)
-        {
+        for (const auto &value : values3) {
             CPPUNIT_ASSERT_EQUAL(std::size_t(0), value.ms_Copies);
         }
 
@@ -648,8 +628,7 @@ void COrderingsTest::testSimultaneousSort(void)
         CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
         CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
         CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
-        for (const auto &value : values3)
-        {
+        for (const auto &value : values3) {
             CPPUNIT_ASSERT_EQUAL(std::size_t(0), value.ms_Copies);
         }
     }
@@ -691,8 +670,7 @@ void COrderingsTest::testSimultaneousSort(void)
         CPPUNIT_ASSERT_EQUAL(std::string("[2, 1, 4, 5, 1]"), core::CContainerPrinter::print(values4));
     }
     {
-        for (std::size_t i = 0u; i < 50; ++i)
-        {
+        for (std::size_t i = 0u; i < 50; ++i) {
             TDoubleVec raw;
             rng.generateUniformSamples(0.0, 10.0, 50, raw);
 
@@ -703,8 +681,7 @@ void COrderingsTest::testSimultaneousSort(void)
             TDoubleVec values4(raw.begin() + 40, raw.begin() + 50);
 
             TDoubleDoubleTupleMap expected;
-            for (std::size_t j = 0u; j < 10; ++j)
-            {
+            for (std::size_t j = 0u; j < 10; ++j) {
                 expected[keys[j]] = TDoubleTuple(values1[j], values2[j], values3[j], values4[j]);
             }
 
@@ -712,8 +689,7 @@ void COrderingsTest::testSimultaneousSort(void)
             LOG_DEBUG("keys = " << core::CContainerPrinter::print(keys));
 
             auto itr = expected.begin();
-            for (std::size_t j = 0u; j < keys.size(); ++j, ++itr)
-            {
+            for (std::size_t j = 0u; j < keys.size(); ++j, ++itr) {
                 CPPUNIT_ASSERT_EQUAL(itr->first, keys[j]);
                 CPPUNIT_ASSERT_EQUAL(itr->second.get<0>(), values1[j]);
                 CPPUNIT_ASSERT_EQUAL(itr->second.get<1>(), values2[j]);
@@ -724,40 +700,39 @@ void COrderingsTest::testSimultaneousSort(void)
     }
 }
 
-CppUnit::Test *COrderingsTest::suite(void)
-{
+CppUnit::Test *COrderingsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COrderingsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testOptionalOrdering",
-                                   &COrderingsTest::testOptionalOrdering) );
+                               "COrderingsTest::testOptionalOrdering",
+                               &COrderingsTest::testOptionalOrdering) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testPtrOrdering",
-                                   &COrderingsTest::testPtrOrdering) );
+                               "COrderingsTest::testPtrOrdering",
+                               &COrderingsTest::testPtrOrdering) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testLess",
-                                   &COrderingsTest::testLess) );
+                               "COrderingsTest::testLess",
+                               &COrderingsTest::testLess) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testFirstLess",
-                                   &COrderingsTest::testFirstLess) );
+                               "COrderingsTest::testFirstLess",
+                               &COrderingsTest::testFirstLess) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testFirstGreater",
-                                   &COrderingsTest::testFirstGreater) );
+                               "COrderingsTest::testFirstGreater",
+                               &COrderingsTest::testFirstGreater) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testSecondLess",
-                                   &COrderingsTest::testSecondLess) );
+                               "COrderingsTest::testSecondLess",
+                               &COrderingsTest::testSecondLess) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testSecondGreater",
-                                   &COrderingsTest::testSecondGreater) );
+                               "COrderingsTest::testSecondGreater",
+                               &COrderingsTest::testSecondGreater) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testDereference",
-                                   &COrderingsTest::testDereference) );
+                               "COrderingsTest::testDereference",
+                               &COrderingsTest::testDereference) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testLexicographicalCompare",
-                                   &COrderingsTest::testLexicographicalCompare) );
+                               "COrderingsTest::testLexicographicalCompare",
+                               &COrderingsTest::testLexicographicalCompare) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COrderingsTest>(
-                                   "COrderingsTest::testSimultaneousSort",
-                                   &COrderingsTest::testSimultaneousSort) );
+                               "COrderingsTest::testSimultaneousSort",
+                               &COrderingsTest::testSimultaneousSort) );
 
     return suiteOfTests;
 }

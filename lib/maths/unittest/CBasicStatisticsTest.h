@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CBasicStatisticsTest : public CppUnit::TestFixture
-{
+class CBasicStatisticsTest : public CppUnit::TestFixture {
     public:
         void testMean(void);
         void testCentralMoments(void);

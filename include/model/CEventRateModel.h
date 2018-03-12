@@ -35,19 +35,15 @@
 #include <stdint.h>
 
 
-namespace
-{
+namespace {
 class CMockEventRateModel;
 }
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief The event rate model common functionality.
 //!
@@ -67,8 +63,7 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CEventRateModel : public CIndividualModel
-{
+class MODEL_EXPORT CEventRateModel : public CIndividualModel {
     public:
         using TFeatureData = SEventRateFeatureData;
         using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
@@ -78,8 +73,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
         using TCategoryProbabilityCache = CModelTools::CCategoryProbabilityCache;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.

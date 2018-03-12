@@ -29,10 +29,8 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Determines the semantics of some data from examples.
 //!
@@ -51,8 +49,7 @@ namespace config
 //! examples from a single data type, to be identified, are
 //! supplied. If multiple data types need to be identified then
 //! a different object should be used for each.
-class CONFIG_EXPORT CDataSemantics
-{
+class CONFIG_EXPORT CDataSemantics {
     public:
         typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
 
@@ -84,11 +81,9 @@ class CONFIG_EXPORT CDataSemantics
 
     private:
         //! \brief Hashes an ordinal type.
-        class CONFIG_EXPORT CHashOrdinal
-        {
+        class CONFIG_EXPORT CHashOrdinal {
             public:
-                std::size_t operator()(maths::COrdinal value) const
-                {
+                std::size_t operator()(maths::COrdinal value) const {
                     return value.hash();
                 }
         };

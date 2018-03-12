@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMostCorrelatedTest : public CppUnit::TestFixture
-{
+class CKMostCorrelatedTest : public CppUnit::TestFixture {
     public:
         void testCorrelation(void);
         void testNextProjection(void);

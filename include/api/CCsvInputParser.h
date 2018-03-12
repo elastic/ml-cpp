@@ -25,10 +25,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Parse the CSV formatted input data
@@ -59,8 +57,7 @@ namespace api
 //!   up, it expects fields containing quotes to be quoted, whereas Excel format
 //!   only quotes fields that contain commas or new lines
 //!
-class API_EXPORT CCsvInputParser : public CInputParser
-{
+class API_EXPORT CCsvInputParser : public CInputParser {
     public:
         //! Default CSV separator
         static const char COMMA;
@@ -82,8 +79,7 @@ class API_EXPORT CCsvInputParser : public CInputParser
         //! Used in the implementation of the overall CSV input
         //! parser, but also publicly available for use in other
         //! situations.
-        class API_EXPORT CCsvLineParser
-        {
+        class API_EXPORT CCsvLineParser {
             public:
                 //! Construct, optionally supplying a non-standard separator.
                 //! The string to be parsed must be supplied by calling the

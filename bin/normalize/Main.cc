@@ -48,8 +48,7 @@
 #include <stdlib.h>
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     // Read command line options
     std::string       modelConfigFile;
     std::string       logProperties;
@@ -78,8 +77,7 @@ int main(int argc, char **argv)
                                              quantilesStateFile,
                                              deleteStateFiles,
                                              writeCsv,
-                                             perPartitionNormalization) == false)
-    {
+                                             perPartitionNormalization) == false) {
         return EXIT_FAILURE;
     }
 
@@ -90,8 +88,7 @@ int main(int argc, char **argv)
                               outputFileName,
                               isOutputFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
         return EXIT_FAILURE;
     }
@@ -103,16 +100,14 @@ int main(int argc, char **argv)
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
+    if (ioMgr.initIo() == false) {
         LOG_FATAL("Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
-    if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false)
-    {
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
+    if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL("Ml model config file '" << modelConfigFile <<
                   "' could not be loaded");
         return EXIT_FAILURE;
@@ -122,24 +117,18 @@ int main(int argc, char **argv)
     // There's a choice of input and output formats for the numbers to be normalised
     typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
     TScopedInputParserP inputParser;
-    if (lengthEncodedInput)
-    {
+    if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
+    } else {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
                                                        ml::api::CCsvInputParser::COMMA));
     }
 
     typedef boost::scoped_ptr<ml::api::COutputHandler> TScopedOutputHandlerP;
     TScopedOutputHandlerP outputWriter;
-    if (writeCsv)
-    {
+    if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
-    }
-    else
-    {
+    } else {
         outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter({ ml::api::CResultNormalizer::PROBABILITY_NAME,
                                                                      ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME },
                                                                    ioMgr.outputStream()));
@@ -149,15 +138,12 @@ int main(int argc, char **argv)
     ml::api::CResultNormalizer normalizer(modelConfig, *outputWriter);
 
     // Restore state
-    if (!quantilesStateFile.empty())
-    {
-        if (normalizer.initNormalizer(quantilesStateFile) == false)
-        {
+    if (!quantilesStateFile.empty()) {
+        if (normalizer.initNormalizer(quantilesStateFile) == false) {
             LOG_FATAL("Failed to initialize normalizer");
             return EXIT_FAILURE;
         }
-        if (deleteStateFiles)
-        {
+        if (deleteStateFiles) {
             ::remove(quantilesStateFile.c_str());
         }
     }
@@ -165,8 +151,7 @@ int main(int argc, char **argv)
     // Now handle the numbers to be normalised from stdin
     if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord,
                                             &normalizer,
-                                            _1)) == false)
-    {
+                                            _1)) == false) {
         LOG_FATAL("Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }

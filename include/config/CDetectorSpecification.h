@@ -31,10 +31,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDataCountStatistics;
 class CFieldStatistics;
@@ -53,8 +51,7 @@ class CPenalty;
 //! is a JSON document which can be used to configure the our
 //! autodetect API or Splunk.
 class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetectorSpecification,
-                                             boost::less_than_comparable< CDetectorSpecification > >
-{
+    boost::less_than_comparable< CDetectorSpecification > > {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef std::vector<TDoubleVec> TDoubleVecVec;
@@ -66,16 +63,14 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
 
         //! Ternary boolean type which supports unknown.
-        enum EFuzzyBool
-        {
+        enum EFuzzyBool {
             E_True,
             E_False,
             E_Maybe
         };
 
         //! \brief The score for a given set of parameters.
-        struct CONFIG_EXPORT SParamScores
-        {
+        struct CONFIG_EXPORT SParamScores {
             SParamScores(core_t::TTime bucketLength,
                          const std::string &ignoreEmpty,
                          double score,

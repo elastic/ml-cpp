@@ -26,18 +26,15 @@
 using namespace ml;
 
 
-int main(int argc, char **argv)
-{
-    if (argc != 2)
-    {
+int main(int argc, char **argv) {
+    if (argc != 2) {
         std::cerr << "Utility to convert a Unix time to a string" << std::endl;
         std::cerr << "Usage: " << argv[0] << " <unixtime>" << std::endl;
         return EXIT_FAILURE;
     }
 
     core_t::TTime t(0);
-    if (core::CStringUtils::stringToType(argv[1], t) == false)
-    {
+    if (core::CStringUtils::stringToType(argv[1], t) == false) {
         LOG_FATAL("Unable to convert " << argv[1] << " to integer");
         return EXIT_FAILURE;
     }

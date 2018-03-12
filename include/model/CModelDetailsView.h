@@ -26,10 +26,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CEventRateModel;
 class CEventRateOnlineModel;
 class CEventRatePopulationModel;
@@ -44,8 +42,7 @@ class CMetricPopulationModel;
 //! avoid cluttering the CAnomalyDetectorModel interface. The intention is to expose all
 //! aspects of the mathematical models of both individual and population
 //! models for visualization purposes.
-class MODEL_EXPORT CModelDetailsView
-{
+class MODEL_EXPORT CModelDetailsView {
     public:
         using TFeatureVec = std::vector<model_t::EFeature>;
         using TStrSet = std::set<std::string>;
@@ -85,10 +82,10 @@ class MODEL_EXPORT CModelDetailsView
 
         //! Get the model plot data for the specified by field value.
         void modelPlotForByFieldId(core_t::TTime,
-                                 double boundsPercentile,
-                                 model_t::EFeature feature,
-                                 std::size_t byFieldId,
-                                 CModelPlotData &modelPlotData) const;
+                                   double boundsPercentile,
+                                   model_t::EFeature feature,
+                                   std::size_t byFieldId,
+                                   CModelPlotData &modelPlotData) const;
 
         //! Get the underlying model.
         virtual const CAnomalyDetectorModel &base(void) const = 0;
@@ -118,8 +115,7 @@ class MODEL_EXPORT CModelDetailsView
 //! \brief A view into the details of a CEventRateModel object.
 //!
 //! \sa CModelDetailsView.
-class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView
-{
+class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView {
     public:
         CEventRateModelDetailsView(const CEventRateModel &model);
 
@@ -141,8 +137,7 @@ class MODEL_EXPORT CEventRateModelDetailsView : public CModelDetailsView
 //! \brief A view into the details of a CEventRatePopulationModel object.
 //!
 //! \sa CModelDetailsView.
-class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsView
-{
+class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsView {
     public:
         CEventRatePopulationModelDetailsView(const CEventRatePopulationModel &model);
 
@@ -164,8 +159,7 @@ class MODEL_EXPORT CEventRatePopulationModelDetailsView : public CModelDetailsVi
 //! \brief A view into the details of a CMetricModel object.
 //!
 //! \sa CModelDetailsView.
-class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView
-{
+class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView {
     public:
         CMetricModelDetailsView(const CMetricModel &model);
 
@@ -187,8 +181,7 @@ class MODEL_EXPORT CMetricModelDetailsView : public CModelDetailsView
 //! \brief A view into the details of a CMetricPopulationModel object.
 //!
 //! \sa CModelDetailsView.
-class MODEL_EXPORT CMetricPopulationModelDetailsView : public CModelDetailsView
-{
+class MODEL_EXPORT CMetricPopulationModelDetailsView : public CModelDetailsView {
     public:
         CMetricPopulationModelDetailsView(const CMetricPopulationModel &model);
 

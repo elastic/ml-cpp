@@ -40,8 +40,7 @@ using namespace ml;
 
 typedef std::vector<double> TDoubleVec;
 
-void CStatisticalTestsTest::testCramerVonMises(void)
-{
+void CStatisticalTestsTest::testCramerVonMises(void) {
     LOG_DEBUG("+---------------------------------------------+");
     LOG_DEBUG("|  CStatisticalTestsTest::testCramerVonMises  |");
     LOG_DEBUG("+---------------------------------------------+");
@@ -56,8 +55,7 @@ void CStatisticalTestsTest::testCramerVonMises(void)
 
     double averageMeanError = 0.0;
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(n); ++i) {
         LOG_DEBUG("*** n = " << n[i] << " ***");
         {
             LOG_DEBUG("N(" << 5.0 << "," << ::sqrt(2.0) << ")");
@@ -66,11 +64,9 @@ void CStatisticalTestsTest::testCramerVonMises(void)
             boost::math::normal_distribution<> normal(5.0, ::sqrt(2.0));
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j)
-            {
+            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i]-1);
-                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k)
-                {
+                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k) {
                     cvm.addF(boost::math::cdf(normal, samples[k]));
                 }
                 p.push_back(cvm.pValue());
@@ -78,8 +74,7 @@ void CStatisticalTestsTest::testCramerVonMises(void)
             std::sort(p.begin(), p.end());
 
             double meanError = 0.0;
-            for (std::size_t j = 0; j < 21; ++j)
-            {
+            for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
                 double pp = static_cast<double>(std::lower_bound(p.begin(),
                                                                  p.end(),
@@ -104,11 +99,9 @@ void CStatisticalTestsTest::testCramerVonMises(void)
             boost::math::lognormal_distribution<> lognormal(2.0, 1.0);
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j)
-            {
+            for (std::size_t j = 0u; j < samples.size()/n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i]-1);
-                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k)
-                {
+                for (std::size_t k = n[i]*j; k < n[i]*(j+1); ++k) {
                     cvm.addF(boost::math::cdf(lognormal, samples[k]));
                 }
                 p.push_back(cvm.pValue());
@@ -116,8 +109,7 @@ void CStatisticalTestsTest::testCramerVonMises(void)
             std::sort(p.begin(), p.end());
 
             double meanError = 0.0;
-            for (std::size_t j = 0; j < 21; ++j)
-            {
+            for (std::size_t j = 0; j < 21; ++j) {
                 double percentile = static_cast<double>(j) / 20.0;
                 double pp = static_cast<double>(std::lower_bound(p.begin(),
                                                                  p.end(),
@@ -142,8 +134,7 @@ void CStatisticalTestsTest::testCramerVonMises(void)
     CPPUNIT_ASSERT(averageMeanError < 0.011);
 }
 
-void CStatisticalTestsTest::testPersist(void)
-{
+void CStatisticalTestsTest::testPersist(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CStatisticalTestsTest::testPersist  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -159,8 +150,7 @@ void CStatisticalTestsTest::testPersist(void)
 
         maths::CStatisticalTests::CCramerVonMises origCvm(9);
         TDoubleVec p;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
             origCvm.addF(boost::math::cdf(normal, samples[i]));
         }
 
@@ -192,16 +182,15 @@ void CStatisticalTestsTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CStatisticalTestsTest::suite(void)
-{
+CppUnit::Test *CStatisticalTestsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CStatisticalTestsTest>(
-                                   "CStatisticalTestsTest::testCramerVonMises",
-                                   &CStatisticalTestsTest::testCramerVonMises) );
+                               "CStatisticalTestsTest::testCramerVonMises",
+                               &CStatisticalTestsTest::testCramerVonMises) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStatisticalTestsTest>(
-                                   "CStatisticalTestsTest::testPersist",
-                                   &CStatisticalTestsTest::testPersist) );
+                               "CStatisticalTestsTest::testPersist",
+                               &CStatisticalTestsTest::testPersist) );
 
     return suiteOfTests;
 }

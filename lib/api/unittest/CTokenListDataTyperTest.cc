@@ -25,86 +25,81 @@
 #include <api/CTokenListReverseSearchCreator.h>
 
 
-namespace
-{
+namespace {
 
 typedef ml::api::CTokenListDataTyper<true,  // Warping
-                                     true,  // Underscores
-                                     true,  // Dots
-                                     true,  // Dashes
-                                     true,  // Ignore leading digit
-                                     true,  // Ignore hex
-                                     true,  // Ignore date words
-                                     false, // Ignore field names
-                                     2,     // Min dictionary word length
-                                     ml::core::CWordDictionary::TWeightVerbs5Other2>
+        true,  // Underscores
+        true,  // Dots
+        true,  // Dashes
+        true,  // Ignore leading digit
+        true,  // Ignore hex
+        true,  // Ignore date words
+        false, // Ignore field names
+        2,     // Min dictionary word length
+        ml::core::CWordDictionary::TWeightVerbs5Other2>
         TTokenListDataTyperKeepsFields;
 
 const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 
 }
 
-CppUnit::Test *CTokenListDataTyperTest::suite()
-{
+CppUnit::Test *CTokenListDataTyperTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTokenListDataTyperTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testHexData",
-                                   &CTokenListDataTyperTest::testHexData) );
+                               "CTokenListDataTyperTest::testHexData",
+                               &CTokenListDataTyperTest::testHexData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testRmdsData",
-                                   &CTokenListDataTyperTest::testRmdsData) );
+                               "CTokenListDataTyperTest::testRmdsData",
+                               &CTokenListDataTyperTest::testRmdsData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testProxyData",
-                                   &CTokenListDataTyperTest::testProxyData) );
+                               "CTokenListDataTyperTest::testProxyData",
+                               &CTokenListDataTyperTest::testProxyData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testFxData",
-                                   &CTokenListDataTyperTest::testFxData) );
+                               "CTokenListDataTyperTest::testFxData",
+                               &CTokenListDataTyperTest::testFxData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testApacheData",
-                                   &CTokenListDataTyperTest::testApacheData) );
+                               "CTokenListDataTyperTest::testApacheData",
+                               &CTokenListDataTyperTest::testApacheData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testBrokerageData",
-                                   &CTokenListDataTyperTest::testBrokerageData) );
+                               "CTokenListDataTyperTest::testBrokerageData",
+                               &CTokenListDataTyperTest::testBrokerageData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testVmwareData",
-                                   &CTokenListDataTyperTest::testVmwareData) );
+                               "CTokenListDataTyperTest::testVmwareData",
+                               &CTokenListDataTyperTest::testVmwareData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testBankData",
-                                   &CTokenListDataTyperTest::testBankData) );
+                               "CTokenListDataTyperTest::testBankData",
+                               &CTokenListDataTyperTest::testBankData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testJavaGcData",
-                                   &CTokenListDataTyperTest::testJavaGcData) );
+                               "CTokenListDataTyperTest::testJavaGcData",
+                               &CTokenListDataTyperTest::testJavaGcData) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testPersist",
-                                   &CTokenListDataTyperTest::testPersist) );
+                               "CTokenListDataTyperTest::testPersist",
+                               &CTokenListDataTyperTest::testPersist) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testLongReverseSearch",
-                                   &CTokenListDataTyperTest::testLongReverseSearch) );
+                               "CTokenListDataTyperTest::testLongReverseSearch",
+                               &CTokenListDataTyperTest::testLongReverseSearch) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testPreTokenised",
-                                   &CTokenListDataTyperTest::testPreTokenised) );
+                               "CTokenListDataTyperTest::testPreTokenised",
+                               &CTokenListDataTyperTest::testPreTokenised) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTokenListDataTyperTest>(
-                                   "CTokenListDataTyperTest::testPreTokenisedPerformance",
-                                   &CTokenListDataTyperTest::testPreTokenisedPerformance) );
+                               "CTokenListDataTyperTest::testPreTokenisedPerformance",
+                               &CTokenListDataTyperTest::testPreTokenisedPerformance) );
 
     return suiteOfTests;
 }
 
-void CTokenListDataTyperTest::setUp(void)
-{
+void CTokenListDataTyperTest::setUp(void) {
     // Enable trace level logging for these unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
 }
 
-void CTokenListDataTyperTest::tearDown(void)
-{
+void CTokenListDataTyperTest::tearDown(void) {
     // Revert to debug level logging for any subsequent unit tests
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
 }
 
-void CTokenListDataTyperTest::testHexData(void)
-{
+void CTokenListDataTyperTest::testHexData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "[0x0000000800000000 ", 500));
@@ -114,8 +109,7 @@ void CTokenListDataTyperTest::testHexData(void)
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " 0x0000000800000000,", 500));
 }
 
-void CTokenListDataTyperTest::testRmdsData(void)
-{
+void CTokenListDataTyperTest::testRmdsData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
@@ -130,8 +124,7 @@ void CTokenListDataTyperTest::testRmdsData(void)
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testProxyData(void)
-{
+void CTokenListDataTyperTest::testProxyData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " [1094662464] INFO  transaction <3c26701d3140-kn8n1c8f5d2o> - Transaction TID: z9hG4bKy6aEy6aEy6aEaUgi!UmU-Ma.9-6bf50ea0192.168.251.8SUBSCRIBE deleted", 500));
@@ -143,16 +136,14 @@ void CTokenListDataTyperTest::testProxyData(void)
     CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- PROXY Session DESTROYED --------------------", 500));
 }
 
-void CTokenListDataTyperTest::testFxData(void)
-{
+void CTokenListDataTyperTest::testFxData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<L_MSG MN=\"ml12220\" PID=\"ml010_managed4\" TID=\"asyncDelivery41\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): null</L_MSG>", 500));
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<L_MSG MN=\"ml12213\" PID=\"ml010_managed2\" TID=\"asyncDelivery44\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): null</L_MSG>", 500));
 }
 
-void CTokenListDataTyperTest::testApacheData(void)
-{
+void CTokenListDataTyperTest::testApacheData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol destroy", 500));
@@ -161,8 +152,7 @@ void CTokenListDataTyperTest::testApacheData(void)
     CPPUNIT_ASSERT_EQUAL(4, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol stop", 500));
 }
 
-void CTokenListDataTyperTest::testBrokerageData(void)
-{
+void CTokenListDataTyperTest::testBrokerageData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "AUDIT  ; tomcat-http--16; ee96c0c4567c0c11d6b90f9bc8b54aaa77; REQ4e42023e0a0328d020003e460005aa33; applnx911.elastic.co; ; Request Complete: /mlgw/mlb/ofsummary/summary [T=283ms,CUSTPREF-WEB_ACCOUNT_PREFERENCES=95,MAUI-ETSPROF2=155,NBMSG-NB_MESSAGING_SERVICE=164,CustAcctProfile=BRK=2;NB=0;FILI=0;CESG=0;CC=0;AcctTotal=2,migrated=2]", 500));
@@ -170,8 +160,7 @@ void CTokenListDataTyperTest::testBrokerageData(void)
     CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "AUDIT  ; tomcat-http--39; ee256201da7c0c11d6b90f9bc8b54aaa77; REQ4e42023b0a022925200027180002aa33; applnx711.elastic.co; ; Request Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe [T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]", 500));
 }
 
-void CTokenListDataTyperTest::testVmwareData(void)
-{
+void CTokenListDataTyperTest::testVmwareData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
@@ -182,8 +171,7 @@ void CTokenListDataTyperTest::testVmwareData(void)
     CPPUNIT_ASSERT_EQUAL(3, typer.computeType(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback", 104));
 }
 
-void CTokenListDataTyperTest::testBankData(void)
-{
+void CTokenListDataTyperTest::testBankData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Process payment flow for tradeId=80894728 and backOfficeId=9354474", 500));
@@ -194,8 +182,7 @@ void CTokenListDataTyperTest::testBankData(void)
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronize payment flow for tradeId=80894721 and backOfficeId=9354469", 500));
 }
 
-void CTokenListDataTyperTest::testJavaGcData(void)
-{
+void CTokenListDataTyperTest::testJavaGcData(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "2016-04-27T19:57:43.644-0700: 1922084.903: [GC", 46));
@@ -221,8 +208,7 @@ void CTokenListDataTyperTest::testJavaGcData(void)
     CPPUNIT_ASSERT_EQUAL(2, typer.computeType(false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759800000, 0x0000000800000000, 0x0000000800000000)", 106));
 }
 
-void CTokenListDataTyperTest::testPersist(void)
-{
+void CTokenListDataTyperTest::testPersist(void) {
     TTokenListDataTyperKeepsFields origTyper(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     origTyper.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500);
@@ -266,19 +252,16 @@ void CTokenListDataTyperTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CTokenListDataTyperTest::testLongReverseSearch(void)
-{
+void CTokenListDataTyperTest::testLongReverseSearch(void) {
     TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr
-            reverseSearchCreator(new ml::api::CTokenListReverseSearchCreator("_raw"));
+    reverseSearchCreator(new ml::api::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataTyperKeepsFields typer(reverseSearchCreator, 0.7, "_raw");
 
     // Create a long message with lots of junk that will create a ridiculous
     // reverse search if not constrained
     std::string longMessage("a few dictionary words to start off");
-    for (size_t i = 1; i < 26; ++i)
-    {
-        for (size_t j = 0; j <= i; ++j)
-        {
+    for (size_t i = 1; i < 26; ++i) {
+        for (size_t j = 0; j <= i; ++j) {
             longMessage += ' ';
             longMessage.append(20, char('a' + j));
         }
@@ -316,8 +299,7 @@ void CTokenListDataTyperTest::testLongReverseSearch(void)
     CPPUNIT_ASSERT(terms.find("off") != std::string::npos);
 }
 
-void CTokenListDataTyperTest::testPreTokenised(void)
-{
+void CTokenListDataTyperTest::testPreTokenised(void) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.", 500));
@@ -354,8 +336,7 @@ void CTokenListDataTyperTest::testPreTokenised(void)
     CPPUNIT_ASSERT_EQUAL(5, typer.computeType(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.", 500));
 }
 
-void CTokenListDataTyperTest::testPreTokenisedPerformance(void)
-{
+void CTokenListDataTyperTest::testPreTokenisedPerformance(void) {
     static const size_t TEST_SIZE(100000);
     ml::core::CStopWatch stopWatch;
 
@@ -366,8 +347,7 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance(void)
         LOG_DEBUG("Before test with inline tokenisation");
 
         stopWatch.start();
-        for (size_t count = 0; count < TEST_SIZE; ++count)
-        {
+        for (size_t count = 0; count < TEST_SIZE; ++count) {
             CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
         }
         inlineTokenisationTime = stopWatch.stop();
@@ -388,8 +368,7 @@ void CTokenListDataTyperTest::testPreTokenisedPerformance(void)
         LOG_DEBUG("Before test with pre-tokenisation");
 
         stopWatch.start();
-        for (size_t count = 0; count < TEST_SIZE; ++count)
-        {
+        for (size_t count = 0; count < TEST_SIZE; ++count) {
             CPPUNIT_ASSERT_EQUAL(1, typer.computeType(false, fields, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback", 103));
         }
         preTokenisationTime = stopWatch.stop();

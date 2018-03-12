@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CResourceLocatorTest : public CppUnit::TestFixture
-{
+class CResourceLocatorTest : public CppUnit::TestFixture {
     public:
         void testResourceDir(void);
         void testLogDir(void);

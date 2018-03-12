@@ -19,8 +19,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CFieldDataTyperTest : public CppUnit::TestFixture
-{
+class CFieldDataTyperTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
         void testNodeReverseSearch(void);

@@ -17,20 +17,16 @@
 #include <core/CReadWriteLock.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CScopedReadLock::CScopedReadLock(CReadWriteLock &readWriteLock)
-    : m_ReadWriteLock(readWriteLock)
-{
+    : m_ReadWriteLock(readWriteLock) {
     m_ReadWriteLock.readLock();
 }
 
-CScopedReadLock::~CScopedReadLock(void)
-{
+CScopedReadLock::~CScopedReadLock(void) {
     m_ReadWriteLock.readUnlock();
 }
 

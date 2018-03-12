@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectorEnumeratorTest : public CppUnit::TestFixture
-{
+class CDetectorEnumeratorTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

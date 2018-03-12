@@ -41,16 +41,14 @@
 #include <sstream>
 #include <string>
 
-namespace
-{
+namespace {
 
 void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
                            const std::string &description,
                            const std::string &snapshotIdIn,
                            size_t numDocsIn,
                            std::string &snapshotIdOut,
-                           size_t &numDocsOut)
-{
+                           size_t &numDocsOut) {
     LOG_DEBUG("Persist complete with description: " << description);
     snapshotIdOut = snapshotIdIn;
     numDocsOut = numDocsIn;
@@ -58,42 +56,37 @@ void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
 
 }
 
-CppUnit::Test *CBackgroundPersisterTest::suite()
-{
+CppUnit::Test *CBackgroundPersisterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBackgroundPersisterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-                                   "CBackgroundPersisterTest::testDetectorPersistBy",
-                                   &CBackgroundPersisterTest::testDetectorPersistBy) );
+                              "CBackgroundPersisterTest::testDetectorPersistBy",
+                              &CBackgroundPersisterTest::testDetectorPersistBy) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-                                   "CBackgroundPersisterTest::testDetectorPersistOver",
-                                   &CBackgroundPersisterTest::testDetectorPersistOver) );
+                              "CBackgroundPersisterTest::testDetectorPersistOver",
+                              &CBackgroundPersisterTest::testDetectorPersistOver) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-                                   "CBackgroundPersisterTest::testDetectorPersistPartition",
-                                   &CBackgroundPersisterTest::testDetectorPersistPartition) );
+                              "CBackgroundPersisterTest::testDetectorPersistPartition",
+                              &CBackgroundPersisterTest::testDetectorPersistPartition) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-                                   "CBackgroundPersisterTest::testCategorizationOnlyPersist",
-                                   &CBackgroundPersisterTest::testCategorizationOnlyPersist) );
+                              "CBackgroundPersisterTest::testCategorizationOnlyPersist",
+                              &CBackgroundPersisterTest::testCategorizationOnlyPersist) );
 
     return suiteOfTests;
 }
 
-void CBackgroundPersisterTest::testDetectorPersistBy(void)
-{
+void CBackgroundPersisterTest::testDetectorPersistBy(void) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
 }
 
-void CBackgroundPersisterTest::testDetectorPersistOver(void)
-{
+void CBackgroundPersisterTest::testDetectorPersistOver(void) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.conf");
 }
 
-void CBackgroundPersisterTest::testDetectorPersistPartition(void)
-{
+void CBackgroundPersisterTest::testDetectorPersistPartition(void) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_partition.conf");
 }
 
-void CBackgroundPersisterTest::testCategorizationOnlyPersist(void)
-{
+void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
     // Start by creating a categorizer with non-trivial state
 
     static const std::string JOB_ID("job");
@@ -165,8 +158,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void)
     CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState);
 }
 
-void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName)
-{
+void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName) {
     // Start by creating processors with non-trivial state
 
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -186,7 +178,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
     std::ostringstream *backgroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream = new std::ostringstream());
@@ -232,8 +224,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
         // The typer knows how to assign categories to records
         ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
 
-        if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0)
-        {
+        if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG("Applying the categorization typer for anomaly detection");
             firstProcessor = &typer;
         }

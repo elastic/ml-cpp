@@ -29,10 +29,8 @@
 #include <queue>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -71,8 +69,7 @@ namespace core
 template<typename MESSAGE,
          typename RECEIVER,
          size_t NUM_TO_TIME = 0>
-class CMessageQueue
-{
+class CMessageQueue {
     public:
         //! Prototype for function to be called on queue shutdown
         using TShutdownFunc = std::function<void()>;
@@ -87,21 +84,17 @@ class CMessageQueue
               // If timing is enabled, we need a buffer one bigger than the
               // number of times to average over.  If timing is disabled, the
               // buffer can have capacity zero.
-              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0)
-        {
+              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0) {
         }
 
-        virtual ~CMessageQueue(void)
-        {
+        virtual ~CMessageQueue(void) {
         }
 
         //! Initialise - create the receiving thread
-        bool start(void)
-        {
+        bool start(void) {
             CScopedLock lock(m_Mutex);
 
-            if (m_Thread.start() == false)
-            {
+            if (m_Thread.start() == false) {
                 LOG_ERROR("Unable to initialise thread");
                 return false;
             }
@@ -112,28 +105,24 @@ class CMessageQueue
         }
 
         //! Shutdown - kill thread
-        bool stop(void)
-        {
+        bool stop(void) {
             m_Thread.stop();
 
             return true;
         }
 
         //! Send a message to the message queue thread (from any thread)
-        void dispatchMsg(const MESSAGE &msg)
-        {
+        void dispatchMsg(const MESSAGE &msg) {
             size_t dummy(0);
             this->dispatchMsg(msg, dummy);
         }
 
         //! Send a message to the message queue thread (from any thread),
         //! and get the pending count at the same time
-        void dispatchMsg(const MESSAGE &msg, size_t &pending)
-        {
+        void dispatchMsg(const MESSAGE &msg, size_t &pending) {
             CScopedLock lock(m_Mutex);
 
-            if (!m_Thread.isRunning())
-            {
+            if (!m_Thread.isRunning()) {
                 pending = 0;
 
                 // Should be fatal error
@@ -146,8 +135,7 @@ class CMessageQueue
 
             // If there was already work queued up, we can save the cost of
             // signalling (which is expensive as it involves kernel interaction)
-            if (pending <= 1)
-            {
+            if (pending <= 1) {
                 m_Condition.signal();
             }
         }
@@ -156,8 +144,7 @@ class CMessageQueue
         //! much more efficient to get this when dispatching a message, as
         //! everything can then be done under a single mutex lock.  This method
         //! must be used sparingly to avoid excessive lock contention.
-        size_t pending(void) const
-        {
+        size_t pending(void) const {
             CScopedLock lock(m_Mutex);
 
             return m_Queue.size();
@@ -166,10 +153,8 @@ class CMessageQueue
         //! Get the average time taken to process the last N items (in
         //! seconds), where N was specified when timing was enabled.  A
         //! negative return value indicates an error.
-        double rollingAverageProcessingTime(void) const
-        {
-            if (NUM_TO_TIME == 0)
-            {
+        double rollingAverageProcessingTime(void) const {
+            if (NUM_TO_TIME == 0) {
                 LOG_ERROR("Message queue timing is not switched on");
 
                 return -1.0;
@@ -177,13 +162,11 @@ class CMessageQueue
 
             CScopedLock lock(m_Mutex);
 
-            if (m_Readings.size() < 2)
-            {
+            if (m_Readings.size() < 2) {
                 return -1.0;
             }
 
-            if (m_Readings.front() > m_Readings.back())
-            {
+            if (m_Readings.front() > m_Readings.back()) {
                 LOG_ERROR("Time to process last " << NUM_TO_TIME <<
                           " messages is negative (-" <<
                           (m_Readings.front() - m_Readings.back()) << "ms).  "
@@ -192,54 +175,46 @@ class CMessageQueue
             }
 
             return double(m_Readings.back() - m_Readings.front()) * 0.001
-                                                / double(NUM_TO_TIME);
+                   / double(NUM_TO_TIME);
         }
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void)
-        {
+        static void defaultShutdownFunc(void) {
         }
 
     private:
-        class CMessageQueueThread : public CThread
-        {
+        class CMessageQueueThread : public CThread {
             public:
                 CMessageQueueThread(CMessageQueue<MESSAGE,
-                                                  RECEIVER,
-                                                  NUM_TO_TIME> &messageQueue)
+                                    RECEIVER,
+                                    NUM_TO_TIME> &messageQueue)
                     : m_MessageQueue(messageQueue),
                       m_ShuttingDown(false),
-                      m_IsRunning(false)
-                {
+                      m_IsRunning(false) {
                 }
 
                 //! The queue must have the mutex for this to be called
-                bool isRunning(void) const
-                {
+                bool isRunning(void) const {
                     // Assumes lock
                     return m_IsRunning;
                 }
 
             protected:
-                void run(void)
-                {
+                void run(void) {
                     m_MessageQueue.m_Mutex.lock();
                     m_MessageQueue.m_Condition.signal();
 
                     m_IsRunning = true;
 
-                    while (!m_ShuttingDown)
-                    {
+                    while (!m_ShuttingDown) {
                         m_MessageQueue.m_Condition.wait();
 
-                        while (!m_MessageQueue.m_Queue.empty())
-                        {
+                        while (!m_MessageQueue.m_Queue.empty()) {
                             // Start the stop watch if it's not running and it
                             // should be
                             if (NUM_TO_TIME > 0 &&
-                                !m_MessageQueue.m_StopWatch.isRunning())
-                            {
+                                !m_MessageQueue.m_StopWatch.isRunning()) {
                                 m_MessageQueue.m_StopWatch.start();
                             }
 
@@ -263,8 +238,7 @@ class CMessageQueue
                             // If the stop watch is running, update the history
                             // of readings
                             if (NUM_TO_TIME > 0 &&
-                                m_MessageQueue.m_StopWatch.isRunning())
-                            {
+                                m_MessageQueue.m_StopWatch.isRunning()) {
                                 m_MessageQueue.m_Readings.push_back(m_MessageQueue.m_StopWatch.lap());
                             }
                         }
@@ -272,8 +246,7 @@ class CMessageQueue
                         // Stop the stop watch if it's running, as we're
                         // probably about to go to sleep
                         if (NUM_TO_TIME > 0 &&
-                            m_MessageQueue.m_StopWatch.isRunning())
-                        {
+                            m_MessageQueue.m_StopWatch.isRunning()) {
                             m_MessageQueue.m_StopWatch.stop();
                         }
                     }
@@ -285,8 +258,7 @@ class CMessageQueue
                     m_MessageQueue.m_Mutex.unlock();
                 }
 
-                void shutdown(void)
-                {
+                void shutdown(void) {
                     CScopedLock lock(m_MessageQueue.m_Mutex);
 
                     m_ShuttingDown = true;
@@ -299,8 +271,7 @@ class CMessageQueue
                 //! possible outside the lock.  This is the most generic case,
                 //! where we can't do anything.
                 template <typename ANYTHING>
-                void destroyMsgDataUnlocked(ANYTHING &)
-                {
+                void destroyMsgDataUnlocked(ANYTHING &) {
                     // For an arbitrary type we have no idea how to destroy some
                     // of its data without calling its destructor
                 }
@@ -309,8 +280,7 @@ class CMessageQueue
                 //! data if the MESSAGE type is a shared pointer (if no other
                 //! shared pointer points to it).
                 template <typename POINTEE>
-                void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr)
-                {
+                void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr) {
                     ptr.reset();
                 }
 
@@ -342,7 +312,7 @@ class CMessageQueue
         //! Stop watch readings
         TUIntCircBuf        m_Readings;
 
-    friend class CMessageQueueThread;
+        friend class CMessageQueueThread;
 };
 
 

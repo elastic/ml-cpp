@@ -24,10 +24,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CCategoricalDataSummaryStatistics;
 class CDataSummaryStatistics;
 class CDetectorSpecification;
@@ -44,8 +42,7 @@ class CNumericDataSummaryStatistics;
 //! IMPLEMENTATION:\n
 //! This uses the builder pattern accepting different objects from
 //! which to create the report.
-class CONFIG_EXPORT CReportWriter : public api::COutputHandler
-{
+class CONFIG_EXPORT CReportWriter : public api::COutputHandler {
     public:
         typedef std::vector<std::string> TStrVec;
         typedef std::vector<TStrVec> TStrVecVec;

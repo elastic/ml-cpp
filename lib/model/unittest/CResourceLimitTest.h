@@ -19,10 +19,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetector;
 class CResourceMonitor;
 }
@@ -30,8 +28,7 @@ class CResourceMonitor;
 
 class CResultWriter;
 
-class CResourceLimitTest : public CppUnit::TestFixture
-{
+class CResourceLimitTest : public CppUnit::TestFixture {
     public:
         void testLimitBy(void);
         void testLimitByOver(void);

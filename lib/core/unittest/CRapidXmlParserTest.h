@@ -21,17 +21,14 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CRapidXmlParser;
 class CXmlNode;
 }
 }
 
-class CRapidXmlParserTest : public CppUnit::TestFixture
-{
+class CRapidXmlParserTest : public CppUnit::TestFixture {
     public:
         void testParse1(void);
         void testParse2(void);

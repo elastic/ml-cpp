@@ -29,31 +29,28 @@
 #include <string.h>
 
 
-CppUnit::Test *CDualThreadStreamBufTest::suite()
-{
+CppUnit::Test *CDualThreadStreamBufTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-                                   "CDualThreadStreamBufTest::testThroughput",
-                                   &CDualThreadStreamBufTest::testThroughput) );
+                               "CDualThreadStreamBufTest::testThroughput",
+                               &CDualThreadStreamBufTest::testThroughput) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-                                   "CDualThreadStreamBufTest::testSlowConsumer",
-                                   &CDualThreadStreamBufTest::testSlowConsumer) );
+                               "CDualThreadStreamBufTest::testSlowConsumer",
+                               &CDualThreadStreamBufTest::testSlowConsumer) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-                                   "CDualThreadStreamBufTest::testPutback",
-                                   &CDualThreadStreamBufTest::testPutback) );
+                               "CDualThreadStreamBufTest::testPutback",
+                               &CDualThreadStreamBufTest::testPutback) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-                                   "CDualThreadStreamBufTest::testFatal",
-                                   &CDualThreadStreamBufTest::testFatal) );
+                               "CDualThreadStreamBufTest::testFatal",
+                               &CDualThreadStreamBufTest::testFatal) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
-class CInputThread : public ml::core::CThread
-{
+class CInputThread : public ml::core::CThread {
     public:
         CInputThread(ml::core::CDualThreadStreamBuf &buffer,
                      uint32_t delay = 0,
@@ -61,37 +58,31 @@ class CInputThread : public ml::core::CThread
             : m_Buffer(buffer),
               m_Delay(delay),
               m_FatalAfter(fatalAfter),
-              m_TotalData(0)
-        {
+              m_TotalData(0) {
         }
 
-        size_t totalData(void) const
-        {
+        size_t totalData(void) const {
             return m_TotalData;
         }
 
     protected:
-        virtual void run(void)
-        {
+        virtual void run(void) {
             std::istream strm(&m_Buffer);
             size_t count(0);
             std::string line;
-            while (std::getline(strm, line))
-            {
+            while (std::getline(strm, line)) {
                 ++count;
                 m_TotalData += line.length();
                 ++m_TotalData; // For the delimiter
                 CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
                 ml::core::CSleep::sleep(m_Delay);
-                if (count == m_FatalAfter)
-                {
+                if (count == m_FatalAfter) {
                     m_Buffer.signalFatalError();
                 }
             }
         }
 
-        virtual void shutdown(void)
-        {
+        virtual void shutdown(void) {
             m_Buffer.signalFatalError();
         }
 
@@ -120,8 +111,7 @@ const char *DATA(
 
 }
 
-void CDualThreadStreamBufTest::testThroughput(void)
-{
+void CDualThreadStreamBufTest::testThroughput(void) {
     static const size_t TEST_SIZE(1000000);
     size_t dataSize(::strlen(DATA));
     size_t totalDataSize(TEST_SIZE * dataSize);
@@ -134,12 +124,10 @@ void CDualThreadStreamBufTest::testThroughput(void)
     LOG_INFO("Starting REST buffer throughput test at " <<
              ml::core::CTimeUtils::toTimeString(start));
 
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
         const char *ptr(DATA);
-        while (toWrite > 0)
-        {
+        while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
             toWrite -= written;
@@ -167,8 +155,7 @@ void CDualThreadStreamBufTest::testThroughput(void)
              (end - start) << " seconds");
 }
 
-void CDualThreadStreamBufTest::testSlowConsumer(void)
-{
+void CDualThreadStreamBufTest::testSlowConsumer(void) {
     static const size_t TEST_SIZE(25);
     static const uint32_t DELAY(200);
     size_t dataSize(::strlen(DATA));
@@ -183,12 +170,10 @@ void CDualThreadStreamBufTest::testSlowConsumer(void)
     LOG_INFO("Starting REST buffer slow consumer test at " <<
              ml::core::CTimeUtils::toTimeString(start));
 
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
         const char *ptr(DATA);
-        while (toWrite > 0)
-        {
+        while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
             toWrite -= written;
@@ -217,16 +202,14 @@ void CDualThreadStreamBufTest::testSlowConsumer(void)
     CPPUNIT_ASSERT(duration <= delaySecs + TOLERANCE);
 }
 
-void CDualThreadStreamBufTest::testPutback(void)
-{
+void CDualThreadStreamBufTest::testPutback(void) {
     size_t dataSize(::strlen(DATA));
 
     ml::core::CDualThreadStreamBuf buf;
 
     std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
     const char *ptr(DATA);
-    while (toWrite > 0)
-    {
+    while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
         CPPUNIT_ASSERT(written > 0);
         toWrite -= written;
@@ -243,15 +226,13 @@ void CDualThreadStreamBufTest::testPutback(void)
     CPPUNIT_ASSERT(strm.putback(c).good());
     for (const char *putbackChar = PUTBACK_CHARS;
          *putbackChar != '\0';
-         ++putbackChar)
-    {
+         ++putbackChar) {
         CPPUNIT_ASSERT(strm.putback(*putbackChar).good());
     }
     std::string actual;
     for (const char *putbackChar = PUTBACK_CHARS;
          *putbackChar != '\0';
-         ++putbackChar)
-    {
+         ++putbackChar) {
         CPPUNIT_ASSERT(strm.get(c).good());
         actual.insert(actual.begin(), c);
     }
@@ -259,16 +240,14 @@ void CDualThreadStreamBufTest::testPutback(void)
 
     std::string remainder;
     std::string line;
-    while (std::getline(strm, line))
-    {
+    while (std::getline(strm, line)) {
         remainder += line;
         remainder += '\n';
     }
     CPPUNIT_ASSERT_EQUAL(std::string(DATA), remainder);
 }
 
-void CDualThreadStreamBufTest::testFatal(void)
-{
+void CDualThreadStreamBufTest::testFatal(void) {
     static const size_t TEST_SIZE(10000);
     static const size_t BUFFER_CAPACITY(16384);
     size_t dataSize(::strlen(DATA));
@@ -282,15 +261,12 @@ void CDualThreadStreamBufTest::testFatal(void)
     inputThread.start();
 
     size_t totalDataWritten(0);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
         const char *ptr(DATA);
-        while (toWrite > 0)
-        {
+        while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
-            if (written == 0)
-            {
+            if (written == 0) {
                 break;
             }
             toWrite -= written;

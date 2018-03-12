@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLinearAlgebraTest : public CppUnit::TestFixture
-{
+class CLinearAlgebraTest : public CppUnit::TestFixture {
     public:
         void testSymmetricMatrixNxN(void);
         void testVectorNx1(void);

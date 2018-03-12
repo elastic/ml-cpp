@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCalendarComponentAdaptiveBucketingTest : public CppUnit::TestFixture
-{
+class CCalendarComponentAdaptiveBucketingTest : public CppUnit::TestFixture {
     public:
         void setUp(void);
         void tearDown(void);

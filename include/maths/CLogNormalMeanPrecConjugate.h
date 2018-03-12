@@ -25,15 +25,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief A conjugate prior distribution for a log-normal variable.
@@ -57,8 +54,7 @@ struct SDistributionRestoreParams;
 //! the data when using one-of-n composition (see COneOfNPrior) or model data with
 //! multiple modes when using multi-modal composition (see CMultimodalPrior).
 //! From a design point of view this is the composite pattern.
-class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
-{
+class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior {
     public:
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -211,9 +207,9 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! \param[in] weights Optional variance scale weights.
         //! \note \p percentage should be in the range [0.0, 100.0).
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Compute the log marginal likelihood function at \p samples integrating
         //! over the prior density function for the exponentiated normal mean
@@ -228,10 +224,10 @@ class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!

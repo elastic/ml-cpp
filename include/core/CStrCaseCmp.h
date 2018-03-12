@@ -21,10 +21,8 @@
 #include <stddef.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //! This has been broken into a class of its own because Windows has a
 //! _stricmp() function whilst Unix has strcasecmp().
 //!
-class CORE_EXPORT CStrCaseCmp : private CNonInstantiatable
-{
+class CORE_EXPORT CStrCaseCmp : private CNonInstantiatable {
     public:
         static int strCaseCmp(const char *s1, const char *s2);
         static int strNCaseCmp(const char *s1, const char *s2, size_t n);

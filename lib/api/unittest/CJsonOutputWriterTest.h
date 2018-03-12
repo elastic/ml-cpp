@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CJsonOutputWriterTest : public CppUnit::TestFixture
-{
+class CJsonOutputWriterTest : public CppUnit::TestFixture {
     public:
         void testSimpleWrite(void);
         void testWriteNonAnomalousBucket(void);

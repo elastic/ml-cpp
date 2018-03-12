@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CResultNormalizerTest : public CppUnit::TestFixture
-{
+class CResultNormalizerTest : public CppUnit::TestFixture {
     public:
         void testInitNormalizer(void);
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CFunctionalTest : public CppUnit::TestFixture
-{
+class CFunctionalTest : public CppUnit::TestFixture {
     public:
         void testIsNull(void);
         void testDereference(void);

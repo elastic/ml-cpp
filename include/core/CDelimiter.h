@@ -23,10 +23,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Encapsulates a delimiter
@@ -42,8 +40,7 @@ namespace core
 //! 2) A delimiter can match any number of spaces in a space delimited
 //!    text file.
 //!
-class CORE_EXPORT CDelimiter
-{
+class CORE_EXPORT CDelimiter {
     public:
         //! Delimiter used by default constructor
         static const std::string DEFAULT_DELIMITER;
@@ -130,8 +127,8 @@ class CORE_EXPORT CDelimiter
         //! The character used to escape the quote character ('\0' if none).
         char         m_Escape;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &strm,
-                                                const CDelimiter &delimiter);
+        friend CORE_EXPORT std::ostream &operator<<(std::ostream &strm,
+                                                    const CDelimiter &delimiter);
 };
 
 //! Useful for debugging and CPPUNIT_ASSERT_EQUALS

@@ -26,10 +26,8 @@
 
 #include "CCompressUtils.h"
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 class CTopLevelDomainDb;
 
 //! \brief
@@ -38,8 +36,7 @@ class CTopLevelDomainDb;
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable
-{
+class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable {
     public:
         CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb &topLevelDomainDb,
                                             const std::string &csvFileName,
@@ -53,7 +50,7 @@ class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable
 
     private:
         //! Read a line from the csv file
-        bool readLine(bool &readHeader, 
+        bool readLine(bool &readHeader,
                       std::string &lastTime,
                       const std::string &line);
 

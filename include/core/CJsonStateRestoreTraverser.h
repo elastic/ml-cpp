@@ -26,10 +26,8 @@
 
 #include <iosfwd>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -48,8 +46,7 @@ namespace core
 //! have attributes).  This may complicate code that needs to be 100%
 //! JSON/XML agnostic.
 //!
-class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
-{
+class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser {
     public:
         CJsonStateRestoreTraverser(std::istream &inputStream);
 
@@ -119,8 +116,7 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
 
         //! <a href="http://rapidjson.org/classrapidjson_1_1_handler.html">Handler</a>
         //! for events fired by rapidjson during parsing.
-        struct SRapidJsonHandler final
-        {
+        struct SRapidJsonHandler final {
             SRapidJsonHandler();
 
             bool Null();
@@ -138,8 +134,7 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
             bool StartArray();
             bool EndArray(rapidjson::SizeType);
 
-            enum ETokenType
-            {
+            enum ETokenType {
                 E_TokenNull = 0,
                 E_TokenKey = 1,
                 E_TokenBool = 2,

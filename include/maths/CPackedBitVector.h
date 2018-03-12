@@ -32,10 +32,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A compact representation of binary vector.
 //!
@@ -56,14 +54,12 @@ namespace maths
 //! number of runs in between. In practice we store one extra bit, the
 //! vector parity to allow us to extend the vector efficiently.
 class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPackedBitVector,
-                                              boost::partially_ordered< CPackedBitVector > >
-{
+    boost::partially_ordered< CPackedBitVector > > {
     public:
         typedef std::vector<bool> TBoolVec;
 
         //! Operations which can be performed in the inner product.
-        enum EOperation
-        {
+        enum EOperation {
             E_AND,
             E_OR,
             E_XOR
@@ -110,14 +106,12 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
                      EOperation op = E_AND) const;
 
         //! Euclidean norm.
-        double euclidean(void) const
-        {
+        double euclidean(void) const {
             return ::sqrt(this->inner(*this));
         }
 
         //! Manhattan norm.
-        double manhattan(void) const
-        {
+        double manhattan(void) const {
             return this->inner(*this);
         }
 

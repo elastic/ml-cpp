@@ -21,10 +21,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace normalize
-{
+namespace ml {
+namespace normalize {
 
 
 //! \brief
@@ -37,8 +35,7 @@ namespace normalize
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
+class CCmdLineParser {
     public:
         typedef std::vector<std::string> TStrVec;
 

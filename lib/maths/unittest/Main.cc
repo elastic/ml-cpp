@@ -88,8 +88,7 @@
 #include "CXMeansOnlineTest.h"
 #include "CXMeansOnline1dTest.h"
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     ml::test::CTestRunner  runner(argc, argv);
 
     runner.addTest( CAgglomerativeClustererTest::suite() );

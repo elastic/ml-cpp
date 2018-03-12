@@ -22,15 +22,13 @@
 #include <fcntl.h>
 
 
-namespace
-{
+namespace {
 
 //! Convert from the time structure Windows uses for timestamping files to epoch
 //! seconds.  A FILETIME structure stores the number of 100ns ticks since
 //! midnight on 1/1/1601 UTC (Gregorian Calendar even though many countries were
 //! still using the Julian Calendar then).
-__time64_t fileTimeToTimeT(const FILETIME &fileTime)
-{
+__time64_t fileTimeToTimeT(const FILETIME &fileTime) {
     static const ULONGLONG TICKS_PER_SECOND = 10000000ull;
     static const __time64_t SECONDS_1601_TO_1970 = 11644473600ll;
     ULARGE_INTEGER largeInt;
@@ -41,10 +39,8 @@ __time64_t fileTimeToTimeT(const FILETIME &fileTime)
 
 }
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 const int COsFileFuncs::APPEND(O_APPEND);
@@ -70,18 +66,15 @@ const int COsFileFuncs::EXECUTABLE(4);
 const char *COsFileFuncs::NULL_FILENAME("nul");
 
 
-int COsFileFuncs::open(const char *path, int oflag)
-{
+int COsFileFuncs::open(const char *path, int oflag) {
     return COsFileFuncs::open(path, oflag, 0);
 }
 
-int COsFileFuncs::open(const char *path, int oflag, TMode pmode)
-{
+int COsFileFuncs::open(const char *path, int oflag, TMode pmode) {
     // To allow the underlying file to be renamed, we have to resort to using
     // the Windows API file functions.  Otherwise we can use the POSIX
     // compatibility layer.
-    if ((oflag & RENAMABLE) == 0)
-    {
+    if ((oflag & RENAMABLE) == 0) {
         // This is the simple case.  Windows won't allow the file to be renamed
         // whilst it's open.
         return ::_open(path, oflag, pmode);
@@ -89,18 +82,14 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode)
 
     // Determine the correct access flags
     DWORD desiredAccess(GENERIC_READ);
-    if ((oflag & RDWR) != 0)
-    {
+    if ((oflag & RDWR) != 0) {
         desiredAccess = GENERIC_READ | GENERIC_WRITE;
-    }
-    else if ((oflag & WRONLY) != 0)
-    {
+    } else if ((oflag & WRONLY) != 0) {
         desiredAccess = GENERIC_WRITE;
     }
 
     DWORD creationDisposition(0);
-    switch (oflag & (CREAT | EXCL | TRUNC))
-    {
+    switch (oflag & (CREAT | EXCL | TRUNC)) {
         case CREAT:
             creationDisposition = OPEN_ALWAYS;
             break;
@@ -124,8 +113,7 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode)
     }
 
     DWORD attributes(FILE_ATTRIBUTE_NORMAL);
-    if ((oflag & CREAT) != 0 && (pmode & S_IWRITE) == 0)
-    {
+    if ((oflag & CREAT) != 0 && (pmode & S_IWRITE) == 0) {
         attributes = FILE_ATTRIBUTE_READONLY;
     }
 
@@ -136,10 +124,8 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode)
                                creationDisposition,
                                attributes,
                                0);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
-        switch (GetLastError())
-        {
+    if (handle == INVALID_HANDLE_VALUE) {
+        switch (GetLastError()) {
             case ERROR_FILE_NOT_FOUND:
             case ERROR_PATH_NOT_FOUND:
             case ERROR_INVALID_DRIVE:
@@ -176,42 +162,34 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode)
     return ::_open_osfhandle(reinterpret_cast<intptr_t>(handle), filteredFlags);
 }
 
-int COsFileFuncs::dup(int fildes)
-{
+int COsFileFuncs::dup(int fildes) {
     return ::_dup(fildes);
 }
 
-int COsFileFuncs::dup2(int fildes, int fildes2)
-{
+int COsFileFuncs::dup2(int fildes, int fildes2) {
     return ::_dup2(fildes, fildes2);
 }
 
-COsFileFuncs::TOffset COsFileFuncs::lseek(int fildes, TOffset offset, int whence)
-{
+COsFileFuncs::TOffset COsFileFuncs::lseek(int fildes, TOffset offset, int whence) {
     return ::_lseeki64(fildes, offset, whence);
 }
 
-COsFileFuncs::TSignedSize COsFileFuncs::read(int fildes, void *buf, size_t nbyte)
-{
+COsFileFuncs::TSignedSize COsFileFuncs::read(int fildes, void *buf, size_t nbyte) {
     return ::_read(fildes, buf, static_cast<unsigned int>(nbyte));
 }
 
-COsFileFuncs::TSignedSize COsFileFuncs::write(int fildes, const void *buf, size_t nbyte)
-{
+COsFileFuncs::TSignedSize COsFileFuncs::write(int fildes, const void *buf, size_t nbyte) {
     return ::_write(fildes, buf, static_cast<unsigned int>(nbyte));
 }
 
-int COsFileFuncs::close(int fildes)
-{
+int COsFileFuncs::close(int fildes) {
     return ::_close(fildes);
 }
 
-int COsFileFuncs::fstat(int fildes, TStat *buf)
-{
+int COsFileFuncs::fstat(int fildes, TStat *buf) {
     struct _stati64 tmpBuf;
     int res(::_fstati64(fildes, &tmpBuf));
-    if (res != 0)
-    {
+    if (res != 0) {
         return res;
     }
 
@@ -232,14 +210,12 @@ int COsFileFuncs::fstat(int fildes, TStat *buf)
     // By default, Windows always sets the st_ino member to 0 - try to do
     // something better
     HANDLE handle(reinterpret_cast<HANDLE>(::_get_osfhandle(fildes)));
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         return -1;
     }
 
     BY_HANDLE_FILE_INFORMATION info;
-    if (GetFileInformationByHandle(handle, &info) == FALSE)
-    {
+    if (GetFileInformationByHandle(handle, &info) == FALSE) {
         errno = EACCES;
         return -1;
     }
@@ -249,12 +225,10 @@ int COsFileFuncs::fstat(int fildes, TStat *buf)
     return 0;
 }
 
-int COsFileFuncs::stat(const char *path, TStat *buf)
-{
+int COsFileFuncs::stat(const char *path, TStat *buf) {
     struct _stati64 tmpBuf;
     int res(::_stati64(path, &tmpBuf));
-    if (res != 0)
-    {
+    if (res != 0) {
         return res;
     }
 
@@ -273,8 +247,7 @@ int COsFileFuncs::stat(const char *path, TStat *buf)
     buf->st_ctime = tmpBuf.st_ctime;
 
     // If we're dealing with something other than a normal file, we're done
-    if ((buf->st_mode & _S_IFMT) != _S_IFREG)
-    {
+    if ((buf->st_mode & _S_IFMT) != _S_IFREG) {
         return res;
     }
 
@@ -286,15 +259,13 @@ int COsFileFuncs::stat(const char *path, TStat *buf)
                                OPEN_EXISTING,
                                FILE_ATTRIBUTE_NORMAL,
                                0);
-    if (handle == INVALID_HANDLE_VALUE)
-    {
+    if (handle == INVALID_HANDLE_VALUE) {
         errno = EACCES;
         return -1;
     }
 
     BY_HANDLE_FILE_INFORMATION info;
-    if (GetFileInformationByHandle(handle, &info) == FALSE)
-    {
+    if (GetFileInformationByHandle(handle, &info) == FALSE) {
         CloseHandle(handle);
 
         errno = EACCES;
@@ -308,8 +279,7 @@ int COsFileFuncs::stat(const char *path, TStat *buf)
     return 0;
 }
 
-int COsFileFuncs::lstat(const char *path, TStat *buf)
-{
+int COsFileFuncs::lstat(const char *path, TStat *buf) {
     // Windows has no lstat() function, but it's only different to stat() in the
     // case where the path points at a symlink, so often we can simply call
     // stat()
@@ -317,8 +287,7 @@ int COsFileFuncs::lstat(const char *path, TStat *buf)
     if (path == nullptr ||
         buf == nullptr ||
         GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
-        (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0)
-    {
+        (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         return COsFileFuncs::stat(path, buf);
     }
 
@@ -346,23 +315,19 @@ int COsFileFuncs::lstat(const char *path, TStat *buf)
     return 0;
 }
 
-int COsFileFuncs::access(const char *path, int amode)
-{
+int COsFileFuncs::access(const char *path, int amode) {
     return ::_access(path, amode);
 }
 
-char *COsFileFuncs::getcwd(char *buf, size_t size)
-{
+char *COsFileFuncs::getcwd(char *buf, size_t size) {
     return ::_getcwd(buf, static_cast<int>(size));
 }
 
-int COsFileFuncs::chdir(const char *path)
-{
+int COsFileFuncs::chdir(const char *path) {
     return ::_chdir(path);
 }
 
-int COsFileFuncs::mkdir(const char *path)
-{
+int COsFileFuncs::mkdir(const char *path) {
     return ::_mkdir(path);
 }
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticalTestsTest : public CppUnit::TestFixture
-{
+class CStatisticalTestsTest : public CppUnit::TestFixture {
     public:
         void testCramerVonMises(void);
         void testPersist(void);

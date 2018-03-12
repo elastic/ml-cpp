@@ -23,75 +23,73 @@
 #include <algorithm>
 
 
-CppUnit::Test *CFieldConfigTest::suite()
-{
+CppUnit::Test *CFieldConfigTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFieldConfigTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testTrivial",
-                                   &CFieldConfigTest::testTrivial) );
+                               "CFieldConfigTest::testTrivial",
+                               &CFieldConfigTest::testTrivial) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testValid",
-                                   &CFieldConfigTest::testValid) );
+                               "CFieldConfigTest::testValid",
+                               &CFieldConfigTest::testValid) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testInvalid",
-                                   &CFieldConfigTest::testInvalid) );
+                               "CFieldConfigTest::testInvalid",
+                               &CFieldConfigTest::testInvalid) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testValidSummaryCountFieldName",
-                                   &CFieldConfigTest::testValidSummaryCountFieldName) );
+                               "CFieldConfigTest::testValidSummaryCountFieldName",
+                               &CFieldConfigTest::testValidSummaryCountFieldName) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testValidClauses",
-                                   &CFieldConfigTest::testValidClauses) );
+                               "CFieldConfigTest::testValidClauses",
+                               &CFieldConfigTest::testValidClauses) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testInvalidClauses",
-                                   &CFieldConfigTest::testInvalidClauses) );
+                               "CFieldConfigTest::testInvalidClauses",
+                               &CFieldConfigTest::testInvalidClauses) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testFieldOptions",
-                                   &CFieldConfigTest::testFieldOptions) );
+                               "CFieldConfigTest::testFieldOptions",
+                               &CFieldConfigTest::testFieldOptions) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testValidPopulationClauses",
-                                   &CFieldConfigTest::testValidPopulationClauses) );
+                               "CFieldConfigTest::testValidPopulationClauses",
+                               &CFieldConfigTest::testValidPopulationClauses) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testValidPopulation",
-                                   &CFieldConfigTest::testValidPopulation) );
+                               "CFieldConfigTest::testValidPopulation",
+                               &CFieldConfigTest::testValidPopulation) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testDefaultCategorizationField",
-                                   &CFieldConfigTest::testDefaultCategorizationField) );
+                               "CFieldConfigTest::testDefaultCategorizationField",
+                               &CFieldConfigTest::testDefaultCategorizationField) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testCategorizationFieldWithFilters",
-                                   &CFieldConfigTest::testCategorizationFieldWithFilters) );
+                               "CFieldConfigTest::testCategorizationFieldWithFilters",
+                               &CFieldConfigTest::testCategorizationFieldWithFilters) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testExcludeFrequentClauses",
-                                   &CFieldConfigTest::testExcludeFrequentClauses) );
+                               "CFieldConfigTest::testExcludeFrequentClauses",
+                               &CFieldConfigTest::testExcludeFrequentClauses) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testExcludeFrequent",
-                                   &CFieldConfigTest::testExcludeFrequent) );
+                               "CFieldConfigTest::testExcludeFrequent",
+                               &CFieldConfigTest::testExcludeFrequent) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testSlashes",
-                                   &CFieldConfigTest::testSlashes) );
+                               "CFieldConfigTest::testSlashes",
+                               &CFieldConfigTest::testSlashes) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testBracketPercent",
-                                   &CFieldConfigTest::testBracketPercent) );
+                               "CFieldConfigTest::testBracketPercent",
+                               &CFieldConfigTest::testBracketPercent) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testClauseTokenise",
-                                   &CFieldConfigTest::testClauseTokenise) );
+                               "CFieldConfigTest::testClauseTokenise",
+                               &CFieldConfigTest::testClauseTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testUtf8Bom",
-                                   &CFieldConfigTest::testUtf8Bom) );
+                               "CFieldConfigTest::testUtf8Bom",
+                               &CFieldConfigTest::testUtf8Bom) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testAddByOverPartitionInfluencers",
-                                   &CFieldConfigTest::testAddByOverPartitionInfluencers) );
+                               "CFieldConfigTest::testAddByOverPartitionInfluencers",
+                               &CFieldConfigTest::testAddByOverPartitionInfluencers) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testAddOptions",
-                                   &CFieldConfigTest::testAddOptions) );
+                               "CFieldConfigTest::testAddOptions",
+                               &CFieldConfigTest::testAddOptions) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFieldConfigTest>(
-                                   "CFieldConfigTest::testScheduledEvents",
-                                   &CFieldConfigTest::testScheduledEvents) );
+                               "CFieldConfigTest::testScheduledEvents",
+                               &CFieldConfigTest::testScheduledEvents) );
     return suiteOfTests;
 }
 
-void CFieldConfigTest::testTrivial(void)
-{
+void CFieldConfigTest::testTrivial(void) {
     ml::api::CFieldConfig config("count", "mlcategory");
 
     const ml::api::CFieldConfig::TFieldOptionsMIndex &fields = config.fieldOptions();
@@ -111,26 +109,22 @@ void CFieldConfigTest::testTrivial(void)
     CPPUNIT_ASSERT_EQUAL(size_t(1), superset.count("mlcategory"));
 }
 
-void CFieldConfigTest::testValid(void)
-{
+void CFieldConfigTest::testValid(void) {
     this->testValidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                         "testfiles/new_mlfields.conf");
 }
 
-void CFieldConfigTest::testInvalid(void)
-{
+void CFieldConfigTest::testInvalid(void) {
     this->testInvalidFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                           "testfiles/new_invalidmlfields.conf");
 }
 
-void CFieldConfigTest::testValidSummaryCountFieldName(void)
-{
+void CFieldConfigTest::testValidSummaryCountFieldName(void) {
     this->testValidSummaryCountFieldNameFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                              "testfiles/new_mlfields_summarycount.conf");
 }
 
-void CFieldConfigTest::testValidClauses(void)
-{
+void CFieldConfigTest::testValidClauses(void) {
     ml::api::CFieldConfig config;
 
     {
@@ -510,8 +504,7 @@ void CFieldConfigTest::testValidClauses(void)
     }
 }
 
-void CFieldConfigTest::testInvalidClauses(void)
-{
+void CFieldConfigTest::testInvalidClauses(void) {
     ml::api::CFieldConfig config;
 
     {
@@ -646,8 +639,7 @@ void CFieldConfigTest::testInvalidClauses(void)
     }
 }
 
-void CFieldConfigTest::testFieldOptions(void)
-{
+void CFieldConfigTest::testFieldOptions(void) {
     {
         ml::api::CFieldConfig::CFieldOptions opt("count", 42);
 
@@ -665,21 +657,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    true,
-                                                                    "c",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               true,
+                                                               "c",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      1,
-                                                      "byField",
-                                                      "overField",
-                                                      "partitionField",
-                                                      false,
-                                                      false,
-                                                      true);
+                                                 fieldName,
+                                                 1,
+                                                 "byField",
+                                                 "overField",
+                                                 "partitionField",
+                                                 false,
+                                                 false,
+                                                 true);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationCount, opt.function());
         CPPUNIT_ASSERT(opt.fieldName().empty());
@@ -697,11 +689,11 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    false,
-                                                                    false,
-                                                                    "count()",
-                                                                    function,
-                                                                    fieldName));
+                                                               false,
+                                                               false,
+                                                               "count()",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function, fieldName, 3, "", "", "", false, false, false);
 
@@ -734,21 +726,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    false,
-                                                                    "dc(category)",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               false,
+                                                               "dc(category)",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      5,
-                                                      "",
-                                                      "overField",
-                                                      "",
-                                                      false,
-                                                      false,
-                                                      false);
+                                                 fieldName,
+                                                 5,
+                                                 "",
+                                                 "overField",
+                                                 "",
+                                                 false,
+                                                 false,
+                                                 false);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationDistinctCount, opt.function());
         CPPUNIT_ASSERT(opt.byFieldName().empty());
@@ -766,21 +758,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    false,
-                                                                    "info_content(mlsub)",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               false,
+                                                               "info_content(mlsub)",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      6,
-                                                      "",
-                                                      "mlhrd",
-                                                      "",
-                                                      false,
-                                                      false,
-                                                      false);
+                                                 fieldName,
+                                                 6,
+                                                 "",
+                                                 "mlhrd",
+                                                 "",
+                                                 false,
+                                                 false,
+                                                 false);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationInfoContent, opt.function());
         CPPUNIT_ASSERT(opt.byFieldName().empty());
@@ -798,21 +790,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    false,
-                                                                    "high_info_content(mlsub)",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               false,
+                                                               "high_info_content(mlsub)",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      1,
-                                                      "",
-                                                      "mlhrd",
-                                                      "datacenter",
-                                                      false,
-                                                      false,
-                                                      false);
+                                                 fieldName,
+                                                 1,
+                                                 "",
+                                                 "mlhrd",
+                                                 "datacenter",
+                                                 false,
+                                                 false,
+                                                 false);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationHighInfoContent, opt.function());
         CPPUNIT_ASSERT(opt.byFieldName().empty());
@@ -830,21 +822,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    true,
-                                                                    "rare()",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               true,
+                                                               "rare()",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      1,
-                                                      "byField",
-                                                      "overField",
-                                                      "",
-                                                      false,
-                                                      false,
-                                                      false);
+                                                 fieldName,
+                                                 1,
+                                                 "byField",
+                                                 "overField",
+                                                 "",
+                                                 false,
+                                                 false,
+                                                 false);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationRare, opt.function());
         CPPUNIT_ASSERT(opt.fieldName().empty());
@@ -862,21 +854,21 @@ void CFieldConfigTest::testFieldOptions(void)
         ml::model::function_t::EFunction function;
         std::string fieldName;
         CPPUNIT_ASSERT(ml::api::CFieldConfig::parseFieldString(false,
-                                                                    true,
-                                                                    true,
-                                                                    "rare_count",
-                                                                    function,
-                                                                    fieldName));
+                                                               true,
+                                                               true,
+                                                               "rare_count",
+                                                               function,
+                                                               fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function,
-                                                      fieldName,
-                                                      1,
-                                                      "byField",
-                                                      "overField",
-                                                      "partitionField",
-                                                      false,
-                                                      false,
-                                                      true);
+                                                 fieldName,
+                                                 1,
+                                                 "byField",
+                                                 "overField",
+                                                 "partitionField",
+                                                 false,
+                                                 false,
+                                                 true);
 
         CPPUNIT_ASSERT_EQUAL(ml::model::function_t::E_PopulationRareCount, opt.function());
         CPPUNIT_ASSERT(opt.fieldName().empty());
@@ -892,8 +884,7 @@ void CFieldConfigTest::testFieldOptions(void)
     }
 }
 
-void CFieldConfigTest::testValidPopulationClauses(void)
-{
+void CFieldConfigTest::testValidPopulationClauses(void) {
     {
         ml::api::CFieldConfig config;
 
@@ -1167,20 +1158,17 @@ void CFieldConfigTest::testValidPopulationClauses(void)
     }
 }
 
-void CFieldConfigTest::testValidPopulation(void)
-{
+void CFieldConfigTest::testValidPopulation(void) {
     this->testValidPopulationFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                   "testfiles/new_populationmlfields.conf");
 }
 
-void CFieldConfigTest::testDefaultCategorizationField(void)
-{
+void CFieldConfigTest::testDefaultCategorizationField(void) {
     this->testDefaultCategorizationFieldFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                              "testfiles/new_mlfields_sos_message_cat.conf");
 }
 
-void CFieldConfigTest::testCategorizationFieldWithFilters(void)
-{
+void CFieldConfigTest::testCategorizationFieldWithFilters(void) {
     std::string fileName("testfiles/new_mlfields_categorization_filters.conf");
 
     ml::api::CFieldConfig config;
@@ -1200,8 +1188,7 @@ void CFieldConfigTest::testCategorizationFieldWithFilters(void)
     CPPUNIT_ASSERT_EQUAL(std::string(" "), config.categorizationFilters()[1]);
 }
 
-void CFieldConfigTest::testExcludeFrequentClauses(void)
-{
+void CFieldConfigTest::testExcludeFrequentClauses(void) {
     {
         // Basic case with no excludefrequent
         ml::api::CFieldConfig config;
@@ -1410,26 +1397,22 @@ void CFieldConfigTest::testExcludeFrequentClauses(void)
     }
 }
 
-void CFieldConfigTest::testExcludeFrequent(void)
-{
+void CFieldConfigTest::testExcludeFrequent(void) {
     this->testExcludeFrequentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                                   "testfiles/new_mlfields_excludefrequent.conf");
 }
 
-void CFieldConfigTest::testSlashes(void)
-{
+void CFieldConfigTest::testSlashes(void) {
     this->testSlashesFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
                           "testfiles/new_mlfields_slashes.conf");
 }
 
-void CFieldConfigTest::testBracketPercent(void)
-{
+void CFieldConfigTest::testBracketPercent(void) {
     this->testBracketPercentFile(boost::bind(&ml::api::CFieldConfig::initFromFile, _1, _2),
-                          "testfiles/new_mlfields_bracket_percent.conf");
+                                 "testfiles/new_mlfields_bracket_percent.conf");
 }
 
-void CFieldConfigTest::testClauseTokenise(void)
-{
+void CFieldConfigTest::testClauseTokenise(void) {
     ml::api::CFieldConfig config;
 
     {
@@ -1584,15 +1567,13 @@ void CFieldConfigTest::testClauseTokenise(void)
     }
 }
 
-void CFieldConfigTest::testUtf8Bom(void)
-{
+void CFieldConfigTest::testUtf8Bom(void) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_mlfields_with_utf8_bom.conf"));
 }
 
-void CFieldConfigTest::testAddByOverPartitionInfluencers(void)
-{
+void CFieldConfigTest::testAddByOverPartitionInfluencers(void) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/new_mlfields_excludefrequent.conf"));
@@ -1613,37 +1594,35 @@ void CFieldConfigTest::testAddByOverPartitionInfluencers(void)
     CPPUNIT_ASSERT_EQUAL(std::string("src_ip"), copyInfluencers[5]);
 }
 
-void CFieldConfigTest::testAddOptions(void)
-{
+void CFieldConfigTest::testAddOptions(void) {
     ml::api::CFieldConfig configFromFile;
     ml::api::CFieldConfig configFromScratch;
 
     CPPUNIT_ASSERT(configFromFile.initFromFile("testfiles/new_populationmlfields.conf"));
 
     ml::api::CFieldConfig::CFieldOptions options1("count",
-                                                       1,
-                                                       "SRC",
-                                                       false,
-                                                       false);
+                                                  1,
+                                                  "SRC",
+                                                  false,
+                                                  false);
     CPPUNIT_ASSERT(configFromScratch.addOptions(options1));
 
     ml::api::CFieldConfig::CFieldOptions options2(ml::model::function_t::E_PopulationCount,
-                                                       "",
-                                                       2,
-                                                       "DPT",
-                                                       "SRC",
-                                                       "",
-                                                       false,
-                                                       false,
-                                                       true);
+                                                  "",
+                                                  2,
+                                                  "DPT",
+                                                  "SRC",
+                                                  "",
+                                                  false,
+                                                  false,
+                                                  true);
     CPPUNIT_ASSERT(configFromScratch.addOptions(options2));
 
     CPPUNIT_ASSERT_EQUAL(configFromFile.debug(), configFromScratch.debug());
 }
 
 void CFieldConfigTest::testValidFile(TInitFromFileFunc initFunc,
-                                     const std::string &fileName)
-{
+                                     const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1741,16 +1720,14 @@ void CFieldConfigTest::testValidFile(TInitFromFileFunc initFunc,
 }
 
 void CFieldConfigTest::testInvalidFile(TInitFromFileFunc initFunc,
-                                       const std::string &fileName)
-{
+                                       const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(!initFunc(&config, fileName));
 }
 
 void CFieldConfigTest::testValidSummaryCountFieldNameFile(TInitFromFileFunc initFunc,
-                                                          const std::string &fileName)
-{
+                                                          const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1759,8 +1736,7 @@ void CFieldConfigTest::testValidSummaryCountFieldNameFile(TInitFromFileFunc init
 }
 
 void CFieldConfigTest::testValidPopulationFile(TInitFromFileFunc initFunc,
-                                               const std::string &fileName)
-{
+                                               const std::string &fileName) {
     {
         ml::api::CFieldConfig config;
         CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1793,8 +1769,7 @@ void CFieldConfigTest::testValidPopulationFile(TInitFromFileFunc initFunc,
 }
 
 void CFieldConfigTest::testDefaultCategorizationFieldFile(TInitFromFileFunc initFunc,
-                                                          const std::string &fileName)
-{
+                                                          const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1821,8 +1796,7 @@ void CFieldConfigTest::testDefaultCategorizationFieldFile(TInitFromFileFunc init
 }
 
 void CFieldConfigTest::testExcludeFrequentFile(TInitFromFileFunc initFunc,
-                                               const std::string &fileName)
-{
+                                               const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1916,8 +1890,7 @@ void CFieldConfigTest::testExcludeFrequentFile(TInitFromFileFunc initFunc,
 }
 
 void CFieldConfigTest::testSlashesFile(TInitFromFileFunc initFunc,
-                                       const std::string &fileName)
-{
+                                       const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1928,15 +1901,13 @@ void CFieldConfigTest::testSlashesFile(TInitFromFileFunc initFunc,
 
     for (ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
          iter != fields.end();
-         ++iter)
-    {
+         ++iter) {
         CPPUNIT_ASSERT_EQUAL(std::string("host"), iter->partitionFieldName());
     }
 }
 
 void CFieldConfigTest::testBracketPercentFile(TInitFromFileFunc initFunc,
-                                              const std::string &fileName)
-{
+                                              const std::string &fileName) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(initFunc(&config, fileName));
@@ -1956,8 +1927,7 @@ void CFieldConfigTest::testBracketPercentFile(TInitFromFileFunc initFunc,
     CPPUNIT_ASSERT_EQUAL(std::string("This string should have quotes removed"), config.categorizationFieldName());
 }
 
-void CFieldConfigTest::testScheduledEvents(void)
-{
+void CFieldConfigTest::testScheduledEvents(void) {
     ml::api::CFieldConfig config;
 
     CPPUNIT_ASSERT(config.initFromFile("testfiles/scheduled_events.conf"));
@@ -1966,9 +1936,9 @@ void CFieldConfigTest::testScheduledEvents(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t{2}, events.size());
     CPPUNIT_ASSERT_EQUAL(std::string("May Bank Holiday"), events[0].first);
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1525132800.000000 AND TIME < 1525219200.000000"),
-                        events[0].second.print());
+                         events[0].second.print());
     CPPUNIT_ASSERT_EQUAL(std::string("New Years Day"), events[1].first);
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1514764800.000000 AND TIME < 1514851200.000000"),
-                        events[1].second.print());
+                         events[1].second.print());
 }
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultivariateNormalConjugateTest : public CppUnit::TestFixture
-{
+class CMultivariateNormalConjugateTest : public CppUnit::TestFixture {
     public:
         void testMultipleUpdate(void);
         void testPropagation(void);

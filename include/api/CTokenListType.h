@@ -23,15 +23,12 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! The data associated with this Ml 'type'
@@ -47,8 +44,7 @@ namespace api
 //! that created this object knows the mappings between the
 //! token IDs and string tokens.
 //!
-class API_EXPORT CTokenListType
-{
+class API_EXPORT CTokenListType {
     public:
         //! Used to associate tokens with weightings:
         //! first -> token ID

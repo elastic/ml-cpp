@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEntropySketchTest : public CppUnit::TestFixture
-{
+class CEntropySketchTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

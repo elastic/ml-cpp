@@ -26,15 +26,12 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Interface for classes that convert a raw event string to a type.
@@ -49,8 +46,7 @@ namespace api
 //! there are specialist data typers for XML, JSON or delimited files,
 //! so it is good to have an abstract interface that they can all use.
 //!
-class API_EXPORT CDataTyper
-{
+class API_EXPORT CDataTyper {
     public:
         //! Used for storing distinct token IDs
         typedef boost::unordered_map<std::string, std::string>        TStrStrUMap;

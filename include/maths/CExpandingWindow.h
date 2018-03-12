@@ -27,16 +27,13 @@
 #include <functional>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 
 //! \brief Implements a fixed memory expanding time window.
 //!
@@ -48,8 +45,7 @@ namespace maths
 //! constructor. At the point it overflows, i.e. time since the
 //! beginning of the window exceeds "size" x "maximum bucket length",
 //! it will re-initialize the bucketing and update the start time.
-class MATHS_EXPORT CExpandingWindow
-{
+class MATHS_EXPORT CExpandingWindow {
     public:
         using TDoubleVec = std::vector<double>;
         using TTimeVec = std::vector<core_t::TTime>;

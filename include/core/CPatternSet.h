@@ -22,10 +22,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A set that allows efficient lookups of strings.
 //!
@@ -46,8 +44,7 @@ namespace core
 //!   - its end matched a suffix pattern
 //!   - it matches fully against a full pattern
 //!   - the start of any of its substrings ending at its end matches a contains pattern
-class CORE_EXPORT CPatternSet
-{
+class CORE_EXPORT CPatternSet {
     public:
         typedef std::vector<std::string> TStrVec;
         typedef TStrVec::const_iterator TStrVecCItr;

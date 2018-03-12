@@ -39,12 +39,9 @@
 #include <typeinfo>
 
 
-namespace ml
-{
-namespace maths
-{
-namespace
-{
+namespace ml {
+namespace maths {
+namespace {
 // We use short field names to reduce the state size
 // There needs to be one constant here per sub-class of CPrior.
 // DO NOT change the existing tags if new sub-classes are added.
@@ -62,65 +59,44 @@ const std::string EMPTY_STRING;
 
 bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams &params,
                                        TPriorPtr &ptr,
-                                       core::CStateRestoreTraverser &traverser) const
-{
+                                       core::CStateRestoreTraverser &traverser) const {
     size_t numResults(0);
 
-    do
-    {
+    do {
         const std::string &name = traverser.name();
-        if (name == CONSTANT_TAG)
-        {
+        if (name == CONSTANT_TAG) {
             ptr.reset(new CConstantPrior(traverser));
             ++numResults;
-        }
-        else if (name == GAMMA_TAG)
-        {
+        } else if (name == GAMMA_TAG) {
             ptr.reset(new CGammaRateConjugate(params, traverser));
             ++numResults;
-        }
-        else if (name == LOG_NORMAL_TAG)
-        {
+        } else if (name == LOG_NORMAL_TAG) {
             ptr.reset(new CLogNormalMeanPrecConjugate(params, traverser));
             ++numResults;
-        }
-        else if (name == MULTIMODAL_TAG)
-        {
+        } else if (name == MULTIMODAL_TAG) {
             ptr.reset(new CMultimodalPrior(params, traverser));
             ++numResults;
-        }
-        else if (name == MULTINOMIAL_TAG)
-        {
+        } else if (name == MULTINOMIAL_TAG) {
             ptr.reset(new CMultinomialConjugate(params, traverser));
             ++numResults;
-        }
-        else if (name == NORMAL_TAG)
-        {
+        } else if (name == NORMAL_TAG) {
             ptr.reset(new CNormalMeanPrecConjugate(params, traverser));
             ++numResults;
-        }
-        else if (name == ONE_OF_N_TAG)
-        {
+        } else if (name == ONE_OF_N_TAG) {
             ptr.reset(new COneOfNPrior(params, traverser));
             ++numResults;
-        }
-        else if (name == POISSON_TAG)
-        {
+        } else if (name == POISSON_TAG) {
             ptr.reset(new CPoissonMeanConjugate(params, traverser));
             ++numResults;
-        }
-        else
-        {
+        } else {
             // Due to the way we divide large state into multiple chunks
             // this is not necessarily a problem - the unexpected element may be
             // marking the start of a new chunk
             LOG_WARN("No prior distribution corresponds to node name " << traverser.name());
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
-    if (numResults != 1)
-    {
+    if (numResults != 1) {
         LOG_ERROR("Expected 1 (got " << numResults << ") prior model tags");
         ptr.reset();
         return false;
@@ -130,44 +106,26 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams &params,
 }
 
 void CPriorStateSerialiser::operator()(const CPrior &prior,
-                                       core::CStatePersistInserter &inserter) const
-{
+                                       core::CStatePersistInserter &inserter) const {
     std::string tagName;
 
-    if (dynamic_cast<const CConstantPrior *>(&prior) != 0)
-    {
+    if (dynamic_cast<const CConstantPrior *>(&prior) != 0) {
         tagName = CONSTANT_TAG;
-    }
-    else if (dynamic_cast<const CGammaRateConjugate *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CGammaRateConjugate *>(&prior) != 0) {
         tagName = GAMMA_TAG;
-    }
-    else if (dynamic_cast<const CLogNormalMeanPrecConjugate *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CLogNormalMeanPrecConjugate *>(&prior) != 0) {
         tagName = LOG_NORMAL_TAG;
-    }
-    else if (dynamic_cast<const CMultimodalPrior *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CMultimodalPrior *>(&prior) != 0) {
         tagName = MULTIMODAL_TAG;
-    }
-    else if (dynamic_cast<const CMultinomialConjugate *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CMultinomialConjugate *>(&prior) != 0) {
         tagName = MULTINOMIAL_TAG;
-    }
-    else if (dynamic_cast<const CNormalMeanPrecConjugate *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CNormalMeanPrecConjugate *>(&prior) != 0) {
         tagName = NORMAL_TAG;
-    }
-    else if (dynamic_cast<const COneOfNPrior *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const COneOfNPrior *>(&prior) != 0) {
         tagName = ONE_OF_N_TAG;
-    }
-    else if (dynamic_cast<const CPoissonMeanConjugate *>(&prior) != 0)
-    {
+    } else if (dynamic_cast<const CPoissonMeanConjugate *>(&prior) != 0) {
         tagName = POISSON_TAG;
-    }
-    else
-    {
+    } else {
         LOG_ERROR("Prior distribution with type '" << typeid(prior).name()
                   << "' has no defined field name");
         return;
@@ -178,69 +136,52 @@ void CPriorStateSerialiser::operator()(const CPrior &prior,
 
 bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams &params,
                                        TMultivariatePriorPtr &ptr,
-                                       core::CStateRestoreTraverser &traverser) const
-{
+                                       core::CStateRestoreTraverser &traverser) const {
     std::size_t numResults = 0u;
 
-    do
-    {
+    do {
         const std::string &name = traverser.name();
-        if (name == CMultivariatePrior::CONSTANT_TAG)
-        {
+        if (name == CMultivariatePrior::CONSTANT_TAG) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::CONSTANT_TAG.length()), dimension) == false)
-            {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::CONSTANT_TAG.length()), dimension) == false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
             ptr.reset(new CMultivariateConstantPrior(dimension, traverser));
             ++numResults;
-        }
-        else if (name.find(CMultivariatePrior::MULTIMODAL_TAG) != std::string::npos)
-        {
+        } else if (name.find(CMultivariatePrior::MULTIMODAL_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::MULTIMODAL_TAG.length()), dimension) == false)
-            {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::MULTIMODAL_TAG.length()), dimension) == false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateMultimodalPriorFactory::restore(dimension, params, ptr, traverser);
             ++numResults;
-        }
-        else if (name.find(CMultivariatePrior::NORMAL_TAG) != std::string::npos)
-        {
+        } else if (name.find(CMultivariatePrior::NORMAL_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::NORMAL_TAG.length()), dimension) == false)
-            {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::NORMAL_TAG.length()), dimension) == false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateNormalConjugateFactory::restore(dimension, params, ptr, traverser);
             ++numResults;
-        }
-        else if (name.find(CMultivariatePrior::ONE_OF_N_TAG) != std::string::npos)
-        {
+        } else if (name.find(CMultivariatePrior::ONE_OF_N_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::ONE_OF_N_TAG.length()), dimension) == false)
-            {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::ONE_OF_N_TAG.length()), dimension) == false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
             CMultivariateOneOfNPriorFactory::restore(dimension, params, ptr, traverser);
             ++numResults;
-        }
-        else
-        {
+        } else {
             // Due to the way we divide large state into multiple chunks
             // this is not necessarily a problem - the unexpected element may be
             // marking the start of a new chunk
             LOG_WARN("No prior distribution corresponds to node name " << traverser.name());
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
-    if (numResults != 1)
-    {
+    if (numResults != 1) {
         LOG_ERROR("Expected 1 (got " << numResults << ") prior model tags");
         ptr.reset();
         return false;
@@ -250,8 +191,7 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams &params,
 }
 
 void CPriorStateSerialiser::operator()(const CMultivariatePrior &prior,
-                                       core::CStatePersistInserter &inserter) const
-{
+                                       core::CStatePersistInserter &inserter) const {
     inserter.insertLevel(prior.persistenceTag(),
                          boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
 }

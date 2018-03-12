@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXMeansTest : public CppUnit::TestFixture
-{
+class CXMeansTest : public CppUnit::TestFixture {
     public:
         void testCluster(void);
         void testImproveParams(void);

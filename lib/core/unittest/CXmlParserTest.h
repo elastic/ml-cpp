@@ -19,17 +19,14 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlNode;
 class CXmlParser;
 }
 }
 
-class CXmlParserTest : public CppUnit::TestFixture
-{
+class CXmlParserTest : public CppUnit::TestFixture {
     public:
         void testParse1File(void);
         void testParse1String(void);

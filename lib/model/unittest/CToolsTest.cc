@@ -25,13 +25,11 @@
 using namespace ml;
 using namespace model;
 
-void CToolsTest::testDataGatherers(void)
-{
+void CToolsTest::testDataGatherers(void) {
     // TODO
 }
 
-void CToolsTest::testProbabilityAggregator(void)
-{
+void CToolsTest::testProbabilityAggregator(void) {
     LOG_DEBUG("****** CToolsTest::testProbabilityAggregator ******");
 
     // Test a variety of min aggregations.
@@ -51,8 +49,7 @@ void CToolsTest::testProbabilityAggregator(void)
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             expected.add(p[0]);
             CPPUNIT_ASSERT(!actual.empty());
@@ -80,8 +77,7 @@ void CToolsTest::testProbabilityAggregator(void)
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             expected.add(p[0]);
             CPPUNIT_ASSERT(!actual.empty());
@@ -111,8 +107,7 @@ void CToolsTest::testProbabilityAggregator(void)
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             joint.add(p[0]);
             extreme.add(p[0]);
@@ -144,8 +139,7 @@ void CToolsTest::testProbabilityAggregator(void)
 
         double p[] = { 0.01, 0.2, 0.001, 0.3, 0.456, 0.1 };
 
-        for (std::size_t i = 0u; i < boost::size(p); ++i)
-        {
+        for (std::size_t i = 0u; i < boost::size(p); ++i) {
             actual.add(p[0]);
             joint.add(p[0]);
             extreme.add(p[0]);
@@ -162,13 +156,12 @@ void CToolsTest::testProbabilityAggregator(void)
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void)
-{
+CppUnit::Test *CToolsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CToolsTest>(
-                                   "CToolsTest::testProbabilityAggregator",
-                                   &CToolsTest::testProbabilityAggregator) );
+                               "CToolsTest::testProbabilityAggregator",
+                               &CToolsTest::testProbabilityAggregator) );
 
     return suiteOfTests;
 }

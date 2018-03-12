@@ -26,10 +26,8 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Models the trend component of a time series.
 //!
@@ -48,8 +46,7 @@ namespace maths
 //! we see w.r.t. the predictions from the next longer time scale component).
 //! This produces plausible looking and this sort of mean reversion is common
 //! in many real world time series.
-class MATHS_EXPORT CTrendComponent
-{
+class MATHS_EXPORT CTrendComponent {
     public:
         using TDoubleDoublePr = maths_t::TDoubleDoublePr;
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -146,8 +143,7 @@ class MATHS_EXPORT CTrendComponent
         using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
         //! \brief A model of the trend at a specific time scale.
-        struct SModel
-        {
+        struct SModel {
             explicit SModel(double weight);
             void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
             bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

@@ -26,10 +26,8 @@
 #include <list>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 
@@ -73,8 +71,7 @@ class CStateRestoreTraverser;
 //! structure while it's being changed.  Do not use this class in multithreaded
 //! code until this is fixed.  The bug reference is:
 //! https://github.com/elastic/machine-learning-cpp/issues/10
-class CORE_EXPORT CStateMachine
-{
+class CORE_EXPORT CStateMachine {
     public:
         typedef std::vector<std::size_t> TSizeVec;
         typedef std::vector<TSizeVec> TSizeVecVec;
@@ -130,8 +127,7 @@ class CORE_EXPORT CStateMachine
 
     private:
         //! \brief The state of a single machine.
-        struct CORE_EXPORT SMachine
-        {
+        struct CORE_EXPORT SMachine {
             SMachine(const TStrVec &alphabet,
                      const TStrVec &states,
                      const TSizeVecVec &transitionFunction);
@@ -146,8 +142,7 @@ class CORE_EXPORT CStateMachine
         };
 
         //! \brief A lightweight object to lookup a single machine.
-        struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine>
-        {
+        struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine> {
             SLookupMachine(const TStrVec &alphabet,
                            const TStrVec &states,
                            const TSizeVecVec &transitionFunction);
@@ -182,8 +177,7 @@ class CORE_EXPORT CStateMachine
         //! is not suitable. Instead we prefer to use a list of preallocated
         //! std::vectors, on which it is also safe to call push_back, for our
         //! use case, provided doing so doesn't cause them to reallocate.
-        class CORE_EXPORT CMachineDeque
-        {
+        class CORE_EXPORT CMachineDeque {
             private:
                 //! The default vector capacity.
                 static const std::size_t DEFAULT_CAPACITY = 20;

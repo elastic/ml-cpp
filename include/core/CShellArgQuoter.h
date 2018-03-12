@@ -21,10 +21,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -42,8 +40,7 @@ namespace core
 //! and not the directory path that the environment variable
 //! expands to.
 //!
-class CORE_EXPORT CShellArgQuoter : private CNonInstantiatable
-{
+class CORE_EXPORT CShellArgQuoter : private CNonInstantiatable {
     public:
         //! Returns /tmp on Unix or an expansion of %TEMP% on Windows
         static std::string quote(const std::string &arg);

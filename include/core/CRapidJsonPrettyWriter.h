@@ -20,10 +20,8 @@
 
 #include <rapidjson/prettywriter.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! Writes each Json object with indentation and spacing
 /*!
@@ -39,11 +37,10 @@ template<typename OUTPUT_STREAM,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
 class CRapidJsonPrettyWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING,
-                                                            STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter >
-{
+    STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter > {
     public:
         using TRapidJsonPrettyWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING,
-                                                                STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter>;
+              STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::PrettyWriter>;
         using TRapidJsonPrettyWriterBase::TRapidJsonPrettyWriterBase;
 };
 

@@ -24,10 +24,8 @@
 #include <set>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Collection of set utility functions not provided by the STL.
 //!
@@ -37,13 +35,11 @@ namespace maths
 //! computing set difference in-place, and functions for counting
 //! elements in set differences and unions. Common measures of set
 //! similarity such as the Jaccard index are also implemented.
-class MATHS_EXPORT CSetTools
-{
+class MATHS_EXPORT CSetTools {
     public:
         //! \brief Checks if an indexed object is in a specified collection
         //! of indices.
-        class CIndexInSet
-        {
+        class CIndexInSet {
             public:
                 typedef std::set<std::size_t> TSizeSet;
 
@@ -52,11 +48,9 @@ class MATHS_EXPORT CSetTools
                 CIndexInSet(const TSizeSet &indexSet) : m_IndexSet(indexSet) {}
 
                 template<typename T>
-                bool operator()(const T &indexedObject) const
-                {
+                bool operator()(const T &indexedObject) const {
                     const std::size_t *index = boost::get<std::size_t>(&m_IndexSet);
-                    if (index)
-                    {
+                    if (index) {
                         return indexedObject.s_Index == *index;
                     }
                     const TSizeSet &indexSet = boost::get<TSizeSet>(m_IndexSet);
@@ -72,30 +66,23 @@ class MATHS_EXPORT CSetTools
 
         //! Compute the difference between \p S and [\p begin, \p end).
         template<typename T, typename ITR>
-        static void inplace_set_difference(std::vector<T> &S, ITR begin, ITR end)
-        {
+        static void inplace_set_difference(std::vector<T> &S, ITR begin, ITR end) {
             typename std::vector<T>::iterator i = S.begin(), last = i;
-            for (ITR j = begin; i != S.end() && j != end; /**/)
-            {
-                if (*i < *j)
-                {
-                    if (last != i)
-                    {
+            for (ITR j = begin; i != S.end() && j != end; /**/) {
+                if (*i < *j) {
+                    if (last != i) {
                         std::iter_swap(last, i);
                     }
-                    ++i; ++last;
-                }
-                else if (*j < *i)
-                {
+                    ++i;
+                    ++last;
+                } else if (*j < *i) {
+                    ++j;
+                } else {
+                    ++i;
                     ++j;
                 }
-                else
-                {
-                    ++i; ++j;
-                }
             }
-            if (last != i)
-            {
+            if (last != i) {
                 S.erase(std::swap_ranges(i, S.end(), last), S.end());
             }
         }
@@ -131,10 +118,8 @@ class MATHS_EXPORT CSetTools
         template<typename T1, typename T2, typename F>
         static bool simultaneousRemoveIf(std::vector<T1> &values1,
                                          std::vector<T2> &values2,
-                                         const F &pred)
-        {
-            if (values1.size() != values2.size())
-            {
+                                         const F &pred) {
+            if (values1.size() != values2.size()) {
                 return false;
             }
 
@@ -157,11 +142,9 @@ class MATHS_EXPORT CSetTools
         static bool simultaneousRemoveIf(std::vector<T1> &values1,
                                          std::vector<T2> &values2,
                                          std::vector<T3> &values3,
-                                         const F &pred)
-        {
-            if (   values1.size() != values2.size()
-                || values2.size() != values3.size())
-            {
+                                         const F &pred) {
+            if (   values1.size() != values2.size() ||
+                   values2.size() != values3.size()) {
                 return false;
             }
 
@@ -175,22 +158,17 @@ class MATHS_EXPORT CSetTools
         //! Compute the number of elements in the intersection of the
         //! ranges [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
         template<typename ITR1, typename ITR2>
-        static std::size_t setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs)
-        {
+        static std::size_t setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
             std::size_t result = 0u;
-            while (beginLhs != endLhs && beginRhs != endRhs)
-            {
-                if (*beginLhs < *beginRhs)
-                {
+            while (beginLhs != endLhs && beginRhs != endRhs) {
+                if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                }
-                else if (*beginRhs < *beginLhs)
-                {
+                } else if (*beginRhs < *beginLhs) {
                     ++beginRhs;
-                }
-                else
-                {
-                    ++beginLhs; ++beginRhs; ++result;
+                } else {
+                    ++beginLhs;
+                    ++beginRhs;
+                    ++result;
                 }
             }
             return result;
@@ -199,22 +177,16 @@ class MATHS_EXPORT CSetTools
         //! Compute the number of elements in the union of the ranges
         //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
         template<typename ITR1, typename ITR2>
-        static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs)
-        {
+        static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
             std::size_t result = 0u;
-            while (beginLhs != endLhs && beginRhs != endRhs)
-            {
-                if (*beginLhs < *beginRhs)
-                {
+            while (beginLhs != endLhs && beginRhs != endRhs) {
+                if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                }
-                else if (*beginRhs < *beginLhs)
-                {
+                } else if (*beginRhs < *beginLhs) {
                     ++beginRhs;
-                }
-                else
-                {
-                    ++beginLhs; ++beginRhs;
+                } else {
+                    ++beginLhs;
+                    ++beginRhs;
                 }
                 ++result;
             }
@@ -226,23 +198,18 @@ class MATHS_EXPORT CSetTools
         //!
         //! This is defined as \f$\frac{|A\cap B|}{|A\cup B|}\f$.
         template<typename ITR1, typename ITR2>
-        static double jaccard(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs)
-        {
+        static double jaccard(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
             std::size_t numer = 0u;
             std::size_t denom = 0u;
-            while (beginLhs != endLhs && beginRhs != endRhs)
-            {
-                if (*beginLhs < *beginRhs)
-                {
+            while (beginLhs != endLhs && beginRhs != endRhs) {
+                if (*beginLhs < *beginRhs) {
                     ++beginLhs;
-                }
-                else if (*beginRhs < *beginLhs)
-                {
+                } else if (*beginRhs < *beginLhs) {
                     ++beginRhs;
-                }
-                else
-                {
-                    ++beginLhs; ++beginRhs; ++numer;
+                } else {
+                    ++beginLhs;
+                    ++beginRhs;
+                    ++numer;
                 }
                 ++denom;
             }
@@ -256,24 +223,23 @@ class MATHS_EXPORT CSetTools
         //!
         //! This is defined as \f$\frac{|A\cap B|}{\min(|A|,|B|)}\f$.
         template<typename ITR1, typename ITR2>
-        static double overlap(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs)
-        {
+        static double overlap(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
             std::size_t numer = 0u;
             std::size_t nl = 0u;
             std::size_t nr = 0u;
-            while (beginLhs != endLhs && beginRhs != endRhs)
-            {
-                if (*beginLhs < *beginRhs)
-                {
-                    ++beginLhs; ++nl;
-                }
-                else if (*beginRhs < *beginLhs)
-                {
-                    ++beginRhs; ++nr;
-                }
-                else
-                {
-                    ++beginLhs; ++beginRhs; ++numer; ++nl; ++nr;
+            while (beginLhs != endLhs && beginRhs != endRhs) {
+                if (*beginLhs < *beginRhs) {
+                    ++beginLhs;
+                    ++nl;
+                } else if (*beginRhs < *beginLhs) {
+                    ++beginRhs;
+                    ++nr;
+                } else {
+                    ++beginLhs;
+                    ++beginRhs;
+                    ++numer;
+                    ++nl;
+                    ++nr;
                 }
             }
             nl += std::distance(beginLhs, endLhs);

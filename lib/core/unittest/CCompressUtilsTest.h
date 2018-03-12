@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CCompressUtilsTest : public CppUnit::TestFixture
-{
+class CCompressUtilsTest : public CppUnit::TestFixture {
     public:
         void testEmptyAdd(void);
         void testOneAdd(void);

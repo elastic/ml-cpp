@@ -33,19 +33,15 @@
 
 class CXMeansOnline1dTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Encodes the distributions available to model the modes.
-class MATHS_EXPORT CAvailableModeDistributions
-{
+class MATHS_EXPORT CAvailableModeDistributions {
     public:
         static const int NORMAL     = 1;
         static const int GAMMA      = 2;
@@ -117,8 +113,7 @@ class MATHS_EXPORT CAvailableModeDistributions
 //! is expected to give largely order (of points processed) invariant
 //! unsupervised clustering of the data which identifies reasonably
 //! well separated clusters.
-class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
-{
+class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
     public:
         class CCluster;
         typedef CClusterer1d::TPointPreciseVec TDoubleVec;
@@ -129,8 +124,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         using CClusterer1d::add;
 
         //! \brief Represents a cluster.
-        class MATHS_EXPORT CCluster
-        {
+        class MATHS_EXPORT CCluster {
             public:
                 explicit CCluster(const CXMeansOnline1d &clusterer);
 

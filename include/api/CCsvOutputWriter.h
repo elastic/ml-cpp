@@ -25,10 +25,8 @@
 #include <utility>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in CSV format
@@ -53,8 +51,7 @@ namespace api
 //! It is not acceptable to have the separator character be the same as the
 //! escape character, the quote character or the record end character.
 //!
-class API_EXPORT CCsvOutputWriter : public COutputHandler
-{
+class API_EXPORT CCsvOutputWriter : public COutputHandler {
     public:
         //! CSV separator
         static const char COMMA;

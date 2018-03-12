@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringSimilarityTesterTest : public CppUnit::TestFixture
-{
+class CStringSimilarityTesterTest : public CppUnit::TestFixture {
     public:
         void testStringSimilarity(void);
         void testLevensteinDistance(void);

@@ -29,15 +29,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 //! \brief The model for computing the anomalousness of the values
 //! each person in a population generates in a data stream.
 //!
@@ -63,8 +60,7 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
-{
+class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel {
     public:
         using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
         using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
@@ -79,8 +75,7 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         using TProbabilityCache = CModelTools::CProbabilityCache;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.

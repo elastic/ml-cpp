@@ -45,10 +45,8 @@
 
 class CForecastRunnerTest;
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Forecast Worker to create forecasts of timeseries/ml models.
@@ -69,8 +67,7 @@ namespace api
 //! pruned in the main thread.
 //! Cloning also happens beforehand as the forecast job might hang in
 //! the queue for a while
-class API_EXPORT CForecastRunner final: private core::CNonCopyable
-{
+class API_EXPORT CForecastRunner final: private core::CNonCopyable {
     public:
         //! max open forecast requests
         //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
@@ -150,8 +147,7 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         void deleteAllForecastJobs();
 
     private:
-        struct API_EXPORT SForecast
-        {
+        struct API_EXPORT SForecast {
             SForecast();
 
             SForecast(SForecast &&other);

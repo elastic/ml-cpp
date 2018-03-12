@@ -44,15 +44,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 class CEventData;
 class CSearchKey;
@@ -70,8 +67,7 @@ class CResourceMonitor;
 //! This functionality has been separated from the CDataGatherer in order
 //! to allow the CDataGatherer to support multiple overlapping buckets and
 //! buckets with different time spans.
-class MODEL_EXPORT CBucketGatherer
-{
+class MODEL_EXPORT CBucketGatherer {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef core::CSmallVector<double, 1> TDouble1Vec;
@@ -107,10 +103,8 @@ class MODEL_EXPORT CBucketGatherer
         typedef std::pair<TSizeSizePr, core::CStoredStringPtr> TSizeSizePrStoredStringPtrPr;
 
         //! \brief Hashes a ((size_t, size_t), string*) pair.
-        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash
-        {
-            std::size_t operator()(const TSizeSizePrStoredStringPtrPr &key) const
-            {
+        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
+            std::size_t operator()(const TSizeSizePrStoredStringPtrPr &key) const {
                 uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first),
                                                             static_cast<uint64_t>(key.first.second));
                 return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
@@ -119,19 +113,17 @@ class MODEL_EXPORT CBucketGatherer
         };
 
         //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
-        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual
-        {
+        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
             bool operator()(const TSizeSizePrStoredStringPtrPr &lhs,
-                            const TSizeSizePrStoredStringPtrPr &rhs) const
-            {
+                            const TSizeSizePrStoredStringPtrPr &rhs) const {
                 return lhs.first == rhs.first && *lhs.second == *rhs.second;
             }
         };
 
         typedef boost::unordered_map<TSizeSizePrStoredStringPtrPr,
-                                     uint64_t,
-                                     SSizeSizePrStoredStringPtrPrHash,
-                                     SSizeSizePrStoredStringPtrPrEqual> TSizeSizePrStoredStringPtrPrUInt64UMap;
+                uint64_t,
+                SSizeSizePrStoredStringPtrPrHash,
+                SSizeSizePrStoredStringPtrPrEqual> TSizeSizePrStoredStringPtrPrUInt64UMap;
         typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
         typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
         typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
@@ -356,24 +348,18 @@ class MODEL_EXPORT CBucketGatherer
         template<typename F, typename T>
         static void remove(const TSizeVec &toRemove,
                            const F &extractId,
-                           CBucketQueue<T> &queue)
-        {
+                           CBucketQueue<T> &queue) {
             typedef typename CBucketQueue<T>::iterator TQueueItr;
 
-            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr)
-            {
+            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
                 T &bucket = *bucketItr;
-                for (typename T::iterator i = bucket.begin(); i != bucket.end(); /**/)
-                 {
-                     if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(*i)))
-                     {
-                         i = bucket.erase(i);
-                     }
-                     else
-                     {
-                         ++i;
-                     }
-                 }
+                for (typename T::iterator i = bucket.begin(); i != bucket.end(); /**/) {
+                    if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(*i))) {
+                        i = bucket.erase(i);
+                    } else {
+                        ++i;
+                    }
+                }
             }
         }
 
@@ -385,23 +371,16 @@ class MODEL_EXPORT CBucketGatherer
         template<typename F, typename T>
         static void remove(const TSizeVec &toRemove,
                            const F &extractId,
-                           CBucketQueue<std::vector<T> > &queue)
-        {
+                           CBucketQueue<std::vector<T> > &queue) {
             typedef typename CBucketQueue<std::vector<T> >::iterator TQueueItr;
 
-            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr)
-            {
-                for (std::size_t i = 0u; i < bucketItr->size(); ++i)
-                {
+            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
+                for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
                     T &bucket = (*bucketItr)[i];
-                    for (typename T::iterator j = bucket.begin(); j != bucket.end(); /**/)
-                    {
-                        if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first)))
-                        {
+                    for (typename T::iterator j = bucket.begin(); j != bucket.end(); /**/) {
+                        if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first))) {
                             j = bucket.erase(j);
-                        }
-                        else
-                        {
+                        } else {
                             ++j;
                         }
                     }

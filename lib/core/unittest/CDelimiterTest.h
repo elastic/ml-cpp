@@ -21,8 +21,7 @@
 #include <string>
 
 
-class CDelimiterTest : public CppUnit::TestFixture
-{
+class CDelimiterTest : public CppUnit::TestFixture {
     public:
         void testSimpleTokenise(void);
         void testRegexTokenise(void);

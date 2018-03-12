@@ -34,12 +34,10 @@ using namespace ml;
 using namespace model;
 
 
-namespace
-{
+namespace {
 std::size_t addPerson(const std::string &p,
                       const CModelFactory::TDataGathererPtr &gatherer,
-                      CResourceMonitor &resourceMonitor)
-{
+                      CResourceMonitor &resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     CEventData result;
@@ -50,8 +48,7 @@ std::size_t addPerson(const std::string &p,
 void addArrival(CDataGatherer &gatherer,
                 CResourceMonitor &resourceMonitor,
                 core_t::TTime time,
-                const std::string &person)
-{
+                const std::string &person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -60,8 +57,7 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-SModelParams::TStrDetectionRulePr makeScheduledEvent(const std::string &description, double start, double end)
-{
+SModelParams::TStrDetectionRulePr makeScheduledEvent(const std::string &description, double start, double end) {
     CRuleCondition conditionGte;
     conditionGte.type(CRuleCondition::E_Time);
     conditionGte.condition().s_Op = CRuleCondition::E_GTE;
@@ -84,8 +80,7 @@ SModelParams::TStrDetectionRulePr makeScheduledEvent(const std::string &descript
 const std::string EMPTY_STRING;
 }
 
-void CCountingModelTest::testSkipSampling(void)
-{
+void CCountingModelTest::testSkipSampling(void) {
     LOG_DEBUG("*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
@@ -146,8 +141,7 @@ void CCountingModelTest::testSkipSampling(void)
     }
 }
 
-void CCountingModelTest::testCheckScheduledEvents(void)
-{
+void CCountingModelTest::testCheckScheduledEvents(void) {
     LOG_DEBUG("*** testCheckScheduledEvents ***");
 
     core_t::TTime startTime(100);
@@ -243,15 +237,14 @@ void CCountingModelTest::testCheckScheduledEvents(void)
     }
 }
 
-CppUnit::Test *CCountingModelTest::suite(void)
-{
+CppUnit::Test *CCountingModelTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CCountingModelTest>(
-                                   "CCountingModelTest::testSkipSampling",
-                                   &CCountingModelTest::testSkipSampling) );
+                               "CCountingModelTest::testSkipSampling",
+                               &CCountingModelTest::testSkipSampling) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCountingModelTest>(
-                                   "CCountingModelTest::testCheckScheduledEvents",
-                                   &CCountingModelTest::testCheckScheduledEvents) );
+                               "CCountingModelTest::testCheckScheduledEvents",
+                               &CCountingModelTest::testCheckScheduledEvents) );
     return suiteOfTests;
 }

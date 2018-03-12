@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CAnomalyDetectorModelConfigTest : public CppUnit::TestFixture
-{
+class CAnomalyDetectorModelConfigTest : public CppUnit::TestFixture {
     public:
         void testNormal(void);
         void testErrors(void);

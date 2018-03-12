@@ -18,10 +18,8 @@
 #include <core/CLogger.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -35,22 +33,18 @@ namespace core
 //! Only stores a reference to the processor in case it's expensive to copy
 //!
 template<typename THREADFARM, typename PROCESSOR, typename MESSAGE, typename RESULT>
-class CThreadFarmReceiver
-{
+class CThreadFarmReceiver {
     public:
         CThreadFarmReceiver(PROCESSOR &processor,
                             THREADFARM &threadFarm)
             : m_Processor(processor),
-              m_ThreadFarm(threadFarm)
-        {
+              m_ThreadFarm(threadFarm) {
         }
 
-        virtual ~CThreadFarmReceiver(void)
-        {
+        virtual ~CThreadFarmReceiver(void) {
         }
 
-        void processMsg(const MESSAGE &msg, size_t /* backlog */)
-        {
+        void processMsg(const MESSAGE &msg, size_t /* backlog */) {
             RESULT result;
 
             m_Processor.msgToResult(msg, result);

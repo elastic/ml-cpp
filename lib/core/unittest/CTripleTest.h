@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTripleTest : public CppUnit::TestFixture
-{
+class CTripleTest : public CppUnit::TestFixture {
     public:
         void testOperators(void);
         void testBoostHashReady(void);

@@ -25,10 +25,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -42,8 +40,7 @@ namespace core
 //! Class consoidates time methods used throughout the Ml
 //! codebase.
 //!
-class CORE_EXPORT CTimeUtils : private CNonInstantiatable
-{
+class CORE_EXPORT CTimeUtils : private CNonInstantiatable {
     public:
         //! Maximum tolerable clock discrepancy between machines at the same
         //! customer site
@@ -89,8 +86,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable
     private:
         //! Class to cache date words so that we don't have to repeatedly use
         //! strptime() to check for them
-        class CDateWordCache
-        {
+        class CDateWordCache {
             public:
                 //! Get the singleton instance
                 static const CDateWordCache &instance(void);

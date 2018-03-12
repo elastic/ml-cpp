@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CGathererToolsTest : public CppUnit::TestFixture
-{
+class CGathererToolsTest : public CppUnit::TestFixture {
     public:
         void testSumGathererIsRedundant(void);
 

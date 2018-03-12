@@ -21,10 +21,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -42,8 +40,7 @@ namespace core
 //! 2^32 milliseconds is less than 50 days, and, in production, our
 //! processes should be able to run for longer than this.
 //!
-class CORE_EXPORT CStopWatch
-{
+class CORE_EXPORT CStopWatch {
     public:
         //! Construct a stop watch, optionally starting it immediately
         CStopWatch(bool startRunning = false);

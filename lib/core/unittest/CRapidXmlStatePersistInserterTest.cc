@@ -18,30 +18,26 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 
 
-CppUnit::Test *CRapidXmlStatePersistInserterTest::suite()
-{
+CppUnit::Test *CRapidXmlStatePersistInserterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>(
-                                   "CRapidXmlStatePersistInserterTest::testPersist",
-                                   &CRapidXmlStatePersistInserterTest::testPersist) );
+                               "CRapidXmlStatePersistInserterTest::testPersist",
+                               &CRapidXmlStatePersistInserterTest::testPersist) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter)
-{
+void insert2ndLevel(ml::core::CStatePersistInserter &inserter) {
     inserter.insertValue("level2A", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
 }
 
 }
 
-void CRapidXmlStatePersistInserterTest::testPersist(void)
-{
+void CRapidXmlStatePersistInserterTest::testPersist(void) {
     ml::core::CRapidXmlStatePersistInserter::TStrStrMap rootAttributes;
     rootAttributes["attr1"] = "attrVal1";
     rootAttributes["attr2"] = "attrVal2";

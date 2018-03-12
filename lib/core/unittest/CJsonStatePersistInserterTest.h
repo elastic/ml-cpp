@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CJsonStatePersistInserterTest : public CppUnit::TestFixture
-{
+class CJsonStatePersistInserterTest : public CppUnit::TestFixture {
     public:
         void testPersist(void);
 

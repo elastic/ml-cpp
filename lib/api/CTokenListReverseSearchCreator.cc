@@ -17,18 +17,14 @@
 #include <core/CRegex.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string &fieldName)
-    : CTokenListReverseSearchCreatorIntf(fieldName)
-{
+    : CTokenListReverseSearchCreatorIntf(fieldName) {
 }
 
-size_t CTokenListReverseSearchCreator::availableCost(void) const
-{
+size_t CTokenListReverseSearchCreator::availableCost(void) const {
     // This is pretty arbitrary, but MUST be less than the maximum length of a
     // field in ES (currently 32766 bytes), and ideally should be quite a lot
     // less as a huge reverse search is pretty unwieldy
@@ -36,8 +32,7 @@ size_t CTokenListReverseSearchCreator::availableCost(void) const
 }
 
 size_t CTokenListReverseSearchCreator::costOfToken(const std::string &token,
-                                                   size_t numOccurrences) const
-{
+                                                   size_t numOccurrences) const {
     size_t tokenLength = token.length();
     return (
                1 + tokenLength + // length of what we add to the terms (part 1)
@@ -46,8 +41,7 @@ size_t CTokenListReverseSearchCreator::costOfToken(const std::string &token,
 }
 
 bool CTokenListReverseSearchCreator::createNullSearch(std::string &part1,
-                                                      std::string &part2) const
-{
+                                                      std::string &part2) const {
     part1.clear();
     part2.clear();
     return true;
@@ -57,8 +51,7 @@ bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*type*/,
                                                                const std::string &/*example*/,
                                                                size_t /*maxMatchingStringLen*/,
                                                                std::string &part1,
-                                                               std::string &part2) const
-{
+                                                               std::string &part2) const {
     part1.clear();
     part2.clear();
     return true;
@@ -68,29 +61,23 @@ void CTokenListReverseSearchCreator::initStandardSearch(int /*type*/,
                                                         const std::string &/*example*/,
                                                         size_t /*maxMatchingStringLen*/,
                                                         std::string &part1,
-                                                        std::string &part2) const
-{
+                                                        std::string &part2) const {
     part1.clear();
     part2.clear();
 }
 
 void CTokenListReverseSearchCreator::addCommonUniqueToken(const std::string &/*token*/,
                                                           std::string &/*part1*/,
-                                                          std::string &/*part2*/) const
-{
+                                                          std::string &/*part2*/) const {
 }
 
 void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string &token,
                                                            bool first,
                                                            std::string &part1,
-                                                           std::string &part2) const
-{
-    if (first)
-    {
+                                                           std::string &part2) const {
+    if (first) {
         part2 += ".*?";
-    }
-    else
-    {
+    } else {
         part1 += ' ';
         part2 += ".+?";
     }
@@ -99,8 +86,7 @@ void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string &to
 }
 
 void CTokenListReverseSearchCreator::closeStandardSearch(std::string &/*part1*/,
-                                                         std::string &part2) const
-{
+                                                         std::string &part2) const {
     part2 += ".*";
 }
 

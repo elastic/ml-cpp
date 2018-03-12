@@ -40,8 +40,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Pool and buffer sizes are hardcoded.
-class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable
-{
+class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable {
     private:
         //! number of buffers in the pool
         static const size_t BUFFER_POOL_SIZE = 16;

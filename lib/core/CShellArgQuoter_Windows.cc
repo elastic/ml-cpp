@@ -19,24 +19,19 @@
 #include <ctype.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
-std::string CShellArgQuoter::quote(const std::string &arg)
-{
-    if (arg.empty())
-    {
+std::string CShellArgQuoter::quote(const std::string &arg) {
+    if (arg.empty()) {
         return "\"\"";
     }
 
     // Simple command line options should not be quoted
     if (arg.length() == 2 &&
         (arg[0] == '/' || arg[0] == '-') &&
-        ::isalnum(static_cast<unsigned char>(arg[1])))
-    {
+        ::isalnum(static_cast<unsigned char>(arg[1]))) {
         return arg;
     }
 
@@ -51,8 +46,7 @@ std::string CShellArgQuoter::quote(const std::string &arg)
     // argument to cmd /c (i.e. the name of the program/script to be run) MUST
     // be escaped like this, because the more complex method below will stop the
     // program/script being found if its path contains spaces.
-    if (arg.find('"') == std::string::npos && arg[arg.length() - 1] != '\\')
-    {
+    if (arg.find('"') == std::string::npos && arg[arg.length() - 1] != '\\') {
         result += '"';
         result += arg;
         result += '"';
@@ -69,10 +63,8 @@ std::string CShellArgQuoter::quote(const std::string &arg)
 
     for (std::string::const_iterator iter = arg.begin();
          iter != arg.end();
-         ++iter)
-    {
-        switch (*iter)
-        {
+         ++iter) {
+        switch (*iter) {
             case '(':
             case ')':
             case '%':

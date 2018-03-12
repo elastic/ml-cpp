@@ -1,0 +1,2 @@
+--recursive
+--exclude=3rd_party               # when recursing skip the 3rd_party stuff

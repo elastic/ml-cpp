@@ -20,8 +20,7 @@
 #include <string>
 
 
-class CBackgroundPersisterTest : public CppUnit::TestFixture
-{
+class CBackgroundPersisterTest : public CppUnit::TestFixture {
     public:
         void testDetectorPersistBy(void);
         void testDetectorPersistOver(void);

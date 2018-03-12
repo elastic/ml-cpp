@@ -18,22 +18,20 @@
 #include <core/CWordExtractor.h>
 
 
-CppUnit::Test *CWordExtractorTest::suite()
-{
+CppUnit::Test *CWordExtractorTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CWordExtractorTest>(
-                                   "CWordExtractorTest::testWordExtract",
-                                   &CWordExtractorTest::testWordExtract) );
+                               "CWordExtractorTest::testWordExtract",
+                               &CWordExtractorTest::testWordExtract) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CWordExtractorTest>(
-                                   "CWordExtractorTest::testMinConsecutive",
-                                   &CWordExtractorTest::testMinConsecutive) );
+                               "CWordExtractorTest::testMinConsecutive",
+                               &CWordExtractorTest::testMinConsecutive) );
 
     return suiteOfTests;
 }
 
-void CWordExtractorTest::testWordExtract(void)
-{
+void CWordExtractorTest::testWordExtract(void) {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;
@@ -69,8 +67,7 @@ void CWordExtractorTest::testWordExtract(void)
     }
 }
 
-void CWordExtractorTest::testMinConsecutive(void)
-{
+void CWordExtractorTest::testMinConsecutive(void) {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
         std::string words;

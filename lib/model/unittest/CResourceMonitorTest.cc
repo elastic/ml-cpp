@@ -29,32 +29,29 @@ using namespace ml;
 using namespace model;
 
 
-CppUnit::Test *CResourceMonitorTest::suite()
-{
+CppUnit::Test *CResourceMonitorTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResourceMonitorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CResourceMonitorTest>(
-                                   "CResourceMonitorTest::testMonitor",
-                                   &CResourceMonitorTest::testMonitor) );
+                               "CResourceMonitorTest::testMonitor",
+                               &CResourceMonitorTest::testMonitor) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CResourceMonitorTest>(
-                                   "CResourceMonitorTest::testPruning",
-                                   &CResourceMonitorTest::testPruning) );
+                               "CResourceMonitorTest::testPruning",
+                               &CResourceMonitorTest::testPruning) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CResourceMonitorTest>(
-                                   "CResourceMonitorTest::testExtraMemory",
-                                   &CResourceMonitorTest::testExtraMemory) );
+                               "CResourceMonitorTest::testExtraMemory",
+                               &CResourceMonitorTest::testExtraMemory) );
     return suiteOfTests;
 }
 
-void CResourceMonitorTest::setUp(void)
-{
+void CResourceMonitorTest::setUp(void) {
     // Other test suites also use the string store, and it will mess up the
     // tests in this suite if the string store is not empty when they start
     CStringStore::names().clearEverythingTestOnly();
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CResourceMonitorTest::testMonitor(void)
-{
+void CResourceMonitorTest::testMonitor(void) {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
@@ -93,18 +90,13 @@ void CResourceMonitorTest::testMonitor(void)
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
         LOG_DEBUG("Resource limit is: " << mon.m_ByteLimitHigh);
-        if (sizeof(std::size_t) == 4)
-        {
+        if (sizeof(std::size_t) == 4) {
             // 32-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        }
-        else if (sizeof(std::size_t) == 8)
-        {
+        } else if (sizeof(std::size_t) == 8) {
             // 64-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(4096ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        }
-        else
-        {
+        } else {
             // Unexpected platform
             CPPUNIT_ASSERT(false);
         }
@@ -326,8 +318,7 @@ void CResourceMonitorTest::testMonitor(void)
     }
 }
 
-void CResourceMonitorTest::testPruning(void)
-{
+void CResourceMonitorTest::testPruning(void) {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
@@ -399,8 +390,7 @@ void CResourceMonitorTest::testPruning(void)
     CPPUNIT_ASSERT(monitor.m_PruneWindow > level);
 }
 
-void CResourceMonitorTest::testExtraMemory(void)
-{
+void CResourceMonitorTest::testExtraMemory(void) {
     const std::string EMPTY_STRING;
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
@@ -455,8 +445,7 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
                                        const std::size_t newPeoplePerBucket,
                                        std::size_t &startOffset,
                                        CAnomalyDetector &detector,
-                                       CResourceMonitor &monitor)
-{
+                                       CResourceMonitor &monitor) {
     std::string numberValue("100");
     core_t::TTime bucketStart = firstTime;
     CHierarchicalResults results;
@@ -466,27 +455,23 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
 
     for (core_t::TTime time = firstTime;
          time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
-         time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket)))
-    {
+         time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
         bool newBucket = false;
-        for (; bucketStart + bucketLength <= time; bucketStart += bucketLength)
-        {
+        for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {
             detector.buildResults(bucketStart, bucketStart + bucketLength, results);
             monitor.pruneIfRequired(bucketStart);
             numBuckets++;
             newBucket = true;
         }
 
-        if (newBucket)
-        {
+        if (newBucket) {
             CAnomalyDetector::TStrCPtrVec fieldValues;
             fieldValues.push_back(&pervasive);
             fieldValues.push_back(&numberValue);
             detector.addRecord(time, fieldValues);
         }
 
-        if (newPeoplePerBucket > 0)
-        {
+        if (newPeoplePerBucket > 0) {
             CAnomalyDetector::TStrCPtrVec fieldValues;
             std::ostringstream ss1;
             ss1 << "person" << startOffset++;
@@ -500,8 +485,7 @@ void CResourceMonitorTest::addTestData(core_t::TTime &firstTime,
     firstTime = bucketStart;
 }
 
-void CResourceMonitorTest::reportCallback(const CResourceMonitor::SResults &results)
-{
+void CResourceMonitorTest::reportCallback(const CResourceMonitor::SResults &results) {
     m_CallbackResults = results;
 }
 

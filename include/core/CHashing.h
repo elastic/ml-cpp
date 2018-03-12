@@ -31,10 +31,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief Hashing functionality.
 //!
@@ -42,8 +40,7 @@ namespace core
 //! This is a place holder for useful hashing functionality. In particular,
 //! it implements various universal hashing schemes, some high quality hash
 //! functions (near cryptographic, but much faster).
-class CORE_EXPORT CHashing : private CNonInstantiatable
-{
+class CORE_EXPORT CHashing : private CNonInstantiatable {
     public:
         //! Implements universal hashing on integers.
         //!
@@ -52,8 +49,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         //! \warning The hashes use the prime 4294967291 so rely on the fact
         //! that integers being hashed are smaller than this. This should be
         //! sufficient for our use cases!
-        class CORE_EXPORT CUniversalHash
-        {
+        class CORE_EXPORT CUniversalHash {
             public:
                 typedef std::vector<uint32_t> TUInt32Vec;
 
@@ -67,8 +63,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 //! \note This is not the fastest implementation of universal
                 //! hashing which is the multiply-shift scheme. We can revisit
                 //! the implementation if this is a bottleneck in practice.
-                class CORE_EXPORT CUInt32Hash
-                {
+                class CORE_EXPORT CUInt32Hash {
                     public:
                         //! See CMemory.
                         static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -89,12 +84,11 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
                         //! the cost of a function call here.
-                        uint32_t operator()(uint32_t x) const
-                        {
+                        uint32_t operator()(uint32_t x) const {
                             // Note by construction:
                             //   a * x + b < p^2 + p < 2^64
                             return static_cast<uint32_t>(((  static_cast<uint64_t>(m_A) * x
-                                                           + static_cast<uint64_t>(m_B)) % BIG_PRIME)
+                                                             + static_cast<uint64_t>(m_B)) % BIG_PRIME)
                                                          % static_cast<uint64_t>(m_M));
                         }
 
@@ -111,8 +105,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 //! 32-bit integers. This doesn't further restrict the range
                 //! of the hash so avoids storing an extra integer and doing
                 //! modulo the range.
-                class CORE_EXPORT CUInt32UnrestrictedHash
-                {
+                class CORE_EXPORT CUInt32UnrestrictedHash {
                     public:
                         //! See CMemory.
                         static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -130,12 +123,11 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
                         //! the cost of a function call here.
-                        uint32_t operator()(uint32_t x) const
-                        {
+                        uint32_t operator()(uint32_t x) const {
                             // Note by construction:
                             //   a * x + b < p^2 + p < 2^64
                             return static_cast<uint32_t>((  static_cast<uint64_t>(m_A) * x
-                                                          + static_cast<uint64_t>(m_B)) % BIG_PRIME);
+                                                            + static_cast<uint64_t>(m_B)) % BIG_PRIME);
                         }
 
                         //! Print the hash function for debug.
@@ -159,8 +151,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 //! \note This is not the fastest implementation of universal
                 //! hashing which is the multiply-shift scheme. We can revisit
                 //! the implementation if this is a bottleneck in practice.
-                class CORE_EXPORT CUInt32VecHash
-                {
+                class CORE_EXPORT CUInt32VecHash {
                     public:
                         CUInt32VecHash(uint32_t m, const TUInt32Vec &a, uint32_t b);
 
@@ -179,14 +170,13 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
                         //! the cost of a function call here.
-                        uint32_t operator()(uint32_t x1, uint32_t x2) const
-                        {
+                        uint32_t operator()(uint32_t x1, uint32_t x2) const {
                             // Note by construction:
                             //   (a(1) * x(1)) mod p + a(2) * x(2) + b
                             //     < p^2 + 2*p
                             //     < 2^64
                             uint64_t h =   (static_cast<uint64_t>(m_A[0]) * x1) % BIG_PRIME
-                                         +  static_cast<uint64_t>(m_A[1]) * x2;
+                                           +  static_cast<uint64_t>(m_A[1]) * x2;
                             return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME)
                                                          % static_cast<uint64_t>(m_M));
                         }
@@ -194,8 +184,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                         //! \note This is implemented inline in contravention to
                         //! the coding standards because we definitely don't want
                         //! the cost of a function call here.
-                        uint32_t operator()(const TUInt32Vec &x) const
-                        {
+                        uint32_t operator()(const TUInt32Vec &x) const {
                             // Note we variously use that:
                             //   a(1) * x(1)
                             //     < h mod p + a(i) * x(i)
@@ -203,10 +192,9 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                             //     < p^2 + 2*p
                             //     < 2^64
                             uint64_t h = static_cast<uint64_t>(m_A[0]) * x[0];
-                            for (std::size_t i = 1u; i < x.size(); ++i)
-                            {
+                            for (std::size_t i = 1u; i < x.size(); ++i) {
                                 h = (  h % BIG_PRIME
-                                     + static_cast<uint64_t>(m_A[i]) * x[i]);
+                                       + static_cast<uint64_t>(m_A[i]) * x[i]);
                             }
                             return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME)
                                                          % static_cast<uint64_t>(m_M));
@@ -224,8 +212,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 typedef std::vector<CUInt32VecHash> TUInt32VecHashVec;
 
                 //! Converts hash function objects to a string.
-                class CORE_EXPORT CToString
-                {
+                class CORE_EXPORT CToString {
                     public:
                         CToString(const char delimiter);
 
@@ -237,8 +224,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 };
 
                 //! Initializes hash function objects from a string.
-                class CORE_EXPORT CFromString
-                {
+                class CORE_EXPORT CFromString {
                     public:
                         CFromString(const char delimiter);
 
@@ -403,16 +389,14 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         //! \warning This is slower than boost::hash for the types I tested
         //! std::size_t, int, uint64_t, but does have better distributions.
         template<typename T>
-        class CMurmurHash2BT : public std::unary_function<T, std::size_t>
-        {
+        class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
             public:
                 //! See CMemory.
                 static bool dynamicSizeAlwaysZero(void) { return true; }
 
             public:
                 CMurmurHash2BT(std::size_t seed = 0x5bd1e995) :
-                    m_Seed(seed)
-                {
+                    m_Seed(seed) {
                 }
 
                 std::size_t operator()(const T &key) const;
@@ -425,8 +409,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         //!
         //! \note This is significantly faster than boost::hash<std::string>
         //! and has better distributions.
-        class CORE_EXPORT CMurmurHash2String : public std::unary_function<std::string, std::size_t>
-        {
+        class CORE_EXPORT CMurmurHash2String : public std::unary_function<std::string, std::size_t> {
             public:
                 //! See CMemory.
                 static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -436,14 +419,11 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
                 std::size_t operator()(const std::string &key) const;
-                std::size_t operator()(TStrCRef key) const
-                {
+                std::size_t operator()(TStrCRef key) const {
                     return this->operator()(key.get());
                 }
-                std::size_t operator()(const CStoredStringPtr &key) const
-                {
-                    if (key)
-                    {
+                std::size_t operator()(const CStoredStringPtr &key) const {
+                    if (key) {
                         return this->operator()(*key);
                     }
                     return m_Seed;
@@ -458,8 +438,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         //! example would be where the hash value somehow affects data that is
         //! visible outside the program, such as state persisted to a data
         //! store.  This is also immune to endianness issues.
-        class CORE_EXPORT CSafeMurmurHash2String64 : public std::unary_function<std::string, uint64_t>
-        {
+        class CORE_EXPORT CSafeMurmurHash2String64 : public std::unary_function<std::string, uint64_t> {
             public:
                 //! See CMemory.
                 static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -469,14 +448,11 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
                 CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
                 uint64_t operator()(const std::string &key) const;
-                std::size_t operator()(TStrCRef key) const
-                {
+                std::size_t operator()(TStrCRef key) const {
                     return this->operator()(key.get());
                 }
-                std::size_t operator()(const CStoredStringPtr &key) const
-                {
-                    if (key)
-                    {
+                std::size_t operator()(const CStoredStringPtr &key) const {
+                    if (key) {
                         return this->operator()(*key);
                     }
                     return m_Seed;
@@ -493,15 +469,12 @@ class CORE_EXPORT CHashing : private CNonInstantiatable
         static uint64_t hashCombine(uint64_t seed, uint64_t h);
 };
 
-namespace hash_detail
-{
+namespace hash_detail {
 
 //! Selects MurmurHash2 32-bit implementation by default.
 template<std::size_t>
-struct SMurmurHashForArchitecture
-{
-    static std::size_t hash(const void *key, int length, std::size_t seed)
-    {
+struct SMurmurHashForArchitecture {
+    static std::size_t hash(const void *key, int length, std::size_t seed) {
         return static_cast<std::size_t>(CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
     }
 };
@@ -510,12 +483,10 @@ struct SMurmurHashForArchitecture
 //!
 //! If we are on 64-bit platforms the 64-bit implementation is faster.
 template<>
-struct SMurmurHashForArchitecture<8>
-{
+struct SMurmurHashForArchitecture<8> {
     static std::size_t hash(const void *key,
                             int length,
-                            std::size_t seed)
-    {
+                            std::size_t seed) {
         return static_cast<std::size_t>(CHashing::murmurHash64(key, length, seed));
     }
 };
@@ -524,30 +495,27 @@ struct SMurmurHashForArchitecture<8>
 
 template<typename T>
 inline
-std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T &key) const
-{
+std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T &key) const {
     return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-                       &key,
-                       static_cast<int>(sizeof(key)),
-                       m_Seed);
+               &key,
+               static_cast<int>(sizeof(key)),
+               m_Seed);
 }
 
 inline
-std::size_t CHashing::CMurmurHash2String::operator()(const std::string &key) const
-{
+std::size_t CHashing::CMurmurHash2String::operator()(const std::string &key) const {
     return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-                       key.data(),
-                       static_cast<int>(key.size()),
-                       m_Seed);
+               key.data(),
+               static_cast<int>(key.size()),
+               m_Seed);
 }
 
 inline
-uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string &key) const
-{
+uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string &key) const {
     return CHashing::safeMurmurHash64(
-                       key.data(),
-                       static_cast<int>(key.size()),
-                       m_Seed);
+               key.data(),
+               static_cast<int>(key.size()),
+               m_Seed);
 }
 
 }

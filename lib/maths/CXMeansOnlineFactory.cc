@@ -19,12 +19,9 @@
 
 #include <maths/CXMeansOnline.h>
 
-namespace ml
-{
-namespace maths
-{
-namespace xmeans_online_factory_detail
-{
+namespace ml {
+namespace maths {
+namespace xmeans_online_factory_detail {
 
 #define XMEANS_FACTORY(T, N)                                                                           \
 CClusterer<CVectorNx1<T, N> > *CFactory<T, N>::make(maths_t::EDataType dataType,                       \

@@ -23,13 +23,10 @@
 #include <vector>
 #include <list>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-namespace memory_detail
-{
+namespace memory_detail {
 class CMemoryUsageComparison;
 class CMemoryUsageComparisonTwo;
 }
@@ -42,21 +39,17 @@ class CMemoryUsageJsonWriter;
 //! This is a tree structure designed to be passed to a component
 //! containing subcomponents, so that each component can fill in
 //! its memory usage
-class CORE_EXPORT CMemoryUsage
-{
+class CORE_EXPORT CMemoryUsage {
     public:
         //! A collection of data to record memory usage information for
         //! arbitrary components
-        struct CORE_EXPORT SMemoryUsage
-        {
+        struct CORE_EXPORT SMemoryUsage {
             SMemoryUsage(const std::string &name, std::size_t memory) :
-                s_Name(name), s_Memory(memory), s_Unused(0)
-            {
+                s_Name(name), s_Memory(memory), s_Unused(0) {
             }
 
             SMemoryUsage(const std::string &name, std::size_t memory,
-                std::size_t unused) : s_Name(name), s_Memory(memory), s_Unused(unused)
-            {
+                         std::size_t unused) : s_Name(name), s_Memory(memory), s_Unused(unused) {
             }
 
             //! Name of the component

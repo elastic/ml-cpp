@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class COrdinalTest : public CppUnit::TestFixture
-{
+class COrdinalTest : public CppUnit::TestFixture {
     public:
         void testEqual(void);
         void testLess(void);

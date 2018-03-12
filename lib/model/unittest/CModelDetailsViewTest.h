@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelDetailsViewTest : public CppUnit::TestFixture
-{
+class CModelDetailsViewTest : public CppUnit::TestFixture {
     public:
         void testModelPlot();
 

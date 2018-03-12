@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CVectorRangeTest : public CppUnit::TestFixture
-{
+class CVectorRangeTest : public CppUnit::TestFixture {
     public:
         void testCreation(void);
         void testAccessors(void);

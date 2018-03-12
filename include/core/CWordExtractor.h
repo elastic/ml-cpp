@@ -20,10 +20,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -46,8 +44,7 @@ namespace core
 //! Words are returned in a single string.  In future it might be worth
 //! adding the option to return them in a vector.
 //!
-class CORE_EXPORT CWordExtractor
-{
+class CORE_EXPORT CWordExtractor {
     public:
         //! Extract words from a message, and return them in a space separated
         //! string

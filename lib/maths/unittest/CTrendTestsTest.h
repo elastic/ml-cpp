@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTrendTestsTest : public CppUnit::TestFixture
-{
+class CTrendTestsTest : public CppUnit::TestFixture {
     public:
         void testRandomizedPeriodicity(void);
         void testCalendarCyclic(void);

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CInformationCriteriaTest : public CppUnit::TestFixture
-{
+class CInformationCriteriaTest : public CppUnit::TestFixture {
     public:
         void testSphericalGaussian(void);
         void testSphericalGaussianWithSphericalCluster(void);

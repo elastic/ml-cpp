@@ -20,19 +20,17 @@
 #include <core/CTimeUtils.h>
 
 
-CppUnit::Test *CSleepTest::suite()
-{
+CppUnit::Test *CSleepTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSleepTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CSleepTest>(
-                                   "CSleepTest::testSleep",
-                                   &CSleepTest::testSleep) );
+                               "CSleepTest::testSleep",
+                               &CSleepTest::testSleep) );
 
     return suiteOfTests;
 }
 
-void CSleepTest::testSleep(void)
-{
+void CSleepTest::testSleep(void) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
 
     ml::core::CSleep::sleep(7500);

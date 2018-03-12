@@ -21,10 +21,8 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 
 //! \brief A penalty for a detector based on its field roles.
@@ -33,8 +31,7 @@ class CAutoconfigurerParams;
 //! This wraps up a collection of field role penalties and assigns
 //! a penalty to a detector based on the product of all its argument
 //! and partitioning fields penalties.
-class CDetectorFieldRolePenalty : public CPenalty
-{
+class CDetectorFieldRolePenalty : public CPenalty {
     public:
         CDetectorFieldRolePenalty(const CAutoconfigurerParams &params);
 

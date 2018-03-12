@@ -25,10 +25,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 //! \brief
@@ -45,8 +43,7 @@ namespace api
 //! to be hard to categorise (even by human being) and are hence
 //! ignored for benchmarking purposes.
 //!
-class API_EXPORT CBenchMarker
-{
+class API_EXPORT CBenchMarker {
     public:
         //! A count and and example string
         typedef std::pair<size_t, std::string>             TSizeStrPr;

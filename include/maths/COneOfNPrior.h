@@ -30,10 +30,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief Interface for a prior distribution which assumes data are from one
@@ -56,8 +54,7 @@ struct SDistributionRestoreParams;
 //! in. All component models are owned by the object (it wouldn't make sense
 //! to share them) so this also defines the necessary functions to support
 //! value semantics and manage the heap.
-class MATHS_EXPORT COneOfNPrior : public CPrior
-{
+class MATHS_EXPORT COneOfNPrior : public CPrior {
     public:
         typedef boost::shared_ptr<CPrior> TPriorPtr;
         typedef std::vector<TPriorPtr> TPriorPtrVec;
@@ -208,9 +205,9 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //! \param[in] weights Optional variance scale weights.
         //! \note \p percentage should be in the range (0.0, 100.0].
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Compute the log marginal likelihood function at \p samples integrating
         //! over the prior density function for the distribution parameters.
@@ -224,10 +221,10 @@ class MATHS_EXPORT COneOfNPrior : public CPrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!

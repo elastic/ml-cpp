@@ -28,15 +28,12 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 class CStatePersistInserter;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Common functionality used by our adaptive bucketing classes.
 //!
@@ -77,8 +74,7 @@ namespace maths
 //!
 //! The bucketing is aged by relaxing it back towards uniform and
 //! aging the counts of the mean value for each bucket as usual.
-class MATHS_EXPORT CAdaptiveBucketing
-{
+class MATHS_EXPORT CAdaptiveBucketing {
     public:
         using TDoubleVec = std::vector<double>;
         using TFloatVec = std::vector<CFloatStorage>;

@@ -23,10 +23,8 @@
 #include <rapidjson/reader.h>
 #include <rapidjson/istreamwrapper.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A CDataSearcher-derived class that decompresses chunked and compressed data
@@ -50,8 +48,7 @@ namespace core
 //! Parses JSON from the downstream store, using a stream
 //! interface.
 //!
-class CORE_EXPORT CStateDecompressor : public CDataSearcher
-{
+class CORE_EXPORT CStateDecompressor : public CDataSearcher {
     public:
         typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
         typedef boost::shared_ptr<TFilteredInput> TFilteredInputP;
@@ -59,14 +56,13 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
         static const std::string EMPTY_DATA;
 
         // Implements the boost::iostreams Source template interface
-        class CDechunkFilter
-        {
+        class CDechunkFilter {
             public:
                 typedef char char_type;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :
-                                public boost::iostreams::source_tag
+                    public boost::iostreams::source_tag
                 {};
 
             public:
@@ -98,8 +94,7 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                 //! <a href="http://rapidjson.org/classrapidjson_1_1_handler.html">Handler</a>
                 //! for events fired by rapidjson during parsing.
                 //! Note: using the base handler, so we only need to implement what is needed
-                struct SRapidJsonHandler final : public rapidjson::BaseReaderHandler<>
-                {
+                struct SRapidJsonHandler final : public rapidjson::BaseReaderHandler<> {
                     bool Bool(bool b);
                     bool String(const char *str, rapidjson::SizeType length, bool);
                     bool StartObject();
@@ -108,8 +103,7 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                     bool StartArray();
                     bool EndArray(rapidjson::SizeType);
 
-                    enum ETokenType
-                    {
+                    enum ETokenType {
                         E_TokenKey = 1,
                         E_TokenBool = 2,
                         E_TokenString = 3,

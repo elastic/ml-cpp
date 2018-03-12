@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStateMachineTest : public CppUnit::TestFixture
-{
+class CStateMachineTest : public CppUnit::TestFixture {
     public:
         void testBasics(void);
         void testPersist(void);

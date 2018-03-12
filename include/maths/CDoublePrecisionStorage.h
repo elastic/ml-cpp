@@ -17,10 +17,8 @@
 
 #include <maths/ImportExport.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 
 //! \brief A wrapper around double to enable double-precision persisting
@@ -31,8 +29,7 @@ namespace maths
 //! Doubles are usually persisted with single precision, but in certain
 //! cases this leads to an unacceptable loss of precision, for example
 //! when a bucket time value is stored in a double (~1e9)
-class CDoublePrecisionStorage
-{
+class CDoublePrecisionStorage {
     public:
         CDoublePrecisionStorage() : m_Value(0)
         {}
@@ -41,21 +38,18 @@ class CDoublePrecisionStorage
         {}
 
         //! Implicit conversion to a double.
-        operator double (void) const
-        {
+        operator double (void) const {
             return m_Value;
         }
 
         //! Assign from a double.
-        CDoublePrecisionStorage &operator=(double value)
-        {
+        CDoublePrecisionStorage &operator=(double value) {
             m_Value = value;
             return *this;
         }
 
         //! Plus assign from double.
-        CDoublePrecisionStorage &operator+=(double value)
-        {
+        CDoublePrecisionStorage &operator+=(double value) {
             m_Value += value;
             return *this;
         }

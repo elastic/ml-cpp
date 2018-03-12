@@ -25,10 +25,8 @@
 #include <set>
 #include <string>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Collects up to a configurable number of distinct examples per category
@@ -39,8 +37,7 @@ namespace api
 //! small number of expected examples should be more performant than a
 //! traditional set.
 //!
-class API_EXPORT CCategoryExamplesCollector
-{
+class API_EXPORT CCategoryExamplesCollector {
     public:
         typedef std::set<std::string> TStrSet;
         typedef TStrSet::const_iterator TStrSetCItr;

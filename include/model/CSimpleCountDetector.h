@@ -23,10 +23,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetectorModelConfig;
 class CLimits;
 
@@ -49,8 +47,7 @@ class CLimits;
 //! passes through the same data path as the output of the real
 //! anomaly detector classes.
 //!
-class MODEL_EXPORT CSimpleCountDetector : public CAnomalyDetector
-{
+class MODEL_EXPORT CSimpleCountDetector : public CAnomalyDetector {
     public:
         CSimpleCountDetector(int identifier,
                              model_t::ESummaryMode summaryMode,

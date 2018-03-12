@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CQDigestTest : public CppUnit::TestFixture
-{
+class CQDigestTest : public CppUnit::TestFixture {
     public:
         void testAdd(void);
         void testMerge(void);

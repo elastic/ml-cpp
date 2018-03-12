@@ -30,8 +30,7 @@
 using namespace ml;
 using namespace core;
 
-void CContainerPrinterTest::testAll(void)
-{
+void CContainerPrinterTest::testAll(void) {
     std::vector<double> vec;
     LOG_DEBUG("vec = " << CContainerPrinter::print(vec));
     CPPUNIT_ASSERT(CContainerPrinter::print(vec) == "[]");
@@ -67,12 +66,11 @@ void CContainerPrinterTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
                          CContainerPrinter::print(map));
 
-    std::auto_ptr<int> pints[] =
-        {
-            std::auto_ptr<int>(new int(2)),
-            std::auto_ptr<int>(new int(3)),
-            std::auto_ptr<int>(new int(2))
-        };
+    std::auto_ptr<int> pints[] = {
+        std::auto_ptr<int>(new int(2)),
+        std::auto_ptr<int>(new int(3)),
+        std::auto_ptr<int>(new int(2))
+    };
     LOG_DEBUG("pints = " << CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),
                          CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
@@ -91,13 +89,12 @@ void CContainerPrinterTest::testAll(void)
                          CContainerPrinter::print(aggregate));
 }
 
-CppUnit::Test *CContainerPrinterTest::suite(void)
-{
+CppUnit::Test *CContainerPrinterTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerPrinterTest>(
-                                   "CContainerPrinterTest::testAll",
-                                   &CContainerPrinterTest::testAll) );
+                               "CContainerPrinterTest::testAll",
+                               &CContainerPrinterTest::testAll) );
 
     return suiteOfTests;
 }

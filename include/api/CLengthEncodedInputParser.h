@@ -27,10 +27,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Parse the length encoded input data
@@ -84,8 +82,7 @@ namespace api
 //! interfacing with Java (which doesn't have built-in unsigned
 //! types) easier.
 //!
-class API_EXPORT CLengthEncodedInputParser : public CInputParser
-{
+class API_EXPORT CLengthEncodedInputParser : public CInputParser {
     public:
         //! Construct with an input stream to be parsed.  Once a stream is
         //! passed to this constructor, no other object should read from it.

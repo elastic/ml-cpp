@@ -25,15 +25,12 @@
 
 #include <utility>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Mock a model and allow setting of bucket values
 //! and baselines.
-class CMockModel : public CAnomalyDetectorModel
-{
+class CMockModel : public CAnomalyDetectorModel {
     public:
         CMockModel(const SModelParams &params,
                    const TDataGathererPtr &dataGatherer,
@@ -161,8 +158,7 @@ class CMockModel : public CAnomalyDetectorModel
 };
 
 //! \brief A details view for a mock model.
-class CMockModelDetailsView : public CModelDetailsView
-{
+class CMockModelDetailsView : public CModelDetailsView {
     public:
         CMockModelDetailsView(const CMockModel &model);
 

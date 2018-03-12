@@ -26,15 +26,12 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief A sketch suitable for c.d.f. queries on a 1d double valued
 //! random variable.
@@ -55,15 +52,13 @@ namespace maths
 //! which are available for the q-digest, so if you know the range of the
 //! variable up front, that is a safer choice for approximate quantile
 //! estimation.
-class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
-{
+class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch > {
     public:
         typedef std::pair<CFloatStorage, CFloatStorage> TFloatFloatPr;
         typedef std::vector<TFloatFloatPr> TFloatFloatPrVec;
 
         //! The types of interpolation used for computing the quantile.
-        enum EInterpolation
-        {
+        enum EInterpolation {
             E_Linear,
             E_PiecewiseConstant
         };
@@ -81,8 +76,7 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
         const CQuantileSketch &operator+=(const CQuantileSketch &rhs);
 
         //! Define a function operator for use with std:: algorithms.
-        inline void operator()(double x)
-        {
+        inline void operator()(double x) {
             this->add(x);
         }
 
@@ -155,16 +149,14 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch >
 //! \brief Template wrapper for fixed size sketches which can be
 //! default constructed.
 template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
-class CFixedQuantileSketch : public CQuantileSketch
-{
+class CFixedQuantileSketch : public CQuantileSketch {
     public:
         CFixedQuantileSketch(void) : CQuantileSketch(INTERPOLATION, N) {}
 
         //! NB1: Needs to be redeclared to work with CChecksum.
         //! NB2: This method is not currently virtual - needs changing if any of the
         //! methods of this class ever do anything other than forward to the base class
-        uint64_t checksum(uint64_t seed = 0) const
-        {
+        uint64_t checksum(uint64_t seed = 0) const {
             return this->CQuantileSketch::checksum(seed);
         }
 
@@ -172,8 +164,7 @@ class CFixedQuantileSketch : public CQuantileSketch
         //! NB1: Needs to be redeclared to work with CMemoryDebug.
         //! NB2: This method is not currently virtual - needs changing if any of the
         //! methods of this class ever do anything other than forward to the base class
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-        {
+        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
             this->CQuantileSketch::debugMemoryUsage(mem);
         }
 
@@ -181,15 +172,13 @@ class CFixedQuantileSketch : public CQuantileSketch
         //! NB1: Needs to be redeclared to work with CMemory.
         //! NB2: This method is not currently virtual - needs changing if any of the
         //! methods of this class ever do anything other than forward to the base class
-        std::size_t memoryUsage(void) const
-        {
+        std::size_t memoryUsage(void) const {
             return this->CQuantileSketch::memoryUsage();
         }
 };
 
 //! Write to stream using print member.
-inline std::ostream &operator<<(std::ostream &o, const CQuantileSketch &qs)
-{
+inline std::ostream &operator<<(std::ostream &o, const CQuantileSketch &qs) {
     return o << qs.print();
 }
 

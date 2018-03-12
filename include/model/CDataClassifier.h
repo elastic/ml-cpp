@@ -24,23 +24,19 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace model
-{
+namespace model {
 
 //! \brief Classifies a collection of values.
 //!
 //! DESCRIPTION:\n
 //! Currently, this checks whether the values are all integers.
-class MODEL_EXPORT CDataClassifier
-{
+class MODEL_EXPORT CDataClassifier {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
 

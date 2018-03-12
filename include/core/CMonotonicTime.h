@@ -20,10 +20,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Get a time that should never decrease
@@ -62,8 +60,7 @@ namespace core
 //! For platforms using clock_gettime(), there is a further fallback to
 //! CLOCK_REALTIME in the event of CLOCK_MONOTONIC not being available.
 //!
-class CORE_EXPORT CMonotonicTime
-{
+class CORE_EXPORT CMonotonicTime {
     public:
         //! Initialise any required scaling factors
         CMonotonicTime(void);

@@ -27,10 +27,8 @@ extern "C"
 char *strptime(const char *buf, const char *fmt, struct tm *tm);
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 // Our Windows strptime() implementation supports the %z and %Z time formats.
@@ -48,11 +46,9 @@ namespace core
 // format string with a string obtained from the CTimezone singleton.
 char *CStrPTime::strPTime(const char *buf,
                           const char *format,
-                          struct tm *tm)
-{
+                          struct tm *tm) {
     // If any of the inputs are NULL then do nothing
-    if (buf == 0 || format == 0 || tm == 0)
-    {
+    if (buf == 0 || format == 0 || tm == 0) {
         return 0;
     }
 
@@ -60,47 +56,35 @@ char *CStrPTime::strPTime(const char *buf,
 
     // Replace %Z first if present
     size_t tznamePos(adjFormat.find("%Z"));
-    if (tznamePos != std::string::npos)
-    {
+    if (tznamePos != std::string::npos) {
         // Find the corresponding place in the buffer
         char *excess(CStrPTime::strPTime(buf,
                                          adjFormat.substr(0, tznamePos).c_str(),
                                          tm));
-        if (excess == 0)
-        {
+        if (excess == 0) {
             return 0;
         }
 
         // Skip leading whitespace
-        while (::isspace(static_cast<unsigned char>(*excess)))
-        {
+        while (::isspace(static_cast<unsigned char>(*excess))) {
             ++excess;
         }
 
         // Only GMT and the standard and daylight saving timezone names for the
         // current timezone are supported, as per the strptime() man page
         std::string possTzName(excess);
-        if (possTzName.find("GMT") == 0)
-        {
+        if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
-        }
-        else
-        {
+        } else {
             CTimezone &tz = CTimezone::instance();
             std::string stdAbbrev(tz.stdAbbrev());
-            if (possTzName.find(stdAbbrev) == 0)
-            {
+            if (possTzName.find(stdAbbrev) == 0) {
                 adjFormat.replace(tznamePos, 2, stdAbbrev);
-            }
-            else
-            {
+            } else {
                 std::string dstAbbrev(tz.dstAbbrev());
-                if (possTzName.find(dstAbbrev) == 0)
-                {
+                if (possTzName.find(dstAbbrev) == 0) {
                     adjFormat.replace(tznamePos, 2, dstAbbrev);
-                }
-                else
-                {
+                } else {
                     return 0;
                 }
             }
@@ -109,12 +93,10 @@ char *CStrPTime::strPTime(const char *buf,
 
     // Check if the format specifier includes a %z
     size_t zPos(adjFormat.find("%z"));
-    if (zPos != std::string::npos)
-    {
+    if (zPos != std::string::npos) {
         // If there's anything except whitespace after the
         // %z it's too complicated
-        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) != std::string::npos)
-        {
+        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) != std::string::npos) {
             return 0;
         }
 
@@ -125,73 +107,54 @@ char *CStrPTime::strPTime(const char *buf,
 
     // We only have more work to do if %z was in the string, and
     // the basic strptime() call worked
-    if (excess != 0 && zPos != std::string::npos)
-    {
+    if (excess != 0 && zPos != std::string::npos) {
         // Skip leading whitespace
-        while (::isspace(static_cast<unsigned char>(*excess)))
-        {
+        while (::isspace(static_cast<unsigned char>(*excess))) {
             ++excess;
         }
 
         // We expect something along the lines of +0000 or
         // -0500, i.e. a plus or minus sign followed by 4 digits
         core_t::TTime sign(0);
-        if (*excess == '+')
-        {
+        if (*excess == '+') {
             sign = 1;
-        }
-        else if (*excess == '-')
-        {
+        } else if (*excess == '-') {
             sign = -1;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
         core_t::TTime hour(0);
-        if (*excess >= '0' && *excess <= '2')
-        {
+        if (*excess >= '0' && *excess <= '2') {
             hour += (*excess - '0') * 10;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
-        if (*excess >= '0' && *excess <= '9')
-        {
+        if (*excess >= '0' && *excess <= '9') {
             hour += (*excess - '0');
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
         core_t::TTime minute(0);
-        if (*excess >= '0' && *excess <= '5')
-        {
+        if (*excess >= '0' && *excess <= '5') {
             minute += (*excess - '0') * 10;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
-        if (*excess >= '0' && *excess <= '9')
-        {
+        if (*excess >= '0' && *excess <= '9') {
             minute += (*excess - '0');
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
@@ -206,8 +169,7 @@ char *CStrPTime::strPTime(const char *buf,
         utcTime -= sign * hour * 60 * 60;
 
         CTimezone &tz = CTimezone::instance();
-        if (tz.utcToLocal(utcTime, *tm) == false)
-        {
+        if (tz.utcToLocal(utcTime, *tm) == false) {
             return 0;
         }
     }

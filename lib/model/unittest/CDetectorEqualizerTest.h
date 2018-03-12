@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectorEqualizerTest : public CppUnit::TestFixture
-{
+class CDetectorEqualizerTest : public CppUnit::TestFixture {
     public:
         void testCorrect(void);
         void testAge(void);

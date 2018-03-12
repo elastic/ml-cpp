@@ -43,18 +43,14 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CHierarchicalResultsNormalizer;
 }
-namespace core
-{
+namespace core {
 template <typename> class CScopedRapidJsonPoolAllocator;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Write output data in JSON format
@@ -110,8 +106,7 @@ namespace api
 //! re-normalisation of previous results using the normalize
 //! process, so it's best that this doesn't happen too often.)
 //!
-class API_EXPORT CJsonOutputWriter : public COutputHandler
-{
+class API_EXPORT CJsonOutputWriter : public COutputHandler {
     public:
         typedef boost::shared_ptr<rapidjson::Document>      TDocumentPtr;
         typedef boost::weak_ptr<rapidjson::Document>        TDocumentWeakPtr;
@@ -139,8 +134,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
 
         //! Structure to buffer up information about each bucket that we have
         //! unwritten results for
-        struct SBucketData
-        {
+        struct SBucketData {
             SBucketData(void);
 
             //! The max normalized anomaly score of the bucket influencers
@@ -259,8 +253,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
         typedef CCategoryExamplesCollector::TStrSet TStrSet;
         typedef TStrSet::const_iterator TStrSetCItr;
 
-        struct SModelSnapshotReport
-        {
+        struct SModelSnapshotReport {
             SModelSnapshotReport(core_t::TTime snapshotTimestamp,
                                  const std::string &description,
                                  const std::string &snapshotId,
@@ -382,7 +375,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
     private:
         template <typename > friend class core::CScopedRapidJsonPoolAllocator;
         // hooks for the CScopedRapidJsonPoolAllocator interface
-        
+
         //! use a new allocator for JSON output processing
         //! \p allocatorName A unique identifier for the allocator
         void pushAllocator(const std::string &allocatorName);

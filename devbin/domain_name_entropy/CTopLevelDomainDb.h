@@ -21,10 +21,8 @@
 
 #include <core/CNonCopyable.h>
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
 //! \brief
 //! Split a domain into suffix, registered domain and subdomain
@@ -40,14 +38,14 @@ namespace domain_name_entropy
 //! www.worldbank.org.kg
 //! (subdomain='www', domain='worldbank', suffix='org.kg')
 //!
-//! "There was and remains no algorithmic method of finding the 
-//! highest level at which a domain may be registered for a 
-//! particular top-level domain (the policies differ with each registry), 
-//! the only method is to create a list. This is the aim of the Public 
+//! "There was and remains no algorithmic method of finding the
+//! highest level at which a domain may be registered for a
+//! particular top-level domain (the policies differ with each registry),
+//! the only method is to create a list. This is the aim of the Public
 //! Suffix List." (https://publicsuffix.org/learn/).
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Reference is 'https://publicsuffix.org/' 
+//! Reference is 'https://publicsuffix.org/'
 //!
 //! Reads a static file, but could also get file from:
 //!
@@ -78,8 +76,7 @@ namespace domain_name_entropy
 //!
 //! https://code.google.com/p/go/source/browse/publicsuffix/list_test.go?repo=net
 //!
-class CTopLevelDomainDb : private core::CNonCopyable
-{
+class CTopLevelDomainDb : private core::CNonCopyable {
     public:
         CTopLevelDomainDb(const std::string &effectiveTldNamesFileName);
 
@@ -89,7 +86,7 @@ class CTopLevelDomainDb : private core::CNonCopyable
         //! get the 'registered' domain name
         //! note: this may return an empty string if the host
         //! name is not a valid domain name.
-        //! for example, 
+        //! for example,
         //! - if the host name is blank
         //! - if the host name is a single label: "testmachine"
         //! - if the host name is a suffix: "co.uk", "s3.amazonaws.com"
@@ -107,8 +104,7 @@ class CTopLevelDomainDb : private core::CNonCopyable
                            std::string &suffix) const;
 
     private:
-        enum ERuleType
-        {
+        enum ERuleType {
             E_ExceptionRule = 0,
             E_Rule,
             E_WildcardRule,

@@ -21,8 +21,7 @@
 
 using namespace ml;
 
-void CAutoconfigurerParamsTest::testDefaults(void)
-{
+void CAutoconfigurerParamsTest::testDefaults(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------+");
     LOG_DEBUG("|  CAutoconfigurerParamsTest::testDefaults  |");
@@ -77,8 +76,7 @@ void CAutoconfigurerParamsTest::testDefaults(void)
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-void CAutoconfigurerParamsTest::testInit(void)
-{
+void CAutoconfigurerParamsTest::testInit(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CAutoconfigurerParamsTest::testInit  |");
@@ -140,16 +138,15 @@ void CAutoconfigurerParamsTest::testInit(void)
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-CppUnit::Test *CAutoconfigurerParamsTest::suite(void)
-{
+CppUnit::Test *CAutoconfigurerParamsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-                                   "CAutoconfigurerParamsTest::testDefaults",
-                                   &CAutoconfigurerParamsTest::testDefaults) );
+                               "CAutoconfigurerParamsTest::testDefaults",
+                               &CAutoconfigurerParamsTest::testDefaults) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-                                   "CAutoconfigurerParamsTest::testInit",
-                                   &CAutoconfigurerParamsTest::testInit) );
+                               "CAutoconfigurerParamsTest::testInit",
+                               &CAutoconfigurerParamsTest::testInit) );
 
     return suiteOfTests;
 }

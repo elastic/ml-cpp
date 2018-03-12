@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSeasonalComponentAdaptiveBucketingTest : public CppUnit::TestFixture
-{
+class CSeasonalComponentAdaptiveBucketingTest : public CppUnit::TestFixture {
     public:
         void testInitialize(void);
         void testSwap(void);

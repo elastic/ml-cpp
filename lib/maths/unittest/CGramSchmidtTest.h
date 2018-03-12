@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGramSchmidtTest : public CppUnit::TestFixture
-{
+class CGramSchmidtTest : public CppUnit::TestFixture {
     public:
         void testOrthogonality(void);
         void testNormalisation(void);

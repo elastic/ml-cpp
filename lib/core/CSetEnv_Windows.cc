@@ -17,18 +17,14 @@
 #include <stdlib.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 int CSetEnv::setEnv(const char *name,
                     const char *value,
-                    int overwrite)
-{
-    if (overwrite == 0 && ::getenv(name) != 0)
-    {
+                    int overwrite) {
+    if (overwrite == 0 && ::getenv(name) != 0) {
         return 0;
     }
 

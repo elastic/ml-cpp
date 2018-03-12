@@ -28,16 +28,13 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief Interface for a multivariate prior distribution which assumes data
@@ -64,8 +61,7 @@ struct SDistributionRestoreParams;
 //! hierarchy can be mixed in. All component models are owned by the object
 //! (it wouldn't make sense to share them) so this also defines the necessary
 //! functions to support value semantics and manage the heap.
-class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
-{
+class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
     public:
         typedef core::CSmallVector<double, 3> TDouble3Vec;
         typedef std::vector<TPriorPtr> TPriorPtrVec;
@@ -252,10 +248,10 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble10Vec1Vec &samples,
-                                       const TDouble10Vec4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble10Vec1Vec &samples,
+                                   const TDouble10Vec4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!

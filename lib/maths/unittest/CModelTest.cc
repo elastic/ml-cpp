@@ -22,8 +22,7 @@
 
 using namespace ml;
 
-void CModelTest::testAll(void)
-{
+void CModelTest::testAll(void) {
     LOG_DEBUG("+-----------------------+");
     LOG_DEBUG("|  CModelTest::testAll  |");
     LOG_DEBUG("+-----------------------+");
@@ -53,10 +52,10 @@ void CModelTest::testAll(void)
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights(1, weights2);
         maths::CModelAddSamplesParams params;
         params.integer(true)
-              .propagationInterval(1.5)
-              .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
-              .trendWeights(trendWeights)
-              .priorWeights(priorWeights);
+        .propagationInterval(1.5)
+        .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
+        .trendWeights(trendWeights)
+        .priorWeights(priorWeights);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_IntegerData, params.type());
         CPPUNIT_ASSERT_EQUAL(1.5, params.propagationInterval());
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(maths::CConstantWeights::SEASONAL_VARIANCE),
@@ -75,16 +74,16 @@ void CModelTest::testAll(void)
         CPPUNIT_ASSERT(!params.mostAnomalousCorrelate());
         CPPUNIT_ASSERT(params.coordinates().empty());
         params.addCalculation(maths_t::E_OneSidedAbove)
-              .addCalculation(maths_t::E_TwoSided)
-              .seasonalConfidenceInterval(50.0)
-              .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{true, true})
-              .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{false, true})
-              .weightStyles(maths::CConstantWeights::COUNT_VARIANCE)
-              .addWeights(weights1)
-              .addWeights(weights2)
-              .mostAnomalousCorrelate(1)
-              .addCoordinate(1)
-              .addCoordinate(0);
+        .addCalculation(maths_t::E_TwoSided)
+        .seasonalConfidenceInterval(50.0)
+        .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{true, true})
+        .addBucketEmpty(maths::CModelProbabilityParams::TBool2Vec{false, true})
+        .weightStyles(maths::CConstantWeights::COUNT_VARIANCE)
+        .addWeights(weights1)
+        .addWeights(weights2)
+        .mostAnomalousCorrelate(1)
+        .addCoordinate(1)
+        .addCoordinate(0);
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), params.calculations());
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, params.calculation(1));
@@ -100,13 +99,12 @@ void CModelTest::testAll(void)
     }
 }
 
-CppUnit::Test *CModelTest::suite(void)
-{
+CppUnit::Test *CModelTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CModelTest>(
-                                   "CModelTest::testAll",
-                                   &CModelTest::testAll) );
+                               "CModelTest::testAll",
+                               &CModelTest::testAll) );
 
     return suiteOfTests;
 }

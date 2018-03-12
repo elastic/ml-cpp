@@ -30,10 +30,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief The parameters which control auto-configuration.
 //!
@@ -55,8 +53,7 @@ namespace config
 //!
 //! Because supplying parameters via the config file is optional the
 //! boost property_tree is copied into separate member variables.
-class CONFIG_EXPORT CAutoconfigurerParams
-{
+class CONFIG_EXPORT CAutoconfigurerParams {
     public:
         typedef std::vector<core_t::TTime> TTimeVec;
         typedef std::vector<std::size_t> TSizeVec;

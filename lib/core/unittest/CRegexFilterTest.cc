@@ -18,8 +18,7 @@
 #include <core/CRegexFilter.h>
 
 
-CppUnit::Test *CRegexFilterTest::suite()
-{
+CppUnit::Test *CRegexFilterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRegexFilterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
@@ -41,8 +40,7 @@ CppUnit::Test *CRegexFilterTest::suite()
     return suiteOfTests;
 }
 
-void CRegexFilterTest::testConfigure_GivenInvalidRegex(void)
-{
+void CRegexFilterTest::testConfigure_GivenInvalidRegex(void) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
     regexVector.push_back(std::string("("));
@@ -52,16 +50,14 @@ void CRegexFilterTest::testConfigure_GivenInvalidRegex(void)
     CPPUNIT_ASSERT(filter.empty());
 }
 
-void CRegexFilterTest::testApply_GivenEmptyFilter(void)
-{
+void CRegexFilterTest::testApply_GivenEmptyFilter(void) {
     ml::core::CRegexFilter filter;
     CPPUNIT_ASSERT(filter.empty());
 
     CPPUNIT_ASSERT_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleMatchAllRegex(void)
-{
+void CRegexFilterTest::testApply_GivenSingleMatchAllRegex(void) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
 
@@ -71,8 +67,7 @@ void CRegexFilterTest::testApply_GivenSingleMatchAllRegex(void)
     CPPUNIT_ASSERT_EQUAL(std::string(), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleRegex(void)
-{
+void CRegexFilterTest::testApply_GivenSingleRegex(void) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f"));
 
@@ -82,8 +77,7 @@ void CRegexFilterTest::testApply_GivenSingleRegex(void)
     CPPUNIT_ASSERT_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
 }
 
-void CRegexFilterTest::testApply_GivenMultipleRegex(void)
-{
+void CRegexFilterTest::testApply_GivenMultipleRegex(void) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f[o]+"));
     regexVector.push_back(std::string("bar"));

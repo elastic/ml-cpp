@@ -15,10 +15,8 @@
 
 #include <core/CCompressedDictionary.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 }
 }

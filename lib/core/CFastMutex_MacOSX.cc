@@ -15,30 +15,24 @@
 #include <core/CFastMutex.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CFastMutex::CFastMutex(void)
-    // The OSSpinLock type is just an integer, and zero means unlocked.  See
-    // "man spinlock" for details.
-    : m_Mutex(0)
-{
+// The OSSpinLock type is just an integer, and zero means unlocked.  See
+// "man spinlock" for details.
+    : m_Mutex(0) {
 }
 
-CFastMutex::~CFastMutex(void)
-{
+CFastMutex::~CFastMutex(void) {
 }
 
-void CFastMutex::lock(void)
-{
+void CFastMutex::lock(void) {
     OSSpinLockLock(&m_Mutex);
 }
 
-void CFastMutex::unlock(void)
-{
+void CFastMutex::unlock(void) {
     OSSpinLockUnlock(&m_Mutex);
 }
 

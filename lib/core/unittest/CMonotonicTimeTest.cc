@@ -19,22 +19,20 @@
 #include <core/CSleep.h>
 
 
-CppUnit::Test *CMonotonicTimeTest::suite()
-{
+CppUnit::Test *CMonotonicTimeTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMonotonicTimeTest>(
-                                   "CMonotonicTimeTest::testMilliseconds",
-                                   &CMonotonicTimeTest::testMilliseconds) );
+                               "CMonotonicTimeTest::testMilliseconds",
+                               &CMonotonicTimeTest::testMilliseconds) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMonotonicTimeTest>(
-                                   "CMonotonicTimeTest::testNanoseconds",
-                                   &CMonotonicTimeTest::testNanoseconds) );
+                               "CMonotonicTimeTest::testNanoseconds",
+                               &CMonotonicTimeTest::testNanoseconds) );
 
     return suiteOfTests;
 }
 
-void CMonotonicTimeTest::testMilliseconds(void)
-{
+void CMonotonicTimeTest::testMilliseconds(void) {
     ml::core::CMonotonicTime monoTime;
 
     uint64_t start(monoTime.milliseconds());
@@ -52,8 +50,7 @@ void CMonotonicTimeTest::testMilliseconds(void)
     CPPUNIT_ASSERT(diff < 1100);
 }
 
-void CMonotonicTimeTest::testNanoseconds(void)
-{
+void CMonotonicTimeTest::testNanoseconds(void) {
     ml::core::CMonotonicTime monoTime;
 
     uint64_t start(monoTime.nanoseconds());

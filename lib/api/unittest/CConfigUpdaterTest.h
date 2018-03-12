@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CConfigUpdaterTest : public CppUnit::TestFixture
-{
+class CConfigUpdaterTest : public CppUnit::TestFixture {
     public:
         void testUpdateGivenUpdateCannotBeParsed(void);
         void testUpdateGivenUnknownStanzas(void);

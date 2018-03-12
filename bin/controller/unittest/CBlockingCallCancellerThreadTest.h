@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBlockingCallCancellerThreadTest : public CppUnit::TestFixture
-{
+class CBlockingCallCancellerThreadTest : public CppUnit::TestFixture {
     public:
         void testCancelBlock(void);
 

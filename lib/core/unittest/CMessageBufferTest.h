@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMessageBufferTest : public CppUnit::TestFixture
-{
+class CMessageBufferTest : public CppUnit::TestFixture {
     public:
         void    testAll(void);
 

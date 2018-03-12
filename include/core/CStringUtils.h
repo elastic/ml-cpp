@@ -24,10 +24,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CORE_EXPORT CStringUtils : private CNonInstantiatable
-{
+class CORE_EXPORT CStringUtils : private CNonInstantiatable {
     public:
         //! We should only have one definition of whitespace across the whole
         //! product - this definition matches what ::isspace() considers as
@@ -59,8 +56,7 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
 
         //! Convert a type to a string
         template<typename T>
-        static std::string typeToString(const T &type)
-        {
+        static std::string typeToString(const T &type) {
             return CStringUtils::_typeToString(type);
         }
 
@@ -69,8 +65,7 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
 
         //! For types other than double, use the default conversions
         template<typename T>
-        static std::string typeToStringPretty(const T &type)
-        {
+        static std::string typeToStringPretty(const T &type) {
             return CStringUtils::_typeToString(type);
         }
 
@@ -81,39 +76,33 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
         //! For types other than double, default conversions are precise
         template<typename T>
         static std::string typeToStringPrecise(const T &type,
-                                               CIEEE754::EPrecision /*precision*/)
-        {
+                                               CIEEE754::EPrecision /*precision*/) {
             return CStringUtils::_typeToString(type);
         }
 
         //! Convert a string to a type
         template<typename T>
-        static bool stringToType(const std::string &str, T &ret)
-        {
+        static bool stringToType(const std::string &str, T &ret) {
             return CStringUtils::_stringToType(false, str, ret);
         }
 
         //! Convert a string to a type, and don't print an
         //! error message if the conversion fails
         template<typename T>
-        static bool stringToTypeSilent(const std::string &str, T &ret)
-        {
+        static bool stringToTypeSilent(const std::string &str, T &ret) {
             return CStringUtils::_stringToType(true, str, ret);
         }
 
         //! Joins the strings in the container with the \p delimiter.
         //! CONTAINER must be a container of std::string.
         template<typename CONTAINER>
-        static std::string join(const CONTAINER &strings, const std::string &delimiter)
-        {
-            if (strings.empty())
-            {
+        static std::string join(const CONTAINER &strings, const std::string &delimiter) {
+            if (strings.empty()) {
                 return std::string();
             }
             std::size_t requiredSpace = computeStringLength(strings.begin(), strings.end());
             requiredSpace += (strings.size() - 1) * delimiter.length();
-            if (requiredSpace == 0)
-            {
+            if (requiredSpace == 0) {
                 return std::string();
             }
             std::string output;
@@ -128,17 +117,13 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
         static void join(ITR begin,
                          ITR end,
                          const std::string &delimiter,
-                         std::string &output)
-        {
-            if (begin == end)
-            {
+                         std::string &output) {
+            if (begin == end) {
                 return;
             }
-            for (;;)
-            {
+            for (;;) {
                 output += *begin;
-                if (++begin == end)
-                {
+                if (++begin == end) {
                     break;
                 }
                 output += delimiter;
@@ -277,11 +262,9 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable
         static bool _stringToType(bool, const std::string &, std::string &);
 
         template<typename ITR>
-        static std::size_t computeStringLength(ITR begin, ITR end)
-        {
+        static std::size_t computeStringLength(ITR begin, ITR end) {
             std::size_t length(0);
-            while (begin != end)
-            {
+            while (begin != end) {
                 length += begin->length();
                 ++begin;
             }

@@ -30,19 +30,17 @@
 #include <string>
 #include <sstream>
 
-CppUnit::Test *CResultNormalizerTest::suite()
-{
+CppUnit::Test *CResultNormalizerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResultNormalizerTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CResultNormalizerTest>(
-                                   "CResultNormalizerTest::testInitNormalizer",
-                                   &CResultNormalizerTest::testInitNormalizer) );
+                               "CResultNormalizerTest::testInitNormalizer",
+                               &CResultNormalizerTest::testInitNormalizer) );
 
     return suiteOfTests;
 }
 
-void CResultNormalizerTest::testInitNormalizer(void)
-{
+void CResultNormalizerTest::testInitNormalizer(void) {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
@@ -65,8 +63,7 @@ void CResultNormalizerTest::testInitNormalizer(void)
     std::vector<rapidjson::Document> resultDocs;
     std::stringstream ss(results);
     std::string docString;
-    while (std::getline(ss, docString))
-    {
+    while (std::getline(ss, docString)) {
         resultDocs.emplace_back();
         resultDocs.back().Parse<rapidjson::kParseDefaultFlags>(docString.c_str());
     }

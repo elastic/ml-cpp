@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CDetachedProcessSpawnerTest : public CppUnit::TestFixture
-{
+class CDetachedProcessSpawnerTest : public CppUnit::TestFixture {
     public:
         void testSpawn(void);
         void testKill(void);

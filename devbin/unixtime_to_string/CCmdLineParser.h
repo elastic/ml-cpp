@@ -18,10 +18,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace syslogparsertester
-{
+namespace ml {
+namespace syslogparsertester {
 
 
 //! \brief
@@ -34,8 +32,7 @@ namespace syslogparsertester
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
+class CCmdLineParser {
     public:
         //! Parse the arguments. ONLY return true if configFile and dateTime
         //! are defined.

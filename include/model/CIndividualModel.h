@@ -34,10 +34,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnnotatedProbabilityBuilder;
 class CProbabilityAndInfluenceCalculator;
 
@@ -56,8 +54,7 @@ class CProbabilityAndInfluenceCalculator;
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel {
     public:
         using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
         using TTimeVec = std::vector<core_t::TTime>;

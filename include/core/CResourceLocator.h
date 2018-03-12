@@ -21,10 +21,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -43,8 +41,7 @@ namespace core
 //! so the methods should not be called repeatedly.  It is assumed that
 //! the classes using this class will do their own caching if required.
 //!
-class CORE_EXPORT CResourceLocator : private CNonInstantiatable
-{
+class CORE_EXPORT CResourceLocator : private CNonInstantiatable {
     public:
         //! Get the directory that stores resource files, e.g. timezone
         //! details and dictionary words.

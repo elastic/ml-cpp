@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CShellArgQuoterTest : public CppUnit::TestFixture
-{
+class CShellArgQuoterTest : public CppUnit::TestFixture {
     public:
         void testQuote(void);
 

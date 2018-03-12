@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CSleepTest : public CppUnit::TestFixture
-{
+class CSleepTest : public CppUnit::TestFixture {
     public:
         void testSleep(void);
 

@@ -20,10 +20,8 @@
 #include <atomic>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! An atomic statistic object
@@ -36,8 +34,7 @@ namespace core
 //! IMPLEMENTATION DECISIONS:\n
 //! Not copyable - it only makes sense to have one instance of this
 //!
-class CORE_EXPORT CStat : private CNonCopyable
-{
+class CORE_EXPORT CStat : private CNonCopyable {
     public:
         //! Default constructor
         CStat(void);

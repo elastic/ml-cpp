@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class COrderingsTest : public CppUnit::TestFixture
-{
+class COrderingsTest : public CppUnit::TestFixture {
     public:
         void testOptionalOrdering(void);
         void testPtrOrdering(void);

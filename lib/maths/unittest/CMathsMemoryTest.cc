@@ -32,15 +32,13 @@
 using namespace ml;
 using namespace maths;
 
-void CMathsMemoryTest::testTimeSeriesDecompositions(void)
-{
+void CMathsMemoryTest::testTimeSeriesDecompositions(void) {
     CTimeSeriesDecomposition decomp(0.95, 3600, 55);
 
     core_t::TTime time;
     time = 140390672;
 
-    for (unsigned i = 0; i < 600000; i += 600)
-    {
+    for (unsigned i = 0; i < 600000; i += 600) {
         decomp.addPoint(time + i, (0.55 * (0.2 + (i % 86400))));
     }
 
@@ -49,8 +47,7 @@ void CMathsMemoryTest::testTimeSeriesDecompositions(void)
     CPPUNIT_ASSERT_EQUAL(decomp.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testPriors(void)
-{
+void CMathsMemoryTest::testPriors(void) {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), constantPrior.memoryUsage());
@@ -101,10 +98,10 @@ void CMathsMemoryTest::testPriors(void)
 
     // Check that the clusterer has size at least as great as the sum of it's fixed members
     std::size_t clustererSize =  sizeof(maths_t::EDataType)
-                               + 4 * sizeof(double)
-                               + sizeof(maths_t::EClusterWeightCalc)
-                               + sizeof(CClusterer1d::CIndexGenerator)
-                               + sizeof(CXMeansOnline1d::TClusterVec);
+                                 + 4 * sizeof(double)
+                                 + sizeof(maths_t::EClusterWeightCalc)
+                                 + sizeof(CClusterer1d::CIndexGenerator)
+                                 + sizeof(CXMeansOnline1d::TClusterVec);
 
     CPPUNIT_ASSERT(clusterer.memoryUsage() >= clustererSize);
 
@@ -135,8 +132,7 @@ void CMathsMemoryTest::testPriors(void)
     CPPUNIT_ASSERT_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testBjkstVec(void)
-{
+void CMathsMemoryTest::testBjkstVec(void) {
     typedef std::vector<maths::CBjkstUniqueValues> TBjkstValuesVec;
     {
         // Test empty
@@ -151,10 +147,8 @@ void CMathsMemoryTest::testBjkstVec(void)
         TBjkstValuesVec values;
         maths::CBjkstUniqueValues seed(3, 100);
         values.resize(5, seed);
-        for (std::size_t i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 100; j++)
-            {
+        for (std::size_t i = 0; i < 5; i++) {
+            for (int j = 0; j < 100; j++) {
                 values[i].add(j);
             }
         }
@@ -168,10 +162,8 @@ void CMathsMemoryTest::testBjkstVec(void)
         TBjkstValuesVec values;
         maths::CBjkstUniqueValues seed(3, 100);
         values.resize(5, seed);
-        for (std::size_t i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 1000; j++)
-            {
+        for (std::size_t i = 0; i < 5; i++) {
+            for (int j = 0; j < 1000; j++) {
                 values[i].add(j);
             }
         }
@@ -183,21 +175,20 @@ void CMathsMemoryTest::testBjkstVec(void)
 }
 
 
-CppUnit::Test *CMathsMemoryTest::suite(void)
-{
+CppUnit::Test *CMathsMemoryTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testPriors",
-        &CMathsMemoryTest::testPriors) );
+                               "CMathsMemoryTest::testPriors",
+                               &CMathsMemoryTest::testPriors) );
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testTimeSeriesDecompositions",
-        &CMathsMemoryTest::testTimeSeriesDecompositions) );
+                               "CMathsMemoryTest::testTimeSeriesDecompositions",
+                               &CMathsMemoryTest::testTimeSeriesDecompositions) );
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testBjkstVec",
-        &CMathsMemoryTest::testBjkstVec) );
+                               "CMathsMemoryTest::testBjkstVec",
+                               &CMathsMemoryTest::testBjkstVec) );
 
 
     return suiteOfTests;

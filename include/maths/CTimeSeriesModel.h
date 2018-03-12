@@ -27,10 +27,8 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CDecayRateController;
 class CMultivariatePrior;
 class CPrior;
@@ -40,8 +38,7 @@ struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
 //! \brief A CModel implementation for modeling a univariate time series.
-class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
-{
+class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
     public:
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
@@ -256,8 +253,7 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
 };
 
 //! \brief Manages the creation correlate models.
-class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator
-{
+class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator {
     public:
         using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
 
@@ -295,8 +291,7 @@ class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator
 //! The user of this class simply needs to pass it to CUnivariateTimeSeriesModel on
 //! construction and manage the calls to update it after a batch of samples has been
 //! added and to refresh it before a batch of samples is added to the individual models.
-class MATHS_EXPORT CTimeSeriesCorrelations
-{
+class MATHS_EXPORT CTimeSeriesCorrelations {
     public:
         using TTime1Vec = core::CSmallVector<core_t::TTime, 1> ;
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -315,8 +310,7 @@ class MATHS_EXPORT CTimeSeriesCorrelations
         using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
 
         //! \brief Wraps up the sampled data for a feature.
-        struct MATHS_EXPORT SSampleData
-        {
+        struct MATHS_EXPORT SSampleData {
             //! The data type.
             maths_t::EDataType s_Type;
             //! The times of the samples.
@@ -380,7 +374,7 @@ class MATHS_EXPORT CTimeSeriesCorrelations
         using TModelCPtrVec = std::vector<const CUnivariateTimeSeriesModel*>;
         using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
         using TSizeSizePrMultivariatePriorPtrDoublePrPr =
-                  std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+            std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
 
     private:
         CTimeSeriesCorrelations(const CTimeSeriesCorrelations &other,
@@ -457,8 +451,7 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 };
 
 //! \brief A CModel implementation for modeling a multivariate time series.
-class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
-{
+class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
     public:
         using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
         using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;

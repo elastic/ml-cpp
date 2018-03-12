@@ -42,10 +42,8 @@
 
 class CTrendTestsTest;
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CSeasonalTime;
 
 //! \brief A low memory footprint randomized test for probability.
@@ -70,8 +68,7 @@ class CSeasonalTime;
 //! of samples grows so the significance for rejecting the
 //! null hypothesis (that the function is a-periodic) will
 //! shrink to zero.
-class MATHS_EXPORT CRandomizedPeriodicityTest
-{
+class MATHS_EXPORT CRandomizedPeriodicityTest {
     public:
         //! The size of the projection sample coefficients
         static const std::size_t N = 5;
@@ -184,8 +181,7 @@ class MATHS_EXPORT CRandomizedPeriodicityTest
 //! than one would expect given that this is expected to be binomial.
 //! Amongst features with statistically significant frequencies of large
 //! errors it returns the feature with the highest mean prediction error.
-class MATHS_EXPORT CCalendarCyclicTest
-{
+class MATHS_EXPORT CCalendarCyclicTest {
     public:
         using TOptionalFeature = boost::optional<CCalendarFeature>;
 

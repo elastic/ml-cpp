@@ -26,10 +26,8 @@
 
 #include <boost/variant.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implements Count-Min Sketch approximate counting of
 //! categories.
@@ -57,8 +55,7 @@ namespace maths
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CCountMinSketch
-{
+class MATHS_EXPORT CCountMinSketch {
     public:
         CCountMinSketch(std::size_t rows, std::size_t columns);
 
@@ -131,8 +128,7 @@ class MATHS_EXPORT CCountMinSketch
         typedef std::vector<TFloatVec> TFloatVecVec;
 
         //! Wraps up the sketch data.
-        struct MATHS_EXPORT SSketch
-        {
+        struct MATHS_EXPORT SSketch {
             SSketch(void) = default;
             SSketch(std::size_t rows, std::size_t columns);
 

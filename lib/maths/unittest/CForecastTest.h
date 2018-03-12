@@ -22,8 +22,7 @@
 
 #include <functional>
 
-class CForecastTest : public CppUnit::TestFixture
-{
+class CForecastTest : public CppUnit::TestFixture {
     public:
         void testDailyNoLongTermTrend();
         void testDailyConstantLongTermTrend();

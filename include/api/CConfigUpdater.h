@@ -22,10 +22,8 @@
 
 #include <string>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Parse a configuration and apply requested configuration updates.
@@ -43,8 +41,7 @@ namespace api
 //! changes as possible even if it fails on a particular
 //! change (e.g. unknown stanza name).
 //!
-class API_EXPORT CConfigUpdater
-{
+class API_EXPORT CConfigUpdater {
     public:
         CConfigUpdater(CFieldConfig &fieldConfig, model::CAnomalyDetectorModelConfig &modelConfig);
 

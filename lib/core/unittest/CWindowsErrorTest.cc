@@ -18,19 +18,17 @@
 #include <core/CLogger.h>
 
 
-CppUnit::Test *CWindowsErrorTest::suite()
-{
+CppUnit::Test *CWindowsErrorTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CWindowsErrorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CWindowsErrorTest>(
-                                   "CWindowsErrorTest::testErrors",
-                                   &CWindowsErrorTest::testErrors) );
+                               "CWindowsErrorTest::testErrors",
+                               &CWindowsErrorTest::testErrors) );
 
     return suiteOfTests;
 }
 
-void CWindowsErrorTest::testErrors(void)
-{
+void CWindowsErrorTest::testErrors(void) {
     LOG_INFO("Windows error 1 is : " << ml::core::CWindowsError(1));
     LOG_INFO("Windows error 2 is : " << ml::core::CWindowsError(2));
     LOG_INFO("Windows error 3 is : " << ml::core::CWindowsError(3));

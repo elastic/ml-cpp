@@ -21,10 +21,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -40,8 +38,7 @@ namespace core
 //! Each member of the utsname struct should be implemented as a
 //! separate method, as usually only one is required.
 //!
-class CORE_EXPORT CUname : private CNonInstantiatable
-{
+class CORE_EXPORT CUname : private CNonInstantiatable {
     public:
         //! uname -s
         static std::string sysName(void);

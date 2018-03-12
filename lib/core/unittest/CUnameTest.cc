@@ -18,19 +18,17 @@
 #include <core/CUname.h>
 
 
-CppUnit::Test *CUnameTest::suite()
-{
+CppUnit::Test *CUnameTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CUnameTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CUnameTest>(
-                                   "CUnameTest::testUname",
-                                   &CUnameTest::testUname) );
+                               "CUnameTest::testUname",
+                               &CUnameTest::testUname) );
 
     return suiteOfTests;
 }
 
-void CUnameTest::testUname(void)
-{
+void CUnameTest::testUname(void) {
     LOG_DEBUG(ml::core::CUname::sysName());
     LOG_DEBUG(ml::core::CUname::nodeName());
     LOG_DEBUG(ml::core::CUname::release());

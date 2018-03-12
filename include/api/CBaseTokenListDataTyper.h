@@ -34,15 +34,12 @@
 class CBaseTokenListDataTyperTest;
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 class CTokenListReverseSearchCreatorIntf;
 
 //! \brief
@@ -69,8 +66,7 @@ class CTokenListReverseSearchCreatorIntf;
 //! correct setting of reverse search creator state needs to be added to
 //! the copy constructor and assignment operator of this class.)
 //!
-class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
-{
+class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
     public:
         //! Name of the field that contains pre-tokenised tokens (in CSV format)
         //! if available
@@ -94,8 +90,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
 
         //! Used for stream output of token IDs translated back to the original
         //! tokens
-        struct API_EXPORT SIdTranslater
-        {
+        struct API_EXPORT SIdTranslater {
             SIdTranslater(const CBaseTokenListDataTyper &typer,
                           const TSizeSizePrVec &tokenIds,
                           char separator);
@@ -204,8 +199,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
 
     private:
         //! Value type for the TTokenMIndex below
-        class CTokenInfoItem
-        {
+        class CTokenInfoItem {
             public:
                 CTokenInfoItem(const std::string &str,
                                size_t index);
@@ -231,16 +225,14 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
         };
 
         //! Compute equality based on the first element of a pair only
-        class CSizePairFirstElementEquals
-        {
+        class CSizePairFirstElementEquals {
             public:
                 CSizePairFirstElementEquals(size_t value);
 
                 //! PAIRTYPE can be any struct with a data member named "first"
                 //! that can be checked for equality to a size_t
                 template <typename PAIRTYPE>
-                bool operator()(const PAIRTYPE &lhs) const
-                {
+                bool operator()(const PAIRTYPE &lhs) const {
                     return lhs.first == m_Value;
                 }
 
@@ -253,20 +245,19 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
         using TTokenListTypeVec = std::vector<CTokenListType>;
 
         //! Tag for the token index
-        struct SToken
-        {
+        struct SToken {
         };
 
         using TTokenMIndex = boost::multi_index::multi_index_container<
-            CTokenInfoItem,
-            boost::multi_index::indexed_by<
-                boost::multi_index::random_access<>,
-                boost::multi_index::hashed_unique<
-                    boost::multi_index::tag<SToken>,
-                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)
-                >
-            >
-        >;
+                             CTokenInfoItem,
+                             boost::multi_index::indexed_by<
+                             boost::multi_index::random_access<>,
+                             boost::multi_index::hashed_unique<
+                             boost::multi_index::tag<SToken>,
+                             BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)
+                             >
+                             >
+                             >;
 
     private:
         //! Used by deferred persistence functions
@@ -320,12 +311,12 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
         //! Used to parse pre-tokenised input supplied as CSV.
         CCsvInputParser::CCsvLineParser              m_CsvLineParser;
 
-    // For unit testing
-    friend class ::CBaseTokenListDataTyperTest;
+        // For unit testing
+        friend class ::CBaseTokenListDataTyperTest;
 
-    // For ostream output
-    friend API_EXPORT std::ostream &operator<<(std::ostream &,
-                                               const SIdTranslater &);
+        // For ostream output
+        friend API_EXPORT std::ostream &operator<<(std::ostream &,
+                                                   const SIdTranslater &);
 };
 
 

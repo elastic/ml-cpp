@@ -23,41 +23,33 @@
 #include <string.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CThread::CThread(void)
     : m_ThreadId(0),
-      m_ThreadHandle(INVALID_HANDLE_VALUE)
-{
+      m_ThreadHandle(INVALID_HANDLE_VALUE) {
 }
 
-CThread::~CThread(void)
-{
+CThread::~CThread(void) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadHandle != INVALID_HANDLE_VALUE)
-    {
+    if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
         LOG_ERROR("Trying to destroy a running thread. Call 'stop' before destroying");
     }
 }
 
-bool CThread::start(void)
-{
+bool CThread::start(void) {
     TThreadId dummy(0);
 
     return this->start(dummy);
 }
 
-bool CThread::start(TThreadId &threadId)
-{
+bool CThread::start(TThreadId &threadId) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadHandle != INVALID_HANDLE_VALUE)
-    {
+    if (m_ThreadHandle != INVALID_HANDLE_VALUE) {
         LOG_ERROR("Thread already running");
         threadId = m_ThreadId;
         return false;
@@ -79,8 +71,7 @@ bool CThread::start(TThreadId &threadId)
                                     this,
                                     0,
                                     0));
-    if (handle == 0)
-    {
+    if (handle == 0) {
         LOG_ERROR("Cannot create thread: " << ::strerror(errno));
         threadId = 0;
         return false;
@@ -93,18 +84,15 @@ bool CThread::start(TThreadId &threadId)
     return true;
 }
 
-bool CThread::stop(void)
-{
+bool CThread::stop(void) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadHandle == INVALID_HANDLE_VALUE)
-    {
+    if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (GetCurrentThreadId() == m_ThreadId)
-    {
+    if (GetCurrentThreadId() == m_ThreadId) {
         LOG_ERROR("Can't stop own thread");
         return false;
     }
@@ -112,14 +100,12 @@ bool CThread::stop(void)
     // Signal to running thread to shutdown
     this->shutdown();
 
-    if (WaitForSingleObject(m_ThreadHandle, INFINITE) != 0)
-    {
+    if (WaitForSingleObject(m_ThreadHandle, INFINITE) != 0) {
         DWORD errCode(GetLastError());
 
         // To match pthread behaviour, we won't report an error for joining a
         // thread that's already stopped
-        if (errCode != ERROR_INVALID_HANDLE)
-        {
+        if (errCode != ERROR_INVALID_HANDLE) {
             LOG_ERROR("Error joining thread: " << CWindowsError(errCode));
         }
     }
@@ -131,30 +117,25 @@ bool CThread::stop(void)
     return true;
 }
 
-bool CThread::waitForFinish(void)
-{
+bool CThread::waitForFinish(void) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadHandle == INVALID_HANDLE_VALUE)
-    {
+    if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (GetCurrentThreadId() == m_ThreadId)
-    {
+    if (GetCurrentThreadId() == m_ThreadId) {
         LOG_ERROR("Can't stop own thread");
         return false;
     }
 
-    if (WaitForSingleObject(m_ThreadHandle, INFINITE) != 0)
-    {
+    if (WaitForSingleObject(m_ThreadHandle, INFINITE) != 0) {
         DWORD errCode(GetLastError());
 
         // To match pthread behaviour, we won't report an error for joining a
         // thread that's already stopped
-        if (errCode != ERROR_INVALID_HANDLE)
-        {
+        if (errCode != ERROR_INVALID_HANDLE) {
             LOG_ERROR("Error joining thread: " << CWindowsError(errCode));
         }
     }
@@ -166,36 +147,30 @@ bool CThread::waitForFinish(void)
     return true;
 }
 
-bool CThread::isStarted(void) const
-{
+bool CThread::isStarted(void) const {
     CScopedLock lock(m_IdMutex);
 
     return (m_ThreadHandle != INVALID_HANDLE_VALUE);
 }
 
-bool CThread::cancelBlockedIo(void)
-{
+bool CThread::cancelBlockedIo(void) {
     CScopedLock lock(m_IdMutex);
 
-    if (m_ThreadHandle == INVALID_HANDLE_VALUE)
-    {
+    if (m_ThreadHandle == INVALID_HANDLE_VALUE) {
         LOG_ERROR("Thread not running");
         return false;
     }
 
-    if (GetCurrentThreadId() == m_ThreadId)
-    {
+    if (GetCurrentThreadId() == m_ThreadId) {
         LOG_ERROR("Can't cancel blocked IO in own thread");
         return false;
     }
 
-    if (CancelSynchronousIo(m_ThreadHandle) == FALSE)
-    {
+    if (CancelSynchronousIo(m_ThreadHandle) == FALSE) {
         DWORD errCode(GetLastError());
 
         // Don't report an error if there is no blocking call to cancel
-        if (errCode != ERROR_NOT_FOUND)
-        {
+        if (errCode != ERROR_NOT_FOUND) {
             LOG_ERROR("Error cancelling blocked IO in thread: " <<
                       CWindowsError(errCode));
             return false;
@@ -205,10 +180,8 @@ bool CThread::cancelBlockedIo(void)
     return true;
 }
 
-bool CThread::cancelBlockedIo(TThreadId threadId)
-{
-    if (GetCurrentThreadId() == threadId)
-    {
+bool CThread::cancelBlockedIo(TThreadId threadId) {
+    if (GetCurrentThreadId() == threadId) {
         LOG_ERROR("Can't cancel blocked IO in own thread");
         return false;
     }
@@ -218,20 +191,17 @@ bool CThread::cancelBlockedIo(TThreadId threadId)
                                      threadId);
     // Note inconsistency in Win32 thread function return codes here - the error
     // return is NULL rather than INVALID_HANDLE_VALUE!
-    if (threadHandle == 0)
-    {
+    if (threadHandle == 0) {
         LOG_ERROR("Error cancelling blocked IO in thread " << threadId <<
                   ": " << CWindowsError());
         return false;
     }
 
-    if (CancelSynchronousIo(threadHandle) == FALSE)
-    {
+    if (CancelSynchronousIo(threadHandle) == FALSE) {
         DWORD errCode(GetLastError());
 
         // Don't report an error if there is no blocking call to cancel
-        if (errCode != ERROR_NOT_FOUND)
-        {
+        if (errCode != ERROR_NOT_FOUND) {
             LOG_ERROR("Error cancelling blocked IO in thread " << threadId <<
                       ": " << CWindowsError(errCode));
             CloseHandle(threadHandle);
@@ -244,13 +214,11 @@ bool CThread::cancelBlockedIo(TThreadId threadId)
     return true;
 }
 
-CThread::TThreadId CThread::currentThreadId(void)
-{
+CThread::TThreadId CThread::currentThreadId(void) {
     return GetCurrentThreadId();
 }
 
-CThread::TThreadRet STDCALL CThread::threadFunc(void *obj)
-{
+CThread::TThreadRet STDCALL CThread::threadFunc(void *obj) {
     CThread *instance = static_cast<CThread *>(obj);
 
     instance->run();

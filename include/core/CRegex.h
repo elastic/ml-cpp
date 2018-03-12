@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -37,8 +35,7 @@ namespace core
 //! IMPLEMENTATION DECISIONS:\n
 //! Uses init method to initialise so exceptions can be caught.
 //!
-class CORE_EXPORT CRegex
-{
+class CORE_EXPORT CRegex {
     public:
         typedef std::vector<std::string>    TStrVec;
         typedef TStrVec::iterator           TStrVecItr;

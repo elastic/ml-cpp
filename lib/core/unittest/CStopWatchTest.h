@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CStopWatchTest : public CppUnit::TestFixture
-{
+class CStopWatchTest : public CppUnit::TestFixture {
     public:
         void testStopWatch(void);
 

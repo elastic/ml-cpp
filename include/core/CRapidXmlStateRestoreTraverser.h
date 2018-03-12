@@ -20,10 +20,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -44,8 +42,7 @@ namespace core
 //! Does NOT support CDATA in state XML - any CDATA content is
 //! currently ignored.
 //!
-class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser
-{
+class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser {
     public:
         CRapidXmlStateRestoreTraverser(const CRapidXmlParser &parser);
 

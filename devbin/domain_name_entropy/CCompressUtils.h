@@ -23,10 +23,8 @@
 
 #include <core/CNonCopyable.h>
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
 //! \brief
 //! Shrink wrap zlib calls.
@@ -36,15 +34,14 @@ namespace domain_name_entropy
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Implementation based on http://www.zlib.net/zpipe.c
-//! 
+//!
 //! Data can be added incrementally and this 'finished' to
 //! complete compression.
 //!
 //! This object retains in memory the entire compressed state
 //! so it not good for file read/write.
 //!
-class CCompressUtils : private core::CNonCopyable
-{
+class CCompressUtils : private core::CNonCopyable {
     public:
         CCompressUtils(void);
         ~CCompressUtils(void);
@@ -67,8 +64,7 @@ class CCompressUtils : private core::CNonCopyable
         bool compressedStringLength(bool finish, size_t &length);
 
     private:
-        enum EState
-        {
+        enum EState {
             E_Uninitialized,
             E_Compressing,
             E_Uncompressing,

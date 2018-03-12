@@ -31,8 +31,7 @@
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CMockDataAdder : public ml::core::CDataAdder
-{
+class CMockDataAdder : public ml::core::CDataAdder {
     public:
         typedef std::vector<std::string> TStrVec;
         typedef std::map<std::string, TStrVec> TStrStrVecMap;
