@@ -54,15 +54,16 @@ using TOptionalChangeDescription = CUnivariateTimeSeriesChangeDetector::TOptiona
 const std::string MINIMUM_TIME_TO_DETECT{"a"};
 const std::string MAXIMUM_TIME_TO_DETECT{"b"};
 const std::string MINIMUM_DELTA_BIC_TO_DETECT{"c"};
-const std::string SAMPLE_COUNT_TAG{"d"};
-const std::string CURRENT_EVIDENCE_OF_CHANGE{"e"};
-const std::string MIN_TIME_TAG{"f"};
-const std::string MAX_TIME_TAG{"g"};
-const std::string CHANGE_MODEL_TAG{"h"};
-const std::string LOG_LIKELIHOOD_TAG{"i"};
-const std::string SHIFT_TAG{"j"};
-const std::string TREND_MODEL_TAG{"k"};
-const std::string RESIDUAL_MODEL_TAG{"l"};
+const std::string RESIDUAL_MODEL_MODE_TAG{"d"};
+const std::string SAMPLE_COUNT_TAG{"e"};
+const std::string CURRENT_EVIDENCE_OF_CHANGE{"f"};
+const std::string MIN_TIME_TAG{"g"};
+const std::string MAX_TIME_TAG{"h"};
+const std::string CHANGE_MODEL_TAG{"i"};
+const std::string LOG_LIKELIHOOD_TAG{"j"};
+const std::string SHIFT_TAG{"k"};
+const std::string TREND_MODEL_TAG{"l"};
+const std::string RESIDUAL_MODEL_TAG{"m"};
 }
 
 SChangeDescription::SChangeDescription(EDescription description,
@@ -137,8 +138,11 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
     inserter.insertValue(CURRENT_EVIDENCE_OF_CHANGE, m_CurrentEvidenceOfChange,
                                                      core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
-    inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
+    if (m_TimeRange.initialized())
+    {
+        inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
+        inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
+    }
     for (const auto &model : m_ChangeModels)
     {
         inserter.insertLevel(CHANGE_MODEL_TAG,
@@ -218,8 +222,12 @@ std::size_t CUnivariateTimeSeriesChangeDetector::memoryUsage() const
 
 uint64_t CUnivariateTimeSeriesChangeDetector::checksum(uint64_t seed) const
 {
+    seed = CChecksum::calculate(seed, m_MinimumTimeToDetect);
+    seed = CChecksum::calculate(seed, m_MaximumTimeToDetect);
+    seed = CChecksum::calculate(seed, m_MinimumDeltaBicToDetect);
     seed = CChecksum::calculate(seed, m_TimeRange);
     seed = CChecksum::calculate(seed, m_SampleCount);
+    seed = CChecksum::calculate(seed, m_CurrentEvidenceOfChange);
     return CChecksum::calculate(seed, m_ChangeModels);
 }
 
@@ -371,6 +379,7 @@ uint64_t CUnivariateNoChangeModel::checksum(uint64_t seed) const
 CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const TDecompositionPtr &trendModel,
                                                        const TPriorPtr &residualModel) :
         CUnivariateChangeModel{trendModel, TPriorPtr{residualModel->clone()}},
+        m_ResidualModelMode{residualModel->marginalLikelihoodMode()},
         m_SampleCount{0.0}
 {}
 
@@ -385,6 +394,7 @@ bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParam
                                core::CStringUtils::stringToType(traverser.value(), logLikelihood),
                                this->addLogLikelihood(logLikelihood))
         RESTORE(SHIFT_TAG, m_Shift.fromDelimited(traverser.value()))
+        RESTORE_BUILT_IN(RESIDUAL_MODEL_MODE_TAG, m_ResidualModelMode)
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
         RESTORE(RESIDUAL_MODEL_TAG, this->restoreResidualModel(params.s_DistributionParams, traverser))
     }
@@ -427,7 +437,7 @@ void CUnivariateLevelShiftModel::addSamples(std::size_t count,
 
     for (const auto &sample : samples_)
     {
-        double x{trendModel.detrend(sample.first, sample.second, 0.0)};
+        double x{trendModel.detrend(sample.first, sample.second, 0.0) - m_ResidualModelMode};
         m_Shift.add(x);
     }
 

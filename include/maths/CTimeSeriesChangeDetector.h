@@ -324,7 +324,10 @@ class MATHS_EXPORT CUnivariateLevelShiftModel final : public CUnivariateChangeMo
         //! The optimal shift.
         TMeanAccumulator m_Shift;
 
-        //! Get the number of samples.
+        //! The mode of the initial residual distribution model.
+        double m_ResidualModelMode;
+
+        //! The number of samples added so far.
         double m_SampleCount;
 };
 
