@@ -1,0 +1,8 @@
+indent=spaces=4                 # indent using 4 spaces per indent (default)
+style=java                      # brackets attached in all cases (Java style)
+indent-classes                  # classes are indented
+indent-switches                 # as are switches
+keep-one-line-blocks            # don't break one-line blocks
+max-continuation-indent=100     # indent a max number of 100 spaces in a continuation line
+min-conditional-indent=0        # no minimal indent for continuation of conditionals
+suffix=none                     # don't keep file backups

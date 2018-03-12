@@ -16,23 +16,11 @@
 
 # Reformats Ml native code (*.cc, *.h files) to ensure a consistent style
 
-# Ensure astyle is available
+. `dirname $0`/astyle_utils.sh
 
-which astyle > /dev/null 2>&1
+export ARTISTIC_STYLE_OPTIONS=$CPP_SRC_HOME/.astyle_options
 
-if [ $? != 0 ] ; then
-    echo "ERROR: The astyle code formatter is not available. Exiting."
-    exit 1;
-fi
-
-# run astyle with the following options:
-# A2: Java style (attached) braces
-# C: indent classes
-# S: indent switches
-# O: keep one-line blocks intact
-# M100: Set the maximum number of spaces to indent continuation lines to be 100
-# r "*.cc,*.h": Operate on *.cc and *.h files recursively...
-# --exclude=3rd_party: but ignore files under the 3rd_party directory
-# n: Do not make any backups of the original files.
-# Note: The default indentation level is 4 spaces & the default continuation indent is 1 level
-astyle -A2 -C -S -O -M100 -r "*.cc,*.h" --exclude=3rd_party -n
+# astyle does have some limitations, particularly around where it decides to align continuation lines
+# To alleviate some of the issues we first run a perl script to ensure that the boolean operators || and &&
+# always appear at the end of a line, never the beginning.
+find $CPP_SRC_HOME -name 3rd_party -prune -o \( -name \*.cc -o -name \*.h \) -exec bash -c "format_in_place $0" {} \;

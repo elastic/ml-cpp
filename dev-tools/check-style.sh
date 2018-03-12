@@ -14,16 +14,19 @@
 # strictly prohibited.
 #
 
+. `dirname $0`/astyle_utils.sh
 
 infiles=`git diff --name-only --diff-filter=ACMRT | grep -v "3rd_party" | grep -E "\.(cc|h)$"`
 
-ASTYLE_OPTIONS="-A2 -C -S -O -M100"
+unset ARTISTIC_STYLE_PROJECT_OPTIONS
+export ARTISTIC_STYLE_OPTIONS=$CPP_SRC_HOME/.astyle_options
+
 astyle_files=()
 
 for file in ${infiles}; do
   fqfile=`git rev-parse --show-toplevel`/${file}
   echo "Checking: ${file}"
-  if ! cmp -s ${fqfile} <(astyle $ASTYLE_OPTIONS  < ${fqfile}); then
+  if ! cmp -s ${fqfile} <(format ${fqfile}); then
     astyle_files+=("${file}")
   fi
 done
