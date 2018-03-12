@@ -14,7 +14,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM droberts195/ml-linux-build:2
+FROM droberts195/ml-linux-build:3
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
