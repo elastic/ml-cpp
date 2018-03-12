@@ -267,6 +267,9 @@ void CUnivariateNoChangeModel::addSamples(std::size_t count,
         samples.push_back(this->trendModel().detrend(sample.first, sample.second, 0.0));
     }
 
+    // See CUnivariateTimeSeriesLevelShiftModel for an explanation
+    // of the delay updating the log-likelihood.
+
     double logLikelihood;
     if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
                           weightStyles, samples, weights,
@@ -375,7 +378,9 @@ void CUnivariateTimeSeriesLevelShiftModel::addSamples(std::size_t count,
 
     // We delay updating the log-likelihood because early on the
     // level can change giving us a better apparent fit to the
-    // data than a fixed step.
+    // data than a fixed step. Five updates was found to be the
+    // minimum to get empirically similar sum log-likelihood if
+    // there is no shift in the data.
 
     double logLikelihood;
     if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
@@ -471,6 +476,9 @@ void CUnivariateTimeSeriesTimeShiftModel::addSamples(std::size_t count,
     m_ResidualModel->dataType(dataType);
     m_ResidualModel->addSamples(weightStyles, samples, weights);
     m_ResidualModel->propagateForwardsByTime(propagationInterval);
+
+    // See CUnivariateTimeSeriesLevelShiftModel for an explanation
+    // of the delay updating the log-likelihood.
 
     double logLikelihood;
     if (count >= 5 && m_ResidualModel->jointLogMarginalLikelihood(
