@@ -22,13 +22,10 @@
 #include <cppunit/tools/XmlElement.h>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
-namespace
-{
+namespace {
 
 const std::string NAME_TAG("Name");
 const std::string TEST_PATH_TAG("TestPath");
@@ -44,17 +41,14 @@ CTimingXmlOutputterHook::CTimingXmlOutputterHook(const CTestTimer &testTimer,
                                                  const std::string &testPath)
     : m_TestTimer(testTimer),
       m_TopPath(topPath),
-      m_TestPath(testPath)
-{
+      m_TestPath(testPath) {
 }
 
 void CTimingXmlOutputterHook::failTestAdded(CppUnit::XmlDocument * /*document*/,
                                             CppUnit::XmlElement *testElement,
                                             CppUnit::Test *test,
-                                            CppUnit::TestFailure * /*failure*/)
-{
-    if (testElement == 0 || test == 0)
-    {
+                                            CppUnit::TestFailure * /*failure*/) {
+    if (testElement == 0 || test == 0) {
         return;
     }
 
@@ -66,10 +60,8 @@ void CTimingXmlOutputterHook::failTestAdded(CppUnit::XmlDocument * /*document*/,
 
 void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument * /*document*/,
                                                   CppUnit::XmlElement *testElement,
-                                                  CppUnit::Test *test)
-{
-    if (testElement == 0 || test == 0)
-    {
+                                                  CppUnit::Test *test) {
+    if (testElement == 0 || test == 0) {
         return;
     }
 
@@ -89,10 +81,8 @@ void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument * /*docum
 }
 
 void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument * /*document*/,
-                                              CppUnit::XmlElement *statisticsElement)
-{
-    if (statisticsElement == 0)
-    {
+                                              CppUnit::XmlElement *statisticsElement) {
+    if (statisticsElement == 0) {
         return;
     }
 
@@ -106,16 +96,12 @@ void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument * /*document*
     );
 }
 
-std::string CTimingXmlOutputterHook::toSecondsStr(uint64_t ms)
-{
+std::string CTimingXmlOutputterHook::toSecondsStr(uint64_t ms) {
     std::string result(core::CStringUtils::typeToString(ms));
 
-    if (result.length() < 4)
-    {
+    if (result.length() < 4) {
         result.insert(0, "0.000", 5 - result.length());
-    }
-    else
-    {
+    } else {
         result.insert(result.length() - 3, 1, '.');
     }
 

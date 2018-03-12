@@ -24,10 +24,8 @@
 #include <iosfwd>
 #include <ostream>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -46,8 +44,7 @@ namespace core
 //! have attributes).  This may complicate code that needs to be 100%
 //! JSON/XML agnostic.
 //!
-class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter
-{
+class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
     public:
         //! Root node has no attributes
         CJsonStatePersistInserter(std::ostream &outputStream);

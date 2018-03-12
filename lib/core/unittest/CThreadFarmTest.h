@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CThreadFarmTest : public CppUnit::TestFixture
-{
+class CThreadFarmTest : public CppUnit::TestFixture {
     public:
         void testNumCpus(void);
         void testSendReceive(void);

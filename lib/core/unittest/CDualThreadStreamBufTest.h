@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CDualThreadStreamBufTest : public CppUnit::TestFixture
-{
+class CDualThreadStreamBufTest : public CppUnit::TestFixture {
     public:
         void testThroughput(void);
         void testSlowConsumer(void);

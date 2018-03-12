@@ -25,15 +25,12 @@
 
 #include <iosfwd>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Computes the joint probability of seeing a more extreme
 //! collection of samples.
@@ -55,18 +52,16 @@ namespace maths
 //! probability of a collection of samples which are sampled where
 //! each sample only appears with some specified frequency. The weights
 //! must be non-negative.
-class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable<CJointProbabilityOfLessLikelySamples>
-{
+class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable<CJointProbabilityOfLessLikelySamples> {
     public:
         typedef boost::optional<double> TOptionalDouble;
 
         //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
-        struct SAddProbability
-        {
+        struct SAddProbability {
             CJointProbabilityOfLessLikelySamples &
-                operator()(CJointProbabilityOfLessLikelySamples &jointProbability,
-                           double probability,
-                           double weight = 1.0) const;
+            operator()(CJointProbabilityOfLessLikelySamples &jointProbability,
+                       double probability,
+                       double weight = 1.0) const;
         };
 
     public:
@@ -80,7 +75,7 @@ class MATHS_EXPORT CJointProbabilityOfLessLikelySamples : private boost::addable
 
         //! Combine two joint probability calculators.
         const CJointProbabilityOfLessLikelySamples &
-            operator+=(const CJointProbabilityOfLessLikelySamples &other);
+        operator+=(const CJointProbabilityOfLessLikelySamples &other);
 
         //! Add \p probability.
         void add(double probability, double weight = 1.0);
@@ -145,14 +140,13 @@ std::ostream &operator<<(std::ostream &o,
 //! For example, two probabilities should be treated as equal if the
 //! intervals defined by their upper and lower bounds intersect.
 class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples : protected CJointProbabilityOfLessLikelySamples,
-                                                             private boost::addable<CLogJointProbabilityOfLessLikelySamples>
-{
+    private boost::addable<CLogJointProbabilityOfLessLikelySamples> {
     public:
         CLogJointProbabilityOfLessLikelySamples(void);
 
         //! Combine two log joint probability calculators.
         const CLogJointProbabilityOfLessLikelySamples &
-            operator+=(const CLogJointProbabilityOfLessLikelySamples &other);
+        operator+=(const CLogJointProbabilityOfLessLikelySamples &other);
 
         //! Add \p probability.
         void add(double probability, double weight = 1.0);
@@ -203,8 +197,7 @@ class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples : protected CJointPro
 //! </pre>
 //!
 //! where we have used the fact that \f$(1 - F(x)) = p / 2\f$.
-class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabilityOfExtremeSample>
-{
+class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabilityOfExtremeSample> {
     public:
         CProbabilityOfExtremeSample(void);
 
@@ -216,7 +209,7 @@ class MATHS_EXPORT CProbabilityOfExtremeSample : private boost::addable<CProbabi
 
         //! Combine two extreme probability calculators.
         const CProbabilityOfExtremeSample &
-            operator+=(const CProbabilityOfExtremeSample &other);
+        operator+=(const CProbabilityOfExtremeSample &other);
 
         //! Add \p probability.
         bool add(double probability, double weight = 1.0);
@@ -290,8 +283,7 @@ std::ostream &operator<<(std::ostream &o,
 //! The integral representing \f$P(R)\f$ can be evaluated in order \f$M^2\f$
 //! as a polynomial in the individual probabilities \f$\{p_1, ..., p_M\}\f$
 //! with recurrence relations used to compute the coefficients.
-class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addable<CLogProbabilityOfMFromNExtremeSamples>
-{
+class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addable<CLogProbabilityOfMFromNExtremeSamples> {
     public:
         CLogProbabilityOfMFromNExtremeSamples(std::size_t m);
 
@@ -303,7 +295,7 @@ class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples : private boost::addabl
 
         //! Combine two extreme probability calculators.
         const CLogProbabilityOfMFromNExtremeSamples &
-            operator+=(const CLogProbabilityOfMFromNExtremeSamples &other);
+        operator+=(const CLogProbabilityOfMFromNExtremeSamples &other);
 
         //! Add \p probability.
         void add(double probability);

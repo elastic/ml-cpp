@@ -24,8 +24,7 @@
 #include <vector>
 
 
-class CMapPopulationTest : public CppUnit::TestFixture
-{
+class CMapPopulationTest : public CppUnit::TestFixture {
     public:
         CMapPopulationTest(void);
 
@@ -47,8 +46,7 @@ class CMapPopulationTest : public CppUnit::TestFixture
         void setUp(void);
 
     private:
-        class CTestData
-        {
+        class CTestData {
             public:
                 typedef std::vector<std::string>  TStrVec;
                 typedef std::vector<const char *> TCharPVec;

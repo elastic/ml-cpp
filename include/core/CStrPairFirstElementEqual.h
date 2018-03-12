@@ -21,10 +21,8 @@
 #include <utility>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -40,12 +38,10 @@ namespace core
 //! element of both pairs must be either a std::string, or convertible to a
 //! const std::string & (e.g. a boost::reference_wrapper<const std::string &>).
 //!
-class CORE_EXPORT CStrPairFirstElementEqual
-{
+class CORE_EXPORT CStrPairFirstElementEqual {
     public:
         template <typename PAIR1, typename PAIR2>
-        bool operator()(const PAIR1 &pr1, const PAIR2 &pr2)
-        {
+        bool operator()(const PAIR1 &pr1, const PAIR2 &pr2) {
             const std::string &pr1first = pr1.first;
             const std::string &pr2first = pr2.first;
 

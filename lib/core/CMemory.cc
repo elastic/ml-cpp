@@ -15,10 +15,8 @@
 #include <core/CMemory.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 const std::string CMemory::EMPTY_STRING;
 CMemory::CAnyVisitor CMemory::ms_AnyVisitor = CMemory::CAnyVisitor();

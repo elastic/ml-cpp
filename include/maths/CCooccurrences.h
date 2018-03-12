@@ -26,22 +26,18 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CMemory;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Computes various measures for the co-occurrence of events,
 //! as encoded by an indicator variable, and finds events with significantly
 //! evidence that they are co-occuring.
 //!
 //! DESCRIPTION:\n
-class MATHS_EXPORT CCooccurrences
-{
+class MATHS_EXPORT CCooccurrences {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef std::vector<std::size_t> TSizeVec;

@@ -15,10 +15,8 @@
 #include <core/CStrPTime.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 char *CStrPTime::strPTime(const char *buf,

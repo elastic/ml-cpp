@@ -20,21 +20,17 @@
 #include <sstream>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream &strmIn,
                                                      bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
-      m_AllDocsSameStructure(allDocsSameStructure)
-{
+      m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
-bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc)
-{
+bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
     TStrVec &fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
@@ -45,39 +41,31 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc)
     TStrStrUMap recordFields;
 
     char *begin(this->parseLine().first);
-    while (begin != 0)
-    {
+    while (begin != 0) {
         rapidjson::Document document;
-        if (this->parseDocument(begin, document) == false)
-        {
+        if (this->parseDocument(begin, document) == false) {
             LOG_ERROR("Failed to parse JSON document");
             return false;
         }
 
-        if (m_AllDocsSameStructure)
-        {
+        if (m_AllDocsSameStructure) {
             if (this->decodeDocumentWithCommonFields(document,
                                                      fieldNames,
                                                      fieldValRefs,
-                                                     recordFields) == false)
-            {
+                                                     recordFields) == false) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
-        }
-        else
-        {
+        } else {
             if (this->decodeDocumentWithArbitraryFields(document,
                                                         fieldNames,
-                                                        recordFields) == false)
-            {
+                                                        recordFields) == false) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
         }
 
-        if (readerFunc(recordFields) == false)
-        {
+        if (readerFunc(recordFields) == false) {
             LOG_ERROR("Record handler function forced exit");
             return false;
         }
@@ -89,17 +77,14 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc)
 }
 
 bool CLineifiedJsonInputParser::parseDocument(char *begin,
-                                              rapidjson::Document &document)
-{
+                                              rapidjson::Document &document) {
     // Parse JSON string using Rapidjson
-    if (document.ParseInsitu<rapidjson::kParseStopWhenDoneFlag>(begin).HasParseError())
-    {
+    if (document.ParseInsitu<rapidjson::kParseStopWhenDoneFlag>(begin).HasParseError()) {
         LOG_ERROR("JSON parse error: " << document.GetParseError());
         return false;
     }
 
-    if (!document.IsObject())
-    {
+    if (!document.IsObject()) {
         LOG_ERROR("Top level of JSON document must be an object: " << document.GetType());
         return false;
     }
@@ -110,15 +95,12 @@ bool CLineifiedJsonInputParser::parseDocument(char *begin,
 bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Document &document,
                                                                TStrVec &fieldNames,
                                                                TStrRefVec &fieldValRefs,
-                                                               TStrStrUMap &recordFields)
-{
-    if (fieldValRefs.empty())
-    {
+                                                               TStrStrUMap &recordFields) {
+    if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         if (this->decodeDocumentWithArbitraryFields(document,
                                                     fieldNames,
-                                                    recordFields) == false)
-        {
+                                                    recordFields) == false) {
             return false;
         }
 
@@ -126,9 +108,8 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
         // name for next time
         fieldValRefs.reserve(fieldNames.size());
         for (TStrVecCItr iter = fieldNames.begin();
-             iter != fieldNames.end();
-             ++iter)
-        {
+                iter != fieldNames.end();
+                ++iter) {
             fieldValRefs.push_back(boost::ref(recordFields[*iter]));
         }
 
@@ -137,17 +118,14 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
 
     TStrRefVecItr refIter = fieldValRefs.begin();
     for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-         iter != document.MemberEnd();
-         ++iter, ++refIter)
-    {
-        if (refIter == fieldValRefs.end())
-        {
+            iter != document.MemberEnd();
+            ++iter, ++refIter) {
+        if (refIter == fieldValRefs.end()) {
             LOG_ERROR("More fields than field references");
             return false;
         }
 
-        switch (iter->value.GetType())
-        {
+        switch (iter->value.GetType()) {
             case rapidjson::kNullType:
                 refIter->get().clear();
                 break;
@@ -177,22 +155,19 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
 
 bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Document &document,
                                                                   TStrVec &fieldNames,
-                                                                  TStrStrUMap &recordFields)
-{
+                                                                  TStrStrUMap &recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();
     recordFields.clear();
 
     for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-         iter != document.MemberEnd();
-         ++iter)
-    {
+            iter != document.MemberEnd();
+            ++iter) {
         fieldNames.push_back(std::string(iter->name.GetString(),
                                          iter->name.GetStringLength()));
 
-        switch (iter->value.GetType())
-        {
+        switch (iter->value.GetType()) {
             case rapidjson::kNullType:
                 recordFields[fieldNames.back()];
                 break;

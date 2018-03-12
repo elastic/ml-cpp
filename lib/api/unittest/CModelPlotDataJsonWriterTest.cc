@@ -24,19 +24,17 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
-CppUnit::Test* CModelPlotDataJsonWriterTest::suite()
-{
+CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>(
-                                   "CModelPlotDataJsonWriterTest::testWriteFlat",
-                                   &CModelPlotDataJsonWriterTest::testWriteFlat) );
+                               "CModelPlotDataJsonWriterTest::testWriteFlat",
+                               &CModelPlotDataJsonWriterTest::testWriteFlat) );
 
     return suiteOfTests;
 }
 
-void CModelPlotDataJsonWriterTest::testWriteFlat(void)
-{
+void CModelPlotDataJsonWriterTest::testWriteFlat(void) {
     std::ostringstream sstream;
 
     {
@@ -59,7 +57,7 @@ void CModelPlotDataJsonWriterTest::testWriteFlat(void)
     CPPUNIT_ASSERT_EQUAL(std::string("job-id"), std::string(modelPlot["job_id"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("model_feature"));
     CPPUNIT_ASSERT_EQUAL(std::string("'count per bucket by person'"),
-        std::string(modelPlot["model_feature"].GetString()));
+                         std::string(modelPlot["model_feature"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
     CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_name"));

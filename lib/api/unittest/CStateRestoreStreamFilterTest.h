@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CStateRestoreStreamFilterTest : public CppUnit::TestFixture
-{
+class CStateRestoreStreamFilterTest : public CppUnit::TestFixture {
     public:
         void testBulkIndexHeaderRemoval();
         void testBulkIndexHeaderRemovalZerobyte();

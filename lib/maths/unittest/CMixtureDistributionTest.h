@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMixtureDistributionTest : public CppUnit::TestFixture
-{
+class CMixtureDistributionTest : public CppUnit::TestFixture {
     public:
         void testSupport(void);
         void testMode(void);

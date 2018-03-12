@@ -28,22 +28,18 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesCorrelations;
 
 //! \brief Data describing a prediction error bar.
-struct MATHS_EXPORT SErrorBar
-{
+struct MATHS_EXPORT SErrorBar {
     core_t::TTime s_Time;
     core_t::TTime s_BucketLength;
     double s_LowerBound;
@@ -54,8 +50,7 @@ struct MATHS_EXPORT SErrorBar
 using TForecastPushDatapointFunc = std::function<void (SErrorBar)>;
 
 //! \brief Model parameters.
-class MATHS_EXPORT CModelParams
-{
+class MATHS_EXPORT CModelParams {
     public:
         CModelParams(core_t::TTime bucketLength,
                      const double &learnRate,
@@ -97,8 +92,7 @@ class MATHS_EXPORT CModelParams
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.
-class MATHS_EXPORT CModelAddSamplesParams
-{
+class MATHS_EXPORT CModelAddSamplesParams {
     public:
         using TDouble2Vec = core::CSmallVector<double, 2>;
         using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
@@ -155,8 +149,7 @@ class MATHS_EXPORT CModelAddSamplesParams
 };
 
 //! \brief The extra parameters needed by CModel::probability.
-class MATHS_EXPORT CModelProbabilityParams
-{
+class MATHS_EXPORT CModelProbabilityParams {
     public:
         using TOptionalSize = boost::optional<std::size_t>;
         using TBool2Vec = core::CSmallVector<bool, 2>;
@@ -258,8 +251,7 @@ class MATHS_EXPORT CModelProbabilityParams
 //!
 //! Specific implementations exist for different types of object. For example,
 //! for univariate and multivariate time series.
-class MATHS_EXPORT CModel
-{
+class MATHS_EXPORT CModel {
     public:
         using TBool2Vec = core::CSmallVector<bool, 2>;
         using TDouble2Vec = core::CSmallVector<double, 2>;
@@ -280,8 +272,7 @@ class MATHS_EXPORT CModel
         using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 
         //! Possible statuses for updating a model.
-        enum EUpdateResult
-        {
+        enum EUpdateResult {
             E_Failure, //!< Update failed.
             E_Success, //!< Update succeeded.
             E_Reset    //!< Model reset.
@@ -454,8 +445,7 @@ class MATHS_EXPORT CModel
 };
 
 //! A stateless lightweight model which stubs the interface.
-class MATHS_EXPORT CModelStub : public CModel
-{
+class MATHS_EXPORT CModelStub : public CModel {
     public:
         CModelStub(void);
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMemoryUsageTest : public CppUnit::TestFixture
-{
+class CMemoryUsageTest : public CppUnit::TestFixture {
     public:
         void testUsage(void);
         void testDebug(void);

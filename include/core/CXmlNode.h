@@ -26,10 +26,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlNodeWithChildrenPool;
 class CXmlParser;
 
@@ -47,8 +45,7 @@ class CXmlParser;
 //! The XML parser is a friend so that it can efficiently
 //! populate attributes with minimal copying of data
 //!
-class CORE_EXPORT CXmlNode
-{
+class CORE_EXPORT CXmlNode {
     public:
         typedef std::map<std::string, std::string>  TStrStrMap;
         typedef std::pair<std::string, std::string> TStrStrPr;
@@ -57,17 +54,14 @@ class CORE_EXPORT CXmlNode
         typedef TStrStrPrVec::const_iterator        TStrStrPrVecCItr;
 
     private:
-        class CFirstElementEquals
-        {
+        class CFirstElementEquals {
             public:
                 CFirstElementEquals(const std::string &str)
-                    : m_Str(str)
-                {
+                    : m_Str(str) {
                 }
 
                 template <typename PAIR>
-                bool operator()(const PAIR &pr)
-                {
+                bool operator()(const PAIR &pr) {
                     const std::string &prFirst = pr.first;
                     return prFirst == m_Str;
                 }
@@ -108,18 +102,15 @@ class CORE_EXPORT CXmlNode
         //! type
         template <typename TYPE>
         bool attribute(const std::string &name,
-                       TYPE &value) const
-        {
+                       TYPE &value) const {
             TStrStrPrVecCItr iter = std::find_if(m_Attributes.begin(),
                                                  m_Attributes.end(),
                                                  CFirstElementEquals(name));
-            if (iter == m_Attributes.end())
-            {
+            if (iter == m_Attributes.end()) {
                 return false;
             }
 
-            if (CStringUtils::stringToType(iter->second, value) == false)
-            {
+            if (CStringUtils::stringToType(iter->second, value) == false) {
                 LOG_ERROR("Unable to convert " << iter->second);
                 return false;
             }
@@ -133,20 +124,17 @@ class CORE_EXPORT CXmlNode
         template <typename TYPE>
         bool attribute(const std::string &name,
                        const TYPE &value,
-                       bool overwrite)
-        {
+                       bool overwrite) {
             TStrStrPrVecItr iter = std::find_if(m_Attributes.begin(),
                                                 m_Attributes.end(),
                                                 CFirstElementEquals(name));
-            if (iter == m_Attributes.end())
-            {
+            if (iter == m_Attributes.end()) {
                 m_Attributes.push_back(TStrStrPr(name,
                                                  CStringUtils::typeToString(value)));
                 return true;
             }
 
-            if (!overwrite)
-            {
+            if (!overwrite) {
                 return false;
             }
 
@@ -160,9 +148,9 @@ class CORE_EXPORT CXmlNode
         std::string  m_Value;
         TStrStrPrVec m_Attributes;
 
-    friend class CRapidXmlParser;
-    friend class CXmlNodeWithChildrenPool;
-    friend class CXmlParser;
+        friend class CRapidXmlParser;
+        friend class CXmlNodeWithChildrenPool;
+        friend class CXmlParser;
 };
 
 

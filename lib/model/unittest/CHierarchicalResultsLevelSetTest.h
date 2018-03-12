@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture
-{
+class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture {
     public:
         void testElementsWithPerPartitionNormalisation(void);
 

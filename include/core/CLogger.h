@@ -28,10 +28,8 @@
 
 class CLoggerTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -74,12 +72,10 @@ namespace core
 //! product, but can be useful when a unit test needs to log more
 //! detailed information.
 //!
-class CORE_EXPORT CLogger : private CNonCopyable
-{
+class CORE_EXPORT CLogger : private CNonCopyable {
     public:
         //! Used to set the level we should log at
-        enum ELevel
-        {
+        enum ELevel {
             E_Fatal,
             E_Error,
             E_Warn,

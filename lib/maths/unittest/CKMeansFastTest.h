@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMeansFastTest : public CppUnit::TestFixture
-{
+class CKMeansFastTest : public CppUnit::TestFixture {
     public:
         void testDataPropagation(void);
         void testFilter(void);

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSamplingTest : public CppUnit::TestFixture
-{
+class CSamplingTest : public CppUnit::TestFixture {
     public:
         void testMultinomialSample(void);
         void testMultivariateNormalSample(void);

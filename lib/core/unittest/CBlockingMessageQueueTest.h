@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CBlockingMessageQueueTest : public CppUnit::TestFixture
-{
+class CBlockingMessageQueueTest : public CppUnit::TestFixture {
     public:
         void testSendReceive(void);
 

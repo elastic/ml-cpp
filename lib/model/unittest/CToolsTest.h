@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CToolsTest : public CppUnit::TestFixture
-{
+class CToolsTest : public CppUnit::TestFixture {
     public:
         void testDataGatherers(void);
         void testProbabilityAggregator(void);

@@ -24,10 +24,8 @@
 #include <streambuf>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A stream buffer where reads and writes are processed in different threads.
@@ -68,8 +66,7 @@ namespace core
 //! std::streambuf:
 //! http://www.cplusplus.com/reference/streambuf/streambuf/
 //!
-class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf
-{
+class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf {
     public:
         //! By default, the three buffers will initially have this size.  They
         //! may potentially grow if characters are put back into them.

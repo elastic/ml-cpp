@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLimitsTest : public CppUnit::TestFixture
-{
+class CLimitsTest : public CppUnit::TestFixture {
     public:
         void testTrivial(void);
         void testValid(void);

@@ -33,11 +33,9 @@
 #include <stdint.h>
 
 
-namespace ml
-{
+namespace ml {
 
-namespace core
-{
+namespace core {
 //! \brief
 //! Convert a stream of bytes into Base64.
 //!
@@ -57,8 +55,7 @@ namespace core
 //! overly slow.
 //! Based on: https://github.com/UeSyu/base64_filter
 //!
-class CORE_EXPORT CBase64Encoder
-{
+class CORE_EXPORT CBase64Encoder {
     public:
         typedef boost::circular_buffer<uint8_t> TUInt8Buf;
         typedef TUInt8Buf::iterator TUInt8BufItr;
@@ -68,10 +65,10 @@ class CORE_EXPORT CBase64Encoder
 
         //! Tell boost::iostreams what this filter is capable of
         struct category :
-                        public boost::iostreams::output,
-                        public boost::iostreams::filter_tag,
-                        public boost::iostreams::multichar_tag,
-                        public boost::iostreams::closable_tag
+            public boost::iostreams::output,
+            public boost::iostreams::filter_tag,
+            public boost::iostreams::multichar_tag,
+            public boost::iostreams::closable_tag
         {};
 
     public:
@@ -87,12 +84,10 @@ class CORE_EXPORT CBase64Encoder
         //! here how many bytes were actually written to the stream, only how many
         //! we actually consumed from s.
         template<typename SINK>
-        std::streamsize write(SINK &snk, const char_type *s, std::streamsize n)
-        {
+        std::streamsize write(SINK &snk, const char_type *s, std::streamsize n) {
             // copy into the buffer while there is data to read and space in the buffer
             std::streamsize done = 0;
-            while (done < n)
-            {
+            while (done < n) {
                 std::streamsize toCopy = std::min(std::streamsize(n - done),
                                                   std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
                 m_Buffer.insert(m_Buffer.end(), s + done, s + done + toCopy);
@@ -106,8 +101,7 @@ class CORE_EXPORT CBase64Encoder
         //! Interface method for terminating this filter class - flush
         //! any remaining bytes and pad the output if necessary.
         template<typename SINK>
-        void close(SINK &snk)
-        {
+        void close(SINK &snk) {
             this->Encode(snk, true);
         }
 
@@ -115,18 +109,15 @@ class CORE_EXPORT CBase64Encoder
         //! Do the actual work of encoding the data - take a chunck of buffered data and write
         //! the converted output into the stream snk
         template<typename SINK>
-        void Encode(SINK &snk, bool isFinal)
-        {
+        void Encode(SINK &snk, bool isFinal) {
             typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8> TUInt8BufCItrTransformItr;
             typedef boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr> TBase64Text;
 
             TUInt8BufItr endItr = m_Buffer.end();
             // Base64 turns 3 bytes into 4 characters - unless this is the final part
             // of the string, we don't encode non-multiples of 3
-            if (isFinal == false)
-            {
-                for (std::size_t i = (m_Buffer.size() % 3); i != 0; i--)
-                {
+            if (isFinal == false) {
+                for (std::size_t i = (m_Buffer.size() % 3); i != 0; i--) {
                     --endItr;
                 }
             }
@@ -138,11 +129,9 @@ class CORE_EXPORT CBase64Encoder
             m_Buffer.erase(m_Buffer.begin(), endItr);
 
             // Pad the final string if necessary
-            if (isFinal && !e.empty())
-            {
+            if (isFinal && !e.empty()) {
                 std::size_t paddingCount = 4 - e.length() % 4;
-                for (std::size_t  i = 0; i < paddingCount; i++)
-                {
+                for (std::size_t  i = 0; i < paddingCount; i++) {
                     e += '=';
                 }
             }
@@ -176,8 +165,7 @@ class CORE_EXPORT CBase64Encoder
 //! overly slow.
 //! Based on: https://github.com/UeSyu/base64_filter
 //!
-class CORE_EXPORT CBase64Decoder
-{
+class CORE_EXPORT CBase64Decoder {
     public:
         typedef boost::circular_buffer<uint8_t> TUInt8Buf;
         typedef TUInt8Buf::iterator TUInt8BufItr;
@@ -187,10 +175,10 @@ class CORE_EXPORT CBase64Decoder
 
         //! Tell boost::iostreams what this filter is capable of
         struct category :
-                        public boost::iostreams::input,
-                        public boost::iostreams::filter_tag,
-                        public boost::iostreams::multichar_tag,
-                        public boost::iostreams::closable_tag
+            public boost::iostreams::input,
+            public boost::iostreams::filter_tag,
+            public boost::iostreams::multichar_tag,
+            public boost::iostreams::closable_tag
         {};
 
     public:
@@ -206,51 +194,40 @@ class CORE_EXPORT CBase64Decoder
         //! written to s. Note that we return the number of bytes written to
         //! s, not the number of input bytes copied from src
         template<typename SOURCE>
-        std::streamsize read(SOURCE &src, char_type *s, std::streamsize n)
-        {
+        std::streamsize read(SOURCE &src, char_type *s, std::streamsize n) {
             // copy into the buffer while there is data to read and space in the buffer
             std::streamsize done = 0;
             char buf[4096];
-            while (done < n)
-            {
+            while (done < n) {
                 std::streamsize toCopy = std::min(std::streamsize(m_BufferOut.size()), std::streamsize(n - done));
                 LOG_TRACE("Trying to copy " << toCopy << " bytes into stream, max " << n << ", available " << m_BufferOut.size());
-                for (std::streamsize i = 0; i < toCopy; i++)
-                {
+                for (std::streamsize i = 0; i < toCopy; i++) {
                     s[done++] = m_BufferOut.front();
                     m_BufferOut.pop_front();
                 }
                 LOG_TRACE("Eos: " << m_Eos << ", In: " << m_BufferIn.empty() << ", Out: " << m_BufferOut.empty());
-                if (done == n)
-                {
+                if (done == n) {
                     break;
                 }
-                if ((done > 0) && m_BufferIn.empty() && m_BufferOut.empty() && m_Eos)
-                {
+                if ((done > 0) && m_BufferIn.empty() && m_BufferOut.empty() && m_Eos) {
                     LOG_TRACE("Base64 READ " << done << ", from n " << n << ", left " << m_BufferOut.size() );
                     return done;
                 }
 
                 // grab some data if we need it
-                if ((m_BufferIn.size() < 4) && (m_Eos == false))
-                {
+                if ((m_BufferIn.size() < 4) && (m_Eos == false)) {
                     std::streamsize readBytes = boost::iostreams::read(src, buf, 4096);
                     LOG_TRACE("Read " << readBytes << " from input stream");
-                    if (readBytes == -1)
-                    {
+                    if (readBytes == -1) {
                         LOG_TRACE("Got EOS from underlying store");
                         m_Eos = true;
-                    }
-                    else
-                    {
-                        for (std::streamsize i = 0; i < readBytes; i++)
-                        {
+                    } else {
+                        for (std::streamsize i = 0; i < readBytes; i++) {
                             // Only copy Base64 characters - JSON punctuation is ignored
                             // The dechunker parses JSON and should give us only base64 strings,
                             // but we don't want to try and decode anything which might cause
                             // the decoder to choke
-                            switch(buf[i])
-                            {
+                            switch(buf[i]) {
                                 case ']':
                                 case '[':
                                 case ',':
@@ -270,8 +247,7 @@ class CORE_EXPORT CBase64Decoder
                     }
                 }
                 this->Decode(m_Eos);
-                if (m_Eos && m_BufferOut.empty() && m_BufferIn.empty() && (done == 0))
-                {
+                if (m_Eos && m_BufferOut.empty() && m_BufferIn.empty() && (done == 0)) {
                     LOG_TRACE("Returning -1 from read");
                     return -1;
                 }
@@ -282,22 +258,19 @@ class CORE_EXPORT CBase64Decoder
 
         //! Interface method - unused
         template<typename SOURCE>
-        void close(SOURCE &/*src*/)
-        {
+        void close(SOURCE &/*src*/) {
         }
 
     private:
 
         //! Perform the conversion from Base64 to raw bytes
-        void Decode(bool isFinal)
-        {
+        void Decode(bool isFinal) {
             // Base64 turns 4 characters into 3 bytes
             typedef boost::archive::iterators::binary_from_base64<TUInt8BufCItr> TUInt8BufCItrBinaryBase64Itr;
             typedef boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t> TBase64Binary;
 
             std::size_t inBytes = m_BufferIn.size();
-            if (inBytes == 0)
-            {
+            if (inBytes == 0) {
                 return;
             }
 
@@ -305,25 +278,19 @@ class CORE_EXPORT CBase64Decoder
             std::size_t paddingBytes = 0;
             // Only try and decode multiples of 4 characters, unless this is the last
             // data in the stream
-            if (isFinal == false)
-            {
-                if (inBytes < 4)
-                {
+            if (isFinal == false) {
+                if (inBytes < 4) {
                     return;
                 }
 
-                for (std::size_t i = 0; i < inBytes % 4; i++)
-                {
+                for (std::size_t i = 0; i < inBytes % 4; i++) {
                     LOG_TRACE("Ignoring end bytes of " << inBytes);
                     --endItr;
                 }
-            }
-            else
-            {
+            } else {
                 // We can only work with 4 or more bytes, so with fewer there is something
                 // wrong, and there can't be a sensible outcome
-                if (inBytes < 4)
-                {
+                if (inBytes < 4) {
                     LOG_ERROR("Invalid size of stream for decoding: " << inBytes);
                     m_BufferIn.clear();
                     return;
@@ -333,8 +300,7 @@ class CORE_EXPORT CBase64Decoder
             // Check for padding characters
             {
                 TUInt8BufCRItr i = m_BufferIn.rbegin();
-                while ((i != m_BufferIn.rend()) && (*i == '='))
-                {
+                while ((i != m_BufferIn.rend()) && (*i == '=')) {
                     ++i;
                     paddingBytes++;
                 }

@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CWordExtractorTest : public CppUnit::TestFixture
-{
+class CWordExtractorTest : public CppUnit::TestFixture {
     public:
         void testWordExtract(void);
         void testMinConsecutive(void);

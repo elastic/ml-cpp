@@ -21,8 +21,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CMetricPopulationDataGathererTest : public CppUnit::TestFixture
-{
+class CMetricPopulationDataGathererTest : public CppUnit::TestFixture {
     public:
         void testMean(void);
         void testMin(void);

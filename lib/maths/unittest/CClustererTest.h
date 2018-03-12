@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CClustererTest : public CppUnit::TestFixture
-{
+class CClustererTest : public CppUnit::TestFixture {
     public:
         void testIndexGenerator(void);
 

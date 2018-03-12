@@ -26,22 +26,20 @@
 #endif
 
 
-CppUnit::Test *COsFileFuncsTest::suite()
-{
+CppUnit::Test *COsFileFuncsTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<COsFileFuncsTest>(
-                                   "COsFileFuncsTest::testInode",
-                                   &COsFileFuncsTest::testInode) );
+                               "COsFileFuncsTest::testInode",
+                               &COsFileFuncsTest::testInode) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COsFileFuncsTest>(
-                                   "COsFileFuncsTest::testLStat",
-                                   &COsFileFuncsTest::testLStat) );
+                               "COsFileFuncsTest::testLStat",
+                               &COsFileFuncsTest::testLStat) );
 
     return suiteOfTests;
 }
 
-void COsFileFuncsTest::testInode(void)
-{
+void COsFileFuncsTest::testInode(void) {
     // Windows doesn't have inodes as such, but on NTFS we can simulate a number
     // that fulfils the purpose of determining when a file has been renamed and
     // another one with the original name has been created.
@@ -96,8 +94,7 @@ void COsFileFuncsTest::testInode(void)
     CPPUNIT_ASSERT(implDirect != headerDirect);
 }
 
-void COsFileFuncsTest::testLStat(void)
-{
+void COsFileFuncsTest::testLStat(void) {
     std::string file("Main.cc");
     std::string symLink("Main.symlink.cc");
 

@@ -30,10 +30,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief The description of the event data corresponding to
 //! a single record.
@@ -53,8 +51,7 @@ namespace model
 //! Finally, each record has a unique time and person, although
 //! with different semantics when an over field is and isn't
 //! present, so this always holds the time and person identifier.
-class MODEL_EXPORT CEventData
-{
+class MODEL_EXPORT CEventData {
     public:
         typedef core::CSmallVector<double, 1> TDouble1Vec;
         typedef boost::optional<std::size_t> TOptionalSize;

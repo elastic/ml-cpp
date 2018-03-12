@@ -26,35 +26,30 @@
 #include <sstream>
 
 
-CppUnit::Test *CLineifiedJsonInputParserTest::suite()
-{
+CppUnit::Test *CLineifiedJsonInputParserTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-                                   "CLineifiedJsonInputParserTest::testThroughputArbitrary",
-                                   &CLineifiedJsonInputParserTest::testThroughputArbitrary) );
+                               "CLineifiedJsonInputParserTest::testThroughputArbitrary",
+                               &CLineifiedJsonInputParserTest::testThroughputArbitrary) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-                                   "CLineifiedJsonInputParserTest::testThroughputCommon",
-                                   &CLineifiedJsonInputParserTest::testThroughputCommon) );
+                               "CLineifiedJsonInputParserTest::testThroughputCommon",
+                               &CLineifiedJsonInputParserTest::testThroughputCommon) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
 
-class CSetupVisitor
-{
+class CSetupVisitor {
     public:
         CSetupVisitor(void)
-            : m_RecordsPerBlock(0)
-        {
+            : m_RecordsPerBlock(0) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
             ++m_RecordsPerBlock;
 
             CPPUNIT_ASSERT(m_OutputWriter.writeRow(dataRowFields));
@@ -62,16 +57,14 @@ class CSetupVisitor
             return true;
         }
 
-        std::string input(size_t testSize) const
-        {
+        std::string input(size_t testSize) const {
             const std::string &block = m_OutputWriter.internalString();
 
             std::string str;
             str.reserve(testSize * block.length());
 
             // Duplicate the binary data according to the test size
-            for (size_t count = 0; count < testSize; ++count)
-            {
+            for (size_t count = 0; count < testSize; ++count) {
                 str.append(block);
             }
 
@@ -80,8 +73,7 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
-        {
+        size_t recordsPerBlock(void) const {
             return m_RecordsPerBlock;
         }
 
@@ -90,23 +82,19 @@ class CSetupVisitor
         ml::api::CLineifiedJsonOutputWriter m_OutputWriter;
 };
 
-class CVisitor
-{
+class CVisitor {
     public:
         CVisitor(void)
-            : m_RecordCount(0)
-        {
+            : m_RecordCount(0) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap &/*dataRowFields*/)
-        {
+        bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap &/*dataRowFields*/) {
             ++m_RecordCount;
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
@@ -117,20 +105,17 @@ class CVisitor
 
 }
 
-void CLineifiedJsonInputParserTest::testThroughputArbitrary(void)
-{
+void CLineifiedJsonInputParserTest::testThroughputArbitrary(void) {
     LOG_INFO("Testing assuming arbitrary fields in JSON documents");
     this->runTest(false);
 }
 
-void CLineifiedJsonInputParserTest::testThroughputCommon(void)
-{
+void CLineifiedJsonInputParserTest::testThroughputCommon(void) {
     LOG_INFO("Testing assuming all JSON documents have the same fields");
     this->runTest(true);
 }
 
-void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure)
-{
+void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -150,7 +135,7 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure)
     std::istringstream input(setupVisitor.input(TEST_SIZE));
 
     ml::api::CLineifiedJsonInputParser parser(input,
-                                                   allDocsSameStructure);
+                                              allDocsSameStructure);
 
     CVisitor visitor;
 

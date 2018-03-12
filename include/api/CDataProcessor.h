@@ -28,16 +28,13 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
 
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class COutputHandler;
 
@@ -51,8 +48,7 @@ class COutputHandler;
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class API_EXPORT CDataProcessor : private core::CNonCopyable
-{
+class API_EXPORT CDataProcessor : private core::CNonCopyable {
     public:
         static const char CONTROL_FIELD_NAME_CHAR = '.';
         static const std::string CONTROL_FIELD_NAME;

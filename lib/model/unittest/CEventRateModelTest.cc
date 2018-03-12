@@ -59,8 +59,7 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
 typedef std::vector<double> TDoubleVec;
 typedef std::vector<TDoubleVec> TDoubleVecVec;
@@ -85,12 +84,10 @@ typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumula
 
 const std::string EMPTY_STRING;
 
-TUInt64Vec rawEventCounts(std::size_t copies = 1)
-{
+TUInt64Vec rawEventCounts(std::size_t copies = 1) {
     uint64_t counts[] = { 54, 67, 39, 58, 46, 50, 42, 48, 53, 51, 50, 57, 53, 49 };
     TUInt64Vec result;
-    for (std::size_t i = 0u; i < copies; ++i)
-    {
+    for (std::size_t i = 0u; i < copies; ++i) {
         result.insert(result.end(), boost::begin(counts), boost::end(counts));
     }
     return result;
@@ -99,13 +96,11 @@ TUInt64Vec rawEventCounts(std::size_t copies = 1)
 void generateEvents(const core_t::TTime &startTime,
                     const core_t::TTime &bucketLength,
                     const TUInt64Vec &eventCountsPerBucket,
-                    TTimeVec &eventArrivalTimes)
-{
+                    TTimeVec &eventArrivalTimes) {
     // Generate an ordered collection of event arrival times.
     test::CRandomNumbers rng;
     double bucketStartTime = static_cast<double>(startTime);
-    for (std::size_t i = 0u; i < eventCountsPerBucket.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < eventCountsPerBucket.size(); ++i) {
         double bucketEndTime = bucketStartTime + static_cast<double>(bucketLength);
 
         TDoubleVec bucketEventTimes;
@@ -116,8 +111,7 @@ void generateEvents(const core_t::TTime &startTime,
 
         std::sort(bucketEventTimes.begin(), bucketEventTimes.end());
 
-        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j) {
             core_t::TTime time = static_cast<core_t::TTime>(bucketEventTimes[j]);
             time = std::min(static_cast<core_t::TTime>(bucketEndTime - 1.0),
                             std::max(static_cast<core_t::TTime>(bucketStartTime), time));
@@ -131,13 +125,11 @@ void generateEvents(const core_t::TTime &startTime,
 void generateSporadicEvents(const core_t::TTime &startTime,
                             const core_t::TTime &bucketLength,
                             const TUInt64Vec &nonZeroEventCountsPerBucket,
-                            TTimeVec &eventArrivalTimes)
-{
+                            TTimeVec &eventArrivalTimes) {
     // Generate an ordered collection of event arrival times.
     test::CRandomNumbers rng;
     double bucketStartTime = static_cast<double>(startTime);
-    for (std::size_t i = 0u; i < nonZeroEventCountsPerBucket.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < nonZeroEventCountsPerBucket.size(); ++i) {
         double bucketEndTime = bucketStartTime + static_cast<double>(bucketLength);
 
         TDoubleVec bucketEventTimes;
@@ -148,8 +140,7 @@ void generateSporadicEvents(const core_t::TTime &startTime,
 
         std::sort(bucketEventTimes.begin(), bucketEventTimes.end());
 
-        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < bucketEventTimes.size(); ++j) {
             core_t::TTime time = static_cast<core_t::TTime>(bucketEventTimes[j]);
             time = std::min(static_cast<core_t::TTime>(bucketEndTime - 1.0),
                             std::max(static_cast<core_t::TTime>(bucketStartTime), time));
@@ -163,20 +154,17 @@ void generateSporadicEvents(const core_t::TTime &startTime,
     }
 }
 
-class CTimeLess
-{
+class CTimeLess {
     public:
         bool operator()(const CEventData &lhs,
-                        const CEventData &rhs) const
-        {
+                        const CEventData &rhs) const {
             return lhs.time() < rhs.time();
         }
 };
 
 std::size_t addPerson(const std::string &p,
                       const CModelFactory::TDataGathererPtr &gatherer,
-                      CResourceMonitor &resourceMonitor)
-{
+                      CResourceMonitor &resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     CEventData result;
@@ -188,17 +176,14 @@ std::size_t addPersonWithInfluence(const std::string &p,
                                    const CModelFactory::TDataGathererPtr &gatherer,
                                    CResourceMonitor &resourceMonitor,
                                    std::size_t numInfluencers,
-                                   TOptionalStr value = TOptionalStr())
-{
+                                   TOptionalStr value = TOptionalStr()) {
     std::string i("i");
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
-    for (std::size_t j = 0; j < numInfluencers; j++)
-    {
+    for (std::size_t j = 0; j < numInfluencers; j++) {
         person.push_back(&i);
     }
-    if (value)
-    {
+    if (value) {
         person.push_back(&(value.get()));
     }
     CEventData result;
@@ -213,8 +198,7 @@ void makeModel(CEventRateModelFactory &factory,
                core_t::TTime bucketLength,
                CModelFactory::TDataGathererPtr &gatherer,
                CAnomalyDetectorModel::TModelPtr &model,
-               std::size_t numberPeople)
-{
+               std::size_t numberPeople) {
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     gatherer.reset(factory.makeDataGatherer(gathererInitData));
@@ -222,10 +206,9 @@ void makeModel(CEventRateModelFactory &factory,
     model.reset(factory.makeModel(initData));
     CPPUNIT_ASSERT(model);
     CPPUNIT_ASSERT_EQUAL(bucketLength, model->bucketLength());
-    for (std::size_t i = 0u; i < numberPeople; ++i)
-    {
+    for (std::size_t i = 0u; i < numberPeople; ++i) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(i),
-                addPerson("p" + core::CStringUtils::typeToString(i+1), gatherer, resourceMonitor));
+                             addPerson("p" + core::CStringUtils::typeToString(i+1), gatherer, resourceMonitor));
     }
 }
 
@@ -235,21 +218,17 @@ void addArrival(CDataGatherer &gatherer,
                 const std::string &person,
                 const TOptionalStr &inf1 = TOptionalStr(),
                 const TOptionalStr &inf2 = TOptionalStr(),
-                const TOptionalStr &value = TOptionalStr())
-{
+                const TOptionalStr &value = TOptionalStr()) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
-    if (inf1)
-    {
+    if (inf1) {
         fieldValues.push_back(&(inf1.get()));
     }
-    if (inf2)
-    {
+    if (inf2) {
         fieldValues.push_back(&(inf2.get()));
     }
 
-    if (value)
-    {
+    if (value) {
         fieldValues.push_back(&(value.get()));
     }
 
@@ -259,8 +238,7 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-CEventData makeEventData(core_t::TTime time, std::size_t pid)
-{
+CEventData makeEventData(core_t::TTime time, std::size_t pid) {
     CEventData eventData;
     eventData.time(time);
     eventData.person(pid);
@@ -271,8 +249,7 @@ CEventData makeEventData(core_t::TTime time, std::size_t pid)
 
 CEventData makeEventData(core_t::TTime time,
                          std::size_t pid,
-                         const std::string value)
-{
+                         const std::string value) {
     CEventData eventData;
     eventData.time(time);
     eventData.person(pid);
@@ -285,8 +262,7 @@ CEventData makeEventData(core_t::TTime time,
 void handleEvent(const CDataGatherer::TStrCPtrVec &fields,
                  core_t::TTime time,
                  CModelFactory::TDataGathererPtr &gatherer,
-                 CResourceMonitor &resourceMonitor)
-{
+                 CResourceMonitor &resourceMonitor) {
     CEventData eventResult;
     eventResult.time(time);
     gatherer->addArrival(fields, eventResult, resourceMonitor);
@@ -295,8 +271,7 @@ void handleEvent(const CDataGatherer::TStrCPtrVec &fields,
 void testModelWithValueField(model_t::EFeature feature,
                              TSizeVecVecVec &fields,
                              TStrVec &strings,
-                             CResourceMonitor &resourceMonitor)
-{
+                             CResourceMonitor &resourceMonitor) {
     LOG_DEBUG("  *** testing feature " << model_t::print(feature));
 
     const core_t::TTime startTime = 1346968800;
@@ -320,13 +295,11 @@ void testModelWithValueField(model_t::EFeature feature,
 
     std::size_t i = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-         bucketStartTime < endTime;
-         bucketStartTime += bucketLength, i++)
-    {
+            bucketStartTime < endTime;
+            bucketStartTime += bucketLength, i++) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-        for (std::size_t j = 0; j < fields[i].size(); ++j)
-        {
+        for (std::size_t j = 0; j < fields[i].size(); ++j) {
             CDataGatherer::TStrCPtrVec f;
             f.push_back(&strings[fields[i][j][0]]);
             f.push_back(&strings[fields[i][j][1]]);
@@ -341,12 +314,9 @@ void testModelWithValueField(model_t::EFeature feature,
         model->computeProbability(0/*pid*/, bucketStartTime, bucketEndTime,
                                   partitioningFields, 1, annotatedProbability);
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-        if (i == anomalousBucket)
-        {
+        if (i == anomalousBucket) {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability < 0.001);
-        }
-        else
-        {
+        } else {
             CPPUNIT_ASSERT(annotatedProbability.s_Probability > 0.6);
         }
     }
@@ -358,8 +328,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
 
-void CEventRateModelTest::testOnlineCountSample(void)
-{
+void CEventRateModelTest::testOnlineCountSample(void) {
     LOG_DEBUG("*** testOnlineCountSample ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -389,14 +358,12 @@ void CEventRateModelTest::testOnlineCountSample(void)
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-         bucketStartTime < endTime;
-         bucketStartTime += bucketLength, ++j)
-    {
+            bucketStartTime < endTime;
+            bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
-        for (/**/; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-        {
+        for (/**/; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
             addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p1");
             count += 1.0;
         }
@@ -407,16 +374,16 @@ void CEventRateModelTest::testOnlineCountSample(void)
 
         maths::CModelAddSamplesParams params_;
         params_.integer(true)
-               .nonNegative(true)
-               .propagationInterval(1.0)
-               .weightStyles(maths::CConstantWeights::COUNT)
-               .trendWeights(weights)
-               .priorWeights(weights);
+        .nonNegative(true)
+        .propagationInterval(1.0)
+        .weightStyles(maths::CConstantWeights::COUNT)
+        .trendWeights(weights)
+        .priorWeights(weights);
         double sample{static_cast<double>(expectedEventCounts[j])};
         maths::CModel::TTimeDouble2VecSizeTrVec expectedSamples{
             core::make_triple((bucketStartTime + bucketEndTime) / 2,
-                              maths::CModel::TDouble2Vec{sample},
-                              std::size_t{0})};
+            maths::CModel::TDouble2Vec{sample},
+            std::size_t{0})};
         timeseriesModel->addSamples(params_, expectedSamples);
 
         // Test we sample the data correctly.
@@ -462,8 +429,7 @@ void CEventRateModelTest::testOnlineCountSample(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineNonZeroCountSample(void)
-{
+void CEventRateModelTest::testOnlineNonZeroCountSample(void) {
     LOG_DEBUG("*** testOnlineNonZeroCountSample ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -493,14 +459,12 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void)
 
     std::size_t i = 0u, j= 0u;
     for (core_t::TTime bucketStartTime = startTime;
-         bucketStartTime < endTime;
-         bucketStartTime += bucketLength)
-    {
+            bucketStartTime < endTime;
+            bucketStartTime += bucketLength) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
-        for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-        {
+        for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
             addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p1");
             count += 1.0;
         }
@@ -509,22 +473,21 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void)
 
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
-        if (*model->currentBucketCount(0, bucketStartTime) > 0)
-        {
+        if (*model->currentBucketCount(0, bucketStartTime) > 0) {
             maths::CModelAddSamplesParams params_;
             params_.integer(true)
-                   .nonNegative(true)
-                   .propagationInterval(1.0)
-                   .weightStyles(maths::CConstantWeights::COUNT)
-                   .trendWeights(weights)
-                   .priorWeights(weights);
+            .nonNegative(true)
+            .propagationInterval(1.0)
+            .weightStyles(maths::CConstantWeights::COUNT)
+            .trendWeights(weights)
+            .priorWeights(weights);
             double sample{static_cast<double>(
-                       model_t::offsetCountToZero(model_t::E_IndividualNonZeroCountByBucketAndPerson,
-                                                  static_cast<double>(expectedEventCounts[j])))};
+                              model_t::offsetCountToZero(model_t::E_IndividualNonZeroCountByBucketAndPerson,
+                                                         static_cast<double>(expectedEventCounts[j])))};
             maths::CModel::TTimeDouble2VecSizeTrVec expectedSamples{
-                       core::make_triple((bucketStartTime + bucketEndTime) / 2,
-                                         maths::CModel::TDouble2Vec{sample},
-                                         std::size_t{0})};
+                core::make_triple((bucketStartTime + bucketEndTime) / 2,
+                maths::CModel::TDouble2Vec{sample},
+                std::size_t{0})};
             timeseriesModel->addSamples(params_, expectedSamples);
 
             // Test we sample the data correctly.
@@ -539,8 +502,7 @@ void CEventRateModelTest::testOnlineNonZeroCountSample(void)
     }
 }
 
-void CEventRateModelTest::testOnlineRare(void)
-{
+void CEventRateModelTest::testOnlineRare(void) {
     LOG_DEBUG("*** testOnlineRare ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -556,14 +518,12 @@ void CEventRateModelTest::testOnlineRare(void)
     CEventRateModel *model = dynamic_cast<CEventRateModel*>(model_.get());
 
     core_t::TTime time = startTime;
-    for (/**/; time < startTime + 10 * bucketLength; time += bucketLength)
-    {
+    for (/**/; time < startTime + 10 * bucketLength; time += bucketLength) {
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p1");
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p2");
         model->sample(time, time + bucketLength, m_ResourceMonitor);
     }
-    for (/**/; time < startTime + 50 * bucketLength; time += bucketLength)
-    {
+    for (/**/; time < startTime + 50 * bucketLength; time += bucketLength) {
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p1");
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p2");
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p3");
@@ -579,8 +539,7 @@ void CEventRateModelTest::testOnlineRare(void)
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid)
-    {
+    for (std::size_t pid = 0u; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
@@ -626,8 +585,7 @@ void CEventRateModelTest::testOnlineRare(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculation(void)
-{
+void CEventRateModelTest::testOnlineProbabilityCalculation(void) {
     LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
 
     typedef std::pair<double, std::size_t> TDoubleSizePr;
@@ -660,14 +618,12 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
 
     std::size_t i = 0u, j = 0u;
     for (core_t::TTime bucketStartTime = startTime;
-         bucketStartTime < endTime;
-         bucketStartTime += bucketLength, ++j)
-    {
+            bucketStartTime < endTime;
+            bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         double count = 0.0;
-        for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-        {
+        for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
             addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p1");
             count += 1.0;
         }
@@ -690,8 +646,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculation(void)
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.1);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(void)
-{
+void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(void) {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForLowNonZeroCount ***");
 
     core_t::TTime startTime(0);
@@ -714,12 +669,10 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(voi
     TDoubleVec probabilities;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         LOG_DEBUG("Writing " << bucketCounts[i] << " values");
 
-        for (std::size_t j = 0u; j < bucketCounts[i]; ++j)
-        {
+        for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p1");
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
@@ -727,13 +680,11 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(voi
         SAnnotatedProbability p;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         if (model->computeProbability(0/*pid*/, time, time + bucketLength,
-                                      partitioningFields, 0, p) == false)
-        {
+                                      partitioningFields, 0, p) == false) {
             continue;
         }
         LOG_DEBUG("probability = " << p.s_Probability);
-        if (*model->currentBucketCount(0, time) > 0)
-        {
+        if (*model->currentBucketCount(0, time) > 0) {
             probabilities.push_back(p.s_Probability);
         }
         time += bucketLength;
@@ -745,8 +696,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount(voi
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(void)
-{
+void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(void) {
     LOG_DEBUG("*** testOnlineProbabilityCalculationForHighNonZeroCount ***");
 
     core_t::TTime startTime(0);
@@ -769,12 +719,10 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(vo
     TDoubleVec probabilities;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         LOG_DEBUG("Writing " << bucketCounts[i] << " values");
 
-        for (std::size_t j = 0u; j < bucketCounts[i]; ++j)
-        {
+        for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p1");
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
@@ -782,13 +730,11 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(vo
         SAnnotatedProbability p;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         if (model->computeProbability(0/*pid*/, time, time + bucketLength,
-                                      partitioningFields, 1, p) == false)
-        {
+                                      partitioningFields, 1, p) == false) {
             continue;
         }
         LOG_DEBUG("probability = " << p.s_Probability);
-        if (*model->currentBucketCount(0, time) > 0)
-        {
+        if (*model->currentBucketCount(0, time) > 0) {
             probabilities.push_back(p.s_Probability);
         }
         time += bucketLength;
@@ -800,8 +746,7 @@ void CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount(vo
     CPPUNIT_ASSERT(probabilities[highNonZeroCountBucket] > 0.9);
 }
 
-void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
-{
+void CEventRateModelTest::testOnlineCorrelatedNoTrend(void) {
     LOG_DEBUG("*** testOnlineCorrelatedNoTrend ***");
 
     // Check we find the correct correlated variables, and identify
@@ -817,18 +762,16 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
 
     const std::size_t b = 200;
     const double means_[] = { 20.0, 25.0, 100.0, 800.0 };
-    const double covariances_[][4] =
-        {
-            { 3.0, 2.5,    0.0,    0.0 },
-            { 2.5, 4.0,    0.0,    0.0 },
-            { 0.0, 0.0,  100.0, -500.0 },
-            { 0.0, 0.0, -500.0, 3000.0 }
-        };
+    const double covariances_[][4] = {
+        { 3.0, 2.5,    0.0,    0.0 },
+        { 2.5, 4.0,    0.0,    0.0 },
+        { 0.0, 0.0,  100.0, -500.0 },
+        { 0.0, 0.0, -500.0, 3000.0 }
+    };
 
     TDoubleVec means(&means_[0], &means_[4]);
     TDoubleVecVec covariances;
-    for (std::size_t i = 0u; i < 4; ++i)
-    {
+    for (std::size_t i = 0u; i < 4; ++i) {
         covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
     }
     TDoubleVecVec samples;
@@ -853,54 +796,45 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
         LOG_DEBUG("Test correlation anomalies");
 
         std::size_t anomalyBuckets[] = { 100, 160, 190, b };
-        double anomalies[][4] =
-            {
-                { -5.73, 4.29,  0.0,   0.0  },
-                {  0.0,  0.0,  89.99, 15.38 },
-                { -7.73, 5.59, 52.99,  9.03 }
-            };
+        double anomalies[][4] = {
+            { -5.73, 4.29,  0.0,   0.0  },
+            {  0.0,  0.0,  89.99, 15.38 },
+            { -7.73, 5.59, 52.99,  9.03 }
+        };
 
-        TMinAccumulator probabilities[4] =
-            {
-                TMinAccumulator(2),
-                TMinAccumulator(2),
-                TMinAccumulator(2),
-                TMinAccumulator(2)
-            };
+        TMinAccumulator probabilities[4] = {
+            TMinAccumulator(2),
+            TMinAccumulator(2),
+            TMinAccumulator(2),
+            TMinAccumulator(2)
+        };
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i)
-        {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j)
-            {
+        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") + core::CStringUtils::typeToString(j+1);
                 double n = samples[i][j];
-                if (i == anomalyBuckets[anomaly])
-                {
+                if (i == anomalyBuckets[anomaly]) {
                     n += anomalies[anomaly][j];
                 }
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k)
-                {
+                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
                     addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), person);
                 }
             }
-            if (i == anomalyBuckets[anomaly])
-            {
+            if (i == anomalyBuckets[anomaly]) {
                 ++anomaly;
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid)
-            {
+            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                          partitioningFields, 1, p));
                 std::string correlated;
                 if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                    &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                    && !p.s_AttributeProbabilities[0].s_Type.isUnconditional())
-                {
+                        &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
+                        && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -908,21 +842,18 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
             time += bucketLength;
         }
 
-        std::string expected[] =
-            {
-                "[(100,p2), (190,p2)]",
-                "[(100,p1), (190,p1)]",
-                "[(160,p4), (190,p4)]",
-                "[(160,p3), (190,p3)]"
-            };
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i)
-        {
+        std::string expected[] = {
+            "[(100,p2), (190,p2)]",
+            "[(100,p1), (190,p1)]",
+            "[(160,p4), (190,p4)]",
+            "[(160,p3), (190,p3)]"
+        };
+        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
             std::string actual[2];
-            for (std::size_t j = 0u; j < 2; ++j)
-            {
+            for (std::size_t j = 0u; j < 2; ++j) {
                 actual[j] =  std::string("(")
-                           + core::CStringUtils::typeToString(probabilities[i][j].second)
-                           + "," + probabilities[i][j].third + ")";
+                             + core::CStringUtils::typeToString(probabilities[i][j].second)
+                             + "," + probabilities[i][j].third + ")";
             }
             std::sort(actual, actual + 2);
             CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
@@ -974,55 +905,46 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
 
 
         std::size_t anomalyBuckets[] = { 100, 160, 190, b };
-        double anomalies[][4] =
-            {
-                { 11.07, 14.19,   0.0,    0.0 },
-                {  0.0,   0.0,  -66.9,  399.95 },
-                { 11.07, 14.19, -48.15, 329.95 }
-            };
+        double anomalies[][4] = {
+            { 11.07, 14.19,   0.0,    0.0 },
+            {  0.0,   0.0,  -66.9,  399.95 },
+            { 11.07, 14.19, -48.15, 329.95 }
+        };
 
-        TMinAccumulator probabilities[4] =
-            {
-                TMinAccumulator(2),
-                TMinAccumulator(2),
-                TMinAccumulator(2),
-                TMinAccumulator(2)
-            };
+        TMinAccumulator probabilities[4] = {
+            TMinAccumulator(2),
+            TMinAccumulator(2),
+            TMinAccumulator(2),
+            TMinAccumulator(2)
+        };
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i)
-        {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j)
-            {
+        for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
+            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") + core::CStringUtils::typeToString(j+1);
                 double n = samples[i][j];
-                if (i == anomalyBuckets[anomaly])
-                {
+                if (i == anomalyBuckets[anomaly]) {
                     n += anomalies[anomaly][j];
                 }
                 n = std::max(n, 0.0);
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k)
-                {
+                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
                     addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), person);
                 }
             }
-            if (i == anomalyBuckets[anomaly])
-            {
+            if (i == anomalyBuckets[anomaly]) {
                 ++anomaly;
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid)
-            {
+            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                          partitioningFields, 1, p));
                 std::string correlated;
                 if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                    &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                    && !p.s_AttributeProbabilities[0].s_Type.isUnconditional())
-                {
+                        &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
+                        && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                     correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
                 }
                 probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -1030,21 +952,18 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
             time += bucketLength;
         }
 
-        std::string expected[] =
-            {
-                "[(100,), (190,)]",
-                "[(100,), (190,)]",
-                "[(160,), (190,)]",
-                "[(160,), (190,)]"
-            };
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i)
-        {
+        std::string expected[] = {
+            "[(100,), (190,)]",
+            "[(100,), (190,)]",
+            "[(160,), (190,)]",
+            "[(160,), (190,)]"
+        };
+        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
             std::string actual[2];
-            for (std::size_t j = 0u; j < 2; ++j)
-            {
+            for (std::size_t j = 0u; j < 2; ++j) {
                 actual[j] =  std::string("(")
-                           + core::CStringUtils::typeToString(probabilities[i][j].second)
-                           + "," + probabilities[i][j].third + ")";
+                             + core::CStringUtils::typeToString(probabilities[i][j].second)
+                             + "," + probabilities[i][j].third + ")";
             }
             std::sort(actual, actual + 2);
             CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
@@ -1052,8 +971,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void)
     }
 }
 
-void CEventRateModelTest::testOnlineCorrelatedTrend(void)
-{
+void CEventRateModelTest::testOnlineCorrelatedTrend(void) {
     LOG_DEBUG("*** testOnlineCorrelatedTrend ***");
 
     // FIXME
@@ -1073,48 +991,51 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
 
     const std::size_t b = 2880;
     const double means_[] = { 20.0, 25.0, 50.0, 100.0 };
-    const double covariances_[][4] =
+    const double covariances_[][4] = {
+        { 30.0, 20.0,   0.0,   0.0 },
+        { 20.0, 40.0,   0.0,   0.0 },
+        {  0.0,  0.0,  60.0, -50.0 },
+        {  0.0,  0.0, -50.0,  60.0 }
+    };
+    double trends[][24] = {
         {
-            { 30.0, 20.0,   0.0,   0.0 },
-            { 20.0, 40.0,   0.0,   0.0 },
-            {  0.0,  0.0,  60.0, -50.0 },
-            {  0.0,  0.0, -50.0,  60.0 }
-        };
-    double trends[][24] =
+            0.0,   0.0,   0.0,  1.0,  1.0,  2.0,  4.0,  10.0,  11.0,  10.0,   8.0,   8.0,
+            7.0,   9.0,  12.0,  4.0,  3.0,  1.0,  1.0,   0.0,   0.0,   0.0,   0.0,   0.0
+        },
         {
-            {   0.0,   0.0,   0.0,  1.0,  1.0,  2.0,  4.0,  10.0,  11.0,  10.0,   8.0,   8.0,
-                7.0,   9.0,  12.0,  4.0,  3.0,  1.0,  1.0,   0.0,   0.0,   0.0,   0.0,   0.0 },
-            {   0.0,   0.0,   0.0,  2.0,  2.0,  4.0,  8.0,  15.0,  18.0,  14.0,  12.0,  12.0,
-               11.0,  10.0,  16.0,  7.0,  4.0,  2.0,  1.0,   0.0,   0.0,   0.0,   0.0,   0.0 },
-            {   4.0,   3.0,   5.0, 20.0, 20.0, 40.0, 80.0, 150.0, 180.0, 140.0, 120.0, 120.0,
-              110.0, 100.0, 160.0, 70.0, 40.0, 20.0, 10.0,   3.0,   5.0,   2.0,   1.0,   3.0 },
-            {   0.0,   0.0,   0.0, 20.0, 20.0, 40.0, 80.0, 150.0, 180.0, 140.0, 120.0, 120.0,
-              110.0, 100.0, 160.0, 70.0, 40.0, 40.0, 30.0,  20.0,  10.0,   0.0,   0.0,   0.0 },
-        };
+            0.0,   0.0,   0.0,  2.0,  2.0,  4.0,  8.0,  15.0,  18.0,  14.0,  12.0,  12.0,
+            11.0,  10.0,  16.0,  7.0,  4.0,  2.0,  1.0,   0.0,   0.0,   0.0,   0.0,   0.0
+        },
+        {
+            4.0,   3.0,   5.0, 20.0, 20.0, 40.0, 80.0, 150.0, 180.0, 140.0, 120.0, 120.0,
+            110.0, 100.0, 160.0, 70.0, 40.0, 20.0, 10.0,   3.0,   5.0,   2.0,   1.0,   3.0
+        },
+        {
+            0.0,   0.0,   0.0, 20.0, 20.0, 40.0, 80.0, 150.0, 180.0, 140.0, 120.0, 120.0,
+            110.0, 100.0, 160.0, 70.0, 40.0, 40.0, 30.0,  20.0,  10.0,   0.0,   0.0,   0.0
+        },
+    };
 
     TDoubleVec means(&means_[0], &means_[4]);
     TDoubleVecVec covariances;
-    for (std::size_t i = 0u; i < 4; ++i)
-    {
+    for (std::size_t i = 0u; i < 4; ++i) {
         covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
     }
     TDoubleVecVec samples;
     rng.generateMultivariateNormalSamples(means, covariances, b, samples);
 
     std::size_t anomalyBuckets[] = { 1950, 2400, 2700, b };
-    double anomalies[][4] =
-        {
-            { -23.9,  19.7,  0.0,  0.0 },
-            {   0.0,   0.0, 36.4, 36.4 },
-            { -28.7,  30.4, 36.4, 36.4 }
-        };
-    TMinAccumulator probabilities[4] =
-        {
-            TMinAccumulator(2),
-            TMinAccumulator(2),
-            TMinAccumulator(2),
-            TMinAccumulator(2)
-        };
+    double anomalies[][4] = {
+        { -23.9,  19.7,  0.0,  0.0 },
+        {   0.0,   0.0, 36.4, 36.4 },
+        { -28.7,  30.4, 36.4, 36.4 }
+    };
+    TMinAccumulator probabilities[4] = {
+        TMinAccumulator(2),
+        TMinAccumulator(2),
+        TMinAccumulator(2),
+        TMinAccumulator(2)
+    };
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.0002;
@@ -1131,46 +1052,39 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
     CPPUNIT_ASSERT(model);
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u, anomaly = 0u; i < b; ++i)
-    {
+    for (std::size_t i = 0u, anomaly = 0u; i < b; ++i) {
         LOG_DEBUG(i << ") processing bucket [" << time << ", " << time + bucketLength << ")");
 
         std::size_t hour1 = static_cast<std::size_t>((time / 3600) % 24);
         std::size_t hour2 = (hour1 + 1) % 24;
         double dt = static_cast<double>(time % 3600) / 3600.0;
 
-        for (std::size_t j = 0u; j < samples[i].size(); ++j)
-        {
+        for (std::size_t j = 0u; j < samples[i].size(); ++j) {
             std::string person = std::string("p") + core::CStringUtils::typeToString(j+1);
 
             double n = (1.0 - dt) * trends[j][hour1] + dt * trends[j][hour2] + samples[i][j];
-            if (i == anomalyBuckets[anomaly])
-            {
+            if (i == anomalyBuckets[anomaly]) {
                 n += anomalies[anomaly][j];
             }
             n = std::max(n / 3.0, 0.0);
-            for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k)
-            {
+            for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
                 addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), person);
             }
         }
-        if (i == anomalyBuckets[anomaly])
-        {
+        if (i == anomalyBuckets[anomaly]) {
             ++anomaly;
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-        for (std::size_t pid = 0u; pid < samples[i].size(); ++pid)
-        {
+        for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
             SAnnotatedProbability p;
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
                                                      partitioningFields, 1, p));
             std::string correlated;
             if (    p.s_AttributeProbabilities[0].s_CorrelatedAttributes.size() > 0
-                &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
-                && !p.s_AttributeProbabilities[0].s_Type.isUnconditional())
-            {
+                    &&  p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0] != 0
+                    && !p.s_AttributeProbabilities[0].s_Type.isUnconditional()) {
                 correlated = *p.s_AttributeProbabilities[0].s_CorrelatedAttributes[0];
             }
             probabilities[pid].add(TDoubleSizeStrTr(p.s_Probability, i, correlated));
@@ -1178,30 +1092,26 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void)
         time += bucketLength;
     }
 
-    std::string expected[] =
-        {
-            "[(1950,p2), (2700,p2)]",
-            "[(1950,p1), (2700,p1)]",
-            "[(2400,p4), (2700,p4)]",
-            "[(2400,p3), (2700,p3)]"
-        };
-    for (std::size_t i = 0u; i < boost::size(probabilities); ++i)
-    {
+    std::string expected[] = {
+        "[(1950,p2), (2700,p2)]",
+        "[(1950,p1), (2700,p1)]",
+        "[(2400,p4), (2700,p4)]",
+        "[(2400,p3), (2700,p3)]"
+    };
+    for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
         LOG_DEBUG(probabilities[i].print());
         std::string actual[2];
-        for (std::size_t j = 0u; j < 2; ++j)
-        {
+        for (std::size_t j = 0u; j < 2; ++j) {
             actual[j] =  std::string("(")
-                       + core::CStringUtils::typeToString(probabilities[i][j].second)
-                       + "," + probabilities[i][j].third + ")";
+                         + core::CStringUtils::typeToString(probabilities[i][j].second)
+                         + "," + probabilities[i][j].third + ")";
         }
         std::sort(actual, actual + 2);
         CPPUNIT_ASSERT_EQUAL(expected[i], core::CContainerPrinter::print(actual));
     }
 }
 
-void CEventRateModelTest::testPrune(void)
-{
+void CEventRateModelTest::testPrune(void) {
     LOG_DEBUG("*** testPrune ***");
 
     typedef std::vector<TUInt64Vec> TUInt64VecVec;
@@ -1211,15 +1121,14 @@ void CEventRateModelTest::testPrune(void)
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
 
-    const std::string people[] =
-        {
-            std::string("p1"),
-            std::string("p2"),
-            std::string("p3"),
-            std::string("p4"),
-            std::string("p5"),
-            std::string("p6")
-        };
+    const std::string people[] = {
+        std::string("p1"),
+        std::string("p2"),
+        std::string("p3"),
+        std::string("p4"),
+        std::string("p5"),
+        std::string("p6")
+    };
 
     TUInt64VecVec eventCounts;
     eventCounts.push_back(TUInt64Vec(1000u, 0));
@@ -1261,16 +1170,13 @@ void CEventRateModelTest::testPrune(void)
 
 
     TEventDataVec events;
-    for (std::size_t i = 0u; i < eventCounts.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < eventCounts.size(); ++i) {
         TTimeVec eventTimes;
         generateEvents(startTime, bucketLength, eventCounts[i], eventTimes);
-        if (eventTimes.size() > 0)
-        {
+        if (eventTimes.size() > 0) {
             std::sort(eventTimes.begin(), eventTimes.end());
             std::size_t pid = addPerson(people[i], gatherer, m_ResourceMonitor);
-            for (auto time : eventTimes)
-            {
+            for (auto time : eventTimes) {
                 events.push_back(makeEventData(time, pid));
             }
         }
@@ -1280,27 +1186,21 @@ void CEventRateModelTest::testPrune(void)
     TEventDataVec expectedEvents;
     expectedEvents.reserve(events.size());
     TSizeSizeMap mapping;
-    for (auto person : expectedPeople)
-    {
+    for (auto person : expectedPeople) {
         mapping[person] = addPerson(people[person], expectedGatherer, m_ResourceMonitor);
     }
-    for (const auto &event : events)
-    {
-        if (std::binary_search(expectedPeople.begin(), expectedPeople.end(), event.personId()))
-        {
+    for (const auto &event : events) {
+        if (std::binary_search(expectedPeople.begin(), expectedPeople.end(), event.personId())) {
             expectedEvents.push_back(makeEventData(event.time(), mapping[*event.personId()]));
         }
     }
-    for (auto person : expectedPeople)
-    {
+    for (auto person : expectedPeople) {
         addPerson(people[person], expectedGatherer, m_ResourceMonitor);
     }
 
     core_t::TTime bucketStart = startTime;
-    for (const auto &event : events)
-    {
-        while (event.time() >= bucketStart + bucketLength)
-        {
+    for (const auto &event : events) {
+        while (event.time() >= bucketStart + bucketLength) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -1313,10 +1213,8 @@ void CEventRateModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = maths::CIntegerTools::floor(expectedEvents[0].time(), bucketLength);
-    for (const auto &event : expectedEvents)
-    {
-        while (event.time() >= bucketStart + bucketLength)
-        {
+    for (const auto &event : expectedEvents) {
+        while (event.time() >= bucketStart + bucketLength) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -1332,8 +1230,7 @@ void CEventRateModelTest::testPrune(void)
 
     bucketStart = gatherer->currentBucketStartTime() + bucketLength;
     TStrVec newPeople{"p7", "p8", "p9"};
-    for (const auto &person : newPeople)
-    {
+    for (const auto &person : newPeople) {
         std::size_t newPid = addPerson(person, gatherer, m_ResourceMonitor);
         CPPUNIT_ASSERT(newPid < 6);
         std::size_t expectedNewPid = addPerson(person, expectedGatherer, m_ResourceMonitor);
@@ -1358,18 +1255,16 @@ void CEventRateModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModel->dataGatherer().numberActivePeople());
 }
 
-void CEventRateModelTest::testKey(void)
-{
-    function_t::EFunction countFunctions[] =
-        {
-            function_t::E_IndividualCount,
-            function_t::E_IndividualNonZeroCount,
-            function_t::E_IndividualRareCount,
-            function_t::E_IndividualRareNonZeroCount,
-            function_t::E_IndividualRare,
-            function_t::E_IndividualLowCounts,
-            function_t::E_IndividualHighCounts
-        };
+void CEventRateModelTest::testKey(void) {
+    function_t::EFunction countFunctions[] = {
+        function_t::E_IndividualCount,
+        function_t::E_IndividualNonZeroCount,
+        function_t::E_IndividualRareCount,
+        function_t::E_IndividualRareNonZeroCount,
+        function_t::E_IndividualRare,
+        function_t::E_IndividualLowCounts,
+        function_t::E_IndividualHighCounts
+    };
     bool useNull[] = { true, false };
     std::string byField[] = { "", "by" };
     std::string partitionField[] = { "", "partition" };
@@ -1377,14 +1272,10 @@ void CEventRateModelTest::testKey(void)
     CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
 
     int identifier = 0;
-    for (std::size_t i = 0u; i < boost::size(countFunctions); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(useNull); ++j)
-        {
-            for (std::size_t k = 0u; k < boost::size(byField); ++k)
-            {
-                for (std::size_t l = 0u; l < boost::size(partitionField); ++l)
-                {
+    for (std::size_t i = 0u; i < boost::size(countFunctions); ++i) {
+        for (std::size_t j = 0u; j < boost::size(useNull); ++j) {
+            for (std::size_t k = 0u; k < boost::size(byField); ++k) {
+                for (std::size_t l = 0u; l < boost::size(partitionField); ++l) {
                     CSearchKey key(++identifier,
                                    countFunctions[i],
                                    useNull[j],
@@ -1405,8 +1296,7 @@ void CEventRateModelTest::testKey(void)
     }
 }
 
-void CEventRateModelTest::testModelsWithValueFields(void)
-{
+void CEventRateModelTest::testModelsWithValueFields(void) {
     // Check that attributeConditional features are correctly
     // marked as such:
     // Create some models with attribute conditional data and
@@ -1424,19 +1314,16 @@ void CEventRateModelTest::testModelsWithValueFields(void)
         strings.push_back("c2");
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0; i < numberBuckets; i++)
-        {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
             std::size_t attribute1Strings = 10;
             std::size_t attribute2Strings = 10;
-            if (i == anomalousBucket)
-            {
+            if (i == anomalousBucket) {
                 attribute1Strings = 5;
                 attribute2Strings = 15;
             }
 
-            for (std::size_t j = 0; j < std::max(attribute1Strings, attribute2Strings); j++)
-            {
+            for (std::size_t j = 0; j < std::max(attribute1Strings, attribute2Strings); j++) {
                 std::ostringstream ss1;
                 std::ostringstream ss2;
                 ss1 << "one_plus_" << i << "_" << j;
@@ -1444,8 +1331,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
                 strings.push_back(ss1.str());
                 strings.push_back(ss2.str());
 
-                if (j < attribute1Strings)
-                {
+                if (j < attribute1Strings) {
                     TSizeVec f;
                     f.push_back(0);
                     f.push_back(1);
@@ -1453,8 +1339,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
                     fields.push_back(f);
                 }
 
-                if (j < attribute2Strings)
-                {
+                if (j < attribute2Strings) {
                     TSizeVec f;
                     f.push_back(0);
                     f.push_back(2);
@@ -1485,14 +1370,12 @@ void CEventRateModelTest::testModelsWithValueFields(void)
 
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0; i < numberBuckets; i++)
-        {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
 
             TSizeVec fb;
 
-            if (i == anomalousBucket)
-            {
+            if (i == anomalousBucket) {
                 // Load "c1" with "a" and "b"
                 fields.push_back(TSizeVec());
                 fields.back().push_back(0);
@@ -1512,9 +1395,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
                 fields.back().push_back(0);
                 fields.back().push_back(2);
                 fields.back().push_back(4);
-            }
-            else
-            {
+            } else {
                 // Load "c1" and "c2" with similarly random strings
                 fields.push_back(TSizeVec());
                 fields.back().push_back(0);
@@ -1544,8 +1425,7 @@ void CEventRateModelTest::testModelsWithValueFields(void)
     }
 }
 
-void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
-{
+void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -1576,20 +1456,18 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p", TOptionalStr("inf1"));
                 count += 1.0;
             }
@@ -1609,7 +1487,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         }
         // All the influence should be assigned to our one influencer
         CPPUNIT_ASSERT_EQUAL(std::string("[((IF1, inf1), 1)]"),
-                            core::CContainerPrinter::print(lastInfluencersResult));
+                             core::CContainerPrinter::print(lastInfluencersResult));
     }
     {
         // Test single influence name, two influence values
@@ -1636,20 +1514,18 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf" << (i % 2);
                 const std::string inf(ss.str());
@@ -1675,7 +1551,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         // the anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
-            lastInfluencersResult[1].second, 0.05);
+                                     lastInfluencersResult[1].second, 0.05);
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.8);
     }
     {
@@ -1703,20 +1579,18 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf" << (i % 2);
                 const std::string inf(ss.str());
@@ -1743,7 +1617,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         // be anomalous even without the contribution from the influencer
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
-            lastInfluencersResult[1].second, 0.05);
+                                     lastInfluencersResult[1].second, 0.05);
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.5);
         CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.6);
     }
@@ -1772,24 +1646,21 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf";
-                if (i % 10 == 0)
-                {
+                if (i % 10 == 0) {
                     ss << "_extra";
                 }
                 const std::string inf(ss.str());
@@ -1841,24 +1712,21 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf";
-                if (i % 10 == 0)
-                {
+                if (i % 10 == 0) {
                     ss << "_extra";
                 }
                 const std::string inf1(ss.str());
@@ -1895,8 +1763,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void)
     }
 }
 
-void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(void)
-{
+void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(void) {
     LOG_DEBUG("*** testCountProbabilityCalculationWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -1927,29 +1794,25 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p", TOptionalStr("inf1"), TOptionalStr(uniqueValue));
                 count += 1.0;
             }
-            if (i == eventTimes.size())
-            {
+            if (i == eventTimes.size()) {
                 // Generate anomaly
                 LOG_DEBUG("Generating anomaly");
-                for (std::size_t k = 0; k < 20; k++)
-                {
+                for (std::size_t k = 0; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
                     addArrival(*gatherer, m_ResourceMonitor, eventTimes[i - 1], "p", TOptionalStr("inf1"), TOptionalStr(ss.str()));
@@ -1971,7 +1834,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         }
         // All the influence should be assigned to our one influencer
         CPPUNIT_ASSERT_EQUAL(std::string("[((IF1, inf1), 1)]"),
-                            core::CContainerPrinter::print(lastInfluencersResult));
+                             core::CContainerPrinter::print(lastInfluencersResult));
     }
     {
         // Test single influence name, two influence values
@@ -1998,38 +1861,31 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p", TOptionalStr("inf1"), TOptionalStr(uniqueValue));
                 count += 1.0;
             }
-            if (i == eventTimes.size())
-            {
+            if (i == eventTimes.size()) {
                 // Generate anomaly
                 LOG_DEBUG("Generating anomaly");
-                for (std::size_t k = 1; k < 20; k++)
-                {
+                for (std::size_t k = 1; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
                     CEventData d = makeEventData(eventTimes[i - 1], 0, ss.str());
-                    if (k % 2 == 0)
-                    {
+                    if (k % 2 == 0) {
                         addArrival(*gatherer, m_ResourceMonitor, eventTimes[i - 1], "p", TOptionalStr("inf1"), TOptionalStr(ss.str()));
-                    }
-                    else
-                    {
+                    } else {
                         addArrival(*gatherer, m_ResourceMonitor, eventTimes[i - 1], "p", TOptionalStr("inf2"), TOptionalStr(ss.str()));
                     }
                 }
@@ -2053,7 +1909,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         // the anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
-            lastInfluencersResult[1].second, 0.05);
+                                     lastInfluencersResult[1].second, 0.05);
         CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.6);
     }
     {
@@ -2081,37 +1937,30 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-             bucketStartTime < endTime;
-             bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p", TOptionalStr("inf1"), TOptionalStr(uniqueValue));
                 count += 1.0;
             }
-            if (i == eventTimes.size())
-            {
+            if (i == eventTimes.size()) {
                 // Generate anomaly
                 LOG_DEBUG("Generating anomaly");
-                for (std::size_t k = 1; k < 20; k++)
-                {
+                for (std::size_t k = 1; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
-                    if (k == 1)
-                    {
+                    if (k == 1) {
                         addArrival(*gatherer, m_ResourceMonitor, eventTimes[i - 1], "p", TOptionalStr("inf2"), TOptionalStr(ss.str()));
-                    }
-                    else
-                    {
+                    } else {
                         addArrival(*gatherer, m_ResourceMonitor, eventTimes[i - 1], "p", TOptionalStr("inf1"), TOptionalStr(ss.str()));
                     }
                 }
@@ -2161,35 +2010,30 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         generateEvents(startTime, bucketLength, expectedEventCounts, eventTimes);
         core_t::TTime endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
         LOG_DEBUG("startTime = " << startTime
-                << ", endTime = " << endTime
-                << ", # events = " << eventTimes.size());
+                  << ", endTime = " << endTime
+                  << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         std::size_t i = 0u, j = 0u;
         for (core_t::TTime bucketStartTime = startTime;
-            bucketStartTime < endTime;
-            bucketStartTime += bucketLength, ++j)
-        {
+                bucketStartTime < endTime;
+                bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
             double count = 0.0;
-            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i)
-            {
+            for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p", TOptionalStr("inf1"), TOptionalStr("inf1"), TOptionalStr(uniqueValue));
                 count += 1.0;
             }
-            if (i == eventTimes.size())
-            {
+            if (i == eventTimes.size()) {
                 // Generate anomaly
                 LOG_DEBUG("Generating anomaly");
-                for (std::size_t k = 1; k < 22; k++)
-                {
+                for (std::size_t k = 1; k < 22; k++) {
                     std::stringstream ss1;
                     ss1 << uniqueValue << "_" << k;
                     std::stringstream ss2;
                     ss2 << "inf";
-                    if (i % 10 == 0)
-                    {
+                    if (i % 10 == 0) {
                         ss2 << "_extra";
                     }
                     const std::string inf1(ss2.str());
@@ -2228,8 +2072,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
     }
 }
 
-void CEventRateModelTest::testOnlineRareWithInfluence(void)
-{
+void CEventRateModelTest::testOnlineRareWithInfluence(void) {
     LOG_DEBUG("*** testOnlineRareWithInfluence ***");
 
     const core_t::TTime startTime = 1346968800;
@@ -2257,8 +2100,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void)
 
     core_t::TTime time = startTime;
 
-    for (/**/; time < startTime + 50 * bucketLength; time += bucketLength)
-    {
+    for (/**/; time < startTime + 50 * bucketLength; time += bucketLength) {
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p1", TOptionalStr("inf1"));
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p2", TOptionalStr("inf1"));
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength/2, "p3", TOptionalStr("inf1"));
@@ -2276,8 +2118,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void)
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid)
-    {
+    for (std::size_t pid = 0u; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         CPPUNIT_ASSERT(model->computeProbability(pid, time, time + bucketLength,
@@ -2327,8 +2168,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CEventRateModelTest::testSkipSampling(void)
-{
+void CEventRateModelTest::testSkipSampling(void) {
     LOG_DEBUG("*** testSkipSampling ***");
 
     core_t::TTime startTime(100);
@@ -2385,15 +2225,15 @@ void CEventRateModelTest::testSkipSampling(void)
 
     // Check priors are the same
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -2406,8 +2246,7 @@ void CEventRateModelTest::testSkipSampling(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
 }
 
-void CEventRateModelTest::testExplicitNulls(void)
-{
+void CEventRateModelTest::testExplicitNulls(void) {
     LOG_DEBUG("*** testExplicitNulls ***");
 
     core_t::TTime startTime(100);
@@ -2469,19 +2308,18 @@ void CEventRateModelTest::testExplicitNulls(void)
 
     // Check priors are the same
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))->prior().checksum());
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))->prior().checksum());
 }
 
-void CEventRateModelTest::testInterimCorrections(void)
-{
+void CEventRateModelTest::testInterimCorrections(void) {
     LOG_DEBUG("*** testInterimCorrections ***");
 
     core_t::TTime startTime(3600);
@@ -2499,34 +2337,27 @@ void CEventRateModelTest::testInterimCorrections(void)
     test::CRandomNumbers rng;
     core_t::TTime now = startTime;
     TDoubleVec samples(3, 0.0);
-    while (now < endTime)
-    {
+    while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p1");
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p2");
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p3");
         }
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 35; ++i)
-    {
+    for (std::size_t i = 0; i < 35; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1");
     }
-    for (std::size_t i = 0; i < 1; ++i)
-    {
+    for (std::size_t i = 0; i < 1; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p2");
     }
-    for (std::size_t i = 0; i < 100; ++i)
-    {
+    for (std::size_t i = 0; i < 100; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p3");
     }
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -2568,16 +2399,13 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p2Baseline[0] > 43.0 && p2Baseline[0] < 47.0);
     CPPUNIT_ASSERT(p3Baseline[0] > 57.0 && p3Baseline[0] < 62.0);
 
-    for (std::size_t i = 0; i < 25; ++i)
-    {
+    for (std::size_t i = 0; i < 25; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1");
     }
-    for (std::size_t i = 0; i < 59; ++i)
-    {
+    for (std::size_t i = 0; i < 59; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p2");
     }
-    for (std::size_t i = 0; i < 100; ++i)
-    {
+    for (std::size_t i = 0; i < 100; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p3");
     }
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -2611,8 +2439,7 @@ void CEventRateModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 58.0 && p3Baseline[0] < 62.0);
 }
 
-void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
-{
+void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void) {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
     core_t::TTime startTime(3600);
@@ -2631,34 +2458,27 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
     core_t::TTime endTime(now + 2 * 24 * bucketLength);
     test::CRandomNumbers rng;
     TDoubleVec samples(1, 0.0);
-    while (now < endTime)
-    {
+    while (now < endTime) {
         rng.generateUniformSamples(80.0, 100.0, std::size_t(1), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p1");
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p2");
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p3");
         }
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 9; ++i)
-    {
+    for (std::size_t i = 0; i < 9; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1");
     }
-    for (std::size_t i = 0; i < 10; ++i)
-    {
+    for (std::size_t i = 0; i < 10; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p2");
     }
-    for (std::size_t i = 0; i < 8; ++i)
-    {
+    for (std::size_t i = 0; i < 8; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p3");
     }
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -2706,8 +2526,7 @@ void CEventRateModelTest::testInterimCorrectionsWithCorrelations(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
-{
+void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void) {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
     core_t::TTime startTime(100);
@@ -2746,18 +2565,13 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     TDoubleVec zeroCountProbability;
     std::string summaryCountZero("0");
     std::string summaryCountOne("1");
-    while (now < end)
-    {
+    while (now < end) {
         rng.generateUniformSamples(1, 10, 1, samples);
         rng.generateUniformSamples(0.0, 1.0, 1, zeroCountProbability);
-        for (std::size_t i = 0; i < samples[0]; ++i)
-        {
-            if (zeroCountProbability[0] < 0.2)
-            {
+        for (std::size_t i = 0; i < samples[0]; ++i) {
+            if (zeroCountProbability[0] < 0.2) {
                 addArrival(*gathererWithZeros, m_ResourceMonitor, now, "p1", TOptionalStr(), TOptionalStr(), TOptionalStr(summaryCountZero));
-            }
-            else
-            {
+            } else {
                 addArrival(*gathererWithZeros, m_ResourceMonitor, now, "p1", TOptionalStr(), TOptionalStr(), TOptionalStr(summaryCountOne));
                 addArrival(*gathererNoZeros, m_ResourceMonitor, now, "p1", TOptionalStr(), TOptionalStr(), TOptionalStr(summaryCountOne));
             }
@@ -2770,8 +2584,7 @@ void CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
-{
+void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void) {
     LOG_DEBUG("*** testComputeProbabilityGivenDetectionRule ***");
 
     CRuleCondition condition;
@@ -2799,18 +2612,15 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
     test::CRandomNumbers rng;
     core_t::TTime now = startTime;
     TDoubleVec samples(1, 0.0);
-    while (now < endTime)
-    {
+    while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(1), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p1");
         }
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 35; ++i)
-    {
+    for (std::size_t i = 0; i < 35; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1");
     }
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -2822,8 +2632,7 @@ void CEventRateModelTest::testComputeProbabilityGivenDetectionRule(void)
                                              partitioningFields, 1, annotatedProbability) == false);
 }
 
-void CEventRateModelTest::testDecayRateControl(void)
-{
+void CEventRateModelTest::testDecayRateControl(void) {
     LOG_DEBUG("*** testDecayRateControl ***");
 
     core_t::TTime startTime = 0;
@@ -2861,31 +2670,28 @@ void CEventRateModelTest::testDecayRateControl(void)
         TMeanAccumulator meanPredictionError;
         TMeanAccumulator meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
             TDoubleVec rate;
             rng.generateUniformSamples(0.0, 10.0, 1, rate);
             rate[0] += 20.0 * (t > 3 * core::constants::WEEK && t < core::constants::WEEK + 4 * 3600 ? 1.0 : 0.0);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate[0]); ++i)
-            {
+            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate[0]); ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
                 addArrival(*referenceGatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
@@ -2916,39 +2722,36 @@ void CEventRateModelTest::testDecayRateControl(void)
         TMeanAccumulator meanPredictionError;
         TMeanAccumulator meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
             double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                              * static_cast<double>(t)
-                                              / static_cast<double>(core::constants::DAY)))
-                               * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
+                                                * static_cast<double>(t)
+                                                / static_cast<double>(core::constants::DAY)))
+                          * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i)
-            {
+            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
                 addArrival(*referenceGatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(         maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                                < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 
     LOG_DEBUG("*** Test unmodelled cyclic component ***");
@@ -2975,46 +2778,42 @@ void CEventRateModelTest::testDecayRateControl(void)
         TMeanAccumulator meanPredictionError;
         TMeanAccumulator meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
             double rate = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                              * static_cast<double>(t)
-                                              / static_cast<double>(core::constants::DAY)))
-                               * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                              * static_cast<double>(t)
-                                              / 10.0 / static_cast<double>(core::constants::WEEK)));
+                                                * static_cast<double>(t)
+                                                / static_cast<double>(core::constants::DAY)))
+                          * (1.0 + ::sin(  boost::math::double_constants::two_pi
+                                           * static_cast<double>(t)
+                                           / 10.0 / static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i)
-            {
+            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
                 addArrival(*referenceGatherer, m_ResourceMonitor, t + bucketLength / 2, "p1");
             }
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(        maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                               < 0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
-void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
-{
+void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void) {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
@@ -3060,8 +2859,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     std::size_t endTime = startTime + bucketLength;
 
     // Add a bucket to both models
-    for (int i = 0; i < 66; ++i)
-    {
+    for (int i = 0; i < 66; ++i) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime, "p1");
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime, "p1");
     }
@@ -3072,8 +2870,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     // Add a bucket to both models
-    for (int i = 0; i < 55; ++i)
-    {
+    for (int i = 0; i < 55; ++i) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime, "p1");
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime, "p1");
     }
@@ -3084,8 +2881,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     // this sample will be skipped by the detection rule
-    for (int i = 0; i < 110; ++i)
-    {
+    for (int i = 0; i < 110; ++i) {
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime, "p1");
     }
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
@@ -3097,8 +2893,7 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     // Wind the other model forward
     modelNoSkip->skipSampling(startTime);
 
-    for (int i = 0; i < 55; ++i)
-    {
+    for (int i = 0; i < 55; ++i) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime, "p1");
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime, "p1");
     }
@@ -3131,76 +2926,75 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
-CppUnit::Test *CEventRateModelTest::suite(void)
-{
+CppUnit::Test *CEventRateModelTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateModelTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineCountSample",
-                                   &CEventRateModelTest::testOnlineCountSample) );
+                               "CEventRateModelTest::testOnlineCountSample",
+                               &CEventRateModelTest::testOnlineCountSample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineNonZeroCountSample",
-                                   &CEventRateModelTest::testOnlineNonZeroCountSample) );
+                               "CEventRateModelTest::testOnlineNonZeroCountSample",
+                               &CEventRateModelTest::testOnlineNonZeroCountSample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineRare",
-                                   &CEventRateModelTest::testOnlineRare) );
+                               "CEventRateModelTest::testOnlineRare",
+                               &CEventRateModelTest::testOnlineRare) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineProbabilityCalculation",
-                                   &CEventRateModelTest::testOnlineProbabilityCalculation) );
+                               "CEventRateModelTest::testOnlineProbabilityCalculation",
+                               &CEventRateModelTest::testOnlineProbabilityCalculation) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount",
-                                   &CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount) );
+                               "CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount",
+                               &CEventRateModelTest::testOnlineProbabilityCalculationForLowNonZeroCount) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount",
-                                   &CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount) );
+                               "CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount",
+                               &CEventRateModelTest::testOnlineProbabilityCalculationForHighNonZeroCount) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineCorrelatedNoTrend",
-                                   &CEventRateModelTest::testOnlineCorrelatedNoTrend) );
+                               "CEventRateModelTest::testOnlineCorrelatedNoTrend",
+                               &CEventRateModelTest::testOnlineCorrelatedNoTrend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineCorrelatedTrend",
-                                   &CEventRateModelTest::testOnlineCorrelatedTrend) );
+                               "CEventRateModelTest::testOnlineCorrelatedTrend",
+                               &CEventRateModelTest::testOnlineCorrelatedTrend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testPrune",
-                                   &CEventRateModelTest::testPrune) );
+                               "CEventRateModelTest::testPrune",
+                               &CEventRateModelTest::testPrune) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testKey",
-                                   &CEventRateModelTest::testKey) );
+                               "CEventRateModelTest::testKey",
+                               &CEventRateModelTest::testKey) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testModelsWithValueFields",
-                                   &CEventRateModelTest::testModelsWithValueFields) );
+                               "CEventRateModelTest::testModelsWithValueFields",
+                               &CEventRateModelTest::testModelsWithValueFields) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testCountProbabilityCalculationWithInfluence",
-                                   &CEventRateModelTest::testCountProbabilityCalculationWithInfluence) );
+                               "CEventRateModelTest::testCountProbabilityCalculationWithInfluence",
+                               &CEventRateModelTest::testCountProbabilityCalculationWithInfluence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence",
-                                   &CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence) );
+                               "CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence",
+                               &CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testOnlineRareWithInfluence",
-                                   &CEventRateModelTest::testOnlineRareWithInfluence) );
+                               "CEventRateModelTest::testOnlineRareWithInfluence",
+                               &CEventRateModelTest::testOnlineRareWithInfluence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testSkipSampling",
-                                   &CEventRateModelTest::testSkipSampling) );
+                               "CEventRateModelTest::testSkipSampling",
+                               &CEventRateModelTest::testSkipSampling) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testExplicitNulls",
-                                   &CEventRateModelTest::testExplicitNulls) );
+                               "CEventRateModelTest::testExplicitNulls",
+                               &CEventRateModelTest::testExplicitNulls) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testInterimCorrections",
-                                   &CEventRateModelTest::testInterimCorrections) );
+                               "CEventRateModelTest::testInterimCorrections",
+                               &CEventRateModelTest::testInterimCorrections) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testInterimCorrectionsWithCorrelations",
-                                   &CEventRateModelTest::testInterimCorrectionsWithCorrelations) );
+                               "CEventRateModelTest::testInterimCorrectionsWithCorrelations",
+                               &CEventRateModelTest::testInterimCorrectionsWithCorrelations) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored",
-                                   &CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored) );
+                               "CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored",
+                               &CEventRateModelTest::testSummaryCountZeroRecordsAreIgnored) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testComputeProbabilityGivenDetectionRule",
-                                   &CEventRateModelTest::testComputeProbabilityGivenDetectionRule) );
+                               "CEventRateModelTest::testComputeProbabilityGivenDetectionRule",
+                               &CEventRateModelTest::testComputeProbabilityGivenDetectionRule) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testDecayRateControl",
-                                   &CEventRateModelTest::testDecayRateControl) );
+                               "CEventRateModelTest::testDecayRateControl",
+                               &CEventRateModelTest::testDecayRateControl) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateModelTest>(
-                                   "CEventRateModelTest::testIgnoreSamplingGivenDetectionRules",
-                                   &CEventRateModelTest::testIgnoreSamplingGivenDetectionRules) );
+                               "CEventRateModelTest::testIgnoreSamplingGivenDetectionRules",
+                               &CEventRateModelTest::testIgnoreSamplingGivenDetectionRules) );
     return suiteOfTests;
 }
 

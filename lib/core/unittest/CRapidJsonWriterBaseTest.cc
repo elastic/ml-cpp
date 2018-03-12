@@ -26,22 +26,20 @@
 #include <sstream>
 
 
-CppUnit::Test *CRapidJsonWriterBaseTest::suite()
-{
+CppUnit::Test *CRapidJsonWriterBaseTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-                                   "CRapidJsonWriterBaseTest::testAddFields",
-                                   &CRapidJsonWriterBaseTest::testAddFields) );
+                               "CRapidJsonWriterBaseTest::testAddFields",
+                               &CRapidJsonWriterBaseTest::testAddFields) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-                                   "CRapidJsonWriterBaseTest::testRemoveMemberIfPresent",
-                                   &CRapidJsonWriterBaseTest::testRemoveMemberIfPresent) );
+                               "CRapidJsonWriterBaseTest::testRemoveMemberIfPresent",
+                               &CRapidJsonWriterBaseTest::testRemoveMemberIfPresent) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 const std::string STR_NAME("str");
 const std::string EMPTY1_NAME("empty1");
 const std::string EMPTY2_NAME("empty2");
@@ -57,8 +55,7 @@ const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
-void CRapidJsonWriterBaseTest::testAddFields(void)
-{
+void CRapidJsonWriterBaseTest::testAddFields(void) {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,
@@ -70,7 +67,7 @@ void CRapidJsonWriterBaseTest::testAddFields(void)
     writer.addStringFieldCopyToObj(STR_NAME, "hello", doc);
     writer.addStringFieldCopyToObj(EMPTY1_NAME, "", doc);
     writer.addStringFieldCopyToObj(EMPTY2_NAME, "", doc, true);
-    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.77e-156, doc); 
+    writer.addDoubleFieldToObj(DOUBLE_NAME, 1.77e-156, doc);
     writer.addDoubleFieldToObj(NAN_NAME, std::numeric_limits<double>::quiet_NaN(), doc);
     writer.addDoubleFieldToObj(INFINITY_NAME, std::numeric_limits<double>::infinity(), doc);
     writer.addBoolFieldToObj(BOOL_NAME, false, doc);
@@ -90,26 +87,25 @@ void CRapidJsonWriterBaseTest::testAddFields(void)
     LOG_DEBUG("Printed doc is: " << printedDoc);
 
     std::string expectedDoc("{"
-                                "\"str\":\"hello\","
-                                "\"empty2\":\"\","
-                                "\"double\":1.77e-156,"
-                                "\"nan\":0,"
-                                "\"infinity\":0,"
-                                "\"bool\":false,"
-                                "\"int\":-9,"
-                                "\"uint\":999999999999999,"
-                                "\"str[]\":[\"blah\",\"blah\",\"blah\"],"
-                                "\"double[]\":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5],"
-                                "\"nan[]\":[0,0],"
-                                "\"TTime[]\":[1421421421000,1421421421000]"
+                            "\"str\":\"hello\","
+                            "\"empty2\":\"\","
+                            "\"double\":1.77e-156,"
+                            "\"nan\":0,"
+                            "\"infinity\":0,"
+                            "\"bool\":false,"
+                            "\"int\":-9,"
+                            "\"uint\":999999999999999,"
+                            "\"str[]\":[\"blah\",\"blah\",\"blah\"],"
+                            "\"double[]\":[1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5,1.5],"
+                            "\"nan[]\":[0,0],"
+                            "\"TTime[]\":[1421421421000,1421421421000]"
                             "}");
 
     CPPUNIT_ASSERT_EQUAL(expectedDoc, printedDoc);
 }
 
 
-void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void)
-{
+void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent(void) {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     typedef ml::core::CRapidJsonWriterBase<rapidjson::OStreamWrapper, rapidjson::UTF8<>, rapidjson::UTF8<>,

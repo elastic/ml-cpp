@@ -19,8 +19,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringStoreTest : public CppUnit::TestFixture
-{
+class CStringStoreTest : public CppUnit::TestFixture {
     public:
         void testPersonStringPruning(void);
         void testAttributeStringPruning(void);

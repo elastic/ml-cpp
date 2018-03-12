@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAutoconfigurerParamsTest : public CppUnit::TestFixture
-{
+class CAutoconfigurerParamsTest : public CppUnit::TestFixture {
     public:
         void testDefaults(void);
         void testInit(void);

@@ -15,10 +15,8 @@
 
 #include <core/CPersistUtils.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 const char CPersistUtils::DELIMITER(':');
 const char CPersistUtils::PAIR_DELIMITER(';');

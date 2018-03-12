@@ -19,49 +19,39 @@
 #include <boost/make_shared.hpp>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(void)
-    : CXmlNode()
-{
+    : CXmlNode() {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string &name)
-    : CXmlNode(name)
-{
+    : CXmlNode(name) {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string &name,
                                            const std::string &value)
-    : CXmlNode(name, value)
-{
+    : CXmlNode(name, value) {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string &name,
                                            const std::string &value,
                                            const CXmlNode::TStrStrMap &attributes)
-    : CXmlNode(name, value, attributes)
-{
+    : CXmlNode(name, value, attributes) {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren &arg)
     : CXmlNode(arg),
-      m_Children(arg.m_Children)
-{
+      m_Children(arg.m_Children) {
 }
 
-CXmlNodeWithChildren::~CXmlNodeWithChildren(void)
-{
+CXmlNodeWithChildren::~CXmlNodeWithChildren(void) {
 }
 
-CXmlNodeWithChildren &CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren &rhs)
-{
-    if (this != &rhs)
-    {
+CXmlNodeWithChildren &CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren &rhs) {
+    if (this != &rhs) {
         this->CXmlNode::operator=(rhs);
         m_Children = rhs.m_Children;
     }
@@ -69,34 +59,28 @@ CXmlNodeWithChildren &CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren
     return *this;
 }
 
-void CXmlNodeWithChildren::addChild(const CXmlNode &child)
-{
+void CXmlNodeWithChildren::addChild(const CXmlNode &child) {
     m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>());
     m_Children.back()->CXmlNode::operator=(child);
 }
 
-void CXmlNodeWithChildren::addChild(const CXmlNodeWithChildren &child)
-{
+void CXmlNodeWithChildren::addChild(const CXmlNodeWithChildren &child) {
     m_Children.push_back(boost::make_shared<CXmlNodeWithChildren>(child));
 }
 
-void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP &childP)
-{
+void CXmlNodeWithChildren::addChildP(const TXmlNodeWithChildrenP &childP) {
     m_Children.push_back(childP);
 }
 
-const CXmlNodeWithChildren::TChildNodePVec &CXmlNodeWithChildren::children(void) const
-{
+const CXmlNodeWithChildren::TChildNodePVec &CXmlNodeWithChildren::children(void) const {
     return m_Children;
 }
 
-std::string CXmlNodeWithChildren::dump(void) const
-{
+std::string CXmlNodeWithChildren::dump(void) const {
     return this->dump(0);
 }
 
-std::string CXmlNodeWithChildren::dump(size_t indent) const
-{
+std::string CXmlNodeWithChildren::dump(size_t indent) const {
     std::string strRep(indent, '\t');
 
     // Call base class dump for name/value/attributes
@@ -106,12 +90,10 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const
 
     // Now add children at next level of indenting
     for (TChildNodePVecCItr childIter = m_Children.begin();
-         childIter != m_Children.end();
-         ++childIter)
-    {
+            childIter != m_Children.end();
+            ++childIter) {
         const CXmlNodeWithChildren *child = childIter->get();
-        if (child != 0)
-        {
+        if (child != 0) {
             strRep += child->dump(indent + 1);
         }
     }

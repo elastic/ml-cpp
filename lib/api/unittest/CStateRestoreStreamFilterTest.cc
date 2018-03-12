@@ -23,29 +23,27 @@
 #include <string>
 
 
-CppUnit::Test *CStateRestoreStreamFilterTest::suite()
-{
+CppUnit::Test *CStateRestoreStreamFilterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-                                   "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
-                                   &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval) );
+                               "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
+                               &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-                                   "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
-                                   &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte) );
+                               "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
+                               &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte) );
 
     return suiteOfTests;
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval(void)
-{
+void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval(void) {
     std::istringstream input ("{\"index\":{\"_id\":\"some_id\"}}\n"
-                       "{\"compressed\" : [ \"a\",\"b\"]}");
+                              "{\"compressed\" : [ \"a\",\"b\"]}");
 
     boost::iostreams::filtering_istream in;
     in.push(ml::api::CStateRestoreStreamFilter());
     in.push(input);
-    std::string output(std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{});
+    std::string output(std::istreambuf_iterator<char> {in}, std::istreambuf_iterator<char> {});
 
     std::string expected ("{\"_id\":\"some_id\",\"_version\":1,\"found\":true,\"_source\":"
                           "{\"compressed\" : [ \"a\",\"b\"]}}");
@@ -59,8 +57,7 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval(void)
     CPPUNIT_ASSERT_EQUAL(expected, output);
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte(void)
-{
+void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte(void) {
     std::stringstream input;
 
     input << "{\"index\":{\"_id\":\"some_id\"}}\n";
@@ -72,7 +69,7 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte(void)
     boost::iostreams::filtering_istream in;
     in.push(ml::api::CStateRestoreStreamFilter());
     in.push(input);
-    std::string output(std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{});
+    std::string output(std::istreambuf_iterator<char> {in}, std::istreambuf_iterator<char> {});
 
     std::string expected ("{\"_id\":\"some_id\",\"_version\":1,\"found\":true,\"_source\":"
                           "{\"compressed\" : [ \"a\",\"b\"]}}");

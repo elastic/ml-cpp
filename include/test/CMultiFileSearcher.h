@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! Retrieves data previously persisted to file.
@@ -42,8 +40,7 @@ namespace test
 //! class.  For data persisted by the CSingleStreamDataAdder class, use the
 //! CSingleStreamSearcher.
 //!
-class TEST_EXPORT CMultiFileSearcher : public core::CDataSearcher
-{
+class TEST_EXPORT CMultiFileSearcher : public core::CDataSearcher {
     public:
         //! File extension for persisted files.
         static const std::string JSON_FILE_EXT;

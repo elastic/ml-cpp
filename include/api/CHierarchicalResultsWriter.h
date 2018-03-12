@@ -29,10 +29,8 @@
 
 #include <functional>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief Writes out hierarchical results using a callback to write
 //! individual results.
@@ -44,8 +42,7 @@ namespace api
 //! For each node one or more CAnomalyDetector::SResults objects are
 //! constructed and written by the callback supplied to the constructor.
 class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResultsVisitor,
-                                              private core::CNonCopyable
-{
+    private core::CNonCopyable {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TOptionalDouble = boost::optional<double>;
@@ -63,8 +60,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 
         enum EResultType {E_SimpleCountResult, E_PopulationResult, E_PartitionResult, E_Result};
         //! Type which wraps up the results of anomaly detection.
-        struct API_EXPORT SResults
-        {
+        struct API_EXPORT SResults {
             //! Construct for population results
             SResults(bool isAllTimeResult,
                      bool isOverallResult,
@@ -181,7 +177,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 
         //! Write partition result if \p node is a partition level result
         void writePartitionResult(const model::CHierarchicalResults &results,
-                              const TNode &node);
+                                  const TNode &node);
 
         //! Write out a simple count result if \p node is simple
         //! count.

@@ -28,59 +28,48 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<std::string> TStrVec;
 typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 typedef boost::unordered_set<const std::string*> TStrCPtrUSet;
 
-class CStringThread : public core::CThread
-{
+class CStringThread : public core::CThread {
     public:
         typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
 
     public:
         CStringThread(std::size_t i, const TStrVec &strings)
             : m_I(i),
-              m_Strings(strings)
-        {
+              m_Strings(strings) {
         }
 
-        void uniques(TStrCPtrUSet &result) const
-        {
+        void uniques(TStrCPtrUSet &result) const {
             result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
         }
 
-        void propagateLastThreadAssert(void)
-        {
-            if (m_LastException != 0)
-            {
+        void propagateLastThreadAssert(void) {
+            if (m_LastException != 0) {
                 throw *m_LastException;
             }
         }
 
-        void clearPtrs(void)
-        {
+        void clearPtrs(void) {
             m_UniquePtrs.clear();
             m_Ptrs.clear();
         }
 
     private:
-        virtual void run(void)
-        {
-            try
-            {
+        virtual void run(void) {
+            try {
                 std::size_t n = m_Strings.size();
-                for (std::size_t i = m_I; i < 1000; ++i)
-                {
+                for (std::size_t i = m_I; i < 1000; ++i) {
                     m_Ptrs.push_back(core::CStoredStringPtr());
                     m_Ptrs.back() = CStringStore::names().get(m_Strings[i % n]);
                     m_UniquePtrs.insert(m_Ptrs.back().get());
                     CPPUNIT_ASSERT_EQUAL(m_Strings[i % n], *m_Ptrs.back());
                 }
-                for (std::size_t i = m_I; i < 1000000; ++i)
-                {
+                for (std::size_t i = m_I; i < 1000000; ++i) {
                     core::CStoredStringPtr p = CStringStore::names().get(m_Strings[i % n]);
                     m_UniquePtrs.insert(p.get());
                     CPPUNIT_ASSERT_EQUAL(m_Strings[i % n], *p);
@@ -88,14 +77,12 @@ class CStringThread : public core::CThread
             }
             // CppUnit won't automatically catch the exceptions thrown by
             // assertions in newly created threads, so propagate manually
-            catch (CppUnit::Exception &e)
-            {
+            catch (CppUnit::Exception &e) {
                 m_LastException.reset(new CppUnit::Exception(e));
             }
         }
 
-        virtual void shutdown(void)
-        {
+        virtual void shutdown(void) {
         }
 
     private:
@@ -108,16 +95,14 @@ class CStringThread : public core::CThread
 
 }
 
-void CStringStoreTest::setUp(void)
-{
+void CStringStoreTest::setUp(void) {
     // Other test suites also use the string store, and it will mess up the
     // tests in this suite if the string store is not empty when they start
     CStringStore::names().clearEverythingTestOnly();
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CStringStoreTest::testStringStore(void)
-{
+void CStringStoreTest::testStringStore(void) {
     TStrVec strings;
     strings.emplace_back("Milano");
     strings.emplace_back("Monza");
@@ -161,16 +146,13 @@ void CStringStoreTest::testStringStore(void)
         typedef boost::shared_ptr<CStringThread> TThreadPtr;
         typedef std::vector<TThreadPtr> TThreadVec;
         TThreadVec threads;
-        for (std::size_t i = 0; i < 20; ++i)
-        {
+        for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i, strings));
         }
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             CPPUNIT_ASSERT(threads[i]->start());
         }
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             CPPUNIT_ASSERT(threads[i]->waitForFinish());
         }
 
@@ -179,14 +161,12 @@ void CStringStoreTest::testStringStore(void)
         CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::influencers().m_Strings.size());
 
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             // CppUnit won't automatically catch the exceptions thrown by
             // assertions in newly created threads, so propagate manually
             threads[i]->propagateLastThreadAssert();
         }
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             threads[i]->clearPtrs();
         }
 
@@ -200,53 +180,45 @@ void CStringStoreTest::testStringStore(void)
         LOG_DEBUG("Testing multi-threaded string duplication rate");
 
         TStrVec lotsOfStrings;
-        for (std::size_t i = 0u; i < 1000; ++i)
-        {
+        for (std::size_t i = 0u; i < 1000; ++i) {
             lotsOfStrings.push_back(core::CStringUtils::typeToString(i));
         }
 
         typedef boost::shared_ptr<CStringThread> TThreadPtr;
         typedef std::vector<TThreadPtr> TThreadVec;
         TThreadVec threads;
-        for (std::size_t i = 0; i < 20; ++i)
-        {
+        for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i * 50, lotsOfStrings));
         }
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             CPPUNIT_ASSERT(threads[i]->start());
         }
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             CPPUNIT_ASSERT(threads[i]->waitForFinish());
         }
 
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             // CppUnit won't automatically catch the exceptions thrown by
             // assertions in newly created threads, so propagate manually
             threads[i]->propagateLastThreadAssert();
         }
 
         TStrCPtrUSet uniques;
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             threads[i]->uniques(uniques);
         }
         LOG_DEBUG("unique counts = " << uniques.size());
         CPPUNIT_ASSERT(uniques.size() < 20000);
 
         // Tidy up
-        for (std::size_t i = 0; i < threads.size(); ++i)
-        {
+        for (std::size_t i = 0; i < threads.size(); ++i) {
             threads[i]->clearPtrs();
         }
         CStringStore::names().pruneNotThreadSafe();
     }
 }
 
-void CStringStoreTest::testMemUsage(void)
-{
+void CStringStoreTest::testMemUsage(void) {
     std::string shortStr("short");
     std::string longStr("much much longer than the short string");
 
@@ -283,16 +255,15 @@ void CStringStoreTest::testMemUsage(void)
     CPPUNIT_ASSERT_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
 
-CppUnit::Test *CStringStoreTest::suite(void)
-{
+CppUnit::Test *CStringStoreTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringStoreTest>(
-                                   "CStringStoreTest::testStringStore",
-                                   &CStringStoreTest::testStringStore) );
+                               "CStringStoreTest::testStringStore",
+                               &CStringStoreTest::testStringStore) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringStoreTest>(
-                                   "CStringStoreTest::testMemUsage",
-                                   &CStringStoreTest::testMemUsage) );
+                               "CStringStoreTest::testMemUsage",
+                               &CStringStoreTest::testMemUsage) );
 
     return suiteOfTests;
 }

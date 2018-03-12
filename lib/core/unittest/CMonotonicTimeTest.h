@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CMonotonicTimeTest : public CppUnit::TestFixture
-{
+class CMonotonicTimeTest : public CppUnit::TestFixture {
     public:
         void testMilliseconds(void);
         void testNanoseconds(void);

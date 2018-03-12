@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSetToolsTest : public CppUnit::TestFixture
-{
+class CSetToolsTest : public CppUnit::TestFixture {
     public:
         void testInplaceSetDifference(void);
         void testSetSizes(void);

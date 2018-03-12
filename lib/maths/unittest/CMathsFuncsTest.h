@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMathsFuncsTest : public CppUnit::TestFixture
-{
+class CMathsFuncsTest : public CppUnit::TestFixture {
     public:
         void testIsNan(void);
         void testIsInf(void);

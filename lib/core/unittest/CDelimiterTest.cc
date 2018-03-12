@@ -21,33 +21,31 @@
 #include <sstream>
 
 
-CppUnit::Test *CDelimiterTest::suite()
-{
+CppUnit::Test *CDelimiterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDelimiterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testSimpleTokenise",
-                                   &CDelimiterTest::testSimpleTokenise) );
+                               "CDelimiterTest::testSimpleTokenise",
+                               &CDelimiterTest::testSimpleTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testRegexTokenise",
-                                   &CDelimiterTest::testRegexTokenise) );
+                               "CDelimiterTest::testRegexTokenise",
+                               &CDelimiterTest::testRegexTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testQuotedTokenise",
-                                   &CDelimiterTest::testQuotedTokenise) );
+                               "CDelimiterTest::testQuotedTokenise",
+                               &CDelimiterTest::testQuotedTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testQuotedEscapedTokenise",
-                                   &CDelimiterTest::testQuotedEscapedTokenise) );
+                               "CDelimiterTest::testQuotedEscapedTokenise",
+                               &CDelimiterTest::testQuotedEscapedTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testInvalidQuotedTokenise",
-                                   &CDelimiterTest::testInvalidQuotedTokenise) );
+                               "CDelimiterTest::testInvalidQuotedTokenise",
+                               &CDelimiterTest::testInvalidQuotedTokenise) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDelimiterTest>(
-                                   "CDelimiterTest::testQuoteEqualsEscapeTokenise",
-                                   &CDelimiterTest::testQuoteEqualsEscapeTokenise) );
+                               "CDelimiterTest::testQuoteEqualsEscapeTokenise",
+                               &CDelimiterTest::testQuoteEqualsEscapeTokenise) );
     return suiteOfTests;
 }
 
-void CDelimiterTest::testSimpleTokenise(void)
-{
+void CDelimiterTest::testSimpleTokenise(void) {
     std::string testData(
         "Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters processParameters\n"
         "WARNING: Parameters: Invalid chunk ignored.\n"
@@ -91,8 +89,7 @@ void CDelimiterTest::testSimpleTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testRegexTokenise(void)
-{
+void CDelimiterTest::testRegexTokenise(void) {
     // Some of the lines here are Windows text format, and others Unix text
     std::string testData(
         "Oct 12, 2008 8:38:51 AM org.apache.tomcat.util.http.Parameters processParameters\r\n"
@@ -138,8 +135,7 @@ void CDelimiterTest::testRegexTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(0), remainder.size());
 }
 
-void CDelimiterTest::testQuotedTokenise(void)
-{
+void CDelimiterTest::testQuotedTokenise(void) {
     // NB: The backslashes here escape the quotes for the benefit of the C++ compiler
     std::string testData(
         "3,1,5415.1132,56135135,0x00000001,0x00000002,\"SOME_STRING\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",0x0000000000000000,0x0000000000000000,\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
@@ -165,8 +161,7 @@ void CDelimiterTest::testQuotedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testQuotedEscapedTokenise(void)
-{
+void CDelimiterTest::testQuotedEscapedTokenise(void) {
     // Similar to previous test, but there are four values with escaped quotes in AFTER
     // pre-processing by the C++ compiler
     std::string testData(
@@ -193,8 +188,7 @@ void CDelimiterTest::testQuotedEscapedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(size_t(40), delimited.size());
 }
 
-void CDelimiterTest::testInvalidQuotedTokenise(void)
-{
+void CDelimiterTest::testInvalidQuotedTokenise(void) {
     // Invalid quoting (e.g. mismatched) mustn't cause the tokeniser to go into
     // an infinite loop
     std::string testData(
@@ -215,8 +209,7 @@ void CDelimiterTest::testInvalidQuotedTokenise(void)
     CPPUNIT_ASSERT_EQUAL(std::string("/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV"), remainder);
 }
 
-void CDelimiterTest::testQuoteEqualsEscapeTokenise(void)
-{
+void CDelimiterTest::testQuoteEqualsEscapeTokenise(void) {
     // In this example, double quotes are used for quoting, but they are escaped
     // by doubling them up, so the escape character is the same as the quote
     // character

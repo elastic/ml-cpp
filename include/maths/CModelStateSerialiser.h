@@ -20,15 +20,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CModel;
 struct SModelRestoreParams;
 
@@ -44,8 +41,7 @@ struct SModelRestoreParams;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format is used to make it easier to provide backwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CModelStateSerialiser
-{
+class MATHS_EXPORT CModelStateSerialiser {
     public:
         using TModelPtr = boost::shared_ptr<CModel>;
 

@@ -21,8 +21,7 @@
 #include "CDetectorEnumeratorTest.h"
 #include "CReportWriterTest.h"
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     ml::test::CTestRunner runner(argc, argv);
 
     runner.addTest( CAutoconfigurerParamsTest::suite() );

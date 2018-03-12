@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CIpAddressTestTest : public CppUnit::TestFixture
-{
+class CIpAddressTestTest : public CppUnit::TestFixture {
     public:
         void testIpv4(void);
         void testIpv6(void);

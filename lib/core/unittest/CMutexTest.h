@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMutexTest : public CppUnit::TestFixture
-{
+class CMutexTest : public CppUnit::TestFixture {
     public:
         void    testRecursive(void);
 

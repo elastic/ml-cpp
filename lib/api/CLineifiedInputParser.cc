@@ -21,10 +21,8 @@
 #include <string.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 // Initialise statics
@@ -38,13 +36,11 @@ CLineifiedInputParser::CLineifiedInputParser(std::istream &strmIn)
       m_WorkBuffer(0),
       m_WorkBufferCapacity(0),
       m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0)
-{
+      m_WorkBufferEnd(0) {
 }
 
 CLineifiedInputParser::TCharPSizePr
-CLineifiedInputParser::parseLine(void)
-{
+CLineifiedInputParser::parseLine(void) {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -52,38 +48,31 @@ CLineifiedInputParser::parseLine(void)
     // for the delimiter and then memcpy() to transfer data to the target
     // std::string, but sadly this is not the case for the Microsoft and Apache
     // STLs.
-    if (m_WorkBuffer.get() == 0)
-    {
+    if (m_WorkBuffer.get() == 0) {
         m_WorkBuffer.reset(new char[WORK_BUFFER_SIZE]);
         m_WorkBufferCapacity = WORK_BUFFER_SIZE;
         m_WorkBufferPtr = m_WorkBuffer.get();
         m_WorkBufferEnd = m_WorkBufferPtr;
     }
 
-    for (;;)
-    {
+    for (;;) {
         size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
-        if (avail > 0)
-        {
+        if (avail > 0) {
             char *delimPtr(reinterpret_cast<char *>(::memchr(m_WorkBufferPtr,
                                                              LINE_END,
                                                              avail)));
-            if (delimPtr != 0)
-            {
+            if (delimPtr != 0) {
                 *delimPtr = '\0';
                 TCharPSizePr result(m_WorkBufferPtr, delimPtr - m_WorkBufferPtr);
                 m_WorkBufferPtr = delimPtr + 1;
                 return result;
             }
 
-            if (m_WorkBufferPtr > m_WorkBuffer.get())
-            {
+            if (m_WorkBufferPtr > m_WorkBuffer.get()) {
                 // We didn't find a line ending, but we started part way through the
                 // the buffer, so shuffle it up and refill it
                 ::memmove(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
-            }
-            else
-            {
+            } else {
                 // We didn't find a line ending and started at the beginning of a
                 // full buffer so expand it
                 m_WorkBufferCapacity += WORK_BUFFER_SIZE;
@@ -95,8 +84,7 @@ CLineifiedInputParser::parseLine(void)
             m_WorkBufferEnd = m_WorkBufferPtr + avail;
         }
 
-        if (m_StrmIn.eof())
-        {
+        if (m_StrmIn.eof()) {
             // We have no lines in the buffered data and are already at the end
             // of the stream, so stop now
             break;
@@ -105,10 +93,8 @@ CLineifiedInputParser::parseLine(void)
         m_StrmIn.read(m_WorkBufferEnd,
                       static_cast<std::streamsize>(m_WorkBufferCapacity - avail));
         std::streamsize bytesRead(m_StrmIn.gcount());
-        if (bytesRead == 0)
-        {
-            if (m_StrmIn.bad())
-            {
+        if (bytesRead == 0) {
+            if (m_StrmIn.bad()) {
                 LOG_ERROR("Input stream is bad");
             }
             // We needed to read more data and didn't get any, so stop
@@ -120,8 +106,7 @@ CLineifiedInputParser::parseLine(void)
     return TCharPSizePr(static_cast<char *>(0), 0);
 }
 
-void CLineifiedInputParser::resetBuffer(void)
-{
+void CLineifiedInputParser::resetBuffer(void) {
     m_WorkBufferEnd = m_WorkBufferPtr;
 }
 

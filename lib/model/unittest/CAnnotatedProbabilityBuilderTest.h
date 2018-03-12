@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture
-{
+class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture {
     public:
         void testProbability(void);
         void testAddAttributeProbabilityGivenIndividualCount(void);

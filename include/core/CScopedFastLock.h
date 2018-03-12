@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CFastMutex;
 
 //! \brief
@@ -34,8 +32,7 @@ class CFastMutex;
 //! IMPLEMENTATION DECISIONS:\n
 //! See Schmidt etc. for details.
 //!
-class CORE_EXPORT CScopedFastLock : private CNonCopyable
-{
+class CORE_EXPORT CScopedFastLock : private CNonCopyable {
     public:
         //! Lock specified mutex
         CScopedFastLock(CFastMutex &mutex);

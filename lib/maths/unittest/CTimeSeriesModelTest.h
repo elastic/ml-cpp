@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTimeSeriesModelTest : public CppUnit::TestFixture
-{
+class CTimeSeriesModelTest : public CppUnit::TestFixture {
     public:
         void testClone(void);
         void testMode(void);

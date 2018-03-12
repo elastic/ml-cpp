@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture
-{
+class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

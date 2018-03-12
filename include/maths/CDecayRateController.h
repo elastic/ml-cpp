@@ -25,15 +25,12 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 class CStatePersistInserter;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Manages the decay rate based on the data characteristics.
 //!
@@ -52,8 +49,7 @@ namespace maths
 //! and prediction error is large compared to the long term prediction
 //! error then the system has recently undergone some state change and
 //! we should re-learn the model parameters as fast as possible.
-class MATHS_EXPORT CDecayRateController
-{
+class MATHS_EXPORT CDecayRateController {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble1VecVec = std::vector<TDouble1Vec>;
@@ -61,13 +57,12 @@ class MATHS_EXPORT CDecayRateController
         using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
 
         //! Enumerates the type of model check we can perform.
-        enum EChecks
-        {
+        enum EChecks {
             E_PredictionBias          = 0x1, //!< Check for prediction bias.
             E_PredictionErrorIncrease = 0x2, //!< Check for recent increases
-                                             //! in the prediction errors.
+            //! in the prediction errors.
             E_PredictionErrorDecrease = 0x4  //!< Check for recent decreases
-                                             //! in the prediction errors.
+                                        //! in the prediction errors.
         };
 
     public:

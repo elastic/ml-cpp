@@ -24,10 +24,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //!
 //! All errors are just warnings - no action taken.
 //!
-class CORE_EXPORT CReadWriteLock : private CNonCopyable
-{
+class CORE_EXPORT CReadWriteLock : private CNonCopyable {
     public:
         CReadWriteLock(void);
         ~CReadWriteLock(void);

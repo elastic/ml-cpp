@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnomalyJobLimitTest : public CppUnit::TestFixture
-{
+class CAnomalyJobLimitTest : public CppUnit::TestFixture {
     public:
         void testLimit(void);
         void testAccuracy(void);

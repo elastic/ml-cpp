@@ -25,10 +25,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -60,15 +58,13 @@ namespace core
 //! too to avoid repeated locking in the instance() method (see
 //! Modern C++ Design by Andrei Alexandrescu for details).
 //!
-class CORE_EXPORT CWordDictionary : private CNonCopyable
-{
+class CORE_EXPORT CWordDictionary : private CNonCopyable {
     public:
         //! Types of words.
         //! The values used are deliberately powers of two so that in the
         //! future we could potentially bitwise-or them together for words
         //! with multiple uses.
-        enum EPartOfSpeech
-        {
+        enum EPartOfSpeech {
             E_NotInDictionary = 0,
             E_UnknownPart = 1,
             E_Noun = 2,
@@ -87,11 +83,9 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
     public:
         //! Functor for weighting all dictionary words by a certain amount
         template <size_t DEFAULT_EXTRA_WEIGHT>
-        class CWeightAll
-        {
+        class CWeightAll {
             public:
-                size_t operator()(EPartOfSpeech partOfSpeech)
-                {
+                size_t operator()(EPartOfSpeech partOfSpeech) {
                     return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT;
                 }
         };
@@ -103,13 +97,10 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
         template <EPartOfSpeech SPECIAL_PART1,
                   size_t EXTRA_WEIGHT1,
                   size_t DEFAULT_EXTRA_WEIGHT>
-        class CWeightOnePart
-        {
+        class CWeightOnePart {
             public:
-                size_t operator()(EPartOfSpeech partOfSpeech)
-                {
-                    if (partOfSpeech == E_NotInDictionary)
-                    {
+                size_t operator()(EPartOfSpeech partOfSpeech) {
+                    if (partOfSpeech == E_NotInDictionary) {
                         return 0;
                     }
                     return (partOfSpeech == SPECIAL_PART1) ? EXTRA_WEIGHT1 : DEFAULT_EXTRA_WEIGHT;
@@ -125,17 +116,13 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
                   EPartOfSpeech SPECIAL_PART2,
                   size_t EXTRA_WEIGHT2,
                   size_t DEFAULT_EXTRA_WEIGHT>
-        class CWeightTwoParts
-        {
+        class CWeightTwoParts {
             public:
-                size_t operator()(EPartOfSpeech partOfSpeech)
-                {
-                    if (partOfSpeech == E_NotInDictionary)
-                    {
+                size_t operator()(EPartOfSpeech partOfSpeech) {
+                    if (partOfSpeech == E_NotInDictionary) {
                         return 0;
                     }
-                    if (partOfSpeech == SPECIAL_PART1)
-                    {
+                    if (partOfSpeech == SPECIAL_PART1) {
                         return EXTRA_WEIGHT1;
                     }
                     return (partOfSpeech == SPECIAL_PART2) ? EXTRA_WEIGHT2 : DEFAULT_EXTRA_WEIGHT;
@@ -167,14 +154,12 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
         ~CWordDictionary(void);
 
     private:
-        class CStrHashIgnoreCase : std::unary_function<std::string, bool>
-        {
+        class CStrHashIgnoreCase : std::unary_function<std::string, bool> {
             public:
                 size_t operator()(const std::string &str) const;
         };
 
-        class CStrEqualIgnoreCase : std::binary_function<std::string, std::string, bool>
-        {
+        class CStrEqualIgnoreCase : std::binary_function<std::string, std::string, bool> {
             public:
                 bool operator()(const std::string &lhs,
                                 const std::string &rhs) const;
@@ -199,9 +184,9 @@ class CORE_EXPORT CWordDictionary : private CNonCopyable
         //! there's only one index, because of its flexible key extractors.
         //! The key is the string, but hashed and compared ignoring case.
         typedef boost::unordered_map<std::string,
-                                     EPartOfSpeech,
-                                     CStrHashIgnoreCase,
-                                     CStrEqualIgnoreCase> TStrUMap;
+                EPartOfSpeech,
+                CStrHashIgnoreCase,
+                CStrEqualIgnoreCase> TStrUMap;
         typedef TStrUMap::const_iterator                  TStrUMapCItr;
 
         //! Our dictionary of words

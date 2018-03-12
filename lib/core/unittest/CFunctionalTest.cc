@@ -23,8 +23,7 @@
 
 using namespace ml;
 
-void CFunctionalTest::testIsNull(void)
-{
+void CFunctionalTest::testIsNull(void) {
     core::CFunctional::SIsNull isNull;
 
     {
@@ -48,8 +47,7 @@ void CFunctionalTest::testIsNull(void)
     }
 }
 
-void CFunctionalTest::testDereference(void)
-{
+void CFunctionalTest::testDereference(void) {
     double one(1.0);
     double two(2.0);
     double three(3.0);
@@ -64,25 +62,22 @@ void CFunctionalTest::testDereference(void)
     std::less<double> less;
     core::CFunctional::SDereference<std::less<double> > derefLess;
     const double *values[] = { &one, &two, &three };
-    for (std::size_t i = 0u; i < boost::size(values); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(values); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(values); ++i) {
+        for (std::size_t j = 0u; j < boost::size(values); ++j) {
             CPPUNIT_ASSERT_EQUAL(less(*values[i], *values[j]), derefLess(values[i], values[j]));
         }
     }
 }
 
-CppUnit::Test *CFunctionalTest::suite(void)
-{
+CppUnit::Test *CFunctionalTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFunctionalTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CFunctionalTest>(
-                                   "CFunctionalTest::testIsNull",
-                                   &CFunctionalTest::testIsNull) );
+                               "CFunctionalTest::testIsNull",
+                               &CFunctionalTest::testIsNull) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CFunctionalTest>(
-                                   "CFunctionalTest::testDereference",
-                                   &CFunctionalTest::testDereference) );
+                               "CFunctionalTest::testDereference",
+                               &CFunctionalTest::testDereference) );
 
     return suiteOfTests;
 }

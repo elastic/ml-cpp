@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTrendComponentTest : public CppUnit::TestFixture
-{
+class CTrendComponentTest : public CppUnit::TestFixture {
     public:
         void testValueAndVariance();
         void testDecayRate();

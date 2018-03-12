@@ -27,10 +27,8 @@
 #include <list>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Enables a data adder to run in a different thread.
@@ -61,8 +59,7 @@ namespace api
 //! the data adder is not thread safe then it may not be used by
 //! any other object until after this object is destroyed.
 //!
-class API_EXPORT CBackgroundPersister : private core::CNonCopyable
-{
+class API_EXPORT CBackgroundPersister : private core::CNonCopyable {
     public:
         using TFirstProcessorPeriodicPersistFunc = std::function<bool(CBackgroundPersister &)>;
 
@@ -120,8 +117,7 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
 
     private:
         //! Implementation of the background thread
-        class CBackgroundThread : public core::CThread
-        {
+        class CBackgroundThread : public core::CThread {
             public:
                 CBackgroundThread(CBackgroundPersister &owner);
 
@@ -170,9 +166,9 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         //! Thread used to do the background work
         CBackgroundThread                  m_BackgroundThread;
 
-    // Allow the background thread to access the member variables of the owning
-    // object
-    friend class CBackgroundThread;
+        // Allow the background thread to access the member variables of the owning
+        // object
+        friend class CBackgroundThread;
 };
 
 

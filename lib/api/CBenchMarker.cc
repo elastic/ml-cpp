@@ -24,42 +24,34 @@
 #include <sstream>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 CBenchMarker::CBenchMarker(void)
     : m_TotalMessages(0),
-      m_ScoredMessages(0)
-{
+      m_ScoredMessages(0) {
 }
 
-bool CBenchMarker::init(const std::string &regexFilename)
-{
+bool CBenchMarker::init(const std::string &regexFilename) {
     // Reset in case of reinitialisation
     m_TotalMessages = 0;
     m_ScoredMessages = 0;
     m_Measures.clear();
 
     std::ifstream ifs(regexFilename.c_str());
-    if (!ifs.is_open())
-    {
+    if (!ifs.is_open()) {
         return false;
     }
 
     std::string line;
-    while (std::getline(ifs, line))
-    {
-        if (line.empty())
-        {
+    while (std::getline(ifs, line)) {
+        if (line.empty()) {
             continue;
         }
 
         core::CRegex regex;
-        if (regex.init(line) == false)
-        {
+        if (regex.init(line) == false) {
             return false;
         }
 
@@ -71,26 +63,20 @@ bool CBenchMarker::init(const std::string &regexFilename)
 }
 
 void CBenchMarker::addResult(const std::string &message,
-                             int type)
-{
+                             int type) {
     bool scored(false);
     size_t position(0);
     for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
-         measureVecIter != m_Measures.end();
-         ++measureVecIter)
-    {
+            measureVecIter != m_Measures.end();
+            ++measureVecIter) {
         const core::CRegex &regex = measureVecIter->first;
-        if (regex.search(message, position) == true)
-        {
+        if (regex.search(message, position) == true) {
             TIntSizeStrPrMap &counts = measureVecIter->second;
             TIntSizeStrPrMapItr mapIter = counts.find(type);
-            if (mapIter == counts.end())
-            {
+            if (mapIter == counts.end()) {
                 counts.insert(TIntSizeStrPrMap::value_type(type,
                                                            TSizeStrPr(1, message)));
-            }
-            else
-            {
+            } else {
                 ++(mapIter->second.first);
             }
             ++m_ScoredMessages;
@@ -101,14 +87,12 @@ void CBenchMarker::addResult(const std::string &message,
 
     ++m_TotalMessages;
 
-    if (!scored)
-    {
+    if (!scored) {
         LOG_TRACE("Message not included in scoring: " << message);
     }
 }
 
-void CBenchMarker::dumpResults(void) const
-{
+void CBenchMarker::dumpResults(void) const {
     // Sort the results in descending order of actual type occurrence
     typedef std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>       TSizeRegexIntSizeStrPrMapPrVecCItrPr;
     typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>       TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
@@ -118,16 +102,14 @@ void CBenchMarker::dumpResults(void) const
     sortVec.reserve(m_Measures.size());
 
     for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
-         measureVecIter != m_Measures.end();
-         ++measureVecIter)
-    {
+            measureVecIter != m_Measures.end();
+            ++measureVecIter) {
         const TIntSizeStrPrMap &counts = measureVecIter->second;
 
         size_t total(0);
         for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-             mapIter != counts.end();
-             ++mapIter)
-        {
+                mapIter != counts.end();
+                ++mapIter) {
             total += mapIter->second.first;
         }
 
@@ -151,12 +133,10 @@ void CBenchMarker::dumpResults(void) const
     // Iterate backwards through the sorted vector, so that the most common
     // actual types are looked at first
     for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
-         sortedVecIter != sortVec.end();
-         ++sortedVecIter)
-    {
+            sortedVecIter != sortVec.end();
+            ++sortedVecIter) {
         size_t total(sortedVecIter->first);
-        if (total > 0)
-        {
+        if (total > 0) {
             ++observedActuals;
         }
 
@@ -170,23 +150,17 @@ void CBenchMarker::dumpResults(void) const
         strm << "\tNumber of Ml categories that include this manual category "
              << counts.size() << core_t::LINE_ENDING;
 
-        if (counts.size() == 1)
-        {
+        if (counts.size() == 1) {
             size_t count(counts.begin()->second.first);
             int type(counts.begin()->first);
-            if (usedTypes.find(type) != usedTypes.end())
-            {
+            if (usedTypes.find(type) != usedTypes.end()) {
                 strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
                      << counts.begin()->second.second << core_t::LINE_ENDING;
-            }
-            else
-            {
+            } else {
                 good += count;
                 usedTypes.insert(type);
             }
-        }
-        else if (counts.size() > 1)
-        {
+        } else if (counts.size() > 1) {
             strm << "\tBreakdown:" << core_t::LINE_ENDING;
 
             // Assume the category with the count closest to the actual count is
@@ -195,30 +169,24 @@ void CBenchMarker::dumpResults(void) const
             size_t max(0);
             int maxType(-1);
             for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-                 mapIter != counts.end();
-                 ++mapIter)
-            {
+                    mapIter != counts.end();
+                    ++mapIter) {
                 int type(mapIter->first);
 
                 size_t count(mapIter->second.first);
                 const std::string &example = mapIter->second.second;
                 strm << "\t\t" << count;
-                if (usedTypes.find(type) != usedTypes.end())
-                {
+                if (usedTypes.find(type) != usedTypes.end()) {
                     strm << "\t(CATEGORY ALREADY USED)";
-                }
-                else
-                {
-                    if (count > max)
-                    {
+                } else {
+                    if (count > max) {
                         max = count;
                         maxType = type;
                     }
                 }
                 strm << '\t' << example << core_t::LINE_ENDING;
             }
-            if (maxType > -1)
-            {
+            if (maxType > -1) {
                 good += max;
                 usedTypes.insert(maxType);
             }

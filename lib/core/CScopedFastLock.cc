@@ -17,20 +17,16 @@
 #include <core/CFastMutex.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CScopedFastLock::CScopedFastLock(CFastMutex &mutex)
-    : m_Mutex(mutex)
-{
+    : m_Mutex(mutex) {
     m_Mutex.lock();
 }
 
-CScopedFastLock::~CScopedFastLock(void)
-{
+CScopedFastLock::~CScopedFastLock(void) {
     m_Mutex.unlock();
 }
 

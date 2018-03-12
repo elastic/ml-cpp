@@ -26,10 +26,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Defines a set of objects with one set for each distinct level
 //! in the hierarchical results.
@@ -51,8 +49,7 @@ namespace model
 //! the level. T must have a clear function and propagateForwardByTime
 //! functions.
 template<typename T>
-class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
-{
+class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
     protected:
         typedef T Type;
         typedef std::vector<Type *> TTypePtrVec;
@@ -65,8 +62,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 
     protected:
         explicit CHierarchicalResultsLevelSet(const T &bucketElement) :
-            m_BucketElement(bucketElement)
-        {
+            m_BucketElement(bucketElement) {
         }
 
         //! Get the root unique element.
@@ -77,24 +73,21 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         //! Get an influencer bucket element for \p influencerFieldName.
         //!
         //! \note Returns NULL if there isn't a matching one.
-        const T *influencerBucketElement(const std::string &influencerFieldName) const
-        {
+        const T *influencerBucketElement(const std::string &influencerFieldName) const {
             return element(m_InfluencerBucketSet, influencerFieldName);
         }
 
         //! Get an influencer element for \p influencerFieldName.
         //!
         //! \note Returns NULL if there isn't a matching one.
-        const T *influencerElement(const std::string &influencerFieldName) const
-        {
+        const T *influencerElement(const std::string &influencerFieldName) const {
             return element(m_InfluencerSet, influencerFieldName);
         }
 
         //! Get a partition element for \p partitionFieldName.
         //!
         //! \note Returns NULL if there isn't a matching one.
-        const T *partitionElement(const std::string &partitionFieldName) const
-        {
+        const T *partitionElement(const std::string &partitionFieldName) const {
             return element(m_PartitionSet, partitionFieldName);
         }
 
@@ -102,8 +95,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         //!
         //! \note Returns NULL if there isn't a matching one.
         const T *personElement(const std::string &partitionFieldName,
-                               const std::string &personFieldName) const
-        {
+                               const std::string &personFieldName) const {
             TWord word = ms_Dictionary.word(partitionFieldName, personFieldName);
             TWordTypePrVecCItr i = element(m_PersonSet, word);
             return (i != m_PersonSet.end() && i->first == word) ? &i->second : 0;
@@ -115,8 +107,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         const T *leafElement(const std::string &partitionFieldName,
                              const std::string &personFieldName,
                              const std::string &functionName,
-                             const std::string &valueFieldName) const
-        {
+                             const std::string &valueFieldName) const {
             TWord word = ms_Dictionary.word(partitionFieldName,
                                             personFieldName,
                                             functionName,
@@ -151,8 +142,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         TWordTypePrVec &leafSet(void) { return m_LeafSet; }
 
         //! Clear all the sets.
-        void clear(void)
-        {
+        void clear(void) {
             m_BucketElement.clear();
             m_InfluencerBucketSet.clear();
             m_InfluencerSet.clear();
@@ -162,8 +152,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         }
 
         //! Sort all the sets.
-        void sort(void)
-        {
+        void sort(void) {
             sort(m_InfluencerBucketSet);
             sort(m_InfluencerSet);
             sort(m_PartitionSet);
@@ -173,8 +162,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 
         //! Age the level set elements.
         template<typename F>
-        void age(F doAge)
-        {
+        void age(F doAge) {
             doAge(m_BucketElement);
             age(m_InfluencerBucketSet, doAge);
             age(m_InfluencerSet, doAge);
@@ -187,32 +175,26 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
         template<typename FACTORY>
         void elements(const TNode &node, bool pivot,
                       const FACTORY &factory, TTypePtrVec &result,
-                      bool distinctLeavesPerPartition = false)
-        {
+                      bool distinctLeavesPerPartition = false) {
             result.clear();
-            if (this->isSimpleCount(node))
-            {
+            if (this->isSimpleCount(node)) {
                 return;
             }
 
-            if (pivot && this->isRoot(node))
-            {
+            if (pivot && this->isRoot(node)) {
                 TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
                 TWordTypePrVecItr i = element(m_InfluencerBucketSet, word);
-                if (i == m_InfluencerBucketSet.end() || i->first != word)
-                {
+                if (i == m_InfluencerBucketSet.end() || i->first != word) {
                     i = m_InfluencerBucketSet.insert(
                             i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
                 }
                 result.push_back(&i->second);
                 return;
             }
-            if (pivot && !this->isRoot(node))
-            {
+            if (pivot && !this->isRoot(node)) {
                 TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
                 TWordTypePrVecItr i = element(m_InfluencerSet, word);
-                if (i == m_InfluencerSet.end() || i->first != word)
-                {
+                if (i == m_InfluencerSet.end() || i->first != word) {
                     i = m_InfluencerSet.insert(
                             i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
                 }
@@ -221,18 +203,16 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
             }
 
             std::string partitionKey = distinctLeavesPerPartition ?
-                              *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
-                            : *node.s_Spec.s_PartitionFieldName;
+                                       *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
+                                       : *node.s_Spec.s_PartitionFieldName;
 
-            if (this->isLeaf(node))
-            {
+            if (this->isLeaf(node)) {
                 TWord word = ms_Dictionary.word(partitionKey,
                                                 *node.s_Spec.s_PersonFieldName,
                                                 *node.s_Spec.s_FunctionName,
                                                 *node.s_Spec.s_ValueFieldName);
                 TWordTypePrVecItr i = element(m_LeafSet, word);
-                if (i == m_LeafSet.end() || i->first != word)
-                {
+                if (i == m_LeafSet.end() || i->first != word) {
                     i = m_LeafSet.insert(
                             i, TWordTypePr(word, factory.make(partitionKey,
                                                               *node.s_Spec.s_PersonFieldName,
@@ -241,39 +221,33 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
                 }
                 result.push_back(&i->second);
             }
-            if (this->isPerson(node))
-            {
+            if (this->isPerson(node)) {
                 TWord word = ms_Dictionary.word(partitionKey,
                                                 *node.s_Spec.s_PersonFieldName);
                 TWordTypePrVecItr i = element(m_PersonSet, word);
-                if (i == m_PersonSet.end() || i->first != word)
-                {
+                if (i == m_PersonSet.end() || i->first != word) {
                     i = m_PersonSet.insert(
                             i, TWordTypePr(word, factory.make(partitionKey,
                                                               *node.s_Spec.s_PersonFieldName)));
                 }
                 result.push_back(&i->second);
             }
-            if (this->isPartition(node))
-            {
+            if (this->isPartition(node)) {
                 TWord word = ms_Dictionary.word(partitionKey);
 
                 TWordTypePrVecItr i = element(m_PartitionSet, word);
-                if (i == m_PartitionSet.end() || i->first != word)
-                {
+                if (i == m_PartitionSet.end() || i->first != word) {
                     i = m_PartitionSet.insert(i, TWordTypePr(word, factory.make(partitionKey)));
                 }
                 result.push_back(&i->second);
             }
-            if (this->isRoot(node))
-            {
+            if (this->isRoot(node)) {
                 result.push_back(&m_BucketElement);
             }
         }
 
         //! Get a checksum of the set data.
-        uint64_t checksum(uint64_t seed) const
-        {
+        uint64_t checksum(uint64_t seed) const {
             seed = maths::CChecksum::calculate(seed, m_BucketElement);
             seed = maths::CChecksum::calculate(seed, m_InfluencerBucketSet);
             seed = maths::CChecksum::calculate(seed, m_InfluencerSet);
@@ -284,8 +258,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 
     private:
         //! Get an element of \p set by name.
-        static const T *element(const TWordTypePrVec &set, const std::string &name)
-        {
+        static const T *element(const TWordTypePrVec &set, const std::string &name) {
             TWord word = ms_Dictionary.word(name);
             TWordTypePrVecCItr i = element(set, word);
             return (i != set.end() && i->first == word) ? &i->second : 0;
@@ -293,31 +266,26 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor
 
         //! Get the element corresponding to \p word if it exists
         //! and return the end iterator otherwise.
-        static TWordTypePrVecCItr element(const TWordTypePrVec &set, const TWord &word)
-        {
+        static TWordTypePrVecCItr element(const TWordTypePrVec &set, const TWord &word) {
             return element(const_cast<TWordTypePrVec&>(set), word);
         }
 
         //! Get the element corresponding to \p word if it exists
         //! and return the end iterator otherwise.
-        static TWordTypePrVecItr element(TWordTypePrVec &set, const TWord &word)
-        {
+        static TWordTypePrVecItr element(TWordTypePrVec &set, const TWord &word) {
             return std::lower_bound(set.begin(), set.end(),
                                     word, maths::COrderings::SFirstLess());
         }
 
         //! Sort \p set on its key.
-        static void sort(TWordTypePrVec &set)
-        {
+        static void sort(TWordTypePrVec &set) {
             std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess());
         }
 
         //! Propagate the set elements forwards by \p time.
         template<typename F>
-        static void age(TWordTypePrVec &set, F doAge)
-        {
-            for (std::size_t i = 0u; i < set.size(); ++i)
-            {
+        static void age(TWordTypePrVec &set, F doAge) {
+            for (std::size_t i = 0u; i < set.size(); ++i) {
                 doAge(set[i].second);
             }
         }

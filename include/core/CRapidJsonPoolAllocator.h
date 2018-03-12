@@ -24,10 +24,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 //! \brief
 //! A rapidjson memory allocator using a fixed size buffer
 //!
@@ -42,33 +40,28 @@ namespace core
 //!
 //! Clear the allocator on destruction
 //!
-class CRapidJsonPoolAllocator
-{
+class CRapidJsonPoolAllocator {
     public:
         using TDocumentWeakPtr = boost::weak_ptr<rapidjson::Document>;
         using TDocumentPtr     = boost::shared_ptr<rapidjson::Document>;
         using TDocumentPtrVec  = std::vector<TDocumentPtr>;
     public:
-        CRapidJsonPoolAllocator() 
-            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) 
-        {
+        CRapidJsonPoolAllocator()
+            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {
         }
 
-        ~CRapidJsonPoolAllocator()
-        {
+        ~CRapidJsonPoolAllocator() {
             this->clear();
         }
 
-        void clear()
-        {
+        void clear() {
             m_JsonPoolAllocator.Clear();
         }
 
         //! \return document pointer suitable for storing in a container
         //! Note: The API is designed to emphasise that the client does not own the document memory
         //! i.e. The document will be invalidated on destruction of this allocator
-        TDocumentWeakPtr makeStorableDoc()
-        {
+        TDocumentWeakPtr makeStorableDoc() {
             TDocumentPtr newDoc = boost::make_shared<rapidjson::Document>(&m_JsonPoolAllocator);
             newDoc->SetObject();
             m_JsonDocumentStore.push_back(newDoc);
@@ -76,14 +69,12 @@ class CRapidJsonPoolAllocator
         }
 
         //! \return const reference to the underlying memory pool allocator
-        const rapidjson::MemoryPoolAllocator<>  &get() const
-        {
+        const rapidjson::MemoryPoolAllocator<>  &get() const {
             return m_JsonPoolAllocator;
         }
 
         //! \return reference to the underlying memory pool allocator
-        rapidjson::MemoryPoolAllocator<>  &get()
-        {
+        rapidjson::MemoryPoolAllocator<>  &get() {
             return m_JsonPoolAllocator;
         }
 

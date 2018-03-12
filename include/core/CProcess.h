@@ -29,10 +29,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //! implementation implements the calls that are required by
 //! Windows for applications that want to run as Windows services.
 //!
-class CORE_EXPORT CProcess : private CNonCopyable
-{
+class CORE_EXPORT CProcess : private CNonCopyable {
     public:
         //! These messages need to be 100% standard across all services
         static const char *STARTING_MSG;

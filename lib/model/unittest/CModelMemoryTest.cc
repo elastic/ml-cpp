@@ -34,14 +34,12 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
 typedef std::vector<double> TDoubleVec;
 
 std::size_t addPerson(const std::string &p,
-                      const CModelFactory::TDataGathererPtr &gatherer)
-{
+                      const CModelFactory::TDataGathererPtr &gatherer) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     person.resize(gatherer->fieldsOfInterest().size(), 0);
@@ -53,8 +51,7 @@ std::size_t addPerson(const std::string &p,
 
 void addArrival(CDataGatherer &gatherer,
                 core_t::TTime time,
-                const std::string &person)
-{
+                const std::string &person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     CEventData eventData;
@@ -66,8 +63,7 @@ void addArrival(CDataGatherer &gatherer,
 void addArrival(CDataGatherer &gatherer,
                 core_t::TTime time,
                 const std::string &person,
-                double value)
-{
+                double value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     std::string valueAsString(core::CStringUtils::typeToString(value));
@@ -82,8 +78,7 @@ const std::string EMPTY_STRING;
 
 }
 
-void CModelMemoryTest::testOnlineEventRateModel(void)
-{
+void CModelMemoryTest::testOnlineEventRateModel(void) {
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
@@ -113,10 +108,8 @@ void CModelMemoryTest::testOnlineEventRateModel(void)
     LOG_DEBUG("Memory used by model: " << model.memoryUsage());
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
-        for (std::size_t j = 0u; j < bucketCounts[i]; ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
+        for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
             addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p");
         }
         model.sample(time, time + bucketLength, resourceMonitor);
@@ -132,8 +125,7 @@ void CModelMemoryTest::testOnlineEventRateModel(void)
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-void CModelMemoryTest::testOnlineMetricModel(void)
-{
+void CModelMemoryTest::testOnlineMetricModel(void) {
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
@@ -172,13 +164,11 @@ void CModelMemoryTest::testOnlineMetricModel(void)
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer,
                        time + static_cast<core_t::TTime>(j),
                        "p",
@@ -194,20 +184,19 @@ void CModelMemoryTest::testOnlineMetricModel(void)
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
     LOG_DEBUG("Debug sizeof model: " << memoryUsage.usage());
-    CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage() , memoryUsage.usage());
+    CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
 
-CppUnit::Test *CModelMemoryTest::suite(void)
-{
+CppUnit::Test *CModelMemoryTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CModelMemoryTest>(
-                                   "CModelMemoryTest::testOnlineEventRateModel",
-                                   &CModelMemoryTest::testOnlineEventRateModel) );
+                               "CModelMemoryTest::testOnlineEventRateModel",
+                               &CModelMemoryTest::testOnlineEventRateModel) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CModelMemoryTest>(
-                                   "CModelMemoryTest::testOnlineMetricModel",
-                                   &CModelMemoryTest::testOnlineMetricModel) );
+                               "CModelMemoryTest::testOnlineMetricModel",
+                               &CModelMemoryTest::testOnlineMetricModel) );
 
     return suiteOfTests;
 }

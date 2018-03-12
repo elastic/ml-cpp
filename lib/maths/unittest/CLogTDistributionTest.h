@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLogTDistributionTest : public CppUnit::TestFixture
-{
+class CLogTDistributionTest : public CppUnit::TestFixture {
     public:
         void testMode(void);
         void testPdf(void);

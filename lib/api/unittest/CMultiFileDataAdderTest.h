@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CMultiFileDataAdderTest : public CppUnit::TestFixture
-{
+class CMultiFileDataAdderTest : public CppUnit::TestFixture {
     public:
         void testSimpleWrite(void);
         void testDetectorPersistBy(void);

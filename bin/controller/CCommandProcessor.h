@@ -22,10 +22,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 //! \brief
 //! Processes commands received on a C++ stream.
@@ -53,8 +51,7 @@ namespace controller
 //! Only processes started by this controller may be killed; requests to
 //! kill other processes are ignored.
 //!
-class CCommandProcessor
-{
+class CCommandProcessor {
     public:
         typedef std::vector<std::string> TStrVec;
 

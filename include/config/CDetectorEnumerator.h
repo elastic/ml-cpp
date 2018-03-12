@@ -25,10 +25,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDetectorSpecification;
 
@@ -42,8 +40,7 @@ class CDetectorSpecification;
 //! This is essentially the builder pattern. The intention is that suitable
 //! fields are added one at a time based on their statistical properties
 //! and once all fields have been added the configurations are generated.
-class CONFIG_EXPORT CDetectorEnumerator
-{
+class CONFIG_EXPORT CDetectorEnumerator {
     public:
         typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
 

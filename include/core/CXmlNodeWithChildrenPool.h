@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //! allocation is in locking.  Where multiple threads are dealing
 //! with XML, it is better to have one node pool per thread.
 //!
-class CORE_EXPORT CXmlNodeWithChildrenPool
-{
+class CORE_EXPORT CXmlNodeWithChildrenPool {
     public:
         //! Construct a pool that will accept as many nodes as a vector will hold
         CXmlNodeWithChildrenPool(void);
@@ -73,8 +70,7 @@ class CORE_EXPORT CXmlNodeWithChildrenPool
         //! Allocate a new XML node with the provided name and value
         template <typename TYPE>
         CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name,
-                                                            const TYPE &value)
-        {
+                                                            const TYPE &value) {
             return this->newNode(name, CStringUtils::typeToString(value));
         }
 

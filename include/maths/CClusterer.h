@@ -38,24 +38,19 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Factors out the non-template part of CClusterer for improved
 //! compile times.
-class MATHS_EXPORT CClustererTypes
-{
+class MATHS_EXPORT CClustererTypes {
     public:
         //! A no-op to provide a default for the split and merge callbacks.
-        class CDoNothing
-        {
+        class CDoNothing {
             public:
                 void operator()(std::size_t,
                                 std::size_t,
-                                std::size_t) const
-                {
+                                std::size_t) const {
                 }
         };
 
@@ -66,8 +61,7 @@ class MATHS_EXPORT CClustererTypes
         typedef std::function<void(std::size_t, std::size_t, std::size_t)> TMergeFunc;
 
         //! Generates unique cluster indices.
-        class MATHS_EXPORT CIndexGenerator
-        {
+        class MATHS_EXPORT CIndexGenerator {
             public:
                 //! Create a new  generator.
                 CIndexGenerator(void);
@@ -143,8 +137,7 @@ class MATHS_EXPORT CClustererTypes
 //! supports recycling indices to avoid overflowing std::size_t, since
 //! this is requirement for all implementations.
 template<typename POINT>
-class CClusterer : public CClustererTypes
-{
+class CClusterer : public CClustererTypes {
     public:
         typedef boost::shared_ptr<CClusterer> TClustererPtr;
         typedef std::vector<POINT> TPointVec;
@@ -162,9 +155,8 @@ class CClusterer : public CClustererTypes
         //! \param mergeFunc Optional callback for when two clusters are merged.
         explicit CClusterer(const TSplitFunc &splitFunc = CDoNothing(),
                             const TMergeFunc &mergeFunc = CDoNothing()) :
-                m_SplitFunc(splitFunc),
-                m_MergeFunc(mergeFunc)
-        {
+            m_SplitFunc(splitFunc),
+            m_MergeFunc(mergeFunc) {
         }
 
         virtual ~CClusterer(void) {}
@@ -212,8 +204,7 @@ class CClusterer : public CClustererTypes
                              double count = 1.0) const = 0;
 
         //! Add a point without caring about its cluster.
-        void add(const TPointPrecise &point, double count = 1.0)
-        {
+        void add(const TPointPrecise &point, double count = 1.0) {
             TSizeDoublePr2Vec clusters;
             this->add(point, clusters, count);
         }
@@ -225,12 +216,10 @@ class CClusterer : public CClustererTypes
                          double count = 1.0) = 0;
 
         //! Update the clustering with \p points.
-        void add(const TPointPreciseVec &points)
-        {
+        void add(const TPointPreciseVec &points) {
             TPointPreciseDoublePrVec weightedPoints;
             weightedPoints.reserve(points.size());
-            for (std::size_t i = 0u; i < points.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < points.size(); ++i) {
                 weightedPoints.push_back(TPointPreciseDoublePr(points[i], 1.0));
             }
             this->add(weightedPoints);
@@ -278,33 +267,28 @@ class CClusterer : public CClustererTypes
         //@}
 
         //! Get the callback function to invoke when a cluster is split.
-        const TSplitFunc &splitFunc(void) const
-        {
+        const TSplitFunc &splitFunc(void) const {
             return m_SplitFunc;
         }
 
         //! Set the callback function to invoke when a cluster is split.
-        void splitFunc(const TSplitFunc &value)
-        {
+        void splitFunc(const TSplitFunc &value) {
             m_SplitFunc = value;
         }
 
         //! Get the callback function to invoke when two clusters are merged.
-        const TMergeFunc &mergeFunc(void) const
-        {
+        const TMergeFunc &mergeFunc(void) const {
             return m_MergeFunc;
         }
 
         //! Set the callback function to invoke when two clusters are merged.
-        void mergeFunc(const TSplitFunc &value)
-        {
+        void mergeFunc(const TSplitFunc &value) {
             m_MergeFunc = value;
         }
 
     protected:
         //! Swap the CClusterer state of two derived objects.
-        void swap(CClusterer &other)
-        {
+        void swap(CClusterer &other) {
             boost::swap(m_SplitFunc, other.m_SplitFunc);
             boost::swap(m_MergeFunc, other.m_MergeFunc);
         }

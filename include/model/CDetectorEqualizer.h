@@ -26,15 +26,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CLimits;
 class CModelConfig;
 
@@ -45,8 +42,7 @@ class CModelConfig;
 //! for each detector. A corrected probability is obtained by converting
 //! raw probabilities to a rank and then reading off median probability
 //! for that rank over all detectors.
-class MODEL_EXPORT CDetectorEqualizer
-{
+class MODEL_EXPORT CDetectorEqualizer {
     public:
         typedef std::pair<int, maths::CQuantileSketch> TIntQuantileSketchPr;
         typedef std::vector<TIntQuantileSketchPr> TIntQuantileSketchPrVec;

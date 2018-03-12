@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelTest : public CppUnit::TestFixture
-{
+class CModelTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

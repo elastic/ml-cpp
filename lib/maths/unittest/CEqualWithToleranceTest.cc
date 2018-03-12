@@ -22,8 +22,7 @@
 
 using namespace ml;
 
-void CEqualWithToleranceTest::testScalar(void)
-{
+void CEqualWithToleranceTest::testScalar(void) {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testScalar  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -32,11 +31,11 @@ void CEqualWithToleranceTest::testScalar(void)
         maths::CEqualWithTolerance<double> abs(maths::CToleranceTypes::E_AbsoluteTolerance, 0.31);
         maths::CEqualWithTolerance<double> rel(maths::CToleranceTypes::E_RelativeTolerance, 0.01);
         maths::CEqualWithTolerance<double> absAndRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                     & maths::CToleranceTypes::E_RelativeTolerance,
-                                                     0.31, 0.01);
+                                                       & maths::CToleranceTypes::E_RelativeTolerance,
+                                                       0.31, 0.01);
         maths::CEqualWithTolerance<double> absOrRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                    | maths::CToleranceTypes::E_RelativeTolerance,
-                                                    0.31, 0.01);
+                                                      | maths::CToleranceTypes::E_RelativeTolerance,
+                                                      0.31, 0.01);
         {
             double a = 1.1;
             double b = 1.4;
@@ -70,11 +69,11 @@ void CEqualWithToleranceTest::testScalar(void)
         maths::CEqualWithTolerance<float> abs(maths::CToleranceTypes::E_AbsoluteTolerance, 0.31f);
         maths::CEqualWithTolerance<float> rel(maths::CToleranceTypes::E_RelativeTolerance, 0.01f);
         maths::CEqualWithTolerance<float> absAndRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                    & maths::CToleranceTypes::E_RelativeTolerance,
-                                                    0.31f, 0.01f);
+                                                      & maths::CToleranceTypes::E_RelativeTolerance,
+                                                      0.31f, 0.01f);
         maths::CEqualWithTolerance<float> absOrRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                   | maths::CToleranceTypes::E_RelativeTolerance,
-                                                   0.31f, 0.01f);
+                                                     | maths::CToleranceTypes::E_RelativeTolerance,
+                                                     0.31f, 0.01f);
 
         float a = 1.1f;
         float b = 1.4f;
@@ -91,8 +90,7 @@ void CEqualWithToleranceTest::testScalar(void)
     }
 }
 
-void CEqualWithToleranceTest::testVector(void)
-{
+void CEqualWithToleranceTest::testVector(void) {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testVector  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -108,11 +106,11 @@ void CEqualWithToleranceTest::testVector(void)
     maths::CEqualWithTolerance<maths::CVector<double>> abs(maths::CToleranceTypes::E_AbsoluteTolerance, epsAbs);
     maths::CEqualWithTolerance<maths::CVector<double>> rel(maths::CToleranceTypes::E_RelativeTolerance, epsRel);
     maths::CEqualWithTolerance<maths::CVector<double>> absAndRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                                 & maths::CToleranceTypes::E_RelativeTolerance,
-                                                                 epsAbs, epsRel);
+                                                                   & maths::CToleranceTypes::E_RelativeTolerance,
+                                                                   epsAbs, epsRel);
     maths::CEqualWithTolerance<maths::CVector<double>> absOrRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                                | maths::CToleranceTypes::E_RelativeTolerance,
-                                                                epsAbs, epsRel);
+                                                                  | maths::CToleranceTypes::E_RelativeTolerance,
+                                                                  epsAbs, epsRel);
 
     {
         maths::CVector<double> a(a_, a_ + 2);
@@ -158,8 +156,7 @@ void CEqualWithToleranceTest::testVector(void)
     }
 }
 
-void CEqualWithToleranceTest::testMatrix(void)
-{
+void CEqualWithToleranceTest::testMatrix(void) {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CEqualWithToleranceTest::testMatrix  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -175,11 +172,11 @@ void CEqualWithToleranceTest::testMatrix(void)
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> abs(maths::CToleranceTypes::E_AbsoluteTolerance, epsAbs);
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> rel(maths::CToleranceTypes::E_RelativeTolerance, epsRel);
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> absAndRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                                          & maths::CToleranceTypes::E_RelativeTolerance,
-                                                                          epsAbs, epsRel);
+                                                                            & maths::CToleranceTypes::E_RelativeTolerance,
+                                                                            epsAbs, epsRel);
     maths::CEqualWithTolerance<maths::CSymmetricMatrix<double>> absOrRel(  maths::CToleranceTypes::E_AbsoluteTolerance
-                                                                         | maths::CToleranceTypes::E_RelativeTolerance,
-                                                                         epsAbs, epsRel);
+                                                                           | maths::CToleranceTypes::E_RelativeTolerance,
+                                                                           epsAbs, epsRel);
 
     {
         maths::CSymmetricMatrix<double> a(a_, a_ + 3);
@@ -225,19 +222,18 @@ void CEqualWithToleranceTest::testMatrix(void)
     }
 }
 
-CppUnit::Test *CEqualWithToleranceTest::suite(void)
-{
+CppUnit::Test *CEqualWithToleranceTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CEqualWithToleranceTest>(
-                                   "CEqualWithToleranceTest::testScalar",
-                                   &CEqualWithToleranceTest::testScalar) );
+                               "CEqualWithToleranceTest::testScalar",
+                               &CEqualWithToleranceTest::testScalar) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEqualWithToleranceTest>(
-                                   "CEqualWithToleranceTest::testVector",
-                                   &CEqualWithToleranceTest::testVector) );
+                               "CEqualWithToleranceTest::testVector",
+                               &CEqualWithToleranceTest::testVector) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEqualWithToleranceTest>(
-                                   "CEqualWithToleranceTest::testMatrix",
-                                   &CEqualWithToleranceTest::testMatrix) );
+                               "CEqualWithToleranceTest::testMatrix",
+                               &CEqualWithToleranceTest::testMatrix) );
 
     return suiteOfTests;
 }

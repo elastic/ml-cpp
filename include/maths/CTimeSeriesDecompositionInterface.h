@@ -32,18 +32,15 @@
 #include <vector>
 #include <stdint.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CSeasonalComponent;
 
 //! \brief The interface for decomposing times series into periodic,
 //! calendar periodic and trend components.
-class MATHS_EXPORT CTimeSeriesDecompositionInterface
-{
+class MATHS_EXPORT CTimeSeriesDecompositionInterface {
     public:
         using TDouble3Vec = core::CSmallVector<double, 3>;
         using TDouble3VecVec = std::vector<TDouble3Vec>;
@@ -51,8 +48,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         using TWeights = CConstantWeights;
 
         //! The components of the decomposition.
-        enum EComponents
-        {
+        enum EComponents {
             E_Diurnal     = 0x1,
             E_NonDiurnal  = 0x2,
             E_Seasonal    = 0x3,
@@ -60,8 +56,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
             E_Calendar    = 0x8,
             E_All         = 0xf,
             E_TrendForced = 0x10 //!< Force get the trend component (if
-                                 //!< it's not being used for prediction).
-                                 //!< This needs to be bigger than E_All.
+                            //!< it's not being used for prediction).
+                            //!< This needs to be bigger than E_All.
         };
 
     public:

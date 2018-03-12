@@ -20,10 +20,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace ver
-{
+namespace ml {
+namespace ver {
 
 
 //! \brief
@@ -49,8 +47,7 @@ namespace ver
 //! have been mixed up - each program will have its own distinct copy of the
 //! version library embedded in it.
 //!
-class CBuildInfo : private core::CNonInstantiatable
-{
+class CBuildInfo : private core::CNonInstantiatable {
     public:
         //! Get the version number to be printed out
         static const std::string &versionNumber(void);

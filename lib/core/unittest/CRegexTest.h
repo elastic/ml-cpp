@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegexTest : public CppUnit::TestFixture
-{
+class CRegexTest : public CppUnit::TestFixture {
     public:
         void    testInit(void);
         void    testSearch(void);

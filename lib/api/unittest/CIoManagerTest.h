@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIoManagerTest : public CppUnit::TestFixture
-{
+class CIoManagerTest : public CppUnit::TestFixture {
     public:
         void testStdinStdout(void);
         void testFileIoGood(void);

@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CWindowsErrorTest : public CppUnit::TestFixture
-{
+class CWindowsErrorTest : public CppUnit::TestFixture {
     public:
         void testErrors(void);
 

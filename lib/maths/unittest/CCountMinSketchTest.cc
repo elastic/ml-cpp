@@ -28,8 +28,7 @@ using namespace ml;
 
 typedef std::vector<double> TDoubleVec;
 
-void CCountMinSketchTest::testCounts(void)
-{
+void CCountMinSketchTest::testCounts(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testCounts  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -45,8 +44,7 @@ void CCountMinSketchTest::testCounts(void)
     LOG_DEBUG("")
     LOG_DEBUG("Test Uniform")
 
-    for (std::size_t t = 0u, n = 100u; n < 1500; ++t, n += 100)
-    {
+    for (std::size_t t = 0u, n = 100u; n < 1500; ++t, n += 100) {
         LOG_DEBUG("*** number categories = " << n << " ***");
 
         TDoubleVec counts;
@@ -54,8 +52,7 @@ void CCountMinSketchTest::testCounts(void)
 
         maths::CCountMinSketch sketch(2, 751);
 
-        for (std::size_t i = 0u; i < counts.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < counts.size(); ++i) {
             counts[i] = ::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i), counts[i]);
         }
@@ -63,31 +60,25 @@ void CCountMinSketchTest::testCounts(void)
 
         TMeanAccumulator meanError;
         double errorCount = 0.0;
-        for (std::size_t i = 0u; i < counts.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < counts.size(); ++i) {
             double count = counts[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
-            if (i % 50 == 0)
-            {
+            if (i % 50 == 0) {
                 LOG_DEBUG("category = " << i
                           << ", true count = " << count
                           << ", estimated count = " << estimated);
             }
 
             meanError.add(::fabs(estimated - count));
-            if (count + sketch.oneMinusDeltaError() < estimated)
-            {
+            if (count + sketch.oneMinusDeltaError() < estimated) {
                 errorCount += 1.0;
             }
         }
         LOG_DEBUG("mean error = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG("error count = " << errorCount);
-        if (sketch.oneMinusDeltaError() == 0.0)
-        {
+        if (sketch.oneMinusDeltaError() == 0.0) {
             CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
-        }
-        else
-        {
+        } else {
             //CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError)
             //                   < 0.1 * static_cast<double>(n));
         }
@@ -108,21 +99,18 @@ void CCountMinSketchTest::testCounts(void)
 
         maths::CCountMinSketch sketch(2, 751);
 
-        for (std::size_t i = 0u; i < heavyHitters.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < heavyHitters.size(); ++i) {
             heavyHitters[i] = ::floor(heavyHitters[i]);
             sketch.add(static_cast<uint32_t>(i), heavyHitters[i]);
         }
-        for (std::size_t i = 0u; i < counts.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < counts.size(); ++i) {
             counts[i] = ::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i + heavyHitters.size()), counts[i]);
         }
         LOG_DEBUG("error = " << sketch.oneMinusDeltaError());
 
         TMeanAccumulator meanRelativeError;
-        for (std::size_t i = 0u; i < heavyHitters.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < heavyHitters.size(); ++i) {
             double count = heavyHitters[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
             LOG_DEBUG("category = " << i
@@ -140,8 +128,7 @@ void CCountMinSketchTest::testCounts(void)
     }
 }
 
-void CCountMinSketchTest::testSwap(void)
-{
+void CCountMinSketchTest::testSwap(void) {
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testSwap  |");
     LOG_DEBUG("+---------------------------------+");
@@ -161,20 +148,16 @@ void CCountMinSketchTest::testSwap(void)
     maths::CCountMinSketch sketch2(2, 750);
     maths::CCountMinSketch sketch3(3, 300);
     maths::CCountMinSketch sketch4(2, 400);
-    for (std::size_t i = 0u; i < counts1.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < counts1.size(); ++i) {
         sketch1.add(static_cast<uint32_t>(i), counts1[i]);
     }
-    for (std::size_t i = 0u; i < counts2.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < counts2.size(); ++i) {
         sketch2.add(static_cast<uint32_t>(i), counts2[i]);
     }
-    for (std::size_t i = 0u; i < counts3.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < counts3.size(); ++i) {
         sketch3.add(static_cast<uint32_t>(i), counts3[i]);
     }
-    for (std::size_t i = 0u; i < counts4.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < counts4.size(); ++i) {
         sketch4.add(static_cast<uint32_t>(i), counts4[i]);
     }
 
@@ -208,8 +191,7 @@ void CCountMinSketchTest::testSwap(void)
     sketch3.swap(sketch4);
 }
 
-void CCountMinSketchTest::testPersist(void)
-{
+void CCountMinSketchTest::testPersist(void) {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CCountMinSketchTest::testPersist  |");
     LOG_DEBUG("+------------------------------------+");
@@ -220,8 +202,7 @@ void CCountMinSketchTest::testPersist(void)
     rng.generateUniformSamples(2.0, 301.0, 500, counts);
 
     maths::CCountMinSketch origSketch(2, 600);
-    for (std::size_t i = 0u; i < counts.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < counts.size(); ++i) {
         origSketch.add(static_cast<uint32_t>(i), counts[i]);
     }
 
@@ -256,8 +237,7 @@ void CCountMinSketchTest::testPersist(void)
     // Sketch.
     TDoubleVec moreCounts;
     rng.generateUniformSamples(2.0, 301.0, 500, moreCounts);
-    for (std::size_t i = 0u; i < moreCounts.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < moreCounts.size(); ++i) {
         origSketch.add(static_cast<uint32_t>(counts.size() + i), moreCounts[i]);
     }
 
@@ -290,19 +270,18 @@ void CCountMinSketchTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CCountMinSketchTest::suite(void)
-{
+CppUnit::Test *CCountMinSketchTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CCountMinSketchTest>(
-                                   "CCountMinSketchTest::testCounts",
-                                   &CCountMinSketchTest::testCounts) );
+                               "CCountMinSketchTest::testCounts",
+                               &CCountMinSketchTest::testCounts) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCountMinSketchTest>(
-                                   "CCountMinSketchTest::testSwap",
-                                   &CCountMinSketchTest::testSwap) );
+                               "CCountMinSketchTest::testSwap",
+                               &CCountMinSketchTest::testSwap) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCountMinSketchTest>(
-                                   "CCountMinSketchTest::testPersist",
-                                   &CCountMinSketchTest::testPersist) );
+                               "CCountMinSketchTest::testPersist",
+                               &CCountMinSketchTest::testPersist) );
 
     return suiteOfTests;
 }

@@ -26,10 +26,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 template<typename T, std::size_t N> class CXMeansOnline;
 struct SDistributionRestoreParams;
 
@@ -51,8 +49,7 @@ struct SDistributionRestoreParams;
 //! The field names given to each prior distribution class are deliberately
 //! terse and uninformative to avoid giving away details of our analytics
 //! to potential competitors.
-class MATHS_EXPORT CClustererStateSerialiser
-{
+class MATHS_EXPORT CClustererStateSerialiser {
     public:
         typedef boost::shared_ptr<CClusterer1d> TClusterer1dPtr;
 
@@ -86,8 +83,7 @@ class MATHS_EXPORT CClustererStateSerialiser
         template<typename T, std::size_t N>
         bool operator()(const SDistributionRestoreParams &params,
                         boost::shared_ptr<CClusterer<CVectorNx1<T, N> > > &ptr,
-                        core::CStateRestoreTraverser &traverser)
-        {
+                        core::CStateRestoreTraverser &traverser) {
             return this->operator()(params,
                                     CClustererTypes::CDoNothing(),
                                     CClustererTypes::CDoNothing(),
@@ -104,28 +100,21 @@ class MATHS_EXPORT CClustererStateSerialiser
                         const CClustererTypes::TSplitFunc &splitFunc,
                         const CClustererTypes::TMergeFunc &mergeFunc,
                         boost::shared_ptr<CClusterer<CVectorNx1<T, N> > > &ptr,
-                        core::CStateRestoreTraverser &traverser)
-        {
+                        core::CStateRestoreTraverser &traverser) {
             std::size_t numResults(0);
 
-            do
-            {
+            do {
                 const std::string &name = traverser.name();
-                if (name == CClustererTypes::X_MEANS_ONLINE_TAG)
-                {
+                if (name == CClustererTypes::X_MEANS_ONLINE_TAG) {
                     ptr.reset(CXMeansOnlineFactory::restore<T, N>(
-                                      params, splitFunc, mergeFunc, traverser));
+                                  params, splitFunc, mergeFunc, traverser));
                     ++numResults;
-                }
-                else
-                {
+                } else {
                     LOG_ERROR("No clusterer corresponds to node name " << traverser.name());
                 }
-            }
-            while (traverser.next());
+            } while (traverser.next());
 
-            if (numResults != 1)
-            {
+            if (numResults != 1) {
                 LOG_ERROR("Expected 1 (got " << numResults << ") clusterer tags");
                 ptr.reset();
                 return false;
@@ -137,8 +126,7 @@ class MATHS_EXPORT CClustererStateSerialiser
         //! Persist state by passing information to the supplied inserter.
         template<typename T, std::size_t N>
         void operator()(const CClusterer<CVectorNx1<T, N> > &clusterer,
-                        core::CStatePersistInserter &inserter)
-        {
+                        core::CStatePersistInserter &inserter) {
             inserter.insertLevel(clusterer.persistenceTag(),
                                  boost::bind(&CClusterer<CVectorNx1<T, N> >::acceptPersistInserter,
                                              &clusterer, _1));

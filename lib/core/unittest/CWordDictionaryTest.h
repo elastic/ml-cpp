@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CWordDictionaryTest : public CppUnit::TestFixture
-{
+class CWordDictionaryTest : public CppUnit::TestFixture {
     public:
         void testLookups(void);
         void testPartOfSpeech(void);

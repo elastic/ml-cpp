@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCategoricalToolsTest : public CppUnit::TestFixture
-{
+class CCategoricalToolsTest : public CppUnit::TestFixture {
     public:
         void testProbabilityOfLessLikelyMultinomialSample(void);
         void testProbabilityOfLessLikelyCategoryCount(void);

@@ -16,10 +16,8 @@
 #ifndef INCLUDED_ml_core_RestoreMacros_h
 #define INCLUDED_ml_core_RestoreMacros_h
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 #define RESTORE(tag, restore)                                                       \
         if (name == tag)                                                            \

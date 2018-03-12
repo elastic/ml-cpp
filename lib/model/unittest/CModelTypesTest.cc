@@ -19,8 +19,7 @@
 using namespace ml;
 using namespace model;
 
-void CModelTypesTest::testAll(void)
-{
+void CModelTypesTest::testAll(void) {
     {
         // test print categories
         CPPUNIT_ASSERT_EQUAL(std::string("'counting'"), model_t::print(model_t::E_Counting));
@@ -1012,13 +1011,12 @@ void CModelTypesTest::testAll(void)
     }
 }
 
-CppUnit::Test *CModelTypesTest::suite(void)
-{
+CppUnit::Test *CModelTypesTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTypesTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CModelTypesTest>(
-                                   "CModelTypesTest::testAll",
-                                   &CModelTypesTest::testAll) );
+                               "CModelTypesTest::testAll",
+                               &CModelTypesTest::testAll) );
 
     return suiteOfTests;
 }

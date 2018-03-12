@@ -17,15 +17,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticsTest : public CppUnit::TestFixture
-{
-public:
-    void testStatistics(void);
-    void testPersist(void);
+class CStatisticsTest : public CppUnit::TestFixture {
+    public:
+        void testStatistics(void);
+        void testPersist(void);
 
-    void threadRunner(int i);
+        void threadRunner(int i);
 
-    static CppUnit::Test *suite();
+        static CppUnit::Test *suite();
 };
 
 #endif // INCLUDED_CStatisticsTest_h

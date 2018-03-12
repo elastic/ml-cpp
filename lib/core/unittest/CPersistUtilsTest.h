@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPersistUtilsTest : public CppUnit::TestFixture
-{
+class CPersistUtilsTest : public CppUnit::TestFixture {
     public:
         void testPersistContainers(void);
         void testPersistIterators(void);

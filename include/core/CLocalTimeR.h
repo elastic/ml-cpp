@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //! localtime_s() function with slightly different semantics to Unix's
 //! localtime_r().
 //!
-class CORE_EXPORT CLocalTimeR : private CNonInstantiatable
-{
+class CORE_EXPORT CLocalTimeR : private CNonInstantiatable {
     public:
         static struct tm *localTimeR(const time_t *clock,
                                      struct tm *result);

@@ -21,19 +21,17 @@
 #include <stdint.h>
 
 
-CppUnit::Test *CStopWatchTest::suite()
-{
+CppUnit::Test *CStopWatchTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CStopWatchTest>(
-                                   "CStopWatchTest::testStopWatch",
-                                   &CStopWatchTest::testStopWatch) );
+                               "CStopWatchTest::testStopWatch",
+                               &CStopWatchTest::testStopWatch) );
 
     return suiteOfTests;
 }
 
-void CStopWatchTest::testStopWatch(void)
-{
+void CStopWatchTest::testStopWatch(void) {
     ml::core::CStopWatch stopWatch;
 
     LOG_DEBUG("About to start stop watch test");

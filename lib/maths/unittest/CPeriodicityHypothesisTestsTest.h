@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPeriodicityHypothesisTestsTest : public CppUnit::TestFixture
-{
+class CPeriodicityHypothesisTestsTest : public CppUnit::TestFixture {
     public:
         void testNonPeriodic();
         void testDiurnal();

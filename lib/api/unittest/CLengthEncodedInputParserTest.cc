@@ -33,43 +33,36 @@
 #include <netinet/in.h>
 #endif
 
-CppUnit::Test *CLengthEncodedInputParserTest::suite()
-{
+CppUnit::Test *CLengthEncodedInputParserTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-                                   "CLengthEncodedInputParserTest::testCsvEquivalence",
-                                   &CLengthEncodedInputParserTest::testCsvEquivalence) );
+                               "CLengthEncodedInputParserTest::testCsvEquivalence",
+                               &CLengthEncodedInputParserTest::testCsvEquivalence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-                                   "CLengthEncodedInputParserTest::testThroughput",
-                                   &CLengthEncodedInputParserTest::testThroughput) );
+                               "CLengthEncodedInputParserTest::testThroughput",
+                               &CLengthEncodedInputParserTest::testThroughput) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-                                   "CLengthEncodedInputParserTest::testCorruptStreamDetection",
-                                   &CLengthEncodedInputParserTest::testCorruptStreamDetection) );
+                               "CLengthEncodedInputParserTest::testCorruptStreamDetection",
+                               &CLengthEncodedInputParserTest::testCorruptStreamDetection) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
 
-class CSetupVisitor
-{
+class CSetupVisitor {
     public:
         CSetupVisitor(void)
-            : m_RecordsPerBlock(0)
-        {
+            : m_RecordsPerBlock(0) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
-            if (m_EncodedFieldNames.empty())
-            {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+            if (m_EncodedFieldNames.empty()) {
                 this->appendNumber(dataRowFields.size(), m_EncodedFieldNames);
-                for (const auto &entry : dataRowFields)
-                {
+                for (const auto &entry : dataRowFields) {
                     const std::string &fieldName = entry.first;
                     this->appendNumber(fieldName.length(), m_EncodedFieldNames);
                     m_EncodedFieldNames += fieldName;
@@ -77,8 +70,7 @@ class CSetupVisitor
             }
 
             this->appendNumber(dataRowFields.size(), m_EncodedDataBlock);
-            for (const auto &entry : dataRowFields)
-            {
+            for (const auto &entry : dataRowFields) {
                 const std::string &fieldValue = entry.second;
                 this->appendNumber(fieldValue.length(), m_EncodedDataBlock);
                 m_EncodedDataBlock += fieldValue;
@@ -89,8 +81,7 @@ class CSetupVisitor
             return true;
         }
 
-        std::string input(size_t testSize) const
-        {
+        std::string input(size_t testSize) const {
             std::string str;
             str.reserve(m_EncodedFieldNames.length() +
                         testSize * m_EncodedDataBlock.length());
@@ -100,8 +91,7 @@ class CSetupVisitor
             str.assign(m_EncodedFieldNames, 0, m_EncodedFieldNames.length());
 
             // Duplicate the binary data according to the test size
-            for (size_t count = 0; count < testSize; ++count)
-            {
+            for (size_t count = 0; count < testSize; ++count) {
                 str += m_EncodedDataBlock;
             }
 
@@ -110,15 +100,13 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
-        {
+        size_t recordsPerBlock(void) const {
             return m_RecordsPerBlock;
         }
 
     private:
         template <typename NUM_TYPE>
-        void appendNumber(NUM_TYPE num, std::string &str)
-        {
+        void appendNumber(NUM_TYPE num, std::string &str) {
             uint32_t netNum(htonl(static_cast<uint32_t>(num)));
             str.append(reinterpret_cast<char *>(&netNum), sizeof(netNum));
         }
@@ -129,43 +117,37 @@ class CSetupVisitor
         std::string m_EncodedDataBlock;
 };
 
-class CVisitor
-{
+class CVisitor {
     public:
         CVisitor(void)
             : m_Fast(true),
-              m_RecordCount(0)
-        {
+              m_RecordCount(0) {
         }
 
         CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
             : m_Fast(false),
               m_RecordCount(0),
-              m_ExpectedFieldNames(expectedFieldNames)
-        {
+              m_ExpectedFieldNames(expectedFieldNames) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap &dataRowFields) {
             ++m_RecordCount;
 
             // For the throughput test, the assertions below will skew the
             // results, so bypass them
-            if (m_Fast)
-            {
+            if (m_Fast) {
                 return true;
             }
 
             // Check the field names
             CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
             for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
-                 iter != dataRowFields.end();
-                 ++iter)
-            {
+                    iter != dataRowFields.end();
+                    ++iter) {
                 LOG_DEBUG("Field " << iter->first << " is " << iter->second);
                 CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), iter->first)
-                    != m_ExpectedFieldNames.end());
+                               != m_ExpectedFieldNames.end());
             }
 
             // Check the line count is consistent with the _raw field
@@ -184,8 +166,7 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
@@ -199,8 +180,7 @@ class CVisitor
 
 }
 
-void CLengthEncodedInputParserTest::testCsvEquivalence(void)
-{
+void CLengthEncodedInputParserTest::testCsvEquivalence(void) {
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
 
@@ -251,8 +231,7 @@ void CLengthEncodedInputParserTest::testCsvEquivalence(void)
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CLengthEncodedInputParserTest::testThroughput(void)
-{
+void CLengthEncodedInputParserTest::testThroughput(void) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -293,8 +272,7 @@ void CLengthEncodedInputParserTest::testThroughput(void)
              " records took " << (end - start) << " seconds");
 }
 
-void CLengthEncodedInputParserTest::testCorruptStreamDetection(void)
-{
+void CLengthEncodedInputParserTest::testCorruptStreamDetection(void) {
     uint32_t numFields(1);
     uint32_t numFieldsNet(htonl(numFields));
     std::string dodgyInput(reinterpret_cast<char *>(&numFieldsNet), sizeof(uint32_t));

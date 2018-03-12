@@ -23,10 +23,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -41,8 +39,7 @@ namespace core
 //! Can be used with STL streams, or with a simple static dump()
 //! function.
 //!
-class CORE_EXPORT CHexUtils
-{
+class CORE_EXPORT CHexUtils {
     public:
         typedef std::vector<uint8_t> TDataVec;
 
@@ -74,7 +71,7 @@ class CORE_EXPORT CHexUtils
         //! Should we the raw ASCII (where possible) next to the hex?
         bool          m_PrintAscii;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &, const CHexUtils &);
+        friend CORE_EXPORT std::ostream &operator<<(std::ostream &, const CHexUtils &);
 };
 
 

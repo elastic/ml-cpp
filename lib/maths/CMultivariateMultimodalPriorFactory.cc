@@ -20,21 +20,16 @@
 
 #include <boost/scoped_ptr.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace
-{
+namespace {
 
 template<std::size_t N>
-class CFactory
-{
+class CFactory {
     public:
         static CMultivariateMultimodalPrior<N> *make(const SDistributionRestoreParams &params,
-                                                     core::CStateRestoreTraverser &traverser)
-        {
+                                                     core::CStateRestoreTraverser &traverser) {
             return new CMultivariateMultimodalPrior<N>(params, traverser);
         }
 
@@ -44,15 +39,14 @@ class CFactory
                                                      double minimumClusterFraction,
                                                      double minimumClusterCount,
                                                      double minimumCategoryCount,
-                                                     const CMultivariatePrior &seedPrior)
-        {
+                                                     const CMultivariatePrior &seedPrior) {
             boost::scoped_ptr<CClusterer<CVectorNx1<CFloatStorage, N > > > clusterer(
-                    CXMeansOnlineFactory::make<CFloatStorage, N>(dataType,
-                                                                 weightCalc,
-                                                                 decayRate,
-                                                                 minimumClusterFraction,
-                                                                 minimumClusterCount,
-                                                                 minimumCategoryCount));
+                CXMeansOnlineFactory::make<CFloatStorage, N>(dataType,
+                                                             weightCalc,
+                                                             decayRate,
+                                                             minimumClusterFraction,
+                                                             minimumClusterCount,
+                                                             minimumCategoryCount));
             return new CMultivariateMultimodalPrior<N>(dataType, *clusterer, seedPrior, decayRate);
         }
 };
@@ -77,8 +71,7 @@ CMultivariateMultimodalPriorFactory::nonInformative(std::size_t dimension,
                                                     double minimumClusterFraction,
                                                     double minimumClusterCount,
                                                     double minimumCategoryCount,
-                                                    const CMultivariatePrior &seedPrior)
-{
+                                                    const CMultivariatePrior &seedPrior) {
     TPriorPtr ptr;
 #define FACTORY_ARGS dataType, decayRate, weightCalc, \
                      minimumClusterFraction,          \
@@ -93,8 +86,7 @@ CMultivariateMultimodalPriorFactory::nonInformative(std::size_t dimension,
 bool CMultivariateMultimodalPriorFactory::restore(std::size_t dimension,
                                                   const SDistributionRestoreParams &params,
                                                   TPriorPtr &ptr,
-                                                  core::CStateRestoreTraverser &traverser)
-{
+                                                  core::CStateRestoreTraverser &traverser) {
     ptr.reset();
 #define FACTORY_ARGS params, traverser
     CREATE_PRIOR(dimension)

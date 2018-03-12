@@ -18,10 +18,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -41,17 +39,14 @@ namespace core
 //! inlined.  This is the difference compared to boost::noncopyable,
 //! and what prevents Visual C++ warning C4275.
 //!
-class CORE_EXPORT CNonCopyable
-{
+class CORE_EXPORT CNonCopyable {
     protected:
         //! Inlined in the hope that the compiler will optimise it away
-        CNonCopyable(void)
-        {
+        CNonCopyable(void) {
         }
 
         //! Inlined in the hope that the compiler will optimise it away
-        ~CNonCopyable(void)
-        {
+        ~CNonCopyable(void) {
         }
 
     private:

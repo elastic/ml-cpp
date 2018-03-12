@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBoundingBoxTest : public CppUnit::TestFixture
-{
+class CBoundingBoxTest : public CppUnit::TestFixture {
     public:
         void testAdd(void);
         void testCloserTo(void);

@@ -21,13 +21,10 @@
 #include <string>
 #include <utility>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
-namespace
-{
+namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 }
 
@@ -38,10 +35,8 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
       m_DataAdder(dataAdder),
       m_IsBusy(false),
       m_IsShutdown(false),
-      m_BackgroundThread(*this)
-{
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT)
-    {
+      m_BackgroundThread(*this) {
+    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
         m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
@@ -57,33 +52,27 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
       m_DataAdder(dataAdder),
       m_IsBusy(false),
       m_IsShutdown(false),
-      m_BackgroundThread(*this)
-{
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT)
-    {
+      m_BackgroundThread(*this) {
+    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
         m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
     }
 }
 
-CBackgroundPersister::~CBackgroundPersister(void)
-{
+CBackgroundPersister::~CBackgroundPersister(void) {
     this->waitForIdle();
 }
 
-bool CBackgroundPersister::isBusy(void) const
-{
+bool CBackgroundPersister::isBusy(void) const {
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::waitForIdle(void)
-{
+bool CBackgroundPersister::waitForIdle(void) {
     {
         core::CScopedFastLock lock(m_Mutex);
 
-        if (!m_BackgroundThread.isStarted())
-        {
+        if (!m_BackgroundThread.isStarted()) {
             return true;
         }
     }
@@ -91,26 +80,21 @@ bool CBackgroundPersister::waitForIdle(void)
     return m_BackgroundThread.waitForFinish();
 }
 
-bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc)
-{
-    if (!persistFunc)
-    {
+bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {
+    if (!persistFunc) {
         return false;
     }
 
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
-    {
+    if (m_IsBusy) {
         return false;
     }
 
-    if (m_BackgroundThread.isStarted())
-    {
+    if (m_BackgroundThread.isStarted()) {
         // This join should be fast as the busy flag is false so the thread
         // should either have already exited or be on the verge of exiting
-        if (m_BackgroundThread.waitForFinish() == false)
-        {
+        if (m_BackgroundThread.waitForFinish() == false) {
             return false;
         }
     }
@@ -120,26 +104,21 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
     return true;
 }
 
-bool CBackgroundPersister::startPersist(void)
-{
-    if (m_PersistFuncs.empty())
-    {
+bool CBackgroundPersister::startPersist(void) {
+    if (m_PersistFuncs.empty()) {
         return false;
     }
 
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
-    {
+    if (m_IsBusy) {
         return false;
     }
 
-    if (m_BackgroundThread.isStarted())
-    {
+    if (m_BackgroundThread.isStarted()) {
         // This join should be fast as the busy flag is false so the thread
         // should either have already exited or be on the verge of exiting
-        if (m_BackgroundThread.waitForFinish() == false)
-        {
+        if (m_BackgroundThread.waitForFinish() == false) {
             return false;
         }
     }
@@ -150,12 +129,10 @@ bool CBackgroundPersister::startPersist(void)
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::clear(void)
-{
+bool CBackgroundPersister::clear(void) {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
-    {
+    if (m_IsBusy) {
         return false;
     }
 
@@ -164,12 +141,10 @@ bool CBackgroundPersister::clear(void)
     return true;
 }
 
-bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc)
-{
+bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
-    {
+    if (m_IsBusy) {
         return false;
     }
 
@@ -178,18 +153,15 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
     return true;
 }
 
-bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
-{
+bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
     core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
     core_t::TTime now(core::CTimeUtils::now());
-    if (now < due)
-    {
+    if (now < due) {
         // Persist is not due
         return false;
     }
 
-    if (this->isBusy())
-    {
+    if (this->isBusy()) {
         m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
 
         LOG_WARN("Periodic persist is due at " << due <<
@@ -202,8 +174,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
     }
 
     bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
-    if (!backgroundPersistSetupOk)
-    {
+    if (!backgroundPersistSetupOk) {
         LOG_ERROR("Failed to create background persistence functions");
         // It's possible that some functions were added before the failure, so
         // remove these
@@ -215,8 +186,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
 
     LOG_INFO("Background persist starting background thread");
 
-    if (this->startPersist() == false)
-    {
+    if (this->startPersist() == false) {
         LOG_ERROR("Failed to start background persistence");
         this->clear();
         return false;
@@ -226,17 +196,13 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
 }
 
 CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister &owner)
-    : m_Owner(owner)
-{
+    : m_Owner(owner) {
 }
 
-void CBackgroundPersister::CBackgroundThread::run(void)
-{
+void CBackgroundPersister::CBackgroundThread::run(void) {
 
-    while (!m_Owner.m_PersistFuncs.empty())
-    {
-        if (!m_Owner.m_IsShutdown)
-        {
+    while (!m_Owner.m_PersistFuncs.empty()) {
+        if (!m_Owner.m_IsShutdown) {
             m_Owner.m_PersistFuncs.front()(m_Owner.m_DataAdder);
         }
         m_Owner.m_PersistFuncs.pop_front();
@@ -247,8 +213,7 @@ void CBackgroundPersister::CBackgroundThread::run(void)
     m_Owner.m_IsBusy = false;
 }
 
-void CBackgroundPersister::CBackgroundThread::shutdown(void)
-{
+void CBackgroundPersister::CBackgroundThread::shutdown(void) {
     m_Owner.m_IsShutdown = true;
 }
 

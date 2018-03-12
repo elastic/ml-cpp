@@ -29,23 +29,19 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CSeasonalTime;
 
 //! \brief An adaptive bucketing of the value of a calendar component.
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucketing
-{
+class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucketing {
     public:
         using TFloatMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
 
@@ -201,8 +197,7 @@ class MATHS_EXPORT CCalendarComponentAdaptiveBucketing : private CAdaptiveBucket
 
 //! Create a free function which will be found by Koenig lookup.
 inline void swap(CCalendarComponentAdaptiveBucketing &lhs,
-                 CCalendarComponentAdaptiveBucketing &rhs)
-{
+                 CCalendarComponentAdaptiveBucketing &rhs) {
     lhs.swap(rhs);
 }
 

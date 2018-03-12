@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTimeSeriesDecompositionTest : public CppUnit::TestFixture
-{
+class CTimeSeriesDecompositionTest : public CppUnit::TestFixture {
     public:
         void testSuperpositionOfSines(void);
         void testDistortedPeriodic(void);

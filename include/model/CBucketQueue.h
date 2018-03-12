@@ -27,10 +27,8 @@
 
 #include <string>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A fixed size queue with the purpose of storing bucket-associated data.
 //!
@@ -41,8 +39,7 @@ namespace model
 //! The queue manages the matching of the time to the corresponding
 //! bucket.
 template<typename T>
-class CBucketQueue
-{
+class CBucketQueue {
     public:
         typedef boost::circular_buffer<T> TQueue;
         typedef typename TQueue::value_type value_type;
@@ -56,24 +53,21 @@ class CBucketQueue
 
         //! \brief Wraps persist and restore so they can be used with boost::bind.
         template<typename F>
-        class CSerializer
-        {
+        class CSerializer {
             public:
                 CSerializer(const T &initial = T(),
                             const F &serializer = F()) :
-                        m_InitialValue(initial),
-                        m_Serializer(serializer)
+                    m_InitialValue(initial),
+                    m_Serializer(serializer)
                 {}
 
                 void operator()(const CBucketQueue &queue,
-                                core::CStatePersistInserter &inserter) const
-                {
+                                core::CStatePersistInserter &inserter) const {
                     queue.persist(m_Serializer, inserter);
                 }
 
                 bool operator()(CBucketQueue &queue,
-                                core::CStateRestoreTraverser &traverser) const
-                {
+                                core::CStateRestoreTraverser &traverser) const {
                     return queue.restore(m_Serializer, m_InitialValue, traverser);
                 }
 
@@ -96,10 +90,9 @@ class CBucketQueue
                      core_t::TTime bucketLength,
                      core_t::TTime latestBucketStart,
                      T initial = T()) :
-                m_Queue(latencyBuckets + 1),
-                m_LatestBucketEnd(latestBucketStart + bucketLength - 1),
-                m_BucketLength(bucketLength)
-        {
+            m_Queue(latencyBuckets + 1),
+            m_LatestBucketEnd(latestBucketStart + bucketLength - 1),
+            m_BucketLength(bucketLength) {
             this->fill(initial);
             LOG_TRACE("Queue created :");
             LOG_TRACE("Bucket length = " << m_BucketLength);
@@ -112,10 +105,8 @@ class CBucketQueue
         //!
         //! \param[in] item The item to be pushed in the queue.
         //! \param[in] time The time to which the item corresponds.
-        void push(const T &item, core_t::TTime time)
-        {
-            if (time <= m_LatestBucketEnd)
-            {
+        void push(const T &item, core_t::TTime time) {
+            if (time <= m_LatestBucketEnd) {
                 LOG_ERROR("Push was called with early time = " << time << ", latest bucket end time = " << m_LatestBucketEnd);
                 return;
             }
@@ -125,142 +116,120 @@ class CBucketQueue
 
         //! Pushes an item to the queue. This is only intended to be used
         //! internally and from clients that perform restoration of the queue.
-        void push(const T &item)
-        {
+        void push(const T &item) {
             m_Queue.push_front(item);
             LOG_TRACE("Queue after push -> " << core::CContainerPrinter::print(*this));
         }
 
         //! Returns the item in the queue that corresponds to the bucket
         //! indicated by \p time.
-        T &get(core_t::TTime time)
-        {
+        T &get(core_t::TTime time) {
             return m_Queue[this->index(time)];
         }
 
         //! Returns the item in the queue that corresponds to the bucket
         //! indicated by \p time.
-        const T &get(core_t::TTime time) const
-        {
+        const T &get(core_t::TTime time) const {
             return m_Queue[this->index(time)];
         }
 
         //! Returns the size of the queue.
-        std::size_t size(void) const
-        {
+        std::size_t size(void) const {
             return m_Queue.size();
         }
 
         //! Is the queue empty?
-        bool empty(void) const
-        {
+        bool empty(void) const {
             return m_Queue.empty();
         }
 
         //! Removes all items from the queue and fills with initial values
         //! Note, the queue should never be empty.
-        void clear(const T &initial = T())
-        {
+        void clear(const T &initial = T()) {
             this->fill(initial);
         }
 
         //! Resets the queue to \p startTime.
         //! This will clear the queue and will fill it with default items.
         void reset(core_t::TTime startTime,
-                          const T &initial = T())
-        {
+                   const T &initial = T()) {
             m_LatestBucketEnd = startTime + m_BucketLength - 1;
             this->fill(initial);
         }
 
         //! Returns an iterator pointing to the latest bucket and directed
         //! towards the earlier buckets.
-        iterator begin(void)
-        {
+        iterator begin(void) {
             return m_Queue.begin();
         }
 
         //! Returns an iterator pointing to the end of the queue.
-        iterator end(void)
-        {
+        iterator end(void) {
             return m_Queue.end();
         }
 
         //! Returns an iterator pointing to the latest bucket and directed
         //! towards the earlier buckets.
-        const_iterator begin(void) const
-        {
+        const_iterator begin(void) const {
             return m_Queue.begin();
         }
 
         //! Returns an iterator pointing to the end of the queue.
-        const_iterator end(void) const
-        {
+        const_iterator end(void) const {
             return m_Queue.end();
         }
 
         //! Returns a reverse_iterator pointing to the earliest bucket and directed
         //! towards the later buckets.
-        const_reverse_iterator rbegin(void) const
-        {
+        const_reverse_iterator rbegin(void) const {
             return m_Queue.rbegin();
         }
 
         //! Returns an iterator pointing to the end of the "reversed" queue.
-        const_reverse_iterator rend(void) const
-        {
+        const_reverse_iterator rend(void) const {
             return m_Queue.rend();
         }
 
         //! Returns the item in the queue corresponding to the earliest bucket.
-        T &earliest(void)
-        {
+        T &earliest(void) {
             return m_Queue.back();
         }
 
         //! Returns the item corresponding to the latest bucket.
-        T &latest(void)
-        {
+        T &latest(void) {
             return m_Queue.front();
         }
 
         //! Returns the latest bucket end time, as tracked by the queue.
-        core_t::TTime latestBucketEnd(void) const
-        {
+        core_t::TTime latestBucketEnd(void) const {
             return m_LatestBucketEnd;
         }
 
         //! Debug the memory used by this component.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-        {
+        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
             mem->setName("CBucketQueue");
             core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
         }
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const
-        {
+        std::size_t memoryUsage(void) const {
             return core::CMemory::dynamicSize(m_Queue);
         }
 
         //! Prints the contents of the queue.
-        std::string print(void) const
-        {
+        std::string print(void) const {
             return core::CContainerPrinter::print(m_Queue);
         }
 
         //! Return the configured bucketlength of this queue
-        core_t::TTime bucketLength(void) const
-        {
+        core_t::TTime bucketLength(void) const {
             return m_BucketLength;
         }
 
         //! Generic persist interface that assumes the bucket items can
         //! be persisted by core::CPersistUtils
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const
-        {
-            for (std::size_t i = 0; i < m_Queue.size(); i++)
-            {
+        void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+            for (std::size_t i = 0; i < m_Queue.size(); i++) {
                 inserter.insertValue(INDEX_TAG, i);
                 core::CPersistUtils::persist(BUCKET_TAG, m_Queue[i], inserter);
             }
@@ -268,44 +237,32 @@ class CBucketQueue
 
         //! Generic restore interface that assumes the bucket items can
         //! be restored by core::CPersistUtils
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
-        {
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
             std::size_t i = 0;
-            do
-            {
-                if (traverser.name() == INDEX_TAG)
-                {
-                    if (core::CStringUtils::stringToType(traverser.value(), i) == false)
-                    {
+            do {
+                if (traverser.name() == INDEX_TAG) {
+                    if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
                         LOG_ERROR("Bad index in " << traverser.value());
                         return false;
                     }
-                }
-                else if (traverser.name() == BUCKET_TAG)
-                {
-                    if (i >= m_Queue.size())
-                    {
+                } else if (traverser.name() == BUCKET_TAG) {
+                    if (i >= m_Queue.size()) {
                         LOG_WARN("Bucket queue is smaller on restore than on persist: " <<
                                  i << " >= " << m_Queue.size() <<
                                  ".  Extra buckets will be ignored.");
                         // Restore into a temporary
                         T dummy;
-                        if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser)))
-                        {
+                        if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
                             LOG_ERROR("Invalid bucket");
                         }
-                    }
-                    else
-                    {
-                        if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser)))
-                        {
+                    } else {
+                        if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
                             LOG_ERROR("Invalid bucket");
                             return false;
                         }
                     }
                 }
-            }
-            while (traverser.next());
+            } while (traverser.next());
             return true;
         }
 
@@ -313,10 +270,8 @@ class CBucketQueue
         //! Persist the buckets in the queue using \p bucketPersist.
         template<typename F>
         void persist(F bucketPersist,
-                     core::CStatePersistInserter &inserter) const
-        {
-            for (std::size_t i = 0; i < m_Queue.size(); i++)
-            {
+                     core::CStatePersistInserter &inserter) const {
+            for (std::size_t i = 0; i < m_Queue.size(); i++) {
                 inserter.insertValue(INDEX_TAG, i);
                 inserter.insertLevel(BUCKET_TAG,
                                      boost::bind<void>(bucketPersist,
@@ -329,82 +284,63 @@ class CBucketQueue
         template<typename F>
         bool restore(F bucketRestore,
                      const T &initial,
-                     core::CStateRestoreTraverser &traverser)
-        {
+                     core::CStateRestoreTraverser &traverser) {
             std::size_t i = 0;
-            do
-            {
-                if (traverser.name() == INDEX_TAG)
-                {
-                    if (core::CStringUtils::stringToType(traverser.value(), i) == false)
-                    {
+            do {
+                if (traverser.name() == INDEX_TAG) {
+                    if (core::CStringUtils::stringToType(traverser.value(), i) == false) {
                         LOG_DEBUG("Bad index in " << traverser.value());
                         return false;
                     }
-                }
-                else if (traverser.name() == BUCKET_TAG)
-                {
-                    if (i >= m_Queue.size())
-                    {
+                } else if (traverser.name() == BUCKET_TAG) {
+                    if (i >= m_Queue.size()) {
                         LOG_WARN("Bucket queue is smaller on restore than on persist: " <<
                                  i << " >= " << m_Queue.size() <<
                                  ".  Extra buckets will be ignored.");
-                        if (traverser.hasSubLevel())
-                        {
+                        if (traverser.hasSubLevel()) {
                             // Restore into a temporary
                             T dummy = initial;
                             if (traverser.traverseSubLevel(
-                                    boost::bind<bool>(bucketRestore,
-                                                      dummy,
-                                                      _1)) == false)
-                            {
+                                        boost::bind<bool>(bucketRestore,
+                                                          dummy,
+                                                          _1)) == false) {
                                 LOG_ERROR("Invalid bucket");
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         m_Queue[i] = initial;
-                        if (traverser.hasSubLevel())
-                        {
+                        if (traverser.hasSubLevel()) {
                             if (traverser.traverseSubLevel(
-                                    boost::bind<bool>(bucketRestore,
-                                                      boost::ref(m_Queue[i]),
-                                                      _1)) == false)
-                            {
+                                        boost::bind<bool>(bucketRestore,
+                                                          boost::ref(m_Queue[i]),
+                                                          _1)) == false) {
                                 LOG_ERROR("Invalid bucket");
                                 return false;
                             }
                         }
                     }
                 }
-            }
-            while (traverser.next());
+            } while (traverser.next());
             return true;
         }
 
         //! Fill the queue with default constructed bucket values.
-        void fill(const T &initial)
-        {
-            for (std::size_t i = 0; i < m_Queue.capacity(); ++i)
-            {
+        void fill(const T &initial) {
+            for (std::size_t i = 0; i < m_Queue.capacity(); ++i) {
                 this->push(initial);
             }
         }
 
         //! Get the index of the bucket containing \p time.
-        std::size_t index(core_t::TTime time) const
-        {
-            if (m_BucketLength == 0)
-            {
+        std::size_t index(core_t::TTime time) const {
+            if (m_BucketLength == 0) {
                 LOG_ERROR("Invalid bucketLength for queue!");
                 return 0;
             }
             std::size_t index = static_cast<std::size_t>(
-                    (m_LatestBucketEnd - time) / m_BucketLength);
+                                    (m_LatestBucketEnd - time) / m_BucketLength);
             std::size_t size = this->size();
-            if (index >= size)
-            {
+            if (index >= size) {
                 LOG_ERROR("Time " << time << " is out of range. Returning earliest bucket index.");
                 return size - 1;
             }

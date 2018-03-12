@@ -23,14 +23,11 @@
 #include <string>
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Utility functionality for auto-configuration.
-class CONFIG_EXPORT CTools
-{
+class CONFIG_EXPORT CTools {
     public:
         //! Get a 32 bit integer category corresponding to \p value.
         static uint32_t category32(const std::string &value);

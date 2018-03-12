@@ -33,8 +33,7 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
 typedef std::vector<model_t::EFeature> TFeatureVec;
 typedef std::vector<std::string> TStrVec;
@@ -42,55 +41,53 @@ typedef std::vector<std::string> TStrVec;
 const std::string EMPTY_STRING;
 }
 
-CppUnit::Test *CDetectionRuleTest::suite()
-{
+CppUnit::Test *CDetectionRuleTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectionRuleTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenCategoricalCondition",
-           &CDetectionRuleTest::testApplyGivenCategoricalCondition));
+                              "CDetectionRuleTest::testApplyGivenCategoricalCondition",
+                              &CDetectionRuleTest::testApplyGivenCategoricalCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenNumericalActualCondition",
-           &CDetectionRuleTest::testApplyGivenNumericalActualCondition));
+                              "CDetectionRuleTest::testApplyGivenNumericalActualCondition",
+                              &CDetectionRuleTest::testApplyGivenNumericalActualCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenNumericalTypicalCondition",
-           &CDetectionRuleTest::testApplyGivenNumericalTypicalCondition));
+                              "CDetectionRuleTest::testApplyGivenNumericalTypicalCondition",
+                              &CDetectionRuleTest::testApplyGivenNumericalTypicalCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition",
-           &CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition));
+                              "CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition",
+                              &CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField",
-           &CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField));
+                              "CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField",
+                              &CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenNoActualValueAvailable",
-           &CDetectionRuleTest::testApplyGivenNoActualValueAvailable));
+                              "CDetectionRuleTest::testApplyGivenNoActualValueAvailable",
+                              &CDetectionRuleTest::testApplyGivenNoActualValueAvailable));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel",
-           &CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel));
+                              "CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel",
+                              &CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel",
-           &CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel));
+                              "CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel",
+                              &CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr",
-           &CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr));
+                              "CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr",
+                              &CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd",
-           &CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd));
+                              "CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd",
+                              &CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel",
-           &CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel));
+                              "CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel",
+                              &CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testApplyGivenTimeCondition",
-           &CDetectionRuleTest::testApplyGivenTimeCondition));
+                              "CDetectionRuleTest::testApplyGivenTimeCondition",
+                              &CDetectionRuleTest::testApplyGivenTimeCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-           "CDetectionRuleTest::testRuleActions",
-           &CDetectionRuleTest::testRuleActions));
+                              "CDetectionRuleTest::testRuleActions",
+                              &CDetectionRuleTest::testRuleActions));
 
     return suiteOfTests;
 }
 
-void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
-{
+void CDetectionRuleTest::testApplyGivenCategoricalCondition(void) {
     LOG_DEBUG("*** testApplyGivenCategoricalCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -106,10 +103,10 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
     std::string personFieldName("over");
     std::string attributeFieldName("by");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
-                              EMPTY_STRING, partitionFieldName, partitionFieldValue,
-                              personFieldName, attributeFieldName, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
+                          EMPTY_STRING, partitionFieldName, partitionFieldValue,
+                          personFieldName, attributeFieldName, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool added = false;
@@ -148,13 +145,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
         std::string filterJson("[\"a1*\"]");
@@ -171,13 +168,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
     }
     {
         std::string filterJson("[\"*2\"]");
@@ -194,13 +191,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
         std::string filterJson("[\"*1*\"]");
@@ -217,13 +214,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
     }
     {
         std::string filterJson("[\"p2\"]");
@@ -240,13 +237,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
         std::string filterJson("[\"par_1\"]");
@@ -263,13 +260,13 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100));
     }
     {
         std::string filterJson("[\"par_2\"]");
@@ -286,18 +283,17 @@ void CDetectionRuleTest::testApplyGivenCategoricalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
+                                  model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
-{
+void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalActionCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -309,9 +305,9 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -338,11 +334,11 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
     }
 
     {
@@ -358,11 +354,11 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
     }
     {
         // Test rule with condition with operator GT
@@ -377,11 +373,11 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
     }
     {
         // Test rule with condition with operator GT
@@ -396,16 +392,15 @@ void CDetectionRuleTest::testApplyGivenNumericalActualCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
-{
+void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalTypicalCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -417,9 +412,9 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -452,11 +447,11 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
     }
 
     {
@@ -472,16 +467,15 @@ void CDetectionRuleTest::testApplyGivenNumericalTypicalCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
     }
 }
 
-void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
-{
+void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void) {
     LOG_DEBUG("*** testApplyGivenNumericalDiffAbsCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -493,9 +487,9 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -540,17 +534,17 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 500) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 500) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 600) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 600) == false);
     }
 
     {
@@ -566,22 +560,21 @@ void CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 500) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 500) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 600));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 600));
     }
 }
 
-void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(void)
-{
+void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(void) {
     LOG_DEBUG("*** testApplyGivenSingleSeriesModelAndConditionWithField ***");
 
     core_t::TTime bucketLength = 100;
@@ -593,9 +586,9 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -623,15 +616,14 @@ void CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField(vo
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 300) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void)
-{
+void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void) {
     LOG_DEBUG("*** testApplyGivenNoActualValueAvailable ***");
 
     core_t::TTime bucketLength = 100;
@@ -643,9 +635,9 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void)
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -669,11 +661,10 @@ void CDetectionRuleTest::testApplyGivenNoActualValueAvailable(void)
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 400) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void)
-{
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void) {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -686,9 +677,9 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void)
     features.push_back(model_t::E_IndividualMeanByPerson);
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -714,13 +705,12 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel(void)
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void)
-{
+void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void) {
     LOG_DEBUG("*** testApplyGivenDifferentSeriesAndPopulationModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -734,9 +724,9 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void)
     std::string personFieldName("over");
     std::string attributeFieldName("by");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, attributeFieldName, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_PopulationMetric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, attributeFieldName, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool added = false;
@@ -772,17 +762,16 @@ void CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel(void)
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
+                              model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 0, 100) == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
+                              model_t::E_PopulationMeanByPersonAndAttribute, resultType, 0, 1, 100));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
+                              model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 2, 100) == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-            model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
+                              model_t::E_PopulationMeanByPersonAndAttribute, resultType, 1, 3, 100) == false);
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
-{
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void) {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithOr ***");
 
     core_t::TTime bucketLength = 100;
@@ -795,9 +784,9 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
     features.push_back(model_t::E_IndividualMeanByPerson);
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -828,7 +817,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
     }
     {
         // First applies only
@@ -851,7 +840,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     }
     {
         // Second applies only
@@ -874,7 +863,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     }
     {
         // Both apply
@@ -897,12 +886,11 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     }
 }
 
-void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
-{
+void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void) {
     LOG_DEBUG("*** testApplyGivenMultipleConditionsWithAnd ***");
 
     core_t::TTime bucketLength = 100;
@@ -915,9 +903,9 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
     features.push_back(model_t::E_IndividualMeanByPerson);
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -949,7 +937,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
     }
     {
         // First applies only
@@ -973,7 +961,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
     }
     {
         // Second applies only
@@ -997,7 +985,7 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
     }
     {
         // Both apply
@@ -1021,12 +1009,11 @@ void CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd(void)
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(void)
-{
+void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(void) {
     LOG_DEBUG("*** testApplyGivenTargetFieldIsPartitionAndIndividualModel ***");
 
     core_t::TTime bucketLength = 100;
@@ -1041,9 +1028,9 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
     std::string partitionFieldValue("partition_1");
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, partitionFieldName, partitionFieldValue, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, partitionFieldName, partitionFieldValue, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     std::string person1("p1");
     bool addedPerson = false;
@@ -1072,9 +1059,9 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100));
     }
     {
         // Matching targetFieldValue
@@ -1092,9 +1079,9 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100));
+                                  model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100));
     }
     {
         // Non-matching targetFieldValue
@@ -1113,14 +1100,13 @@ void CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel(
         model_t::CResultType resultType(model_t::CResultType::E_Final);
 
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
         CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
+                                  model_t::E_IndividualMeanByPerson, resultType, 1, 0, 100) == false);
     }
 }
 
-void CDetectionRuleTest::testApplyGivenTimeCondition(void)
-{
+void CDetectionRuleTest::testApplyGivenTimeCondition(void) {
     LOG_DEBUG("*** testApplyGivenTimeCondition ***");
 
     core_t::TTime bucketLength = 100;
@@ -1134,9 +1120,9 @@ void CDetectionRuleTest::testApplyGivenTimeCondition(void)
     std::string partitionFieldName("partition");
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features,
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features,
                           startTime, 0));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
@@ -1157,17 +1143,16 @@ void CDetectionRuleTest::testApplyGivenTimeCondition(void)
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 99) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 99) == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 150));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 150));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 200) == false);
 }
 
-void CDetectionRuleTest::testRuleActions(void)
-{
+void CDetectionRuleTest::testRuleActions(void) {
     LOG_DEBUG("*** testRuleActions ***");
 
     core_t::TTime bucketLength = 100;
@@ -1181,9 +1166,9 @@ void CDetectionRuleTest::testRuleActions(void)
     std::string partitionFieldName("partition");
     std::string personFieldName("series");
     CAnomalyDetectorModel::TDataGathererPtr gathererPtr(
-            new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
-                              EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
-                              TStrVec(), false, key, features, startTime, 0));
+        new CDataGatherer(model_t::E_Metric, model_t::E_None, params,
+                          EMPTY_STRING, partitionFieldName, EMPTY_STRING, personFieldName, EMPTY_STRING, EMPTY_STRING,
+                          TStrVec(), false, key, features, startTime, 0));
 
     CMockModel model(params, gathererPtr, influenceCalculators);
     CRuleCondition conditionGte;
@@ -1198,19 +1183,19 @@ void CDetectionRuleTest::testRuleActions(void)
     model_t::CResultType resultType(model_t::CResultType::E_Final);
 
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_SkipSampling, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100) == false);
 
     rule.action(CDetectionRule::E_SkipSampling);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100)  == false);
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100)  == false);
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_SkipSampling, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
 
     rule.action(static_cast<CDetectionRule::ERuleAction>(3));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_FilterResults, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
     CPPUNIT_ASSERT(rule.apply(CDetectionRule::E_SkipSampling, model,
-                model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
+                              model_t::E_IndividualMeanByPerson, resultType, 0, 0, 100));
 }

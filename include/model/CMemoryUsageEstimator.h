@@ -26,15 +26,12 @@
 
 #include <utility>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 //! \brief Estimate memory usage based on previous model parameters.
 //!
 //! DESCRIPTION:\n
@@ -49,12 +46,10 @@ namespace model
 //! forming the input matrix A, which is solved for the memory usage
 //! calculations in vector B.
 //! See http://eigen.tuxfamily.org/dox-devel/group__LeastSquares.html
-class MODEL_EXPORT CMemoryUsageEstimator
-{
+class MODEL_EXPORT CMemoryUsageEstimator {
     public:
         //! Enumeration of the components included in the memory estimate.
-        enum EComponent
-        {
+        enum EComponent {
             E_People = 0,
             E_Attributes,
             E_Correlations,

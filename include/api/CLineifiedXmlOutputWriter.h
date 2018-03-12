@@ -25,10 +25,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in XML format, one document per line
@@ -42,8 +40,7 @@ namespace api
 //! IMPLEMENTATION:\n
 //! Using RapidXml to do the heavy lifting.
 //!
-class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler
-{
+class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler {
     public:
         //! Constructor that causes output to be written to the internal string
         //! stream

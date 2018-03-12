@@ -19,21 +19,16 @@
 #include <cppunit/Test.h>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 
-void CTestTimer::startTest(CppUnit::Test * /* test */)
-{
+void CTestTimer::startTest(CppUnit::Test * /* test */) {
     m_StopWatch.reset(true);
 }
 
-void CTestTimer::endTest(CppUnit::Test *test)
-{
-    if (test == 0)
-    {
+void CTestTimer::endTest(CppUnit::Test *test) {
+    if (test == 0) {
         LOG_ERROR("Unexpected NULL pointer");
         return;
     }
@@ -47,11 +42,9 @@ void CTestTimer::endTest(CppUnit::Test *test)
              " took " << duration << "ms");
 }
 
-uint64_t CTestTimer::timeForTest(const std::string &testName) const
-{
+uint64_t CTestTimer::timeForTest(const std::string &testName) const {
     TStrUInt64MapCItr iter = m_TestTimes.find(testName);
-    if (iter == m_TestTimes.end())
-    {
+    if (iter == m_TestTimes.end()) {
         LOG_WARN("No timing for test named " << testName);
         return 0;
     }
@@ -59,24 +52,20 @@ uint64_t CTestTimer::timeForTest(const std::string &testName) const
     return iter->second;
 }
 
-uint64_t CTestTimer::totalTime(void) const
-{
+uint64_t CTestTimer::totalTime(void) const {
     uint64_t result(0);
 
     for (TStrUInt64MapCItr iter = m_TestTimes.begin();
-         iter != m_TestTimes.end();
-         ++iter)
-    {
+            iter != m_TestTimes.end();
+            ++iter) {
         result += iter->second;
     }
 
     return result;
 }
 
-uint64_t CTestTimer::averageTime(void) const
-{
-    if (m_TestTimes.empty())
-    {
+uint64_t CTestTimer::averageTime(void) const {
+    if (m_TestTimes.empty()) {
         return 0;
     }
 

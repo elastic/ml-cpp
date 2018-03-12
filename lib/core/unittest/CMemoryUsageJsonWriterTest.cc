@@ -22,20 +22,18 @@
 
 using namespace ml;
 
-CppUnit::Test *CMemoryUsageJsonWriterTest::suite()
-{
+CppUnit::Test *CMemoryUsageJsonWriterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMemoryUsageJsonWriterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>(
-                                   "CMemoryUsageJsonWriterTest::test",
-                                   &CMemoryUsageJsonWriterTest::test) );
+                               "CMemoryUsageJsonWriterTest::test",
+                               &CMemoryUsageJsonWriterTest::test) );
 
     return suiteOfTests;
 }
 
 
-void CMemoryUsageJsonWriterTest::test(void)
-{
+void CMemoryUsageJsonWriterTest::test(void) {
     {
         // Check that adding nothing produces nothing
         std::ostringstream ss;

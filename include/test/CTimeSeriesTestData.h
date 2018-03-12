@@ -24,17 +24,13 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CRegex;
 }
-namespace test
-{
+namespace test {
 
-class TEST_EXPORT CTimeSeriesTestData
-{
+class TEST_EXPORT CTimeSeriesTestData {
     public:
         typedef std::vector<double>                  TDoubleVec;
         typedef TDoubleVec::iterator                 TDoubleVecItr;

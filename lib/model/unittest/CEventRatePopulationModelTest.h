@@ -21,8 +21,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CEventRatePopulationModelTest : public CppUnit::TestFixture
-{
+class CEventRatePopulationModelTest : public CppUnit::TestFixture {
     public:
         void testBasicAccessors(void);
         void testFeatures(void);

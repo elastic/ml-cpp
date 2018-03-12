@@ -27,10 +27,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A lightweight wrapper over rapidjson::LineWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
@@ -42,8 +40,7 @@ namespace core
 //! and this is then filled with JSON objects and arrays.
 //! Finalise should be called to flush the stream before
 //! downstream use.
-class CORE_EXPORT CMemoryUsageJsonWriter
-{
+class CORE_EXPORT CMemoryUsageJsonWriter {
     public:
         //! Constructor
         CMemoryUsageJsonWriter(std::ostream &outStream);

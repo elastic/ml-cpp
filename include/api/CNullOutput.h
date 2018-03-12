@@ -19,10 +19,8 @@
 #include <api/ImportExport.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Output handler that ignores all output.
@@ -39,8 +37,7 @@ namespace api
 //! that is separate to the output handler that all data
 //! processors have.
 //!
-class API_EXPORT CNullOutput : public COutputHandler
-{
+class API_EXPORT CNullOutput : public COutputHandler {
     public:
         //! Does nothing with the field names provided.
         virtual bool fieldNames(const TStrVec &fieldNames,

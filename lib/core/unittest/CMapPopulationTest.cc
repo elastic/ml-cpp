@@ -32,23 +32,20 @@ const size_t CMapPopulationTest::TEST_SIZE(200000);
 
 
 CMapPopulationTest::CMapPopulationTest(void)
-    : m_TestData(0)
-{
+    : m_TestData(0) {
 }
 
-CppUnit::Test *CMapPopulationTest::suite()
-{
+CppUnit::Test *CMapPopulationTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMapPopulationTest>(
-                                   "CMapPopulationTest::testMapInsertSpeed",
-                                   &CMapPopulationTest::testMapInsertSpeed) );
+                               "CMapPopulationTest::testMapInsertSpeed",
+                               &CMapPopulationTest::testMapInsertSpeed) );
 
     return suiteOfTests;
 }
 
-void CMapPopulationTest::setUp(void)
-{
+void CMapPopulationTest::setUp(void) {
     // This class gets constructed once for every test, but by making the test
     // data static every test will use the same test data, which is important
     // for a fair comparison
@@ -57,62 +54,52 @@ void CMapPopulationTest::setUp(void)
 }
 
 CMapPopulationTest::CTestData::CTestData(size_t fillSize)
-    // It's essential these vectors don't resize as the char pointers in the
-    // last two vectors point into the contents of the strings in the first two,
-    // so set the correct size when they're constructed
+// It's essential these vectors don't resize as the char pointers in the
+// last two vectors point into the contents of the strings in the first two,
+// so set the correct size when they're constructed
     : m_StringKeys(fillSize),
       m_StringVals(fillSize),
       m_CharPtrKeys(fillSize),
-      m_CharPtrVals(fillSize)
-{
+      m_CharPtrVals(fillSize) {
     // Set up test data such that each test uses identical data
-    for (size_t index = 0; index < fillSize; ++index)
-    {
+    for (size_t index = 0; index < fillSize; ++index) {
         // Keys are 4 to 12 letters followed by a unique number
-        for (int count = 4 + (::rand() % 9); count > 0; --count)
-        {
+        for (int count = 4 + (::rand() % 9); count > 0; --count) {
             m_StringKeys[index] += char('a' + ::rand() % 26);
         }
         m_StringKeys[index] += ml::core::CStringUtils::typeToString(index);
         m_CharPtrKeys[index] = m_StringKeys[index].c_str();
 
         // Values are 16 to 32 printable ASCII characters in length
-        for (int count = 16 + (::rand() % 17); count > 0; --count)
-        {
+        for (int count = 16 + (::rand() % 17); count > 0; --count) {
             m_StringVals[index] += char(' ' + ::rand() % 95);
         }
         m_CharPtrVals[index] = m_StringVals[index].c_str();
     }
 
-    for (size_t index = 0; index < fillSize; ++index)
-    {
+    for (size_t index = 0; index < fillSize; ++index) {
         LOG_DEBUG("Test entry " << index << ": " <<
                   m_CharPtrKeys[index] << " -> " << m_CharPtrVals[index]);
     }
 }
 
-const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringKeys(void) const
-{
+const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringKeys(void) const {
     return m_StringKeys;
 }
 
-const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringVals(void) const
-{
+const CMapPopulationTest::CTestData::TStrVec &CMapPopulationTest::CTestData::stringVals(void) const {
     return m_StringVals;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrKeys(void) const
-{
+const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrKeys(void) const {
     return m_CharPtrKeys;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrVals(void) const
-{
+const CMapPopulationTest::CTestData::TCharPVec &CMapPopulationTest::CTestData::charPtrVals(void) const {
     return m_CharPtrVals;
 }
 
-void CMapPopulationTest::testMapInsertSpeed(void)
-{
+void CMapPopulationTest::testMapInsertSpeed(void) {
     // Schedule all the other tests to be run in a thread pool - the number of
     // threads is chosen to be less than the number of cores so that the results
     // aren't skewed too much if other processes are running on the machine
@@ -133,8 +120,7 @@ void CMapPopulationTest::testMapInsertSpeed(void)
     tp.wait();
 }
 
-void CMapPopulationTest::testMapInsertStr(void)
-{
+void CMapPopulationTest::testMapInsertStr(void) {
     TStrStrMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -152,8 +138,7 @@ void CMapPopulationTest::testMapInsertStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapInsertCharP(void)
-{
+void CMapPopulationTest::testMapInsertCharP(void) {
     TStrStrMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -171,8 +156,7 @@ void CMapPopulationTest::testMapInsertCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapOpSqBracStr(void)
-{
+void CMapPopulationTest::testMapOpSqBracStr(void) {
     TStrStrMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -190,8 +174,7 @@ void CMapPopulationTest::testMapOpSqBracStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testMapOpSqBracCharP(void)
-{
+void CMapPopulationTest::testMapOpSqBracCharP(void) {
     TStrStrMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -209,8 +192,7 @@ void CMapPopulationTest::testMapOpSqBracCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapInsertStr(void)
-{
+void CMapPopulationTest::testUMapInsertStr(void) {
     TStrStrUMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -228,8 +210,7 @@ void CMapPopulationTest::testUMapInsertStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapInsertCharP(void)
-{
+void CMapPopulationTest::testUMapInsertCharP(void) {
     TStrStrUMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -247,8 +228,7 @@ void CMapPopulationTest::testUMapInsertCharP(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapOpSqBracStr(void)
-{
+void CMapPopulationTest::testUMapOpSqBracStr(void) {
     TStrStrUMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -266,8 +246,7 @@ void CMapPopulationTest::testUMapOpSqBracStr(void)
              " seconds");
 }
 
-void CMapPopulationTest::testUMapOpSqBracCharP(void)
-{
+void CMapPopulationTest::testUMapOpSqBracCharP(void) {
     TStrStrUMapVec testVec(TEST_SIZE);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -288,17 +267,14 @@ void CMapPopulationTest::testUMapOpSqBracCharP(void)
 template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
 void CMapPopulationTest::addInsert(const INPUT_CONTAINER &keys,
                                    const INPUT_CONTAINER &values,
-                                   MAP_CONTAINER &maps) const
-{
+                                   MAP_CONTAINER &maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin();
-         iter != maps.end();
-         ++iter)
-    {
+            iter != maps.end();
+            ++iter) {
         typename MAP_CONTAINER::value_type &map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));
-        for (size_t index = 0; index < limit; ++index)
-        {
+        for (size_t index = 0; index < limit; ++index) {
             map.insert(typename MAP_CONTAINER::value_type::value_type(keys[index], values[index]));
         }
 
@@ -309,17 +285,14 @@ void CMapPopulationTest::addInsert(const INPUT_CONTAINER &keys,
 template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
 void CMapPopulationTest::addOpSqBrac(const INPUT_CONTAINER &keys,
                                      const INPUT_CONTAINER &values,
-                                     MAP_CONTAINER &maps) const
-{
+                                     MAP_CONTAINER &maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin();
-         iter != maps.end();
-         ++iter)
-    {
+            iter != maps.end();
+            ++iter) {
         typename MAP_CONTAINER::value_type &map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));
-        for (size_t index = 0; index < limit; ++index)
-        {
+        for (size_t index = 0; index < limit; ++index) {
             map[keys[index]] = values[index];
         }
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSignalTest : public CppUnit::TestFixture
-{
+class CSignalTest : public CppUnit::TestFixture {
     public:
         void testFFTVersusOctave(void);
         void testIFFTVersusOctave(void);

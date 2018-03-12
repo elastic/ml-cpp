@@ -22,10 +22,8 @@
 #include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CByAndPartitionDataCountStatistics;
 class CByOverAndPartitionDataCountStatistics;
@@ -40,8 +38,7 @@ class CByOverAndPartitionDataCountStatistics;
 //! detectors will fail to detect any anomalies. As such we penalize detectors
 //! based on the proportion of count in a tail which is defined as a threshold
 //! on the difference between the by field count and the minimum count.
-class CONFIG_EXPORT CLongTailPenalty : public CPenalty
-{
+class CONFIG_EXPORT CLongTailPenalty : public CPenalty {
     public:
         CLongTailPenalty(const CAutoconfigurerParams &params);
 

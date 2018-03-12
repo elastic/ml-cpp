@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAssignmentTest : public CppUnit::TestFixture
-{
+class CAssignmentTest : public CppUnit::TestFixture {
     public:
         void testKuhnMunkres(void);
 

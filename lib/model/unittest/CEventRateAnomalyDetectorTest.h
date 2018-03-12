@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateAnomalyDetectorTest : public CppUnit::TestFixture
-{
+class CEventRateAnomalyDetectorTest : public CppUnit::TestFixture {
     public:
         void testAnomalies(void);
         void testPersist(void);

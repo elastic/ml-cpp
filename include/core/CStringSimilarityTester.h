@@ -32,10 +32,8 @@
 class CStringSimilarityTesterTest;
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -76,8 +74,7 @@ namespace core
 //! The Levenshtein distance method CAN be used from multiple
 //! threads.
 //!
-class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
-{
+class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
     public:
         //! Used by the simple Levenshtein distance algorithm
         typedef boost::scoped_array<size_t> TScopedSizeArray;
@@ -107,8 +104,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! like isalpha() etc, or with a functor)
         template <typename PREDICATE>
         std::string strippedString(const std::string &original,
-                                   PREDICATE excludePred) const
-        {
+                                   PREDICATE excludePred) const {
             std::string stripped;
             stripped.reserve(original.size());
 
@@ -126,8 +122,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         bool similarityEx(const std::string &first,
                           const std::string &second,
                           PREDICATE excludePred,
-                          double &result) const
-        {
+                          double &result) const {
             return this->similarity(this->strippedString(first, excludePred),
                                     this->strippedString(second, excludePred),
                                     result);
@@ -143,8 +138,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         template <typename STRINGLIKE, typename PREDICATE>
         size_t levenshteinDistanceEx(const STRINGLIKE &first,
                                      const STRINGLIKE &second,
-                                     PREDICATE excludePred) const
-        {
+                                     PREDICATE excludePred) const {
             return this->levenshteinDistance(this->strippedString(first, excludePred),
                                              this->strippedString(second, excludePred));
         }
@@ -156,8 +150,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! operator==().
         template <typename STRINGLIKE>
         size_t levenshteinDistance(const STRINGLIKE &first,
-                                   const STRINGLIKE &second) const
-        {
+                                   const STRINGLIKE &second) const {
             // Levenshtein distance is the number of operations required to
             // convert one string into another, where an operation means
             // inserting 1 character, deleting 1 character or changing 1
@@ -186,27 +179,22 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             // The chosen heuristic is that if the longer sequence is double the
             // length of the shorter sequence, we'll use the simple algorithm.
 
-            if (firstLen >= secondLen)
-            {
+            if (firstLen >= secondLen) {
                 // Rule out boundary case
-                if (secondLen == 0)
-                {
+                if (secondLen == 0) {
                     return firstLen;
                 }
 
-                if (firstLen >= secondLen * 2)
-                {
+                if (firstLen >= secondLen * 2) {
                     return this->levenshteinDistanceSimple(second, first);
                 }
 
                 return this->berghelRoachEditDistance(second, first);
             }
 
-            if (secondLen >= firstLen * 2)
-            {
+            if (secondLen >= firstLen * 2) {
                 // Rule out boundary case
-                if (firstLen == 0)
-                {
+                if (firstLen == 0) {
                     return secondLen;
                 }
 
@@ -234,8 +222,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! from section 2 of Ukkonen's paper to this algorithm.
         template <typename PAIRCONTAINER>
         size_t weightedEditDistance(const PAIRCONTAINER &first,
-                                    const PAIRCONTAINER &second) const
-        {
+                                    const PAIRCONTAINER &second) const {
             // This is similar to the levenshteinDistanceSimple() method below,
             // but adding the concept of different costs for each element.  If
             // you are trying to understand this method, you should first make
@@ -246,21 +233,17 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             size_t secondLen(second.size());
 
             // Rule out boundary cases
-            if (firstLen == 0)
-            {
+            if (firstLen == 0) {
                 size_t cost(0);
-                for (size_t index = 0; index < secondLen; ++index)
-                {
+                for (size_t index = 0; index < secondLen; ++index) {
                     cost += second[index].second;
                 }
                 return cost;
             }
 
-            if (secondLen == 0)
-            {
+            if (secondLen == 0) {
                 size_t cost(0);
-                for (size_t index = 0; index < firstLen; ++index)
-                {
+                for (size_t index = 0; index < firstLen; ++index) {
                     cost += first[index].second;
                 }
                 return cost;
@@ -277,20 +260,17 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
 
             // Populate the left column
             currentCol[0] = 0;
-            for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne)
-            {
+            for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne) {
                 currentCol[downMinusOne + 1] = currentCol[downMinusOne] + second[downMinusOne].second;
             }
 
             // Calculate the other entries in the matrix
-            for (size_t acrossMinusOne = 0; acrossMinusOne < firstLen; ++acrossMinusOne)
-            {
+            for (size_t acrossMinusOne = 0; acrossMinusOne < firstLen; ++acrossMinusOne) {
                 std::swap(currentCol, prevCol);
                 size_t firstCost(first[acrossMinusOne].second);
                 currentCol[0] = prevCol[0] + firstCost;
 
-                for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne)
-                {
+                for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne) {
                     size_t secondCost(second[downMinusOne].second);
 
                     // There are 3 options, and due to the possible differences
@@ -332,8 +312,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! it's best if second.size() >= first.size() in addition.
         template <typename STRINGLIKE>
         size_t levenshteinDistanceSimple(const STRINGLIKE &first,
-                                         const STRINGLIKE &second) const
-        {
+                                         const STRINGLIKE &second) const {
             // This method implements the simple algorithm for calculating
             // Levenshtein distance.
             //
@@ -359,28 +338,22 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             size_t *prevCol(currentCol + (secondLen + 1));
 
             // Populate the left column
-            for (size_t down = 0; down <= secondLen; ++down)
-            {
+            for (size_t down = 0; down <= secondLen; ++down) {
                 currentCol[down] = down;
             }
 
             // Calculate the other entries in the matrix
-            for (size_t acrossMinusOne = 0; acrossMinusOne < firstLen; ++acrossMinusOne)
-            {
+            for (size_t acrossMinusOne = 0; acrossMinusOne < firstLen; ++acrossMinusOne) {
                 std::swap(currentCol, prevCol);
                 currentCol[0] = acrossMinusOne + 1;
 
-                for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne)
-                {
+                for (size_t downMinusOne = 0; downMinusOne < secondLen; ++downMinusOne) {
                     // Do the strings differ at the point we've reached?
-                    if (first[acrossMinusOne] == second[downMinusOne])
-                    {
+                    if (first[acrossMinusOne] == second[downMinusOne]) {
                         // No, they're the same => no extra cost
 
                         currentCol[downMinusOne + 1] = prevCol[downMinusOne];
-                    }
-                    else
-                    {
+                    } else {
                         // Yes, they differ, so there are 3 options:
 
                         // 1) Deletion => cell to the left's value plus 1
@@ -410,8 +383,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! second.size() >= first.size().
         template <typename STRINGLIKE>
         size_t berghelRoachEditDistance(const STRINGLIKE &first,
-                                        const STRINGLIKE &second) const
-        {
+                                        const STRINGLIKE &second) const {
             // We need to do the calculation using signed variables
             int shortLen(static_cast<int>(first.size()));
             int maxDist(static_cast<int>(second.size()));
@@ -426,8 +398,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             matrix = this->setupBerghelRoachMatrix(maxDist,
                                                    dataArray,
                                                    matrixArary);
-            if (matrix == 0)
-            {
+            if (matrix == 0) {
                 return 0;
             }
 
@@ -440,21 +411,17 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             int k(maxDist - shortLen);
             // p will end up storing the result
             int p(k);
-            do
-            {
+            do {
                 int inc(p);
-                for (int tempP = 0; tempP < p; ++tempP, --inc)
-                {
-                    if (::abs(k - inc) <= tempP)
-                    {
+                for (int tempP = 0; tempP < p; ++tempP, --inc) {
+                    if (::abs(k - inc) <= tempP) {
                         this->calcDist(first,
                                        second,
                                        k - inc,
                                        tempP,
                                        matrix);
                     }
-                    if (::abs(k + inc) <= tempP)
-                    {
+                    if (::abs(k + inc) <= tempP) {
                         this->calcDist(first,
                                        second,
                                        k + inc,
@@ -464,12 +431,10 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
                 }
                 this->calcDist(first, second, k, p, matrix);
 
-                if (matrix[k][p] == shortLen)
-                {
+                if (matrix[k][p] == shortLen) {
                     break;
                 }
-            }
-            while (++p < maxDist);
+            } while (++p < maxDist);
 
             return static_cast<size_t>(p);
         }
@@ -481,8 +446,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
                       const STRINGLIKE &second,
                       int row,
                       int column,
-                      int **matrix) const
-        {
+                      int **matrix) const {
             // 1) Substitution
             int option1(matrix[row][column - 1] + 1);
 
@@ -498,8 +462,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
             int t(std::max(std::max(option1, option2), option3));
             int limit(std::min(static_cast<int>(first.size()),
                                static_cast<int>(second.size()) - row));
-            while (t < limit && first[t] == second[t + row])
-            {
+            while (t < limit && first[t] == second[t + row]) {
                 ++t;
             }
             matrix[row][column] = t;
@@ -519,8 +482,8 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable
         //! Used by the compression-based similarity measures
         mutable CCompressUtils m_Compressor;
 
-    // For unit testing
-    friend class ::CStringSimilarityTesterTest;
+        // For unit testing
+        friend class ::CStringSimilarityTesterTest;
 };
 
 

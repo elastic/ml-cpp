@@ -36,12 +36,9 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
-namespace basic_statistics_detail
-{
+namespace ml {
+namespace maths {
+namespace basic_statistics_detail {
 //! Default undefined custom add function for points to the covariance
 //! estimator.
 template<typename POINT> struct SCovariancesCustomAdd {};
@@ -55,8 +52,7 @@ template<typename POINT> struct SCovariancesLedoitWolf {};
 //! DESCRIPTION:\n
 //! Some utilities for computing basic sample statistics such
 //! as central moments, covariance matrices and so on.
-class MATHS_EXPORT CBasicStatistics
-{
+class MATHS_EXPORT CBasicStatistics {
     public:
         using TDoubleDoublePr = std::pair<double, double>;
         using TDoubleVec = std::vector<double>;
@@ -67,13 +63,11 @@ class MATHS_EXPORT CBasicStatistics
 
         //! Compute the vector mean of a pair.
         template<typename VECTOR>
-        static VECTOR mean(const std::pair<VECTOR, VECTOR> &samples)
-        {
+        static VECTOR mean(const std::pair<VECTOR, VECTOR> &samples) {
             std::size_t n = std::min(samples.first.size(), samples.second.size());
             VECTOR result;
             result.reserve(n);
-            for (std::size_t i = 0u; i < n; ++i)
-            {
+            for (std::size_t i = 0u; i < n; ++i) {
                 result.push_back(0.5 * (samples.first[i] + samples.second[i]));
             }
             return result;
@@ -87,20 +81,18 @@ class MATHS_EXPORT CBasicStatistics
 
         //! Compute the maximum of \p first, \p second and \p third.
         template<typename T>
-        static T max(T first, T second, T third)
-        {
+        static T max(T first, T second, T third) {
             return  first >= second ?
-                   (third >= first  ? third : first) :
-                   (third >= second ? third : second);
+                    (third >= first  ? third : first) :
+                    (third >= second ? third : second);
         }
 
         //! Compute the minimum of \p first, \p second and \p third.
         template<typename T>
-        static T min(T first, T second, T third)
-        {
+        static T min(T first, T second, T third) {
             return  first <= second ?
-                   (third <= first  ? third : first) :
-                   (third <= second ? third : second);
+                    (third <= first  ? third : first) :
+                    (third <= second ? third : second);
         }
 
         /////////////////////////// ACCUMULATORS ///////////////////////////
@@ -161,34 +153,29 @@ class MATHS_EXPORT CBasicStatistics
         //! \tparam T The "floating point" type.
         //! \tparam ORDER The highest order moment to gather.
         template<typename T, unsigned int ORDER>
-        struct SSampleCentralMoments : public std::unary_function<T, void>
-        {
+        struct SSampleCentralMoments : public std::unary_function<T, void> {
             using TCoordinate = typename SCoordinate<T>::Type;
 
             //! See core::CMemory.
-            static bool dynamicSizeAlwaysZero(void)
-            {
+            static bool dynamicSizeAlwaysZero(void) {
                 return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
             }
 
-            explicit SSampleCentralMoments(const T &initial = T(0)) : s_Count(0)
-            {
+            explicit SSampleCentralMoments(const T &initial = T(0)) : s_Count(0) {
                 std::fill_n(s_Moments, ORDER, initial);
             }
 
             //! Copy construction from implicitly convertible type.
             template<typename U>
             SSampleCentralMoments(const SSampleCentralMoments<U, ORDER> &other) :
-                s_Count{other.s_Count}
-            {
+                s_Count{other.s_Count} {
                 std::copy(other.s_Moments, other.s_Moments + ORDER, s_Moments);
             }
 
             //! Assignment from implicitly convertible type.
             template<typename U>
             const SSampleCentralMoments &
-                operator=(const SSampleCentralMoments<U, ORDER> &other)
-            {
+            operator=(const SSampleCentralMoments<U, ORDER> &other) {
                 s_Count = other.s_Count;
                 std::copy(other.s_Moments, other.s_Moments + ORDER, s_Moments);
                 return *this;
@@ -204,38 +191,32 @@ class MATHS_EXPORT CBasicStatistics
             //@}
 
             //! Total order based on count then lexicographical less of moments.
-            bool operator<(const SSampleCentralMoments &rhs) const
-            {
+            bool operator<(const SSampleCentralMoments &rhs) const {
                 return    s_Count < rhs.s_Count
-                       || (   s_Count == rhs.s_Count
-                           && std::lexicographical_compare(s_Moments, s_Moments + ORDER,
-                                                           rhs.s_Moments, rhs.s_Moments + ORDER));
+                          || (   s_Count == rhs.s_Count
+                                 && std::lexicographical_compare(s_Moments, s_Moments + ORDER,
+                                                                 rhs.s_Moments, rhs.s_Moments + ORDER));
             }
 
             //! \name Update
             //@{
             //! Define a function operator for use with std:: algorithms.
-            inline void operator()(const T &x)
-            {
+            inline void operator()(const T &x) {
                 this->add(x);
             }
 
             //! Update the moments with the collection \p x.
             template<typename U>
-            void add(const std::vector<U> &x)
-            {
-                for (const auto &xi : x)
-                {
+            void add(const std::vector<U> &x) {
+                for (const auto &xi : x) {
                     this->add(xi);
                 }
             }
 
             //! Update the moments with the collection \p x.
             template<typename U>
-            void add(const std::vector<SSampleCentralMoments<U, ORDER>> &x)
-            {
-                for (const auto &xi : x)
-                {
+            void add(const std::vector<SSampleCentralMoments<U, ORDER>> &x) {
+                for (const auto &xi : x) {
                     this->operator+=(xi);
                 }
             }
@@ -246,10 +227,8 @@ class MATHS_EXPORT CBasicStatistics
 
             //! Update the moments with \p x. \p n is the optional number
             //! of times to add \p x.
-            void add(const T &x, const TCoordinate &n, int)
-            {
-                if (n == TCoordinate{0})
-                {
+            void add(const T &x, const TCoordinate &n, int) {
+                if (n == TCoordinate{0}) {
                     return;
                 }
 
@@ -264,8 +243,7 @@ class MATHS_EXPORT CBasicStatistics
                 T mean{s_Moments[0]};
                 s_Moments[0] = beta * mean + alpha * x;
 
-                if (ORDER > 1)
-                {
+                if (ORDER > 1) {
                     T r{x - s_Moments[0]};
                     T r2{r * r};
                     T dMean{mean - s_Moments[0]};
@@ -274,8 +252,7 @@ class MATHS_EXPORT CBasicStatistics
 
                     s_Moments[1] = beta * (variance + dMean2) + alpha * r2;
 
-                    if (ORDER > 2)
-                    {
+                    if (ORDER > 2) {
                         T skew{s_Moments[2]};
                         T dSkew{(TCoordinate(3) * variance + dMean2) * dMean};
 
@@ -287,10 +264,8 @@ class MATHS_EXPORT CBasicStatistics
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
             template<typename U>
-            const SSampleCentralMoments &operator+=(const SSampleCentralMoments<U, ORDER> &rhs)
-            {
-                if (rhs.s_Count == TCoordinate{0})
-                {
+            const SSampleCentralMoments &operator+=(const SSampleCentralMoments<U, ORDER> &rhs) {
+                if (rhs.s_Count == TCoordinate{0}) {
                     return *this;
                 }
 
@@ -307,8 +282,7 @@ class MATHS_EXPORT CBasicStatistics
 
                 s_Moments[0] = beta * meanLhs + alpha * meanRhs;
 
-                if (ORDER > 1)
-                {
+                if (ORDER > 1) {
                     T dMeanLhs{meanLhs - s_Moments[0]};
                     T dMean2Lhs{dMeanLhs * dMeanLhs};
                     T varianceLhs{s_Moments[1]};
@@ -317,10 +291,9 @@ class MATHS_EXPORT CBasicStatistics
                     T varianceRhs{rhs.s_Moments[1]};
 
                     s_Moments[1] =   beta * (varianceLhs + dMean2Lhs)
-                                  + alpha * (varianceRhs + dMean2Rhs);
+                                     + alpha * (varianceRhs + dMean2Rhs);
 
-                    if (ORDER > 2)
-                    {
+                    if (ORDER > 2) {
                         T skewLhs{s_Moments[2]};
                         T dSkewLhs{(TCoordinate{3} * varianceLhs + dMean2Lhs) * dMeanLhs};
 
@@ -328,7 +301,7 @@ class MATHS_EXPORT CBasicStatistics
                         T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
 
                         s_Moments[2] =   beta * (skewLhs + dSkewLhs)
-                                      + alpha * (skewRhs + dSkewRhs);
+                                         + alpha * (skewRhs + dSkewRhs);
                     }
                 }
 
@@ -338,8 +311,7 @@ class MATHS_EXPORT CBasicStatistics
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
             template<typename U>
-            SSampleCentralMoments operator+(const SSampleCentralMoments<U, ORDER> &rhs) const
-            {
+            SSampleCentralMoments operator+(const SSampleCentralMoments<U, ORDER> &rhs) const {
                 SSampleCentralMoments result{*this};
                 return result += rhs;
             }
@@ -351,10 +323,8 @@ class MATHS_EXPORT CBasicStatistics
             //! than \p rhs. The caller must ensure that these conditions
             //! are satisfied.
             template<typename U>
-            const SSampleCentralMoments &operator-=(const SSampleCentralMoments<U, ORDER> &rhs)
-            {
-                if (rhs.s_Count == TCoordinate{0})
-                {
+            const SSampleCentralMoments &operator-=(const SSampleCentralMoments<U, ORDER> &rhs) {
+                if (rhs.s_Count == TCoordinate{0}) {
                     return *this;
                 }
 
@@ -362,8 +332,7 @@ class MATHS_EXPORT CBasicStatistics
 
                 s_Count = max(s_Count - rhs.s_Count, TCoordinate{0});
 
-                if (s_Count == TCoordinate{0})
-                {
+                if (s_Count == TCoordinate{0}) {
                     std::fill_n(s_Moments, ORDER, T{0});
                     return *this;
                 }
@@ -379,8 +348,7 @@ class MATHS_EXPORT CBasicStatistics
 
                 s_Moments[0] = beta * meanLhs - alpha * meanRhs;
 
-                if (ORDER > 1)
-                {
+                if (ORDER > 1) {
                     T dMeanLhs{s_Moments[0] - meanLhs};
                     T dMean2Lhs{dMeanLhs * dMeanLhs};
                     T dMeanRhs{meanRhs - meanLhs};
@@ -388,17 +356,16 @@ class MATHS_EXPORT CBasicStatistics
                     T varianceRhs{rhs.s_Moments[1]};
 
                     s_Moments[1] = max(   beta * (s_Moments[1] - dMean2Lhs)
-                                       - alpha * (varianceRhs + dMean2Rhs - dMean2Lhs), T{0});
+                                          - alpha * (varianceRhs + dMean2Rhs - dMean2Lhs), T{0});
 
-                    if (ORDER > 2)
-                    {
+                    if (ORDER > 2) {
                         T skewLhs{s_Moments[2]};
                         T dSkewLhs{(TCoordinate{3} * s_Moments[1] + dMean2Lhs) * dMeanLhs};
                         T skewRhs{rhs.s_Moments[2]};
                         T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
 
                         s_Moments[2] =   beta * (skewLhs - dSkewLhs)
-                                      - alpha * (skewRhs + dSkewRhs - dSkewLhs);
+                                         - alpha * (skewRhs + dSkewRhs - dSkewLhs);
                     }
                 }
 
@@ -412,8 +379,7 @@ class MATHS_EXPORT CBasicStatistics
             //! than \p rhs. The caller must ensure that these conditions
             //! are satisfied.
             template<typename U>
-            SSampleCentralMoments operator-(const SSampleCentralMoments<U, ORDER> &rhs) const
-            {
+            SSampleCentralMoments operator-(const SSampleCentralMoments<U, ORDER> &rhs) const {
                 SSampleCentralMoments result{*this};
                 return result -= rhs;
             }
@@ -422,8 +388,7 @@ class MATHS_EXPORT CBasicStatistics
             //! \note \p factor should be in the range [0,1].
             //! \note It must be possible to multiply T by double to use
             //! this method.
-            void age(double factor)
-            {
+            void age(double factor) {
                 s_Count = s_Count * TCoordinate{factor};
             }
             //@}
@@ -439,22 +404,19 @@ class MATHS_EXPORT CBasicStatistics
         //@{
         //! Accumulator object to compute the sample mean.
         template<typename T>
-        struct SSampleMean
-        {
+        struct SSampleMean {
             using TAccumulator = SSampleCentralMoments<T, 1u>;
         };
 
         //! Accumulator object to compute the sample mean and variance.
         template<typename T>
-        struct SSampleMeanVar
-        {
+        struct SSampleMeanVar {
             using TAccumulator = SSampleCentralMoments<T, 2u>;
         };
 
         //! Accumulator object to compute the sample mean, variance and skewness.
         template<typename T>
-        struct SSampleMeanVarSkew
-        {
+        struct SSampleMeanVarSkew {
             using TAccumulator = SSampleCentralMoments<T, 3u>;
         };
         //@}
@@ -464,8 +426,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 1u>
-            accumulator(const U &count, const T &m1)
-        {
+        accumulator(const U &count, const T &m1) {
             SSampleCentralMoments<T, 1u> result;
             result.s_Count = count;
             result.s_Moments[0] = m1;
@@ -475,8 +436,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean and variance accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 2u>
-            accumulator(const U &count, const T &m1, const T &m2)
-        {
+        accumulator(const U &count, const T &m1, const T &m2) {
             SSampleCentralMoments<T, 2u> result;
             result.s_Count = count;
             result.s_Moments[0] = m1;
@@ -487,8 +447,7 @@ class MATHS_EXPORT CBasicStatistics
         //! Make a mean, variance and skew accumulator.
         template<typename T, typename U>
         static SSampleCentralMoments<T, 3u>
-            accumulator(const U &count, const T &m1, const T &m2, const T &m3)
-        {
+        accumulator(const U &count, const T &m1, const T &m2, const T &m3) {
             SSampleCentralMoments<T, 3u> result;
             result.s_Count = count;
             result.s_Moments[0] = m1;
@@ -500,16 +459,14 @@ class MATHS_EXPORT CBasicStatistics
 
         //! Get the specified moment provided it exists
         template<unsigned int M, typename T, unsigned int N>
-        static const T &moment(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        static const T &moment(const SSampleCentralMoments<T, N> &accumulator) {
             static_assert(M <= N, "M cannot be greater than N");
             return accumulator.s_Moments[M];
         }
 
         //! Get the specified moment provided it exists
         template<unsigned int M, typename T, unsigned int N>
-        static T &moment(SSampleCentralMoments<T, N> &accumulator)
-        {
+        static T &moment(SSampleCentralMoments<T, N> &accumulator) {
             static_assert(M <= N, "M cannot be greater than N");
             return accumulator.s_Moments[M];
         }
@@ -517,28 +474,24 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the count from an accumulator object.
         template<typename T, unsigned int N>
         static inline const typename SSampleCentralMoments<T, N>::TCoordinate &
-            count(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        count(const SSampleCentralMoments<T, N> &accumulator) {
             return accumulator.s_Count;
         }
 
         //! Extract the count from an accumulator object.
         template<typename T, unsigned int N>
         static inline typename SSampleCentralMoments<T, N>::TCoordinate &
-            count(SSampleCentralMoments<T, N> &accumulator)
-        {
+        count(SSampleCentralMoments<T, N> &accumulator) {
             return accumulator.s_Count;
         }
 
         //! Extract the counts from a vector of accumulators.
         template<typename T, unsigned int M, std::size_t N>
         static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-            count(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators)
-        {
+        count(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators) {
             core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(count(accumulator));
             }
             return result;
@@ -547,12 +500,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the counts from a vector of accumulators.
         template<typename T, unsigned int N>
         static std::vector<typename SSampleCentralMoments<T, N>::TCoordinate>
-            count(const std::vector<SSampleCentralMoments<T, N>> &accumulators)
-        {
+        count(const std::vector<SSampleCentralMoments<T, N>> &accumulators) {
             std::vector<typename SSampleCentralMoments<T, N>::TCoordinate> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(count(accumulator));
             }
             return result;
@@ -560,20 +511,17 @@ class MATHS_EXPORT CBasicStatistics
 
         //! Extract the mean from an accumulator object.
         template<typename T, unsigned int N>
-        static inline const T &mean(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        static inline const T &mean(const SSampleCentralMoments<T, N> &accumulator) {
             return accumulator.s_Moments[0];
         }
 
         //! Extract the means from a vector of accumulators.
         template<typename T, unsigned int M, std::size_t N>
         static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-            mean(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators)
-        {
+        mean(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators) {
             core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(mean(accumulator));
             }
             return result;
@@ -582,12 +530,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the means from a vector of accumulators.
         template<typename T, unsigned int N>
         static std::vector<typename SSampleCentralMoments<T, N>::TCoordinate>
-            mean(const std::vector<SSampleCentralMoments<T, N>> &accumulators)
-        {
+        mean(const std::vector<SSampleCentralMoments<T, N>> &accumulators) {
             std::vector<typename SSampleCentralMoments<T, N>::TCoordinate> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(mean(accumulator));
             }
             return result;
@@ -597,14 +543,12 @@ class MATHS_EXPORT CBasicStatistics
         //!
         //! \note This is the unbiased form.
         template<typename T, unsigned int N>
-        static inline T variance(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        static inline T variance(const SSampleCentralMoments<T, N> &accumulator) {
             using TCoordinate = typename SSampleCentralMoments<T, N>::TCoordinate;
 
             static_assert(N >= 2, "N must be at least 2");
 
-            if (accumulator.s_Count <= TCoordinate{1})
-            {
+            if (accumulator.s_Count <= TCoordinate{1}) {
                 return T{0};
             }
 
@@ -616,12 +560,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the variances from a vector of accumulators.
         template<typename T, unsigned int M, std::size_t N>
         static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-            variance(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators)
-        {
+        variance(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators) {
             core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(variance(accumulator));
             }
             return result;
@@ -630,12 +572,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the variances from a vector of accumulators.
         template<typename T, unsigned int N>
         static std::vector<typename SSampleCentralMoments<T, N>::TCoordinate>
-            variance(const std::vector<SSampleCentralMoments<T, N>> &accumulators)
-        {
+        variance(const std::vector<SSampleCentralMoments<T, N>> &accumulators) {
             std::vector<typename SSampleCentralMoments<T, N>::TCoordinate> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(variance(accumulator));
             }
             return result;
@@ -645,8 +585,7 @@ class MATHS_EXPORT CBasicStatistics
         //!
         //! \note This is the biased form.
         template<typename T, unsigned int N>
-        static inline const T &maximumLikelihoodVariance(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        static inline const T &maximumLikelihoodVariance(const SSampleCentralMoments<T, N> &accumulator) {
             static_assert(N >= 2, "N must be at least 2");
             return accumulator.s_Moments[1];
         }
@@ -654,12 +593,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the maximum likelihood variances from a vector of accumulators.
         template<typename T, unsigned int M, std::size_t N>
         static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-            maximumLikelihoodVariance(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators)
-        {
+        maximumLikelihoodVariance(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators) {
             core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(maximumLikelihoodVariance(accumulator));
             }
             return result;
@@ -668,12 +605,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the maximum likelihood variances from a vector of accumulators.
         template<typename T, unsigned int N>
         static std::vector<typename SSampleCentralMoments<T, N>::TCoordinate>
-            maximumLikelihoodVariance(const std::vector<SSampleCentralMoments<T, N>> &accumulators)
-        {
+        maximumLikelihoodVariance(const std::vector<SSampleCentralMoments<T, N>> &accumulators) {
             std::vector<typename SSampleCentralMoments<T, N>::TCoordinate> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(maximumLikelihoodVariance(accumulator));
             }
             return result;
@@ -681,14 +616,12 @@ class MATHS_EXPORT CBasicStatistics
 
         //! Extract the skewness from an accumulator object.
         template<typename T, unsigned int N>
-        static inline T skewness(const SSampleCentralMoments<T, N> &accumulator)
-        {
+        static inline T skewness(const SSampleCentralMoments<T, N> &accumulator) {
             using TCoordinate = typename SSampleCentralMoments<T, N>::TCoordinate;
 
             static_assert(N >= 3, "N must be at least 3");
 
-            if (accumulator.s_Count <= TCoordinate{2})
-            {
+            if (accumulator.s_Count <= TCoordinate{2}) {
                 return T{0};
             }
 
@@ -696,18 +629,17 @@ class MATHS_EXPORT CBasicStatistics
             using std::sqrt;
             normalization = normalization * sqrt(normalization);
 
-            return accumulator.s_Moments[2] == T{0} ? T{0} : accumulator.s_Moments[2] / normalization;
+            return accumulator.s_Moments[2] == T{0} ? T{0} :
+                   accumulator.s_Moments[2] / normalization;
         }
 
         //! Extract the skewnesses from a vector of accumulators.
         template<typename T, unsigned int M, std::size_t N>
         static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-            skewness(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators)
-        {
+        skewness(const core::CSmallVector<SSampleCentralMoments<T, M>, N> &accumulators) {
             core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(skewness(accumulator));
             }
             return result;
@@ -716,12 +648,10 @@ class MATHS_EXPORT CBasicStatistics
         //! Extract the skewnesses from a vector of accumulators.
         template<typename T, unsigned int N>
         static std::vector<typename SSampleCentralMoments<T, N>::TCoordinate>
-            skewness(const std::vector<SSampleCentralMoments<T, N>> &accumulators)
-        {
+        skewness(const std::vector<SSampleCentralMoments<T, N>> &accumulators) {
             std::vector<typename SSampleCentralMoments<T, N>::TCoordinate> result;
             result.reserve(accumulators.size());
-            for (const auto &accumulator : accumulators)
-            {
+            for (const auto &accumulator : accumulators) {
                 result.push_back(skewness(accumulator));
             }
             return result;
@@ -731,8 +661,7 @@ class MATHS_EXPORT CBasicStatistics
         //@{
         //! Print a mean accumulator.
         template<typename T>
-        static inline std::string print(const SSampleCentralMoments<T, 1u> &accumulator)
-        {
+        static inline std::string print(const SSampleCentralMoments<T, 1u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
                    << ", " << mean(accumulator) << ')';
@@ -740,8 +669,7 @@ class MATHS_EXPORT CBasicStatistics
         }
         //! Print a mean and variance accumulator.
         template<typename T>
-        static inline std::string print(const SSampleCentralMoments<T, 2u> &accumulator)
-        {
+        static inline std::string print(const SSampleCentralMoments<T, 2u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
                    << ", " << mean(accumulator)
@@ -750,8 +678,7 @@ class MATHS_EXPORT CBasicStatistics
         }
         //! Print a mean, variance and skew accumulator.
         template<typename T>
-        static inline std::string print(const SSampleCentralMoments<T, 3u> &accumulator)
-        {
+        static inline std::string print(const SSampleCentralMoments<T, 3u> &accumulator) {
             std::ostringstream result;
             result << '(' << count(accumulator)
                    << ", " << mean(accumulator)
@@ -764,16 +691,14 @@ class MATHS_EXPORT CBasicStatistics
         //! Get a copy of \p moments with count scaled by \p scale.
         template<typename T, unsigned int N, typename U>
         static SSampleCentralMoments<T, N> scaled(SSampleCentralMoments<T, N> accumulator,
-                                                  const U &scale)
-        {
+                                                  const U &scale) {
             accumulator.s_Count *= typename SSampleCentralMoments<T, N>::TCoordinate{scale};
             return accumulator;
         }
 
         //! Get a copy of \p moments with count scaled by \p scale.
         template<typename T, unsigned int N, typename U>
-        static void scale(const U &scale, SSampleCentralMoments<T, N> &accumulator)
-        {
+        static void scale(const U &scale, SSampleCentralMoments<T, N> &accumulator) {
             accumulator.s_Count *= typename SSampleCentralMoments<T, N>::TCoordinate{scale};
         }
 
@@ -800,11 +725,9 @@ class MATHS_EXPORT CBasicStatistics
         //! \tparam T The "floating point" type.
         //! \tparam N The vector dimension.
         template<typename T, std::size_t N>
-        struct SSampleCovariances : public std::unary_function<CVectorNx1<T, N>, void>
-        {
+        struct SSampleCovariances : public std::unary_function<CVectorNx1<T, N>, void> {
             //! See core::CMemory.
-            static bool dynamicSizeAlwaysZero(void)
-            {
+            static bool dynamicSizeAlwaysZero(void) {
                 return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
             }
 
@@ -817,27 +740,26 @@ class MATHS_EXPORT CBasicStatistics
             SSampleCovariances(T count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                    s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
             {}
 
             SSampleCovariances(const TVector &count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                    s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances}
             {}
 
             //! Copy construction from implicitly convertible type.
             template<typename U>
             SSampleCovariances(const SSampleCovariances<U, N> &other) :
-                    s_Count{other.s_Count},
-                    s_Mean{other.s_Mean},
-                    s_Covariances{other.s_Covariances}
+                s_Count{other.s_Count},
+                s_Mean{other.s_Mean},
+                s_Covariances{other.s_Covariances}
             {}
 
             //! Assignment from implicitly convertible type.
             template<typename U>
-            const SSampleCovariances &operator=(const SSampleCovariances<U, N> &other)
-            {
+            const SSampleCovariances &operator=(const SSampleCovariances<U, N> &other) {
                 s_Count = other.s_Count;
                 s_Mean = other.s_Mean;
                 s_Covariances = other.s_Covariances;
@@ -856,33 +778,27 @@ class MATHS_EXPORT CBasicStatistics
             //! \name Update
             //@{
             //! Define a function operator for use with std:: algorithms.
-            inline void operator()(const TVector &x)
-            {
+            inline void operator()(const TVector &x) {
                 this->add(x);
             }
 
             //! Update the moments with the collection \p x.
             template<typename POINT>
-            void add(const std::vector<POINT> &x)
-            {
-                for (const auto &xi : x)
-                {
+            void add(const std::vector<POINT> &x) {
+                for (const auto &xi : x) {
                     this->add(xi);
                 }
             }
 
             //! Update with a generic point \p x.
             template<typename POINT>
-            void add(const POINT &x, const POINT &n = POINT(1))
-            {
+            void add(const POINT &x, const POINT &n = POINT(1)) {
                 basic_statistics_detail::SCovariancesCustomAdd<POINT>::add(x, n, *this);
             }
 
             //! Update the mean and covariances with \p x.
-            void add(const TVector &x, const TVector &n, int)
-            {
-                if (n == TVector{0})
-                {
+            void add(const TVector &x, const TVector &n, int) {
+                if (n == TVector{0}) {
                     return;
                 }
 
@@ -911,11 +827,9 @@ class MATHS_EXPORT CBasicStatistics
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
             template<typename U>
-            const SSampleCovariances &operator+=(const SSampleCovariances<U, N> &rhs)
-            {
+            const SSampleCovariances &operator+=(const SSampleCovariances<U, N> &rhs) {
                 s_Count = s_Count + rhs.s_Count;
-                if (s_Count == TVector{0})
-                {
+                if (s_Count == TVector{0}) {
                     return *this;
                 }
 
@@ -946,8 +860,7 @@ class MATHS_EXPORT CBasicStatistics
             //! Combine two moments. This is equivalent to running
             //! a single accumulator on the entire collection.
             template<typename U>
-            SSampleCovariances operator+(const SSampleCovariances<U, N> &rhs) const
-            {
+            SSampleCovariances operator+(const SSampleCovariances<U, N> &rhs) const {
                 SSampleCovariances result{*this};
                 return result += rhs;
             }
@@ -959,13 +872,11 @@ class MATHS_EXPORT CBasicStatistics
             //! larger than \p rhs. The caller must ensure that these
             //! conditions are satisfied.
             template<typename U>
-            const SSampleCovariances &operator-=(const SSampleCovariances<U, N> &rhs)
-            {
+            const SSampleCovariances &operator-=(const SSampleCovariances<U, N> &rhs) {
                 using std::max;
 
                 s_Count = max(s_Count - rhs.s_Count, TVector(0));
-                if (s_Count == TVector{0})
-                {
+                if (s_Count == TVector{0}) {
                     s_Mean = TVector{0};
                     s_Covariances = TMatrix{0};
                     return *this;
@@ -994,12 +905,9 @@ class MATHS_EXPORT CBasicStatistics
 
                 // If any of the diagonal elements are negative round them
                 // up to zero and zero the corresponding row and column.
-                for (std::size_t i = 0u; i < N; ++i)
-                {
-                    if (s_Covariances(i, i) < T{0})
-                    {
-                        for (std::size_t j = 0u; j < N; ++j)
-                        {
+                for (std::size_t i = 0u; i < N; ++i) {
+                    if (s_Covariances(i, i) < T{0}) {
+                        for (std::size_t j = 0u; j < N; ++j) {
                             s_Covariances(i, j) = T{0};
                         }
                     }
@@ -1015,8 +923,7 @@ class MATHS_EXPORT CBasicStatistics
             //! larger than \p rhs. The caller must ensure that these
             //! conditions are satisfied.
             template<typename U>
-            SSampleCovariances operator-(const SSampleCovariances<U, N> &rhs)
-            {
+            SSampleCovariances operator-(const SSampleCovariances<U, N> &rhs) {
                 SSampleCovariances result{*this};
                 return result -= rhs;
             }
@@ -1026,8 +933,7 @@ class MATHS_EXPORT CBasicStatistics
             //! \note \p factor should be in the range [0,1].
             //! \note It must be possible to cast double to T to use
             //! this method.
-            void age(double factor)
-            {
+            void age(double factor) {
                 s_Count = s_Count * T{factor};
             }
             //@}
@@ -1044,8 +950,7 @@ class MATHS_EXPORT CBasicStatistics
         template<typename T, std::size_t N>
         static inline SSampleCovariances<T, N> accumulator(T count,
                                                            const CVectorNx1<T, N> &mean,
-                                                           const CSymmetricMatrixNxN<T, N> &covariances)
-        {
+                                                           const CSymmetricMatrixNxN<T, N> &covariances) {
             return SSampleCovariances<T, N>(count, mean, covariances);
         }
 
@@ -1053,22 +958,19 @@ class MATHS_EXPORT CBasicStatistics
         template<typename T, std::size_t N>
         static inline SSampleCovariances<T, N> accumulator(const CVectorNx1<T, N> &count,
                                                            const CVectorNx1<T, N> &mean,
-                                                           const CSymmetricMatrixNxN<T, N> &covariances)
-        {
+                                                           const CSymmetricMatrixNxN<T, N> &covariances) {
             return SSampleCovariances<T, N>(count, mean, covariances);
         }
 
         //! Extract the count from an accumulator object.
         template<typename T, std::size_t N>
-        static inline T count(const SSampleCovariances<T, N> &accumulator)
-        {
+        static inline T count(const SSampleCovariances<T, N> &accumulator) {
             return accumulator.s_Count.L1() / static_cast<T>(N);
         }
 
         //! Extract the mean vector from an accumulator object.
         template<typename T, std::size_t N>
-        static inline const CVectorNx1<T, N> &mean(const SSampleCovariances<T, N> &accumulator)
-        {
+        static inline const CVectorNx1<T, N> &mean(const SSampleCovariances<T, N> &accumulator) {
             return accumulator.s_Mean;
         }
 
@@ -1076,17 +978,14 @@ class MATHS_EXPORT CBasicStatistics
         //!
         //! \note This is the unbiased form.
         template<typename T, std::size_t N>
-        static inline CSymmetricMatrixNxN<T, N> covariances(const SSampleCovariances<T, N> &accumulator)
-        {
+        static inline CSymmetricMatrixNxN<T, N> covariances(const SSampleCovariances<T, N> &accumulator) {
             CVectorNx1<T, N> bias(accumulator.s_Count);
-            for (std::size_t i = 0u; i < N; ++i)
-            {
-                if (bias(i) <= T{1})
-                {
+            for (std::size_t i = 0u; i < N; ++i) {
+                if (bias(i) <= T{1}) {
                     bias(i) = T{0};
                 }
             }
-            bias /= (bias - CVectorNx1<T, N>{1});
+            bias /= (bias - CVectorNx1<T, N> {1});
             CSymmetricMatrixNxN<T, N> result{accumulator.s_Covariances};
             scaleCovariances(bias, result);
             return result;
@@ -1096,15 +995,13 @@ class MATHS_EXPORT CBasicStatistics
         //!
         //! \note This is the unbiased form.
         template<typename T, std::size_t N>
-        static inline const CSymmetricMatrixNxN<T, N> &maximumLikelihoodCovariances(const SSampleCovariances<T, N> &accumulator)
-        {
+        static inline const CSymmetricMatrixNxN<T, N> &maximumLikelihoodCovariances(const SSampleCovariances<T, N> &accumulator) {
             return accumulator.s_Covariances;
         }
 
         //! Print a covariances accumulator.
         template<typename T, std::size_t N>
-        static inline std::string print(const SSampleCovariances<T, N> &accumulator)
-        {
+        static inline std::string print(const SSampleCovariances<T, N> &accumulator) {
             std::ostringstream result;
             result << "\n{\n"
                    << count(accumulator) << ",\n"
@@ -1126,8 +1023,7 @@ class MATHS_EXPORT CBasicStatistics
         //! covariance matrix estimate.
         template<typename POINT, typename T, std::size_t N>
         static void covariancesLedoitWolf(const std::vector<POINT> &points,
-                                         SSampleCovariances<T, N> &result)
-        {
+                                          SSampleCovariances<T, N> &result) {
             result.add(points);
             basic_statistics_detail::SCovariancesLedoitWolf<POINT>::estimate(points, result);
         }
@@ -1149,8 +1045,7 @@ class MATHS_EXPORT CBasicStatistics
         //! function is supplied so that T can be any type which supports a
         //! partial ordering. (T must also have a default constructor.)
         template<typename T, typename CONTAINER, typename LESS>
-        class COrderStatisticsImpl : public std::unary_function<T, void>
-        {
+        class COrderStatisticsImpl : public std::unary_function<T, void> {
             public:
                 using iterator = typename CONTAINER::iterator;
                 using const_iterator = typename CONTAINER::const_iterator;
@@ -1159,9 +1054,9 @@ class MATHS_EXPORT CBasicStatistics
 
             public:
                 COrderStatisticsImpl(const CONTAINER &statistics, const LESS &less) :
-                        m_Less(less),
-                        m_Statistics(statistics),
-                        m_UnusedCount(statistics.size())
+                    m_Less(less),
+                    m_Statistics(statistics),
+                    m_UnusedCount(statistics.size())
                 {}
 
                 //! \name Persistence
@@ -1176,34 +1071,28 @@ class MATHS_EXPORT CBasicStatistics
                 //! \name Update
                 //@{
                 //! Define a function operator for use with std:: algorithms.
-                inline bool operator()(const T &x)
-                {
+                inline bool operator()(const T &x) {
                     return this->add(x);
                 }
 
                 //! Check if we would add \p x.
-                bool wouldAdd(const T &x) const
-                {
+                bool wouldAdd(const T &x) const {
                     return m_UnusedCount > 0 || m_Less(x, *this->begin());
                 }
 
                 //! Update the statistics with the collection \p x.
-                bool add(const std::vector<T> &x)
-                {
+                bool add(const std::vector<T> &x) {
                     bool result = false;
-                    for (const auto &xi : x)
-                    {
+                    for (const auto &xi : x) {
                         result |= this->add(xi);
                     }
                     return result;
                 }
 
                 //! Update the statistic with \p n copies of \p x.
-                bool add(const T &x, std::size_t n)
-                {
+                bool add(const T &x, std::size_t n) {
                     bool result = false;
-                    for (std::size_t i = 0u; i < std::min(n, m_Statistics.size()); ++i)
-                    {
+                    for (std::size_t i = 0u; i < std::min(n, m_Statistics.size()); ++i) {
                         result |= this->add(x);
                     }
                     return result;
@@ -1213,21 +1102,16 @@ class MATHS_EXPORT CBasicStatistics
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
                 __attribute__ ((__noinline__))
 #endif // defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 3)
-                bool add(const T &x)
-                {
-                    if (m_UnusedCount > 0)
-                    {
+                bool add(const T &x) {
+                    if (m_UnusedCount > 0) {
                         m_Statistics[--m_UnusedCount] = x;
 
-                        if (m_UnusedCount == 0)
-                        {
+                        if (m_UnusedCount == 0) {
                             // We need a heap for subsequent insertion.
                             std::make_heap(this->begin(), this->end(), m_Less);
                         }
                         return true;
-                    }
-                    else if (m_Less(x, *this->begin()))
-                    {
+                    } else if (m_Less(x, *this->begin())) {
                         // We need to drop the largest value and update the heap.
                         std::pop_heap(this->begin(), this->end(), m_Less);
                         m_Statistics.back() = x;
@@ -1239,14 +1123,10 @@ class MATHS_EXPORT CBasicStatistics
 
                 //! An efficient sort of the statistics (which are not stored
                 //! in sorted order during accumulation for efficiency).
-                void sort(void)
-                {
-                    if (m_UnusedCount > 0)
-                    {
+                void sort(void) {
+                    if (m_UnusedCount > 0) {
                         std::sort(this->begin(), this->end(), m_Less);
-                    }
-                    else
-                    {
+                    } else {
                         std::sort_heap(this->begin(), this->end(), m_Less);
                     }
                 }
@@ -1255,22 +1135,18 @@ class MATHS_EXPORT CBasicStatistics
                 //! \note \p factor should be in the range (0,1].
                 //! \note It must be possible to multiply T by double to use
                 //! this method.
-                void age(double factor)
-                {
-                    if (this->count() == 0)
-                    {
+                void age(double factor) {
+                    if (this->count() == 0) {
                         return;
                     }
 
                     // Check if we need to multiply or divide by the factor.
                     T tmp{(*this)[0]};
-                    if (m_Less(static_cast<T>(tmp * factor), tmp))
-                    {
+                    if (m_Less(static_cast<T>(tmp * factor), tmp)) {
                         factor = 1.0 / factor;
                     }
 
-                    for (iterator i = this->begin(); i != this->end(); ++i)
-                    {
+                    for (iterator i = this->begin(); i != this->end(); ++i) {
                         *i = static_cast<T>((*i) * factor);
                     }
                 }
@@ -1281,78 +1157,65 @@ class MATHS_EXPORT CBasicStatistics
                 //! Get the "biggest" in the collection. This depends on the
                 //! order predicate and is effectively the first value which
                 //! will be removed if a new value displaces it.
-                inline const T &biggest(void) const
-                {
+                inline const T &biggest(void) const {
                     return m_UnusedCount > 0 ?
                            *std::max_element(this->begin(),
                                              this->end(), m_Less) : *this->begin();
                 }
 
                 //! Get the number of statistics.
-                inline std::size_t count(void) const
-                {
+                inline std::size_t count(void) const {
                     return m_Statistics.size() - m_UnusedCount;
                 }
 
                 //! Get the i'th statistic.
-                inline T &operator[](std::size_t i)
-                {
+                inline T &operator[](std::size_t i) {
                     return m_Statistics[m_UnusedCount + i];
                 }
                 //! Get the i'th statistic.
-                inline const T &operator[](std::size_t i) const
-                {
+                inline const T &operator[](std::size_t i) const {
                     return m_Statistics[m_UnusedCount + i];
                 }
 
                 //! Get an iterator over the statistics.
-                inline iterator begin(void)
-                {
+                inline iterator begin(void) {
                     return m_Statistics.begin() + m_UnusedCount;
                 }
                 //! Get an iterator over the statistics.
-                inline const_iterator begin(void) const
-                {
+                inline const_iterator begin(void) const {
                     return m_Statistics.begin() + m_UnusedCount;
                 }
 
                 //! Get a reverse iterator over the order statistics.
-                inline reverse_iterator rbegin(void)
-                {
+                inline reverse_iterator rbegin(void) {
                     return m_Statistics.rbegin();
                 }
                 //! Get a reverse iterator over the order statistics.
-                inline const_reverse_iterator rbegin(void) const
-                {
+                inline const_reverse_iterator rbegin(void) const {
                     return m_Statistics.rbegin();
                 }
 
                 //! Get an iterator representing the end of the statistics.
-                inline iterator end(void)
-                {
+                inline iterator end(void) {
                     return m_Statistics.end();
                 }
                 //! Get an iterator representing the end of the statistics.
-                inline const_iterator end(void) const
-                {
+                inline const_iterator end(void) const {
                     return m_Statistics.end();
                 }
 
                 //! Get an iterator representing the end of the statistics.
-                inline reverse_iterator rend(void)
-                {
+                inline reverse_iterator rend(void) {
                     return m_Statistics.rbegin() + m_UnusedCount;
                 }
                 //! Get an iterator representing the end of the statistics.
-                inline const_reverse_iterator rend(void) const
-                {
+                inline const_reverse_iterator rend(void) const {
                     return m_Statistics.rbegin() + m_UnusedCount;
                 }
                 //@}
 
                 //! Remove all statistics.
-                void clear(void)
-                {
+                void clear(void) {
                     std::fill(m_Statistics.begin() + m_UnusedCount, m_Statistics.end(), T{});
                     m_UnusedCount = m_Statistics.size();
                 }
@@ -1361,8 +1224,7 @@ class MATHS_EXPORT CBasicStatistics
                 uint64_t checksum(uint64_t seed) const;
 
                 //! Print for debug.
-                std::string print(void) const
-                {
+                std::string print(void) const {
                     return core::CContainerPrinter::print(this->begin(), this->end());
                 }
 
@@ -1414,8 +1276,7 @@ class MATHS_EXPORT CBasicStatistics
         //! if one object of type T is less than another.
         template<typename T, std::size_t N, typename LESS = std::less<T>>
         class COrderStatisticsStack : public COrderStatisticsImpl<T, boost::array<T, N>, LESS>,
-                                      private boost::addable<COrderStatisticsStack<T, N, LESS>>
-        {
+            private boost::addable<COrderStatisticsStack<T, N, LESS>> {
             private:
                 using TArray = boost::array<T, N>;
                 using TImpl = COrderStatisticsImpl<T, TArray, LESS>;
@@ -1426,38 +1287,32 @@ class MATHS_EXPORT CBasicStatistics
                 using const_iterator = typename TImpl::const_iterator;
 
                 //! See core::CMemory.
-                static bool dynamicSizeAlwaysZero(void)
-                {
+                static bool dynamicSizeAlwaysZero(void) {
                     return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
                 }
 
             public:
                 explicit COrderStatisticsStack(const LESS &less = LESS{}) :
-                    TImpl{TArray(), less}
-                {
+                    TImpl{TArray(), less} {
                     this->statistics().assign(T{});
                 }
 
                 explicit COrderStatisticsStack(std::size_t /*n*/, const LESS &less = LESS{}) :
-                    TImpl{TArray(), less}
-                {
+                    TImpl{TArray(), less} {
                     this->statistics().assign(T{});
                 }
 
                 //! Combine two statistics. This is equivalent to running a
                 //! single accumulator on the entire collection.
-                const COrderStatisticsStack &operator+=(const COrderStatisticsStack &rhs)
-                {
-                    for (const auto &xi : rhs)
-                    {
+                const COrderStatisticsStack &operator+=(const COrderStatisticsStack &rhs) {
+                    for (const auto &xi : rhs) {
                         this->add(xi);
                     }
                     return *this;
                 }
 
                 //! Create a member function so this class works with CChecksum.
-                uint64_t checksum(uint64_t seed = 0) const
-                {
+                uint64_t checksum(uint64_t seed = 0) const {
                     return this->TImpl::checksum(seed);
                 }
         };
@@ -1496,8 +1351,7 @@ class MATHS_EXPORT CBasicStatistics
         //! if one object of type T is less than another.
         template<typename T, typename LESS = std::less<T>>
         class COrderStatisticsHeap : public COrderStatisticsImpl<T, std::vector<T>, LESS>,
-                                     private boost::addable<COrderStatisticsHeap<T, LESS>>
-        {
+            private boost::addable<COrderStatisticsHeap<T, LESS>> {
             private:
                 using TImpl = COrderStatisticsImpl<T, std::vector<T>, LESS>;
 
@@ -1512,26 +1366,22 @@ class MATHS_EXPORT CBasicStatistics
                 {}
 
                 //! Reset the number of statistics to gather to \p n.
-                void resize(std::size_t n)
-                {
+                void resize(std::size_t n) {
                     this->clear();
                     this->statistics().resize(n);
                 }
 
                 //! Combine two statistics. This is equivalent to running a
                 //! single accumulator on the entire collection.
-                const COrderStatisticsHeap &operator+=(const COrderStatisticsHeap &rhs)
-                {
-                    for (const auto &xi : rhs)
-                    {
+                const COrderStatisticsHeap &operator+=(const COrderStatisticsHeap &rhs) {
+                    for (const auto &xi : rhs) {
                         this->add(xi);
                     }
                     return *this;
                 }
 
                 //! Create a member function so this class works with CChecksum.
-                uint64_t checksum(uint64_t seed = 0) const
-                {
+                uint64_t checksum(uint64_t seed = 0) const {
                     return this->TImpl::checksum(seed);
                 }
         };
@@ -1540,15 +1390,13 @@ class MATHS_EXPORT CBasicStatistics
         //@{
         //! Accumulator object to compute the sample maximum.
         template<typename T>
-        struct SMax
-        {
+        struct SMax {
             using TAccumulator = COrderStatisticsStack<T, 1, std::greater<T>>;
         };
 
         //! Accumulator object to compute the sample minimum.
         template<typename T>
-        struct SMin
-        {
+        struct SMin {
             using TAccumulator = COrderStatisticsStack<T, 1>;
         };
         //@}
@@ -1561,49 +1409,41 @@ class MATHS_EXPORT CBasicStatistics
         //! which are also supplied to the constructor in the case they don't
         //! have default constructors.
         template<typename T, typename LESS = std::less<T>, typename GREATER = std::greater<T>>
-        class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>>
-        {
+        class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>> {
             public:
                 //! See core::CMemory.
-                static bool dynamicSizeAlwaysZero(void)
-                {
+                static bool dynamicSizeAlwaysZero(void) {
                     return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
                 }
 
             public:
                 explicit CMinMax(const LESS &less = LESS{}, const GREATER &greater = GREATER{}) :
-                        m_Min{less}, m_Max{greater}
+                    m_Min{less}, m_Max{greater}
                 {}
 
                 //! Define a function operator for use with std:: algorithms.
-                inline bool operator()(const T &x)
-                {
+                inline bool operator()(const T &x) {
                     return this->add(x);
                 }
 
                 //! Check if we would add \p x.
-                bool wouldAdd(const T &x) const
-                {
+                bool wouldAdd(const T &x) const {
                     return m_Min.wouldAdd(x) || m_Max.wouldAdd(x);
                 }
 
                 //! Update the statistic with the collection \p x.
-                bool add(const std::vector<T> &x)
-                {
+                bool add(const std::vector<T> &x) {
                     bool result{false};
-                    for (const auto &xi : x)
-                    {
+                    for (const auto &xi : x) {
                         result |= this->add(xi);
                     }
                     return result;
                 }
 
                 //! Update the statistic with \p n copies of \p x.
-                bool add(const T &x, std::size_t n = 1)
-                {
+                bool add(const T &x, std::size_t n = 1) {
                     bool result{false};
-                    if (n > 0)
-                    {
+                    if (n > 0) {
                         result |= m_Min.add(x);
                         result |= m_Max.add(x);
                     }
@@ -1612,44 +1452,36 @@ class MATHS_EXPORT CBasicStatistics
 
                 //! Combine two statistics. This is equivalent to running a
                 //! single accumulator on the entire collection.
-                const CMinMax &operator+=(const CMinMax &rhs)
-                {
+                const CMinMax &operator+=(const CMinMax &rhs) {
                     m_Min += rhs.m_Min;
                     m_Max += rhs.m_Max;
                     return *this;
                 }
 
                 //! Get the count of statistics.
-                bool initialized(void) const
-                {
+                bool initialized(void) const {
                     return m_Min.count() > 0;
                 }
 
                 //! Get the minimum value.
-                T min(void) const
-                {
+                T min(void) const {
                     return m_Min[0];
                 }
 
                 //! Get the maximum value.
-                T max(void) const
-                {
+                T max(void) const {
                     return m_Max[0];
                 }
 
                 //! Get the range.
-                T range(void) const
-                {
+                T range(void) const {
                     return m_Max[0] - m_Min[0];
                 }
 
                 //! Get the margin by which all the values have the same sign.
-                T signMargin(void) const
-                {
-                    if (this->initialized())
-                    {
-                        if (m_Min[0] * m_Max[0] > T{0})
-                        {
+                T signMargin(void) const {
+                    if (this->initialized()) {
+                        if (m_Min[0] * m_Max[0] > T{0}) {
                             return m_Min[0] > T{0} ? m_Min[0] : m_Max[0];
                         }
                     }
@@ -1657,8 +1489,7 @@ class MATHS_EXPORT CBasicStatistics
                 }
 
                 //! Get a checksum for this object.
-                uint64_t checksum(void) const
-                {
+                uint64_t checksum(void) const {
                     return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
                 }
 
@@ -1669,66 +1500,58 @@ class MATHS_EXPORT CBasicStatistics
                 COrderStatisticsStack<T, 1, GREATER> m_Max;
         };
 
-    // Friends
-    template<typename T>
-    friend std::ostream &operator<<(std::ostream &o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 1u> &);
-    template<typename T>
-    friend std::ostream &operator<<(std::ostream &o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 2u> &);
-    template<typename T>
-    friend std::ostream &operator<<(std::ostream &o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 3u> &);
+        // Friends
+        template<typename T>
+        friend std::ostream &operator<<(std::ostream &o,
+                                        const CBasicStatistics::SSampleCentralMoments<T, 1u> &);
+        template<typename T>
+        friend std::ostream &operator<<(std::ostream &o,
+                                        const CBasicStatistics::SSampleCentralMoments<T, 2u> &);
+        template<typename T>
+        friend std::ostream &operator<<(std::ostream &o,
+                                        const CBasicStatistics::SSampleCentralMoments<T, 3u> &);
 };
 
 template<typename T>
 std::ostream &operator<<(std::ostream &o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1u> &accumulator)
-{
+                         const CBasicStatistics::SSampleCentralMoments<T, 1u> &accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream &operator<<(std::ostream &o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2u> &accumulator)
-{
+                         const CBasicStatistics::SSampleCentralMoments<T, 2u> &accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream &operator<<(std::ostream &o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3u> &accumulator)
-{
+                         const CBasicStatistics::SSampleCentralMoments<T, 3u> &accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T, std::size_t N, typename LESS>
 std::ostream &operator<<(std::ostream &o,
-                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS> &accumulator)
-{
+                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS> &accumulator) {
     return o << accumulator.print();
 }
 
 template<typename T, typename LESS>
 std::ostream &operator<<(std::ostream &o,
-                         const CBasicStatistics::COrderStatisticsHeap<T, LESS> &accumulator)
-{
+                         const CBasicStatistics::COrderStatisticsHeap<T, LESS> &accumulator) {
     return o << accumulator.print();
 }
 
-namespace basic_statistics_detail
-{
+namespace basic_statistics_detail {
 
 //! \brief Default custom add function for values to the central
 //! moments estimator.
 template<typename U>
-struct SCentralMomentsCustomAdd
-{
+struct SCentralMomentsCustomAdd {
     template<typename T, unsigned int ORDER>
     static inline void add(const U &x,
                            typename SCoordinate<T>::Type n,
-                           CBasicStatistics::SSampleCentralMoments<T, ORDER> &moments)
-    {
+                           CBasicStatistics::SSampleCentralMoments<T, ORDER> &moments) {
         moments.add(static_cast<T>(x), n, 0);
     }
 };
@@ -1736,12 +1559,10 @@ struct SCentralMomentsCustomAdd
 //! \brief Implementation of add stack vector to the covariances
 //! estimator.
 template<typename T, std::size_t N>
-struct SCovariancesCustomAdd<CVectorNx1<T, N>>
-{
+struct SCovariancesCustomAdd<CVectorNx1<T, N>> {
     static inline void add(const CVectorNx1<T, N> &x,
                            const CVectorNx1<T, N> &n,
-                           CBasicStatistics::SSampleCovariances<T, N> &covariances)
-    {
+                           CBasicStatistics::SSampleCovariances<T, N> &covariances) {
         covariances.add(x, n, 0);
     }
 };
@@ -1756,12 +1577,10 @@ struct SCovariancesCustomAdd<CVectorNx1<T, N>>
 //! See http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf
 //! for the details.
 template<typename T, std::size_t N>
-struct SCovariancesLedoitWolf<CVectorNx1<T, N>>
-{
+struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
     template<typename U>
     static void estimate(const std::vector<CVectorNx1<T, N>> &points,
-                         CBasicStatistics::SSampleCovariances<U, N> &covariances)
-    {
+                         CBasicStatistics::SSampleCovariances<U, N> &covariances) {
         U d{static_cast<U>(N)};
 
         U n{CBasicStatistics::count(covariances)};
@@ -1772,16 +1591,15 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>>
         U dn{pow2((s - CVectorNx1<U, N>{mn}.diagonal()).frobenius()) / d};
         U bn{0};
         U z{n * n};
-        for (std::size_t i = 0u; i < points.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < points.size(); ++i) {
             CVectorNx1<U, N> ci{points[i]};
             bn += pow2(((ci - m).outer() - s).frobenius()) / d / z;
         }
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances =  CVectorNx1<U, N>{bn / dn * mn}.diagonal()
-                                   + (U{1} - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances =  CVectorNx1<U, N> {bn / dn * mn}.diagonal()
+                                     + (U{1} - bn / dn) * covariances.s_Covariances;
     }
 
     template<typename U> static U pow2(U x) { return x * x; }
@@ -1791,8 +1609,7 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>>
 
 template<typename T, unsigned int ORDER>
 template<typename U>
-void CBasicStatistics::SSampleCentralMoments<T, ORDER>::add(const U &x, const TCoordinate &n)
-{
+void CBasicStatistics::SSampleCentralMoments<T, ORDER>::add(const U &x, const TCoordinate &n) {
     basic_statistics_detail::SCentralMomentsCustomAdd<U>::add(x, n, *this);
 }
 

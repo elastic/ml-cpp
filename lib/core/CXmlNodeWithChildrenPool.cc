@@ -22,26 +22,20 @@
 #include <algorithm>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(void)
-    : m_MaxRecycled(m_Recycled.max_size())
-{
+    : m_MaxRecycled(m_Recycled.max_size()) {
 }
 
 CXmlNodeWithChildrenPool::CXmlNodeWithChildrenPool(size_t maxRecycled)
-    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size()))
-{
+    : m_MaxRecycled(std::min(maxRecycled, m_Recycled.max_size())) {
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(void)
-{
-    if (m_Recycled.empty())
-    {
+CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(void) {
+    if (m_Recycled.empty()) {
         return boost::make_shared<CXmlNodeWithChildren>();
     }
 
@@ -51,8 +45,7 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(vo
 }
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(std::string name,
-                                                                              std::string value)
-{
+                                                                              std::string value) {
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(this->newNode());
 
     // We take advantage of friendship here to set the node's name and value
@@ -64,21 +57,17 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(st
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(const std::string &name,
                                                                               double value,
-                                                                              CIEEE754::EPrecision precision)
-{
+                                                                              CIEEE754::EPrecision precision) {
     return this->newNode(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
-void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr)
-{
-    if (nodePtr == 0)
-    {
+void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr) {
+    if (nodePtr == 0) {
         LOG_ERROR("Unexpected NULL pointer");
         return;
     }
 
-    if (m_Recycled.size() < m_MaxRecycled)
-    {
+    if (m_Recycled.size() < m_MaxRecycled) {
         // We take advantage of friendship here to clear the node's attribute vector
         nodePtr->m_Attributes.clear();
         std::for_each(nodePtr->m_Children.rbegin(),

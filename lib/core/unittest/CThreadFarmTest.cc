@@ -26,126 +26,107 @@
 #include <string>
 
 
-CppUnit::Test *CThreadFarmTest::suite()
-{
+CppUnit::Test *CThreadFarmTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CThreadFarmTest>(
-                                   "CThreadFarmTest::testNumCpus",
-                                   &CThreadFarmTest::testNumCpus) );
+                               "CThreadFarmTest::testNumCpus",
+                               &CThreadFarmTest::testNumCpus) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CThreadFarmTest>(
-                                   "CThreadFarmTest::testSendReceive",
-                                   &CThreadFarmTest::testSendReceive) );
+                               "CThreadFarmTest::testSendReceive",
+                               &CThreadFarmTest::testSendReceive) );
 
     return suiteOfTests;
 }
 
-void CThreadFarmTest::testNumCpus(void)
-{
+void CThreadFarmTest::testNumCpus(void) {
     unsigned int numCpus(boost::thread::hardware_concurrency());
 
     LOG_INFO("Number of CPUs on this machine is " << numCpus);
 }
 
-namespace
-{
-    class CString
-    {
-        public:
-            CString(void)
-            {
+namespace {
+class CString {
+    public:
+        CString(void) {
+        }
+
+        CString(const std::string &str) : m_Str(str) {
+        }
+
+        CString(const CString &arg) : m_Str(arg.m_Str) {
+        }
+
+        CString &operator=(const CString &arg) {
+            m_Str = arg.m_Str;
+            return *this;
+        }
+
+        CString &operator=(const std::string &str) {
+            m_Str = str;
+            return *this;
+        }
+
+        const std::string   &str(void) const {
+            return m_Str;
+        }
+
+    private:
+        std::string m_Str;
+};
+
+class CHandler {
+    public:
+        void processResult(const CString &result) {
+            LOG_DEBUG("Process result " << result.str() <<
+                      " in thread " << ml::core::CThread::currentThreadId());
+
+            ml::core::CScopedLock lock(m_Mutex);
+            m_OutstandingOutput.erase(result.str());
+        }
+
+        void addExpectedOutput(const std::string &expected) {
+            ml::core::CScopedLock lock(m_Mutex);
+            m_OutstandingOutput.insert(expected);
+        }
+
+        bool haveAllExpected(void) {
+            ml::core::CScopedLock lock(m_Mutex);
+
+            TStrSet::iterator iter = m_OutstandingOutput.begin();
+            if (iter != m_OutstandingOutput.end()) {
+                LOG_WARN("Result: " << *iter << " is still outstanding");
             }
 
-            CString(const std::string &str) : m_Str(str)
-            {
-            }
+            return m_OutstandingOutput.empty();
+        }
 
-            CString(const CString &arg) : m_Str(arg.m_Str)
-            {
-            }
+    private:
+        typedef std::set<std::string> TStrSet;
 
-            CString &operator=(const CString &arg)
-            {
-                m_Str = arg.m_Str;
-                return *this;
-            }
+        TStrSet      m_OutstandingOutput;
+        ml::core::CMutex m_Mutex;
+};
 
-            CString &operator=(const std::string &str)
-            {
-                m_Str = str;
-                return *this;
-            }
+class CProcessor {
+    public:
+        CProcessor(const std::string &id) : m_Id(id) {
+        }
 
-            const std::string   &str(void) const
-            {
-                return m_Str;
-            }
+        void msgToResult(const std::string &str, CString &result) {
+            LOG_DEBUG("messageToResult " << str);
 
-        private:
-            std::string m_Str;
-    };
+            result = (str + ' ' + m_Id);
 
-    class CHandler
-    {
-        public:
-            void processResult(const CString &result)
-            {
-                LOG_DEBUG("Process result " << result.str() <<
-                          " in thread " << ml::core::CThread::currentThreadId());
+            LOG_DEBUG("messageToResult " << result.str());
+        }
 
-                ml::core::CScopedLock lock(m_Mutex);
-                m_OutstandingOutput.erase(result.str());
-            }
-
-            void addExpectedOutput(const std::string &expected)
-            {
-                ml::core::CScopedLock lock(m_Mutex);
-                m_OutstandingOutput.insert(expected);
-            }
-
-            bool haveAllExpected(void)
-            {
-                ml::core::CScopedLock lock(m_Mutex);
-
-                TStrSet::iterator iter = m_OutstandingOutput.begin();
-                if (iter != m_OutstandingOutput.end())
-                {
-                    LOG_WARN("Result: " << *iter << " is still outstanding");
-                }
-
-                return m_OutstandingOutput.empty();
-            }
-
-        private:
-            typedef std::set<std::string> TStrSet;
-
-            TStrSet      m_OutstandingOutput;
-            ml::core::CMutex m_Mutex;
-    };
-
-    class CProcessor
-    {
-        public:
-            CProcessor(const std::string &id) : m_Id(id)
-            {
-            }
-
-            void msgToResult(const std::string &str, CString &result)
-            {
-                LOG_DEBUG("messageToResult " << str);
-
-                result = (str + ' ' + m_Id);
-
-                LOG_DEBUG("messageToResult " << result.str());
-            }
-
-        private:
-            std::string m_Id;
-    };
+    private:
+        std::string m_Id;
+};
 }
 
-void CThreadFarmTest::testSendReceive(void)
-{
+void CThreadFarmTest::testSendReceive(void) {
     CHandler handler;
 
     ml::core::CThreadFarm<CHandler, CProcessor, std::string, CString> farm(handler, "test");
@@ -166,8 +147,7 @@ void CThreadFarmTest::testSendReceive(void)
     LOG_DEBUG("Sending " << max << " strings");
 
     char id = 'A';
-    for (size_t i = 0; i < max; ++i)
-    {
+    for (size_t i = 0; i < max; ++i) {
         std::string message("Test string ");
         message += id;
 

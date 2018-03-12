@@ -34,10 +34,8 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Place holder for numerical integration schemes.
 //!
@@ -57,8 +55,7 @@ namespace maths
 //! where the second argument is filled in with the value of the function at the
 //! first argument and a return value of false means that the function could not
 //! be evaluated.
-class MATHS_EXPORT CIntegration
-{
+class MATHS_EXPORT CIntegration {
     public:
         using TDoubleVec = std::vector<double>;
         using TDoubleDoublePr = std::pair<double, double>;
@@ -67,8 +64,7 @@ class MATHS_EXPORT CIntegration
 
     public:
         //! Enumeration of order of quadrature.
-        enum EOrder
-        {
+        enum EOrder {
             OrderOne   = 1,
             OrderTwo   = 2,
             OrderThree = 3,
@@ -86,8 +82,7 @@ class MATHS_EXPORT CIntegration
         //!
         //! \note The limit is imposed by curse of dimensionality. If we need
         //! more dimensions we'll have to implement a quasi Monte-Carlo method.
-        enum EDimension
-        {
+        enum EDimension {
             OneDimension    = 1,
             TwoDimensions   = 2,
             ThreeDimensions = 3,
@@ -122,8 +117,7 @@ class MATHS_EXPORT CIntegration
         static bool gaussLegendre(const F &function,
                                   double a,
                                   double b,
-                                  T &result)
-        {
+                                  T &result) {
             result = T();
 
             const double *weights = CGaussLegendreQuadrature::weights(ORDER);
@@ -133,11 +127,9 @@ class MATHS_EXPORT CIntegration
             // of the quadrature.
             double centre = (a + b) / 2.0;
             double range = (b - a) / 2.0;
-            for (unsigned int i = 0; i < ORDER; ++i)
-            {
+            for (unsigned int i = 0; i < ORDER; ++i) {
                 T fx;
-                if (!function(centre + range * abscissas[i], fx))
-                {
+                if (!function(centre + range * abscissas[i], fx)) {
                     return false;
                 }
                 fx *= weights[i];
@@ -181,8 +173,7 @@ class MATHS_EXPORT CIntegration
                                          double a, double b,
                                          U &productIntegral,
                                          U &fIntegral,
-                                         V &gIntegral)
-        {
+                                         V &gIntegral) {
             productIntegral = U();
             fIntegral = U();
             gIntegral = V();
@@ -194,13 +185,11 @@ class MATHS_EXPORT CIntegration
             // of the quadrature.
             double centre = (a + b) / 2.0;
             double range = (b - a) / 2.0;
-            for (unsigned int i = 0; i < ORDER; ++i)
-            {
+            for (unsigned int i = 0; i < ORDER; ++i) {
                 U fx;
                 V gx;
                 if (   !f(centre + range * abscissas[i], fx)
-                    || !g(centre + range * abscissas[i], gx))
-                {
+                        || !g(centre + range * abscissas[i], gx)) {
                     return false;
                 }
                 double weight = weights[i];
@@ -241,12 +230,10 @@ class MATHS_EXPORT CIntegration
         static bool logGaussLegendre(const F &function,
                                      double a,
                                      double b,
-                                     double &result)
-        {
+                                     double &result) {
             result = 0.0;
 
-            if (b <= a)
-            {
+            if (b <= a) {
                 std::swap(a, b);
             }
 
@@ -258,24 +245,20 @@ class MATHS_EXPORT CIntegration
             // Evaluate f(x) at the abscissas.
             double centre = (a + b) / 2.0;
             double range = (b - a) / 2.0;
-            for (unsigned int i = 0; i < ORDER; ++i)
-            {
-                if (!function(centre + range * abscissas[i], fx[i]))
-                {
+            for (unsigned int i = 0; i < ORDER; ++i) {
+                if (!function(centre + range * abscissas[i], fx[i])) {
                     return false;
                 }
             }
 
             // Re-normalize and then take exponentials to avoid underflow.
             double fmax = *std::max_element(fx, fx + ORDER);
-            for (unsigned int i = 0; i < ORDER; ++i)
-            {
+            for (unsigned int i = 0; i < ORDER; ++i) {
                 fx[i] = ::exp(fx[i] - fmax);
             }
 
             // Quadrature.
-            for (unsigned int i = 0; i < ORDER; ++i)
-            {
+            for (unsigned int i = 0; i < ORDER; ++i) {
                 result += weights[i] * fx[i];
             }
             result *= range;
@@ -316,10 +299,8 @@ class MATHS_EXPORT CIntegration
                                           std::size_t refinements,
                                           std::size_t splitsPerRefinement,
                                           double tolerance,
-                                          double &result)
-        {
-            if (intervals.size() != fIntervals.size())
-            {
+                                          double &result) {
+            if (intervals.size() != fIntervals.size()) {
                 LOG_ERROR("Inconsistent intervals and function integrals: "
                           << core::CContainerPrinter::print(intervals)
                           << " " << core::CContainerPrinter::print(fIntervals));
@@ -331,48 +312,40 @@ class MATHS_EXPORT CIntegration
 
             TDoubleVec corrections;
             corrections.reserve(fIntervals.size());
-            for (std::size_t i = 0u; i < fIntervals.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < fIntervals.size(); ++i) {
                 corrections.push_back(::fabs(fIntervals[i]));
             }
 
             for (std::size_t i = 0u;
-                 !intervals.empty() && i < refinements;
-                 ++i)
-            {
+                    !intervals.empty() && i < refinements;
+                    ++i) {
                 std::size_t n = intervals.size();
                 double cutoff = tolerance * ::fabs(result) / static_cast<double>(n);
 
                 std::size_t end = 0u;
-                for (std::size_t j = 0u; j < corrections.size(); ++j)
-                {
-                    if (corrections[j] > cutoff)
-                    {
+                for (std::size_t j = 0u; j < corrections.size(); ++j) {
+                    if (corrections[j] > cutoff) {
                         std::swap(intervals[end], intervals[j]);
                         std::swap(fIntervals[end], fIntervals[j]);
                         std::swap(corrections[end], corrections[j]);
                         ++end;
                     }
                 }
-                if (end != corrections.size())
-                {
+                if (end != corrections.size()) {
                     intervals.erase(intervals.begin() + end, intervals.end());
                     fIntervals.erase(fIntervals.begin() + end, fIntervals.end());
                     corrections.erase(corrections.begin() + end, corrections.end());
                 }
                 n = intervals.size();
 
-                if (i + 1 < refinements)
-                {
+                if (i + 1 < refinements) {
                     intervals.reserve(splitsPerRefinement * n);
                     fIntervals.reserve(splitsPerRefinement * n);
                     corrections.reserve(splitsPerRefinement * n);
                 }
 
-                for (std::size_t j = 0u; j < n; ++j)
-                {
-                    if (corrections[j] <= cutoff)
-                    {
+                for (std::size_t j = 0u; j < n; ++j) {
+                    if (corrections[j] <= cutoff) {
                         corrections[j] = 0.0;
                         continue;
                     }
@@ -383,28 +356,20 @@ class MATHS_EXPORT CIntegration
                     double aj = intervals[j].first;
                     double dj = (intervals[j].second - intervals[j].first)
                                 / static_cast<double>(splitsPerRefinement);
-                    for (std::size_t k = 0u; k < splitsPerRefinement; ++k, aj += dj)
-                    {
+                    for (std::size_t k = 0u; k < splitsPerRefinement; ++k, aj += dj) {
                         double df;
-                        if (CIntegration::gaussLegendre<ORDER>(f, aj, aj + dj, df))
-                        {
+                        if (CIntegration::gaussLegendre<ORDER>(f, aj, aj + dj, df)) {
                             fjNew += df;
-                            if (i + 1 < refinements)
-                            {
-                                if (k == 0)
-                                {
+                            if (i + 1 < refinements) {
+                                if (k == 0) {
                                     intervals[j]  = TDoubleDoublePr(aj, aj + dj);
                                     fIntervals[j] = df;
-                                }
-                                else
-                                {
+                                } else {
                                     intervals.push_back(TDoubleDoublePr(aj, aj + dj));
                                     fIntervals.push_back(df);
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             LOG_ERROR("Couldn't integrate f over ["
                                       << aj << "," << aj + dj << "]");
                             return false;
@@ -413,8 +378,7 @@ class MATHS_EXPORT CIntegration
 
                     LOG_TRACE("fjNew = " << fjNew << ", fjOld = " << fjOld);
                     double correction = fjNew - fjOld;
-                    if (i + 1 < refinements)
-                    {
+                    if (i + 1 < refinements) {
                         corrections[j] = ::fabs(correction);
                         corrections.resize(corrections.size() + splitsPerRefinement - 1,
                                            ::fabs(correction));
@@ -452,8 +416,7 @@ class MATHS_EXPORT CIntegration
         //! computing them once and means that the amortized cost of integration
         //! is as low as possible.
         template<EOrder O, EDimension D>
-        class CSparseGaussLegendreQuadrature : private core::CNonCopyable
-        {
+        class CSparseGaussLegendreQuadrature : private core::CNonCopyable {
             private:
                 static const unsigned int ORDER = static_cast<unsigned int>(O);
                 static const unsigned int DIMENSION = static_cast<unsigned int>(D);
@@ -463,15 +426,12 @@ class MATHS_EXPORT CIntegration
                 using TVectorVec = std::vector<TVector>;
 
             public:
-                static const CSparseGaussLegendreQuadrature &instance(void)
-                {
+                static const CSparseGaussLegendreQuadrature &instance(void) {
                     const CSparseGaussLegendreQuadrature *tmp = ms_Instance.load(std::memory_order_acquire);
-                    if (!tmp)
-                    {
+                    if (!tmp) {
                         core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
                         tmp = ms_Instance.load(std::memory_order_relaxed);
-                        if (!tmp)
-                        {
+                        if (!tmp) {
                             tmp = new CSparseGaussLegendreQuadrature();
                             ms_Instance.store(tmp, std::memory_order_release);
                         }
@@ -480,14 +440,12 @@ class MATHS_EXPORT CIntegration
                 }
 
                 //! The sparse grid point weights.
-                const TDoubleVec &weights(void) const
-                {
+                const TDoubleVec &weights(void) const {
                     return m_Weights;
                 }
 
                 //! The sparse grid point points.
-                const TVectorVec &points(void) const
-                {
+                const TVectorVec &points(void) const {
                     return m_Points;
                 }
 
@@ -497,24 +455,17 @@ class MATHS_EXPORT CIntegration
             private:
                 //! Iterates through the combinations such that \f$\|I\|_1 = l\f$
                 //! for the indices \f$I\f$ and some fixed monomial order \f$l\f$.
-                static bool next(std::size_t d, TUIntVec &indices, TUIntVec &stop)
-                {
-                    for (;;)
-                    {
+                static bool next(std::size_t d, TUIntVec &indices, TUIntVec &stop) {
+                    for (;;) {
                         ++indices[d];
-                        if (indices[d] > stop[d])
-                        {
-                            if (d == DIMENSION-1)
-                            {
+                        if (indices[d] > stop[d]) {
+                            if (d == DIMENSION-1) {
                                 break;
                             }
                             indices[d] = 1;
                             ++d;
-                        }
-                        else
-                        {
-                            for (std::size_t j = 0; j < d; ++j)
-                            {
+                        } else {
+                            for (std::size_t j = 0; j < d; ++j) {
                                 stop[j] = stop[d] - indices[d] + 1;
                             }
                             indices[0] = stop[0];
@@ -525,8 +476,7 @@ class MATHS_EXPORT CIntegration
                     return false;
                 }
 
-                CSparseGaussLegendreQuadrature(void)
-                {
+                CSparseGaussLegendreQuadrature(void) {
                     // Generate the weights. We don't exploit the weight and
                     // abscissa symmetries to reduce the static storage since
                     // this reduces the speed of integration and since we limit
@@ -539,8 +489,7 @@ class MATHS_EXPORT CIntegration
 
                     TVectorDoubleMap ordered;
 
-                    for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0; l < ORDER; ++l)
-                    {
+                    for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0; l < ORDER; ++l) {
                         LOG_TRACE("order = " << l);
                         std::size_t d = 0u;
                         TUIntVec indices(DIMENSION, 1);
@@ -552,25 +501,21 @@ class MATHS_EXPORT CIntegration
                                                                       DIMENSION + l - ORDER);
                         LOG_TRACE("scale = " << scale);
 
-                        do
-                        {
+                        do {
                             LOG_TRACE("indices = " << core::CContainerPrinter::print(indices));
 
                             unsigned int n = 1u;
-                            for (std::size_t i = 0u; i < indices.size(); ++i)
-                            {
+                            for (std::size_t i = 0u; i < indices.size(); ++i) {
                                 n *= indices[i];
                             }
                             LOG_TRACE("Number of points = " << n);
 
                             TDoubleVec weights(n, 1.0);
                             TVectorVec points(n, TVector(0.0));
-                            for (unsigned int i = 0u; i < n; ++i)
-                            {
+                            for (unsigned int i = 0u; i < n; ++i) {
                                 for (unsigned int i_ = i, j = 0u;
-                                     j < indices.size();
-                                     i_ /= indices[j], ++j)
-                                {
+                                        j < indices.size();
+                                        i_ /= indices[j], ++j) {
                                     EOrder order = static_cast<EOrder>(indices[j]);
                                     const double *w = CGaussLegendreQuadrature::weights(order);
                                     const double *a = CGaussLegendreQuadrature::abscissas(order);
@@ -581,18 +526,15 @@ class MATHS_EXPORT CIntegration
                             }
                             LOG_TRACE("weights = " << core::CContainerPrinter::print(weights));
                             LOG_TRACE("points =  " << core::CContainerPrinter::print(points));
-                            for (std::size_t i = 0u; i < n; ++i)
-                            {
+                            for (std::size_t i = 0u; i < n; ++i) {
                                 ordered[points[i]] += scale * weights[i];
                             }
-                        }
-                        while (next(d, indices, stop));
+                        } while (next(d, indices, stop));
                     }
 
                     m_Weights.reserve(ordered.size());
                     m_Points.reserve(ordered.size());
-                    for (const auto &i : ordered)
-                    {
+                    for (const auto &i : ordered) {
                         m_Weights.push_back(i.second);
                         m_Points.push_back(i.first);
                     }
@@ -630,21 +572,18 @@ class MATHS_EXPORT CIntegration
         static bool sparseGaussLegendre(const F &function,
                                         const TDoubleVec &a,
                                         const TDoubleVec &b,
-                                        T &result)
-        {
+                                        T &result) {
             using TSparseQuadrature = CSparseGaussLegendreQuadrature<ORDER, DIMENSION>;
             using TVector = typename TSparseQuadrature::TVector;
             using TVectorVec = typename TSparseQuadrature::TVectorVec;
 
             result = T();
 
-            if (a.size() != static_cast<std::size_t>(DIMENSION))
-            {
+            if (a.size() != static_cast<std::size_t>(DIMENSION)) {
                 LOG_ERROR("Bad lower limits: " << core::CContainerPrinter::print(a));
                 return false;
             }
-            if (b.size() != static_cast<std::size_t>(DIMENSION))
-            {
+            if (b.size() != static_cast<std::size_t>(DIMENSION)) {
                 LOG_ERROR("Bad upper limits: " << core::CContainerPrinter::print(b));
                 return false;
             }
@@ -660,19 +599,16 @@ class MATHS_EXPORT CIntegration
             TVector centre = (a_ + b_) / 2.0;
             TVector range  = (b_ - a_) / 2.0;
 
-            for (std::size_t i = 0; i < weights.size(); ++i)
-            {
+            for (std::size_t i = 0; i < weights.size(); ++i) {
                 T fx;
-                if (!function(centre + range * points[i], fx))
-                {
+                if (!function(centre + range * points[i], fx)) {
                     return false;
                 }
                 fx *= weights[i];
                 result += fx;
             }
 
-            for (std::size_t i = 0u; i < DIMENSION; ++i)
-            {
+            for (std::size_t i = 0u; i < DIMENSION; ++i) {
                 result *= range(i);
             }
 
@@ -682,8 +618,7 @@ class MATHS_EXPORT CIntegration
     private:
         //! \brief Definitions of the weights and abscissas for different orders
         //! of Gauss-Legendre quadrature.
-        class MATHS_EXPORT CGaussLegendreQuadrature
-        {
+        class MATHS_EXPORT CGaussLegendreQuadrature {
             public:
                 static const double *weights(EOrder order);
                 static const double *abscissas(EOrder order);
@@ -740,7 +675,7 @@ class MATHS_EXPORT CIntegration
 
 template<CIntegration::EOrder O, CIntegration::EDimension D>
 std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D> *>
-    CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
+CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 
 }
 }

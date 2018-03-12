@@ -23,10 +23,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Encapsulate interpretation of Windows function errors.
@@ -44,8 +42,7 @@ namespace core
 //! to explicitly initialise an object with a specific error
 //! code.
 //!
-class CORE_EXPORT CWindowsError
-{
+class CORE_EXPORT CWindowsError {
     public:
         //! Initialise using the last error to occur.  This
         //! is obtained GetLastError() on Windows.
@@ -64,8 +61,8 @@ class CORE_EXPORT CWindowsError
         //! The error code
         uint32_t m_ErrorCode;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &,
-                                                const CWindowsError &);
+        friend CORE_EXPORT std::ostream &operator<<(std::ostream &,
+                                                    const CWindowsError &);
 };
 
 //! Stream output prints textual representation of the error

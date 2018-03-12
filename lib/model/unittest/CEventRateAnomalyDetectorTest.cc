@@ -38,8 +38,7 @@
 
 #include <fstream>
 
-namespace
-{
+namespace {
 
 typedef std::vector<ml::core_t::TTime> TTimeVec;
 typedef std::vector<std::string> TStrVec;
@@ -50,21 +49,18 @@ typedef std::set<TTimeStrPr> TTimeStrPrSet;
 
 const std::string EMPTY_STRING;
 
-class CResultWriter : public ml::model::CHierarchicalResultsVisitor
-{
+class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
     public:
         CResultWriter(const ml::model::CAnomalyDetectorModelConfig &modelConfig,
                       const ml::model::CLimits &limits)
             : m_ModelConfig(modelConfig),
-            m_Limits(limits),
-              m_Calls(0)
-        {
+              m_Limits(limits),
+              m_Calls(0) {
         }
 
         void operator()(ml::model::CAnomalyDetector &detector,
                         ml::core_t::TTime start,
-                        ml::core_t::TTime end)
-        {
+                        ml::core_t::TTime end) {
             ml::model::CHierarchicalResults results;
             detector.buildResults(start, end, results);
             results.buildHierarchy();
@@ -77,24 +73,19 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
 
         virtual void visit(const ml::model::CHierarchicalResults &results,
                            const ml::model::CHierarchicalResults::TNode &node,
-                           bool pivot)
-        {
-            if (pivot)
-            {
+                           bool pivot) {
+            if (pivot) {
                 return;
             }
 
-            if (!this->shouldWriteResult(m_Limits, results, node, pivot))
-            {
+            if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
                 return;
             }
 
-                        if (this->isSimpleCount(node))
-            {
+            if (this->isSimpleCount(node)) {
                 return;
             }
-            if (!this->isLeaf(node))
-            {
+            if (!this->isLeaf(node)) {
                 return;
             }
 
@@ -111,32 +102,27 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor
 
         bool operator()(ml::core_t::TTime time,
                         const ml::model::CHierarchicalResults::TNode &node,
-                        bool isBucketInfluencer)
-        {
+                        bool isBucketInfluencer) {
             LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" :  "Influencer ")
-                    << node.s_Spec.print() << " initial score " << node.probability()
-                    << ", time:  " << time);
+                      << node.s_Spec.print() << " initial score " << node.probability()
+                      << ", time:  " << time);
 
             return true;
         }
 
-        size_t calls(void) const
-        {
+        size_t calls(void) const {
             return m_Calls;
         }
 
-        size_t numDistinctTimes(void) const
-        {
+        size_t numDistinctTimes(void) const {
             return m_AllAnomalies.size();
         }
 
-        const TTimeDoubleMap &anomalyScores(void) const
-        {
+        const TTimeDoubleMap &anomalyScores(void) const {
             return m_AnomalyScores;
         }
 
-        const TTimeStrPrSet &allAnomalies(void) const
-        {
+        const TTimeStrPrSet &allAnomalies(void) const {
             return m_AllAnomalies;
         }
 
@@ -153,15 +139,13 @@ void importData(ml::core_t::TTime firstTime,
                 ml::core_t::TTime bucketLength,
                 CResultWriter &outputResults,
                 const TStrVec &fileNames,
-                ml::model::CAnomalyDetector &detector)
-{
+                ml::model::CAnomalyDetector &detector) {
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
     typedef std::vector<TifstreamPtr> TifstreamPtrVec;
     typedef std::vector<ml::core_t::TTime> TTimeVec;
 
     TifstreamPtrVec ifss;
-    for (std::size_t i = 0u; i < fileNames.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
         CPPUNIT_ASSERT(ifs->is_open());
         ifss.push_back(ifs);
@@ -170,30 +154,26 @@ void importData(ml::core_t::TTime firstTime,
     ml::core_t::TTime lastBucketTime = ml::maths::CIntegerTools::ceil(firstTime, bucketLength);
 
     TTimeVec times(ifss.size());
-    for (std::size_t i = 0u; i < ifss.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
         CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[i]));
     }
 
     ml::core_t::TTime time(0);
-    for (;;)
-    {
+    for (;;) {
         std::size_t file(std::min_element(times.begin(), times.end()) - times.begin());
 
         std::string attributeFieldValue = fileNames[file];
         time = times[file];
 
-        if (time == std::numeric_limits<ml::core_t::TTime>::max())
-        {
+        if (time == std::numeric_limits<ml::core_t::TTime>::max()) {
             break;
         }
 
         for (/**/;
-             lastBucketTime + bucketLength <= time;
-             lastBucketTime += bucketLength)
-        {
+                 lastBucketTime + bucketLength <= time;
+                 lastBucketTime += bucketLength) {
             outputResults(detector,
                           lastBucketTime,
                           lastBucketTime + bucketLength);
@@ -204,21 +184,17 @@ void importData(ml::core_t::TTime firstTime,
         detector.addRecord(time, fieldValues);
 
         std::string line;
-        if (!std::getline(*ifss[file], line))
-        {
+        if (!std::getline(*ifss[file], line)) {
             times[file] = std::numeric_limits<ml::core_t::TTime>::max();
             ifss[file].reset();
-        }
-        else
-        {
+        } else {
             CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[file]));
         }
     }
 
     for (/**/;
-         lastBucketTime + bucketLength <= lastTime;
-         lastBucketTime += bucketLength)
-    {
+             lastBucketTime + bucketLength <= lastTime;
+             lastBucketTime += bucketLength) {
         outputResults(detector,
                       lastBucketTime,
                       lastBucketTime + bucketLength);
@@ -227,8 +203,7 @@ void importData(ml::core_t::TTime firstTime,
 
 }
 
-void CEventRateAnomalyDetectorTest::testAnomalies(void)
-{
+void CEventRateAnomalyDetectorTest::testAnomalies(void) {
     static const size_t            EXPECTED_ANOMALOUS_HOURS(12);
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
@@ -236,7 +211,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
     static const double            HIGH_ANOMALY_SCORE(0.003);
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
@@ -263,10 +238,8 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
 
     const TTimeDoubleMap &anomalyScores = writer.anomalyScores();
     TTimeVec peaks;
-    for (const auto &score : anomalyScores)
-    {
-        if (score.second > HIGH_ANOMALY_SCORE)
-        {
+    for (const auto &score : anomalyScores) {
+        if (score.second > HIGH_ANOMALY_SCORE) {
             peaks.push_back(score.first);
         }
     }
@@ -275,16 +248,13 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
 
     std::size_t detected503   = 0u;
     std::size_t detectedMySQL = 0u;
-    for (std::size_t i = 0u; i < peaks.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < peaks.size(); ++i) {
         LOG_DEBUG("Checking for status 503 anomaly at " << peaks[i]);
-        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt")))
-        {
+        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;
         }
         LOG_DEBUG("Checking for MySQL anomaly at " << peaks[i]);
-        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/mysqlabort.txt")))
-        {
+        if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/mysqlabort.txt"))) {
             ++detectedMySQL;
         }
     }
@@ -293,14 +263,13 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(10), detectedMySQL);
 }
 
-void CEventRateAnomalyDetectorTest::testPersist(void)
-{
+void CEventRateAnomalyDetectorTest::testPersist(void) {
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
     ml::model::CSearchKey key(1, // identifier
@@ -358,16 +327,15 @@ void CEventRateAnomalyDetectorTest::testPersist(void)
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CEventRateAnomalyDetectorTest::suite(void)
-{
+CppUnit::Test *CEventRateAnomalyDetectorTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-                                   "CEventRateAnomalyDetectorTest::testAnomalies",
-                                   &CEventRateAnomalyDetectorTest::testAnomalies) );
+                               "CEventRateAnomalyDetectorTest::testAnomalies",
+                               &CEventRateAnomalyDetectorTest::testAnomalies) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-                                   "CEventRateAnomalyDetectorTest::testPersist",
-                                   &CEventRateAnomalyDetectorTest::testPersist) );
+                               "CEventRateAnomalyDetectorTest::testPersist",
+                               &CEventRateAnomalyDetectorTest::testPersist) );
 
     return suiteOfTests;
 }

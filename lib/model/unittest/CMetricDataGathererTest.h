@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricDataGathererTest : public CppUnit::TestFixture
-{
+class CMetricDataGathererTest : public CppUnit::TestFixture {
     public:
         void singleSeriesTests(void);
         void multipleSeriesTests(void);

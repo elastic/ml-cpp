@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CLassoLogisticRegressionTest : public CppUnit::TestFixture
-{
+class CLassoLogisticRegressionTest : public CppUnit::TestFixture {
     public:
         void testCyclicCoordinateDescent(void);
         void testCyclicCoordinateDescentLargeSparse(void);

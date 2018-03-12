@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CProcessPriorityTest : public CppUnit::TestFixture
-{
+class CProcessPriorityTest : public CppUnit::TestFixture {
     public:
         void testReducePriority(void);
 

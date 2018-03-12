@@ -25,10 +25,8 @@
 #include <limits>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -43,27 +41,22 @@ namespace core
 //! flushed and processed in another (flush) and (process)
 //!
 template<typename MESSAGE, typename BUFFER>
-class CMessageBuffer
-{
+class CMessageBuffer {
     public:
         CMessageBuffer(BUFFER &buffer)
             : m_Thread(*this),
               m_Condition(m_Mutex),
-              m_Buffer(buffer)
-        {
+              m_Buffer(buffer) {
         }
 
-        virtual ~CMessageBuffer(void)
-        {
+        virtual ~CMessageBuffer(void) {
         }
 
         //! Initialise - create the receiving thread
-        bool start(void)
-        {
+        bool start(void) {
             CScopedLock lock(m_Mutex);
 
-            if (m_Thread.start() == false)
-            {
+            if (m_Thread.start() == false) {
                 LOG_ERROR("Unable to initialise thread");
                 return false;
             }
@@ -74,41 +67,35 @@ class CMessageBuffer
         }
 
         //! Shutdown - kill thread
-        bool stop(void)
-        {
+        bool stop(void) {
             m_Thread.stop();
 
             return true;
         }
 
-        void addMessage(const MESSAGE &msg)
-        {
+        void addMessage(const MESSAGE &msg) {
             CScopedLock lock(m_Mutex);
 
             m_Buffer.addMessage(msg);
         }
 
     private:
-        class CMessageBufferThread : public CThread
-        {
+        class CMessageBufferThread : public CThread {
             public:
                 CMessageBufferThread(CMessageBuffer<MESSAGE, BUFFER> &messageBuffer)
                     : m_MessageBuffer(messageBuffer),
                       m_Shutdown(false),
-                      m_IsRunning(false)
-                {
+                      m_IsRunning(false) {
                 }
 
                 //! The queue must have the mutex for this to be called
-                bool isRunning(void) const
-                {
+                bool isRunning(void) const {
                     // Assumes lock
                     return m_IsRunning;
                 }
 
             protected:
-                void run(void)
-                {
+                void run(void) {
                     typedef std::vector<MESSAGE> TMessageVec;
 
                     m_MessageBuffer.m_Mutex.lock();
@@ -117,8 +104,7 @@ class CMessageBuffer
 
                     m_MessageBuffer.m_Condition.signal();
 
-                    while (!m_Shutdown)
-                    {
+                    while (!m_Shutdown) {
                         m_MessageBuffer.m_Condition.wait(m_MessageBuffer.m_Buffer.flushInterval());
 
                         TMessageVec data;
@@ -141,8 +127,7 @@ class CMessageBuffer
                     m_MessageBuffer.m_Mutex.unlock();
                 }
 
-                void shutdown(void)
-                {
+                void shutdown(void) {
                     CScopedLock lock(m_MessageBuffer.m_Mutex);
 
                     m_Shutdown = true;
@@ -160,7 +145,7 @@ class CMessageBuffer
         CCondition           m_Condition;
         BUFFER               &m_Buffer;
 
-    friend class CMessageBufferThread;
+        friend class CMessageBufferThread;
 };
 
 

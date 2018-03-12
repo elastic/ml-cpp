@@ -20,23 +20,20 @@
 #include <string>
 
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 
 
 //! \brief
-//! Test if a string is a valid ipv4 or ipv6 address 
+//! Test if a string is a valid ipv4 or ipv6 address
 //!
 //! DESCRIPTION:\n
-//! Test if a string is a valid ipv4 or ipv6 address 
+//! Test if a string is a valid ipv4 or ipv6 address
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Uses regexes. Lexing and parsing would probably be faster.
 //!
-class CIpAddressTest
-{
+class CIpAddressTest {
     public:
         CIpAddressTest(void);
 

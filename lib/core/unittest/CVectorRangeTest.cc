@@ -27,8 +27,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleRng = core::CVectorRange<TDoubleVec>;
 using TDoubleCRng = core::CVectorRange<const TDoubleVec>;
 
-void CVectorRangeTest::testCreation(void)
-{
+void CVectorRangeTest::testCreation(void) {
     LOG_DEBUG("*** CVectorRangeTest::testCreation ***");
 
     {
@@ -65,8 +64,7 @@ void CVectorRangeTest::testCreation(void)
     }
 }
 
-void CVectorRangeTest::testAccessors(void)
-{
+void CVectorRangeTest::testAccessors(void) {
     LOG_DEBUG("*** CVectorRangeTest::testAccessors ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
@@ -97,8 +95,7 @@ void CVectorRangeTest::testAccessors(void)
     CPPUNIT_ASSERT_EQUAL(9.8, crange14.back());
 }
 
-void CVectorRangeTest::testIterators(void)
-{
+void CVectorRangeTest::testIterators(void) {
     LOG_DEBUG("*** CVectorRangeTest::testIterators ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
@@ -106,27 +103,23 @@ void CVectorRangeTest::testIterators(void)
     TDoubleRng range14{values, 1, 4};
     const TDoubleRng crange14{values, 1, 4};
 
-    for (auto i = range14.begin(), j = values.begin() + 1; i != range14.end(); ++i, ++j)
-    {
+    for (auto i = range14.begin(), j = values.begin() + 1; i != range14.end(); ++i, ++j) {
         CPPUNIT_ASSERT_EQUAL(*j, *i);
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), range14.end() - range14.begin());
 
-    for (auto i = range14.cbegin(), j = values.cbegin() + 1; i != range14.cend(); ++i, ++j)
-    {
+    for (auto i = range14.cbegin(), j = values.cbegin() + 1; i != range14.cend(); ++i, ++j) {
         CPPUNIT_ASSERT_EQUAL(*j, *i);
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), range14.end() - range14.begin());
 
-    for (auto i = crange14.begin(), j = values.cbegin() + 1; i != crange14.end(); ++i, ++j)
-    {
+    for (auto i = crange14.begin(), j = values.cbegin() + 1; i != crange14.end(); ++i, ++j) {
         CPPUNIT_ASSERT_EQUAL(*j, *i);
     }
     CPPUNIT_ASSERT_EQUAL(std::ptrdiff_t(3), crange14.end() - crange14.begin());
 }
 
-void CVectorRangeTest::testSizing(void)
-{
+void CVectorRangeTest::testSizing(void) {
     LOG_DEBUG("*** CVectorRangeTest::testSizing ***");
 
     TDoubleVec values{1.0, 0.1, 0.7, 9.8, 8.0};
@@ -151,8 +144,7 @@ void CVectorRangeTest::testSizing(void)
     CPPUNIT_ASSERT(values.capacity() >= 15);
 }
 
-void CVectorRangeTest::testModifiers(void)
-{
+void CVectorRangeTest::testModifiers(void) {
     LOG_DEBUG("*** CVectorRangeTest::testModifiers ***");
 
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
@@ -218,8 +210,7 @@ void CVectorRangeTest::testModifiers(void)
     CPPUNIT_ASSERT_EQUAL(s223, core::CContainerPrinter::print(range113));
 }
 
-void CVectorRangeTest::testComparisons(void)
-{
+void CVectorRangeTest::testComparisons(void) {
     LOG_DEBUG("*** CVectorRangeTest::testComparisons ***");
 
     TDoubleVec values1{1.0, 0.1, 0.7, 9.8, 8.0};
@@ -253,28 +244,27 @@ void CVectorRangeTest::testComparisons(void)
     CPPUNIT_ASSERT(!(range103 >= range202));
 }
 
-CppUnit::Test *CVectorRangeTest::suite(void)
-{
+CppUnit::Test *CVectorRangeTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testCreation",
-                                   &CVectorRangeTest::testCreation) );
+                               "CVectorRangeTest::testCreation",
+                               &CVectorRangeTest::testCreation) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testAccessors",
-                                   &CVectorRangeTest::testAccessors) );
+                               "CVectorRangeTest::testAccessors",
+                               &CVectorRangeTest::testAccessors) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testIterators",
-                                   &CVectorRangeTest::testIterators) );
+                               "CVectorRangeTest::testIterators",
+                               &CVectorRangeTest::testIterators) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testSizing",
-                                   &CVectorRangeTest::testSizing) );
+                               "CVectorRangeTest::testSizing",
+                               &CVectorRangeTest::testSizing) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testModifiers",
-                                   &CVectorRangeTest::testModifiers) );
+                               "CVectorRangeTest::testModifiers",
+                               &CVectorRangeTest::testModifiers) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CVectorRangeTest>(
-                                   "CVectorRangeTest::testComparisons",
-                                   &CVectorRangeTest::testComparisons) );
+                               "CVectorRangeTest::testComparisons",
+                               &CVectorRangeTest::testComparisons) );
 
     return suiteOfTests;
 }

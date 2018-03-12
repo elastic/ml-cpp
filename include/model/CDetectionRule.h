@@ -23,10 +23,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetectorModel;
 
 
@@ -44,22 +42,19 @@ class CAnomalyDetectorModel;
 //! conditions trigger the rule, the rule will apply to all series within the
 //! partition. However, when no target is specified, the rule will trigger only
 //! for series that are described in the conditions themselves.
-class MODEL_EXPORT CDetectionRule
-{
+class MODEL_EXPORT CDetectionRule {
     public:
         using TRuleConditionVec = std::vector<CRuleCondition>;
         using TDouble1Vec = core::CSmallVector<double, 1>;
 
         //! Rule actions can apply to filtering results, skipping sampling or both.
         //! This is meant to work as a bit mask so added values should be powers of 2.
-        enum ERuleAction
-        {
+        enum ERuleAction {
             E_FilterResults                 = 1,
             E_SkipSampling                  = 2
         };
 
-        enum EConditionsConnective
-        {
+        enum EConditionsConnective {
             E_Or,
             E_And
         };

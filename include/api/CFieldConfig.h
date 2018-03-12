@@ -36,10 +36,8 @@
 class CFieldConfigTest;
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 //! \brief
@@ -89,8 +87,7 @@ namespace api
 //! models.  For population models the "by field" is referred to as
 //! the "attribute field" in model library code.
 //!
-class API_EXPORT CFieldConfig
-{
+class API_EXPORT CFieldConfig {
     public:
         //! Prefix for detector settings
         static const std::string DETECTOR_PREFIX;
@@ -256,8 +253,7 @@ class API_EXPORT CFieldConfig
 
     public:
         //! Class representing all the options associated with a field config.
-        class API_EXPORT CFieldOptions
-        {
+        class API_EXPORT CFieldOptions {
             public:
                 //! Construct with no "by" field nor "partition" field, deducing
                 //! the function from the fieldName
@@ -334,17 +330,15 @@ class API_EXPORT CFieldConfig
                 bool                         m_OverHasExcludeFrequent;
                 bool                         m_UseNull;
 
-            friend std::ostream &operator<<(std::ostream &,
-                                            const CFieldOptions &);
+                friend std::ostream &operator<<(std::ostream &,
+                                                const CFieldOptions &);
         };
 
     public:
         //! Key specifiers for the multi-index
-        struct SUniqueKey
-        {
+        struct SUniqueKey {
         };
-        struct SConfigKey
-        {
+        struct SConfigKey {
         };
 
         //! Index of field names to field options.
@@ -352,24 +346,24 @@ class API_EXPORT CFieldConfig
         //! function, field name, by field name, over field name and
         //! partition field name.
         typedef boost::multi_index::multi_index_container<
-            CFieldOptions,
-            boost::multi_index::indexed_by<
-                boost::multi_index::ordered_unique<
-                    boost::multi_index::tag<SConfigKey>,
-                    BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)
-                >,
-                boost::multi_index::ordered_unique<
-                    boost::multi_index::tag<SUniqueKey>,
-                    boost::multi_index::composite_key<
-                        CFieldOptions,
-                        BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, model::function_t::EFunction, function),
-                        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, fieldName),
-                        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, byFieldName),
-                        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, overFieldName),
-                        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, partitionFieldName)
-                    >
-                >
-            >
+        CFieldOptions,
+        boost::multi_index::indexed_by<
+        boost::multi_index::ordered_unique<
+        boost::multi_index::tag<SConfigKey>,
+        BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)
+        >,
+        boost::multi_index::ordered_unique<
+        boost::multi_index::tag<SUniqueKey>,
+        boost::multi_index::composite_key<
+        CFieldOptions,
+        BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, model::function_t::EFunction, function),
+        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, fieldName),
+        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, byFieldName),
+        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, overFieldName),
+        BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, partitionFieldName)
+        >
+        >
+        >
         > TFieldOptionsMIndex;
 
         typedef TFieldOptionsMIndex::iterator              TFieldOptionsMIndexItr;
@@ -620,8 +614,8 @@ class API_EXPORT CFieldConfig
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec   m_ScheduledEvents;
 
-    // For unit testing
-    friend class ::CFieldConfigTest;
+        // For unit testing
+        friend class ::CFieldConfigTest;
 };
 
 //! Efficient swap for field options

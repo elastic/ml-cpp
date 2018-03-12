@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //! gmtime_s() function with slightly different semantics to Unix's
 //! gmtime_r().
 //!
-class CORE_EXPORT CGmTimeR : private CNonInstantiatable
-{
+class CORE_EXPORT CGmTimeR : private CNonInstantiatable {
     public:
         static struct tm *gmTimeR(const time_t *clock,
                                   struct tm *result);

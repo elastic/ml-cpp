@@ -18,10 +18,8 @@
 #include <model/CBucketQueue.h>
 #include <model/CHierarchicalResults.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CHierarchicalResults;
 
 //! \brief A queue for CHierarchicalResults objects.
@@ -29,15 +27,14 @@ class CHierarchicalResults;
 //! DESCRIPTION:\n
 //! A queue for CHierarchicalResults objects that handles
 //! overlapping bucket result selection
-class MODEL_EXPORT CResultsQueue
-{
+class MODEL_EXPORT CResultsQueue {
     public:
         typedef CBucketQueue<CHierarchicalResults> THierarchicalResultsQueue;
 
     public:
         //! Constructor
         CResultsQueue(std::size_t delayBuckets,
-                     core_t::TTime bucketLength);
+                      core_t::TTime bucketLength);
 
         //! Reset the underlying queue
         void reset(core_t::TTime time);

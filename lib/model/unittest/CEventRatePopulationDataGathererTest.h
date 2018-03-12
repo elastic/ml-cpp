@@ -21,8 +21,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CEventRatePopulationDataGathererTest : public CppUnit::TestFixture
-{
+class CEventRatePopulationDataGathererTest : public CppUnit::TestFixture {
     public:
         void testAttributeCounts(void);
         void testAttributeIndicator(void);

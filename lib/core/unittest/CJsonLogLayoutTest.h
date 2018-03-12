@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CJsonLogLayoutTest : public CppUnit::TestFixture
-{
+class CJsonLogLayoutTest : public CppUnit::TestFixture {
     public:
         void testPathCropping(void);
 

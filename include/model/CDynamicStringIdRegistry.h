@@ -29,15 +29,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CResourceMonitor;
 
 //! \brief Register string names and map them to unique identifiers.
@@ -47,8 +44,7 @@ class CResourceMonitor;
 //! The registry provides mapping from a registered string to its id and
 //! vice versa. In addition, the registry provides a recycling mechanism
 //! in order to reuse IDs whose mapped string is no longer relevant.
-class MODEL_EXPORT CDynamicStringIdRegistry
-{
+class MODEL_EXPORT CDynamicStringIdRegistry {
     public:
         typedef core::CCompressedDictionary<2> TDictionary;
         typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;

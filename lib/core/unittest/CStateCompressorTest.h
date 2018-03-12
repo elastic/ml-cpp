@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CStateCompressorTest : public CppUnit::TestFixture
-{
+class CStateCompressorTest : public CppUnit::TestFixture {
     public:
         void testForApiNoKey(void);
         void testStreaming(void);

@@ -30,10 +30,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Randomized linear complexity search for the most correlated
 //! pairs of variables.
@@ -61,8 +59,7 @@ namespace maths
 //! components are the projected normalised residuals, finding the
 //! most correlated variables amounts to a collection neighbourhood
 //! searches around each point.
-class MATHS_EXPORT CKMostCorrelated
-{
+class MATHS_EXPORT CKMostCorrelated {
     public:
         //! The number of projections of the data to maintain
         //! simultaneously.
@@ -148,8 +145,7 @@ class MATHS_EXPORT CKMostCorrelated
         //! This manages the estimation of the sample correlation,
         //! i.e. \f$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}\f$,
         //! from the projected data.
-        struct MATHS_EXPORT SCorrelation
-        {
+        struct MATHS_EXPORT SCorrelation {
             //! See core::CMemory.
             static bool dynamicSizeAlwaysZero(void) { return true; }
 
@@ -203,8 +199,7 @@ class MATHS_EXPORT CKMostCorrelated
         };
 
         //! \brief Checks if a correlation includes a specified variable.
-        class MATHS_EXPORT CMatches
-        {
+        class MATHS_EXPORT CMatches {
             public:
                 CMatches(std::size_t x);
 

@@ -24,10 +24,8 @@
 
 class CCountingModelTest;
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A very simple model for counting events in the sampled bucket.
 //!
@@ -40,8 +38,7 @@ namespace model
 //! any time series models. This avoids a potential pathology where
 //! memory limiting can cause us to stop getting counts and also makes
 //! interpreting the maths library logging easier.
-class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel {
     public:
         //! \name Life-cycle.
         //@{
@@ -306,7 +303,7 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
         //! Map of matched scheduled event descriptions by bucket time
         TTimeStr1VecUMap m_ScheduledEventDescriptions;
 
-    friend class ::CCountingModelTest;
+        friend class ::CCountingModelTest;
 };
 }
 }

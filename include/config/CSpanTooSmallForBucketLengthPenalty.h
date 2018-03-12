@@ -19,10 +19,8 @@
 #include <config/CPenalty.h>
 #include <config/ImportExport.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Penalty for the case that the total data range is small w.r.t.
 //! the candidate bucket length.
@@ -31,8 +29,7 @@ namespace config
 //! If we only see a small number of buckets it is difficult to be confident
 //! in that choice of bucket length. This penalizes bucket lengths which are
 //! large w.r.t. the observed data span.
-class CONFIG_EXPORT CSpanTooSmallForBucketLengthPenalty : public CPenalty
-{
+class CONFIG_EXPORT CSpanTooSmallForBucketLengthPenalty : public CPenalty {
     public:
         CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams &params);
 

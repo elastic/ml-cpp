@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHierarchicalResultsTest : public CppUnit::TestFixture
-{
+class CHierarchicalResultsTest : public CppUnit::TestFixture {
     public:
         void testBreadthFirstVisit(void);
         void testDepthFirstVisit(void);

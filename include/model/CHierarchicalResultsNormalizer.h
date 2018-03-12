@@ -27,20 +27,16 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetectorModelConfig;
 
-namespace hierarchical_results_normalizer_detail
-{
+namespace hierarchical_results_normalizer_detail {
 
 typedef boost::shared_ptr<CAnomalyScore::CNormalizer> TNormalizerPtr;
 
 //! \brief A normalizer instance and a descriptive string.
-struct MODEL_EXPORT SNormalizer
-{
+struct MODEL_EXPORT SNormalizer {
     SNormalizer(const std::string &description, const TNormalizerPtr &normalizer);
 
     //! Clear the normalizer.
@@ -92,9 +88,8 @@ struct MODEL_EXPORT SNormalizer
 //! bucket. The wasted memory in creating a small number of redundant
 //! normalizers is negligible.
 class MODEL_EXPORT CHierarchicalResultsNormalizer :
-          public CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>,
-          private core::CNonCopyable
-{
+    public CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer>,
+    private core::CNonCopyable {
     public:
         typedef CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer> TBase;
         typedef TBase::Type TNormalizer;
@@ -105,16 +100,14 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer :
 
         //! Enumeration of the possible jobs that the normalizer can
         //! perform when invoked.
-        enum EJob
-        {
+        enum EJob {
             E_Update,
             E_Normalize,
             E_NoOp
         };
 
         //! Enumeration of possible outcomes of restoring from XML.
-        enum ERestoreOutcome
-        {
+        enum ERestoreOutcome {
             E_Ok         = 0,
             E_Corrupt    = 1,
             E_Incomplete = 2
@@ -157,35 +150,35 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer :
         //!
         //! \note Returns NULL if there isn't a matching one.
         const CAnomalyScore::CNormalizer *
-            influencerBucketNormalizer(const std::string &influencerFieldName) const;
+        influencerBucketNormalizer(const std::string &influencerFieldName) const;
 
         //! Get the influencer normalizer for \p influencerFieldName.
         //!
         //! \note Returns NULL if there isn't a matching one.
         const CAnomalyScore::CNormalizer *
-            influencerNormalizer(const std::string &influencerFieldName) const;
+        influencerNormalizer(const std::string &influencerFieldName) const;
 
         //! Get a partition normalizer.
         //!
         //! \note Returns NULL if there isn't a matching one.
         const CAnomalyScore::CNormalizer *
-            partitionNormalizer(const std::string &partitionFieldName) const;
+        partitionNormalizer(const std::string &partitionFieldName) const;
 
         //! Get a person normalizer.
         //!
         //! \note Returns NULL if there isn't a matching one.
         const CAnomalyScore::CNormalizer *
-            personNormalizer(const std::string &partitionFieldName,
-                             const std::string &personFieldName) const;
+        personNormalizer(const std::string &partitionFieldName,
+                         const std::string &personFieldName) const;
 
         //! Get a leaf normalizer.
         //!
         //! \note Returns NULL if there isn't a matching one.
         const CAnomalyScore::CNormalizer *
-            leafNormalizer(const std::string &partitionFieldName,
-                           const std::string &personFieldName,
-                           const std::string &functionName,
-                           const std::string &valueFieldName) const;
+        leafNormalizer(const std::string &partitionFieldName,
+                       const std::string &personFieldName,
+                       const std::string &functionName,
+                       const std::string &valueFieldName) const;
 
     private:
         //! Get the normalizer corresponding to \p cue if they exist

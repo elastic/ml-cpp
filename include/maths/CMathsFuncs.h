@@ -25,10 +25,8 @@
 #include <functional>
 #include <iterator>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief
 //! Portable maths functions
@@ -47,8 +45,7 @@ namespace maths
 //! Where maths functions have different names on different platforms,
 //! they should be added to this file.
 //!
-class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
-{
+class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
     public:
         //! Wrapper around boost::math::isnan() which avoids the need to add
         //! cryptic brackets everywhere to deal with macros.
@@ -101,8 +98,7 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
         static maths_t::EFloatingPointErrorStatus fpStatus(double val);
 
         //! Unary function object to check if a value is finite.
-        struct SIsFinite : std::unary_function<double, bool>
-        {
+        struct SIsFinite : std::unary_function<double, bool> {
             bool operator()(double val) const { return isFinite(val); }
         };
 
@@ -110,8 +106,7 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
         //! which must implement the forward iterator concepts, that skips
         //! non-finite values.
         template<typename ITR>
-        class CFiniteIterator
-        {
+        class CFiniteIterator {
             public:
                 using iterator_category = std::forward_iterator_tag;
                 using value_type = typename std::iterator_traits<ITR>::value_type;
@@ -122,11 +117,9 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
             public:
                 CFiniteIterator(void) : m_Base(), m_End() {}
                 CFiniteIterator(const ITR &base, const ITR &end) :
-                        m_Base(base),
-                        m_End(end)
-                {
-                    if (m_Base != m_End && !isFinite(*m_Base))
-                    {
+                    m_Base(base),
+                    m_End(end) {
+                    if (m_Base != m_End && !isFinite(*m_Base)) {
                         this->increment();
                     }
                 }
@@ -142,14 +135,12 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
                 pointer operator->(void) const { return m_Base.operator->(); }
 
                 //! Prefix increment.
-                const CFiniteIterator &operator++(void)
-                {
+                const CFiniteIterator &operator++(void) {
                     this->increment();
                     return *this;
                 }
                 //! Post-fix increment.
-                CFiniteIterator operator++(int)
-                {
+                CFiniteIterator operator++(int) {
                     CFiniteIterator result(*this);
                     this->increment();
                     return result;
@@ -157,12 +148,9 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
 
             private:
                 //! Implements increment.
-                void increment(void)
-                {
-                    while (++m_Base != m_End)
-                    {
-                        if (isFinite(*m_Base))
-                        {
+                void increment(void) {
+                    while (++m_Base != m_End) {
+                        if (isFinite(*m_Base)) {
                             break;
                         }
                     }
@@ -175,29 +163,25 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable
 
         //! Get an iterator over the finite values of a double container.
         template<typename T>
-        static CFiniteIterator<typename T::iterator> beginFinite(T &container)
-        {
+        static CFiniteIterator<typename T::iterator> beginFinite(T &container) {
             return CFiniteIterator<typename T::iterator>(container.begin(), container.end());
         }
 
         //! Get a const_iterator over the finite values of a double container.
         template<typename T>
-        static CFiniteIterator<typename T::const_iterator> beginFinite(const T &container)
-        {
+        static CFiniteIterator<typename T::const_iterator> beginFinite(const T &container) {
             return CFiniteIterator<typename T::const_iterator>(container.begin(), container.end());
         }
 
         //! Get a finite values iterator at the end of a double container.
         template<typename T>
-        static CFiniteIterator<typename T::iterator> endFinite(T &container)
-        {
+        static CFiniteIterator<typename T::iterator> endFinite(T &container) {
             return CFiniteIterator<typename T::iterator>(container.end(), container.end());
         }
 
         //! Get a finite values const_iterator at the end of a double container.
         template<typename T>
-        static CFiniteIterator<typename T::const_iterator> endFinite(const T &container)
-        {
+        static CFiniteIterator<typename T::const_iterator> endFinite(const T &container) {
             return CFiniteIterator<typename T::const_iterator>(container.end(), container.end());
         }
 

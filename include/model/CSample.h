@@ -25,24 +25,19 @@
 #include <cstddef>
 #include <string>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A metric sample statistic.
-class MODEL_EXPORT CSample
-{
+class MODEL_EXPORT CSample {
     public:
         typedef core::CSmallVector<double, 1> TDouble1Vec;
 
-        struct MODEL_EXPORT SToString
-        {
+        struct MODEL_EXPORT SToString {
             std::string operator()(const CSample &sample) const;
         };
 
-        struct MODEL_EXPORT SFromString
-        {
+        struct MODEL_EXPORT SFromString {
             bool operator()(const std::string &token, CSample &value) const;
         };
 

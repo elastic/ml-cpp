@@ -21,14 +21,11 @@
 #include <iosfwd>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlParserIntf;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Parse XML input where each line is a separate XML document.
@@ -47,8 +44,7 @@ namespace api
 //! Takes an interface to the XML parser as a constructor argument to allow
 //! performance comparisons between different XML parsers.
 //!
-class API_EXPORT CLineifiedXmlInputParser : public CLineifiedInputParser
-{
+class API_EXPORT CLineifiedXmlInputParser : public CLineifiedInputParser {
     public:
         //! Construct with an XML parser interface and an input stream to be
         //! parsed.  Once a stream is passed to this constructor, no other

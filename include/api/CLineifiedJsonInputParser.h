@@ -24,10 +24,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Parse JSON input where each line is a separate JSON document
@@ -46,8 +44,7 @@ namespace api
 //! Using the RapidJson library to do the heavy lifting, but copying output
 //! to standard STL/Boost data structures.
 //!
-class API_EXPORT CLineifiedJsonInputParser : public CLineifiedInputParser
-{
+class API_EXPORT CLineifiedJsonInputParser : public CLineifiedInputParser {
     public:
         //! Construct with an input stream to be parsed.  Once a stream is
         //! passed to this constructor, no other object should read from it.

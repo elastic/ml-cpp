@@ -17,14 +17,11 @@
 #include <string.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
-char *CStrTokR::strTokR(char *str, const char *sep, char **lasts)
-{
+char *CStrTokR::strTokR(char *str, const char *sep, char **lasts) {
     return ::strtok_r(str, sep, lasts);
 }
 

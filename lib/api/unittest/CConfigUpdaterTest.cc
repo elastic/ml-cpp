@@ -29,51 +29,47 @@
 using namespace ml;
 using namespace api;
 
-CppUnit::Test *CConfigUpdaterTest::suite()
-{
+CppUnit::Test *CConfigUpdaterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
-                           &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed) );
+                              "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
+                              &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
-                           &CConfigUpdaterTest::testUpdateGivenUnknownStanzas) );
+                              "CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
+                              &CConfigUpdaterTest::testUpdateGivenUnknownStanzas) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
-                           &CConfigUpdaterTest::testUpdateGivenModelPlotConfig) );
+                              "CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
+                              &CConfigUpdaterTest::testUpdateGivenModelPlotConfig) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenDetectorRules",
-                           &CConfigUpdaterTest::testUpdateGivenDetectorRules) );
+                              "CConfigUpdaterTest::testUpdateGivenDetectorRules",
+                              &CConfigUpdaterTest::testUpdateGivenDetectorRules) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
-                           &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex) );
+                              "CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
+                              &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenFilters",
-                           &CConfigUpdaterTest::testUpdateGivenFilters) );
+                              "CConfigUpdaterTest::testUpdateGivenFilters",
+                              &CConfigUpdaterTest::testUpdateGivenFilters) );
     suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-                           "CConfigUpdaterTest::testUpdateGivenScheduledEvents",
-                           &CConfigUpdaterTest::testUpdateGivenScheduledEvents) );
+                              "CConfigUpdaterTest::testUpdateGivenScheduledEvents",
+                              &CConfigUpdaterTest::testUpdateGivenScheduledEvents) );
     return suiteOfTests;
 }
 
-void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void)
-{
+void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void) {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void)
-{
+void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void) {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void)
-{
+void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
     typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
     CFieldConfig fieldConfig;
@@ -97,8 +93,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void)
     CPPUNIT_ASSERT(terms.find(std::string("d")) != terms.end());
 }
 
-void CConfigUpdaterTest::testUpdateGivenDetectorRules(void)
-{
+void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
@@ -124,8 +119,7 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules(void)
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"), itr->second[0].print());
 }
 
-void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void)
-{
+void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void) {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
     originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
@@ -140,8 +134,7 @@ void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void)
     CPPUNIT_ASSERT(configUpdater.update(configUpdate) == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenFilters(void)
-{
+void CConfigUpdaterTest::testUpdateGivenFilters(void) {
     CFieldConfig fieldConfig;
     fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
     fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
@@ -190,14 +183,13 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void)
     CPPUNIT_ASSERT(ruleFilters["filter_3"].contains("new"));
 }
 
-void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void)
-{
+void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
     std::string validRule1 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-            "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
-            "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
+                             "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
+                             "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
     std::string validRule2 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-            "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
-            "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
+                             "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
+                             "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
 
     CFieldConfig fieldConfig;
 

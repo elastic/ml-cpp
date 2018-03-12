@@ -27,10 +27,8 @@
 #include <boost/ref.hpp>
 #include <boost/variant.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CPenalty;
 
@@ -39,8 +37,7 @@ class CPenalty;
 //! DESCRIPTION:\n
 //! This wraps up the functionality to discover data semantics
 //! and gather the appropriate summary statistics.
-class CONFIG_EXPORT CFieldStatistics
-{
+class CONFIG_EXPORT CFieldStatistics {
     public:
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
@@ -79,8 +76,8 @@ class CONFIG_EXPORT CFieldStatistics
         typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
         typedef std::vector<TTimeStrPr> TTimeStrPrVec;
         typedef boost::variant<CDataSummaryStatistics,
-                               CCategoricalDataSummaryStatistics,
-                               CNumericDataSummaryStatistics> TDataSummaryStatistics;
+                CCategoricalDataSummaryStatistics,
+                CNumericDataSummaryStatistics> TDataSummaryStatistics;
 
     private:
         //! The auto-configuration parameters.

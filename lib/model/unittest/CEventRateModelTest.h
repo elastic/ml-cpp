@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateModelTest : public CppUnit::TestFixture
-{
+class CEventRateModelTest : public CppUnit::TestFixture {
     public:
         void testOnlineCountSample(void);
         void testOnlineNonZeroCountSample(void);

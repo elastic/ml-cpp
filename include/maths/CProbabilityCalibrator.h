@@ -21,15 +21,12 @@
 #include <boost/shared_ptr.hpp>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CQDigest;
 
 //! \brief Calibrates a collection of probabilities.
@@ -39,8 +36,7 @@ class CQDigest;
 //! to the historical empirical distribution of probabilities,
 // i.e. we expect to see a probability of \f$p <= f\f$ approximately
 //! \f$f * n\f$ given \f$n\f$ historical probabilities.
-class MATHS_EXPORT CProbabilityCalibrator
-{
+class MATHS_EXPORT CProbabilityCalibrator {
     public:
         //! The type of calibration to perform:
         //!   -# Partial - only increase probabilities using the
@@ -49,8 +45,7 @@ class MATHS_EXPORT CProbabilityCalibrator
         //!      scale probabilities so the transform is continuous.
         //!   -# Full - perform a full calibration to historical
         //!      fractions.
-        enum EStyle
-        {
+        enum EStyle {
             E_PartialCalibration = 0,
             E_FullCalibration = 1
         };

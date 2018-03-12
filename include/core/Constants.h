@@ -21,12 +21,9 @@
 #include <limits>
 #include <math.h>
 
-namespace ml
-{
-namespace core
-{
-namespace constants
-{
+namespace ml {
+namespace core {
+namespace constants {
 
 //! An hour in seconds.
 const core_t::TTime HOUR = 3600;

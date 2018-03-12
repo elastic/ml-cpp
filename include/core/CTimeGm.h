@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -37,8 +35,7 @@ namespace core
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CORE_EXPORT CTimeGm : private CNonInstantiatable
-{
+class CORE_EXPORT CTimeGm : private CNonInstantiatable {
     public:
         static time_t timeGm(struct tm *ts);
 };

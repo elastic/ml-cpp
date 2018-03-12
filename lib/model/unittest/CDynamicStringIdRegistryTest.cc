@@ -31,22 +31,20 @@ using namespace ml;
 using namespace model;
 
 
-CppUnit::Test *CDynamicStringIdRegistryTest::suite()
-{
+CppUnit::Test *CDynamicStringIdRegistryTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testAddName",
-           &CDynamicStringIdRegistryTest::testAddName));
+                              "CDynamicStringIdRegistryTest::testAddName",
+                              &CDynamicStringIdRegistryTest::testAddName));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testPersist",
-           &CDynamicStringIdRegistryTest::testPersist));
+                              "CDynamicStringIdRegistryTest::testPersist",
+                              &CDynamicStringIdRegistryTest::testPersist));
 
     return suiteOfTests;
 }
 
-void CDynamicStringIdRegistryTest::testAddName(void)
-{
+void CDynamicStringIdRegistryTest::testAddName(void) {
     LOG_DEBUG("*** testAddName ***");
 
     CResourceMonitor resourceMonitor;
@@ -97,8 +95,7 @@ void CDynamicStringIdRegistryTest::testAddName(void)
     CPPUNIT_ASSERT(registry.isIdActive(2));
 }
 
-void CDynamicStringIdRegistryTest::testPersist(void)
-{
+void CDynamicStringIdRegistryTest::testPersist(void) {
     LOG_DEBUG("*** testPersist ***");
 
     CResourceMonitor resourceMonitor;

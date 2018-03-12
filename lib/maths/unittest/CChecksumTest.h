@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CChecksumTest : public CppUnit::TestFixture
-{
+class CChecksumTest : public CppUnit::TestFixture {
     public:
         void testMemberChecksum(void);
         void testContainers(void);

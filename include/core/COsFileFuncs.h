@@ -29,10 +29,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -59,8 +57,7 @@ namespace core
 //! On Windows, we have to explicitly request 64 bit types in the
 //! typedefs and functions in this class.
 //!
-class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
-{
+class CORE_EXPORT COsFileFuncs : private CNonInstantiatable {
     public:
         //! Use in place of OS level file flags - will be defined as zero on
         //! platforms that don't support them
@@ -117,8 +114,7 @@ class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
 
         //! Stat buffer struct (to be used instead of struct stat)
 #ifdef Windows
-        struct SStat
-        {
+        struct SStat {
             // Member names don't conform to the coding standards because they
             // need to match those of struct stat
             _dev_t         st_dev;

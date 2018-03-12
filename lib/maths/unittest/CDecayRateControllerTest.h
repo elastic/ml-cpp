@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDecayRateControllerTest : public CppUnit::TestFixture
-{
+class CDecayRateControllerTest : public CppUnit::TestFixture {
     public:
         void testLowCov();
         void testOrderedErrors();

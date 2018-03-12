@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class COutputChainerTest : public CppUnit::TestFixture
-{
+class COutputChainerTest : public CppUnit::TestFixture {
     public:
         void testChaining(void);
 

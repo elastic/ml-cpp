@@ -20,10 +20,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Interface for classes that create reverse searches for the token
@@ -41,8 +39,7 @@ namespace api
 //! typer, because at present duplicating a const pointer is deemed
 //! adequate.)
 //!
-class API_EXPORT CTokenListReverseSearchCreatorIntf
-{
+class API_EXPORT CTokenListReverseSearchCreatorIntf {
     public:
         CTokenListReverseSearchCreatorIntf(const std::string &fieldName);
 

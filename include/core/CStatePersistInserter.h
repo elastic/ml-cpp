@@ -23,10 +23,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -42,8 +40,7 @@ namespace core
 //!
 //! All values are stored as strings.
 //!
-class CORE_EXPORT CStatePersistInserter : private CNonCopyable
-{
+class CORE_EXPORT CStatePersistInserter : private CNonCopyable {
     public:
         //! Virtual destructor for abstract class
         virtual ~CStatePersistInserter(void);
@@ -55,8 +52,7 @@ class CORE_EXPORT CStatePersistInserter : private CNonCopyable
         //! Store an arbitrary type that can be converted to a string
         template <typename TYPE>
         void insertValue(const std::string &name,
-                         const TYPE &value)
-        {
+                         const TYPE &value) {
             this->insertValue(name, CStringUtils::typeToString(value));
         }
 
@@ -69,8 +65,7 @@ class CORE_EXPORT CStatePersistInserter : private CNonCopyable
         //! function or function object
         template <typename FUNC>
         void insertLevel(const std::string &name,
-                         FUNC f)
-        {
+                         FUNC f) {
             CAutoLevel level(name, *this);
             f(*this);
         }
@@ -84,8 +79,7 @@ class CORE_EXPORT CStatePersistInserter : private CNonCopyable
 
     private:
         //! Class to implement RAII for moving to the next level
-        class CORE_EXPORT CAutoLevel : private CNonCopyable
-        {
+        class CORE_EXPORT CAutoLevel : private CNonCopyable {
             public:
                 CAutoLevel(const std::string &name,
                            CStatePersistInserter &inserter);

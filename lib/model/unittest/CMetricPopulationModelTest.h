@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricPopulationModelTest : public CppUnit::TestFixture
-{
+class CMetricPopulationModelTest : public CppUnit::TestFixture {
     public:
         void testBasicAccessors(void);
         void testMinMaxAndMean(void);

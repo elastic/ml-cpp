@@ -25,10 +25,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A light weight encoding of a calendar feature.
 //!
@@ -36,8 +34,7 @@ namespace maths
 //! Note that this purposely doesn't use an enum for encoding the feature
 //! so that the member size is only 16 bits rather than sizeof(int).
 class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeature,
-                                      boost::equality_comparable< CCalendarFeature > >
-{
+    boost::equality_comparable< CCalendarFeature > > {
     public:
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }

@@ -31,27 +31,22 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 }
-namespace model
-{
+namespace model {
 class CInfluenceCalculator;
 struct SModelParams;
 }
 
-namespace model_t
-{
+namespace model_t {
 
 typedef core::CSmallVector<double, 1> TDouble1Vec;
 typedef core::CSmallVector<double, 2> TDouble2Vec;
@@ -65,8 +60,7 @@ typedef boost::shared_ptr<const model::CInfluenceCalculator> TInfluenceCalculato
 //! associated values, i.e. log messages, etc. Metric models
 //! are used for data categories that have an associated value,
 //! i.e. CPU utilization, etc.
-enum EModelType
-{
+enum EModelType {
     E_Counting,
     E_EventRateOnline,
     E_MetricOnline
@@ -90,17 +84,14 @@ std::string print(EModelType type);
 //! IMPLEMENTATION:\n
 //! Uses 1-of-n bitwise encoding of the different result binary descriptors
 //! so the size is just that of an unsigned int.
-class MODEL_EXPORT CResultType
-{
+class MODEL_EXPORT CResultType {
     public:
-        enum EInterimOrFinal
-        {
+        enum EInterimOrFinal {
             E_Interim = 1,
             E_Final   = 2
         };
 
-        enum EConditionalOrUnconditional
-        {
+        enum EConditionalOrUnconditional {
             E_Unconditional = 4,
             E_Conditional   = 8
         };
@@ -112,40 +103,34 @@ class MODEL_EXPORT CResultType
         explicit CResultType(unsigned int type) : m_Type(type) {}
 
         //! Set whether or not this is interim.
-        void set(EInterimOrFinal type)
-        {
+        void set(EInterimOrFinal type) {
             m_Type = m_Type & (E_Unconditional | E_Conditional);
             m_Type = m_Type | type;
         }
 
         //! Set whether or not this is conditional.
-        void set(EConditionalOrUnconditional type)
-        {
+        void set(EConditionalOrUnconditional type) {
             m_Type = m_Type & (E_Interim | E_Final);
             m_Type = m_Type | type;
         }
 
         //! Check if this is interim.
-        bool isInterim(void) const
-        {
+        bool isInterim(void) const {
             return (m_Type & static_cast<unsigned int>(E_Interim)) != 0;
         }
 
         //! Get as interim or final enumeration.
-        EInterimOrFinal asInterimOrFinal(void) const
-        {
+        EInterimOrFinal asInterimOrFinal(void) const {
             return this->isInterim() ? E_Interim : E_Final;
         }
 
         //! Check if this is unconditional.
-        bool isUnconditional(void) const
-        {
+        bool isUnconditional(void) const {
             return (m_Type & static_cast<unsigned int>(E_Unconditional)) != 0;
         }
 
         //! Get as conditional or unconditional enumeration.
-        EConditionalOrUnconditional asConditionalOrUnconditional(void) const
-        {
+        EConditionalOrUnconditional asConditionalOrUnconditional(void) const {
             return this->isUnconditional() ? E_Unconditional : E_Conditional;
         }
 
@@ -337,8 +322,7 @@ class MODEL_EXPORT CResultType
 //!   -# PopulationHighInfoContentByBucketAndPerson: is for detecting
 //!      unusualy high information content (or compressibility) of values
 //!      for each person and attribute in a bucketing interval.
-enum EFeature
-{
+enum EFeature {
     // IMPORTANT: The integer values associated with these enum values are
     // stored in persisted state.  DO NOT CHANGE EXISTING NUMBERS, as this
     // will invalidate persisted state.  Any new enum values that are added
@@ -718,8 +702,7 @@ std::string print(EFeature feature);
 //!
 //! These enumerate the distinct types of metric statistic
 //! which we gather.
-enum EMetricCategory
-{
+enum EMetricCategory {
     E_Mean,
     E_Min,
     E_Max,
@@ -749,8 +732,7 @@ std::string print(EMetricCategory category);
 //!
 //! The enumerate the distinct type of event rate statistics
 //! which we gather.
-enum EEventRateCategory
-{
+enum EEventRateCategory {
     E_MeanArrivalTimes,
     E_AttributePeople,
     E_UniqueValues,
@@ -772,8 +754,7 @@ std::string print(EEventRateCategory category);
 //!      peer groups.
 //!   -# Population metric: analysis of message values in
 //!      peer groups.
-enum EAnalysisCategory
-{
+enum EAnalysisCategory {
     E_EventRate,
     E_Metric,
     E_PopulationEventRate,
@@ -792,8 +773,7 @@ std::string print(EAnalysisCategory category);
 
 //! The different ways we might be told the fields for receiving pre-summarised
 //! data.
-enum ESummaryMode
-{
+enum ESummaryMode {
     E_None,  //!< No pre-summarisation of input
     E_Manual //!< Config defines the field names for pre-summarised input
 };
@@ -804,8 +784,7 @@ enum ESummaryMode
 //!   -# E_XF_By: remove popular "attributes" from populations
 //!   -# E_XF_Over: remove popular "people" from populations
 //!   -# E_XF_Both: remove popular "people" and "attributes" from populations
-enum EExcludeFrequent
-{
+enum EExcludeFrequent {
     E_XF_None = 0,
     E_XF_By = 1,
     E_XF_Over = 2,
@@ -816,8 +795,7 @@ enum EExcludeFrequent
 //! Start in the OK state. Moves into soft limit if aggressive pruning
 //! has taken place to avoid hitting the memory limit,
 //! and goes to hard limit if samples have been dropped
-enum EMemoryStatus
-{
+enum EMemoryStatus {
     E_MemoryStatusOk = 0,        //!< Memory usage normal
     E_MemoryStatusSoftLimit = 1, //!< Pruning has taken place to reduce usage
     E_MemoryStatusHardLimit = 2  //!< Samples have been dropped
@@ -834,8 +812,7 @@ std::string print(EMemoryStatus memoryStatus);
 //!      values of the by field.
 //!   -# AggregateDetectors: the style used to aggregate distinct detector
 //!      results.
-enum EAggregationStyle
-{
+enum EAggregationStyle {
     E_AggregatePeople     = 0,
     E_AggregateAttributes = 1,
     E_AggregateDetectors  = 2
@@ -851,8 +828,7 @@ const std::size_t NUMBER_AGGREGATION_STYLES = E_AggregateDetectors + 1;
 //!      m from n probability calculation.
 //!   -# MaxExtremeSamples: the maximum number m of samples to consider in the
 //!      m from n probability calculation.
-enum EAggregationParam
-{
+enum EAggregationParam {
     E_JointProbabilityWeight   = 0,
     E_ExtremeProbabilityWeight = 1,
     E_MinExtremeSamples        = 2,

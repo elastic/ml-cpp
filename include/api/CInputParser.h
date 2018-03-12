@@ -29,10 +29,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Input parser interface
@@ -44,8 +42,7 @@ namespace api
 //! Abstract interface declares the readStream method that must be
 //! implemented in sub-classes.
 //!
-class API_EXPORT CInputParser : private core::CNonCopyable
-{
+class API_EXPORT CInputParser : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
         typedef TStrVec::iterator                              TStrVecItr;

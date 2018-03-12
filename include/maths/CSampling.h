@@ -31,22 +31,18 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Sampling functionality.
 //!
 //! DEFINITION:\n
 //! This is a place holder for random sampling utilities and algorithms.
-class MATHS_EXPORT CSampling : private core::CNonInstantiatable
-{
+class MATHS_EXPORT CSampling : private core::CNonInstantiatable {
     public:
         using TDoubleVec = std::vector<double>;
         using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -54,8 +50,7 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
         using TPtrdiffVec = std::vector<std::ptrdiff_t>;
 
         //! \brief A mockable random number generator which uses boost::random::mt11213b.
-        class MATHS_EXPORT CRandomNumberGenerator
-        {
+        class MATHS_EXPORT CRandomNumberGenerator {
             public:
                 using result_type = boost::random::mt11213b::result_type;
 
@@ -70,22 +65,18 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
                 void seed(void);
 
                 //! Returns the smallest value that the generator can produce.
-                static result_type min(void)
-                {
+                static result_type min(void) {
                     return boost::random::mt11213b::min();
                 }
 
                 //! Returns the largest value that the generator can produce.
-                static result_type max(void)
-                {
+                static result_type max(void) {
                     return boost::random::mt11213b::max();
                 }
 
                 //! Produces the next value of the generator.
-                result_type operator()(void)
-                {
-                    if (m_Mock)
-                    {
+                result_type operator()(void) {
+                    if (m_Mock) {
                         return *m_Mock;
                     }
                     return m_Rng.operator()();
@@ -93,12 +84,9 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
 
                 //! Fills a range with random values.
                 template<typename ITR>
-                void generate(ITR first, ITR last)
-                {
-                    if (m_Mock)
-                    {
-                        for (/**/; first != last; ++first)
-                        {
+                void generate(ITR first, ITR last) {
+                    if (m_Mock) {
+                        for (/**/; first != last; ++first) {
                             *first = *m_Mock;
                         }
                     }
@@ -108,18 +96,16 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
                 //! Writes the mersenne_twister_engine to a std::ostream.
                 template<class CHAR, class TRAITS>
                 friend std::basic_ostream<CHAR, TRAITS> &
-                    operator<<(std::basic_ostream<CHAR, TRAITS> &o,
-                               const CRandomNumberGenerator &g)
-                {
+                operator<<(std::basic_ostream<CHAR, TRAITS> &o,
+                           const CRandomNumberGenerator &g) {
                     return o << g.m_Rng;
                 }
 
                 //! Reads a mersenne_twister_engine from a std::istream.
                 template<class CHAR, class TRAITS>
                 friend std::basic_istream<CHAR, TRAITS> &
-                    operator>>(std::basic_istream<CHAR, TRAITS> &i,
-                               CRandomNumberGenerator &g)
-                {
+                operator>>(std::basic_istream<CHAR, TRAITS> &i,
+                           CRandomNumberGenerator &g) {
                     return i >> g.m_Rng;
                 }
 
@@ -133,8 +119,7 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable
 
         //! \brief Setup and tears down mock random numbers in the scope in which
         //! it is constructed.
-        class MATHS_EXPORT CScopeMockRandomNumberGenerator
-        {
+        class MATHS_EXPORT CScopeMockRandomNumberGenerator {
             public:
                 CScopeMockRandomNumberGenerator(void);
                 ~CScopeMockRandomNumberGenerator(void);
@@ -403,17 +388,13 @@ static void multivariateNormalSample(CPRNG::CXorShift1024Mult &rng,             
         //! the libstdc++ implementation which can cause platform specific
         //! differences.
         template<typename RNG, typename ITR>
-        static void random_shuffle(RNG &rng, ITR first, ITR last)
-        {
+        static void random_shuffle(RNG &rng, ITR first, ITR last) {
             auto d = last - first;
-            if (d > 1)
-            {
+            if (d > 1) {
                 CUniform0nGenerator<RNG> rand(rng);
-                for (--last; first < last; ++first, --d)
-                {
+                for (--last; first < last; ++first, --d) {
                     auto i = rand(d);
-                    if (i > 0)
-                    {
+                    if (i > 0) {
                         std::iter_swap(first, first + i);
                     }
                 }
@@ -425,8 +406,7 @@ static void multivariateNormalSample(CPRNG::CXorShift1024Mult &rng,             
         //! Reorders the elements in the range [\p first, \p last) using the
         //! internal random number generator to provide a random distribution.
         template<typename ITR>
-        static void random_shuffle(ITR first, ITR last)
-        {
+        static void random_shuffle(ITR first, ITR last) {
             core::CScopedFastLock scopedLock(ms_Lock);
             random_shuffle(ms_Rng, first, last);
         }
@@ -468,12 +448,10 @@ static void multivariateNormalSample(CPRNG::CXorShift1024Mult &rng,             
     private:
         //! \brief A uniform generator on the interval [0, n).
         template<typename RNG>
-        class CUniform0nGenerator
-        {
+        class CUniform0nGenerator {
             public:
                 CUniform0nGenerator(RNG &generator) : m_Generator(&generator) {}
-                std::size_t operator()(std::size_t n) const
-                {
+                std::size_t operator()(std::size_t n) const {
                     boost::random::uniform_int_distribution<std::size_t> uniform(0, n - 1);
                     return uniform(*m_Generator);
                 }

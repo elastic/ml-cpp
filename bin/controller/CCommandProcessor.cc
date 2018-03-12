@@ -24,16 +24,13 @@
 #include <istream>
 
 
-namespace
-{
+namespace {
 const std::string TAB(1, '\t');
 const std::string EMPTY_STRING;
 }
 
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 
 // Initialise statics
@@ -42,30 +39,24 @@ const std::string CCommandProcessor::KILL("kill");
 
 
 CCommandProcessor::CCommandProcessor(const TStrVec &permittedProcessPaths)
-    : m_Spawner(permittedProcessPaths)
-{
+    : m_Spawner(permittedProcessPaths) {
 }
 
-void CCommandProcessor::processCommands(std::istream &stream)
-{
+void CCommandProcessor::processCommands(std::istream &stream) {
     std::string command;
-    while (std::getline(stream, command))
-    {
-        if (!command.empty())
-        {
+    while (std::getline(stream, command)) {
+        if (!command.empty()) {
             this->handleCommand(command);
         }
     }
 }
 
-bool CCommandProcessor::handleCommand(const std::string &command)
-{
+bool CCommandProcessor::handleCommand(const std::string &command) {
     // Command lines must be tab-separated
     TStrVec     tokens;
     std::string remainder;
     core::CStringUtils::tokenise(TAB, command, tokens, remainder);
-    if (!remainder.empty())
-    {
+    if (!remainder.empty()) {
         tokens.push_back(remainder);
     }
 
@@ -73,8 +64,7 @@ bool CCommandProcessor::handleCommand(const std::string &command)
     tokens.erase(std::remove(tokens.begin(), tokens.end(), EMPTY_STRING),
                  tokens.end());
 
-    if (tokens.empty())
-    {
+    if (tokens.empty()) {
         LOG_DEBUG("Ignoring empty command");
         return false;
     }
@@ -83,12 +73,10 @@ bool CCommandProcessor::handleCommand(const std::string &command)
     std::string verb(tokens[0]);
     tokens.erase(tokens.begin());
 
-    if (verb == START)
-    {
+    if (verb == START) {
         return this->handleStart(tokens);
     }
-    if (verb == KILL)
-    {
+    if (verb == KILL) {
         return this->handleKill(tokens);
     }
 
@@ -96,14 +84,12 @@ bool CCommandProcessor::handleCommand(const std::string &command)
     return false;
 }
 
-bool CCommandProcessor::handleStart(TStrVec &tokens)
-{
+bool CCommandProcessor::handleStart(TStrVec &tokens) {
     std::string processPath;
     processPath.swap(tokens[0]);
     tokens.erase(tokens.begin());
 
-    if (m_Spawner.spawn(processPath, tokens) == false)
-    {
+    if (m_Spawner.spawn(processPath, tokens) == false) {
         LOG_ERROR("Failed to start process '" << processPath << '\'');
         return false;
     }
@@ -111,19 +97,16 @@ bool CCommandProcessor::handleStart(TStrVec &tokens)
     return true;
 }
 
-bool CCommandProcessor::handleKill(TStrVec &tokens)
-{
+bool CCommandProcessor::handleKill(TStrVec &tokens) {
     core::CProcess::TPid pid = 0;
     if (tokens.size() != 1 ||
-        core::CStringUtils::stringToType(tokens[0], pid) == false)
-    {
+            core::CStringUtils::stringToType(tokens[0], pid) == false) {
         LOG_ERROR("Unexpected arguments for kill command: " <<
                   core::CContainerPrinter::print(tokens));
         return false;
     }
 
-    if (m_Spawner.terminateChild(pid) == false)
-    {
+    if (m_Spawner.terminateChild(pid) == false) {
         LOG_ERROR("Failed to kill process with PID " << pid);
         return false;
     }

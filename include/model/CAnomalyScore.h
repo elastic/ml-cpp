@@ -34,19 +34,15 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CPrior;
 }
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModelConfig;
 class CLimits;
 
@@ -55,8 +51,7 @@ class CLimits;
 //! DESCRIPTION:\n
 //! A collection of utility functions for computing and normalizing
 //! anomaly scores.
-class MODEL_EXPORT CAnomalyScore
-{
+class MODEL_EXPORT CAnomalyScore {
     public:
         typedef std::vector<double>          TDoubleVec;
         typedef TDoubleVec::iterator         TDoubleVecItr;
@@ -82,8 +77,7 @@ class MODEL_EXPORT CAnomalyScore
 
     public:
         //! \brief Wrapper around CAnomalyScore::compute.
-        class MODEL_EXPORT CComputer
-        {
+        class MODEL_EXPORT CComputer {
             public:
                 CComputer(double jointProbabilityWeight,
                           double extremeProbabilityWeight,
@@ -113,8 +107,7 @@ class MODEL_EXPORT CAnomalyScore
 
         //! \brief Manages the normalization of aggregate anomaly scores
         //! based on historic values percentiles.
-        class MODEL_EXPORT CNormalizer : private core::CNonCopyable
-        {
+        class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
             public:
                 explicit CNormalizer(const CAnomalyDetectorModelConfig &config);
 

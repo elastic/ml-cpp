@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CBaseTokenListDataTyperTest : public CppUnit::TestFixture
-{
+class CBaseTokenListDataTyperTest : public CppUnit::TestFixture {
     public:
         void testMinMatchingWeights(void);
         void testMaxMatchingWeights(void);

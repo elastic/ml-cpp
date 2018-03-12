@@ -24,10 +24,8 @@
 #include <boost/bind.hpp>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
@@ -37,22 +35,16 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
     : m_RestoreSearcher(restoreSearcher),
       m_Persister(persister),
       m_InputParser(inputParser),
-      m_Processor(processor)
-{
+      m_Processor(processor) {
 }
 
-bool CCmdSkeleton::ioLoop(void)
-{
-    if (m_RestoreSearcher == 0)
-    {
+bool CCmdSkeleton::ioLoop(void) {
+    if (m_RestoreSearcher == 0) {
         LOG_DEBUG("No restoration source specified - will not attempt to restore state");
-    }
-    else
-    {
+    } else {
         core_t::TTime completeToTime(0);
         if (m_Processor.restoreState(*m_RestoreSearcher,
-                                     completeToTime) == false)
-        {
+                                     completeToTime) == false) {
             LOG_FATAL("Failed to restore state");
             return false;
         }
@@ -60,8 +52,7 @@ bool CCmdSkeleton::ioLoop(void)
 
     if (m_InputParser.readStream(boost::bind(&CDataProcessor::handleRecord,
                                              &m_Processor,
-                                             _1)) == false)
-    {
+                                             _1)) == false) {
         LOG_FATAL("Failed to handle all input data");
         return false;
     }
@@ -74,23 +65,19 @@ bool CCmdSkeleton::ioLoop(void)
     return this->persistState();
 }
 
-bool CCmdSkeleton::persistState(void)
-{
-    if (m_Persister == 0)
-    {
+bool CCmdSkeleton::persistState(void) {
+    if (m_Persister == 0) {
         LOG_DEBUG("No persistence sink specified - will not attempt to persist state");
         return true;
     }
 
-    if (m_Processor.numRecordsHandled() == 0)
-    {
+    if (m_Processor.numRecordsHandled() == 0) {
         LOG_DEBUG("Zero records were handled - will not attempt to persist state");
         return true;
     }
 
     // Attempt to persist state
-    if (m_Processor.persistState(*m_Persister) == false)
-    {
+    if (m_Processor.persistState(*m_Persister) == false) {
         LOG_FATAL("Failed to persist state");
         return false;
     }

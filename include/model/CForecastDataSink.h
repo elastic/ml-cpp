@@ -37,25 +37,21 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief
 //! Sink for data created from forecasting
 //!
 //! NOTE: Except for push, this is a stub implementation and going
 //! to change (e.g. the json writing should not happen in this class).
-class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
-{
+class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
     public:
         using TMathsModelPtr = std::unique_ptr<maths::CModel>;
         using TStrUMap = boost::unordered_set<std::string>;
 
         //! Wrapper for 1 timeseries model, its feature and by Field
-        struct MODEL_EXPORT SForecastModelWrapper
-        {
+        struct MODEL_EXPORT SForecastModelWrapper {
             SForecastModelWrapper(model_t::EFeature feature,
                                   TMathsModelPtr &&forecastModel,
                                   const std::string &byFieldValue);
@@ -71,8 +67,7 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
         };
 
         //! Everything that defines 1 series of forecasts
-        struct MODEL_EXPORT SForecastResultSeries
-        {
+        struct MODEL_EXPORT SForecastResultSeries {
             SForecastResultSeries();
 
             SForecastResultSeries(SForecastResultSeries &&other);
@@ -88,8 +83,7 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
         };
 
         //! \brief Data describing prerequisites prior predictions
-        struct MODEL_EXPORT SForecastModelPrerequisites
-        {
+        struct MODEL_EXPORT SForecastModelPrerequisites {
             std::size_t                             s_NumberOfModels;
             std::size_t                             s_NumberOfForecastableModels;
             std::size_t                             s_MemoryUsageForDetector;

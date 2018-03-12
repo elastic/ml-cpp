@@ -33,25 +33,21 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-namespace
-{
+namespace {
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
 
-TDouble10Vec4Vec unitWeight(std::size_t dimension)
-{
+TDouble10Vec4Vec unitWeight(std::size_t dimension) {
     return TDouble10Vec4Vec(1, TDouble10Vec(dimension, 1.0));
 }
 
-TDouble10Vec4Vec1Vec singleUnitWeight(std::size_t dimension)
-{
+TDouble10Vec4Vec1Vec singleUnitWeight(std::size_t dimension) {
     return TDouble10Vec4Vec1Vec(1, unitWeight(dimension));
 }
 
 }
 
-void CMultivariateConstantPriorTest::testAddSamples(void)
-{
+void CMultivariateConstantPriorTest::testAddSamples(void) {
     LOG_DEBUG("+--------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testAddSamples  |");
     LOG_DEBUG("+--------------------------------------------------+");
@@ -83,8 +79,7 @@ void CMultivariateConstantPriorTest::testAddSamples(void)
     CPPUNIT_ASSERT(!filter.isNonInformative());
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihood(void)
-{
+void CMultivariateConstantPriorTest::testMarginalLikelihood(void) {
     LOG_DEBUG("+----------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihood  |");
     LOG_DEBUG("+----------------------------------------------------------+");
@@ -136,8 +131,7 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood(void)
     CPPUNIT_ASSERT_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodMean(void)
-{
+void CMultivariateConstantPriorTest::testMarginalLikelihoodMean(void) {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodMean  |");
     LOG_DEBUG("+--------------------------------------------------------------+");
@@ -159,8 +153,7 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMean(void)
                          core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodMode(void)
-{
+void CMultivariateConstantPriorTest::testMarginalLikelihoodMode(void) {
     LOG_DEBUG("+--------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodMode  |");
     LOG_DEBUG("+--------------------------------------------------------------+");
@@ -182,8 +175,7 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodMode(void)
                          core::CContainerPrinter::print(filter.marginalLikelihoodMode(COUNT_WEIGHT, unitWeight(4))));
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance(void)
-{
+void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance(void) {
     LOG_DEBUG("+--------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance  |");
     LOG_DEBUG("+--------------------------------------------------------------------+");
@@ -195,16 +187,13 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance(void)
 
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance.size());
-    for (std::size_t i = 0u; i < 4; ++i)
-    {
+    for (std::size_t i = 0u; i < 4; ++i) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance[i].size());
         CPPUNIT_ASSERT_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
-        for (std::size_t j = 0; j < i; ++j)
-        {
+        for (std::size_t j = 0; j < i; ++j) {
             CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
         }
-        for (std::size_t j = i+1; j < 4; ++j)
-        {
+        for (std::size_t j = i+1; j < 4; ++j) {
             CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
         }
     }
@@ -216,18 +205,15 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance(void)
 
     covariance =  filter.marginalLikelihoodCovariance();
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance.size());
-    for (std::size_t i = 0u; i < 4; ++i)
-    {
+    for (std::size_t i = 0u; i < 4; ++i) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance[i].size());
-        for (std::size_t j = 0; j < 4; ++j)
-        {
+        for (std::size_t j = 0; j < 4; ++j) {
             CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
         }
     }
 }
 
-void CMultivariateConstantPriorTest::testSampleMarginalLikelihood(void)
-{
+void CMultivariateConstantPriorTest::testSampleMarginalLikelihood(void) {
     LOG_DEBUG("+----------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testSampleMarginalLikelihood  |");
     LOG_DEBUG("+----------------------------------------------------------------+");
@@ -249,14 +235,12 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood(void)
 
     filter.sampleMarginalLikelihood(4, samples);
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), samples.size());
-    for (std::size_t i = 0u; i < 4; ++i)
-    {
+    for (std::size_t i = 0u; i < 4; ++i) {
         CPPUNIT_ASSERT_EQUAL(std::string("[1.2, 4.1]"), core::CContainerPrinter::print(samples[i]));
     }
 }
 
-void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void)
-{
+void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void) {
     LOG_DEBUG("+----------------------------------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples  |");
     LOG_DEBUG("+----------------------------------------------------------------------+");
@@ -266,20 +250,17 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void)
 
     maths::CMultivariateConstantPrior filter(2);
 
-    double samples_[][2] =
-        {
-            { 1.3, 1.4 },
-            { 1.1, 1.6 },
-            { 1.0, 5.4 }
-        };
-    TDouble10Vec1Vec samples[] =
-        {
-            TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[0]), boost::end(samples_[0]))),
-            TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[1]), boost::end(samples_[1]))),
-            TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[2]), boost::end(samples_[2])))
-        };
-    for (std::size_t i = 0u; i < boost::size(samples); ++i)
-    {
+    double samples_[][2] = {
+        { 1.3, 1.4 },
+        { 1.1, 1.6 },
+        { 1.0, 5.4 }
+    };
+    TDouble10Vec1Vec samples[] = {
+        TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[0]), boost::end(samples_[0]))),
+        TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[1]), boost::end(samples_[1]))),
+        TDouble10Vec1Vec(1, TDouble10Vec(boost::begin(samples_[2]), boost::end(samples_[2])))
+    };
+    for (std::size_t i = 0u; i < boost::size(samples); ++i) {
         double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
@@ -296,14 +277,12 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void)
     filter.addSamples(COUNT_WEIGHT, samples[0], singleUnitWeight(2));
     CPPUNIT_ASSERT(!filter.isNonInformative());
 
-    std::string expectedTails[] =
-        {
-            "[0, 0]",
-            "[1, 2]",
-            "[1, 2]"
-        };
-    for (std::size_t i = 0u; i < boost::size(samples); ++i)
-    {
+    std::string expectedTails[] = {
+        "[0, 0]",
+        "[1, 2]",
+        "[1, 2]"
+    };
+    for (std::size_t i = 0u; i < boost::size(samples); ++i) {
         double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
@@ -318,8 +297,7 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples(void)
     }
 }
 
-void CMultivariateConstantPriorTest::testPersist(void)
-{
+void CMultivariateConstantPriorTest::testPersist(void) {
     LOG_DEBUG("+-----------------------------------------------+");
     LOG_DEBUG("|  CMultivariateConstantPriorTest::testPersist  |");
     LOG_DEBUG("+-----------------------------------------------+");
@@ -399,34 +377,33 @@ void CMultivariateConstantPriorTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CMultivariateConstantPriorTest::suite(void)
-{
+CppUnit::Test *CMultivariateConstantPriorTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultivariateConstantPriorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testAddSamples",
-                                   &CMultivariateConstantPriorTest::testAddSamples) );
+                               "CMultivariateConstantPriorTest::testAddSamples",
+                               &CMultivariateConstantPriorTest::testAddSamples) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testMarginalLikelihood",
-                                   &CMultivariateConstantPriorTest::testMarginalLikelihood) );
+                               "CMultivariateConstantPriorTest::testMarginalLikelihood",
+                               &CMultivariateConstantPriorTest::testMarginalLikelihood) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testMarginalLikelihoodMean",
-                                   &CMultivariateConstantPriorTest::testMarginalLikelihoodMean) );
+                               "CMultivariateConstantPriorTest::testMarginalLikelihoodMean",
+                               &CMultivariateConstantPriorTest::testMarginalLikelihoodMean) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testMarginalLikelihoodMode",
-                                   &CMultivariateConstantPriorTest::testMarginalLikelihoodMode) );
+                               "CMultivariateConstantPriorTest::testMarginalLikelihoodMode",
+                               &CMultivariateConstantPriorTest::testMarginalLikelihoodMode) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance",
-                                   &CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance) );
+                               "CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance",
+                               &CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testSampleMarginalLikelihood",
-                                   &CMultivariateConstantPriorTest::testSampleMarginalLikelihood) );
+                               "CMultivariateConstantPriorTest::testSampleMarginalLikelihood",
+                               &CMultivariateConstantPriorTest::testSampleMarginalLikelihood) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples",
-                                   &CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples) );
+                               "CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples",
+                               &CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-                                   "CMultivariateConstantPriorTest::testPersist",
-                                   &CMultivariateConstantPriorTest::testPersist) );
+                               "CMultivariateConstantPriorTest::testPersist",
+                               &CMultivariateConstantPriorTest::testPersist) );
 
     return suiteOfTests;
 }

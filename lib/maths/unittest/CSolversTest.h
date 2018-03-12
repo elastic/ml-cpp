@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSolversTest : public CppUnit::TestFixture
-{
+class CSolversTest : public CppUnit::TestFixture {
     public:
         void testBracket(void);
         void testBisection(void);
