@@ -237,11 +237,11 @@ const std::string CONTROLLER_6_3_TAG{"e"};
 const std::string TREND_MODEL_6_3_TAG{"f"};
 const std::string RESIDUAL_MODEL_6_3_TAG{"g"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
-const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"i"};
-const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"j"};
-const std::string TIME_OF_LAST_CHANGE_POINT_6_3_TAG{"k"};
-const std::string CHANGE_DETECTOR_6_3_TAG{"l"};
-const std::string SLIDING_WINDOW_6_3_TAG{"m"};
+const std::string SLIDING_WINDOW_6_3_TAG{"i"};
+const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
+const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
+const std::string TIME_OF_LAST_CHANGE_POINT_6_3_TAG{"l"};
+const std::string CHANGE_DETECTOR_6_3_TAG{"m"};
 // Version < 6.3
 const std::string ID_OLD_TAG{"a"};
 const std::string CONTROLLER_OLD_TAG{"b"};

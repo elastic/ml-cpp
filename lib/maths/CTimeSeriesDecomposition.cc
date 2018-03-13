@@ -93,12 +93,12 @@ TDoubleDoublePr confidenceInterval(double confidence, double variance)
 
 // Version 6.3
 const std::string VERSION_6_3_TAG("6.3");
-const std::string TIME_SHIFT_6_3_TAG{"a"};
-const std::string LAST_VALUE_TIME_6_3_TAG{"b"};
-const std::string LAST_PROPAGATION_TIME_6_3_TAG{"c"};
-const std::string PERIODICITY_TEST_6_3_TAG{"d"};
-const std::string CALENDAR_CYCLIC_TEST_6_3_TAG{"e"};
-const std::string COMPONENTS_6_3_TAG{"f"};
+const std::string LAST_VALUE_TIME_6_3_TAG{"a"};
+const std::string LAST_PROPAGATION_TIME_6_3_TAG{"b"};
+const std::string PERIODICITY_TEST_6_3_TAG{"c"};
+const std::string CALENDAR_CYCLIC_TEST_6_3_TAG{"d"};
+const std::string COMPONENTS_6_3_TAG{"e"};
+const std::string TIME_SHIFT_6_3_TAG{"f"};
 // Version < 6.3
 const std::string DECAY_RATE_OLD_TAG{"a"};
 const std::string LAST_VALUE_TIME_OLD_TAG{"b"};
