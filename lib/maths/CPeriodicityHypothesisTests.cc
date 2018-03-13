@@ -1301,7 +1301,7 @@ bool CPeriodicityHypothesisTests::testStatisticsFor(const TFloatMeanAccumulatorC
         return false;
     }
 
-    LOG_TRACE("populated = " << 100.0 * populated << "%");
+    LOG_TRACE("populated = " << 100.0 * populated / static_cast<double>(buckets.size()) << "%");
 
     stats.s_Range = range.max() - range.min();
     stats.s_B = populated;
@@ -1475,64 +1475,67 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec &windows,
     LOG_TRACE("  populated = " << b);
 
     double df1{B - b};
-    double v1{varianceAtPercentile(residualVariance<double>(trend, scale), df1,
-                                   50.0 + CONFIDENCE_INTERVAL / 2.0)};
-    LOG_TRACE("  variance          = " << v1);
-    LOG_TRACE("  varianceThreshold = " << vt);
-    LOG_TRACE("  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
-
-    double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
-    if (v1 < vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
+    if (df1 > 0.0)
     {
-        double R{CSignal::autocorrelation(period, values)};
-        R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
-        LOG_TRACE("  autocorrelation          = " << R);
-        LOG_TRACE("  autocorrelationThreshold = " << Rt);
-        if (R > Rt)
+        double v1{varianceAtPercentile(residualVariance<double>(trend, scale), df1,
+                                       50.0 + CONFIDENCE_INTERVAL / 2.0)};
+        LOG_TRACE("  variance          = " << v1);
+        LOG_TRACE("  varianceThreshold = " << vt);
+        LOG_TRACE("  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
+
+        double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
+        if (v1 < vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
+        {
+            double R{CSignal::autocorrelation(period, values)};
+            R = autocorrelationAtPercentile(R, B, 50.0 - CONFIDENCE_INTERVAL / 2.0);
+            LOG_TRACE("  autocorrelation          = " << R);
+            LOG_TRACE("  autocorrelationThreshold = " << Rt);
+            if (R > Rt)
+            {
+                return true;
+            }
+        }
+
+        // The amplitude test.
+
+        double F1{1.0};
+        if (v1 > 0.0)
+        {
+            try
+            {
+                std::size_t n{static_cast<std::size_t>(
+                        std::ceil(Rt * static_cast<double>(length(window) / period_)))};
+                TMeanAccumulator level;
+                for (const auto &value : values)
+                {
+                    if (CBasicStatistics::count(value) > 0.0)
+                    {
+                        level.add(CBasicStatistics::mean(value));
+                    }
+                }
+                TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
+                periodicTrend(values, window, m_BucketLength, amplitudes);
+                boost::math::normal normal(0.0, std::sqrt(v1));
+                std::for_each(amplitudes.begin(), amplitudes.end(),
+                              [&F1, &normal, at](CMinAmplitude &x)
+                              {
+                                  if (x.amplitude() >= at)
+                                  {
+                                      F1 = std::min(F1, x.significance(normal));
+                                  }
+                              });
+            }
+            catch (const std::exception &e)
+            {
+                LOG_ERROR("Unable to compute significance of amplitude: " << e.what());
+            }
+        }
+        LOG_TRACE("  F(amplitude)       = " << F1);
+
+        if (1.0 - std::pow(1.0 - F1, b) <= MAXIMUM_SIGNIFICANCE)
         {
             return true;
         }
-    }
-
-    // The amplitude test.
-
-    double F1{1.0};
-    if (v1 > 0.0)
-    {
-        try
-        {
-            std::size_t n{static_cast<std::size_t>(
-                    std::ceil(Rt * static_cast<double>(length(window) / period_)))};
-            TMeanAccumulator level;
-            for (const auto &value : values)
-            {
-                if (CBasicStatistics::count(value) > 0.0)
-                {
-                    level.add(CBasicStatistics::mean(value));
-                }
-            }
-            TMinAmplitudeVec amplitudes(period, {n, CBasicStatistics::mean(level)});
-            periodicTrend(values, window, m_BucketLength, amplitudes);
-            boost::math::normal normal(0.0, std::sqrt(v1));
-            std::for_each(amplitudes.begin(), amplitudes.end(),
-                          [&F1, &normal, at](CMinAmplitude &x)
-                          {
-                              if (x.amplitude() >= at)
-                              {
-                                  F1 = std::min(F1, x.significance(normal));
-                              }
-                          });
-        }
-        catch (const std::exception &e)
-        {
-            LOG_ERROR("Unable to compute significance of amplitude: " << e.what());
-        }
-    }
-    LOG_TRACE("  F(amplitude)       = " << F1);
-
-    if (1.0 - std::pow(1.0 - F1, b) <= MAXIMUM_SIGNIFICANCE)
-    {
-        return true;
     }
     return false;
 }
@@ -1627,7 +1630,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     {
         for (std::size_t i = 0u; i < 2; ++i)
         {
-            for (auto &&delta : deltas[i])
+            for (auto &delta : deltas[i])
             {
                 delta = (delta + m_BucketLength) % windowLength;
             }
@@ -1692,39 +1695,42 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec &partition
     }
 
     double df1{B - b};
-    double variance{correction * minimum[0].first};
-    double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
-    LOG_TRACE("  variance          = " << v1);
-    LOG_TRACE("  varianceThreshold = " << vt);
-    LOG_TRACE("  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
-
-    if (v1 <= vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
+    if (df1 > 0.0)
     {
-        double R{-1.0};
-        double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
+        double variance{correction * minimum[0].first};
+        double v1{varianceAtPercentile(variance, df1, 50.0 + CONFIDENCE_INTERVAL / 2.0)};
+        LOG_TRACE("  variance          = " << v1);
+        LOG_TRACE("  varianceThreshold = " << vt);
+        LOG_TRACE("  significance      = " << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-        startOfPartition = best[0].second;
-        windows[0] = calculateWindows(startOfPartition, windowLength, repeat, partition[0]);
-        windows[1] = calculateWindows(startOfPartition, windowLength, repeat, partition[1]);
-        for (const auto &windows_ : windows)
+        if (v1 <= vt && CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE)
         {
-            TFloatMeanAccumulatorVec partitionValues;
-            project(values, windows_, m_BucketLength, partitionValues);
-            std::size_t windowLength_(length(windows_[0]) / m_BucketLength);
-            double BW{std::accumulate(partitionValues.begin(), partitionValues.end(), 0.0,
-                                      [](double n, const TFloatMeanAccumulator &value)
-                                      { return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0); })};
-            R = std::max(R, autocorrelationAtPercentile(CSignal::autocorrelation(
-                                windowLength_ + period, partitionValues),
-                                BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
-            LOG_TRACE("  autocorrelation          = " << R);
-            LOG_TRACE("  autocorrelationThreshold = " << Rt);
-        }
+            double R{-1.0};
+            double Rt{stats.s_Rt * CTools::truncate(1.0 - 0.5 * (vt - v1) / vt, 0.9, 1.0)};
 
-        if (R > Rt)
-        {
-            stats.s_StartOfPartition = startOfPartition;
-            return true;
+            startOfPartition = best[0].second;
+            windows[0] = calculateWindows(startOfPartition, windowLength, repeat, partition[0]);
+            windows[1] = calculateWindows(startOfPartition, windowLength, repeat, partition[1]);
+            for (const auto &windows_ : windows)
+            {
+                TFloatMeanAccumulatorVec partitionValues;
+                project(values, windows_, m_BucketLength, partitionValues);
+                std::size_t windowLength_(length(windows_[0]) / m_BucketLength);
+                double BW{std::accumulate(partitionValues.begin(), partitionValues.end(), 0.0,
+                                          [](double n, const TFloatMeanAccumulator &value)
+                                          { return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0); })};
+                R = std::max(R, autocorrelationAtPercentile(CSignal::autocorrelation(
+                                    windowLength_ + period, partitionValues),
+                                    BW, 50.0 - CONFIDENCE_INTERVAL / 2.0));
+                LOG_TRACE("  autocorrelation          = " << R);
+                LOG_TRACE("  autocorrelationThreshold = " << Rt);
+            }
+
+            if (R > Rt)
+            {
+                stats.s_StartOfPartition = startOfPartition;
+                return true;
+            }
         }
     }
     return false;
