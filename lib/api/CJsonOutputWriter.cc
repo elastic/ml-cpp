@@ -15,12 +15,14 @@
 
 #include <api/CJsonOutputWriter.h>
 
-#include <core/CScopedLock.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
+
+#include <api/CModelSizeStatsJsonWriter.h>
+#include <api/CModelSnapshotJsonWriter.h>
 
 #include <algorithm>
 #include <ostream>
@@ -123,7 +125,6 @@ const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(CJsonOut
 const std::string   CJsonOutputWriter::JOB_ID("job_id");
 const std::string   CJsonOutputWriter::TIMESTAMP("timestamp");
 const std::string   CJsonOutputWriter::BUCKET("bucket");
-const std::string   CJsonOutputWriter::LOG_TIME("log_time");
 const std::string   CJsonOutputWriter::DETECTOR_INDEX("detector_index");
 const std::string   CJsonOutputWriter::RECORDS("records");
 const std::string   CJsonOutputWriter::EVENT_COUNT("event_count");
@@ -157,28 +158,13 @@ const std::string   CJsonOutputWriter::INFLUENCERS("influencers");
 const std::string   CJsonOutputWriter::FLUSH("flush");
 const std::string   CJsonOutputWriter::ID("id");
 const std::string   CJsonOutputWriter::LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
-const std::string   CJsonOutputWriter::QUANTILE_STATE("quantile_state");
-const std::string   CJsonOutputWriter::QUANTILES("quantiles");
-const std::string   CJsonOutputWriter::MODEL_SIZE_STATS("model_size_stats");
-const std::string   CJsonOutputWriter::MODEL_BYTES("model_bytes");
-const std::string   CJsonOutputWriter::TOTAL_BY_FIELD_COUNT("total_by_field_count");
-const std::string   CJsonOutputWriter::TOTAL_OVER_FIELD_COUNT("total_over_field_count");
-const std::string   CJsonOutputWriter::TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
-const std::string   CJsonOutputWriter::BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
-const std::string   CJsonOutputWriter::MEMORY_STATUS("memory_status");
 const std::string   CJsonOutputWriter::CATEGORY_ID("category_id");
 const std::string   CJsonOutputWriter::CATEGORY_DEFINITION("category_definition");
 const std::string   CJsonOutputWriter::TERMS("terms");
 const std::string   CJsonOutputWriter::REGEX("regex");
 const std::string   CJsonOutputWriter::MAX_MATCHING_LENGTH("max_matching_length");
 const std::string   CJsonOutputWriter::EXAMPLES("examples");
-const std::string   CJsonOutputWriter::MODEL_SNAPSHOT("model_snapshot");
-const std::string   CJsonOutputWriter::SNAPSHOT_ID("snapshot_id");
-const std::string   CJsonOutputWriter::SNAPSHOT_DOC_COUNT("snapshot_doc_count");
-const std::string   CJsonOutputWriter::DESCRIPTION("description");
-const std::string   CJsonOutputWriter::LATEST_RECORD_TIME("latest_record_time_stamp");
 const std::string   CJsonOutputWriter::BUCKET_SPAN("bucket_span");
-const std::string   CJsonOutputWriter::LATEST_RESULT_TIME("latest_result_time_stamp");
 const std::string   CJsonOutputWriter::PROCESSING_TIME("processing_time_ms");
 const std::string   CJsonOutputWriter::TIME_INFLUENCER("bucket_time");
 const std::string   CJsonOutputWriter::PARTITION_SCORES("partition_scores");
@@ -206,8 +192,6 @@ void CJsonOutputWriter::finalise(void)
     {
         return;
     }
-
-    this->writeModelSnapshotReports();
 
     // Flush the output This ensures that any buffers are written out
     // Note: This is still asynchronous.
@@ -410,8 +394,6 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
 
 bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessingTime)
 {
-    this->writeModelSnapshotReports();
-
     for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin();
          iter != m_BucketDataByTime.end();
          ++iter)
@@ -961,12 +943,10 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     std::string quantilesState;
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
-    m_Writer.String(QUANTILES);
+    m_Writer.String(CModelSnapshotJsonWriter::QUANTILES);
     // No need to copy the strings as the doc is written straight away
-    writeQuantileState(quantilesState, m_LastNonInterimBucketTime);
+    CModelSnapshotJsonWriter::writeQuantileState(m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
     m_Writer.EndObject();
 
     persistTime = core::CTimeUtils::now();
@@ -986,157 +966,15 @@ void CJsonOutputWriter::popAllocator()
 
 void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults &results)
 {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
-    this->writeMemoryUsageObject(results);
+    CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();
 
     LOG_TRACE("Wrote memory usage results");
 }
 
-void CJsonOutputWriter::writeMemoryUsageObject(const model::CResourceMonitor::SResults &results)
-{
-    m_Writer.String(MODEL_SIZE_STATS);
-    m_Writer.StartObject();
-
-    m_Writer.String(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.String(MODEL_BYTES);
-    // Background persist causes the memory size to double due to copying
-    // the models. On top of that, after the persist is done we may not
-    // be able to retrieve that memory back. Thus, we report twice the
-    // memory usage in order to allow for that.
-    // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-    // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-    // discusses adding an option to perform only foreground persist.
-    // If that gets implemented, we should only double when background
-    // persist is configured.
-    m_Writer.Uint64(results.s_Usage * 2);
-
-    m_Writer.String(TOTAL_BY_FIELD_COUNT);
-    m_Writer.Uint64(results.s_ByFields);
-
-    m_Writer.String(TOTAL_OVER_FIELD_COUNT);
-    m_Writer.Uint64(results.s_OverFields);
-
-    m_Writer.String(TOTAL_PARTITION_FIELD_COUNT);
-    m_Writer.Uint64(results.s_PartitionFields);
-
-    m_Writer.String(BUCKET_ALLOCATION_FAILURES_COUNT);
-    m_Writer.Uint64(results.s_AllocationFailures);
-
-    m_Writer.String(MEMORY_STATUS);
-    m_Writer.String(print(results.s_MemoryStatus));
-
-    m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(results.s_BucketStartTime * 1000);
-
-    m_Writer.String(LOG_TIME);
-    m_Writer.Int64(core::CTimeUtils::now() * 1000);
-
-    m_Writer.EndObject();
-}
-
-void CJsonOutputWriter::reportPersistComplete(core_t::TTime snapshotTimestamp,
-                                              const std::string &description,
-                                              const std::string &snapshotId,
-                                              size_t numDocs,
-                                              const model::CResourceMonitor::SResults &modelSizeStats,
-                                              const std::string &normalizerState,
-                                              core_t::TTime latestRecordTime,
-                                              core_t::TTime latestFinalResultTime)
-{
-    core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
-
-    m_ModelSnapshotReports.push(SModelSnapshotReport(snapshotTimestamp,
-                                                     description,
-                                                     snapshotId,
-                                                     numDocs,
-                                                     modelSizeStats,
-                                                     normalizerState,
-                                                     latestRecordTime,
-                                                     latestFinalResultTime));
-}
-
-void CJsonOutputWriter::writeModelSnapshotReports(void)
-{
-    core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
-
-    while (!m_ModelSnapshotReports.empty())
-    {
-        const SModelSnapshotReport &report = m_ModelSnapshotReports.front();
-
-        m_Writer.StartObject();
-        m_Writer.String(MODEL_SNAPSHOT);
-        m_Writer.StartObject();
-
-        m_Writer.String(JOB_ID);
-        m_Writer.String(m_JobId);
-        m_Writer.String(SNAPSHOT_ID);
-        m_Writer.String(report.s_SnapshotId);
-
-        m_Writer.String(SNAPSHOT_DOC_COUNT);
-        m_Writer.Uint64(report.s_NumDocs);
-
-        // Write as a Java timestamp - ms since the epoch rather than seconds
-        int64_t javaTimestamp = int64_t(report.s_SnapshotTimestamp) * 1000;
-
-        m_Writer.String(TIMESTAMP);
-        m_Writer.Int64(javaTimestamp);
-
-        m_Writer.String(DESCRIPTION);
-        m_Writer.String(report.s_Description);
-
-        this->writeMemoryUsageObject(report.s_ModelSizeStats);
-
-        if (report.s_LatestRecordTime > 0)
-        {
-            javaTimestamp = int64_t(report.s_LatestRecordTime) * 1000;
-
-            m_Writer.String(LATEST_RECORD_TIME);
-            m_Writer.Int64(javaTimestamp);
-        }
-        if (report.s_LatestFinalResultTime > 0)
-        {
-            javaTimestamp = int64_t(report.s_LatestFinalResultTime) * 1000;
-
-            m_Writer.String(LATEST_RESULT_TIME);
-            m_Writer.Int64(javaTimestamp);
-        }
-
-        // write normalizerState here
-        m_Writer.String(QUANTILES);
-
-        writeQuantileState(report.s_NormalizerState, report.s_LatestFinalResultTime);
-
-        m_Writer.EndObject();
-        m_Writer.EndObject();
-
-        LOG_DEBUG("Wrote model snapshot report with ID " << report.s_SnapshotId <<
-                  " for: " << report.s_Description << ", latest final results at " << report.s_LatestFinalResultTime);
-
-        m_ModelSnapshotReports.pop();
-    }
-}
-
-
-void CJsonOutputWriter::writeQuantileState(const std::string &state, core_t::TTime time)
-{
-    m_Writer.StartObject();
-    m_Writer.String(JOB_ID);
-    m_Writer.String(m_JobId);
-    m_Writer.String(QUANTILE_STATE);
-    m_Writer.String(state);
-    m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(time * 1000);
-    m_Writer.EndObject();
-}
-
 void CJsonOutputWriter::acknowledgeFlush(const std::string &flushId, core_t::TTime lastFinalizedBucketEnd)
 {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
     m_Writer.String(FLUSH);
     m_Writer.StartObject();
@@ -1160,8 +998,6 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
                                                 std::size_t maxMatchingFieldLength,
                                                 const TStrSet &examples)
 {
-    this->writeModelSnapshotReports();
-
     m_Writer.StartObject();
     m_Writer.String(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -1195,25 +1031,6 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
       s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0),
       s_LowestBucketInfluencerScore(101.0)
-{
-}
-
-CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                                                              const std::string &description,
-                                                              const std::string &snapshotId,
-                                                              size_t numDocs,
-                                                              const model::CResourceMonitor::SResults &modelSizeStats,
-                                                              const std::string &normalizerState,
-                                                              core_t::TTime latestRecordTime,
-                                                              core_t::TTime latestFinalResultTime)
-    : s_SnapshotTimestamp(snapshotTimestamp),
-      s_Description(description),
-      s_SnapshotId(snapshotId),
-      s_NumDocs(numDocs),
-      s_ModelSizeStats(modelSizeStats),
-      s_NormalizerState(normalizerState),
-      s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime)
 {
 }
 
