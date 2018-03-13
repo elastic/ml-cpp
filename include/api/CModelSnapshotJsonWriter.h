@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -41,15 +41,6 @@ class API_EXPORT CModelSnapshotJsonWriter
         //! Structure to store the model snapshot metadata
         struct SModelSnapshotReport
         {
-            SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                                 const std::string &description,
-                                 const std::string &snapshotId,
-                                 size_t numDocs,
-                                 const model::CResourceMonitor::SResults &modelSizeStats,
-                                 const std::string &normalizerState,
-                                 core_t::TTime latestRecordTime,
-                                 core_t::TTime latestFinalResultTime);
-
             core_t::TTime                     s_SnapshotTimestamp;
             std::string                       s_Description;
             std::string                       s_SnapshotId;
@@ -98,4 +89,3 @@ class API_EXPORT CModelSnapshotJsonWriter
 }
 
 #endif // INCLUDED_ml_api_CModelSnapshotJsonWriter_h
-

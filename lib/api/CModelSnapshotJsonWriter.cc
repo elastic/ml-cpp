@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -111,25 +111,5 @@ void CModelSnapshotJsonWriter::writeQuantileState(const std::string &jobId,
     writer.EndObject();
 }
 
-CModelSnapshotJsonWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                                                                     const std::string &description,
-                                                                     const std::string &snapshotId,
-                                                                     size_t numDocs,
-                                                                     const model::CResourceMonitor::SResults &modelSizeStats,
-                                                                     const std::string &normalizerState,
-                                                                     core_t::TTime latestRecordTime,
-                                                                     core_t::TTime latestFinalResultTime)
-    : s_SnapshotTimestamp(snapshotTimestamp),
-      s_Description(description),
-      s_SnapshotId(snapshotId),
-      s_NumDocs(numDocs),
-      s_ModelSizeStats(modelSizeStats),
-      s_NormalizerState(normalizerState),
-      s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime)
-{
-}
-
 }
 }
-

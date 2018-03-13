@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -21,18 +21,22 @@ namespace ml
 {
 namespace api
 {
+namespace
+{
 
 // JSON field names
-const std::string CModelSizeStatsJsonWriter::JOB_ID("job_id");
-const std::string CModelSizeStatsJsonWriter::MODEL_SIZE_STATS("model_size_stats");
-const std::string CModelSizeStatsJsonWriter::MODEL_BYTES("model_bytes");
-const std::string CModelSizeStatsJsonWriter::TOTAL_BY_FIELD_COUNT("total_by_field_count");
-const std::string CModelSizeStatsJsonWriter::TOTAL_OVER_FIELD_COUNT("total_over_field_count");
-const std::string CModelSizeStatsJsonWriter::TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
-const std::string CModelSizeStatsJsonWriter::BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
-const std::string CModelSizeStatsJsonWriter::MEMORY_STATUS("memory_status");
-const std::string CModelSizeStatsJsonWriter::TIMESTAMP("timestamp");
-const std::string CModelSizeStatsJsonWriter::LOG_TIME("log_time");
+const std::string JOB_ID("job_id");
+const std::string MODEL_SIZE_STATS("model_size_stats");
+const std::string MODEL_BYTES("model_bytes");
+const std::string TOTAL_BY_FIELD_COUNT("total_by_field_count");
+const std::string TOTAL_OVER_FIELD_COUNT("total_over_field_count");
+const std::string TOTAL_PARTITION_FIELD_COUNT("total_partition_field_count");
+const std::string BUCKET_ALLOCATION_FAILURES_COUNT("bucket_allocation_failures_count");
+const std::string MEMORY_STATUS("memory_status");
+const std::string TIMESTAMP("timestamp");
+const std::string LOG_TIME("log_time");
+
+}
 
 void CModelSizeStatsJsonWriter::write(const std::string &jobId,
                                       const model::CResourceMonitor::SResults &results,
@@ -82,4 +86,3 @@ void CModelSizeStatsJsonWriter::write(const std::string &jobId,
 
 }
 }
-

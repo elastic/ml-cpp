@@ -1,7 +1,7 @@
 /*
  * ELASTICSEARCH CONFIDENTIAL
  *
- * Copyright (c) 2016 Elasticsearch BV. All Rights Reserved.
+ * Copyright (c) 2018 Elasticsearch BV. All Rights Reserved.
  *
  * Notice: this software, and all information contained
  * therein, is the exclusive property of Elasticsearch BV
@@ -35,18 +35,6 @@ namespace api
 class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable
 {
     public:
-        static const std::string JOB_ID;
-        static const std::string MODEL_SIZE_STATS;
-        static const std::string MODEL_BYTES;
-        static const std::string TOTAL_BY_FIELD_COUNT;
-        static const std::string TOTAL_OVER_FIELD_COUNT;
-        static const std::string TOTAL_PARTITION_FIELD_COUNT;
-        static const std::string BUCKET_ALLOCATION_FAILURES_COUNT;
-        static const std::string MEMORY_STATUS;
-        static const std::string TIMESTAMP;
-        static const std::string LOG_TIME;
-
-    public:
         //! Writes the model size stats in the \p results in JSON format.
         static void write(const std::string &jobId,
                           const model::CResourceMonitor::SResults &results,
@@ -58,4 +46,3 @@ class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable
 }
 
 #endif // INCLUDED_ml_api_CModelSizeStatsJsonWriter_h
-

@@ -1371,7 +1371,7 @@ bool CAnomalyJob::persistState(const std::string &descriptionPrefix,
 
             if (m_PersistCompleteFunc)
             {
-                CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport(
+                CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
                         snapshotTimestamp,
                         descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
                         snapShotId,
@@ -1382,7 +1382,7 @@ bool CAnomalyJob::persistState(const std::string &descriptionPrefix,
                         // This needs to be the last final result time as it serves
                         // as the time after which all results are deleted when a
                         // model snapshot is reverted
-                        lastFinalisedBucketEnd - m_ModelConfig.bucketLength());
+                        lastFinalisedBucketEnd - m_ModelConfig.bucketLength()};
 
                 m_PersistCompleteFunc(modelSnapshotReport);
             }
