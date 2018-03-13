@@ -18,12 +18,8 @@
 #include <core/CNonInstantiatable.h>
 #include <core/ImportExport.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the unsetenv() function.
@@ -37,15 +33,11 @@ namespace core
 //! library treats a request to set a variable to be empty as a
 //! request to delete it from the environment.
 //!
-class CORE_EXPORT CUnSetEnv : private CNonInstantiatable
-{
-    public:
-        static int unSetEnv(const char *name);
+class CORE_EXPORT CUnSetEnv : private CNonInstantiatable {
+public:
+    static int unSetEnv(const char *name);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CUnSetEnv_h
-
+#endif// INCLUDED_ml_core_CUnSetEnv_h

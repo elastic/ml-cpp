@@ -18,16 +18,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataSemanticsTest : public CppUnit::TestFixture
-{
-    public:
-        void testBinary(void);
-        void testNonNumericCategorical(void);
-        void testNumericCategorical(void);
-        void testInteger(void);
-        void testReal(void);
+class CDataSemanticsTest : public CppUnit::TestFixture {
+public:
+    void testBinary(void);
+    void testNonNumericCategorical(void);
+    void testNumericCategorical(void);
+    void testInteger(void);
+    void testReal(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CDataSemanticsTest_h
+#endif// INCLUDED_CDataSemanticsTest_h

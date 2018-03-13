@@ -26,10 +26,8 @@
 
 #include "CCompressUtils.h"
 
-namespace ml
-{
-namespace domain_name_entropy
-{
+namespace ml {
+namespace domain_name_entropy {
 class CTopLevelDomainDb;
 
 //! \brief
@@ -38,46 +36,42 @@ class CTopLevelDomainDb;
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable
-{
-    public:
-        CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb &topLevelDomainDb,
-                                            const std::string &csvFileName,
-                                            const std::string &domainNameFieldName,
-                                            const std::string &timeFieldName,
-                                            const std::string &entropyFieldName);
+class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable {
+public:
+    CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb &topLevelDomainDb,
+                                        const std::string &csvFileName,
+                                        const std::string &domainNameFieldName,
+                                        const std::string &timeFieldName,
+                                        const std::string &entropyFieldName);
 
-        bool init(void);
+    bool init(void);
 
-        void flush(const std::string &time);
+    void flush(const std::string &time);
 
-    private:
-        //! Read a line from the csv file
-        bool readLine(bool &readHeader, 
-                      std::string &lastTime,
-                      const std::string &line);
+private:
+    //! Read a line from the csv file
+    bool readLine(bool &readHeader, std::string &lastTime, const std::string &line);
 
-    private:
-        const CTopLevelDomainDb &m_TopLevelDomainDb;
-        const std::string m_CsvFileName;
-        const std::string m_DomainNameFieldName;
-        const std::string m_TimeFieldName;
-        const std::string m_EntropyFieldName;
+private:
+    const CTopLevelDomainDb &m_TopLevelDomainDb;
+    const std::string m_CsvFileName;
+    const std::string m_DomainNameFieldName;
+    const std::string m_TimeFieldName;
+    const std::string m_EntropyFieldName;
 
-        typedef std::vector<std::string> TStrVec;
+    typedef std::vector<std::string> TStrVec;
 
-        TStrVec::size_type m_DomainNameFieldIndex;
-        TStrVec::size_type m_TimeFieldIndex;
+    TStrVec::size_type m_DomainNameFieldIndex;
+    TStrVec::size_type m_TimeFieldIndex;
 
-        typedef boost::shared_ptr<CCompressUtils> TCompressUtilsP;
-        typedef std::map<std::string, TCompressUtilsP> TStrCompressUtilsPMap;
-        typedef TStrCompressUtilsPMap::iterator TStrCompressUtilsPMapItr;
-        typedef TStrCompressUtilsPMap::const_iterator TStrCompressUtilsPMapCItr;
+    typedef boost::shared_ptr<CCompressUtils> TCompressUtilsP;
+    typedef std::map<std::string, TCompressUtilsP> TStrCompressUtilsPMap;
+    typedef TStrCompressUtilsPMap::iterator TStrCompressUtilsPMapItr;
+    typedef TStrCompressUtilsPMap::const_iterator TStrCompressUtilsPMapCItr;
 
-        TStrCompressUtilsPMap m_RegisteredDomainEntropy;
+    TStrCompressUtilsPMap m_RegisteredDomainEntropy;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_domain_name_entropy_CAddRegisteredDomainAndEntropyToCsv_h
+#endif// INCLUDED_ml_domain_name_entropy_CAddRegisteredDomainAndEntropyToCsv_h

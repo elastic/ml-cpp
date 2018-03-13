@@ -18,25 +18,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CPoissonMeanConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate(void);
+    void testPropagation(void);
+    void testMeanEstimation(void);
+    void testMarginalLikelihood(void);
+    void testMarginalLikelihoodMode(void);
+    void testMarginalLikelihoodVariance(void);
+    void testSampleMarginalLikelihood(void);
+    void testCdf(void);
+    void testProbabilityOfLessLikelySamples(void);
+    void testAnomalyScore(void);
+    void testOffset(void);
+    void testPersist(void);
+    void testNegativeSample(void);
 
-class CPoissonMeanConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testMeanEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodVariance(void);
-        void testSampleMarginalLikelihood(void);
-        void testCdf(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testAnomalyScore(void);
-        void testOffset(void);
-        void testPersist(void);
-        void testNegativeSample(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CPoissonMeanConjugateTest_h
+#endif// INCLUDED_CPoissonMeanConjugateTest_h

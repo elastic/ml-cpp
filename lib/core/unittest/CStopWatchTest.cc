@@ -20,20 +20,16 @@
 
 #include <stdint.h>
 
-
-CppUnit::Test *CStopWatchTest::suite()
-{
+CppUnit::Test *CStopWatchTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CStopWatchTest>(
-                                   "CStopWatchTest::testStopWatch",
-                                   &CStopWatchTest::testStopWatch) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>("CStopWatchTest::testStopWatch",
+                                                                  &CStopWatchTest::testStopWatch));
 
     return suiteOfTests;
 }
 
-void CStopWatchTest::testStopWatch(void)
-{
+void CStopWatchTest::testStopWatch(void) {
     ml::core::CStopWatch stopWatch;
 
     LOG_DEBUG("About to start stop watch test");
@@ -44,8 +40,7 @@ void CStopWatchTest::testStopWatch(void)
 
     uint64_t elapsed(stopWatch.lap());
 
-    LOG_DEBUG("After a 5.5 second wait, the stop watch reads " <<
-              elapsed << " milliseconds");
+    LOG_DEBUG("After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 
     // Elapsed time should be between 5.4 and 5.6 seconds
     CPPUNIT_ASSERT(elapsed >= 5400);
@@ -55,8 +50,8 @@ void CStopWatchTest::testStopWatch(void)
 
     elapsed = stopWatch.stop();
 
-    LOG_DEBUG("After a further 3.5 second wait, the stop watch reads " <<
-              elapsed << " milliseconds");
+    LOG_DEBUG("After a further 3.5 second wait, the stop watch reads " << elapsed
+                                                                       << " milliseconds");
 
     // Elapsed time should be between 8.9 and 9.1 seconds
     CPPUNIT_ASSERT(elapsed >= 8900);
@@ -73,10 +68,10 @@ void CStopWatchTest::testStopWatch(void)
 
     LOG_DEBUG("After a further 2 second wait with the stop watch stopped, "
               "followed by a 0.5 second wait with the stop watch running, it "
-              "reads " << elapsed << " milliseconds");
+              "reads "
+              << elapsed << " milliseconds");
 
     // Elapsed time should be between 9.4 and 9.6 seconds
     CPPUNIT_ASSERT(elapsed >= 9400);
     CPPUNIT_ASSERT(elapsed <= 9600);
 }
-

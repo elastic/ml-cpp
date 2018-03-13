@@ -14,19 +14,9 @@
  */
 #include <core/CTimeGm.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-time_t CTimeGm::timeGm(struct tm *ts)
-{
-    return ::_mkgmtime(ts);
-}
-
-
+time_t CTimeGm::timeGm(struct tm *ts) { return ::_mkgmtime(ts); }
 }
 }
-

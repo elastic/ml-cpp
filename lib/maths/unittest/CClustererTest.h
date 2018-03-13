@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CClustererTest : public CppUnit::TestFixture
-{
-    public:
-        void testIndexGenerator(void);
+class CClustererTest : public CppUnit::TestFixture {
+public:
+    void testIndexGenerator(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CClustererTest_h
+#endif// INCLUDED_CClustererTest_h

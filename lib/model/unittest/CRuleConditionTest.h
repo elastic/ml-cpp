@@ -17,13 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRuleConditionTest : public CppUnit::TestFixture {
+public:
+    void testTimeContition(void);
 
-class CRuleConditionTest : public CppUnit::TestFixture
-{
-    public:
-        void testTimeContition(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CRuleConditionTest_h
+#endif// INCLUDED_CRuleConditionTest_h

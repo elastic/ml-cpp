@@ -14,22 +14,13 @@
  */
 #include <core/CGmTimeR.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-struct tm *CGmTimeR::gmTimeR(const time_t *clock,
-                             struct tm *result)
-{
+struct tm *CGmTimeR::gmTimeR(const time_t *clock, struct tm *result) {
     ::gmtime_s(result, clock);
 
     return result;
 }
-
-
 }
 }
-

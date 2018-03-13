@@ -23,11 +23,8 @@
 #include <string>
 #include <vector>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Shrink wrap zlib calls.
@@ -47,67 +44,58 @@ namespace core
 //! a multi-threaded application it would be best to create
 //! one object for each thread.
 //!
-class CORE_EXPORT CCompressUtils : private CNonCopyable
-{
-    public:
-        //! The output type
-        typedef std::vector<Bytef> TByteVec;
+class CORE_EXPORT CCompressUtils : private CNonCopyable {
+public:
+    //! The output type
+    typedef std::vector<Bytef> TByteVec;
 
-    public:
-        explicit CCompressUtils(bool lengthOnly,
-                                int level = Z_DEFAULT_COMPRESSION);
-        ~CCompressUtils(void);
+public:
+    explicit CCompressUtils(bool lengthOnly, int level = Z_DEFAULT_COMPRESSION);
+    ~CCompressUtils(void);
 
-        //! Add a string.  Multiple calls to this function without finishing the
-        //! compression are equivalent to compressing the concatenation of the
-        //! strings passed in the order they are passed.
-        bool addString(const std::string &input);
+    //! Add a string.  Multiple calls to this function without finishing the
+    //! compression are equivalent to compressing the concatenation of the
+    //! strings passed in the order they are passed.
+    bool addString(const std::string &input);
 
-        //! Get compressed representation.  This will fail if the lengthOnly
-        //! constructor argument was set to true.
-        //!
-        //! \note The compressed representation is a byte array NOT a string,
-        //! and hence not printable.
-        //!
-        //! If finish==false then retrieve partial compressed state.
-        bool compressedData(bool finish, TByteVec &result);
+    //! Get compressed representation.  This will fail if the lengthOnly
+    //! constructor argument was set to true.
+    //!
+    //! \note The compressed representation is a byte array NOT a string,
+    //! and hence not printable.
+    //!
+    //! If finish==false then retrieve partial compressed state.
+    bool compressedData(bool finish, TByteVec &result);
 
-        //! Get compressed string length.
-        //!
-        //! If finish==false then retrieve partial compressed length.
-        bool compressedLength(bool finish, size_t &length);
+    //! Get compressed string length.
+    //!
+    //! If finish==false then retrieve partial compressed length.
+    bool compressedLength(bool finish, size_t &length);
 
-        //! Reset the compressor.  This will happen automatically when adding a
-        //! new string after having finished the previous compression, but
-        //! sometimes, for example when recovering from an error, it may be
-        //! desirable to explicitly reset the compressor state.
-        void reset(void);
+    //! Reset the compressor.  This will happen automatically when adding a
+    //! new string after having finished the previous compression, but
+    //! sometimes, for example when recovering from an error, it may be
+    //! desirable to explicitly reset the compressor state.
+    void reset(void);
 
-    private:
-        bool doCompress(bool finish, const std::string &input);
+private:
+    bool doCompress(bool finish, const std::string &input);
 
-    private:
-        enum EState
-        {
-            E_Unused,
-            E_Compressing,
-            E_Finished
-        };
+private:
+    enum EState { E_Unused, E_Compressing, E_Finished };
 
-        EState   m_State;
+    EState m_State;
 
-        //! Is this object only fit for getting compressed lengths?
-        bool     m_LengthOnly;
+    //! Is this object only fit for getting compressed lengths?
+    bool m_LengthOnly;
 
-        //! The output buffer when the compressed result is being stored
-        TByteVec m_FullResult;
+    //! The output buffer when the compressed result is being stored
+    TByteVec m_FullResult;
 
-        //! The zlib data structure.
-        z_stream m_ZlibStrm;
+    //! The zlib data structure.
+    z_stream m_ZlibStrm;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_core_CCompressUtils_h
-
+#endif// INCLUDED_ml_core_CCompressUtils_h

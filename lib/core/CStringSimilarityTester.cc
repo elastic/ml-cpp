@@ -16,53 +16,37 @@
 
 #include <limits>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::min());
 
-
-CStringSimilarityTester::CStringSimilarityTester(void)
-    : m_Compressor(true)
-{
-}
+CStringSimilarityTester::CStringSimilarityTester(void) : m_Compressor(true) {}
 
 bool CStringSimilarityTester::similarity(const std::string &first,
                                          const std::string &second,
-                                         double &result) const
-{
+                                         double &result) const {
     size_t firstCompLength(0);
     size_t secondCompLength(0);
 
     if (m_Compressor.addString(first) == false ||
         m_Compressor.compressedLength(true, firstCompLength) == false ||
         m_Compressor.addString(second) == false ||
-        m_Compressor.compressedLength(true, secondCompLength) == false)
-    {
+        m_Compressor.compressedLength(true, secondCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;
     }
 
-    return this->similarity(first,
-                            firstCompLength,
-                            second,
-                            secondCompLength,
-                            result);
+    return this->similarity(first, firstCompLength, second, secondCompLength, result);
 }
 
 bool CStringSimilarityTester::similarity(const std::string &first,
                                          size_t firstCompLength,
                                          const std::string &second,
                                          size_t secondCompLength,
-                                         double &result) const
-{
-    if (first.empty() && second.empty())
-    {
+                                         double &result) const {
+    if (first.empty() && second.empty()) {
         // Special case that will cause a divide by zero error if
         // we're not careful
         result = 1.0;
@@ -72,13 +56,10 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     size_t firstPlusSecondCompLength(0);
     size_t secondPlusFirstCompLength(0);
 
-    if (m_Compressor.addString(first) == false ||
-        m_Compressor.addString(second) == false ||
+    if (m_Compressor.addString(first) == false || m_Compressor.addString(second) == false ||
         m_Compressor.compressedLength(true, firstPlusSecondCompLength) == false ||
-        m_Compressor.addString(second) == false ||
-        m_Compressor.addString(first) == false ||
-        m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false)
-    {
+        m_Compressor.addString(second) == false || m_Compressor.addString(first) == false ||
+        m_Compressor.compressedLength(true, secondPlusFirstCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;
@@ -97,25 +78,18 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     return true;
 }
 
-bool CStringSimilarityTester::compressedLengthOf(const std::string &str,
-                                                 size_t &length) const
-{
-    return m_Compressor.addString(str) &&
-           m_Compressor.compressedLength(true, length);
+bool CStringSimilarityTester::compressedLengthOf(const std::string &str, size_t &length) const {
+    return m_Compressor.addString(str) && m_Compressor.compressedLength(true, length);
 }
 
 int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
                                                        TScopedIntArray &dataArray,
-                                                       TScopedIntPArray &matrixArray)
-{
+                                                       TScopedIntPArray &matrixArray) {
     // Ensure that we don't suffer memory corruption due to an incorrect input
-    if (maxDist <= 0)
-    {
+    if (maxDist <= 0) {
         LOG_ERROR("Programmatic error - maxDist too small " << maxDist);
         return 0;
-    }
-    else if (maxDist >= std::numeric_limits<int>::max() / 2)
-    {
+    } else if (maxDist >= std::numeric_limits<int>::max() / 2) {
         LOG_ERROR("Programmatic error - maxDist too big " << maxDist);
         return 0;
     }
@@ -128,13 +102,12 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
 
     // Allocate a block of pointers that we can use to make the matrix appear
     // two dimensional
-    matrixArray.reset(new int*[rows]);
+    matrixArray.reset(new int *[rows]);
 
     // The column indexes go from -1 to maxDist inclusive, so add 1 to the
     // pointer such that row[-1] points to the beginning of the row memory
     int *rowZero(dataArray.get() + 1);
-    for (int row = 0; row < rows; ++row)
-    {
+    for (int row = 0; row < rows; ++row) {
         matrixArray[row] = rowZero;
         rowZero += columns;
     }
@@ -149,8 +122,7 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     // Initialise the matrix.  This is an optimised version of the pseudo-code
     // near the end of the sub-section titled "The Algorithm Kernel" in
     // http://berghel.net/publications/asm/asm.pdf
-    for (int k = -maxDist; k < 0; ++k)
-    {
+    for (int k = -maxDist; k < 0; ++k) {
         // Here note that (::abs(k) - 1) == -1 - k;
         int absKMinusOne(-1 - k);
         matrix[k][absKMinusOne - 1] = MINUS_INFINITE_INT;
@@ -158,8 +130,7 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     }
     // k = 0, so (::abs(k) - 1) == -1
     matrix[0][-1] = -1;
-    for (int k = 1; k <= maxDist; ++k)
-    {
+    for (int k = 1; k <= maxDist; ++k) {
         // Here note that (::abs(k) - 1) == k - 1;
         int absKMinusOne(k - 1);
         matrix[k][absKMinusOne - 1] = MINUS_INFINITE_INT;
@@ -168,8 +139,5 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
 
     return matrix;
 }
-
-
 }
 }
-

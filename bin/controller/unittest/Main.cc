@@ -17,14 +17,11 @@
 #include "CBlockingCallCancellerThreadTest.h"
 #include "CCommandProcessorTest.h"
 
-
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest( CBlockingCallCancellerThreadTest::suite() );
-    runner.addTest( CCommandProcessorTest::suite() );
+    runner.addTest(CBlockingCallCancellerThreadTest::suite());
+    runner.addTest(CCommandProcessorTest::suite());
 
     return !runner.runTests();
 }
-

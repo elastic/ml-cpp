@@ -14,17 +14,11 @@
  */
 #include <core/CShellArgQuoter.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-std::string CShellArgQuoter::quote(const std::string &arg)
-{
-    if (arg.empty())
-    {
+std::string CShellArgQuoter::quote(const std::string &arg) {
+    if (arg.empty()) {
         return "''";
     }
 
@@ -38,19 +32,14 @@ std::string CShellArgQuoter::quote(const std::string &arg)
     // variables
     bool insideSingleQuote(false);
 
-    for (std::string::const_iterator iter = arg.begin();
-         iter != arg.end();
-         ++iter)
-    {
-        switch (*iter)
-        {
+    for (std::string::const_iterator iter = arg.begin(); iter != arg.end(); ++iter) {
+        switch (*iter) {
             case '\'':
             case '!':
                 // Take single quotes and exclamation marks outside of the main
                 // single quoted string and escape them individually using
                 // backslashes
-                if (insideSingleQuote)
-                {
+                if (insideSingleQuote) {
                     result += '\'';
                     insideSingleQuote = false;
                 }
@@ -58,8 +47,7 @@ std::string CShellArgQuoter::quote(const std::string &arg)
                 result += *iter;
                 break;
             default:
-                if (!insideSingleQuote)
-                {
+                if (!insideSingleQuote) {
                     result += '\'';
                     insideSingleQuote = true;
                 }
@@ -68,15 +56,11 @@ std::string CShellArgQuoter::quote(const std::string &arg)
         }
     }
 
-    if (insideSingleQuote)
-    {
+    if (insideSingleQuote) {
         result += '\'';
     }
 
     return result;
 }
-
-
 }
 }
-

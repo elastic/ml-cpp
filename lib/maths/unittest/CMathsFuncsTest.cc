@@ -24,13 +24,11 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 double zero(void) { return 0.0; }
 }
 
-void CMathsFuncsTest::testIsNan(void)
-{
+void CMathsFuncsTest::testIsNan(void) {
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isNan(0.0));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isNan(1e7));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isNan(-1e17));
@@ -42,8 +40,7 @@ void CMathsFuncsTest::testIsNan(void)
     CPPUNIT_ASSERT(maths::CMathsFuncs::isNan(1.0 / zero() - 2.0 / zero()));
 }
 
-void CMathsFuncsTest::testIsInf(void)
-{
+void CMathsFuncsTest::testIsInf(void) {
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(0.0));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(1.8738e7));
     CPPUNIT_ASSERT(!maths::CMathsFuncs::isInf(-1.376e17));
@@ -57,8 +54,7 @@ void CMathsFuncsTest::testIsInf(void)
     CPPUNIT_ASSERT(maths::CMathsFuncs::isInf(::exp(1.0 / zero())));
 }
 
-void CMathsFuncsTest::testIsFinite(void)
-{
+void CMathsFuncsTest::testIsFinite(void) {
     typedef std::vector<double> TDoubleVec;
 
     CPPUNIT_ASSERT(maths::CMathsFuncs::isFinite(0.0));
@@ -78,8 +74,7 @@ void CMathsFuncsTest::testIsFinite(void)
     test1.push_back(2.0);
     test1.push_back(25.0);
     test1.push_back(-1e6);
-    CPPUNIT_ASSERT(std::equal(test1.begin(), test1.end(),
-                              maths::CMathsFuncs::beginFinite(test1)));
+    CPPUNIT_ASSERT(std::equal(test1.begin(), test1.end(), maths::CMathsFuncs::beginFinite(test1)));
 
     TDoubleVec test2;
     test2.push_back(zero() / zero());
@@ -90,47 +85,35 @@ void CMathsFuncsTest::testIsFinite(void)
     test2.push_back(25.0);
     test2.push_back(-1e6);
     test2.push_back(zero() / zero());
-    CPPUNIT_ASSERT(std::equal(test1.begin(), test1.end(),
-                              maths::CMathsFuncs::beginFinite(test2)));
+    CPPUNIT_ASSERT(std::equal(test1.begin(), test1.end(), maths::CMathsFuncs::beginFinite(test2)));
 
     TDoubleVec test3;
-    CPPUNIT_ASSERT(   maths::CMathsFuncs::beginFinite(test3)
-                   == maths::CMathsFuncs::endFinite(test3));
+    CPPUNIT_ASSERT(maths::CMathsFuncs::beginFinite(test3) == maths::CMathsFuncs::endFinite(test3));
 
     TDoubleVec test4;
     test4.push_back(zero() / zero());
     test4.push_back(1.0 / zero());
     test4.push_back(zero() / zero());
-    CPPUNIT_ASSERT(   maths::CMathsFuncs::beginFinite(test4)
-                   == maths::CMathsFuncs::endFinite(test4));
+    CPPUNIT_ASSERT(maths::CMathsFuncs::beginFinite(test4) == maths::CMathsFuncs::endFinite(test4));
 }
 
-void CMathsFuncsTest::testFpStatus(void)
-{
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                         maths::CMathsFuncs::fpStatus(3.8));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed,
-                         maths::CMathsFuncs::fpStatus(1.0 / zero()));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpFailed,
-                         maths::CMathsFuncs::fpStatus(zero() / zero()));
+void CMathsFuncsTest::testFpStatus(void) {
+    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors, maths::CMathsFuncs::fpStatus(3.8));
+    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed, maths::CMathsFuncs::fpStatus(1.0 / zero()));
+    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpFailed, maths::CMathsFuncs::fpStatus(zero() / zero()));
 }
 
-CppUnit::Test *CMathsFuncsTest::suite(void)
-{
+CppUnit::Test *CMathsFuncsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CMathsFuncsTest>(
-                                   "CMathsFuncsTest::testIsNan",
-                                   &CMathsFuncsTest::testIsNan) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CMathsFuncsTest>(
-                                   "CMathsFuncsTest::testIsInf",
-                                   &CMathsFuncsTest::testIsInf) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CMathsFuncsTest>(
-                                   "CMathsFuncsTest::testIsFinite",
-                                   &CMathsFuncsTest::testIsFinite) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CMathsFuncsTest>(
-                                   "CMathsFuncsTest::testFpStatus",
-                                   &CMathsFuncsTest::testFpStatus) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsNan",
+                                                                   &CMathsFuncsTest::testIsNan));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsInf",
+                                                                   &CMathsFuncsTest::testIsInf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsFinite",
+                                                                   &CMathsFuncsTest::testIsFinite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testFpStatus",
+                                                                   &CMathsFuncsTest::testFpStatus));
 
     return suiteOfTests;
 }

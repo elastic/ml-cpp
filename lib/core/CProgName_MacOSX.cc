@@ -20,35 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-std::string CProgName::progName(void)
-{
+std::string CProgName::progName(void) {
     const char *progName(::getprogname());
-    if (progName == 0)
-    {
+    if (progName == 0) {
         return std::string();
     }
 
     return progName;
 }
 
-std::string CProgName::progDir(void)
-{
+std::string CProgName::progDir(void) {
     uint32_t bufferSize(2048);
     std::string path(bufferSize, '\0');
-    if (_NSGetExecutablePath(&path[0], &bufferSize) != 0)
-    {
+    if (_NSGetExecutablePath(&path[0], &bufferSize) != 0) {
         return std::string();
     }
     size_t lastSlash(path.rfind('/'));
-    if (lastSlash == std::string::npos)
-    {
+    if (lastSlash == std::string::npos) {
         return std::string();
     }
     path.resize(lastSlash);
@@ -57,8 +48,5 @@ std::string CProgName::progDir(void)
     // canonical, e.g. containing /./
     return boost::filesystem::canonical(boost::filesystem::path(path)).string();
 }
-
-
 }
 }
-

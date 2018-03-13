@@ -20,10 +20,8 @@
 #include <core/CThread.h>
 #include <core/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! An output stream that writes to a boost filtering_stream endpoint.
@@ -39,56 +37,54 @@ namespace core
 //! manages the buffering of data between the client thread and
 //! the upload thread.
 //!
-class CORE_EXPORT CCompressOStream : public std::ostream
-{
+class CORE_EXPORT CCompressOStream : public std::ostream {
+public:
+    //! Constructor
+    CCompressOStream(CStateCompressor::CChunkFilter &filter);
+
+    //! Destructor will close the stream
+    virtual ~CCompressOStream(void);
+
+    //! Close the stream
+    void close(void);
+
+private:
+    class CCompressThread : public CThread {
     public:
-        //! Constructor
-        CCompressOStream(CStateCompressor::CChunkFilter &filter);
+        CCompressThread(CCompressOStream &stream,
+                        CDualThreadStreamBuf &streamBuf,
+                        CStateCompressor::CChunkFilter &filter);
 
-        //! Destructor will close the stream
-        virtual ~CCompressOStream(void);
+    protected:
+        //! Implementation of inherited interface
+        virtual void run(void);
+        virtual void shutdown(void);
 
-        //! Close the stream
-        void close(void);
+    public:
+        //! Reference to the owning stream
+        CCompressOStream &m_Stream;
 
-    private:
-        class CCompressThread : public CThread
-        {
-            public:
-                CCompressThread(CCompressOStream &stream,
-                                CDualThreadStreamBuf &streamBuf,
-                                CStateCompressor::CChunkFilter &filter);
-
-            protected:
-                //! Implementation of inherited interface
-                virtual void run(void);
-                virtual void shutdown(void);
-
-            public:
-                //! Reference to the owning stream
-                CCompressOStream                 &m_Stream;
-
-                //! Reference to the owning stream's buffer
-                CDualThreadStreamBuf             &m_StreamBuf;
-
-            private:
-                //! Reference to the output sink - this handles
-                //! downstream writing to datastore
-                CStateCompressor::CChunkFilter   &m_FilterSink;
-
-                //! The gzip filter to live within the new thread
-                CStateCompressor::TFilteredOutput m_OutFilter;
-        };
+        //! Reference to the owning stream's buffer
+        CDualThreadStreamBuf &m_StreamBuf;
 
     private:
-        //! The stream buffer
-        CDualThreadStreamBuf m_StreamBuf;
+        //! Reference to the output sink - this handles
+        //! downstream writing to datastore
+        CStateCompressor::CChunkFilter &m_FilterSink;
 
-        //! Thread used for the upload
-        CCompressThread      m_UploadThread;
+        //! The gzip filter to live within the new thread
+        CStateCompressor::TFilteredOutput m_OutFilter;
+    };
+
+private:
+    //! The stream buffer
+    CDualThreadStreamBuf m_StreamBuf;
+
+    //! Thread used for the upload
+    CCompressThread m_UploadThread;
 };
 
-} // core
-} // ml
+}// core
+}// ml
 
-#endif // INCLUDED_ml_core_CCompressOStream_h
+#endif// INCLUDED_ml_core_CCompressOStream_h

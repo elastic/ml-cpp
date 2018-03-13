@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the localtime_r() function.
@@ -38,16 +34,11 @@ namespace core
 //! localtime_s() function with slightly different semantics to Unix's
 //! localtime_r().
 //!
-class CORE_EXPORT CLocalTimeR : private CNonInstantiatable
-{
-    public:
-        static struct tm *localTimeR(const time_t *clock,
-                                     struct tm *result);
+class CORE_EXPORT CLocalTimeR : private CNonInstantiatable {
+public:
+    static struct tm *localTimeR(const time_t *clock, struct tm *result);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CLocalTimeR_h
-
+#endif// INCLUDED_ml_core_CLocalTimeR_h

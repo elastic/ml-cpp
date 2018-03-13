@@ -18,24 +18,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTimeSeriesModelTest : public CppUnit::TestFixture
-{
-    public:
-        void testClone(void);
-        void testMode(void);
-        void testAddBucketValue(void);
-        void testAddSamples(void);
-        void testPredict(void);
-        void testProbability(void);
-        void testWeights(void);
-        void testMemoryUsage(void);
-        void testPersist(void);
-        void testUpgrade(void);
-        void testAddSamplesWithCorrelations(void);
-        void testProbabilityWithCorrelations(void);
-        void testAnomalyModel(void);
+class CTimeSeriesModelTest : public CppUnit::TestFixture {
+public:
+    void testClone(void);
+    void testMode(void);
+    void testAddBucketValue(void);
+    void testAddSamples(void);
+    void testPredict(void);
+    void testProbability(void);
+    void testWeights(void);
+    void testMemoryUsage(void);
+    void testPersist(void);
+    void testUpgrade(void);
+    void testAddSamplesWithCorrelations(void);
+    void testProbabilityWithCorrelations(void);
+    void testAnomalyModel(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CTimeSeriesModelTest_h
+#endif// INCLUDED_CTimeSeriesModelTest_h

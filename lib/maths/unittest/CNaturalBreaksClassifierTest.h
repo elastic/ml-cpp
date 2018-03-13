@@ -18,16 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CNaturalBreaksClassifierTest : public CppUnit::TestFixture {
+public:
+    void testCategories(void);
+    void testPropagateForwardsByTime(void);
+    void testSample(void);
+    void testPersist(void);
 
-class CNaturalBreaksClassifierTest : public CppUnit::TestFixture
-{
-    public:
-        void testCategories(void);
-        void testPropagateForwardsByTime(void);
-        void testSample(void);
-        void testPersist(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CNaturalBreaksClassifierTest_h
+#endif// INCLUDED_CNaturalBreaksClassifierTest_h

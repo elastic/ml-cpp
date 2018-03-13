@@ -17,29 +17,26 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CTokenListDataTyperTest : public CppUnit::TestFixture {
+public:
+    void testHexData(void);
+    void testRmdsData(void);
+    void testProxyData(void);
+    void testFxData(void);
+    void testApacheData(void);
+    void testBrokerageData(void);
+    void testVmwareData(void);
+    void testBankData(void);
+    void testJavaGcData(void);
+    void testPersist(void);
+    void testLongReverseSearch(void);
+    void testPreTokenised(void);
+    void testPreTokenisedPerformance(void);
 
-class CTokenListDataTyperTest : public CppUnit::TestFixture
-{
-    public:
-        void testHexData(void);
-        void testRmdsData(void);
-        void testProxyData(void);
-        void testFxData(void);
-        void testApacheData(void);
-        void testBrokerageData(void);
-        void testVmwareData(void);
-        void testBankData(void);
-        void testJavaGcData(void);
-        void testPersist(void);
-        void testLongReverseSearch(void);
-        void testPreTokenised(void);
-        void testPreTokenisedPerformance(void);
+    void setUp(void);
+    void tearDown(void);
 
-        void setUp(void);
-        void tearDown(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CTokenListDataTyperTest_h
-
+#endif// INCLUDED_CTokenListDataTyperTest_h

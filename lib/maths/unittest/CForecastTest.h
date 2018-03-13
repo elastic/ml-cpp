@@ -22,30 +22,29 @@
 
 #include <functional>
 
-class CForecastTest : public CppUnit::TestFixture
-{
-    public:
-        void testDailyNoLongTermTrend();
-        void testDailyConstantLongTermTrend();
-        void testDailyVaryingLongTermTrend();
-        void testComplexNoLongTermTrend();
-        void testComplexConstantLongTermTrend();
-        void testComplexVaryingLongTermTrend();
-        void testNonNegative();
-        void testFinancialIndex();
+class CForecastTest : public CppUnit::TestFixture {
+public:
+    void testDailyNoLongTermTrend();
+    void testDailyConstantLongTermTrend();
+    void testDailyVaryingLongTermTrend();
+    void testComplexNoLongTermTrend();
+    void testComplexConstantLongTermTrend();
+    void testComplexVaryingLongTermTrend();
+    void testNonNegative();
+    void testFinancialIndex();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 
-    private:
-        using TTrend = std::function<double (ml::core_t::TTime, double)>;
+private:
+    using TTrend = std::function<double(ml::core_t::TTime, double)>;
 
-    private:
-        void test(TTrend trend,
-                  ml::core_t::TTime bucketLength,
-                  std::size_t daysToLearn,
-                  double noiseVariance,
-                  double maximumPercentageOutOfBounds,
-                  double maximumError);
+private:
+    void test(TTrend trend,
+              ml::core_t::TTime bucketLength,
+              std::size_t daysToLearn,
+              double noiseVariance,
+              double maximumPercentageOutOfBounds,
+              double maximumError);
 };
 
-#endif // INCLUDED_CForecastTest_h
+#endif// INCLUDED_CForecastTest_h

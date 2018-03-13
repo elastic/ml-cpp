@@ -18,29 +18,28 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGammaRateConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testShapeEstimation(void);
-        void testRateEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMean(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodVariance(void);
-        void testSampleMarginalLikelihood(void);
-        void testCdf(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testAnomalyScore(void);
-        void testOffset(void);
-        void testIntegerData(void);
-        void testLowVariationData(void);
-        void testPersist(void);
-        void testVarianceScale(void);
-        void testNegativeSample(void);
+class CGammaRateConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate(void);
+    void testPropagation(void);
+    void testShapeEstimation(void);
+    void testRateEstimation(void);
+    void testMarginalLikelihood(void);
+    void testMarginalLikelihoodMean(void);
+    void testMarginalLikelihoodMode(void);
+    void testMarginalLikelihoodVariance(void);
+    void testSampleMarginalLikelihood(void);
+    void testCdf(void);
+    void testProbabilityOfLessLikelySamples(void);
+    void testAnomalyScore(void);
+    void testOffset(void);
+    void testIntegerData(void);
+    void testLowVariationData(void);
+    void testPersist(void);
+    void testVarianceScale(void);
+    void testNegativeSample(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CGammaRateConjugateTest_h
+#endif// INCLUDED_CGammaRateConjugateTest_h

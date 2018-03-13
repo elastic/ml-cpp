@@ -18,16 +18,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataSummaryStatisticsTest : public CppUnit::TestFixture
-{
-    public:
-        void testRate(void);
-        void testCategoricalDistinctCount(void);
-        void testCategoricalTopN(void);
-        void testNumericBasicStatistics(void);
-        void testNumericDistribution(void);
+class CDataSummaryStatisticsTest : public CppUnit::TestFixture {
+public:
+    void testRate(void);
+    void testCategoricalDistinctCount(void);
+    void testCategoricalTopN(void);
+    void testNumericBasicStatistics(void);
+    void testNumericDistribution(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CDataSummaryStatisticsTest_h
+#endif// INCLUDED_CDataSummaryStatisticsTest_h

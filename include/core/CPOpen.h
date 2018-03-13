@@ -20,12 +20,8 @@
 
 #include <stdio.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the popen()/pclose() functions.
@@ -37,18 +33,13 @@ namespace core
 //! This has been broken into a class of its own because Windows has a
 //! _popen() and _pclose() functions rather than Unix's popen() and pclose().
 //!
-class CORE_EXPORT CPOpen : private CNonInstantiatable
-{
-    public:
-        static FILE *pOpen(const char *command,
-                           const char *mode);
+class CORE_EXPORT CPOpen : private CNonInstantiatable {
+public:
+    static FILE *pOpen(const char *command, const char *mode);
 
-        static int pClose(FILE *stream);
+    static int pClose(FILE *stream);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CPOpen_h
-
+#endif// INCLUDED_ml_core_CPOpen_h

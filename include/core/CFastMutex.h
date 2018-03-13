@@ -27,12 +27,8 @@
 #endif
 #endif
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Wrapper class around a fast simple mutex.
@@ -72,28 +68,24 @@ namespace core
 //! write lock).  These are faster than critical sections, presumably
 //! because critical sections are recursive.
 //!
-class CORE_EXPORT CFastMutex : private CNonCopyable
-{
-    public:
-        CFastMutex(void);
-        ~CFastMutex(void);
+class CORE_EXPORT CFastMutex : private CNonCopyable {
+public:
+    CFastMutex(void);
+    ~CFastMutex(void);
 
-        void lock(void);
-        void unlock(void);
+    void lock(void);
+    void unlock(void);
 
-    private:
+private:
 #ifdef Windows
-        SRWLOCK            m_Mutex;
+    SRWLOCK m_Mutex;
 #elif defined(MacOSX)
-        OSSpinLock         m_Mutex;
+    OSSpinLock m_Mutex;
 #else
-        pthread_mutex_t    m_Mutex;
+    pthread_mutex_t m_Mutex;
 #endif
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CFastMutex_h
-
+#endif// INCLUDED_ml_core_CFastMutex_h

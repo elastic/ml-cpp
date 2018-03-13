@@ -20,10 +20,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 //! \brief
 //! Very simple command line parser.
@@ -34,25 +32,22 @@ namespace controller
 //! IMPLEMENTATION DECISIONS:\n
 //! Put in a class rather than main to allow testing.
 //!
-class CCmdLineParser
-{
-    public:
-        typedef std::vector<std::string> TStrVec;
+class CCmdLineParser {
+public:
+    typedef std::vector<std::string> TStrVec;
 
-    public:
-        //! Parse the arguments and return options if appropriate.
-        static bool parse(int argc,
-                          const char * const *argv,
-                          std::string &jvmPidStr,
-                          std::string &logPipe,
-                          std::string &commandPipe);
+public:
+    //! Parse the arguments and return options if appropriate.
+    static bool parse(int argc,
+                      const char *const *argv,
+                      std::string &jvmPidStr,
+                      std::string &logPipe,
+                      std::string &commandPipe);
 
-    private:
-        static const std::string DESCRIPTION;
+private:
+    static const std::string DESCRIPTION;
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_controller_CCmdLineParser_h
+#endif// INCLUDED_ml_controller_CCmdLineParser_h

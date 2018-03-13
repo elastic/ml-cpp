@@ -17,16 +17,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CResourceLocatorTest : public CppUnit::TestFixture {
+public:
+    void testResourceDir(void);
+    void testLogDir(void);
+    void testSrcRootDir(void);
 
-class CResourceLocatorTest : public CppUnit::TestFixture
-{
-    public:
-        void testResourceDir(void);
-        void testLogDir(void);
-        void testSrcRootDir(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CResourceLocatorTest_h
-
+#endif// INCLUDED_CResourceLocatorTest_h

@@ -19,10 +19,8 @@
 #include <config/CPenalty.h>
 #include <config/ImportExport.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief A penalty for the information content command if there is
 //! little evidence that the categories are carrying any information.
@@ -35,23 +33,21 @@ namespace config
 //!   -# Any long categories.
 //!   -# Significant empirical entropy in the categories relative to
 //!      their distinct count (which bounds the entropy).
-class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty
-{
-    public:
-        CLowInformationContentPenalty(const CAutoconfigurerParams &params);
+class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty {
+public:
+    CLowInformationContentPenalty(const CAutoconfigurerParams &params);
 
-        //! Create a copy on the heap.
-        virtual CLowInformationContentPenalty *clone(void) const;
+    //! Create a copy on the heap.
+    virtual CLowInformationContentPenalty *clone(void) const;
 
-        //! Get the name of this penalty.
-        virtual std::string name(void) const;
+    //! Get the name of this penalty.
+    virtual std::string name(void) const;
 
-    private:
-        //! Compute a penalty for rare detectors.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+private:
+    //! Compute a penalty for rare detectors.
+    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_config_CLowInformationContentPenalty_h
+#endif// INCLUDED_ml_config_CLowInformationContentPenalty_h

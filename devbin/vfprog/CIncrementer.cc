@@ -14,28 +14,13 @@
  */
 #include "CIncrementer.h"
 
+namespace ml {
+namespace vfprog {
 
-namespace ml
-{
-namespace vfprog
-{
+CIncrementer::~CIncrementer(void) {}
 
+size_t CIncrementer::nonVirtualIncrement(size_t val) { return val + 1; }
 
-CIncrementer::~CIncrementer(void)
-{
-}
-
-size_t CIncrementer::nonVirtualIncrement(size_t val)
-{
-    return val + 1;
-}
-
-size_t CIncrementer::virtualIncrement(size_t val)
-{
-    return val + 1;
-}
-
-
+size_t CIncrementer::virtualIncrement(size_t val) { return val + 1; }
 }
 }
-

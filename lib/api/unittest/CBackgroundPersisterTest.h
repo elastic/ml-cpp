@@ -19,20 +19,18 @@
 
 #include <string>
 
+class CBackgroundPersisterTest : public CppUnit::TestFixture {
+public:
+    void testDetectorPersistBy(void);
+    void testDetectorPersistOver(void);
+    void testDetectorPersistPartition(void);
+    void testCategorizationOnlyPersist(void);
 
-class CBackgroundPersisterTest : public CppUnit::TestFixture
-{
-    public:
-        void testDetectorPersistBy(void);
-        void testDetectorPersistOver(void);
-        void testDetectorPersistPartition(void);
-        void testCategorizationOnlyPersist(void);
+    static CppUnit::Test *suite();
 
-        static CppUnit::Test *suite();
-
-    private:
-        void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName);
+private:
+    void
+    foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName);
 };
 
-#endif // INCLUDED_CBackgroundPersisterTest_h
-
+#endif// INCLUDED_CBackgroundPersisterTest_h

@@ -18,13 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testDataGatherers(void);
-        void testProbabilityAggregator(void);
+class CToolsTest : public CppUnit::TestFixture {
+public:
+    void testDataGatherers(void);
+    void testProbabilityAggregator(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CToolsTest_h
+#endif// INCLUDED_CToolsTest_h

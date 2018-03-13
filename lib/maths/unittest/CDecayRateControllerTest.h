@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDecayRateControllerTest : public CppUnit::TestFixture
-{
-    public:
-        void testLowCov();
-        void testOrderedErrors();
-        void testPersist();
+class CDecayRateControllerTest : public CppUnit::TestFixture {
+public:
+    void testLowCov();
+    void testOrderedErrors();
+    void testPersist();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CDecayRateControllerTest_h
+#endif// INCLUDED_CDecayRateControllerTest_h

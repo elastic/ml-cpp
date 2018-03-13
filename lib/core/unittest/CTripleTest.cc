@@ -21,22 +21,17 @@
 
 #include <string>
 
-
-CppUnit::Test *CTripleTest::suite()
-{
+CppUnit::Test *CTripleTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTripleTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CTripleTest>(
-                                   "CTripleTest::testOperators",
-                                   &CTripleTest::testOperators) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CTripleTest>(
-                                   "CTripleTest::testBoostHashReady",
-                                   &CTripleTest::testBoostHashReady) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTripleTest>("CTripleTest::testOperators",
+                                                               &CTripleTest::testOperators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTripleTest>("CTripleTest::testBoostHashReady",
+                                                               &CTripleTest::testBoostHashReady));
     return suiteOfTests;
 }
 
-void CTripleTest::testOperators(void)
-{
+void CTripleTest::testOperators(void) {
     {
         // Assignment
         ml::core::CTriple<std::string, std::size_t, std::size_t> triple1("foo", 10, 8);
@@ -73,8 +68,7 @@ void CTripleTest::testOperators(void)
     }
 }
 
-void CTripleTest::testBoostHashReady(void)
-{
+void CTripleTest::testBoostHashReady(void) {
     typedef ml::core::CTriple<std::string, std::size_t, short> TStringSizeShortTriple;
     typedef boost::unordered_map<TStringSizeShortTriple, std::size_t> TStringSizeShortTripleSizeMap;
 
@@ -82,8 +76,10 @@ void CTripleTest::testBoostHashReady(void)
     map.emplace(ml::core::make_triple(std::string("foo"), std::size_t(10), short(3)), 1);
     map.emplace(ml::core::make_triple(std::string("bar"), std::size_t(20), short(4)), 2);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), map[ml::core::make_triple(std::string("foo"), std::size_t(10), short(3))]);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map[ml::core::make_triple(std::string("bar"), std::size_t(20), short(4))]);
-    CPPUNIT_ASSERT(map.find(ml::core::make_triple(std::string("bar"), std::size_t(20), short(8))) == map.end());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1),
+                         map[ml::core::make_triple(std::string("foo"), std::size_t(10), short(3))]);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2),
+                         map[ml::core::make_triple(std::string("bar"), std::size_t(20), short(4))]);
+    CPPUNIT_ASSERT(map.find(ml::core::make_triple(std::string("bar"), std::size_t(20), short(8))) ==
+                   map.end());
 }
-

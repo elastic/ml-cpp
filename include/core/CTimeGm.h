@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Convert tm into a time_t without making a timezone adjustment.
@@ -37,15 +33,11 @@ namespace core
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CORE_EXPORT CTimeGm : private CNonInstantiatable
-{
-    public:
-        static time_t timeGm(struct tm *ts);
+class CORE_EXPORT CTimeGm : private CNonInstantiatable {
+public:
+    static time_t timeGm(struct tm *ts);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CTimeGm_h
-
+#endif// INCLUDED_ml_core_CTimeGm_h

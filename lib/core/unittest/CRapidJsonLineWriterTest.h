@@ -17,16 +17,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CRapidJsonLineWriterTest : public CppUnit::TestFixture {
+public:
+    void testDoublePrecission();
+    void testDoublePrecissionDtoa();
+    void microBenchmark();
 
-class CRapidJsonLineWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testDoublePrecission();
-        void testDoublePrecissionDtoa();
-        void microBenchmark();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
-
 
 #endif /* INCLUDED_CRapidJsonLineWriterTest_h */

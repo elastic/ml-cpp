@@ -28,10 +28,8 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CCategoricalDataSummaryStatistics;
 class CFieldStatistics;
@@ -70,105 +68,99 @@ class CNumericDataSummaryStatistics;
 //! is a closure, i.e. (MyPenaltyA * MyPenaltyB) is a new CPenalty object
 //! whose penalty function is the product of the penalty functions of
 //! MyPenaltyA and MyPenaltyB.
-class CONFIG_EXPORT CPenalty
-{
+class CONFIG_EXPORT CPenalty {
+public:
+    typedef std::vector<double> TDoubleVec;
+    typedef std::vector<std::size_t> TSizeVec;
+    typedef std::vector<core_t::TTime> TTimeVec;
+    typedef std::vector<std::string> TStrVec;
+    typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+    typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
+    typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+
+    //! \brief Represents the result of multiplying penalties.
+    class CClosure {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
-        typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
-        typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+        CClosure(const CPenalty &penalty);
 
-        //! \brief Represents the result of multiplying penalties.
-        class CClosure
-        {
-            public:
-                CClosure(const CPenalty &penalty);
+        //! Create a penalty on the heap from this closure.
+        CPenalty *clone(void) const;
 
-                //! Create a penalty on the heap from this closure.
-                CPenalty *clone(void) const;
+        //! Add a penalty to the closure.
+        CClosure &add(const CPenalty &penalty);
 
-                //! Add a penalty to the closure.
-                CClosure &add(const CPenalty &penalty);
-
-                //! Get the closure's penalties.
-                TPenaltyCPtrVec &penalties(void);
-
-            private:
-                //! The penalties in the closure.
-                TPenaltyCPtrVec m_Penalties;
-        };
-
-    public:
-        CPenalty(const CAutoconfigurerParams &params);
-        CPenalty(const CPenalty &other);
-        explicit CPenalty(CClosure other);
-        virtual ~CPenalty(void);
-
-        //! Create a copy on the heap.
-        virtual CPenalty *clone(void) const;
-
-        //! Get the name of this penalty.
-        virtual std::string name(void) const;
-
-        //! Get the product penalty of this and \p rhs.
-        const CPenalty &operator*=(const CPenalty &rhs);
-
-        //! Get the product of this and the closure \p rhs.
-        const CPenalty &operator*=(CClosure rhs);
-
-        //! Compute the penalty to apply for the first property.
-        void penalty(const CFieldStatistics &stats, double &penalty) const
-        {
-            std::string ignore;
-            this->penalty(stats, penalty, ignore);
-        }
-
-        //! Compute the penalty to apply for the first property.
-        void penalty(const CFieldStatistics &stats,
-                     double &penalty,
-                     std::string &description) const;
-
-        //! Update the penalties of \p detector.
-        void penalize(CDetectorSpecification &spec) const;
-
-        //! Compute the score for \p penalty.
-        static double score(double penalty);
-
-        //! True if \p penalty forces the score to zero.
-        static bool scoreIsZeroFor(double penalty);
-
-    protected:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
-
-    protected:
-        //! Get the parameters.
-        const CAutoconfigurerParams &params(void) const;
+        //! Get the closure's penalties.
+        TPenaltyCPtrVec &penalties(void);
 
     private:
-        //! Not assignable.
-        const CPenalty &operator=(const CPenalty &other);
-
-        //! Compute the penalty based on a detector's field's statistics.
-        //!
-        //! \note No-op unless a derived class overrides it.
-        virtual void penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const;
-
-        //! Compute a penalty based a complete detector specification.
-        //!
-        //! \note No-op unless a derived class overrides it.
-        virtual void penaltyFromMe(CDetectorSpecification &spec) const;
-
-    private:
-        //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
-
-        //! The penalties.
+        //! The penalties in the closure.
         TPenaltyCPtrVec m_Penalties;
+    };
+
+public:
+    CPenalty(const CAutoconfigurerParams &params);
+    CPenalty(const CPenalty &other);
+    explicit CPenalty(CClosure other);
+    virtual ~CPenalty(void);
+
+    //! Create a copy on the heap.
+    virtual CPenalty *clone(void) const;
+
+    //! Get the name of this penalty.
+    virtual std::string name(void) const;
+
+    //! Get the product penalty of this and \p rhs.
+    const CPenalty &operator*=(const CPenalty &rhs);
+
+    //! Get the product of this and the closure \p rhs.
+    const CPenalty &operator*=(CClosure rhs);
+
+    //! Compute the penalty to apply for the first property.
+    void penalty(const CFieldStatistics &stats, double &penalty) const {
+        std::string ignore;
+        this->penalty(stats, penalty, ignore);
+    }
+
+    //! Compute the penalty to apply for the first property.
+    void penalty(const CFieldStatistics &stats, double &penalty, std::string &description) const;
+
+    //! Update the penalties of \p detector.
+    void penalize(CDetectorSpecification &spec) const;
+
+    //! Compute the score for \p penalty.
+    static double score(double penalty);
+
+    //! True if \p penalty forces the score to zero.
+    static bool scoreIsZeroFor(double penalty);
+
+protected:
+    typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+
+protected:
+    //! Get the parameters.
+    const CAutoconfigurerParams &params(void) const;
+
+private:
+    //! Not assignable.
+    const CPenalty &operator=(const CPenalty &other);
+
+    //! Compute the penalty based on a detector's field's statistics.
+    //!
+    //! \note No-op unless a derived class overrides it.
+    virtual void
+    penaltyFromMe(const CFieldStatistics &stats, double &penalty, std::string &description) const;
+
+    //! Compute a penalty based a complete detector specification.
+    //!
+    //! \note No-op unless a derived class overrides it.
+    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+
+private:
+    //! The parameters.
+    TAutoconfigurerParamsCRef m_Params;
+
+    //! The penalties.
+    TPenaltyCPtrVec m_Penalties;
 };
 
 //! Multiply a two penalties.
@@ -180,8 +172,7 @@ CPenalty::CClosure operator*(CPenalty::CClosure lhs, const CPenalty &rhs);
 //! Multiply a penalty by a closure.
 CONFIG_EXPORT
 CPenalty::CClosure operator*(const CPenalty &lhs, CPenalty::CClosure rhs);
-
 }
 }
 
-#endif // INCLUDED_ml_config_CPenalty_h
+#endif// INCLUDED_ml_config_CPenalty_h

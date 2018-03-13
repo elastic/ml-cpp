@@ -17,12 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMessageBufferTest : public CppUnit::TestFixture
-{
-    public:
-        void    testAll(void);
+class CMessageBufferTest : public CppUnit::TestFixture {
+public:
+    void testAll(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CMessageBufferTest_h
+#endif// INCLUDED_CMessageBufferTest_h

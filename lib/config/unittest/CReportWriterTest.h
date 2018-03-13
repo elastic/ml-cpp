@@ -18,13 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CReportWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testPretty(void);
-        void testJSON(void);
+class CReportWriterTest : public CppUnit::TestFixture {
+public:
+    void testPretty(void);
+    void testJSON(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CReportWriterTest_h
+#endif// INCLUDED_CReportWriterTest_h

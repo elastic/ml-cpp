@@ -30,76 +30,70 @@
 #include <utility>
 #include <vector>
 
-
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CMultinomialConjugate;
 }
-namespace model
-{
+namespace model {
 class CModel;
 
 //! \brief Manages the creation of annotated probabilities using the
 //! builder pattern.
-class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable
-{
-    public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<std::size_t, 1> TSize1Vec;
-        typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-        typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
+class MODEL_EXPORT CAnnotatedProbabilityBuilder : private core::CNonCopyable {
+public:
+    typedef std::pair<std::size_t, double> TSizeDoublePr;
+    typedef core::CSmallVector<double, 1> TDouble1Vec;
+    typedef core::CSmallVector<std::size_t, 1> TSize1Vec;
+    typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
+    typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
 
-    public:
-        CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability);
+public:
+    CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability);
 
-        CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability,
-                                     std::size_t numberAttributeProbabilities,
-                                     function_t::EFunction function,
-                                     std::size_t numberOfPeople);
+    CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability,
+                                 std::size_t numberAttributeProbabilities,
+                                 function_t::EFunction function,
+                                 std::size_t numberOfPeople);
 
-        void attributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
-        void personAttributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
-        void personFrequency(double frequency, bool everSeenBefore);
-        void probability(double p);
-        void addAttributeProbability(std::size_t cid,
-                                     const core::CStoredStringPtr &attribute,
+    void attributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
+    void personAttributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
+    void personFrequency(double frequency, bool everSeenBefore);
+    void probability(double p);
+    void addAttributeProbability(std::size_t cid,
+                                 const core::CStoredStringPtr &attribute,
+                                 double pAttribute,
+                                 double pGivenAttribute,
+                                 model_t::CResultType type,
+                                 model_t::EFeature feature,
+                                 const TStoredStringPtr1Vec &correlatedAttributes,
+                                 const TSizeDoublePr1Vec &correlated);
+    void build(void);
+
+private:
+    void addAttributeDescriptiveData(std::size_t cid,
                                      double pAttribute,
-                                     double pGivenAttribute,
-                                     model_t::CResultType type,
-                                     model_t::EFeature feature,
-                                     const TStoredStringPtr1Vec &correlatedAttributes,
-                                     const TSizeDoublePr1Vec &correlated);
-        void build(void);
+                                     SAttributeProbability &attributeProbability);
 
-    private:
-        void addAttributeDescriptiveData(std::size_t cid,
-                                         double pAttribute,
-                                         SAttributeProbability &attributeProbability);
+    void addDescriptiveData(void);
 
-        void addDescriptiveData(void);
+private:
+    typedef maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability> TMinAccumulator;
 
-    private:
-        typedef maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability> TMinAccumulator;
-
-    private:
-        SAnnotatedProbability              &m_Result;
-        std::size_t                         m_NumberAttributeProbabilities;
-        std::size_t                         m_NumberOfPeople;
-        const maths::CMultinomialConjugate *m_AttributeProbabilityPrior;
-        const maths::CMultinomialConjugate *m_PersonAttributeProbabilityPrior;
-        TMinAccumulator                     m_MinAttributeProbabilities;
-        std::size_t                         m_DistinctTotalAttributes;
-        std::size_t                         m_DistinctRareAttributes;
-        double                              m_RareAttributes;
-        bool                                m_IsPopulation;
-        bool                                m_IsRare;
-        bool                                m_IsFreqRare;
+private:
+    SAnnotatedProbability &m_Result;
+    std::size_t m_NumberAttributeProbabilities;
+    std::size_t m_NumberOfPeople;
+    const maths::CMultinomialConjugate *m_AttributeProbabilityPrior;
+    const maths::CMultinomialConjugate *m_PersonAttributeProbabilityPrior;
+    TMinAccumulator m_MinAttributeProbabilities;
+    std::size_t m_DistinctTotalAttributes;
+    std::size_t m_DistinctRareAttributes;
+    double m_RareAttributes;
+    bool m_IsPopulation;
+    bool m_IsRare;
+    bool m_IsFreqRare;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
+#endif// INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h

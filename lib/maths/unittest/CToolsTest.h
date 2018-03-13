@@ -18,18 +18,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testProbabilityOfLessLikelySample(void);
-        void testIntervalExpectation(void);
-        void testMixtureProbabilityOfLessLikelySample(void);
-        void testDeviation(void);
-        void testSpread(void);
-        void testFastLog(void);
-        void testMiscellaneous(void);
+class CToolsTest : public CppUnit::TestFixture {
+public:
+    void testProbabilityOfLessLikelySample(void);
+    void testIntervalExpectation(void);
+    void testMixtureProbabilityOfLessLikelySample(void);
+    void testDeviation(void);
+    void testSpread(void);
+    void testFastLog(void);
+    void testMiscellaneous(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CToolsTest_h
+#endif// INCLUDED_CToolsTest_h

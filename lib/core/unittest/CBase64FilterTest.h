@@ -17,15 +17,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CBase64FilterTest : public CppUnit::TestFixture {
+public:
+    void testDecode(void);
+    void testEncode(void);
+    void testBoth(void);
 
-class CBase64FilterTest : public CppUnit::TestFixture
-{
-    public:
-        void testDecode(void);
-        void testEncode(void);
-        void testBoth(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CBase64FilterTest_h
+#endif// INCLUDED_CBase64FilterTest_h

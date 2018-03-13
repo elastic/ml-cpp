@@ -17,14 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CStateRestoreStreamFilterTest : public CppUnit::TestFixture {
+public:
+    void testBulkIndexHeaderRemoval();
+    void testBulkIndexHeaderRemovalZerobyte();
 
-class CStateRestoreStreamFilterTest : public CppUnit::TestFixture
-{
-    public:
-        void testBulkIndexHeaderRemoval();
-        void testBulkIndexHeaderRemovalZerobyte();
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CRestoreStreamFilterTest_h
+#endif// INCLUDED_CRestoreStreamFilterTest_h

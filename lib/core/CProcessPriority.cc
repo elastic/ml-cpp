@@ -14,20 +14,12 @@
  */
 #include <core/CProcessPriority.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-void CProcessPriority::reducePriority(void)
-{
+void CProcessPriority::reducePriority(void) {
     // Default is to do nothing - see platform-specific implementation files for
     // platforms where we do more
 }
-
-
 }
 }
-

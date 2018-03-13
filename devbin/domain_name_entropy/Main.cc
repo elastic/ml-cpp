@@ -30,14 +30,14 @@
 //! Standalone program.
 //!
 #include <core/CLogger.h>
-#include <core/CoreTypes.h>
 #include <core/CStatistics.h>
+#include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
 
+#include "CAddRegisteredDomainAndEntropyToCsv.h"
 #include "CCmdLineParser.h"
 #include "CTopLevelDomainDb.h"
-#include "CAddRegisteredDomainAndEntropyToCsv.h"
 
 #include <iostream>
 #include <string>
@@ -45,18 +45,13 @@
 using namespace ml;
 using namespace domain_name_entropy;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     // Read command line options
     std::string csvFileName;
     std::string domainNameFieldName;
     std::string timeFieldName;
-    if (CCmdLineParser::parse(argc,
-                              argv,
-                              csvFileName,
-                              domainNameFieldName,
-                              timeFieldName) == false)
-    {
+    if (CCmdLineParser::parse(argc, argv, csvFileName, domainNameFieldName, timeFieldName) ==
+        false) {
         return EXIT_FAILURE;
     }
 
@@ -64,26 +59,22 @@ int main(int argc, char **argv)
     // program statically links its own version library.
     LOG_INFO(ml::ver::CBuildInfo::fullInfo());
 
-    // Start 
+    // Start
     CTopLevelDomainDb tldDb("./effective_tld_names.txt");
 
     LOG_DEBUG("tldDb.init()");
-    if (tldDb.init() == false)
-    {
+    if (tldDb.init() == false) {
         LOG_ERROR("Can not initialise TLD DB");
         return EXIT_FAILURE;
     }
     LOG_DEBUG("tldDb.init() done");
 
     // Read in a CSV file
-    CAddRegisteredDomainAndEntropyToCsv csvReader(tldDb, 
-                                                  csvFileName,
-                                                  domainNameFieldName,
-                                                  timeFieldName, "entropy");
+    CAddRegisteredDomainAndEntropyToCsv csvReader(
+        tldDb, csvFileName, domainNameFieldName, timeFieldName, "entropy");
 
     LOG_DEBUG("csvReader.init()");
-    if (csvReader.init() == false)
-    {
+    if (csvReader.init() == false) {
         LOG_ERROR("Can not initialise reader");
         return EXIT_FAILURE;
     }

@@ -17,13 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelPlotDataJsonWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testWriteFlat(void);
+class CModelPlotDataJsonWriterTest : public CppUnit::TestFixture {
+public:
+    void testWriteFlat(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CModelPlotDataJsonWriterTest_h
-
+#endif// INCLUDED_CModelPlotDataJsonWriterTest_h

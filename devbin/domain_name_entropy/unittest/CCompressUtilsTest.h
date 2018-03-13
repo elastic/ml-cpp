@@ -17,15 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CCompressUtilsTest : public CppUnit::TestFixture {
+public:
+    void testCompressString1(void);
+    void testCompressString2(void);
 
-class CCompressUtilsTest : public CppUnit::TestFixture
-{
-    public:
-        void testCompressString1(void);
-        void testCompressString2(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CCompressUtilsTest_h
-
+#endif// INCLUDED_CCompressUtilsTest_h

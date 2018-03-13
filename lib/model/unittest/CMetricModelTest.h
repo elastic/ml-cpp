@@ -20,38 +20,37 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricModelTest : public CppUnit::TestFixture
-{
-    public:
-        void testSample(void);
-        void testMultivariateSample(void);
-        void testProbabilityCalculationForMetric(void);
-        void testProbabilityCalculationForMedian(void);
-        void testProbabilityCalculationForLowMedian(void);
-        void testProbabilityCalculationForHighMedian(void);
-        void testProbabilityCalculationForLowMean(void);
-        void testProbabilityCalculationForHighMean(void);
-        void testProbabilityCalculationForLowSum(void);
-        void testProbabilityCalculationForHighSum(void);
-        void testProbabilityCalculationForLatLong(void);
-        void testInfluence(void);
-        void testLatLongInfluence(void);
-        void testPrune(void);
-        void testSkipSampling(void);
-        void testExplicitNulls(void);
-        void testKey(void);
-        void testVarp(void);
-        void testInterimCorrections(void);
-        void testInterimCorrectionsWithCorrelations(void);
-        void testCorrelatePersist(void);
-        void testSummaryCountZeroRecordsAreIgnored(void);
-        void testDecayRateControl(void);
-        void testIgnoreSamplingGivenDetectionRules(void);
+class CMetricModelTest : public CppUnit::TestFixture {
+public:
+    void testSample(void);
+    void testMultivariateSample(void);
+    void testProbabilityCalculationForMetric(void);
+    void testProbabilityCalculationForMedian(void);
+    void testProbabilityCalculationForLowMedian(void);
+    void testProbabilityCalculationForHighMedian(void);
+    void testProbabilityCalculationForLowMean(void);
+    void testProbabilityCalculationForHighMean(void);
+    void testProbabilityCalculationForLowSum(void);
+    void testProbabilityCalculationForHighSum(void);
+    void testProbabilityCalculationForLatLong(void);
+    void testInfluence(void);
+    void testLatLongInfluence(void);
+    void testPrune(void);
+    void testSkipSampling(void);
+    void testExplicitNulls(void);
+    void testKey(void);
+    void testVarp(void);
+    void testInterimCorrections(void);
+    void testInterimCorrectionsWithCorrelations(void);
+    void testCorrelatePersist(void);
+    void testSummaryCountZeroRecordsAreIgnored(void);
+    void testDecayRateControl(void);
+    void testIgnoreSamplingGivenDetectionRules(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif // INCLUDED_CMetricModelTest_h
+#endif// INCLUDED_CMetricModelTest_h

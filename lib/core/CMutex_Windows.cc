@@ -14,43 +14,25 @@
  */
 #include <core/CMutex.h>
 
-
-namespace
-{
+namespace {
 // 4000 is a value that Microsoft uses in some of their code, so it's
 // hopefully a reasonably sensible setting
 static const DWORD SPIN_COUNT(4000);
 }
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-
-CMutex::CMutex(void)
-{
+CMutex::CMutex(void) {
     // On Windows Vista and above this function cannot fail, hence no need to
     // check the return code
     InitializeCriticalSectionAndSpinCount(&m_Mutex, SPIN_COUNT);
 }
 
-CMutex::~CMutex(void)
-{
-    DeleteCriticalSection(&m_Mutex);
-}
+CMutex::~CMutex(void) { DeleteCriticalSection(&m_Mutex); }
 
-void CMutex::lock(void)
-{
-    EnterCriticalSection(&m_Mutex);
-}
+void CMutex::lock(void) { EnterCriticalSection(&m_Mutex); }
 
-void CMutex::unlock(void)
-{
-    LeaveCriticalSection(&m_Mutex);
-}
-
-
+void CMutex::unlock(void) { LeaveCriticalSection(&m_Mutex); }
 }
 }
-

@@ -17,17 +17,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CDualThreadStreamBufTest : public CppUnit::TestFixture {
+public:
+    void testThroughput(void);
+    void testSlowConsumer(void);
+    void testPutback(void);
+    void testFatal(void);
 
-class CDualThreadStreamBufTest : public CppUnit::TestFixture
-{
-    public:
-        void testThroughput(void);
-        void testSlowConsumer(void);
-        void testPutback(void);
-        void testFatal(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CDualThreadStreamBufTest_h
-
+#endif// INCLUDED_CDualThreadStreamBufTest_h

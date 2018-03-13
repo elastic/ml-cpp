@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEqualWithToleranceTest : public CppUnit::TestFixture
-{
-    public:
-        void testScalar(void);
-        void testVector(void);
-        void testMatrix(void);
+class CEqualWithToleranceTest : public CppUnit::TestFixture {
+public:
+    void testScalar(void);
+    void testVector(void);
+    void testMatrix(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CEqualWithToleranceTest_h
+#endif// INCLUDED_CEqualWithToleranceTest_h

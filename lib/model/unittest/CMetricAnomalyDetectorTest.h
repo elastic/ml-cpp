@@ -18,15 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricAnomalyDetectorTest : public CppUnit::TestFixture
-{
-    public:
-        void testAnomalies(void);
-        void testPersist(void);
-        void testExcludeFrequent(void);
+class CMetricAnomalyDetectorTest : public CppUnit::TestFixture {
+public:
+    void testAnomalies(void);
+    void testPersist(void);
+    void testExcludeFrequent(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CMetricAnomalyDetectorTest_h
-
+#endif// INCLUDED_CMetricAnomalyDetectorTest_h

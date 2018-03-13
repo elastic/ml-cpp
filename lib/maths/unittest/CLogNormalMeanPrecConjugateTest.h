@@ -18,30 +18,28 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate(void);
+    void testPropagation(void);
+    void testMeanEstimation(void);
+    void testPrecisionEstimation(void);
+    void testMarginalLikelihood(void);
+    void testMarginalLikelihoodMean(void);
+    void testMarginalLikelihoodMode(void);
+    void testMarginalLikelihoodVariance(void);
+    void testSampleMarginalLikelihood(void);
+    void testCdf(void);
+    void testProbabilityOfLessLikelySamples(void);
+    void testAnomalyScore(void);
+    void testOffset(void);
+    void testIntegerData(void);
+    void testLowVariationData(void);
+    void testPersist(void);
+    void testVarianceScale(void);
+    void testNegativeSample(void);
 
-class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testMeanEstimation(void);
-        void testPrecisionEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMean(void);
-        void testMarginalLikelihoodMode(void);
-        void testMarginalLikelihoodVariance(void);
-        void testSampleMarginalLikelihood(void);
-        void testCdf(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testAnomalyScore(void);
-        void testOffset(void);
-        void testIntegerData(void);
-        void testLowVariationData(void);
-        void testPersist(void);
-        void testVarianceScale(void);
-        void testNegativeSample(void);
-
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CLogNormalMeanVarConjugateTest_h
+#endif// INCLUDED_CLogNormalMeanVarConjugateTest_h

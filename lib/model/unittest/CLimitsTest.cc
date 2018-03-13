@@ -16,38 +16,33 @@
 
 #include <model/CLimits.h>
 
-
-CppUnit::Test *CLimitsTest::suite()
-{
+CppUnit::Test *CLimitsTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLimitsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CLimitsTest>(
-                                   "CLimitsTest::testTrivial",
-                                   &CLimitsTest::testTrivial) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CLimitsTest>(
-                                   "CLimitsTest::testValid",
-                                   &CLimitsTest::testValid) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CLimitsTest>(
-                                   "CLimitsTest::testInvalid",
-                                   &CLimitsTest::testInvalid) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>("CLimitsTest::testTrivial",
+                                                               &CLimitsTest::testTrivial));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLimitsTest>("CLimitsTest::testValid", &CLimitsTest::testValid));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>("CLimitsTest::testInvalid",
+                                                               &CLimitsTest::testInvalid));
 
     return suiteOfTests;
 }
 
-void CLimitsTest::testTrivial(void)
-{
+void CLimitsTest::testTrivial(void) {
     ml::model::CLimits config;
 
     CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS, config.autoConfigEvents());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS, config.anomalyMaxTimeBuckets());
+    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                         config.anomalyMaxTimeBuckets());
     CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES, config.maxExamples());
     CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
                          config.unusualProbabilityThreshold());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB, config.memoryLimitMB());
+    CPPUNIT_ASSERT_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
+                         config.memoryLimitMB());
 }
 
-void CLimitsTest::testValid(void)
-{
+void CLimitsTest::testValid(void) {
     ml::model::CLimits config;
     CPPUNIT_ASSERT(config.init("testfiles/mllimits.conf"));
 
@@ -62,9 +57,7 @@ void CLimitsTest::testValid(void)
     CPPUNIT_ASSERT_EQUAL(size_t(4567), config.memoryLimitMB());
 }
 
-void CLimitsTest::testInvalid(void)
-{
+void CLimitsTest::testInvalid(void) {
     ml::model::CLimits config;
     CPPUNIT_ASSERT(!config.init("testfiles/invalidmllimits.conf"));
 }
-

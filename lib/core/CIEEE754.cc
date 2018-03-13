@@ -17,13 +17,10 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-double CIEEE754::round(double value, EPrecision precision)
-{
+double CIEEE754::round(double value, EPrecision precision) {
     // This first decomposes the value into the mantissa
     // and exponent to avoid the problem with overflow if
     // the values are close to max double.
@@ -31,32 +28,25 @@ double CIEEE754::round(double value, EPrecision precision)
     int exponent;
     double mantissa = ::frexp(value, &exponent);
 
-    switch (precision)
-    {
-    case E_HalfPrecision:
-    {
-        static double PRECISION = 2048.0;
-        mantissa = mantissa < 0.0 ?
-                   ::ceil(mantissa * PRECISION - 0.5) / PRECISION :
-                   ::floor(mantissa * PRECISION + 0.5) / PRECISION;
-        break;
-    }
-    case E_SinglePrecision:
-    {
-        static double PRECISION = 16777216.0;
-        mantissa = mantissa < 0.0 ?
-                   ::ceil(mantissa * PRECISION - 0.5) / PRECISION :
-                   ::floor(mantissa * PRECISION + 0.5) / PRECISION;
-        break;
-    }
-    case E_DoublePrecision:
-        // Nothing to do.
-        break;
+    switch (precision) {
+        case E_HalfPrecision: {
+            static double PRECISION = 2048.0;
+            mantissa = mantissa < 0.0 ? ::ceil(mantissa * PRECISION - 0.5) / PRECISION
+                                      : ::floor(mantissa * PRECISION + 0.5) / PRECISION;
+            break;
+        }
+        case E_SinglePrecision: {
+            static double PRECISION = 16777216.0;
+            mantissa = mantissa < 0.0 ? ::ceil(mantissa * PRECISION - 0.5) / PRECISION
+                                      : ::floor(mantissa * PRECISION + 0.5) / PRECISION;
+            break;
+        }
+        case E_DoublePrecision:
+            // Nothing to do.
+            break;
     }
 
     return ::ldexp(mantissa, exponent);
 }
-
 }
 }
-

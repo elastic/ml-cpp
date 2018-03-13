@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture
-{
-    public:
-        void testAll(void);
+class CPolymorphicStackObjectCPtrTest : public CppUnit::TestFixture {
+public:
+    void testAll(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CPolymorphicStackObjectCPtrTest_h
+#endif// INCLUDED_CPolymorphicStackObjectCPtrTest_h

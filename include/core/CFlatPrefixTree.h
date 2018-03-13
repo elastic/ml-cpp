@@ -23,10 +23,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A flat prefix tree that allows efficient string lookups
 //!
@@ -50,111 +48,105 @@ namespace core
 //! A tree level is better understood as the sum of the padding node and
 //! the associated char nodes. For the input of (ab, abd, bdf)
 //! the vector would look like:
-//! [($, $, 2) (a, b, 3) (b, b, 7) ($, $, 1) (b, *, 5) ($, $, 1) (d, l, -) ($, $, 1) (d, b, 9) ($, $, 1) (f, l, -) ]
-//! where '-' means no child and is actually represented by max(uint32_t).
-//! This representation allows for search by visiting the first node, applying
-//! binary search on the first character, moving on to the node indicated by
-//! the characters next index, applying binary search on the second character,
-//! and so on.
-class CORE_EXPORT CFlatPrefixTree
-{
-    public:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::string::const_iterator TStrCItr;
-        typedef std::string::const_reverse_iterator TStrCRItr;
+//! [($, $, 2) (a, b, 3) (b, b, 7) ($, $, 1) (b, *, 5) ($, $, 1) (d, l, -) ($, $, 1) (d, b, 9) ($,
+//! $, 1) (f, l, -) ] where '-' means no child and is actually represented by max(uint32_t). This
+//! representation allows for search by visiting the first node, applying binary search on the first
+//! character, moving on to the node indicated by the characters next index, applying binary search
+//! on the second character, and so on.
+class CORE_EXPORT CFlatPrefixTree {
+public:
+    typedef std::vector<std::string> TStrVec;
+    typedef TStrVec::const_iterator TStrVecCItr;
+    typedef std::string::const_iterator TStrCItr;
+    typedef std::string::const_reverse_iterator TStrCRItr;
 
-    private:
-        struct SNode
-        {
-            //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void)
-            {
-                return true;
-            }
+private:
+    struct SNode {
+        //! See CMemory.
+        static bool dynamicSizeAlwaysZero(void) { return true; }
 
-            SNode(char c, char type, uint32_t next);
+        SNode(char c, char type, uint32_t next);
 
-            bool operator<(char rhs) const;
-            char s_Char;
-            char s_Type;
-            uint32_t s_Next;
-        };
+        bool operator<(char rhs) const;
+        char s_Char;
+        char s_Type;
+        uint32_t s_Next;
+    };
 
-        struct SDistinctChar
-        {
-            SDistinctChar(char c, char type, std::size_t start, std::size_t end);
+    struct SDistinctChar {
+        SDistinctChar(char c, char type, std::size_t start, std::size_t end);
 
-            char s_Char;
-            char s_Type;
-            std::size_t s_Start;
-            std::size_t s_End;
-        };
+        char s_Char;
+        char s_Type;
+        std::size_t s_Start;
+        std::size_t s_End;
+    };
 
-    private:
-        typedef std::vector<SNode> TNodeVec;
-        typedef TNodeVec::const_iterator TNodeVecCItr;
-        typedef std::vector<SDistinctChar> TDistinctCharVec;
+private:
+    typedef std::vector<SNode> TNodeVec;
+    typedef TNodeVec::const_iterator TNodeVecCItr;
+    typedef std::vector<SDistinctChar> TDistinctCharVec;
 
-    public:
-        //! Default constructor.
-        CFlatPrefixTree(void);
+public:
+    //! Default constructor.
+    CFlatPrefixTree(void);
 
-        //! Builds the tree from a list of \p prefixes. The \p prefixes
-        //! vector is required to be lexicographically sorted.
-        //! Returns true if the tree was build successfully.
-        bool build(const TStrVec &prefixes);
+    //! Builds the tree from a list of \p prefixes. The \p prefixes
+    //! vector is required to be lexicographically sorted.
+    //! Returns true if the tree was build successfully.
+    bool build(const TStrVec &prefixes);
 
-        //! Returns true if the \p key starts with a prefix present in the tree.
-        bool matchesStart(const std::string &key) const;
+    //! Returns true if the \p key starts with a prefix present in the tree.
+    bool matchesStart(const std::string &key) const;
 
-        //! Returns true if the \p key fully matches a prefix present in the tree.
-        bool matchesFully(const std::string &key) const;
+    //! Returns true if the \p key fully matches a prefix present in the tree.
+    bool matchesFully(const std::string &key) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! starts with a prefix present in the tree.
-        bool matchesStart(TStrCItr start, TStrCItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! starts with a prefix present in the tree.
+    bool matchesStart(TStrCItr start, TStrCItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! fully matches a prefix present in the tree.
-        bool matchesFully(TStrCItr start, TStrCItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! fully matches a prefix present in the tree.
+    bool matchesFully(TStrCItr start, TStrCItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! starts with a prefix present in the tree.
-        bool matchesStart(TStrCRItr start, TStrCRItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! starts with a prefix present in the tree.
+    bool matchesStart(TStrCRItr start, TStrCRItr end) const;
 
-        //! Returns true if the string described by \p start, \p end
-        //! fully matches a prefix present in the tree.
-        bool matchesFully(TStrCRItr start, TStrCRItr end) const;
+    //! Returns true if the string described by \p start, \p end
+    //! fully matches a prefix present in the tree.
+    bool matchesFully(TStrCRItr start, TStrCRItr end) const;
 
-        //! Clears the tree.
-        void clear(void);
+    //! Clears the tree.
+    void clear(void);
 
-        //! Pretty-prints the tree.
-        std::string print(void) const;
-    private:
-        //! The recursive building helper.
-        void buildRecursively(const TStrVec &prefixes,
-                              std::size_t prefixesStart,
-                              std::size_t prefixesEnd,
-                              std::size_t charPos);
+    //! Pretty-prints the tree.
+    std::string print(void) const;
 
-        //! Extracts the distinct characters and stores it in \p distinctChars
-        //! along with the start and end index in the \p prefixes vector.
-        void extractDistinctCharacters(const TStrVec &prefixes,
-                                       std::size_t prefixesStart,
-                                       std::size_t prefixesEnd,
-                                       std::size_t charPos,
-                                       TDistinctCharVec &distinctChars);
+private:
+    //! The recursive building helper.
+    void buildRecursively(const TStrVec &prefixes,
+                          std::size_t prefixesStart,
+                          std::size_t prefixesEnd,
+                          std::size_t charPos);
 
-        //! Implementation of the search algorithm.
-        template<typename ITR>
-        bool matches(ITR start, ITR end, bool requireFullMatch) const;
-    private:
-        //! The vector representing the trie tree.
-        TNodeVec m_FlatTree;
+    //! Extracts the distinct characters and stores it in \p distinctChars
+    //! along with the start and end index in the \p prefixes vector.
+    void extractDistinctCharacters(const TStrVec &prefixes,
+                                   std::size_t prefixesStart,
+                                   std::size_t prefixesEnd,
+                                   std::size_t charPos,
+                                   TDistinctCharVec &distinctChars);
+
+    //! Implementation of the search algorithm.
+    template <typename ITR> bool matches(ITR start, ITR end, bool requireFullMatch) const;
+
+private:
+    //! The vector representing the trie tree.
+    TNodeVec m_FlatTree;
 };
 }
 }
 
-#endif // INCLUDED_ml_model_CFlatPrefixTree_h
+#endif// INCLUDED_ml_model_CFlatPrefixTree_h

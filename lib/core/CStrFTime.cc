@@ -14,22 +14,11 @@
  */
 #include <core/CStrFTime.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-size_t CStrFTime::strFTime(char *buf,
-                           size_t maxSize,
-                           const char *format,
-                           struct tm *tm)
-{
+size_t CStrFTime::strFTime(char *buf, size_t maxSize, const char *format, struct tm *tm) {
     return ::strftime(buf, maxSize, format, tm);
 }
-
-
 }
 }
-

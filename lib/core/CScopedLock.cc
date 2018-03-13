@@ -16,25 +16,11 @@
 
 #include <core/CMutex.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
+CScopedLock::CScopedLock(CMutex &mutex) : m_Mutex(mutex) { m_Mutex.lock(); }
 
-
-CScopedLock::CScopedLock(CMutex &mutex)
-    : m_Mutex(mutex)
-{
-    m_Mutex.lock();
-}
-
-CScopedLock::~CScopedLock(void)
-{
-    m_Mutex.unlock();
-}
-
-
+CScopedLock::~CScopedLock(void) { m_Mutex.unlock(); }
 }
 }
-

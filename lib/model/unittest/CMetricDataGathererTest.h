@@ -20,25 +20,25 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricDataGathererTest : public CppUnit::TestFixture
-{
-    public:
-        void singleSeriesTests(void);
-        void multipleSeriesTests(void);
-        void testSampleCount(void);
-        void testRemovePeople(void);
-        void testSum(void);
-        void singleSeriesOutOfOrderTests(void);
-        void testResetBucketGivenSingleSeries(void);
-        void testResetBucketGivenMultipleSeries(void);
-        void testInfluenceStatistics(void);
-        void testMultivariate(void);
-        void testStatisticsPersist(void);
-        void testVarp(void);
+class CMetricDataGathererTest : public CppUnit::TestFixture {
+public:
+    void singleSeriesTests(void);
+    void multipleSeriesTests(void);
+    void testSampleCount(void);
+    void testRemovePeople(void);
+    void testSum(void);
+    void singleSeriesOutOfOrderTests(void);
+    void testResetBucketGivenSingleSeries(void);
+    void testResetBucketGivenMultipleSeries(void);
+    void testInfluenceStatistics(void);
+    void testMultivariate(void);
+    void testStatisticsPersist(void);
+    void testVarp(void);
 
-        static CppUnit::Test *suite(void);
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+    static CppUnit::Test *suite(void);
+
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif // INCLUDED_CMetricDataGathererTest_h
+#endif// INCLUDED_CMetricDataGathererTest_h

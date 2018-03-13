@@ -18,18 +18,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXMeansTest : public CppUnit::TestFixture
-{
-    public:
-        void testCluster(void);
-        void testImproveParams(void);
-        void testImproveStructure(void);
-        void testOneCluster(void);
-        void testFiveClusters(void);
-        void testTwentyClusters(void);
-        void testPoorlyConditioned(void);
+class CXMeansTest : public CppUnit::TestFixture {
+public:
+    void testCluster(void);
+    void testImproveParams(void);
+    void testImproveStructure(void);
+    void testOneCluster(void);
+    void testFiveClusters(void);
+    void testTwentyClusters(void);
+    void testPoorlyConditioned(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CXMeansTest_h
+#endif// INCLUDED_CXMeansTest_h

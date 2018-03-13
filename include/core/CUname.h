@@ -20,12 +20,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Portable wrapper for the uname() function.
@@ -40,34 +36,30 @@ namespace core
 //! Each member of the utsname struct should be implemented as a
 //! separate method, as usually only one is required.
 //!
-class CORE_EXPORT CUname : private CNonInstantiatable
-{
-    public:
-        //! uname -s
-        static std::string sysName(void);
-        //! uname -n
-        static std::string nodeName(void);
-        //! uname -r
-        static std::string release(void);
-        //! uname -v
-        static std::string version(void);
-        //! uname -m
-        static std::string machine(void);
-        //! uname -a (or possibly a cut down version on some platforms)
-        static std::string all(void);
+class CORE_EXPORT CUname : private CNonInstantiatable {
+public:
+    //! uname -s
+    static std::string sysName(void);
+    //! uname -n
+    static std::string nodeName(void);
+    //! uname -r
+    static std::string release(void);
+    //! uname -v
+    static std::string version(void);
+    //! uname -m
+    static std::string machine(void);
+    //! uname -a (or possibly a cut down version on some platforms)
+    static std::string all(void);
 
-        //! Return the platform name in the format <platform>-<arch>
-        //! e.g. linux-x86_64
-        static std::string mlPlatform(void);
+    //! Return the platform name in the format <platform>-<arch>
+    //! e.g. linux-x86_64
+    static std::string mlPlatform(void);
 
-        //! On Unix this is equivalent to uname -r; on Windows it's the
-        //! underlying Windows NT version.
-        static std::string mlOsVer(void);
+    //! On Unix this is equivalent to uname -r; on Windows it's the
+    //! underlying Windows NT version.
+    static std::string mlOsVer(void);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CUname_h
-
+#endif// INCLUDED_ml_core_CUname_h

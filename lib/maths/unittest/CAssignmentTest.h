@@ -18,12 +18,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAssignmentTest : public CppUnit::TestFixture
-{
-    public:
-        void testKuhnMunkres(void);
+class CAssignmentTest : public CppUnit::TestFixture {
+public:
+    void testKuhnMunkres(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CAssignmentTest_h
+#endif// INCLUDED_CAssignmentTest_h

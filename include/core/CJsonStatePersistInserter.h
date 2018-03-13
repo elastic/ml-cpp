@@ -24,11 +24,8 @@
 #include <iosfwd>
 #include <ostream>
 
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! For persisting state in JSON format.
@@ -46,49 +43,44 @@ namespace core
 //! have attributes).  This may complicate code that needs to be 100%
 //! JSON/XML agnostic.
 //!
-class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter
-{
-    public:
-        //! Root node has no attributes
-        CJsonStatePersistInserter(std::ostream &outputStream);
+class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
+public:
+    //! Root node has no attributes
+    CJsonStatePersistInserter(std::ostream &outputStream);
 
-        //! Destructor flushes
-        virtual ~CJsonStatePersistInserter(void);
+    //! Destructor flushes
+    virtual ~CJsonStatePersistInserter(void);
 
-        //! Store a name/value
-        virtual void insertValue(const std::string &name,
-                                 const std::string &value);
+    //! Store a name/value
+    virtual void insertValue(const std::string &name, const std::string &value);
 
-        //! Write as an integer avoiding the string conversion
-        //! overloads
-        void insertInteger(const std::string &name, size_t value);
+    //! Write as an integer avoiding the string conversion
+    //! overloads
+    void insertInteger(const std::string &name, size_t value);
 
-        // Bring extra base class overloads into scope
-        using CStatePersistInserter::insertValue;
+    // Bring extra base class overloads into scope
+    using CStatePersistInserter::insertValue;
 
-        //! Flush the underlying output stream
-        void flush(void);
+    //! Flush the underlying output stream
+    void flush(void);
 
-    protected:
-        //! Start a new level with the given name
-        virtual void newLevel(const std::string &name);
+protected:
+    //! Start a new level with the given name
+    virtual void newLevel(const std::string &name);
 
-        //! End the current level
-        virtual void endLevel(void);
+    //! End the current level
+    virtual void endLevel(void);
 
-    private:
-        //! JSON writer ostream wrapper
-        rapidjson::OStreamWrapper     m_WriteStream;
+private:
+    //! JSON writer ostream wrapper
+    rapidjson::OStreamWrapper m_WriteStream;
 
-        typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+    typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
-        //! JSON writer
-        TGenericLineWriter            m_Writer;
+    //! JSON writer
+    TGenericLineWriter m_Writer;
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CJsonStatePersistInserter_h
-
+#endif// INCLUDED_ml_core_CJsonStatePersistInserter_h

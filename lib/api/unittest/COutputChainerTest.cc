@@ -30,20 +30,16 @@
 
 #include <fstream>
 
-
-CppUnit::Test *COutputChainerTest::suite()
-{
+CppUnit::Test *COutputChainerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<COutputChainerTest>(
-                                   "COutputChainerTest::testChaining",
-                                   &COutputChainerTest::testChaining) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>(
+        "COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
 
     return suiteOfTests;
 }
 
-void COutputChainerTest::testChaining(void)
-{
+void COutputChainerTest::testChaining(void) {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
@@ -56,7 +52,7 @@ void COutputChainerTest::testChaining(void)
 
         std::ofstream outputStrm(outputFileName.c_str());
         CPPUNIT_ASSERT(outputStrm.is_open());
-        ml::core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
+        ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         // Set up the processing chain as:
         // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
 
@@ -65,7 +61,7 @@ void COutputChainerTest::testChaining(void)
         CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig =
-                ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
         ml::api::CAnomalyJob job("job",
                                  limits,
@@ -84,9 +80,8 @@ void COutputChainerTest::testChaining(void)
 
         ml::api::CLineifiedJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStream(boost::bind(&CMockDataProcessor::handleRecord,
-                                                     &mockProcessor,
-                                                     _1)));
+        CPPUNIT_ASSERT(
+            parser.readStream(boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
     }
 
     // Check the results by re-reading the output file
@@ -96,8 +91,7 @@ void COutputChainerTest::testChaining(void)
 
     std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 
-    while (line.length() == 0 || line.find(modelSizeString) != std::string::npos)
-    {
+    while (line.length() == 0 || line.find(modelSizeString) != std::string::npos) {
         std::getline(reReadStrm, line);
         LOG_DEBUG("Read line: " << line);
     }
@@ -113,4 +107,3 @@ void COutputChainerTest::testChaining(void)
     reReadStrm.close();
     CPPUNIT_ASSERT_EQUAL(0, ::remove(outputFileName.c_str()));
 }
-

@@ -17,13 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBlockingCallCancellerThreadTest : public CppUnit::TestFixture
-{
-    public:
-        void testCancelBlock(void);
+class CBlockingCallCancellerThreadTest : public CppUnit::TestFixture {
+public:
+    void testCancelBlock(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CBlockingCallCancellerThreadTest_h
-
+#endif// INCLUDED_CBlockingCallCancellerThreadTest_h

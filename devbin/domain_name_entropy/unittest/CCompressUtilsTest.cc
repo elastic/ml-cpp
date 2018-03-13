@@ -21,21 +21,17 @@
 using namespace ml;
 using namespace domain_name_entropy;
 
-CppUnit::Test *CCompressUtilsTest::suite()
-{
+CppUnit::Test *CCompressUtilsTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testCompressString1",
-                                   &CCompressUtilsTest::testCompressString1) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testCompressString2",
-                                   &CCompressUtilsTest::testCompressString2) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testCompressString1", &CCompressUtilsTest::testCompressString1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressUtilsTest>(
+        "CCompressUtilsTest::testCompressString2", &CCompressUtilsTest::testCompressString2));
     return suiteOfTests;
 }
 
-void CCompressUtilsTest::testCompressString1(void)
-{
+void CCompressUtilsTest::testCompressString1(void) {
     CCompressUtils tester3;
 
     std::string str1("1234567890");
@@ -59,7 +55,7 @@ void CCompressUtilsTest::testCompressString1(void)
     std::string str = str1 + str2 + str3;
 
     // NOTE: the string gets bigger!
-    //std::cout << str << " " << str.size() << " " << length3 << std::endl;
+    // std::cout << str << " " << str.size() << " " << length3 << std::endl;
 
     CPPUNIT_ASSERT(tester1.compressString(true, str));
 
@@ -73,16 +69,14 @@ void CCompressUtilsTest::testCompressString1(void)
     CPPUNIT_ASSERT_EQUAL(compressed1, compressed3);
 }
 
-void CCompressUtilsTest::testCompressString2(void)
-{
+void CCompressUtilsTest::testCompressString2(void) {
     CCompressUtils mTester;
 
     std::string str1("qwertyuiopa1234sdfghjklzxcvbnm");
 
     std::string str;
 
-    for (int i = 0; i < 1000; ++i)
-    {
+    for (int i = 0; i < 1000; ++i) {
         str += str1;
         CPPUNIT_ASSERT(mTester.compressString(false, str1));
     }
@@ -111,7 +105,7 @@ void CCompressUtilsTest::testCompressString2(void)
     CPPUNIT_ASSERT(length < str.size());
 
     // cout'ing this here will write a null string char to the end of the buffer
-    //std::cout << str << std::endl;
-    //std::cout << compressed << std::endl;
-    //std::cout << length << std::endl;
+    // std::cout << str << std::endl;
+    // std::cout << compressed << std::endl;
+    // std::cout << length << std::endl;
 }

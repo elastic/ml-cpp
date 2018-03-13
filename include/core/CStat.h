@@ -19,11 +19,8 @@
 
 #include <atomic>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! An atomic statistic object
@@ -36,34 +33,32 @@ namespace core
 //! IMPLEMENTATION DECISIONS:\n
 //! Not copyable - it only makes sense to have one instance of this
 //!
-class CORE_EXPORT CStat : private CNonCopyable
-{
-    public:
-        //! Default constructor
-        CStat(void);
+class CORE_EXPORT CStat : private CNonCopyable {
+public:
+    //! Default constructor
+    CStat(void);
 
-        //! Add the value 1 to this stat
-        void increment(void);
+    //! Add the value 1 to this stat
+    void increment(void);
 
-        //! Add some value to this stat
-        void increment(uint64_t value);
+    //! Add some value to this stat
+    void increment(uint64_t value);
 
-        //! Remove the value 1 from this stat
-        void decrement(void);
+    //! Remove the value 1 from this stat
+    void decrement(void);
 
-        //! Set the stat to this new value
-        void set(uint64_t value);
+    //! Set the stat to this new value
+    void set(uint64_t value);
 
-        //! Get the value of this stat
-        uint64_t value(void) const;
+    //! Get the value of this stat
+    uint64_t value(void) const;
 
-    private:
-        //! The counter value of this stat
-        std::atomic_uint_fast64_t m_Value;
+private:
+    //! The counter value of this stat
+    std::atomic_uint_fast64_t m_Value;
 };
 
+}// core
+}// ml
 
-} // core
-} // ml
-
-#endif // INCLUDED_ml_core_CStat_h
+#endif// INCLUDED_ml_core_CStat_h

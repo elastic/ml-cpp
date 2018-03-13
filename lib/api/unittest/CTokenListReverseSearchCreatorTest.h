@@ -17,20 +17,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CTokenListReverseSearchCreatorTest : public CppUnit::TestFixture {
+public:
+    void testCostOfToken(void);
+    void testCreateNullSearch(void);
+    void testCreateNoUniqueTokenSearch(void);
+    void testInitStandardSearch(void);
+    void testAddCommonUniqueToken(void);
+    void testAddInOrderCommonToken(void);
+    void testCloseStandardSearch(void);
 
-class CTokenListReverseSearchCreatorTest : public CppUnit::TestFixture
-{
-    public:
-        void testCostOfToken(void);
-        void testCreateNullSearch(void);
-        void testCreateNoUniqueTokenSearch(void);
-        void testInitStandardSearch(void);
-        void testAddCommonUniqueToken(void);
-        void testAddInOrderCommonToken(void);
-        void testCloseStandardSearch(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CTokenListReverseSearchCreatorTest_h
-
+#endif// INCLUDED_CTokenListReverseSearchCreatorTest_h

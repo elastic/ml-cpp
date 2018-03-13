@@ -18,23 +18,22 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHierarchicalResultsTest : public CppUnit::TestFixture
-{
-    public:
-        void testBreadthFirstVisit(void);
-        void testDepthFirstVisit(void);
-        void testBuildHierarchy(void);
-        void testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue(void);
-        void testBasicVisitor(void);
-        void testAggregator(void);
-        void testInfluence(void);
-        void testScores(void);
-        void testWriter(void);
-        void testNormalizer(void);
-        void testDetectorEqualizing(void);
-        void testShouldWritePartition(void);
+class CHierarchicalResultsTest : public CppUnit::TestFixture {
+public:
+    void testBreadthFirstVisit(void);
+    void testDepthFirstVisit(void);
+    void testBuildHierarchy(void);
+    void testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue(void);
+    void testBasicVisitor(void);
+    void testAggregator(void);
+    void testInfluence(void);
+    void testScores(void);
+    void testWriter(void);
+    void testNormalizer(void);
+    void testDetectorEqualizing(void);
+    void testShouldWritePartition(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CHierarchicalResultsTest_h
+#endif// INCLUDED_CHierarchicalResultsTest_h

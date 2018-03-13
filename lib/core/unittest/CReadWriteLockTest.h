@@ -17,16 +17,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CReadWriteLockTest : public CppUnit::TestFixture {
+public:
+    void testReadLock(void);
+    void testWriteLock(void);
+    void testPerformanceVersusMutex(void);
 
-class CReadWriteLockTest : public CppUnit::TestFixture
-{
-    public:
-        void testReadLock(void);
-        void testWriteLock(void);
-        void testPerformanceVersusMutex(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CReadWriteLockTest_h
-
+#endif// INCLUDED_CReadWriteLockTest_h

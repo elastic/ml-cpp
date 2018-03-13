@@ -23,12 +23,9 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
-namespace function_t
-{
+namespace ml {
+namespace model {
+namespace function_t {
 
 //! An enumeration of possible functions we can run on a data stream
 //! on which we do anomaly detection. These map to a set of data
@@ -110,8 +107,7 @@ namespace function_t
 //!   -# Population metric sum: for which we look at the sum of the metric
 //!      values each person generates in a bucket optionally partitioned by
 //!      a category. This is used for analyzing metric data as a population.
-enum EFunction
-{
+enum EFunction {
     // IMPORTANT: The integer values associated with these enum values are
     // stored in persisted state.  DO NOT CHANGE EXISTING NUMBERS, as this
     // will invalidate persisted state.  Any new enum values that are added
@@ -210,10 +206,10 @@ enum EFunction
     E_PeersInfoContent = 406,
     E_PeersLowInfoContent = 407,
     E_PeersHighInfoContent = 408,
-    //E_PeersRare = 409,
-    //E_PeersRareCount = 410,
-    //E_PeersFreqRare = 411,
-    //E_PeersFreqRareCount = 412,
+    // E_PeersRare = 409,
+    // E_PeersRareCount = 410,
+    // E_PeersFreqRare = 411,
+    // E_PeersFreqRareCount = 412,
     E_PeersTimeOfDay = 413,
     E_PeersTimeOfWeek = 414
 };
@@ -259,10 +255,8 @@ std::string print(EFunction function);
 //! Overload std stream << operator.
 MODEL_EXPORT
 std::ostream &operator<<(std::ostream &o, EFunction function);
-
 }
 }
 }
 
-#endif // INCLUDED_ml_model_function_t_FunctionTypes_h
-
+#endif// INCLUDED_ml_model_function_t_FunctionTypes_h

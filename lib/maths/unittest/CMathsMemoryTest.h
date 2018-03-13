@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMathsMemoryTest : public CppUnit::TestFixture
-{
+class CMathsMemoryTest : public CppUnit::TestFixture {
 public:
     void testPriors(void);
     void testBjkstVec(void);
@@ -28,5 +27,4 @@ public:
     static CppUnit::Test *suite(void);
 };
 
-
-#endif // INCLUDED_CMathsMemoryTest_h
+#endif// INCLUDED_CMathsMemoryTest_h

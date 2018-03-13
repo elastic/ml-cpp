@@ -23,16 +23,13 @@
 
 #include <boost/ref.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CModelParams;
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
-struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams
-{
+struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
     STimeSeriesDecompositionRestoreParams(double decayRate,
                                           core_t::TTime minimumBucketLength,
                                           std::size_t componentSize);
@@ -49,8 +46,7 @@ struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! distribution models.
-struct MATHS_EXPORT SDistributionRestoreParams
-{
+struct MATHS_EXPORT SDistributionRestoreParams {
     SDistributionRestoreParams(maths_t::EDataType dataType,
                                double decayRate,
                                double minimumClusterFraction,
@@ -75,8 +71,7 @@ struct MATHS_EXPORT SDistributionRestoreParams
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
-struct MATHS_EXPORT SModelRestoreParams
-{
+struct MATHS_EXPORT SModelRestoreParams {
     using TModelParamsCRef = boost::reference_wrapper<const CModelParams>;
 
     SModelRestoreParams(const CModelParams &params,
@@ -92,8 +87,7 @@ struct MATHS_EXPORT SModelRestoreParams
     //! The time series decomposition restore parameters.
     SDistributionRestoreParams s_DistributionParams;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_maths_CRestoreParams_h
+#endif// INCLUDED_ml_maths_CRestoreParams_h

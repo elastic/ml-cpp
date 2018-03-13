@@ -18,22 +18,21 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultinomialConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testProbabilityEstimation(void);
-        void testMarginalLikelihood(void);
-        void testSampleMarginalLikelihood(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testAnomalyScore(void);
-        void testRemoveCategories(void);
-        void testPersist(void);
-        void testOverflow(void);
-        void testConcentration(void);
+class CMultinomialConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate(void);
+    void testPropagation(void);
+    void testProbabilityEstimation(void);
+    void testMarginalLikelihood(void);
+    void testSampleMarginalLikelihood(void);
+    void testProbabilityOfLessLikelySamples(void);
+    void testAnomalyScore(void);
+    void testRemoveCategories(void);
+    void testPersist(void);
+    void testOverflow(void);
+    void testConcentration(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CMultinomialConjugateTest_h
+#endif// INCLUDED_CMultinomialConjugateTest_h

@@ -22,22 +22,20 @@
 //!
 //! DESCRIPTION:\n
 //! A couple of module tests of forecast including regression tests
-class CForecastRunnerTest : public CppUnit::TestFixture
-{
-    public:
-        void testSummaryCount();
-        void testPopulation();
-        void testRare();
-        void testInsufficientData();
-        void testValidateDuration();
-        void testValidateDefaultExpiry();
-        void testValidateNoExpiry();
-        void testValidateInvalidExpiry();
-        void testValidateBrokenMessage();
-        void testValidateMissingId();
+class CForecastRunnerTest : public CppUnit::TestFixture {
+public:
+    void testSummaryCount();
+    void testPopulation();
+    void testRare();
+    void testInsufficientData();
+    void testValidateDuration();
+    void testValidateDefaultExpiry();
+    void testValidateNoExpiry();
+    void testValidateInvalidExpiry();
+    void testValidateBrokenMessage();
+    void testValidateMissingId();
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-
-#endif // INCLUDED_CForecastRunnerTest_h
+#endif// INCLUDED_CForecastRunnerTest_h

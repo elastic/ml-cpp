@@ -17,38 +17,28 @@
 #include <core/CLogger.h>
 #include <core/CRegex.h>
 
-
-CppUnit::Test *CRegexTest::suite()
-{
+CppUnit::Test *CRegexTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRegexTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testInit",
-                                   &CRegexTest::testInit) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testSearch",
-                                   &CRegexTest::testSearch) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testSplit",
-                                   &CRegexTest::testSplit) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testTokenise1",
-                                   &CRegexTest::testTokenise1) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testTokenise2",
-                                   &CRegexTest::testTokenise2) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testEscape",
-                                   &CRegexTest::testEscape) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CRegexTest>(
-                                   "CRegexTest::testLiteralCount",
-                                   &CRegexTest::testLiteralCount) );
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRegexTest>("CRegexTest::testInit", &CRegexTest::testInit));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRegexTest>("CRegexTest::testSearch", &CRegexTest::testSearch));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRegexTest>("CRegexTest::testSplit", &CRegexTest::testSplit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testTokenise1",
+                                                              &CRegexTest::testTokenise1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testTokenise2",
+                                                              &CRegexTest::testTokenise2));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CRegexTest>("CRegexTest::testEscape", &CRegexTest::testEscape));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexTest>("CRegexTest::testLiteralCount",
+                                                              &CRegexTest::testLiteralCount));
 
     return suiteOfTests;
 }
 
-void CRegexTest::testInit(void)
-{
+void CRegexTest::testInit(void) {
     {
         std::string regexStr = "[[:digit: ] )";
 
@@ -96,18 +86,19 @@ void CRegexTest::testInit(void)
         CPPUNIT_ASSERT(regex.init(regexStr));
 
         CPPUNIT_ASSERT_EQUAL(regexStr, regex.str());
-        CPPUNIT_ASSERT(regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        CPPUNIT_ASSERT(regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> "
+                                     "<BEA-000365> <Server state changed to STARTING>"));
     }
     {
         // Uninitialised
         std::string regexStr = "<.*";
         ml::core::CRegex regex;
-        CPPUNIT_ASSERT(!regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        CPPUNIT_ASSERT(!regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> "
+                                      "<BEA-000365> <Server state changed to STARTING>"));
     }
 }
 
-void CRegexTest::testSearch(void)
-{
+void CRegexTest::testSearch(void) {
     {
         // Uninitialised
         ml::core::CRegex regex;
@@ -163,10 +154,11 @@ void CRegexTest::testSearch(void)
     }
 }
 
-void CRegexTest::testTokenise1(void)
-{
-    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
-    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
+void CRegexTest::testTokenise1(void) {
+    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on "
+                     "node 0x1234<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error "
+                     "(8) on node 0x1235<END>");
 
     {
         // Uninitialised
@@ -210,8 +202,7 @@ void CRegexTest::testTokenise1(void)
         CPPUNIT_ASSERT(regex.matches(str1));
         CPPUNIT_ASSERT(regex.tokenise(str1, tokens));
 
-        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
+        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
             LOG_DEBUG("'" << *itr << "'");
         }
 
@@ -223,7 +214,8 @@ void CRegexTest::testTokenise1(void)
 
         regexStr += "^<(.+?):";
         regexStr += "\\s*(\\w+):";
-        regexStr += ".+?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d+)\\s+(\\d+:\\d+:\\d+)\\s+(\\d+)";
+        regexStr += ".+?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d+)\\s+(\\d+:\\d+:"
+                    "\\d+)\\s+(\\d+)";
         regexStr += ">\\s+(?:Transport read error)";
         regexStr += ".+?node\\s+(0x\\d+|\\d+)";
         regexStr += ".*$";
@@ -237,8 +229,7 @@ void CRegexTest::testTokenise1(void)
         CPPUNIT_ASSERT(regex.matches(str2));
         CPPUNIT_ASSERT(regex.tokenise(str2, tokens));
 
-        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
+        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
             LOG_DEBUG("'" << *itr << "'");
         }
 
@@ -246,10 +237,13 @@ void CRegexTest::testTokenise1(void)
         CPPUNIT_ASSERT(!regex.tokenise(str1, tokens));
     }
 
-    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
+    std::string str3("Sep 10, 2009 3:54:12 AM org.apache.tomcat.util.http.Parameters "
+                     "processParameters\r\nWARNING: Parameters: Invalid chunk ignored.");
 
     {
-        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]+)\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|DEBUG|FATAL): Parameters: Invalid chunk ignored\\.\\s*");
+        std::string regexStr("(\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+)\\s*([[:alnum:].]+)"
+                             "\\s*(\\w+)\\r?\\n(INFO|WARNING|SEVERE|DEBUG|FATAL): Parameters: "
+                             "Invalid chunk ignored\\.\\s*");
 
         ml::core::CRegex regex;
 
@@ -260,16 +254,17 @@ void CRegexTest::testTokenise1(void)
         CPPUNIT_ASSERT(regex.matches(str3));
         CPPUNIT_ASSERT(regex.tokenise(str3, tokens));
 
-        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
+        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
             LOG_DEBUG("'" << *itr << "'");
         }
     }
 
-    std::string str4("dataview[(@name=\"Snoozed\")]/rows/row[(@name=\"796480523\")]/cell[(@column=\"managedEntity\")]");
+    std::string str4("dataview[(@name=\"Snoozed\")]/rows/row[(@name=\"796480523\")]/"
+                     "cell[(@column=\"managedEntity\")]");
 
     {
-        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/row\\[\\(@name=\"(.*)\"\\)\\]/cell\\[\\(@column=\"(.*)\"\\)\\].*");
+        std::string regexStr(".*dataview\\[\\(@name=\"(.*)\"\\)\\]/rows/"
+                             "row\\[\\(@name=\"(.*)\"\\)\\]/cell\\[\\(@column=\"(.*)\"\\)\\].*");
 
         ml::core::CRegex regex;
 
@@ -280,15 +275,13 @@ void CRegexTest::testTokenise1(void)
         CPPUNIT_ASSERT(regex.matches(str4));
         CPPUNIT_ASSERT(regex.tokenise(str4, tokens));
 
-        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
+        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
             LOG_DEBUG("'" << *itr << "'");
         }
     }
 }
 
-void CRegexTest::testTokenise2(void)
-{
+void CRegexTest::testTokenise2(void) {
     std::string regexStr("(.+?)(?:\\((.*?)\\))?");
 
     ml::core::CRegex regex;
@@ -324,10 +317,11 @@ void CRegexTest::testTokenise2(void)
     CPPUNIT_ASSERT(tokens[1].empty());
 }
 
-void CRegexTest::testSplit(void)
-{
-    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on node 0x1234<END>");
-    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error (8) on node 0x1235<END>");
+void CRegexTest::testSplit(void) {
+    std::string str1("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:53:44 2008> Transport node error on "
+                     "node 0x1234<END>");
+    std::string str2("<ml00-4203.1.p2ps: Error: Fri Apr 11  15:30:14 2008> Transport read error "
+                     "(8) on node 0x1235<END>");
 
     {
         // Uninitialised
@@ -350,23 +344,22 @@ void CRegexTest::testSplit(void)
 
         CPPUNIT_ASSERT(regex.split(str1, tokens));
 
-        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
+        for (ml::core::CRegex::TStrVec::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
             LOG_DEBUG("'" << *itr << "'");
         }
     }
 }
 
-void CRegexTest::testEscape(void)
-{
+void CRegexTest::testEscape(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("\\.\\.\\."), ml::core::CRegex::escapeRegexSpecial("..."));
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), ml::core::CRegex::escapeRegexSpecial("hello"));
-    CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\n\\^"), ml::core::CRegex::escapeRegexSpecial(")hello(\n^"));
-    CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\r?\\n\\^"), ml::core::CRegex::escapeRegexSpecial(")hello(\r\n^"));
+    CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\n\\^"),
+                         ml::core::CRegex::escapeRegexSpecial(")hello(\n^"));
+    CPPUNIT_ASSERT_EQUAL(std::string("\\)hello\\(\\r?\\n\\^"),
+                         ml::core::CRegex::escapeRegexSpecial(")hello(\r\n^"));
 }
 
-void CRegexTest::testLiteralCount(void)
-{
+void CRegexTest::testLiteralCount(void) {
     {
         // Uninitialised
         ml::core::CRegex regex;
@@ -462,4 +455,3 @@ void CRegexTest::testLiteralCount(void)
         CPPUNIT_ASSERT_EQUAL(size_t(0), regex.literalCount());
     }
 }
-

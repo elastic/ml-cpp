@@ -18,16 +18,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCategoricalToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testProbabilityOfLessLikelyMultinomialSample(void);
-        void testProbabilityOfLessLikelyCategoryCount(void);
-        void testExpectedDistinctCategories(void);
-        void testLogBinomialProbability(void);
-        void testLogMultinomialProbability(void);
+class CCategoricalToolsTest : public CppUnit::TestFixture {
+public:
+    void testProbabilityOfLessLikelyMultinomialSample(void);
+    void testProbabilityOfLessLikelyCategoryCount(void);
+    void testExpectedDistinctCategories(void);
+    void testLogBinomialProbability(void);
+    void testLogMultinomialProbability(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CCategoricalToolsTest_h
+#endif// INCLUDED_CCategoricalToolsTest_h

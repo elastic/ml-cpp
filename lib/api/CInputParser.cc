@@ -14,54 +14,23 @@
  */
 #include <api/CInputParser.h>
 
+namespace ml {
+namespace api {
 
-namespace ml
-{
-namespace api
-{
+CInputParser::CInputParser(void) : m_GotFieldNames(false), m_GotData(false) {}
 
+CInputParser::~CInputParser(void) {}
 
-CInputParser::CInputParser(void)
-    : m_GotFieldNames(false),
-      m_GotData(false)
-{
-}
+bool CInputParser::gotFieldNames(void) const { return m_GotFieldNames; }
 
-CInputParser::~CInputParser(void)
-{
-}
+bool CInputParser::gotData(void) const { return m_GotData; }
 
-bool CInputParser::gotFieldNames(void) const
-{
-    return m_GotFieldNames;
-}
+const CInputParser::TStrVec &CInputParser::fieldNames(void) const { return m_FieldNames; }
 
-bool CInputParser::gotData(void) const
-{
-    return m_GotData;
-}
+void CInputParser::gotFieldNames(bool gotFieldNames) { m_GotFieldNames = gotFieldNames; }
 
-const CInputParser::TStrVec &CInputParser::fieldNames(void) const
-{
-    return m_FieldNames;
-}
+void CInputParser::gotData(bool gotData) { m_GotData = gotData; }
 
-void CInputParser::gotFieldNames(bool gotFieldNames)
-{
-    m_GotFieldNames = gotFieldNames;
-}
-
-void CInputParser::gotData(bool gotData)
-{
-    m_GotData = gotData;
-}
-
-CInputParser::TStrVec &CInputParser::fieldNames(void)
-{
-    return m_FieldNames;
-}
-
-
+CInputParser::TStrVec &CInputParser::fieldNames(void) { return m_FieldNames; }
 }
 }
-

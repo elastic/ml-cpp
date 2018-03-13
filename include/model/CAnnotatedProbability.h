@@ -27,24 +27,19 @@
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <vector>
 #include <utility>
+#include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace model
-{
+namespace model {
 
-namespace annotated_probability
-{
-enum EDescriptiveData
-{
+namespace annotated_probability {
+enum EDescriptiveData {
     E_PERSON_PERIOD = 0,
     E_PERSON_NEVER_SEEN_BEFORE = 1,
     E_PERSON_COUNT = 2,
@@ -58,8 +53,7 @@ enum EDescriptiveData
 }
 
 //! \brief A collection of data describing an attribute's probability.
-struct MODEL_EXPORT SAttributeProbability
-{
+struct MODEL_EXPORT SAttributeProbability {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
@@ -118,12 +112,14 @@ struct MODEL_EXPORT SAttributeProbability
 //! This includes all associated data such as a set of the smallest
 //! attribute probabilities, the influences, extra descriptive data
 //! and so on.
-struct MODEL_EXPORT SAnnotatedProbability
-{
+struct MODEL_EXPORT SAnnotatedProbability {
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TStoredStringPtrStoredStringPtrPr =
+        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStoredStringPtrStoredStringPtrPrDoublePr =
+        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
+        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = boost::optional<double>;
@@ -172,8 +168,7 @@ struct MODEL_EXPORT SAnnotatedProbability
     //! The baseline bucket count for this probability (cached from the model).
     TOptionalDouble s_BaselineBucketCount;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_model_CAnnotatedProbability_h
+#endif// INCLUDED_ml_model_CAnnotatedProbability_h

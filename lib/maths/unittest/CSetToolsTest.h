@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSetToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testInplaceSetDifference(void);
-        void testSetSizes(void);
-        void testJaccard(void);
-        void testOverlap(void);
+class CSetToolsTest : public CppUnit::TestFixture {
+public:
+    void testInplaceSetDifference(void);
+    void testSetSizes(void);
+    void testJaccard(void);
+    void testOverlap(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CSetToolsTest_h
+#endif// INCLUDED_CSetToolsTest_h

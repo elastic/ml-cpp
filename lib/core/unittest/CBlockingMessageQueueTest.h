@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CBlockingMessageQueueTest : public CppUnit::TestFixture {
+public:
+    void testSendReceive(void);
 
-class CBlockingMessageQueueTest : public CppUnit::TestFixture
-{
-    public:
-        void testSendReceive(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CBlockingMessageQueueTest_h
-
+#endif// INCLUDED_CBlockingMessageQueueTest_h

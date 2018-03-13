@@ -27,10 +27,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A lightweight wrapper over rapidjson::LineWriter
 //! to be used by CMemoryUsage to format DebugMemoryUsage info
@@ -42,49 +40,46 @@ namespace core
 //! and this is then filled with JSON objects and arrays.
 //! Finalise should be called to flush the stream before
 //! downstream use.
-class CORE_EXPORT CMemoryUsageJsonWriter
-{
-    public:
-        //! Constructor
-        CMemoryUsageJsonWriter(std::ostream &outStream);
+class CORE_EXPORT CMemoryUsageJsonWriter {
+public:
+    //! Constructor
+    CMemoryUsageJsonWriter(std::ostream &outStream);
 
-        //! Destructor
-        ~CMemoryUsageJsonWriter();
+    //! Destructor
+    ~CMemoryUsageJsonWriter();
 
-        //! Flush the underlying stream, which we only hold by reference
-        void finalise();
+    //! Flush the underlying stream, which we only hold by reference
+    void finalise();
 
-        //! Calls underlying JSON writer startObject
-        void startObject();
+    //! Calls underlying JSON writer startObject
+    void startObject();
 
-        //! Calls underlying JSON writer endObject()
-        void endObject();
+    //! Calls underlying JSON writer endObject()
+    void endObject();
 
-        //! Calls underlying JSON writer startArray, with a string name
-        void startArray(const std::string &description);
+    //! Calls underlying JSON writer startArray, with a string name
+    void startArray(const std::string &description);
 
-        //! Calls underlying JSON writer endArray
-        void endArray();
+    //! Calls underlying JSON writer endArray
+    void endArray();
 
-        //! Add a memory description item to the writer
-        void addItem(const CMemoryUsage::SMemoryUsage &item);
+    //! Add a memory description item to the writer
+    void addItem(const CMemoryUsage::SMemoryUsage &item);
 
-    private:
-        //! JSON writer ostream wrapper
-        rapidjson::OStreamWrapper         m_WriteStream;
+private:
+    //! JSON writer ostream wrapper
+    rapidjson::OStreamWrapper m_WriteStream;
 
-        typedef CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+    typedef CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
-        //! JSON writer
-        TGenericLineWriter                m_Writer;
+    //! JSON writer
+    TGenericLineWriter m_Writer;
 
-        //! Have we finalised the stream?
-        bool                              m_Finalised;
-
+    //! Have we finalised the stream?
+    bool m_Finalised;
 };
 
+}// core
+}// ml
 
-} // core
-} // ml
-
-#endif // INCLUDED_ml_core_CMemoryUsageJsonWriter_h
+#endif// INCLUDED_ml_core_CMemoryUsageJsonWriter_h

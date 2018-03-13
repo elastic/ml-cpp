@@ -21,12 +21,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace test
-{
-
+namespace ml {
+namespace test {
 
 //! \brief
 //! Escape special characters in a shell command
@@ -38,17 +34,13 @@ namespace test
 //! On Unix characters are escaped for sh/ksh/bash.  On Windows,
 //! for cmd.exe.
 //!
-class TEST_EXPORT CShellCmdEscape : private core::CNonInstantiatable
-{
-    public:
-        //! Modifies the command such that special characters are appropriately
-        //! escaped
-        static void escapeCmd(std::string &cmd);
+class TEST_EXPORT CShellCmdEscape : private core::CNonInstantiatable {
+public:
+    //! Modifies the command such that special characters are appropriately
+    //! escaped
+    static void escapeCmd(std::string &cmd);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_test_CShellCmdEscape_h
-
+#endif// INCLUDED_ml_test_CShellCmdEscape_h

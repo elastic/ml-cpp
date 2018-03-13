@@ -22,12 +22,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Swap the order of bytes in a variable.
@@ -46,25 +42,19 @@ namespace core
 //! to the caller to ensure it's only called for types where
 //! it's sensible, e.g. builtin numeric types.
 //!
-class CORE_EXPORT CByteSwapper : private CNonInstantiatable
-{
-    public:
-        template <typename TYPE>
-        static TYPE swapBytes(TYPE var)
-        {
-            void *varAddress(&var);
-            uint8_t *begin(static_cast<uint8_t *>(varAddress));
-            uint8_t *end(begin + sizeof(var));
+class CORE_EXPORT CByteSwapper : private CNonInstantiatable {
+public:
+    template <typename TYPE> static TYPE swapBytes(TYPE var) {
+        void *varAddress(&var);
+        uint8_t *begin(static_cast<uint8_t *>(varAddress));
+        uint8_t *end(begin + sizeof(var));
 
-            std::reverse(begin, end);
+        std::reverse(begin, end);
 
-            return var;
-        }
+        return var;
+    }
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CByteSwapper_h
-
+#endif// INCLUDED_ml_core_CByteSwapper_h

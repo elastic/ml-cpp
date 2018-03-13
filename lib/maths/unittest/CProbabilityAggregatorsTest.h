@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CProbabilityAggregatorsTest : public CppUnit::TestFixture
-{
-    public:
-        void testJointProbabilityOfLessLikelySamples(void);
-        void testLogJointProbabilityOfLessLikelySamples(void);
-        void testProbabilityOfExtremeSample(void);
-        void testProbabilityOfMFromNExtremeSamples(void);
+class CProbabilityAggregatorsTest : public CppUnit::TestFixture {
+public:
+    void testJointProbabilityOfLessLikelySamples(void);
+    void testLogJointProbabilityOfLessLikelySamples(void);
+    void testProbabilityOfExtremeSample(void);
+    void testProbabilityOfMFromNExtremeSamples(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CProbabilityAggregatorsTest_h
+#endif// INCLUDED_CProbabilityAggregatorsTest_h

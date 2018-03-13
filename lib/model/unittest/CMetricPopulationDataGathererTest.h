@@ -20,26 +20,24 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CMetricPopulationDataGathererTest : public CppUnit::TestFixture {
+public:
+    void testMean(void);
+    void testMin(void);
+    void testMax(void);
+    void testSum(void);
+    void testSampleCount(void);
+    void testFeatureData(void);
+    void testRemovePeople(void);
+    void testRemoveAttributes(void);
+    void testInfluenceStatistics(void);
+    void testPersistence(void);
+    void testReleaseMemory(void);
 
-class CMetricPopulationDataGathererTest : public CppUnit::TestFixture
-{
-    public:
-        void testMean(void);
-        void testMin(void);
-        void testMax(void);
-        void testSum(void);
-        void testSampleCount(void);
-        void testFeatureData(void);
-        void testRemovePeople(void);
-        void testRemoveAttributes(void);
-        void testInfluenceStatistics(void);
-        void testPersistence(void);
-        void testReleaseMemory(void);
+    static CppUnit::Test *suite(void);
 
-        static CppUnit::Test *suite(void);
-
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif // INCLUDED_CMetricPopulationDataGathererTest_h
+#endif// INCLUDED_CMetricPopulationDataGathererTest_h

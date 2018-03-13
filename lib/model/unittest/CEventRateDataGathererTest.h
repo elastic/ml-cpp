@@ -20,28 +20,27 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateDataGathererTest : public CppUnit::TestFixture
-{
-    public:
-        void singleSeriesTests(void);
-        void multipleSeriesTests(void);
-        void testRemovePeople(void);
-        void singleSeriesOutOfOrderFinalResultTests(void);
-        void singleSeriesOutOfOrderInterimResultTests(void);
-        void multipleSeriesOutOfOrderFinalResultTests(void);
-        void testArrivalBeforeLatencyWindowIsIgnored(void);
-        void testResetBucketGivenSingleSeries(void);
-        void testResetBucketGivenMultipleSeries(void);
-        void testResetBucketGivenBucketNotAvailable(void);
-        void testInfluencerBucketStatistics(void);
-        void testDistinctStrings(void);
-        void testLatencyPersist(void);
-        void testDiurnalFeatures(void);
+class CEventRateDataGathererTest : public CppUnit::TestFixture {
+public:
+    void singleSeriesTests(void);
+    void multipleSeriesTests(void);
+    void testRemovePeople(void);
+    void singleSeriesOutOfOrderFinalResultTests(void);
+    void singleSeriesOutOfOrderInterimResultTests(void);
+    void multipleSeriesOutOfOrderFinalResultTests(void);
+    void testArrivalBeforeLatencyWindowIsIgnored(void);
+    void testResetBucketGivenSingleSeries(void);
+    void testResetBucketGivenMultipleSeries(void);
+    void testResetBucketGivenBucketNotAvailable(void);
+    void testInfluencerBucketStatistics(void);
+    void testDistinctStrings(void);
+    void testLatencyPersist(void);
+    void testDiurnalFeatures(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 
-    private:
-        ml::model::CResourceMonitor m_ResourceMonitor;
+private:
+    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif // INCLUDED_CEventRateDataGathererTest_h
+#endif// INCLUDED_CEventRateDataGathererTest_h

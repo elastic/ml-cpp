@@ -20,12 +20,8 @@
 
 #include <string>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to find the appropriate directories for various things.
@@ -43,24 +39,20 @@ namespace core
 //! so the methods should not be called repeatedly.  It is assumed that
 //! the classes using this class will do their own caching if required.
 //!
-class CORE_EXPORT CResourceLocator : private CNonInstantiatable
-{
-    public:
-        //! Get the directory that stores resource files, e.g. timezone
-        //! details and dictionary words.
-        static std::string resourceDir(void);
+class CORE_EXPORT CResourceLocator : private CNonInstantiatable {
+public:
+    //! Get the directory that stores resource files, e.g. timezone
+    //! details and dictionary words.
+    static std::string resourceDir(void);
 
-        //! Get the directory that stores log files.
-        static std::string logDir(void);
+    //! Get the directory that stores log files.
+    static std::string logDir(void);
 
-        //! Get the root directory for the C++ section of the source tree.
-        //! (Obviously this should only be used in test code!)
-        static std::string cppRootDir(void);
+    //! Get the root directory for the C++ section of the source tree.
+    //! (Obviously this should only be used in test code!)
+    static std::string cppRootDir(void);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CResourceLocator_h
-
+#endif// INCLUDED_ml_core_CResourceLocator_h

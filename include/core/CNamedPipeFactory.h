@@ -26,11 +26,8 @@
 
 #include <stdio.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to create named pipes.
@@ -66,62 +63,58 @@ namespace core
 //! at least one side of the connection, to avoid a deadlock
 //! due to buffers filling up.
 //!
-class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable
-{
-    public:
-        typedef boost::shared_ptr<std::istream> TIStreamP;
-        typedef boost::shared_ptr<std::ostream> TOStreamP;
-        typedef boost::shared_ptr<FILE>         TFileP;
+class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable {
+public:
+    typedef boost::shared_ptr<std::istream> TIStreamP;
+    typedef boost::shared_ptr<std::ostream> TOStreamP;
+    typedef boost::shared_ptr<FILE> TFileP;
 
-    public:
-        //! Character that can safely be used to test whether named pipes are
-        //! connected.  The Java side of the pipe will silently ignore it.
-        //! (Obviously this is specific to Elastic.)
-        static const char TEST_CHAR;
+public:
+    //! Character that can safely be used to test whether named pipes are
+    //! connected.  The Java side of the pipe will silently ignore it.
+    //! (Obviously this is specific to Elastic.)
+    static const char TEST_CHAR;
 
-    public:
-        //! Initialise and open a named pipe for reading, returning a C++ stream
-        //! that can be used to read from it.  Returns a NULL pointer on
-        //! failure.
-        static TIStreamP openPipeStreamRead(const std::string &fileName);
+public:
+    //! Initialise and open a named pipe for reading, returning a C++ stream
+    //! that can be used to read from it.  Returns a NULL pointer on
+    //! failure.
+    static TIStreamP openPipeStreamRead(const std::string &fileName);
 
-        //! Initialise and open a named pipe for writing, returning a C++ stream
-        //! that can be used to write to it.  Returns a NULL pointer on failure.
-        static TOStreamP openPipeStreamWrite(const std::string &fileName);
+    //! Initialise and open a named pipe for writing, returning a C++ stream
+    //! that can be used to write to it.  Returns a NULL pointer on failure.
+    static TOStreamP openPipeStreamWrite(const std::string &fileName);
 
-        //! Initialise and open a named pipe for writing, returning a C FILE
-        //! that can be used to read from it.  Returns a NULL pointer on
-        //! failure.
-        static TFileP openPipeFileRead(const std::string &fileName);
+    //! Initialise and open a named pipe for writing, returning a C FILE
+    //! that can be used to read from it.  Returns a NULL pointer on
+    //! failure.
+    static TFileP openPipeFileRead(const std::string &fileName);
 
-        //! Initialise and open a named pipe for writing, returning a C FILE
-        //! that can be used to write to it.  Returns a NULL pointer on failure.
-        static TFileP openPipeFileWrite(const std::string &fileName);
+    //! Initialise and open a named pipe for writing, returning a C FILE
+    //! that can be used to write to it.  Returns a NULL pointer on failure.
+    static TFileP openPipeFileWrite(const std::string &fileName);
 
-        //! Does the supplied file name refer to a named pipe?
-        static bool isNamedPipe(const std::string &fileName);
+    //! Does the supplied file name refer to a named pipe?
+    static bool isNamedPipe(const std::string &fileName);
 
-        //! Default path for named pipes.
-        static std::string defaultPath(void);
+    //! Default path for named pipes.
+    static std::string defaultPath(void);
 
-    private:
+private:
 #ifdef Windows
-        typedef HANDLE TPipeHandle;
+    typedef HANDLE TPipeHandle;
 #else
-        typedef int    TPipeHandle;
+    typedef int TPipeHandle;
 #endif
 
-    private:
-        //! Initialise and open a named pipe for writing, returning a handle
-        //! file descriptor that can be used to access it.  This is the core
-        //! implementation of the higher level encapsulations that the public
-        //! interface provides.
-        static TPipeHandle initPipeHandle(const std::string &fileName, bool forWrite);
+private:
+    //! Initialise and open a named pipe for writing, returning a handle
+    //! file descriptor that can be used to access it.  This is the core
+    //! implementation of the higher level encapsulations that the public
+    //! interface provides.
+    static TPipeHandle initPipeHandle(const std::string &fileName, bool forWrite);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CNamedPipeFactory_h
-
+#endif// INCLUDED_ml_core_CNamedPipeFactory_h

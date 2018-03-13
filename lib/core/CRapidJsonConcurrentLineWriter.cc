@@ -15,51 +15,41 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 CRapidJsonConcurrentLineWriter::CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper &outStream)
-    : m_OutputStreamWrapper(outStream)
-{
+    : m_OutputStreamWrapper(outStream) {
     m_OutputStreamWrapper.acquireBuffer(*this, m_StringBuffer);
 }
 
-CRapidJsonConcurrentLineWriter::~CRapidJsonConcurrentLineWriter()
-{
+CRapidJsonConcurrentLineWriter::~CRapidJsonConcurrentLineWriter() {
     m_OutputStreamWrapper.releaseBuffer(*this, m_StringBuffer);
 }
 
-void CRapidJsonConcurrentLineWriter::flush()
-{
+void CRapidJsonConcurrentLineWriter::flush() {
     TRapidJsonLineWriterBase::Flush();
 
     m_OutputStreamWrapper.flush();
 }
 
-bool CRapidJsonConcurrentLineWriter::EndObject(rapidjson::SizeType memberCount )
-{
+bool CRapidJsonConcurrentLineWriter::EndObject(rapidjson::SizeType memberCount) {
     bool baseReturnCode = TRapidJsonLineWriterBase::EndObject(memberCount);
 
-    if (TRapidJsonLineWriterBase::IsComplete())
-    {
+    if (TRapidJsonLineWriterBase::IsComplete()) {
         m_OutputStreamWrapper.flushBuffer(*this, m_StringBuffer);
     }
 
     return baseReturnCode;
 }
 
-void CRapidJsonConcurrentLineWriter::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void CRapidJsonConcurrentLineWriter::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CRapidJsonConcurrentLineWriter", sizeof(*this));
     m_OutputStreamWrapper.debugMemoryUsage(mem->addChild());
 }
 
-std::size_t CRapidJsonConcurrentLineWriter::memoryUsage() const
-{
+std::size_t CRapidJsonConcurrentLineWriter::memoryUsage() const {
     return m_OutputStreamWrapper.memoryUsage();
 }
-
 }
 }

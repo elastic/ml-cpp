@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIntegerToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testNextPow2(void);
-        void testReverseBits(void);
-        void testGcd(void);
-        void testBinomial(void);
+class CIntegerToolsTest : public CppUnit::TestFixture {
+public:
+    void testNextPow2(void);
+    void testReverseBits(void);
+    void testGcd(void);
+    void testBinomial(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CIntegerToolsTest_h
+#endif// INCLUDED_CIntegerToolsTest_h

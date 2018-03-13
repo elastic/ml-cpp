@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStatisticsTest : public CppUnit::TestFixture
-{
+class CStatisticsTest : public CppUnit::TestFixture {
 public:
     void testStatistics(void);
     void testPersist(void);
@@ -28,5 +27,4 @@ public:
     static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CStatisticsTest_h
-
+#endif// INCLUDED_CStatisticsTest_h

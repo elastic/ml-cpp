@@ -24,9 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-namespace
-{
+namespace {
 const std::string OUTPUT_FILE("withNs.xml");
 #ifdef Windows
 // Unlike Windows NT system calls, copy's command line cannot cope with
@@ -37,46 +35,40 @@ const size_t EXPECTED_FILE_SIZE(585);
 const char *winDir(::getenv("windir"));
 const std::string PROCESS_PATH1(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
                                             : std::string("C:\\Windows\\System32\\cmd"));
-const std::string PROCESS_ARGS1[] = { "/C",
-                                      "copy " + INPUT_FILE + " ." };
+const std::string PROCESS_ARGS1[] = {"/C", "copy " + INPUT_FILE + " ."};
 const std::string &PROCESS_PATH2 = PROCESS_PATH1;
-const std::string PROCESS_ARGS2[] = { "/C",
-                                      "ping 127.0.0.1 -n 11" };
+const std::string PROCESS_ARGS2[] = {"/C", "ping 127.0.0.1 -n 11"};
 #else
 const std::string INPUT_FILE("testfiles/withNs.xml");
 const size_t EXPECTED_FILE_SIZE(563);
 const std::string PROCESS_PATH1("/bin/dd");
-const std::string PROCESS_ARGS1[] = { "if=" + INPUT_FILE,
-                                      "of=" + OUTPUT_FILE,
-                                      "bs=1",
-                                      "count=" + ml::core::CStringUtils::typeToString(EXPECTED_FILE_SIZE) };
+const std::string PROCESS_ARGS1[] = {"if=" + INPUT_FILE,
+                                     "of=" + OUTPUT_FILE,
+                                     "bs=1",
+                                     "count=" +
+                                         ml::core::CStringUtils::typeToString(EXPECTED_FILE_SIZE)};
 const std::string PROCESS_PATH2("/bin/sleep");
-const std::string PROCESS_ARGS2[] = { "10" };
+const std::string PROCESS_ARGS2[] = {"10"};
 #endif
 }
 
-CppUnit::Test *CDetachedProcessSpawnerTest::suite()
-{
+CppUnit::Test *CDetachedProcessSpawnerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetachedProcessSpawnerTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-                                   "CDetachedProcessSpawnerTest::testSpawn",
-                                   &CDetachedProcessSpawnerTest::testSpawn) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-                                   "CDetachedProcessSpawnerTest::testKill",
-                                   &CDetachedProcessSpawnerTest::testKill) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-                                   "CDetachedProcessSpawnerTest::testPermitted",
-                                   &CDetachedProcessSpawnerTest::testPermitted) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
-                                   "CDetachedProcessSpawnerTest::testNonExistent",
-                                   &CDetachedProcessSpawnerTest::testNonExistent) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
+        "CDetachedProcessSpawnerTest::testSpawn", &CDetachedProcessSpawnerTest::testSpawn));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
+        "CDetachedProcessSpawnerTest::testKill", &CDetachedProcessSpawnerTest::testKill));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
+        "CDetachedProcessSpawnerTest::testPermitted", &CDetachedProcessSpawnerTest::testPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetachedProcessSpawnerTest>(
+        "CDetachedProcessSpawnerTest::testNonExistent",
+        &CDetachedProcessSpawnerTest::testNonExistent));
 
     return suiteOfTests;
 }
 
-void CDetachedProcessSpawnerTest::testSpawn(void)
-{
+void CDetachedProcessSpawnerTest::testSpawn(void) {
     // The intention of this test is to copy a file by spawning an external
     // program and then make sure the file has been copied
 
@@ -102,8 +94,7 @@ void CDetachedProcessSpawnerTest::testSpawn(void)
     CPPUNIT_ASSERT_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
-void CDetachedProcessSpawnerTest::testKill(void)
-{
+void CDetachedProcessSpawnerTest::testKill(void) {
     // The intention of this test is to spawn a process that sleeps for 10
     // seconds, but kill it before it exits by itself and prove that its death
     // has been detected
@@ -134,8 +125,7 @@ void CDetachedProcessSpawnerTest::testKill(void)
     CPPUNIT_ASSERT(!spawner.terminateChild(static_cast<ml::core::CProcess::TPid>(-1)));
 }
 
-void CDetachedProcessSpawnerTest::testPermitted(void)
-{
+void CDetachedProcessSpawnerTest::testPermitted(void) {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
@@ -143,12 +133,11 @@ void CDetachedProcessSpawnerTest::testPermitted(void)
     CPPUNIT_ASSERT(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
-void CDetachedProcessSpawnerTest::testNonExistent(void)
-{
+void CDetachedProcessSpawnerTest::testNonExistent(void) {
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, "./does_not_exist");
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as even though it's a permitted process as the file doesn't exist
-    CPPUNIT_ASSERT(!spawner.spawn("./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
+    CPPUNIT_ASSERT(
+        !spawner.spawn("./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
-

@@ -20,12 +20,8 @@
 
 #include <time.h>
 
-
-namespace ml
-{
-namespace core
-{
-
+namespace ml {
+namespace core {
 
 //! \brief
 //! Parse the date/time string in the buffer buf, according to the
@@ -48,17 +44,11 @@ namespace core
 //! indicated by the %Z format, but (at least on Fedora 9) it doesn't.
 //! So Linux requires special handling for %Z too.
 //!
-class CORE_EXPORT CStrPTime : private CNonInstantiatable
-{
-    public:
-        static char *strPTime(const char *buf,
-                              const char *format,
-                              struct tm *tm);
+class CORE_EXPORT CStrPTime : private CNonInstantiatable {
+public:
+    static char *strPTime(const char *buf, const char *format, struct tm *tm);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CStrPTime_h
-
+#endif// INCLUDED_ml_core_CStrPTime_h

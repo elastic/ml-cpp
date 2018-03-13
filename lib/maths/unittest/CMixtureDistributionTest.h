@@ -18,16 +18,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMixtureDistributionTest : public CppUnit::TestFixture
-{
-    public:
-        void testSupport(void);
-        void testMode(void);
-        void testPdf(void);
-        void testCdf(void);
-        void testQuantile(void);
+class CMixtureDistributionTest : public CppUnit::TestFixture {
+public:
+    void testSupport(void);
+    void testMode(void);
+    void testPdf(void);
+    void testCdf(void);
+    void testQuantile(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CMixtureDistributionTest_h
+#endif// INCLUDED_CMixtureDistributionTest_h

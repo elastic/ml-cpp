@@ -28,11 +28,8 @@
 #include <sstream>
 #include <string>
 
-
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in JSON format, one document per line
@@ -46,80 +43,74 @@ namespace api
 //! IMPLEMENTATION:\n
 //! Using RapidJson to do the heavy lifting.
 //!
-class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
-{
-    public:
-        typedef std::set<std::string> TStrSet;
+class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler {
+public:
+    typedef std::set<std::string> TStrSet;
 
-    public:
-        //! Constructor that causes output to be written to the internal string
-        //! stream
-        CLineifiedJsonOutputWriter(void);
+public:
+    //! Constructor that causes output to be written to the internal string
+    //! stream
+    CLineifiedJsonOutputWriter(void);
 
-        //! Constructor that causes output to be written to the internal string
-        //! stream, with some numeric fields
-        CLineifiedJsonOutputWriter(const TStrSet &numericFields);
+    //! Constructor that causes output to be written to the internal string
+    //! stream, with some numeric fields
+    CLineifiedJsonOutputWriter(const TStrSet &numericFields);
 
-        //! Constructor that causes output to be written to the specified stream
-        CLineifiedJsonOutputWriter(std::ostream &strmOut);
+    //! Constructor that causes output to be written to the specified stream
+    CLineifiedJsonOutputWriter(std::ostream &strmOut);
 
-        //! Constructor that causes output to be written to the specified stream
-        CLineifiedJsonOutputWriter(const TStrSet &numericFields, std::ostream &strmOut);
+    //! Constructor that causes output to be written to the specified stream
+    CLineifiedJsonOutputWriter(const TStrSet &numericFields, std::ostream &strmOut);
 
-        //! Destructor flushes the stream
-        virtual ~CLineifiedJsonOutputWriter(void);
+    //! Destructor flushes the stream
+    virtual ~CLineifiedJsonOutputWriter(void);
 
-        //! Set field names - this function has no affect it always
-        //! returns true
-        virtual bool fieldNames(const TStrVec &fieldNames,
-                                const TStrVec &extraFieldNames);
+    //! Set field names - this function has no affect it always
+    //! returns true
+    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
 
-        //! Returns an empty vector
-        virtual const TStrVec &fieldNames(void) const;
+    //! Returns an empty vector
+    virtual const TStrVec &fieldNames(void) const;
 
-        // Bring the other overload of fieldNames() into scope
-        using COutputHandler::fieldNames;
+    // Bring the other overload of fieldNames() into scope
+    using COutputHandler::fieldNames;
 
-        //! Write the data row fields as a JSON object
-        virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                              const TStrStrUMap &overrideDataRowFields);
+    //! Write the data row fields as a JSON object
+    virtual bool writeRow(const TStrStrUMap &dataRowFields,
+                          const TStrStrUMap &overrideDataRowFields);
 
-        // Bring the other overload of writeRow() into scope
-        using COutputHandler::writeRow;
+    // Bring the other overload of writeRow() into scope
+    using COutputHandler::writeRow;
 
-        //! Get the contents of the internal string stream - for use with the
-        //! zero argument constructor
-        std::string internalString(void) const;
+    //! Get the contents of the internal string stream - for use with the
+    //! zero argument constructor
+    std::string internalString(void) const;
 
-    private:
-        //! Write a single field to the document
-        void writeField(const std::string &name, 
-                        const std::string &value,
-                        rapidjson::Document &doc) const;
+private:
+    //! Write a single field to the document
+    void
+    writeField(const std::string &name, const std::string &value, rapidjson::Document &doc) const;
 
-    private:
-        //! Which output fields are numeric?
-        TStrSet                       m_NumericFields;
+private:
+    //! Which output fields are numeric?
+    TStrSet m_NumericFields;
 
-        //! If we've been initialised without a specific stream, output is
-        //! written to this string stream
-        std::ostringstream            m_StringOutputBuf;
+    //! If we've been initialised without a specific stream, output is
+    //! written to this string stream
+    std::ostringstream m_StringOutputBuf;
 
-        //! Reference to the stream we're going to write to
-        std::ostream                  &m_OutStream;
+    //! Reference to the stream we're going to write to
+    std::ostream &m_OutStream;
 
-        //! JSON writer ostream wrapper
-        rapidjson::OStreamWrapper     m_WriteStream;
+    //! JSON writer ostream wrapper
+    rapidjson::OStreamWrapper m_WriteStream;
 
-        typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
+    typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
-        //! JSON writer
-        TGenericLineWriter            m_Writer;
+    //! JSON writer
+    TGenericLineWriter m_Writer;
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_api_CLineifiedJsonOutputWriter_h
-
+#endif// INCLUDED_ml_api_CLineifiedJsonOutputWriter_h

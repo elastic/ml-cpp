@@ -17,21 +17,20 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPatternSetTest : public CppUnit::TestFixture
-{
-    public:
-        void testInitFromJson_GivenInvalidJson(void);
-        void testInitFromJson_GivenNonArray(void);
-        void testInitFromJson_GivenArrayWithNonStringItem(void);
-        void testInitFromJson_GivenArrayWithDuplicates(void);
-        void testContains_GivenFullMatchKeys(void);
-        void testContains_GivenPrefixKeys(void);
-        void testContains_GivenSuffixKeys(void);
-        void testContains_GivenContainsKeys(void);
-        void testContains_GivenMixedKeys(void);
-        void testClear(void);
+class CPatternSetTest : public CppUnit::TestFixture {
+public:
+    void testInitFromJson_GivenInvalidJson(void);
+    void testInitFromJson_GivenNonArray(void);
+    void testInitFromJson_GivenArrayWithNonStringItem(void);
+    void testInitFromJson_GivenArrayWithDuplicates(void);
+    void testContains_GivenFullMatchKeys(void);
+    void testContains_GivenPrefixKeys(void);
+    void testContains_GivenSuffixKeys(void);
+    void testContains_GivenContainsKeys(void);
+    void testContains_GivenMixedKeys(void);
+    void testClear(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CPatternSetTest_h
+#endif// INCLUDED_CPatternSetTest_h

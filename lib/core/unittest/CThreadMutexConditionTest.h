@@ -17,13 +17,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CThreadMutexConditionTest : public CppUnit::TestFixture
-{
-    public:
-        void    testThread(void);
-        void    testThreadCondition(void);
+class CThreadMutexConditionTest : public CppUnit::TestFixture {
+public:
+    void testThread(void);
+    void testThreadCondition(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CThreadMutexConditionTest_h
+#endif// INCLUDED_CThreadMutexConditionTest_h

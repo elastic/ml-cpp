@@ -18,22 +18,21 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXMeansOnline1dTest : public CppUnit::TestFixture
-{
-    public:
-        void testCluster(void);
-        void testMixtureOfGaussians(void);
-        void testMixtureOfUniforms(void);
-        void testMixtureOfLogNormals(void);
-        void testOutliers(void);
-        void testManyClusters(void);
-        void testLowVariation(void);
-        void testAdaption(void);
-        void testLargeHistory(void);
-        void testPersist(void);
-        void testPruneEmptyCluster(void);
+class CXMeansOnline1dTest : public CppUnit::TestFixture {
+public:
+    void testCluster(void);
+    void testMixtureOfGaussians(void);
+    void testMixtureOfUniforms(void);
+    void testMixtureOfLogNormals(void);
+    void testOutliers(void);
+    void testManyClusters(void);
+    void testLowVariation(void);
+    void testAdaption(void);
+    void testLargeHistory(void);
+    void testPersist(void);
+    void testPruneEmptyCluster(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CXMeansOnline1dTest_h
+#endif// INCLUDED_CXMeansOnline1dTest_h

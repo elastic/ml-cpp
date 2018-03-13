@@ -24,13 +24,10 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace lasso_logistic_regression_detail
-{
+namespace lasso_logistic_regression_detail {
 
 typedef std::vector<double> TDoubleVec;
 typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -42,117 +39,79 @@ typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
 //! DESCRIPTION:\n
 //! Used to represent dense feature vectors. This only implements
 //! the interface needed by the CLG algorithm.
-class MATHS_EXPORT CDenseMatrix
-{
-    public:
-        typedef TDoubleVec::const_iterator iterator;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+class MATHS_EXPORT CDenseMatrix {
+public:
+    typedef TDoubleVec::const_iterator iterator;
+    typedef std::vector<TDoubleVec> TDoubleVecVec;
 
-    public:
-        CDenseMatrix(void);
-        CDenseMatrix(TDoubleVecVec &elements);
+public:
+    CDenseMatrix(void);
+    CDenseMatrix(TDoubleVecVec &elements);
 
-        //! Efficiently swap the contents of two matrices.
-        void swap(CDenseMatrix &other);
+    //! Efficiently swap the contents of two matrices.
+    void swap(CDenseMatrix &other);
 
-        //! Get the number of rows.
-        std::size_t rows(void) const
-        {
-            return m_Elements.empty() ? 0 : m_Elements[0].size();
-        }
-        //! Get the number of columns.
-        std::size_t columns(void) const
-        {
-            return m_Elements.size();
-        }
-        //! Get the beginning of the rows present for the j'th column.
-        iterator beginRows(std::size_t j) const
-        {
-            return m_Elements[j].begin();
-        }
-        //! Get the end of the rows present for the j'th column.
-        iterator endRows(std::size_t j) const
-        {
-            return m_Elements[j].end();
-        }
-        //! Get the row represented by the j'th column row iterator.
-        std::size_t row(iterator itr, std::size_t j) const
-        {
-            return itr - m_Elements[j].begin();
-        }
-        //! Get the element represented by the iterator.
-        double element(iterator itr) const
-        {
-            return *itr;
-        }
+    //! Get the number of rows.
+    std::size_t rows(void) const { return m_Elements.empty() ? 0 : m_Elements[0].size(); }
+    //! Get the number of columns.
+    std::size_t columns(void) const { return m_Elements.size(); }
+    //! Get the beginning of the rows present for the j'th column.
+    iterator beginRows(std::size_t j) const { return m_Elements[j].begin(); }
+    //! Get the end of the rows present for the j'th column.
+    iterator endRows(std::size_t j) const { return m_Elements[j].end(); }
+    //! Get the row represented by the j'th column row iterator.
+    std::size_t row(iterator itr, std::size_t j) const { return itr - m_Elements[j].begin(); }
+    //! Get the element represented by the iterator.
+    double element(iterator itr) const { return *itr; }
 
-    private:
-        //! The actual matrix.
-        TDoubleVecVec m_Elements;
+private:
+    //! The actual matrix.
+    TDoubleVecVec m_Elements;
 };
 
 //! Very simple dynamically sized sparse matrix.
 //!
 //! DESCRIPTION:\n
 //! This only implements the interface needed by the CLG algorithm.
-class MATHS_EXPORT CSparseMatrix
-{
-    public:
-        typedef TSizeSizePrDoublePrVec::const_iterator iterator;
+class MATHS_EXPORT CSparseMatrix {
+public:
+    typedef TSizeSizePrDoublePrVec::const_iterator iterator;
 
-    public:
-        CSparseMatrix(void);
-        CSparseMatrix(std::size_t rows,
-                      std::size_t columns,
-                      TSizeSizePrDoublePrVec &elements);
+public:
+    CSparseMatrix(void);
+    CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec &elements);
 
-        //! Efficiently swap the contents of two matrices.
-        void swap(CSparseMatrix &other);
+    //! Efficiently swap the contents of two matrices.
+    void swap(CSparseMatrix &other);
 
-        //! Get the number of rows.
-        std::size_t rows(void) const
-        {
-            return m_Rows;
-        }
-        //! Get the number of columns.
-        std::size_t columns(void) const
-        {
-            return m_Columns;
-        }
-        //! Get the beginning of the rows present for the j'th column.
-        iterator beginRows(std::size_t j) const
-        {
-            return std::lower_bound(m_Elements.begin(),
-                                    m_Elements.end(),
-                                    TSizeSizePr(j, size_t(0)),
-                                    COrderings::SFirstLess());
-        }
-        //! Get the end of the rows present for the j'th column.
-        iterator endRows(std::size_t j) const
-        {
-            return std::upper_bound(m_Elements.begin(),
-                                    m_Elements.end(),
-                                    TSizeSizePr(j, m_Rows),
-                                    COrderings::SFirstLess());
-        }
-        //! Get the row represented by the j'th column row iterator.
-        std::size_t row(iterator itr, std::size_t /*j*/) const
-        {
-            return itr->first.second;
-        }
-        //! Get the element represented by the iterator.
-        double element(iterator itr) const
-        {
-            return itr->second;
-        }
+    //! Get the number of rows.
+    std::size_t rows(void) const { return m_Rows; }
+    //! Get the number of columns.
+    std::size_t columns(void) const { return m_Columns; }
+    //! Get the beginning of the rows present for the j'th column.
+    iterator beginRows(std::size_t j) const {
+        return std::lower_bound(m_Elements.begin(),
+                                m_Elements.end(),
+                                TSizeSizePr(j, size_t(0)),
+                                COrderings::SFirstLess());
+    }
+    //! Get the end of the rows present for the j'th column.
+    iterator endRows(std::size_t j) const {
+        return std::upper_bound(
+            m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, m_Rows), COrderings::SFirstLess());
+    }
+    //! Get the row represented by the j'th column row iterator.
+    std::size_t row(iterator itr, std::size_t /*j*/) const { return itr->first.second; }
+    //! Get the element represented by the iterator.
+    double element(iterator itr) const { return itr->second; }
 
-    private:
-        //! The number of rows.
-        std::size_t m_Rows;
-        //! The number of columns.
-        std::size_t m_Columns;
-        //! Representation of the non-zero elements.
-        TSizeSizePrDoublePrVec m_Elements;
+private:
+    //! The number of rows.
+    std::size_t m_Rows;
+    //! The number of columns.
+    std::size_t m_Columns;
+    //! Representation of the non-zero elements.
+    TSizeSizePrDoublePrVec m_Elements;
 };
 
 //! \brief Implements Zhang and Oles cyclic coordinate descent scheme,
@@ -163,12 +122,13 @@ class MATHS_EXPORT CSparseMatrix
 //! region used to ensure convergence. Effectively the algorithm
 //! is:
 //! <pre>
-//! \f$\Delta\beta_j \leftarrow 0\f$ for \f$j = 1,..,d\f$ and \f$r_i \leftarrow 0\f$ for \f$i = 1,...,n\f$
+//! \f$\Delta\beta_j \leftarrow 0\f$ for \f$j = 1,..,d\f$ and \f$r_i \leftarrow 0\f$ for \f$i =
+//! 1,...,n\f$
 //!  for \f$k = 1,2,...\f$
 //!    for \f$j = 1,...,d\f$
-//!      find \f$\Delta\beta_j\f$ by approximately minimizing \f$\frac{1}{n}\sum_i{f(r_i + \Delta\beta_j x_{ij} y_i) - \lambda_j |\beta_j|}\f$
-//!      set \f$r_i \leftarrow r_i + \Delta\beta_j x_{ij} y_i\f$
-//!      set \f$\beta_j \leftarrow \beta_j + \Delta\beta_j\f$
+//!      find \f$\Delta\beta_j\f$ by approximately minimizing \f$\frac{1}{n}\sum_i{f(r_i +
+//!      \Delta\beta_j x_{ij} y_i) - \lambda_j |\beta_j|}\f$ set \f$r_i \leftarrow r_i +
+//!      \Delta\beta_j x_{ij} y_i\f$ set \f$\beta_j \leftarrow \beta_j + \Delta\beta_j\f$
 //!    end
 //!  end
 //! </pre>
@@ -183,88 +143,84 @@ class MATHS_EXPORT CSparseMatrix
 //!
 //! \see http://www.stat.columbia.edu/~madigan/PAPERS/techno.pdf for
 //! more details.
-class MATHS_EXPORT CCyclicCoordinateDescent
-{
-    public:
-        CCyclicCoordinateDescent(std::size_t maxIterations,
-                                 double eps);
+class MATHS_EXPORT CCyclicCoordinateDescent {
+public:
+    CCyclicCoordinateDescent(std::size_t maxIterations, double eps);
 
-        //! Compute the regression parameters for dense feature vectors.
-        //!
-        //! \param[in] x The feature vectors in the training data.
-        //! \param[in] y The class labels of the feature vectors.
-        //! \param[in] lambda The precision of the Laplace prior.
-        //! \param[out] beta The MAP parameters of the LASSO logistic
-        //! regression.
-        //! \param[out] numberIterations The number of iterations of
-        //! the main optimization loop used.
-        bool run(const CDenseMatrix &x,
-                 const TDoubleVec &y,
-                 const TDoubleVec &lambda,
-                 TDoubleVec &beta,
-                 std::size_t &numberIterations);
+    //! Compute the regression parameters for dense feature vectors.
+    //!
+    //! \param[in] x The feature vectors in the training data.
+    //! \param[in] y The class labels of the feature vectors.
+    //! \param[in] lambda The precision of the Laplace prior.
+    //! \param[out] beta The MAP parameters of the LASSO logistic
+    //! regression.
+    //! \param[out] numberIterations The number of iterations of
+    //! the main optimization loop used.
+    bool run(const CDenseMatrix &x,
+             const TDoubleVec &y,
+             const TDoubleVec &lambda,
+             TDoubleVec &beta,
+             std::size_t &numberIterations);
 
-        //! Compute the regression parameters for sparse feature vectors.
-        //!
-        //! \param[in] x The feature vectors in the training data.
-        //! \param[in] y The class labels of the feature vectors.
-        //! \param[in] lambda The precision of the Laplace prior.
-        //! \param[out] beta The MAP parameters of the LASSO logistic
-        //! regression.
-        //! \param[out] numberIterations The number of iterations of
-        //! the main optimization loop used.
-        bool run(const CSparseMatrix &x,
-                 const TDoubleVec &y,
-                 const TDoubleVec &lambda,
-                 TDoubleVec &beta,
-                 std::size_t &numberIterations);
+    //! Compute the regression parameters for sparse feature vectors.
+    //!
+    //! \param[in] x The feature vectors in the training data.
+    //! \param[in] y The class labels of the feature vectors.
+    //! \param[in] lambda The precision of the Laplace prior.
+    //! \param[out] beta The MAP parameters of the LASSO logistic
+    //! regression.
+    //! \param[out] numberIterations The number of iterations of
+    //! the main optimization loop used.
+    bool run(const CSparseMatrix &x,
+             const TDoubleVec &y,
+             const TDoubleVec &lambda,
+             TDoubleVec &beta,
+             std::size_t &numberIterations);
 
-        //! Compute the regression parameters for dense feature vectors
-        //! using the input value of beta to initialize the optimization
-        //! loop.
-        //!
-        //! \param[in] x The feature vectors in the training data.
-        //! \param[in] y The class labels of the feature vectors.
-        //! \param[in] lambda The precision of the Laplace prior.
-        //! \param[in,out] beta The MAP parameters of the LASSO logistic
-        //! regression.
-        //! \param[out] numberIterations The number of iterations of
-        //! the main optimization loop used.
-        bool runIncremental(const CDenseMatrix &x,
-                            const TDoubleVec &y,
-                            const TDoubleVec &lambda,
-                            TDoubleVec &beta,
-                            std::size_t &numberIterations);
+    //! Compute the regression parameters for dense feature vectors
+    //! using the input value of beta to initialize the optimization
+    //! loop.
+    //!
+    //! \param[in] x The feature vectors in the training data.
+    //! \param[in] y The class labels of the feature vectors.
+    //! \param[in] lambda The precision of the Laplace prior.
+    //! \param[in,out] beta The MAP parameters of the LASSO logistic
+    //! regression.
+    //! \param[out] numberIterations The number of iterations of
+    //! the main optimization loop used.
+    bool runIncremental(const CDenseMatrix &x,
+                        const TDoubleVec &y,
+                        const TDoubleVec &lambda,
+                        TDoubleVec &beta,
+                        std::size_t &numberIterations);
 
-        //! Compute the regression parameters for sparse feature vectors
-        //! using the input value of beta to initialize the optimization
-        //! loop.
-        //!
-        //! \param[in] x The feature vectors in the training data.
-        //! \param[in] y The class labels of the feature vectors.
-        //! \param[in] lambda The precision of the Laplace prior.
-        //! \param[in,out] beta The MAP parameters of the LASSO logistic
-        //! regression.
-        //! \param[out] numberIterations The number of iterations of
-        //! the main optimization loop used.
-        bool runIncremental(const CSparseMatrix &x,
-                            const TDoubleVec &y,
-                            const TDoubleVec &lambda,
-                            TDoubleVec &beta,
-                            std::size_t &numberIterations);
+    //! Compute the regression parameters for sparse feature vectors
+    //! using the input value of beta to initialize the optimization
+    //! loop.
+    //!
+    //! \param[in] x The feature vectors in the training data.
+    //! \param[in] y The class labels of the feature vectors.
+    //! \param[in] lambda The precision of the Laplace prior.
+    //! \param[in,out] beta The MAP parameters of the LASSO logistic
+    //! regression.
+    //! \param[out] numberIterations The number of iterations of
+    //! the main optimization loop used.
+    bool runIncremental(const CSparseMatrix &x,
+                        const TDoubleVec &y,
+                        const TDoubleVec &lambda,
+                        TDoubleVec &beta,
+                        std::size_t &numberIterations);
 
-    private:
-        //! Check the validity of the training data and the prior parameters.
-        template<typename MATRIX>
-        static bool checkInputs(const MATRIX &x,
-                                const TDoubleVec &y,
-                                const TDoubleVec &lambda);
+private:
+    //! Check the validity of the training data and the prior parameters.
+    template <typename MATRIX>
+    static bool checkInputs(const MATRIX &x, const TDoubleVec &y, const TDoubleVec &lambda);
 
-    private:
-        //! The maximum number of iterations of the main loop.
-        std::size_t m_MaxIterations;
-        //! The relative convergence threshold.
-        double m_Eps;
+private:
+    //! The maximum number of iterations of the main loop.
+    std::size_t m_MaxIterations;
+    //! The relative convergence threshold.
+    double m_Eps;
 };
 
 //! The possible styles for learning hyperparameter \f$\lambda\f$.
@@ -274,14 +230,9 @@ class MATHS_EXPORT CCyclicCoordinateDescent
 //!      cross validation and searches the interval
 //!      \f$[\frac{\lambda_n}{10}, 10 \lambda_n]\f$ for the value
 //!      maximizing the test data likelihood.
-enum EHyperparametersStyle
-{
-    E_LambdaNormBased,
-    E_LambdaCrossValidated
-};
+enum EHyperparametersStyle { E_LambdaNormBased, E_LambdaCrossValidated };
 
-} // lasso_logistic_regression_detail::
-
+}// lasso_logistic_regression_detail::
 
 //! \brief A logistic regression model.
 //!
@@ -294,33 +245,31 @@ enum EHyperparametersStyle
 //! The parameters \f$(\beta, \beta_0)\f$ are chosen to minimize
 //! the log likelihood of a collection training data. For more
 //! information on fitting this see CLassoLogisticRegression.
-class MATHS_EXPORT CLogisticRegressionModel
-{
-    public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+class MATHS_EXPORT CLogisticRegressionModel {
+public:
+    typedef std::vector<double> TDoubleVec;
+    typedef std::pair<std::size_t, double> TSizeDoublePr;
+    typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
 
-    public:
-        CLogisticRegressionModel(void);
-        CLogisticRegressionModel(double beta0,
-                                 TSizeDoublePrVec &beta);
+public:
+    CLogisticRegressionModel(void);
+    CLogisticRegressionModel(double beta0, TSizeDoublePrVec &beta);
 
-        //! Efficiently swap the contents of two models.
-        void swap(CLogisticRegressionModel &other);
+    //! Efficiently swap the contents of two models.
+    void swap(CLogisticRegressionModel &other);
 
-        //! Get the probability of the dense feature vector \p x.
-        bool operator()(const TDoubleVec &x, double &probability) const;
+    //! Get the probability of the dense feature vector \p x.
+    bool operator()(const TDoubleVec &x, double &probability) const;
 
-        //! Get the probability of the sparse feature vector \p x.
-        double operator()(const TSizeDoublePrVec &x) const;
+    //! Get the probability of the sparse feature vector \p x.
+    double operator()(const TSizeDoublePrVec &x) const;
 
-    private:
-        //! The intercept.
-        double m_Beta0;
+private:
+    //! The intercept.
+    double m_Beta0;
 
-        //! The non-zero beta parameters.
-        TSizeDoublePrVec m_Beta;
+    //! The non-zero beta parameters.
+    TSizeDoublePrVec m_Beta;
 };
 
 //! \brief Implements shared functionality for the different Lasso
@@ -351,62 +300,58 @@ class MATHS_EXPORT CLogisticRegressionModel
 //! models for different types of training data. This implements
 //! the functionality to train the hyperparameters, which can be
 //! shared between the two implementations.
-template<typename STORAGE>
-class MATHS_EXPORT CLassoLogisticRegression
-{
-    public:
-        typedef std::vector<double> TDoubleVec;
-        typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
+template <typename STORAGE> class MATHS_EXPORT CLassoLogisticRegression {
+public:
+    typedef std::vector<double> TDoubleVec;
+    typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
-    protected:
-        CLassoLogisticRegression(void);
+protected:
+    CLassoLogisticRegression(void);
 
-        //! Learn the value of precision of the Laplace prior.
-        template<typename MATRIX>
-        void doLearnHyperparameter(EHyperparametersStyle style);
+    //! Learn the value of precision of the Laplace prior.
+    template <typename MATRIX> void doLearnHyperparameter(EHyperparametersStyle style);
 
-        //! Learn the parameters of the logistic model based on the
-        //! training data added so far.
-        template<typename MATRIX>
-        bool doLearn(CLogisticRegressionModel &result);
+    //! Learn the parameters of the logistic model based on the
+    //! training data added so far.
+    template <typename MATRIX> bool doLearn(CLogisticRegressionModel &result);
 
-        //! Check whether it is possible to learn a model.
-        //!
-        //! It is only possible to learn a model if the training
-        //! data contains a mixture of both positive and negative
-        //! examples.
-        bool sanityChecks(void) const;
+    //! Check whether it is possible to learn a model.
+    //!
+    //! It is only possible to learn a model if the training
+    //! data contains a mixture of both positive and negative
+    //! examples.
+    bool sanityChecks(void) const;
 
-        //! Get the training feature vectors.
-        inline const STORAGE &x(void) const { return m_X; }
-        //! Get the training feature vectors.
-        inline STORAGE &x(void) { return m_X; }
+    //! Get the training feature vectors.
+    inline const STORAGE &x(void) const { return m_X; }
+    //! Get the training feature vectors.
+    inline STORAGE &x(void) { return m_X; }
 
-        //! Get the feature vector dimension.
-        inline std::size_t d(void) const { return m_D; }
-        //! Get the feature vector dimension.
-        inline std::size_t &d(void) { return m_D; }
+    //! Get the feature vector dimension.
+    inline std::size_t d(void) const { return m_D; }
+    //! Get the feature vector dimension.
+    inline std::size_t &d(void) { return m_D; }
 
-        //! Get the training feature vectors.
-        inline const TDoubleVec &y(void) const { return m_Y; }
-        //! Get the training feature vectors.
-        inline TDoubleVec &y(void) { return m_Y; }
+    //! Get the training feature vectors.
+    inline const TDoubleVec &y(void) const { return m_Y; }
+    //! Get the training feature vectors.
+    inline TDoubleVec &y(void) { return m_Y; }
 
-    private:
-        //! The feature vectors.
-        STORAGE m_X;
-        //! The dimension of the feature vectors.
-        std::size_t m_D;
-        //! The feature vector labels.
-        TDoubleVec m_Y;
-        //! The precision of the Laplace prior.
-        double m_Lambda;
-        //! The (last) learned regression parameters.
-        TDoubleVec m_Beta;
+private:
+    //! The feature vectors.
+    STORAGE m_X;
+    //! The dimension of the feature vectors.
+    std::size_t m_D;
+    //! The feature vector labels.
+    TDoubleVec m_Y;
+    //! The precision of the Laplace prior.
+    double m_Lambda;
+    //! The (last) learned regression parameters.
+    TDoubleVec m_Beta;
 };
 
-typedef std::vector<std::vector<double> > TDenseStorage;
-typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorage;
+typedef std::vector<std::vector<double>> TDenseStorage;
+typedef std::vector<std::vector<std::pair<std::size_t, double>>> TSparseStorage;
 
 //! \brief Lasso logistic regression using dense encoding of the
 //! feature vectors.
@@ -417,31 +362,30 @@ typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorag
 //! IMPLEMENTATION DECISIONS:\n
 //! This uses a dense encoding of the feature vector for the case that
 //! they are small and mostly non-zero.
-class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage>
-{
-    public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage> {
+public:
+    typedef std::pair<std::size_t, double> TSizeDoublePr;
+    typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
 
-    public:
-        //! Add a labeled feature vector \p x. The label is either
-        //! interesting or boring.
-        //!
-        //! \param[in] x The feature vector.
-        //! \param[in] interesting The label of \p x.
-        void addTrainingData(const TDoubleVec &x, bool interesting);
+public:
+    //! Add a labeled feature vector \p x. The label is either
+    //! interesting or boring.
+    //!
+    //! \param[in] x The feature vector.
+    //! \param[in] interesting The label of \p x.
+    void addTrainingData(const TDoubleVec &x, bool interesting);
 
-        //! Learn the value of precision of the Laplace prior.
-        //!
-        //! \param[in] style The style of training to use.
-        //! \see EHyperparametersStyle for more details on the options.
-        void learnHyperparameter(EHyperparametersStyle style);
+    //! Learn the value of precision of the Laplace prior.
+    //!
+    //! \param[in] style The style of training to use.
+    //! \see EHyperparametersStyle for more details on the options.
+    void learnHyperparameter(EHyperparametersStyle style);
 
-        //! Learn the parameters of the logistic model based on the
-        //! training data added so far.
-        //!
-        //! \param[out] result The trained logistic model.
-        bool learn(CLogisticRegressionModel &result);
+    //! Learn the parameters of the logistic model based on the
+    //! training data added so far.
+    //!
+    //! \param[out] result The trained logistic model.
+    bool learn(CLogisticRegressionModel &result);
 };
 
 //! \brief Lasso logistic regression using sparse encoding of the
@@ -453,35 +397,33 @@ class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegressi
 //! IMPLEMENTATION DECISIONS:\n
 //! This uses a sparse encoding of the feature vector for the case
 //! that they are high dimensional, but most components are zero.
-class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage>
-{
-    public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
-        typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
+class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage> {
+public:
+    typedef std::pair<std::size_t, double> TSizeDoublePr;
+    typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+    typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
-    public:
-        //! Add a labeled feature vector \p x. The label is either
-        //! interesting or boring.
-        //!
-        //! \param[in] x The feature vector.
-        //! \param[in] interesting The label of \p x.
-        void addTrainingData(const TSizeDoublePrVec &x, bool interesting);
+public:
+    //! Add a labeled feature vector \p x. The label is either
+    //! interesting or boring.
+    //!
+    //! \param[in] x The feature vector.
+    //! \param[in] interesting The label of \p x.
+    void addTrainingData(const TSizeDoublePrVec &x, bool interesting);
 
-        //! Learn the value of precision of the Laplace prior.
-        //!
-        //! \param[in] style The style of training to use.
-        //! \see EHyperparametersStyle for more details on the options.
-        void learnHyperparameter(EHyperparametersStyle style);
+    //! Learn the value of precision of the Laplace prior.
+    //!
+    //! \param[in] style The style of training to use.
+    //! \see EHyperparametersStyle for more details on the options.
+    void learnHyperparameter(EHyperparametersStyle style);
 
-        //! Learn the parameters of the logistic model based on the
-        //! training data added so far.
-        //!
-        //! \param[out] result The trained logistic model.
-        bool learn(CLogisticRegressionModel &result);
+    //! Learn the parameters of the logistic model based on the
+    //! training data added so far.
+    //!
+    //! \param[out] result The trained logistic model.
+    bool learn(CLogisticRegressionModel &result);
 };
-
 }
 }
 
-#endif // INCLUDED_ml_maths_CLassoLogisticRegression_h
+#endif// INCLUDED_ml_maths_CLassoLogisticRegression_h

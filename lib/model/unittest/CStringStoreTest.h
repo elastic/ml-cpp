@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringStoreTest : public CppUnit::TestFixture
-{
-    public:
-        void setUp(void);
+class CStringStoreTest : public CppUnit::TestFixture {
+public:
+    void setUp(void);
 
-        void testStringStore(void);
-        void testMemUsage(void);
+    void testStringStore(void);
+    void testMemUsage(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CStringStoreTest_h
+#endif// INCLUDED_CStringStoreTest_h

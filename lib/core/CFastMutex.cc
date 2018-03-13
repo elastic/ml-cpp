@@ -19,50 +19,35 @@
 #include <errno.h>
 #include <string.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CFastMutex::CFastMutex(void)
-{
+CFastMutex::CFastMutex(void) {
     int ret(pthread_mutex_init(&m_Mutex, 0));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-CFastMutex::~CFastMutex(void)
-{
+CFastMutex::~CFastMutex(void) {
     int ret(pthread_mutex_destroy(&m_Mutex));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CFastMutex::lock(void)
-{
+void CFastMutex::lock(void) {
     int ret(pthread_mutex_lock(&m_Mutex));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
 
-void CFastMutex::unlock(void)
-{
+void CFastMutex::unlock(void) {
     int ret(pthread_mutex_unlock(&m_Mutex));
-    if (ret != 0)
-    {
+    if (ret != 0) {
         LOG_WARN(::strerror(ret));
     }
 }
-
-
 }
 }
-

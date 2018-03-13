@@ -18,10 +18,8 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 //! \brief
 //! A scoped rapidjson memory allocator
 //!
@@ -32,27 +30,19 @@ namespace core
 //! Parameterized on json writer type
 //! Remove the allocator from the writer and release resources on destruction.
 //!
-template<typename T>
-class CScopedRapidJsonPoolAllocator
-{
-    public:
-        //! \p allocatorName Unique identifier for the allocator
-        //! \p jsonOutputWriter JSON output writer that will make use of the allocator
-        CScopedRapidJsonPoolAllocator(const std::string &allocatorName, T &writer) 
-            : m_Writer(writer)
-        {
-            m_Writer.pushAllocator(allocatorName);
-        }
+template <typename T> class CScopedRapidJsonPoolAllocator {
+public:
+    //! \p allocatorName Unique identifier for the allocator
+    //! \p jsonOutputWriter JSON output writer that will make use of the allocator
+    CScopedRapidJsonPoolAllocator(const std::string &allocatorName, T &writer) : m_Writer(writer) {
+        m_Writer.pushAllocator(allocatorName);
+    }
 
-        ~CScopedRapidJsonPoolAllocator()
-        {
-            m_Writer.popAllocator();
-        }
+    ~CScopedRapidJsonPoolAllocator() { m_Writer.popAllocator(); }
 
-    private:
-        T &m_Writer;
+private:
+    T &m_Writer;
 };
-
 }
 }
-#endif // INCLUDED_ml_core_CScopedRapidJsonPoolAllocator_h
+#endif// INCLUDED_ml_core_CScopedRapidJsonPoolAllocator_h

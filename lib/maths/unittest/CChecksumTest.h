@@ -18,18 +18,17 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CChecksumTest : public CppUnit::TestFixture
-{
-    public:
-        void testMemberChecksum(void);
-        void testContainers(void);
-        void testNullable(void);
-        void testAccumulators(void);
-        void testPair(void);
-        void testArray(void);
-        void testCombinations(void);
+class CChecksumTest : public CppUnit::TestFixture {
+public:
+    void testMemberChecksum(void);
+    void testContainers(void);
+    void testNullable(void);
+    void testAccumulators(void);
+    void testPair(void);
+    void testArray(void);
+    void testCombinations(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CChecksumTest_h
+#endif// INCLUDED_CChecksumTest_h

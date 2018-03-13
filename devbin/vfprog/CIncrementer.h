@@ -17,12 +17,8 @@
 
 #include <stddef.h>
 
-
-namespace ml
-{
-namespace vfprog
-{
-
+namespace ml {
+namespace vfprog {
 
 //! \brief
 //! Class for measuring function call overhead.
@@ -36,28 +32,21 @@ namespace vfprog
 //! that passes arguments in registers no memory access should
 //! be required.
 //!
-class CIncrementer
-{
-    public:
-        //! Best practice, though not really required in this case
-        virtual ~CIncrementer(void);
+class CIncrementer {
+public:
+    //! Best practice, though not really required in this case
+    virtual ~CIncrementer(void);
 
-        //! Inlined incrementer
-        size_t inlinedIncrement(size_t val)
-        {
-            return val + 1;
-        }
+    //! Inlined incrementer
+    size_t inlinedIncrement(size_t val) { return val + 1; }
 
-        //! Non-virtual incrementer
-        size_t nonVirtualIncrement(size_t val);
+    //! Non-virtual incrementer
+    size_t nonVirtualIncrement(size_t val);
 
-        //! Virtual incrementer
-        virtual size_t virtualIncrement(size_t val);
+    //! Virtual incrementer
+    virtual size_t virtualIncrement(size_t val);
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_vfprog_CIncrementer_h
-
+#endif// INCLUDED_ml_vfprog_CIncrementer_h

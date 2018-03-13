@@ -18,20 +18,19 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture
-{
-    public:
-        void testProbability(void);
-        void testAddAttributeProbabilityGivenIndividualCount(void);
-        void testAddAttributeProbabilityGivenPopulationCount(void);
-        void testAddAttributeProbabilityGivenIndividualRare(void);
-        void testAddAttributeProbabilityGivenPopulationRare(void);
-        void testAddAttributeProbabilityGivenPopulationFreqRare(void);
-        void testPersonFrequencyGivenIndividualCount(void);
-        void testPersonFrequencyGivenIndividualRare(void);
-        void testPersonFrequencyGivenPopulationRare(void);
+class CAnnotatedProbabilityBuilderTest : public CppUnit::TestFixture {
+public:
+    void testProbability(void);
+    void testAddAttributeProbabilityGivenIndividualCount(void);
+    void testAddAttributeProbabilityGivenPopulationCount(void);
+    void testAddAttributeProbabilityGivenIndividualRare(void);
+    void testAddAttributeProbabilityGivenPopulationRare(void);
+    void testAddAttributeProbabilityGivenPopulationFreqRare(void);
+    void testPersonFrequencyGivenIndividualCount(void);
+    void testPersonFrequencyGivenIndividualRare(void);
+    void testPersonFrequencyGivenPopulationRare(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CAnnotatedProbabilityBuilderTest_h
+#endif// INCLUDED_CAnnotatedProbabilityBuilderTest_h

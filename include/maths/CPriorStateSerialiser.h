@@ -23,15 +23,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 struct SDistributionRestoreParams;
@@ -48,37 +45,32 @@ struct SDistributionRestoreParams;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format makes it easier to provide backwards/forwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CPriorStateSerialiser
-{
-    public:
-        using TPriorPtr = boost::shared_ptr<CPrior>;
-        using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
+class MATHS_EXPORT CPriorStateSerialiser {
+public:
+    using TPriorPtr = boost::shared_ptr<CPrior>;
+    using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
 
-    public:
-        //! Construct the appropriate CPrior sub-class from its state
-        //! document representation.  Sets \p ptr to NULL on failure.
-        bool operator()(const SDistributionRestoreParams &params,
-                        TPriorPtr &ptr,
-                        core::CStateRestoreTraverser &traverser) const;
+public:
+    //! Construct the appropriate CPrior sub-class from its state
+    //! document representation.  Sets \p ptr to NULL on failure.
+    bool operator()(const SDistributionRestoreParams &params,
+                    TPriorPtr &ptr,
+                    core::CStateRestoreTraverser &traverser) const;
 
-        //! Persist state by passing information to the supplied inserter
-        void operator()(const CPrior &prior,
-                        core::CStatePersistInserter &inserter) const;
+    //! Persist state by passing information to the supplied inserter
+    void operator()(const CPrior &prior, core::CStatePersistInserter &inserter) const;
 
-        //! Construct the appropriate CMultivariatePrior sub-class from
-        //! its state document representation.  Sets \p ptr to NULL on
-        //! failure.
-        bool operator()(const SDistributionRestoreParams &params,
-                        TMultivariatePriorPtr &ptr,
-                        core::CStateRestoreTraverser &traverser) const;
+    //! Construct the appropriate CMultivariatePrior sub-class from
+    //! its state document representation.  Sets \p ptr to NULL on
+    //! failure.
+    bool operator()(const SDistributionRestoreParams &params,
+                    TMultivariatePriorPtr &ptr,
+                    core::CStateRestoreTraverser &traverser) const;
 
-        //! Persist state by passing information to the supplied inserter
-        void operator()(const CMultivariatePrior &prior,
-                        core::CStatePersistInserter &inserter) const;
+    //! Persist state by passing information to the supplied inserter
+    void operator()(const CMultivariatePrior &prior, core::CStatePersistInserter &inserter) const;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_maths_CPriorStateSerialiser_h
-
+#endif// INCLUDED_ml_maths_CPriorStateSerialiser_h

@@ -20,15 +20,11 @@
 
 #include <iosfwd>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlParserIntf;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Parse XML input where each line is a separate XML document.
@@ -47,46 +43,41 @@ namespace api
 //! Takes an interface to the XML parser as a constructor argument to allow
 //! performance comparisons between different XML parsers.
 //!
-class API_EXPORT CLineifiedXmlInputParser : public CLineifiedInputParser
-{
-    public:
-        //! Construct with an XML parser interface and an input stream to be
-        //! parsed.  Once a stream is passed to this constructor, no other
-        //! object should read from it.  For example, if std::cin is passed, no
-        //! other object should read from std::cin, otherwise unpredictable and
-        //! incorrect results will be generated.
-        CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
-                                 std::istream &strmIn,
-                                 bool allDocsSameStructure = false);
+class API_EXPORT CLineifiedXmlInputParser : public CLineifiedInputParser {
+public:
+    //! Construct with an XML parser interface and an input stream to be
+    //! parsed.  Once a stream is passed to this constructor, no other
+    //! object should read from it.  For example, if std::cin is passed, no
+    //! other object should read from std::cin, otherwise unpredictable and
+    //! incorrect results will be generated.
+    CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
+                             std::istream &strmIn,
+                             bool allDocsSameStructure = false);
 
-        //! Read records from the stream. The supplied reader function is called
-        //! once per record.  If the supplied reader function returns false,
-        //! reading will stop.  This method keeps reading until it reaches the
-        //! end of the stream or an error occurs.  If it successfully reaches
-        //! the end of the stream it returns true, otherwise it returns false.
-        virtual bool readStream(const TReaderFunc &readerFunc);
+    //! Read records from the stream. The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false,
+    //! reading will stop.  This method keeps reading until it reaches the
+    //! end of the stream or an error occurs.  If it successfully reaches
+    //! the end of the stream it returns true, otherwise it returns false.
+    virtual bool readStream(const TReaderFunc &readerFunc);
 
-    private:
-        //! Attempt to parse the current working record into data fields.
-        bool decodeDocumentWithCommonFields(TStrVec &fieldNames,
-                                            TStrRefVec &fieldValRefs,
-                                            TStrStrUMap &recordFields);
+private:
+    //! Attempt to parse the current working record into data fields.
+    bool decodeDocumentWithCommonFields(TStrVec &fieldNames,
+                                        TStrRefVec &fieldValRefs,
+                                        TStrStrUMap &recordFields);
 
-        void decodeDocumentWithArbitraryFields(TStrVec &fieldNames,
-                                               TStrStrUMap &recordFields);
+    void decodeDocumentWithArbitraryFields(TStrVec &fieldNames, TStrStrUMap &recordFields);
 
-    private:
-        //! Reference to the parser we're going to use
-        core::CXmlParserIntf &m_Parser;
+private:
+    //! Reference to the parser we're going to use
+    core::CXmlParserIntf &m_Parser;
 
-        //! Are all XML documents expected to contain the same fields in the
-        //! same order?
-        bool                 m_AllDocsSameStructure;
+    //! Are all XML documents expected to contain the same fields in the
+    //! same order?
+    bool m_AllDocsSameStructure;
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_api_CLineifiedXmlInputParser_h
-
+#endif// INCLUDED_ml_api_CLineifiedXmlInputParser_h

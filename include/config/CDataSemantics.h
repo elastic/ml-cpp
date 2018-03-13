@@ -29,10 +29,8 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Determines the semantics of some data from examples.
 //!
@@ -51,123 +49,119 @@ namespace config
 //! examples from a single data type, to be identified, are
 //! supplied. If multiple data types need to be identified then
 //! a different object should be used for each.
-class CONFIG_EXPORT CDataSemantics
-{
+class CONFIG_EXPORT CDataSemantics {
+public:
+    typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
+
+public:
+    //! The proportion of values which must be numeric for the
+    //! data to be a candidate metric.
+    static const double NUMERIC_PROPORTION_FOR_METRIC_STRICT;
+
+    //! The proportion of values which must be numeric for the
+    //! data to be a candidate metric if there are only a small
+    //! number of distinct non-numeric strings.
+    static const double NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES;
+
+    //! The proportion of values which must be integer for the
+    //! data to be a candidate integer.
+    static const double INTEGER_PRORORTION_FOR_INTEGER;
+
+public:
+    explicit CDataSemantics(TOptionalUserDataType override = TOptionalUserDataType());
+
+    //! Add an example from the data set.
+    void add(const std::string &example);
+
+    //! Compute the type of the data based on the examples added so far.
+    void computeType(void);
+
+    //! Get the last inferred data type set by computeType.
+    config_t::EDataType type(void) const;
+
+private:
+    //! \brief Hashes an ordinal type.
+    class CONFIG_EXPORT CHashOrdinal {
     public:
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
+        std::size_t operator()(maths::COrdinal value) const { return value.hash(); }
+    };
+    typedef std::vector<std::string> TStrVec;
+    typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
+    typedef maths::CBasicStatistics::
+        COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal>>
+            TMaxAccumulator;
 
-    public:
-        //! The proportion of values which must be numeric for the
-        //! data to be a candidate metric.
-        static const double NUMERIC_PROPORTION_FOR_METRIC_STRICT;
+private:
+    //! The maximum number of values we'll hold in the empirical
+    //! distribution.
+    static const std::size_t MAXIMUM_EMPIRICAL_DISTRIBUTION_SIZE;
 
-        //! The proportion of values which must be numeric for the
-        //! data to be a candidate metric if there are only a small
-        //! number of distinct non-numeric strings.
-        static const double NUMERIC_PROPORTION_FOR_METRIC_WITH_SUSPECTED_MISSING_VALUES;
+private:
+    //! Get the categorical type.
+    config_t::EDataType categoricalType(void) const;
 
-        //! The proportion of values which must be integer for the
-        //! data to be a candidate integer.
-        static const double INTEGER_PRORORTION_FOR_INTEGER;
+    //! Get the real type.
+    config_t::EDataType realType(void) const;
 
-    public:
-        explicit CDataSemantics(TOptionalUserDataType override = TOptionalUserDataType());
+    //! Get the integer type.
+    config_t::EDataType integerType(void) const;
 
-        //! Add an example from the data set.
-        void add(const std::string &example);
+    //! Check if the field is numeric.
+    bool isNumeric(void) const;
 
-        //! Compute the type of the data based on the examples added so far.
-        void computeType(void);
+    //! Check if the field is integer.
+    bool isInteger(void) const;
 
-        //! Get the last inferred data type set by computeType.
-        config_t::EDataType type(void) const;
+    //! Check how well the data is approximated by a Gaussian
+    //! mixture model.
+    bool GMMGoodFit(void) const;
 
-    private:
-        //! \brief Hashes an ordinal type.
-        class CONFIG_EXPORT CHashOrdinal
-        {
-            public:
-                std::size_t operator()(maths::COrdinal value) const
-                {
-                    return value.hash();
-                }
-        };
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> > TMaxAccumulator;
+    //! Add an integer value.
+    template <typename INT> maths::COrdinal addInteger(INT value);
 
-    private:
-        //! The maximum number of values we'll hold in the empirical
-        //! distribution.
-        static const std::size_t MAXIMUM_EMPIRICAL_DISTRIBUTION_SIZE;
+    //! Add a positive integer value.
+    template <typename UINT> maths::COrdinal addPositiveInteger(UINT value);
 
-    private:
-        //! Get the categorical type.
-        config_t::EDataType categoricalType(void) const;
+    //! Add a real value.
+    template <typename REAL> maths::COrdinal addReal(REAL value);
 
-        //! Get the real type.
-        config_t::EDataType realType(void) const;
+private:
+    //! The last computed type.
+    config_t::EDataType m_Type;
 
-        //! Get the integer type.
-        config_t::EDataType integerType(void) const;
+    //! Get a user specified override for the field type.
+    TOptionalUserDataType m_Override;
 
-        //! Check if the field is numeric.
-        bool isNumeric(void) const;
+    //! The total number of examples.
+    double m_Count;
 
-        //! Check if the field is integer.
-        bool isInteger(void) const;
+    //! True if the values are numeric.
+    double m_NumericProportion;
 
-        //! Check how well the data is approximated by a Gaussian
-        //! mixture model.
-        bool GMMGoodFit(void) const;
+    //! The proportion of values which are integer.
+    double m_IntegerProportion;
 
-        //! Add an integer value.
-        template<typename INT> maths::COrdinal addInteger(INT value);
+    //! The smallest numerical value received.
+    TMinAccumulator m_Smallest;
 
-        //! Add a positive integer value.
-        template<typename UINT> maths::COrdinal addPositiveInteger(UINT value);
+    //! The largest numerical value received.
+    TMaxAccumulator m_Largest;
 
-        //! Add a real value.
-        template<typename REAL> maths::COrdinal addReal(REAL value);
+    //! The no more than three of the distinct values.
+    TStrVec m_DistinctValues;
 
-    private:
-        //! The last computed type.
-        config_t::EDataType m_Type;
+    //! Examples of non-numeric strings.
+    TStrVec m_NonNumericValues;
 
-        //! Get a user specified override for the field type.
-        TOptionalUserDataType m_Override;
+    //! Set to true if there are too many distinct values to maintain
+    //! the empirical distribution.
+    bool m_EmpiricalDistributionOverflowed;
 
-        //! The total number of examples.
-        double m_Count;
-
-        //! True if the values are numeric.
-        double m_NumericProportion;
-
-        //! The proportion of values which are integer.
-        double m_IntegerProportion;
-
-        //! The smallest numerical value received.
-        TMinAccumulator m_Smallest;
-
-        //! The largest numerical value received.
-        TMaxAccumulator m_Largest;
-
-        //! The no more than three of the distinct values.
-        TStrVec m_DistinctValues;
-
-        //! Examples of non-numeric strings.
-        TStrVec m_NonNumericValues;
-
-        //! Set to true if there are too many distinct values to maintain
-        //! the empirical distribution.
-        bool m_EmpiricalDistributionOverflowed;
-
-        //! The empirical distribution.
-        TOrdinalSizeUMap m_EmpiricalDistribution;
+    //! The empirical distribution.
+    TOrdinalSizeUMap m_EmpiricalDistribution;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_config_CValueSemantics_h
+#endif// INCLUDED_ml_config_CValueSemantics_h

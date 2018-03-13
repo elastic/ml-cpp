@@ -18,13 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBoundingBoxTest : public CppUnit::TestFixture
-{
-    public:
-        void testAdd(void);
-        void testCloserTo(void);
+class CBoundingBoxTest : public CppUnit::TestFixture {
+public:
+    void testAdd(void);
+    void testCloserTo(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CBoundingBostTest_h
+#endif// INCLUDED_CBoundingBostTest_h

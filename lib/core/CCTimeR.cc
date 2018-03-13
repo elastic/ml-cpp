@@ -14,19 +14,9 @@
  */
 #include <core/CCTimeR.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-char *CCTimeR::cTimeR(const time_t *clock, char *result)
-{
-    return ::ctime_r(clock, result);
-}
-
-
+char *CCTimeR::cTimeR(const time_t *clock, char *result) { return ::ctime_r(clock, result); }
 }
 }
-

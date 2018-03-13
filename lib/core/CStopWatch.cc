@@ -18,28 +18,17 @@
 
 #include <string.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-CStopWatch::CStopWatch(bool startRunning)
-    : m_IsRunning(false),
-      m_Start(0),
-      m_AccumulatedTime(0)
-{
-    if (startRunning)
-    {
+CStopWatch::CStopWatch(bool startRunning) : m_IsRunning(false), m_Start(0), m_AccumulatedTime(0) {
+    if (startRunning) {
         this->start();
     }
 }
 
-void CStopWatch::start(void)
-{
-    if (m_IsRunning)
-    {
+void CStopWatch::start(void) {
+    if (m_IsRunning) {
         LOG_ERROR("Stop watch already running");
         return;
     }
@@ -48,10 +37,8 @@ void CStopWatch::start(void)
     m_Start = m_MonotonicTime.milliseconds();
 }
 
-uint64_t CStopWatch::stop(void)
-{
-    if (!m_IsRunning)
-    {
+uint64_t CStopWatch::stop(void) {
+    if (!m_IsRunning) {
         LOG_ERROR("Stop watch not running");
         return m_AccumulatedTime;
     }
@@ -63,10 +50,8 @@ uint64_t CStopWatch::stop(void)
     return m_AccumulatedTime;
 }
 
-uint64_t CStopWatch::lap(void)
-{
-    if (!m_IsRunning)
-    {
+uint64_t CStopWatch::lap(void) {
+    if (!m_IsRunning) {
         LOG_ERROR("Stop watch not running");
         return m_AccumulatedTime;
     }
@@ -74,27 +59,20 @@ uint64_t CStopWatch::lap(void)
     return m_AccumulatedTime + this->calcDuration();
 }
 
-bool CStopWatch::isRunning(void) const
-{
-    return m_IsRunning;
-}
+bool CStopWatch::isRunning(void) const { return m_IsRunning; }
 
-void CStopWatch::reset(bool startRunning)
-{
+void CStopWatch::reset(bool startRunning) {
     m_AccumulatedTime = 0;
     m_IsRunning = false;
 
-    if (startRunning)
-    {
+    if (startRunning) {
         this->start();
     }
 }
 
-uint64_t CStopWatch::calcDuration(void)
-{
+uint64_t CStopWatch::calcDuration(void) {
     uint64_t current(m_MonotonicTime.milliseconds());
-    if (current < m_Start)
-    {
+    if (current < m_Start) {
         LOG_WARN("Monotonic timer has gone backwards - "
                  "stop watch timings will be inaccurate");
         m_Start = current;
@@ -103,8 +81,5 @@ uint64_t CStopWatch::calcDuration(void)
 
     return current - m_Start;
 }
-
-
 }
 }
-

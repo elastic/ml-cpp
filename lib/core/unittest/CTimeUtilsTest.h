@@ -17,19 +17,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CTimeUtilsTest : public CppUnit::TestFixture {
+public:
+    void testNow(void);
+    void testToIso8601(void);
+    void testToLocal(void);
+    void testStrptime(void);
+    void testTimezone(void);
+    void testDateWords(void);
 
-class CTimeUtilsTest : public CppUnit::TestFixture
-{
-    public:
-        void testNow(void);
-        void testToIso8601(void);
-        void testToLocal(void);
-        void testStrptime(void);
-        void testTimezone(void);
-        void testDateWords(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CTimeUtilsTest_h
-
+#endif// INCLUDED_CTimeUtilsTest_h

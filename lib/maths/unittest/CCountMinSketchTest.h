@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCountMinSketchTest : public CppUnit::TestFixture
-{
-    public:
-        void testCounts(void);
-        void testSwap(void);
-        void testPersist(void);
+class CCountMinSketchTest : public CppUnit::TestFixture {
+public:
+    void testCounts(void);
+    void testSwap(void);
+    void testPersist(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CCountMinSketchTest_h
+#endif// INCLUDED_CCountMinSketchTest_h

@@ -18,14 +18,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelToolsTest : public CppUnit::TestFixture
-{
-    public:
-        void testFuzzyDeduplicate(void);
-        void testProbabilityCache(void);
+class CModelToolsTest : public CppUnit::TestFixture {
+public:
+    void testFuzzyDeduplicate(void);
+    void testProbabilityCache(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-
-#endif // INCLUDED_CModelToolsTest_h
+#endif// INCLUDED_CModelToolsTest_h

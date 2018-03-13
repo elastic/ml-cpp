@@ -18,14 +18,12 @@
 #include "CIpAddressTestTest.h"
 #include "CTopLevelDomainDbTest.h"
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     ml::test::CTestRunner runner(argc, argv);
 
-    runner.addTest( CCompressUtilsTest::suite() );
-    runner.addTest( CIpAddressTestTest::suite() );
-    runner.addTest( CTopLevelDomainDbTest::suite() );
+    runner.addTest(CCompressUtilsTest::suite());
+    runner.addTest(CIpAddressTestTest::suite());
+    runner.addTest(CTopLevelDomainDbTest::suite());
 
     return !runner.runTests();
 }
-

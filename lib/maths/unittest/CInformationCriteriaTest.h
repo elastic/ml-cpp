@@ -18,15 +18,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CInformationCriteriaTest : public CppUnit::TestFixture
-{
-    public:
-        void testSphericalGaussian(void);
-        void testSphericalGaussianWithSphericalCluster(void);
-        void testGaussian(void);
-        void testGaussianWithSphericalCluster(void);
+class CInformationCriteriaTest : public CppUnit::TestFixture {
+public:
+    void testSphericalGaussian(void);
+    void testSphericalGaussianWithSphericalCluster(void);
+    void testGaussian(void);
+    void testGaussianWithSphericalCluster(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CInformationCriteriaTest_h
+#endif// INCLUDED_CInformationCriteriaTest_h

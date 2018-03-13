@@ -17,12 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture
-{
-    public:
-        void testElementsWithPerPartitionNormalisation(void);
+class CHierarchicalResultsLevelSetTest : public CppUnit::TestFixture {
+public:
+    void testElementsWithPerPartitionNormalisation(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CHierarchicalResultsLevelSetTest_h
+#endif// INCLUDED_CHierarchicalResultsLevelSetTest_h

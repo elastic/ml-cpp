@@ -31,11 +31,8 @@
 
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief The BJSKT algorithm for estimating the number of unique values
 //! in a collection.
@@ -80,36 +77,75 @@ namespace maths
 //! Note that the hash map lookup constants are good but the complexity
 //! is bad \f$O(m)\f$ so the \p maxSize parameter supplied to the
 //! constructor should be less than a few hundred.
-class MATHS_EXPORT CBjkstUniqueValues
-{
-    public:
-        typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
+class MATHS_EXPORT CBjkstUniqueValues {
+public:
+    typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
 
-    public:
-        //! Get the count of trailing zeros in value.
-        static uint8_t trailingZeros(uint32_t value);
+public:
+    //! Get the count of trailing zeros in value.
+    static uint8_t trailingZeros(uint32_t value);
 
-    public:
-        //! \param numberHashes The number of independent hashes.
-        //! \param maxSize The maximum size of the hash sets.
-        CBjkstUniqueValues(std::size_t numberHashes, std::size_t maxSize);
+public:
+    //! \param numberHashes The number of independent hashes.
+    //! \param maxSize The maximum size of the hash sets.
+    CBjkstUniqueValues(std::size_t numberHashes, std::size_t maxSize);
 
-        //! Create by traversing a state document.
-        CBjkstUniqueValues(core::CStateRestoreTraverser &traverser);
+    //! Create by traversing a state document.
+    CBjkstUniqueValues(core::CStateRestoreTraverser &traverser);
+
+    //! Efficiently swap the contents of two sketches.
+    void swap(CBjkstUniqueValues &other);
+
+private:
+    //! Create by traversing a state document.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+
+public:
+    //! Convert to a node tree.
+    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+
+    //! Add a new value.
+    void add(uint32_t value);
+
+    //! Remove a value.
+    void remove(uint32_t value);
+
+    //! Get an estimate of the number of unique values added.
+    uint32_t number(void) const;
+
+    //! Get a checksum for the sketch.
+    uint64_t checksum(uint64_t seed = 0) const;
+
+    //! Get the memory used by this sketch.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this sketch.
+    std::size_t memoryUsage(void) const;
+
+private:
+    typedef std::vector<uint8_t> TUInt8Vec;
+    typedef std::vector<TUInt8Vec> TUInt8VecVec;
+    typedef std::vector<uint32_t> TUInt32Vec;
+    typedef TUInt32Vec::iterator TUInt32VecItr;
+    typedef TUInt32Vec::const_iterator TUInt32VecCItr;
+
+    //! Wraps up the sketch data.
+    struct MATHS_EXPORT SSketch {
+        SSketch(void);
+        SSketch(std::size_t numberHashes);
 
         //! Efficiently swap the contents of two sketches.
-        void swap(CBjkstUniqueValues &other);
+        void swap(SSketch &other);
 
-    private:
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
+                                    std::size_t numberHashes);
 
-    public:
         //! Convert to a node tree.
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Add a new value.
-        void add(uint32_t value);
+        void add(std::size_t maxSize, uint32_t value);
 
         //! Remove a value.
         void remove(uint32_t value);
@@ -117,73 +153,31 @@ class MATHS_EXPORT CBjkstUniqueValues
         //! Get an estimate of the number of unique values added.
         uint32_t number(void) const;
 
-        //! Get a checksum for the sketch.
-        uint64_t checksum(uint64_t seed = 0) const;
+        //! The secondary hash function.
+        TUInt32HashVec s_G;
+        //! The main hash functions.
+        TUInt32HashVec s_H;
+        //! The trailing zero counts.
+        TUInt8Vec s_Z;
+        //! The unique hashed values.
+        TUInt8VecVec s_B;
+    };
 
-        //! Get the memory used by this sketch.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    typedef boost::variant<TUInt32Vec, SSketch> TUInt32VecOrSketch;
 
-        //! Get the memory used by this sketch.
-        std::size_t memoryUsage(void) const;
+private:
+    //! Maybe switch to sketching the distinct value set.
+    void sketch(void);
 
-    private:
-        typedef std::vector<uint8_t> TUInt8Vec;
-        typedef std::vector<TUInt8Vec> TUInt8VecVec;
-        typedef std::vector<uint32_t> TUInt32Vec;
-        typedef TUInt32Vec::iterator TUInt32VecItr;
-        typedef TUInt32Vec::const_iterator TUInt32VecCItr;
-
-        //! Wraps up the sketch data.
-        struct MATHS_EXPORT SSketch
-        {
-            SSketch(void);
-            SSketch(std::size_t numberHashes);
-
-            //! Efficiently swap the contents of two sketches.
-            void swap(SSketch &other);
-
-            //! Create by traversing a state document.
-            bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
-                                        std::size_t numberHashes);
-
-            //! Convert to a node tree.
-            void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-
-            //! Add a new value.
-            void add(std::size_t maxSize, uint32_t value);
-
-            //! Remove a value.
-            void remove(uint32_t value);
-
-            //! Get an estimate of the number of unique values added.
-            uint32_t number(void) const;
-
-            //! The secondary hash function.
-            TUInt32HashVec s_G;
-            //! The main hash functions.
-            TUInt32HashVec s_H;
-            //! The trailing zero counts.
-            TUInt8Vec s_Z;
-            //! The unique hashed values.
-            TUInt8VecVec s_B;
-        };
-
-        typedef boost::variant<TUInt32Vec, SSketch> TUInt32VecOrSketch;
-
-    private:
-        //! Maybe switch to sketching the distinct value set.
-        void sketch(void);
-
-    private:
-        //! The maximum size of the sketch set before compression.
-        std::size_t m_MaxSize;
-        //! The number of distinct hashes to use in the sketch.
-        std::size_t m_NumberHashes;
-        //! The distinct count sketch.
-        TUInt32VecOrSketch m_Sketch;
+private:
+    //! The maximum size of the sketch set before compression.
+    std::size_t m_MaxSize;
+    //! The number of distinct hashes to use in the sketch.
+    std::size_t m_NumberHashes;
+    //! The distinct count sketch.
+    TUInt32VecOrSketch m_Sketch;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_maths_CBjkstUniqueValues_h
+#endif// INCLUDED_ml_maths_CBjkstUniqueValues_h

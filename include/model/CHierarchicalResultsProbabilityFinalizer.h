@@ -19,10 +19,8 @@
 #include <model/CHierarchicalResults.h>
 #include <model/ModelTypes.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Ensures that all probabilities are equal to the inverse
 //! deviation of the anomaly scores.
@@ -35,14 +33,12 @@ namespace model
 //! when we write them out for normalization to work as expected.
 //! This visitor ensures this invariant holds in a bottom up
 //! breadth first pass over the results.
-class MODEL_EXPORT CHierarchicalResultsProbabilityFinalizer : public CHierarchicalResultsVisitor
-{
-    public:
-        //! Finalize the probability of \p node.
-        virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
+class MODEL_EXPORT CHierarchicalResultsProbabilityFinalizer : public CHierarchicalResultsVisitor {
+public:
+    //! Finalize the probability of \p node.
+    virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
 };
-
 }
 }
 
-#endif // INCLUDED_ml_model_CHierarchicalResultsProbabilityFinalizer_h
+#endif// INCLUDED_ml_model_CHierarchicalResultsProbabilityFinalizer_h

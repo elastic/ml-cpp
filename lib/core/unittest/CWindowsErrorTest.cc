@@ -14,23 +14,19 @@
  */
 #include "CWindowsErrorTest.h"
 
-#include <core/CWindowsError.h>
 #include <core/CLogger.h>
+#include <core/CWindowsError.h>
 
-
-CppUnit::Test *CWindowsErrorTest::suite()
-{
+CppUnit::Test *CWindowsErrorTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CWindowsErrorTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CWindowsErrorTest>(
-                                   "CWindowsErrorTest::testErrors",
-                                   &CWindowsErrorTest::testErrors) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWindowsErrorTest>(
+        "CWindowsErrorTest::testErrors", &CWindowsErrorTest::testErrors));
 
     return suiteOfTests;
 }
 
-void CWindowsErrorTest::testErrors(void)
-{
+void CWindowsErrorTest::testErrors(void) {
     LOG_INFO("Windows error 1 is : " << ml::core::CWindowsError(1));
     LOG_INFO("Windows error 2 is : " << ml::core::CWindowsError(2));
     LOG_INFO("Windows error 3 is : " << ml::core::CWindowsError(3));
@@ -38,4 +34,3 @@ void CWindowsErrorTest::testErrors(void)
     LOG_INFO("Windows error 5 is : " << ml::core::CWindowsError(5));
     LOG_INFO("Windows error 6 is : " << ml::core::CWindowsError(6));
 }
-

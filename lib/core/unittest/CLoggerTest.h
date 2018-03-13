@@ -17,18 +17,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CLoggerTest : public CppUnit::TestFixture {
+public:
+    void testLogging(void);
+    void testReconfiguration(void);
+    void testSetLevel(void);
+    void testLogEnvironment(void);
+    void testNonAsciiJsonLogging(void);
 
-class CLoggerTest : public CppUnit::TestFixture
-{
-    public:
-        void testLogging(void);
-        void testReconfiguration(void);
-        void testSetLevel(void);
-        void testLogEnvironment(void);
-        void testNonAsciiJsonLogging(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CLoggerTest_h
-
+#endif// INCLUDED_CLoggerTest_h

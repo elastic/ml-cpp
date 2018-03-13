@@ -17,17 +17,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCommandProcessorTest : public CppUnit::TestFixture
-{
-    public:
-        void testStartPermitted(void);
-        void testStartNonPermitted(void);
-        void testStartNonExistent(void);
-        void testKillDisallowed(void);
-        void testInvalidVerb(void);
+class CCommandProcessorTest : public CppUnit::TestFixture {
+public:
+    void testStartPermitted(void);
+    void testStartNonPermitted(void);
+    void testStartNonExistent(void);
+    void testKillDisallowed(void);
+    void testInvalidVerb(void);
 
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CCommandProcessorTest_h
-
+#endif// INCLUDED_CCommandProcessorTest_h

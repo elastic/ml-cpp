@@ -25,161 +25,152 @@
 
 #include <utility>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Mock a model and allow setting of bucket values
 //! and baselines.
-class CMockModel : public CAnomalyDetectorModel
-{
-    public:
-        CMockModel(const SModelParams &params,
-                   const TDataGathererPtr &dataGatherer,
-                   const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
+class CMockModel : public CAnomalyDetectorModel {
+public:
+    CMockModel(const SModelParams &params,
+               const TDataGathererPtr &dataGatherer,
+               const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
 
-        virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
-        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
-        virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+    virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
 
-        virtual model_t::EModelType category(void) const;
+    virtual model_t::EModelType category(void) const;
 
-        virtual bool isPopulation(void) const;
+    virtual bool isPopulation(void) const;
 
-        virtual bool isEventRate(void) const;
+    virtual bool isEventRate(void) const;
 
-        virtual bool isMetric(void) const;
+    virtual bool isMetric(void) const;
 
-        virtual TOptionalUInt64 currentBucketCount(std::size_t pid,
-                                                   core_t::TTime time) const;
+    virtual TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const;
 
-        virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
+    virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
 
-        virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                               std::size_t pid,
-                                               std::size_t cid,
-                                               core_t::TTime time) const;
+    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           core_t::TTime time) const;
 
-        virtual TDouble1Vec baselineBucketMean(model_t::EFeature feature,
-                                               std::size_t pid,
-                                               std::size_t cid,
-                                               model_t::CResultType type,
-                                               const TSizeDoublePr1Vec &correlated,
-                                               core_t::TTime time) const;
+    virtual TDouble1Vec baselineBucketMean(model_t::EFeature feature,
+                                           std::size_t pid,
+                                           std::size_t cid,
+                                           model_t::CResultType type,
+                                           const TSizeDoublePr1Vec &correlated,
+                                           core_t::TTime time) const;
 
-        virtual bool bucketStatsAvailable(core_t::TTime time) const;
+    virtual bool bucketStatsAvailable(core_t::TTime time) const;
 
-        virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const;
+    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const;
 
-        virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                            core_t::TTime endTime,
-                                            CResourceMonitor &resourceMonitor);
-
-        virtual void sample(core_t::TTime startTime,
-                            core_t::TTime endTime,
-                            CResourceMonitor &resourceMonitor);
-
-        virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                      core_t::TTime endTime,
-                                      CResourceMonitor &resourceMonitor);
-
-        virtual void prune(std::size_t maximumAge);
-
-        virtual bool computeProbability(std::size_t pid,
-                                        core_t::TTime startTime,
+    virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CPartitioningFields &partitioningFields,
-                                        std::size_t numberAttributeProbabilities,
-                                        SAnnotatedProbability &result) const;
+                                        CResourceMonitor &resourceMonitor);
 
-        virtual bool computeTotalProbability(const std::string &person,
-                                             std::size_t numberAttributeProbabilities,
-                                             TOptionalDouble &probability,
-                                             TAttributeProbability1Vec &attributeProbabilities) const;
+    virtual void
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor);
 
-        virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
+    virtual void sampleOutOfPhase(core_t::TTime startTime,
+                                  core_t::TTime endTime,
+                                  CResourceMonitor &resourceMonitor);
 
-        virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void prune(std::size_t maximumAge);
 
-        virtual std::size_t memoryUsage(void) const;
+    virtual bool computeProbability(std::size_t pid,
+                                    core_t::TTime startTime,
+                                    core_t::TTime endTime,
+                                    CPartitioningFields &partitioningFields,
+                                    std::size_t numberAttributeProbabilities,
+                                    SAnnotatedProbability &result) const;
 
-        virtual std::size_t computeMemoryUsage(void) const;
+    virtual bool computeTotalProbability(const std::string &person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble &probability,
+                                         TAttributeProbability1Vec &attributeProbabilities) const;
 
-        virtual std::size_t staticSize(void) const;
+    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
 
-        virtual CModelDetailsViewPtr details(void) const;
+    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
 
-        virtual double attributeFrequency(std::size_t cid) const;
+    virtual std::size_t memoryUsage(void) const;
 
-        const maths::CModel *model(std::size_t id) const;
+    virtual std::size_t computeMemoryUsage(void) const;
 
-        // Setter methods to allow mocking
+    virtual std::size_t staticSize(void) const;
 
-        void mockPopulation(bool isPopulation);
+    virtual CModelDetailsViewPtr details(void) const;
 
-        void mockAddBucketValue(model_t::EFeature feature,
-                                std::size_t pid,
-                                std::size_t cid,
-                                core_t::TTime time,
-                                const TDouble1Vec &value);
+    virtual double attributeFrequency(std::size_t cid) const;
 
-        void mockAddBucketBaselineMean(model_t::EFeature feature,
-                                       std::size_t pid,
-                                       std::size_t cid,
-                                       core_t::TTime time,
-                                       const TDouble1Vec &value);
+    const maths::CModel *model(std::size_t id) const;
 
-        void mockTimeSeriesModels(const TMathsModelPtrVec &model);
+    // Setter methods to allow mocking
 
-    protected:
-        virtual core_t::TTime currentBucketStartTime(void) const;
-        virtual void currentBucketStartTime(core_t::TTime time);
-        virtual void createNewModels(std::size_t n, std::size_t m);
-        virtual void updateRecycledModels(void);
-        virtual void clearPrunedResources(const TSizeVec &people,
-                                          const TSizeVec &attributes);
+    void mockPopulation(bool isPopulation);
 
-    private:
-        using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
-        using TSizeSizeTimeTriple = core::CTriple<std::size_t, std::size_t, core_t::TTime>;
-        using TFeatureSizeSizeTimeTriplePr = std::pair<model_t::EFeature, TSizeSizeTimeTriple>;
-        using TFeatureSizeSizeTimeTriplePrDouble1VecUMap = boost::unordered_map<TFeatureSizeSizeTimeTriplePr, TDouble1Vec>;
+    void mockAddBucketValue(model_t::EFeature feature,
+                            std::size_t pid,
+                            std::size_t cid,
+                            core_t::TTime time,
+                            const TDouble1Vec &value);
 
-    private:
-        virtual void currentBucketTotalCount(uint64_t totalCount);
-        virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
-        virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+    void mockAddBucketBaselineMean(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   core_t::TTime time,
+                                   const TDouble1Vec &value);
 
-    private:
-        bool m_IsPopulation;
-        TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketValues;
-        TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketBaselineMeans;
-        TMathsModelPtrVec m_Models;
+    void mockTimeSeriesModels(const TMathsModelPtrVec &model);
+
+protected:
+    virtual core_t::TTime currentBucketStartTime(void) const;
+    virtual void currentBucketStartTime(core_t::TTime time);
+    virtual void createNewModels(std::size_t n, std::size_t m);
+    virtual void updateRecycledModels(void);
+    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes);
+
+private:
+    using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
+    using TSizeSizeTimeTriple = core::CTriple<std::size_t, std::size_t, core_t::TTime>;
+    using TFeatureSizeSizeTimeTriplePr = std::pair<model_t::EFeature, TSizeSizeTimeTriple>;
+    using TFeatureSizeSizeTimeTriplePrDouble1VecUMap =
+        boost::unordered_map<TFeatureSizeSizeTimeTriplePr, TDouble1Vec>;
+
+private:
+    virtual void currentBucketTotalCount(uint64_t totalCount);
+    virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
+    virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+
+private:
+    bool m_IsPopulation;
+    TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketValues;
+    TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketBaselineMeans;
+    TMathsModelPtrVec m_Models;
 };
 
 //! \brief A details view for a mock model.
-class CMockModelDetailsView : public CModelDetailsView
-{
-    public:
-        CMockModelDetailsView(const CMockModel &model);
+class CMockModelDetailsView : public CModelDetailsView {
+public:
+    CMockModelDetailsView(const CMockModel &model);
 
-    private:
-        virtual const maths::CModel *model(model_t::EFeature feature,
-                                           std::size_t byFieldId) const;
-        virtual const CAnomalyDetectorModel &base() const;
-        virtual double countVarianceScale(model_t::EFeature feature,
-                                          std::size_t byFieldId,
-                                          core_t::TTime time) const;
+private:
+    virtual const maths::CModel *model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const CAnomalyDetectorModel &base() const;
+    virtual double
+    countVarianceScale(model_t::EFeature feature, std::size_t byFieldId, core_t::TTime time) const;
 
-    private:
-        //! The model.
-        const CMockModel *m_Model;
+private:
+    //! The model.
+    const CMockModel *m_Model;
 };
-
 }
 }
 
-#endif // INCLUDED_ml_model_Mocks_h
+#endif// INCLUDED_ml_model_Mocks_h

@@ -24,13 +24,9 @@
 #endif
 #include <stdint.h>
 
-
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CMutex;
-
 
 //! \brief
 //! Wrapper around pthread_cond_wait.
@@ -43,51 +39,47 @@ class CMutex;
 //! they do not consume system handles, and match the semantics
 //! of pthread condition variables.
 //!
-class CORE_EXPORT CCondition : private CNonCopyable
-{
-    public:
-        CCondition(CMutex &);
-        ~CCondition(void);
+class CORE_EXPORT CCondition : private CNonCopyable {
+public:
+    CCondition(CMutex &);
+    ~CCondition(void);
 
-        //! Wait in current thread for signal - blocks.  The wait may be
-        //! spuriously interrupted by a signal, so the caller must check a
-        //! condition that will detect spurious wakeups, and wait again if
-        //! necessary.
-        bool wait(void);
+    //! Wait in current thread for signal - blocks.  The wait may be
+    //! spuriously interrupted by a signal, so the caller must check a
+    //! condition that will detect spurious wakeups, and wait again if
+    //! necessary.
+    bool wait(void);
 
-        //! Timed wait in current thread for millisecs - blocks.  The wait may
-        //! be spuriously interrupted by a signal, so the caller must check a
-        //! condition that will detect spurious wakeups, and wait again if
-        //! necessary.
-        bool wait(uint32_t t);
+    //! Timed wait in current thread for millisecs - blocks.  The wait may
+    //! be spuriously interrupted by a signal, so the caller must check a
+    //! condition that will detect spurious wakeups, and wait again if
+    //! necessary.
+    bool wait(uint32_t t);
 
-        //! Wake up a single thread that is blocked in wait
-        void signal(void);
+    //! Wake up a single thread that is blocked in wait
+    void signal(void);
 
-        //! Wake up all threads that are blocked in wait
-        void broadcast(void);
+    //! Wake up all threads that are blocked in wait
+    void broadcast(void);
 
-    private:
+private:
 #ifndef Windows
-        //! Convert milliseconds to timespec
-        static bool convert(uint32_t, timespec &);
+    //! Convert milliseconds to timespec
+    static bool convert(uint32_t, timespec &);
 #endif
 
-    private:
-        //! Reference to associated mutex
-        CMutex             &m_Mutex;
+private:
+    //! Reference to associated mutex
+    CMutex &m_Mutex;
 
-        //! The condition variable
+    //! The condition variable
 #ifdef Windows
-        CONDITION_VARIABLE m_Condition;
+    CONDITION_VARIABLE m_Condition;
 #else
-        pthread_cond_t     m_Condition;
+    pthread_cond_t m_Condition;
 #endif
 };
-
-
 }
 }
 
-#endif // INCLUDED_ml_core_CCondition_h
-
+#endif// INCLUDED_ml_core_CCondition_h

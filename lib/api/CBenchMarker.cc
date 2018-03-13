@@ -23,74 +23,52 @@
 #include <set>
 #include <sstream>
 
+namespace ml {
+namespace api {
 
-namespace ml
-{
-namespace api
-{
+CBenchMarker::CBenchMarker(void) : m_TotalMessages(0), m_ScoredMessages(0) {}
 
-
-CBenchMarker::CBenchMarker(void)
-    : m_TotalMessages(0),
-      m_ScoredMessages(0)
-{
-}
-
-bool CBenchMarker::init(const std::string &regexFilename)
-{
+bool CBenchMarker::init(const std::string &regexFilename) {
     // Reset in case of reinitialisation
     m_TotalMessages = 0;
     m_ScoredMessages = 0;
     m_Measures.clear();
 
     std::ifstream ifs(regexFilename.c_str());
-    if (!ifs.is_open())
-    {
+    if (!ifs.is_open()) {
         return false;
     }
 
     std::string line;
-    while (std::getline(ifs, line))
-    {
-        if (line.empty())
-        {
+    while (std::getline(ifs, line)) {
+        if (line.empty()) {
             continue;
         }
 
         core::CRegex regex;
-        if (regex.init(line) == false)
-        {
+        if (regex.init(line) == false) {
             return false;
         }
 
-        m_Measures.push_back(TRegexIntSizeStrPrMapPr(regex,
-                                                     TIntSizeStrPrMap()));
+        m_Measures.push_back(TRegexIntSizeStrPrMapPr(regex, TIntSizeStrPrMap()));
     }
 
     return (m_Measures.size() > 0);
 }
 
-void CBenchMarker::addResult(const std::string &message,
-                             int type)
-{
+void CBenchMarker::addResult(const std::string &message, int type) {
     bool scored(false);
     size_t position(0);
     for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end();
-         ++measureVecIter)
-    {
+         ++measureVecIter) {
         const core::CRegex &regex = measureVecIter->first;
-        if (regex.search(message, position) == true)
-        {
+        if (regex.search(message, position) == true) {
             TIntSizeStrPrMap &counts = measureVecIter->second;
             TIntSizeStrPrMapItr mapIter = counts.find(type);
-            if (mapIter == counts.end())
-            {
-                counts.insert(TIntSizeStrPrMap::value_type(type,
-                                                           TSizeStrPr(1, message)));
-            }
-            else
-            {
+            if (mapIter == counts.end()) {
+                counts.insert(TIntSizeStrPrMap::value_type(type, TSizeStrPr(1, message)));
+            } else {
                 ++(mapIter->second.first);
             }
             ++m_ScoredMessages;
@@ -101,33 +79,29 @@ void CBenchMarker::addResult(const std::string &message,
 
     ++m_TotalMessages;
 
-    if (!scored)
-    {
+    if (!scored) {
         LOG_TRACE("Message not included in scoring: " << message);
     }
 }
 
-void CBenchMarker::dumpResults(void) const
-{
+void CBenchMarker::dumpResults(void) const {
     // Sort the results in descending order of actual type occurrence
-    typedef std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>       TSizeRegexIntSizeStrPrMapPrVecCItrPr;
-    typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>       TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
-    typedef TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr;
+    typedef std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr> TSizeRegexIntSizeStrPrMapPrVecCItrPr;
+    typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>
+        TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
+    typedef TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator
+        TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr;
 
     TSizeRegexIntSizeStrPrMapPrVecCItrPrVec sortVec;
     sortVec.reserve(m_Measures.size());
 
     for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end();
-         ++measureVecIter)
-    {
+         ++measureVecIter) {
         const TIntSizeStrPrMap &counts = measureVecIter->second;
 
         size_t total(0);
-        for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-             mapIter != counts.end();
-             ++mapIter)
-        {
+        for (TIntSizeStrPrMapCItr mapIter = counts.begin(); mapIter != counts.end(); ++mapIter) {
             total += mapIter->second.first;
         }
 
@@ -135,7 +109,8 @@ void CBenchMarker::dumpResults(void) const
     }
 
     // Sort descending
-    typedef std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr> TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr;
+    typedef std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr>
+        TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr;
     TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr comp;
     std::sort(sortVec.begin(), sortVec.end(), comp);
 
@@ -152,11 +127,9 @@ void CBenchMarker::dumpResults(void) const
     // actual types are looked at first
     for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
          sortedVecIter != sortVec.end();
-         ++sortedVecIter)
-    {
+         ++sortedVecIter) {
         size_t total(sortedVecIter->first);
-        if (total > 0)
-        {
+        if (total > 0) {
             ++observedActuals;
         }
 
@@ -167,26 +140,20 @@ void CBenchMarker::dumpResults(void) const
              << "\tNumber of messages in manual category " << total << core_t::LINE_ENDING;
 
         const TIntSizeStrPrMap &counts = measureVecIter->second;
-        strm << "\tNumber of Ml categories that include this manual category "
-             << counts.size() << core_t::LINE_ENDING;
+        strm << "\tNumber of Ml categories that include this manual category " << counts.size()
+             << core_t::LINE_ENDING;
 
-        if (counts.size() == 1)
-        {
+        if (counts.size() == 1) {
             size_t count(counts.begin()->second.first);
             int type(counts.begin()->first);
-            if (usedTypes.find(type) != usedTypes.end())
-            {
+            if (usedTypes.find(type) != usedTypes.end()) {
                 strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
                      << counts.begin()->second.second << core_t::LINE_ENDING;
-            }
-            else
-            {
+            } else {
                 good += count;
                 usedTypes.insert(type);
             }
-        }
-        else if (counts.size() > 1)
-        {
+        } else if (counts.size() > 1) {
             strm << "\tBreakdown:" << core_t::LINE_ENDING;
 
             // Assume the category with the count closest to the actual count is
@@ -194,51 +161,39 @@ void CBenchMarker::dumpResults(void) const
             // are bad.
             size_t max(0);
             int maxType(-1);
-            for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-                 mapIter != counts.end();
-                 ++mapIter)
-            {
+            for (TIntSizeStrPrMapCItr mapIter = counts.begin(); mapIter != counts.end();
+                 ++mapIter) {
                 int type(mapIter->first);
 
                 size_t count(mapIter->second.first);
                 const std::string &example = mapIter->second.second;
                 strm << "\t\t" << count;
-                if (usedTypes.find(type) != usedTypes.end())
-                {
+                if (usedTypes.find(type) != usedTypes.end()) {
                     strm << "\t(CATEGORY ALREADY USED)";
-                }
-                else
-                {
-                    if (count > max)
-                    {
+                } else {
+                    if (count > max) {
                         max = count;
                         maxType = type;
                     }
                 }
                 strm << '\t' << example << core_t::LINE_ENDING;
             }
-            if (maxType > -1)
-            {
+            if (maxType > -1) {
                 good += max;
                 usedTypes.insert(maxType);
             }
         }
     }
 
-    strm << "Total number of messages passed to benchmarker "
-         << m_TotalMessages << core_t::LINE_ENDING
-         << "Total number of scored messages " << m_ScoredMessages << core_t::LINE_ENDING
-         << "Number of scored messages correctly categorised by Ml "
-         << good << core_t::LINE_ENDING
-         << "Overall accuracy for scored messages "
+    strm << "Total number of messages passed to benchmarker " << m_TotalMessages
+         << core_t::LINE_ENDING << "Total number of scored messages " << m_ScoredMessages
+         << core_t::LINE_ENDING << "Number of scored messages correctly categorised by Ml " << good
+         << core_t::LINE_ENDING << "Overall accuracy for scored messages "
          << (double(good) / double(m_ScoredMessages)) * 100.0 << '%' << core_t::LINE_ENDING
          << "Percentage of manual categories detected at all "
          << (double(usedTypes.size()) / double(observedActuals)) * 100.0 << '%';
 
     LOG_DEBUG(strm.str());
 }
-
-
 }
 }
-

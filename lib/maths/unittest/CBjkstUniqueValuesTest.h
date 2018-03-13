@@ -18,17 +18,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBjkstUniqueValuesTest : public CppUnit::TestFixture
-{
-    public:
-        void testTrailingZeros(void);
-        void testNumber(void);
-        void testRemove(void);
-        void testSwap(void);
-        void testSmall(void);
-        void testPersist(void);
+class CBjkstUniqueValuesTest : public CppUnit::TestFixture {
+public:
+    void testTrailingZeros(void);
+    void testNumber(void);
+    void testRemove(void);
+    void testSwap(void);
+    void testSmall(void);
+    void testPersist(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CBjkstUniqueValuesTest_h
+#endif// INCLUDED_CBjkstUniqueValuesTest_h

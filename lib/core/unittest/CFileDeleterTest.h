@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CFileDeleterTest : public CppUnit::TestFixture {
+public:
+    void testDelete(void);
 
-class CFileDeleterTest : public CppUnit::TestFixture
-{
-    public:
-        void testDelete(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CFileDeleterTest_h
-
+#endif// INCLUDED_CFileDeleterTest_h

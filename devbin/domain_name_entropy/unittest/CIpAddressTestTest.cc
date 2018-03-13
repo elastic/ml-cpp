@@ -21,21 +21,17 @@
 using namespace ml;
 using namespace domain_name_entropy;
 
-CppUnit::Test *CIpAddressTestTest::suite()
-{
+CppUnit::Test *CIpAddressTestTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIpAddressTestTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CIpAddressTestTest>(
-                                   "CIpAddressTestTest::testIpv4",
-                                   &CIpAddressTestTest::testIpv4) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CIpAddressTestTest>(
-                                   "CIpAddressTestTest::testIpv6",
-                                   &CIpAddressTestTest::testIpv6) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>(
+        "CIpAddressTestTest::testIpv4", &CIpAddressTestTest::testIpv4));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CIpAddressTestTest>(
+        "CIpAddressTestTest::testIpv6", &CIpAddressTestTest::testIpv6));
     return suiteOfTests;
 }
 
-void CIpAddressTestTest::testIpv4(void)
-{
+void CIpAddressTestTest::testIpv4(void) {
     CIpAddressTest tester;
 
     CPPUNIT_ASSERT(tester.isIpAddress("127.0.0.1"));
@@ -51,8 +47,7 @@ void CIpAddressTestTest::testIpv4(void)
     CPPUNIT_ASSERT(!tester.isIpAddress("260.0.0.0"));
 }
 
-void CIpAddressTestTest::testIpv6(void)
-{
+void CIpAddressTestTest::testIpv6(void) {
     CIpAddressTest tester;
 
     CPPUNIT_ASSERT(tester.isIpAddress("1:2:3:4:5:6:7:8"));

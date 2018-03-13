@@ -18,24 +18,23 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultivariateNormalConjugateTest : public CppUnit::TestFixture
-{
-    public:
-        void testMultipleUpdate(void);
-        void testPropagation(void);
-        void testMeanVectorEstimation(void);
-        void testPrecisionMatrixEstimation(void);
-        void testMarginalLikelihood(void);
-        void testMarginalLikelihoodMode(void);
-        void testSampleMarginalLikelihood(void);
-        void testProbabilityOfLessLikelySamples(void);
-        void testIntegerData(void);
-        void testLowVariationData(void);
-        void testPersist(void);
-        void calibrationExperiment(void);
-        void dataGenerator(void);
+class CMultivariateNormalConjugateTest : public CppUnit::TestFixture {
+public:
+    void testMultipleUpdate(void);
+    void testPropagation(void);
+    void testMeanVectorEstimation(void);
+    void testPrecisionMatrixEstimation(void);
+    void testMarginalLikelihood(void);
+    void testMarginalLikelihoodMode(void);
+    void testSampleMarginalLikelihood(void);
+    void testProbabilityOfLessLikelySamples(void);
+    void testIntegerData(void);
+    void testLowVariationData(void);
+    void testPersist(void);
+    void calibrationExperiment(void);
+    void dataGenerator(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CMultivariateNormalConjugateTest_h
+#endif// INCLUDED_CMultivariateNormalConjugateTest_h

@@ -23,54 +23,42 @@
 
 #include <istream>
 
+namespace {
 
-namespace
-{
+class CEofThread : public ml::core::CThread {
+public:
+    CEofThread(ml::core::CDualThreadStreamBuf &buf) : m_Buf(buf) {}
 
-class CEofThread : public ml::core::CThread
-{
-    public:
-        CEofThread(ml::core::CDualThreadStreamBuf &buf)
-            : m_Buf(buf)
-        {
-        }
+protected:
+    virtual void run(void) {
+        ml::core::CSleep::sleep(200);
 
-    protected:
-        virtual void run(void)
-        {
-            ml::core::CSleep::sleep(200);
+        m_Buf.signalEndOfFile();
+    }
 
-            m_Buf.signalEndOfFile();
-        }
+    virtual void shutdown(void) {}
 
-        virtual void shutdown(void)
-        {
-        }
-
-    private:
-        ml::core::CDualThreadStreamBuf &m_Buf;
+private:
+    ml::core::CDualThreadStreamBuf &m_Buf;
 };
-
 }
 
-CppUnit::Test *CBlockingCallCancellerThreadTest::suite()
-{
+CppUnit::Test *CBlockingCallCancellerThreadTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBlockingCallCancellerThreadTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CBlockingCallCancellerThreadTest>(
-                                   "CBlockingCallCancellerThreadTest::testCancelBlock",
-                                   &CBlockingCallCancellerThreadTest::testCancelBlock) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingCallCancellerThreadTest>(
+        "CBlockingCallCancellerThreadTest::testCancelBlock",
+        &CBlockingCallCancellerThreadTest::testCancelBlock));
 
     return suiteOfTests;
 }
 
-void CBlockingCallCancellerThreadTest::testCancelBlock(void)
-{
+void CBlockingCallCancellerThreadTest::testCancelBlock(void) {
     ml::core::CDualThreadStreamBuf buf;
     std::istream monStrm(&buf);
 
-    ml::controller::CBlockingCallCancellerThread cancellerThread(ml::core::CThread::currentThreadId(),
-                                                                 monStrm);
+    ml::controller::CBlockingCallCancellerThread cancellerThread(
+        ml::core::CThread::currentThreadId(), monStrm);
     CPPUNIT_ASSERT(cancellerThread.start());
 
     // The CBlockingCallCancellerThread should wake up the blocking open of the
@@ -84,11 +72,11 @@ void CBlockingCallCancellerThreadTest::testCancelBlock(void)
     CPPUNIT_ASSERT(eofThread.start());
 
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm =
-            ml::core::CNamedPipeFactory::openPipeStreamRead(ml::core::CNamedPipeFactory::defaultPath() + "test_pipe");
+        ml::core::CNamedPipeFactory::openPipeStreamRead(ml::core::CNamedPipeFactory::defaultPath() +
+                                                        "test_pipe");
     CPPUNIT_ASSERT(pipeStrm == 0);
 
     CPPUNIT_ASSERT(cancellerThread.stop());
 
     CPPUNIT_ASSERT(eofThread.stop());
 }
-

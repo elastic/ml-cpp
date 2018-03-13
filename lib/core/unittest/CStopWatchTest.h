@@ -17,14 +17,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CStopWatchTest : public CppUnit::TestFixture {
+public:
+    void testStopWatch(void);
 
-class CStopWatchTest : public CppUnit::TestFixture
-{
-    public:
-        void testStopWatch(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CStopWatchTest_h
-
+#endif// INCLUDED_CStopWatchTest_h

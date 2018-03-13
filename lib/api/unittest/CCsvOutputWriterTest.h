@@ -17,18 +17,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class CCsvOutputWriterTest : public CppUnit::TestFixture {
+public:
+    void testAdd(void);
+    void testOverwrite(void);
+    void testThroughput(void);
+    void testExcelQuoting(void);
+    void testNonExcelQuoting(void);
 
-class CCsvOutputWriterTest : public CppUnit::TestFixture
-{
-    public:
-        void testAdd(void);
-        void testOverwrite(void);
-        void testThroughput(void);
-        void testExcelQuoting(void);
-        void testNonExcelQuoting(void);
-
-        static CppUnit::Test *suite();
+    static CppUnit::Test *suite();
 };
 
-#endif // INCLUDED_CCsvOutputWriterTest_h
-
+#endif// INCLUDED_CCsvOutputWriterTest_h

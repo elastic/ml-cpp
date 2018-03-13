@@ -18,23 +18,22 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSeasonalComponentAdaptiveBucketingTest : public CppUnit::TestFixture
-{
-    public:
-        void testInitialize(void);
-        void testSwap(void);
-        void testRefine(void);
-        void testPropagateForwardsByTime(void);
-        void testMinimumBucketLength(void);
-        void testUnintialized(void);
-        void testKnots(void);
-        void testLongTermTrendKnots(void);
-        void testShiftValue(void);
-        void testSlope(void);
-        void testPersist(void);
-        void testUpgrade(void);
+class CSeasonalComponentAdaptiveBucketingTest : public CppUnit::TestFixture {
+public:
+    void testInitialize(void);
+    void testSwap(void);
+    void testRefine(void);
+    void testPropagateForwardsByTime(void);
+    void testMinimumBucketLength(void);
+    void testUnintialized(void);
+    void testKnots(void);
+    void testLongTermTrendKnots(void);
+    void testShiftValue(void);
+    void testSlope(void);
+    void testPersist(void);
+    void testUpgrade(void);
 
-        static CppUnit::Test *suite(void);
+    static CppUnit::Test *suite(void);
 };
 
-#endif // INCLUDED_CSeasonalComponentAdaptiveBucketingTest_h
+#endif// INCLUDED_CSeasonalComponentAdaptiveBucketingTest_h

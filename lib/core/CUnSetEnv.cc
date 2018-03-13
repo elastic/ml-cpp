@@ -16,19 +16,9 @@
 
 #include <stdlib.h>
 
+namespace ml {
+namespace core {
 
-namespace ml
-{
-namespace core
-{
-
-
-int CUnSetEnv::unSetEnv(const char *name)
-{
-    return ::unsetenv(name);
-}
-
-
+int CUnSetEnv::unSetEnv(const char *name) { return ::unsetenv(name); }
 }
 }
-

@@ -23,40 +23,35 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate 1-of-n priors.
-class MATHS_EXPORT CMultivariateOneOfNPriorFactory
-{
-    public:
-        typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
+class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
+public:
+    typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
+    typedef std::vector<TPriorPtr> TPriorPtrVec;
 
-    public:
-        //! Create a new non-informative multivariate normal prior.
-        static TPriorPtr nonInformative(std::size_t dimension,
-                                        maths_t::EDataType dataType,
-                                        double decayRate,
-                                        const TPriorPtrVec &models);
+public:
+    //! Create a new non-informative multivariate normal prior.
+    static TPriorPtr nonInformative(std::size_t dimension,
+                                    maths_t::EDataType dataType,
+                                    double decayRate,
+                                    const TPriorPtrVec &models);
 
-        //! Create reading state from its state document representation.
-        static bool restore(std::size_t dimension,
-                            const SDistributionRestoreParams &params,
-                            TPriorPtr &ptr,
-                            core::CStateRestoreTraverser &traverser);
+    //! Create reading state from its state document representation.
+    static bool restore(std::size_t dimension,
+                        const SDistributionRestoreParams &params,
+                        TPriorPtr &ptr,
+                        core::CStateRestoreTraverser &traverser);
 };
-
 }
 }
 
-#endif // INCLUDED_ml_maths_CMultivariateOneOfNPriorFactory_h
+#endif// INCLUDED_ml_maths_CMultivariateOneOfNPriorFactory_h

@@ -23,12 +23,9 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetectorModel;
-
 
 //! \brief A rule that dictates an action to be taken when certain conditions occur.
 //!
@@ -44,88 +41,77 @@ class CAnomalyDetectorModel;
 //! conditions trigger the rule, the rule will apply to all series within the
 //! partition. However, when no target is specified, the rule will trigger only
 //! for series that are described in the conditions themselves.
-class MODEL_EXPORT CDetectionRule
-{
-    public:
-        using TRuleConditionVec = std::vector<CRuleCondition>;
-        using TDouble1Vec = core::CSmallVector<double, 1>;
+class MODEL_EXPORT CDetectionRule {
+public:
+    using TRuleConditionVec = std::vector<CRuleCondition>;
+    using TDouble1Vec = core::CSmallVector<double, 1>;
 
-        //! Rule actions can apply to filtering results, skipping sampling or both.
-        //! This is meant to work as a bit mask so added values should be powers of 2.
-        enum ERuleAction
-        {
-            E_FilterResults                 = 1,
-            E_SkipSampling                  = 2
-        };
+    //! Rule actions can apply to filtering results, skipping sampling or both.
+    //! This is meant to work as a bit mask so added values should be powers of 2.
+    enum ERuleAction { E_FilterResults = 1, E_SkipSampling = 2 };
 
-        enum EConditionsConnective
-        {
-            E_Or,
-            E_And
-        };
-    public:
+    enum EConditionsConnective { E_Or, E_And };
 
-        //! Default constructor.
-        //! The rule's action defaults to FILTER_RESULTS and the connective to OR.
-        CDetectionRule(void);
+public:
+    //! Default constructor.
+    //! The rule's action defaults to FILTER_RESULTS and the connective to OR.
+    CDetectionRule(void);
 
-        //! Set the rule's action.
-        void action(int ruleAction);
+    //! Set the rule's action.
+    void action(int ruleAction);
 
-        //! Set the conditions' connective.
-        void conditionsConnective(EConditionsConnective connective);
+    //! Set the conditions' connective.
+    void conditionsConnective(EConditionsConnective connective);
 
-        //! Add a condition.
-        void addCondition(const CRuleCondition &condition);
+    //! Add a condition.
+    void addCondition(const CRuleCondition &condition);
 
-        //! Set the target field name.
-        void targetFieldName(const std::string &targetFieldName);
+    //! Set the target field name.
+    void targetFieldName(const std::string &targetFieldName);
 
-        //! Set the target field value.
-        void targetFieldValue(const std::string &targetFieldValue);
+    //! Set the target field value.
+    void targetFieldValue(const std::string &targetFieldValue);
 
-        //! Check whether the rule applies on a series.
-        //! \p action is bitwise and'ed with the m_Action member
-        bool apply(ERuleAction action,
-                   const CAnomalyDetectorModel &model,
-                   model_t::EFeature feature,
-                   const model_t::CResultType &resultType,
-                   std::size_t pid,
-                   std::size_t cid,
-                   core_t::TTime time) const;
+    //! Check whether the rule applies on a series.
+    //! \p action is bitwise and'ed with the m_Action member
+    bool apply(ERuleAction action,
+               const CAnomalyDetectorModel &model,
+               model_t::EFeature feature,
+               const model_t::CResultType &resultType,
+               std::size_t pid,
+               std::size_t cid,
+               core_t::TTime time) const;
 
-        //! Pretty-print the rule.
-        std::string print(void) const;
+    //! Pretty-print the rule.
+    std::string print(void) const;
 
-    private:
-        //! Check whether the given series is in the scope
-        //! of the rule's target.
-        bool isInScope(const CAnomalyDetectorModel &model,
-                       std::size_t pid,
-                       std::size_t cid) const;
+private:
+    //! Check whether the given series is in the scope
+    //! of the rule's target.
+    bool isInScope(const CAnomalyDetectorModel &model, std::size_t pid, std::size_t cid) const;
 
-        std::string printAction(void) const;
-        std::string printConditionsConnective(void) const;
+    std::string printAction(void) const;
+    std::string printConditionsConnective(void) const;
 
-    private:
-        //! The rule action. It works as a bit mask so its value
-        //! may not match any of the declared enum values but the
-        //! corresponding bit will be 1 when an action is enabled.
-        int m_Action;
+private:
+    //! The rule action. It works as a bit mask so its value
+    //! may not match any of the declared enum values but the
+    //! corresponding bit will be 1 when an action is enabled.
+    int m_Action;
 
-        //! The conditions that trigger the rule.
-        TRuleConditionVec m_Conditions;
+    //! The conditions that trigger the rule.
+    TRuleConditionVec m_Conditions;
 
-        //! The way the rule's conditions are logically connected (i.e. OR, AND).
-        EConditionsConnective m_ConditionsConnective;
+    //! The way the rule's conditions are logically connected (i.e. OR, AND).
+    EConditionsConnective m_ConditionsConnective;
 
-        //! The optional target field name. Empty when not specified.
-        std::string m_TargetFieldName;
+    //! The optional target field name. Empty when not specified.
+    std::string m_TargetFieldName;
 
-        //! The optional target field value. Empty when not specified.
-        std::string m_TargetFieldValue;
+    //! The optional target field value. Empty when not specified.
+    std::string m_TargetFieldValue;
 };
 }
 }
 
-#endif // INCLUDED_ml_model_CDetectionRule_h
+#endif// INCLUDED_ml_model_CDetectionRule_h

@@ -24,32 +24,24 @@
 #include <fstream>
 #include <sstream>
 
-
-CppUnit::Test *CCsvOutputWriterTest::suite()
-{
+CppUnit::Test *CCsvOutputWriterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCsvOutputWriterTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCsvOutputWriterTest>(
-                                   "CCsvOutputWriterTest::testAdd",
-                                   &CCsvOutputWriterTest::testAdd) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCsvOutputWriterTest>(
-                                   "CCsvOutputWriterTest::testOverwrite",
-                                   &CCsvOutputWriterTest::testOverwrite) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCsvOutputWriterTest>(
-                                   "CCsvOutputWriterTest::testThroughput",
-                                   &CCsvOutputWriterTest::testThroughput) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCsvOutputWriterTest>(
-                                   "CCsvOutputWriterTest::testExcelQuoting",
-                                   &CCsvOutputWriterTest::testExcelQuoting) );
-    suiteOfTests->addTest( new CppUnit::TestCaller<CCsvOutputWriterTest>(
-                                   "CCsvOutputWriterTest::testNonExcelQuoting",
-                                   &CCsvOutputWriterTest::testNonExcelQuoting) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
+        "CCsvOutputWriterTest::testAdd", &CCsvOutputWriterTest::testAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
+        "CCsvOutputWriterTest::testOverwrite", &CCsvOutputWriterTest::testOverwrite));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
+        "CCsvOutputWriterTest::testThroughput", &CCsvOutputWriterTest::testThroughput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
+        "CCsvOutputWriterTest::testExcelQuoting", &CCsvOutputWriterTest::testExcelQuoting));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
+        "CCsvOutputWriterTest::testNonExcelQuoting", &CCsvOutputWriterTest::testNonExcelQuoting));
 
     return suiteOfTests;
 }
 
-void CCsvOutputWriterTest::testAdd(void)
-{
+void CCsvOutputWriterTest::testAdd(void) {
     // In this test, the output is the input plus an extra field - no input
     // fields are changed
 
@@ -125,41 +117,34 @@ void CCsvOutputWriterTest::testAdd(void)
 
     LOG_DEBUG("Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end();
-         ++iter)
-    {
+    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end();
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
          iter != mlFieldNames.end();
-         ++iter)
-    {
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
          iter != originalFields.end();
-         ++iter)
-    {
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end();
-         ++iter)
-    {
+    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin(); iter != mlFields.end();
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 }
 
-void CCsvOutputWriterTest::testOverwrite(void)
-{
+void CCsvOutputWriterTest::testOverwrite(void) {
     // In this test, some fields from the input are changed in the output
 
     ml::api::CCsvOutputWriter writer;
@@ -237,50 +222,40 @@ void CCsvOutputWriterTest::testOverwrite(void)
 
     LOG_DEBUG("Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end();
-         ++iter)
-    {
+    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end();
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
          iter != mlFieldNames.end();
-         ++iter)
-    {
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << *iter << "'");
         CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
          iter != originalFields.end();
-         ++iter)
-    {
+         ++iter) {
         // The Ml fields should override the originals
-        if (mlFields.find(iter->first) == mlFields.end())
-        {
+        if (mlFields.find(iter->first) == mlFields.end()) {
             LOG_DEBUG("Checking output contains '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
-        }
-        else
-        {
+        } else {
             LOG_DEBUG("Checking output does not contain '" << iter->second << "'");
             CPPUNIT_ASSERT(output.find(iter->second) == std::string::npos);
         }
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end();
-         ++iter)
-    {
+    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin(); iter != mlFields.end();
+         ++iter) {
         LOG_DEBUG("Checking output contains '" << iter->second << "'");
         CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
     }
 }
 
-void CCsvOutputWriterTest::testThroughput(void)
-{
+void CCsvOutputWriterTest::testThroughput(void) {
     // In this test, some fields from the input are changed in the output
 
     // Write to /dev/null (Unix) or nul (Windows)
@@ -358,26 +333,21 @@ void CCsvOutputWriterTest::testThroughput(void)
     static const size_t TEST_SIZE(75000);
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting throughput test at " <<
-             ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     CPPUNIT_ASSERT(writer.fieldNames(fieldNames, mlFieldNames));
 
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         CPPUNIT_ASSERT(writer.writeRow(originalFields, mlFields));
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished throughput test at " <<
-             ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    LOG_INFO("Writing " << TEST_SIZE <<
-             " records took " << (end - start) << " seconds");
+    LOG_INFO("Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
 }
 
-void CCsvOutputWriterTest::testExcelQuoting(void)
-{
+void CCsvOutputWriterTest::testExcelQuoting(void) {
     ml::api::CCsvOutputWriter writer;
 
     ml::api::CCsvOutputWriter::TStrVec fieldNames;
@@ -406,30 +376,25 @@ void CCsvOutputWriterTest::testExcelQuoting(void)
 
     LOG_DEBUG("Output is:\n" << output);
 
-    CPPUNIT_ASSERT_EQUAL(std::string(
-                             "no_special,"
-                             "contains_quote,"
-                             "contains_quote_quote,"
-                             "contains_separator,"
-                             "contains_quote_separator,"
-                             "contains_newline,"
-                             "contains_quote_newline\n"
-                             "a,"
-                             "\"\"\"\","
-                             "\"\"\"\"\"\","
-                             "\",\","
-                             "\"\"\",\","
-                             "\"\n\","
-                             "\"\"\"\n\"\n"
-                         ),
+    CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
+                                     "contains_quote,"
+                                     "contains_quote_quote,"
+                                     "contains_separator,"
+                                     "contains_quote_separator,"
+                                     "contains_newline,"
+                                     "contains_quote_newline\n"
+                                     "a,"
+                                     "\"\"\"\","
+                                     "\"\"\"\"\"\","
+                                     "\",\","
+                                     "\"\"\",\","
+                                     "\"\n\","
+                                     "\"\"\"\n\"\n"),
                          output);
 }
 
-void CCsvOutputWriterTest::testNonExcelQuoting(void)
-{
-    ml::api::CCsvOutputWriter writer(false,
-                                          true,
-                                          '\\');
+void CCsvOutputWriterTest::testNonExcelQuoting(void) {
+    ml::api::CCsvOutputWriter writer(false, true, '\\');
 
     ml::api::CCsvOutputWriter::TStrVec fieldNames;
     fieldNames.push_back("no_special");
@@ -459,24 +424,21 @@ void CCsvOutputWriterTest::testNonExcelQuoting(void)
 
     LOG_DEBUG("Output is:\n" << output);
 
-    CPPUNIT_ASSERT_EQUAL(std::string(
-                             "no_special,"
-                             "contains_quote,"
-                             "contains_escape,"
-                             "contains_escape_quote,"
-                             "contains_separator,"
-                             "contains_escape_separator,"
-                             "contains_newline,"
-                             "contains_escape_newline\n"
-                             "a,"
-                             "\"\\\"\","
-                             "\"\\\\\","
-                             "\"\\\\\\\"\","
-                             "\",\","
-                             "\"\\\\,\","
-                             "\"\n\","
-                             "\"\\\\\n\"\n"
-                         ),
+    CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
+                                     "contains_quote,"
+                                     "contains_escape,"
+                                     "contains_escape_quote,"
+                                     "contains_separator,"
+                                     "contains_escape_separator,"
+                                     "contains_newline,"
+                                     "contains_escape_newline\n"
+                                     "a,"
+                                     "\"\\\"\","
+                                     "\"\\\\\","
+                                     "\"\\\\\\\"\","
+                                     "\",\","
+                                     "\"\\\\,\","
+                                     "\"\n\","
+                                     "\"\\\\\n\"\n"),
                          output);
 }
-

@@ -21,46 +21,39 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 
-class CBase
-{
-    public:
-        virtual ~CBase(void) {}
-        virtual std::string iam(void) const = 0;
+class CBase {
+public:
+    virtual ~CBase(void) {}
+    virtual std::string iam(void) const = 0;
 };
 
-class CDerived1 : public CBase
-{
-    public:
-        virtual std::string iam(void) const { return "d1"; }
+class CDerived1 : public CBase {
+public:
+    virtual std::string iam(void) const { return "d1"; }
 };
 
-class CDerived2 : public CBase
-{
-    public:
-        virtual std::string iam(void) const { return "d2"; }
+class CDerived2 : public CBase {
+public:
+    virtual std::string iam(void) const { return "d2"; }
 };
 
-class CDerived3 : public CBase
-{
-    public:
-        virtual std::string iam(void) const { return "d3"; }
+class CDerived3 : public CBase {
+public:
+    virtual std::string iam(void) const { return "d3"; }
 };
 
-class CDerived4 : public CBase
-{
-    public:
-        virtual std::string iam(void) const { return "d4"; }
+class CDerived4 : public CBase {
+public:
+    virtual std::string iam(void) const { return "d4"; }
 };
-
 }
 
-void CPolymorphicStackObjectCPtrTest::testAll(void)
-{
+void CPolymorphicStackObjectCPtrTest::testAll(void) {
     typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2> TStackPtr12;
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4> TStackPtr1234;
+    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4>
+        TStackPtr1234;
 
     TStackPtr12 test1((CDerived1()));
     CPPUNIT_ASSERT_EQUAL(std::string("d1"), test1->iam());
@@ -91,13 +84,11 @@ void CPolymorphicStackObjectCPtrTest::testAll(void)
     CPPUNIT_ASSERT(!null);
 }
 
-CppUnit::Test *CPolymorphicStackObjectCPtrTest::suite(void)
-{
+CppUnit::Test *CPolymorphicStackObjectCPtrTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPolymorphicStackObjectCPtrTest");
 
-    suiteOfTests->addTest( new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>(
-                                   "CPolymorphicStackObjectCPtrTest::testAll",
-                                   &CPolymorphicStackObjectCPtrTest::testAll) );
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPolymorphicStackObjectCPtrTest>(
+        "CPolymorphicStackObjectCPtrTest::testAll", &CPolymorphicStackObjectCPtrTest::testAll));
 
     return suiteOfTests;
 }
