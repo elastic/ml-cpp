@@ -41,6 +41,7 @@ class API_EXPORT CModelSnapshotJsonWriter
         //! Structure to store the model snapshot metadata
         struct SModelSnapshotReport
         {
+            std::string                       s_MinVersion;
             core_t::TTime                     s_SnapshotTimestamp;
             std::string                       s_Description;
             std::string                       s_SnapshotId;

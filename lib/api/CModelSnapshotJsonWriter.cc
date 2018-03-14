@@ -26,6 +26,7 @@ namespace
 
 // JSON field names
 const std::string JOB_ID("job_id");
+const std::string MIN_VERSION("min_version");
 const std::string TIMESTAMP("timestamp");
 const std::string MODEL_SNAPSHOT("model_snapshot");
 const std::string SNAPSHOT_ID("snapshot_id");
@@ -54,6 +55,8 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport &report)
 
     m_Writer.String(JOB_ID);
     m_Writer.String(m_JobId);
+    m_Writer.String(MIN_VERSION);
+    m_Writer.String(report.s_MinVersion);
     m_Writer.String(SNAPSHOT_ID);
     m_Writer.String(report.s_SnapshotId);
 
