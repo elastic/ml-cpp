@@ -31,15 +31,14 @@
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class CMockDataAdder : public ml::core::CDataAdder
-{
+class CMockDataAdder : public ml::core::CDataAdder {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef std::map<std::string, TStrVec> TStrStrVecMap;
-        typedef TStrStrVecMap::const_iterator TStrStrVecMapCItr;
+        typedef std::vector<std::string>         TStrVec;
+        typedef std::map<std::string, TStrVec>   TStrStrVecMap;
+        typedef TStrStrVecMap::const_iterator    TStrStrVecMapCItr;
         typedef std::map<std::string, TOStreamP> TStrOStreamPMap;
-        typedef TStrOStreamPMap::const_iterator TStrOStreamPMapCItr;
-        typedef TStrOStreamPMap::iterator TStrOStreamPMapItr;
+        typedef TStrOStreamPMap::const_iterator  TStrOStreamPMapCItr;
+        typedef TStrOStreamPMap::iterator        TStrOStreamPMapItr;
 
     public:
         CMockDataAdder(void);

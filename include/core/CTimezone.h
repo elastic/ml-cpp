@@ -27,10 +27,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -67,8 +65,7 @@ namespace core
 //! As a result, our implementation is imperfect for parsing historical data
 //! on Windows.  Problems resulting from this are likely to be rare though.
 //!
-class CORE_EXPORT CTimezone : private CNonCopyable
-{
+class CORE_EXPORT CTimezone : private CNonCopyable {
     public:
         //! Get the singleton instance
         static CTimezone &instance(void);

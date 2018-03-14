@@ -45,16 +45,14 @@ extern int mlMain(int argc, char *argv[]);
 //! Despite being in the core library include directory, this file
 //! should never be included in a library.
 //!
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     ml::core::CProcess &process = ml::core::CProcess::instance();
 
     // If this process is not running as a Windows service, this call will
     // immediately pass control to the application's own main() replacement.
     // If this process is running as a Windows service, the main thread will
     // become the service dispatcher thread.
-    if (process.startDispatcher(&mlMain, argc, argv) == false)
-    {
+    if (process.startDispatcher(&mlMain, argc, argv) == false) {
         return EXIT_FAILURE;
     }
 
@@ -64,8 +62,8 @@ int main(int argc, char *argv[])
 #else
 
 #error MainForServices.h should only be included once per application that may \
-need to be run as a Windows service, in the Main.cc file.  It appears that \
-this rule has not been followed.
+    need to be run as a Windows service, in the Main.cc file.  It appears that \
+    this rule has not been followed.
 
 #endif // INCLUDED_ml_core_MainForServices_h
 

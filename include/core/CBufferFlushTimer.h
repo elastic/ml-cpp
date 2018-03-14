@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to hide the complexity of establishing when
@@ -43,8 +41,7 @@ namespace core
 //! To avoid the method will return maxtime if
 //! maxTime hasn't changed for bufferDelay clock seconds.
 //!
-class CORE_EXPORT CBufferFlushTimer
-{
+class CORE_EXPORT CBufferFlushTimer {
     public:
         CBufferFlushTimer(void);
 

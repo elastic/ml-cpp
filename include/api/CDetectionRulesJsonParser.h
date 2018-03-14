@@ -29,16 +29,13 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief A parser to convert JSON detection rules into objects
-class API_EXPORT CDetectionRulesJsonParser
-{
+class API_EXPORT CDetectionRulesJsonParser {
     public:
-        typedef std::vector<model::CDetectionRule> TDetectionRuleVec;
+        typedef std::vector<model::CDetectionRule>                   TDetectionRuleVec;
         typedef boost::unordered_map<std::string, core::CPatternSet> TStrPatternSetUMap;
 
     public:

@@ -30,10 +30,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief The description of the event data corresponding to
 //! a single record.
@@ -53,21 +51,20 @@ namespace model
 //! Finally, each record has a unique time and person, although
 //! with different semantics when an over field is and isn't
 //! present, so this always holds the time and person identifier.
-class MODEL_EXPORT CEventData
-{
+class MODEL_EXPORT CEventData {
     public:
         typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef boost::optional<std::size_t> TOptionalSize;
-        typedef std::vector<TOptionalSize> TOptionalSizeVec;
-        typedef boost::optional<double> TOptionalDouble;
+        typedef boost::optional<std::size_t>  TOptionalSize;
+        typedef std::vector<TOptionalSize>    TOptionalSizeVec;
+        typedef boost::optional<double>       TOptionalDouble;
         // Fixed size array - one element per metric category
         typedef boost::array<TDouble1Vec, model_t::NUM_METRIC_CATEGORIES> TDouble1VecArray;
         // Second element in pair stores count
-        typedef std::pair<TDouble1VecArray, std::size_t> TDouble1VecArraySizePr;
-        typedef boost::optional<TDouble1VecArraySizePr> TOptionalDouble1VecArraySizePr;
+        typedef std::pair<TDouble1VecArray, std::size_t>    TDouble1VecArraySizePr;
+        typedef boost::optional<TDouble1VecArraySizePr>     TOptionalDouble1VecArraySizePr;
         typedef std::vector<TOptionalDouble1VecArraySizePr> TOptionalDouble1VecArraySizePrVec;
-        typedef boost::optional<std::string> TOptionalStr;
-        typedef std::vector<TOptionalStr> TOptionalStrVec;
+        typedef boost::optional<std::string>                TOptionalStr;
+        typedef std::vector<TOptionalStr>                   TOptionalStrVec;
 
     public:
         //! Create uninitialized event data.
@@ -118,10 +115,10 @@ class MODEL_EXPORT CEventData
         const TDouble1VecArray &values(void) const;
 
         //! Get the function argument string value.
-        const TOptionalStr &stringValue(void) const;
+        const TOptionalStr     &stringValue(void) const;
 
         //! Get the influencing field values.
-        const TOptionalStrVec &influences(void) const;
+        const TOptionalStrVec  &influences(void) const;
 
         //! Sets the data to be explicit null
         void setExplicitNull(void);
@@ -147,19 +144,19 @@ class MODEL_EXPORT CEventData
 
     private:
         //! The event time.
-        core_t::TTime m_Time;
+        core_t::TTime                     m_Time;
         //! The event person identifier.
-        TOptionalSize m_Pid;
+        TOptionalSize                     m_Pid;
         //! The event attribute identifier(s).
-        TOptionalSizeVec m_Cids;
+        TOptionalSizeVec                  m_Cids;
         //! The event value(s).
         TOptionalDouble1VecArraySizePrVec m_Values;
         //! The function argument string value for this event.
-        TOptionalStr m_StringValue;
+        TOptionalStr                      m_StringValue;
         //! The influencing field values.
-        TOptionalStrVec m_Influences;
+        TOptionalStrVec                   m_Influences;
         //! Is it an explicit null record?
-        bool m_IsExplicitNull;
+        bool                              m_IsExplicitNull;
 };
 
 }

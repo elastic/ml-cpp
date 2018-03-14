@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCountMinSketchTest : public CppUnit::TestFixture
-{
+class CCountMinSketchTest : public CppUnit::TestFixture {
     public:
         void testCounts(void);
         void testSwap(void);

@@ -27,10 +27,8 @@
 #include <stdio.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Class to create named pipes.
@@ -66,8 +64,7 @@ namespace core
 //! at least one side of the connection, to avoid a deadlock
 //! due to buffers filling up.
 //!
-class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable
-{
+class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable {
     public:
         typedef boost::shared_ptr<std::istream> TIStreamP;
         typedef boost::shared_ptr<std::ostream> TOStreamP;
@@ -108,7 +105,7 @@ class CORE_EXPORT CNamedPipeFactory : private CNonInstantiatable
 #ifdef Windows
         typedef HANDLE TPipeHandle;
 #else
-        typedef int    TPipeHandle;
+        typedef int TPipeHandle;
 #endif
 
     private:

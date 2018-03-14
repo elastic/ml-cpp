@@ -28,10 +28,8 @@
 
 class CLoggerTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -74,12 +72,10 @@ namespace core
 //! product, but can be useful when a unit test needs to log more
 //! detailed information.
 //!
-class CORE_EXPORT CLogger : private CNonCopyable
-{
+class CORE_EXPORT CLogger : private CNonCopyable {
     public:
         //! Used to set the level we should log at
-        enum ELevel
-        {
+        enum ELevel {
             E_Fatal,
             E_Error,
             E_Warn,
@@ -161,7 +157,7 @@ class CORE_EXPORT CLogger : private CNonCopyable
         //! CLogger is a singleton, so we can not just create new instances
         void reset();
     private:
-        log4cxx::LoggerPtr        m_Logger;
+        log4cxx::LoggerPtr m_Logger;
 
         //! Has the logger ever been reconfigured?  This is not protected by a
         //! lock despite the fact that it may be accessed from different

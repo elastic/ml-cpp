@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTokenListDataTyperTest : public CppUnit::TestFixture
-{
+class CTokenListDataTyperTest : public CppUnit::TestFixture {
     public:
         void testHexData(void);
         void testRmdsData(void);

@@ -27,10 +27,8 @@
 #include <boost/ref.hpp>
 #include <boost/variant.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CPenalty;
 
@@ -39,8 +37,7 @@ class CPenalty;
 //! DESCRIPTION:\n
 //! This wraps up the functionality to discover data semantics
 //! and gather the appropriate summary statistics.
-class CONFIG_EXPORT CFieldStatistics
-{
+class CONFIG_EXPORT CFieldStatistics {
     public:
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
@@ -77,7 +74,7 @@ class CONFIG_EXPORT CFieldStatistics
 
     private:
         typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
-        typedef std::vector<TTimeStrPr> TTimeStrPrVec;
+        typedef std::vector<TTimeStrPr>               TTimeStrPrVec;
         typedef boost::variant<CDataSummaryStatistics,
                                CCategoricalDataSummaryStatistics,
                                CNumericDataSummaryStatistics> TDataSummaryStatistics;
@@ -94,19 +91,19 @@ class CONFIG_EXPORT CFieldStatistics
         TAutoconfigurerParamsCRef m_Params;
 
         //! The field name.
-        std::string m_FieldName;
+        std::string               m_FieldName;
 
         //! The number of examples added.
-        uint64_t m_NumberExamples;
+        uint64_t                  m_NumberExamples;
 
         //! A buffer of the records before the field has been classified.
-        TTimeStrPrVec m_Buffer;
+        TTimeStrPrVec             m_Buffer;
 
         //! Deduces the data semantics.
-        CDataSemantics m_Semantics;
+        CDataSemantics            m_Semantics;
 
         //! Computes the summary statistics.
-        TDataSummaryStatistics m_SummaryStatistics;
+        TDataSummaryStatistics    m_SummaryStatistics;
 };
 
 }

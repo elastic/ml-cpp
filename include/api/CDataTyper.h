@@ -26,15 +26,12 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Interface for classes that convert a raw event string to a type.
@@ -49,8 +46,7 @@ namespace api
 //! there are specialist data typers for XML, JSON or delimited files,
 //! so it is good to have an abstract interface that they can all use.
 //!
-class API_EXPORT CDataTyper
-{
+class API_EXPORT CDataTyper {
     public:
         //! Used for storing distinct token IDs
         typedef boost::unordered_map<std::string, std::string>        TStrStrUMap;
@@ -60,7 +56,7 @@ class API_EXPORT CDataTyper
         typedef boost::shared_ptr<CDataTyper>                         TDataTyperP;
 
         //! Shared pointer to an instance of this class
-        typedef std::function<void(core::CStatePersistInserter &)>    TPersistFunc;
+        typedef std::function<void (core::CStatePersistInserter &)>    TPersistFunc;
 
     public:
         CDataTyper(const std::string &fieldName);
@@ -122,10 +118,10 @@ class API_EXPORT CDataTyper
 
     private:
         //! Which field name are we working on?
-        std::string   m_FieldName;
+        std::string              m_FieldName;
 
         //! When was data last persisted for this typer?  (0 means never.)
-        core_t::TTime m_LastPersistTime;
+        core_t::TTime            m_LastPersistTime;
 };
 
 

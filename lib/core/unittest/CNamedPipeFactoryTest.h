@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CNamedPipeFactoryTest : public CppUnit::TestFixture
-{
+class CNamedPipeFactoryTest : public CppUnit::TestFixture {
     public:
         void testServerIsCppReader(void);
         void testServerIsCReader(void);

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBjkstUniqueValuesTest : public CppUnit::TestFixture
-{
+class CBjkstUniqueValuesTest : public CppUnit::TestFixture {
     public:
         void testTrailingZeros(void);
         void testNumber(void);

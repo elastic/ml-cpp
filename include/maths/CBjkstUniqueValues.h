@@ -32,10 +32,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief The BJSKT algorithm for estimating the number of unique values
 //! in a collection.
@@ -80,8 +78,7 @@ namespace maths
 //! Note that the hash map lookup constants are good but the complexity
 //! is bad \f$O(m)\f$ so the \p maxSize parameter supplied to the
 //! constructor should be less than a few hundred.
-class MATHS_EXPORT CBjkstUniqueValues
-{
+class MATHS_EXPORT CBjkstUniqueValues {
     public:
         typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
 
@@ -127,15 +124,14 @@ class MATHS_EXPORT CBjkstUniqueValues
         std::size_t memoryUsage(void) const;
 
     private:
-        typedef std::vector<uint8_t> TUInt8Vec;
-        typedef std::vector<TUInt8Vec> TUInt8VecVec;
-        typedef std::vector<uint32_t> TUInt32Vec;
-        typedef TUInt32Vec::iterator TUInt32VecItr;
+        typedef std::vector<uint8_t>       TUInt8Vec;
+        typedef std::vector<TUInt8Vec>     TUInt8VecVec;
+        typedef std::vector<uint32_t>      TUInt32Vec;
+        typedef TUInt32Vec::iterator       TUInt32VecItr;
         typedef TUInt32Vec::const_iterator TUInt32VecCItr;
 
         //! Wraps up the sketch data.
-        struct MATHS_EXPORT SSketch
-        {
+        struct MATHS_EXPORT SSketch {
             SSketch(void);
             SSketch(std::size_t numberHashes);
 
@@ -176,9 +172,9 @@ class MATHS_EXPORT CBjkstUniqueValues
 
     private:
         //! The maximum size of the sketch set before compression.
-        std::size_t m_MaxSize;
+        std::size_t        m_MaxSize;
         //! The number of distinct hashes to use in the sketch.
-        std::size_t m_NumberHashes;
+        std::size_t        m_NumberHashes;
         //! The distinct count sketch.
         TUInt32VecOrSketch m_Sketch;
 };

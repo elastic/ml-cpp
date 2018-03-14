@@ -20,10 +20,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -44,8 +42,7 @@ namespace core
 //! Does NOT support CDATA in state XML - any CDATA content is
 //! currently ignored.
 //!
-class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser
-{
+class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser {
     public:
         CRapidXmlStateRestoreTraverser(const CRapidXmlParser &parser);
 
@@ -97,12 +94,12 @@ class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser
         //! use widely throughout our codebase.  These strings store copies of
         //! the name and value of the current node so that the name() and
         //! value() methods can return them quickly.
-        mutable std::string                m_CachedName;
-        mutable std::string                m_CachedValue;
+        mutable std::string m_CachedName;
+        mutable std::string m_CachedValue;
 
         //! Are m_CachedName and m_CachedValue valid?
-        mutable bool                       m_IsNameCacheValid;
-        mutable bool                       m_IsValueCacheValid;
+        mutable bool        m_IsNameCacheValid;
+        mutable bool        m_IsValueCacheValid;
 };
 
 

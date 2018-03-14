@@ -24,10 +24,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //!
 //! All errors are just warnings - no action taken.
 //!
-class CORE_EXPORT CReadWriteLock : private CNonCopyable
-{
+class CORE_EXPORT CReadWriteLock : private CNonCopyable {
     public:
         CReadWriteLock(void);
         ~CReadWriteLock(void);
@@ -64,7 +61,7 @@ class CORE_EXPORT CReadWriteLock : private CNonCopyable
 
     private:
 #ifdef Windows
-        SRWLOCK          m_ReadWriteLock;
+        SRWLOCK m_ReadWriteLock;
 #else
         pthread_rwlock_t m_ReadWriteLock;
 #endif

@@ -29,10 +29,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //! implementation implements the calls that are required by
 //! Windows for applications that want to run as Windows services.
 //!
-class CORE_EXPORT CProcess : private CNonCopyable
-{
+class CORE_EXPORT CProcess : private CNonCopyable {
     public:
         //! These messages need to be 100% standard across all services
         static const char *STARTING_MSG;
@@ -68,13 +65,13 @@ class CORE_EXPORT CProcess : private CNonCopyable
         typedef TStrVec::const_iterator  TStrVecCItr;
 
         //! The shutdown function
-        typedef std::function<void()>    TShutdownFunc;
+        typedef std::function<void ()>    TShutdownFunc;
 
         //! Process ID type
 #ifdef Windows
-        typedef DWORD                    TPid;
+        typedef DWORD TPid;
 #else
-        typedef pid_t                    TPid;
+        typedef pid_t TPid;
 #endif
 
     public:
@@ -143,7 +140,7 @@ class CORE_EXPORT CProcess : private CNonCopyable
         bool                  m_Running;
 
         //! Address of the mlMain() function to call
-        TMlMainFunc      m_MlMainFunc;
+        TMlMainFunc           m_MlMainFunc;
 
         //! Original arguments passed to the program's main() function
         TStrVec               m_Args;

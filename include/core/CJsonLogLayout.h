@@ -24,10 +24,8 @@ class CJsonLogLayoutTest;
 // NB: log4cxx extensions have to go in the log4cxx namespace, hence cannot
 // stick to the convention of our code being in the ml namespace.  This
 // is due to use of (log4cxx mandated) macros in the implementation.
-namespace log4cxx
-{
-namespace helpers
-{
+namespace log4cxx {
+namespace helpers {
 
 //! \brief
 //! Output log messages as lineified JSON.
@@ -40,13 +38,12 @@ namespace helpers
 //! Violates several aspects of the Ml coding standards in order
 //! to work with log4cxx macros and other conventions.
 //!
-class CORE_EXPORT CJsonLogLayout : public Layout
-{
+class CORE_EXPORT CJsonLogLayout : public Layout {
     public:
         DECLARE_LOG4CXX_OBJECT(CJsonLogLayout)
         BEGIN_LOG4CXX_CAST_MAP()
-            LOG4CXX_CAST_ENTRY(CJsonLogLayout)
-            LOG4CXX_CAST_ENTRY_CHAIN(Layout)
+        LOG4CXX_CAST_ENTRY(CJsonLogLayout)
+        LOG4CXX_CAST_ENTRY_CHAIN(Layout)
         END_LOG4CXX_CAST_MAP()
 
         CJsonLogLayout(void);
@@ -90,8 +87,7 @@ LOG4CXX_PTR_DEF(CJsonLogLayout);
 
 } // end helpers
 
-namespace classes
-{
+namespace classes {
 extern const helpers::ClassRegistration &CJsonLogLayoutRegistration;
 }
 

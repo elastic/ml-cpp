@@ -41,15 +41,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 class CModel;
 class CSearchKey;
@@ -79,25 +76,24 @@ class CSearchKey;
 //! choose to analyse certain field values either individually or as
 //! a population.
 
-class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
-{
+class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                        TStrVec;
         typedef std::vector<const std::string*>                 TStrCPtrVec;
         typedef std::vector<CModelPlotData>                     TModelPlotDataVec;
 
-        typedef boost::shared_ptr<CDataGatherer> TDataGathererPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
+        typedef boost::shared_ptr<CDataGatherer>         TDataGathererPtr;
+        typedef boost::shared_ptr<const CModelFactory>   TModelFactoryCPtr;
         typedef boost::shared_ptr<CAnomalyDetectorModel> TModelPtr;
 
         //! A shared pointer to an instance of this class
         typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
 
         typedef std::function<void (const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const CModelPlotData &)> TOutputModelPlotDataFunc;
+                                    const std::string &,
+                                    const std::string &,
+                                    const std::string &,
+                                    const CModelPlotData &)> TOutputModelPlotDataFunc;
         typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
     public:
@@ -299,8 +295,8 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         //! \param[in] endTime The end of the time interval to skip sampling.
         void skipSampling(core_t::TTime endTime);
 
-        const TModelPtr &model(void) const;
-        TModelPtr &model(void);
+        const TModelPtr           &model(void) const;
+        TModelPtr                 &model(void);
 
     protected:
         //! This function is called before adding a record allowing
@@ -384,8 +380,8 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         //! necessary to create a valid persisted state?
         bool                                m_IsForPersistence;
 
-    friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
-                                                 const CAnomalyDetector &);
+        friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
+                                                     const CAnomalyDetector &);
 };
 
 MODEL_EXPORT

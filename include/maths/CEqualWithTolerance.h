@@ -24,60 +24,47 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace equal_with_tolerance_detail
-{
+namespace equal_with_tolerance_detail {
 
 template<typename T>
-struct SNorm
-{
+struct SNorm {
     using result_type = T;
-    static T dispatch(const T &t)
-    {
+    static T dispatch(const T &t) {
         return t;
     }
 };
 
 template<typename T, std::size_t N>
-struct SNorm<CVectorNx1<T, N>>
-{
+struct SNorm<CVectorNx1<T, N> > {
     using result_type = T;
-    static T dispatch(const CVectorNx1<T, N> &t)
-    {
+    static T dispatch(const CVectorNx1<T, N> &t) {
         return t.euclidean();
     }
 };
 
 template<typename T>
-struct SNorm<CVector<T>>
-{
+struct SNorm<CVector<T> > {
     using result_type = T;
-    static T dispatch(const CVector<T> &t)
-    {
+    static T dispatch(const CVector<T> &t) {
         return t.euclidean();
     }
 };
 
 template<typename T, std::size_t N>
-struct SNorm<CSymmetricMatrixNxN<T, N>>
-{
+struct SNorm<CSymmetricMatrixNxN<T, N> > {
     using result_type = T;
-    static T dispatch(const CSymmetricMatrixNxN<T, N> &t)
-    {
+    static T dispatch(const CSymmetricMatrixNxN<T, N> &t) {
         return t.frobenius();
     }
 };
 
 template<typename T>
-struct SNorm<CSymmetricMatrix<T>>
-{
+struct SNorm<CSymmetricMatrix<T> > {
     using result_type = T;
-    static T dispatch(const CSymmetricMatrix<T> &t)
-    {
+    static T dispatch(const CSymmetricMatrix<T> &t) {
         return t.frobenius();
     }
 };
@@ -85,11 +72,9 @@ struct SNorm<CSymmetricMatrix<T>>
 }
 
 //! \brief The tolerance types for equal with tolerance.
-class CToleranceTypes
-{
+class CToleranceTypes {
     public:
-        enum EToleranceType
-        {
+        enum EToleranceType {
             E_AbsoluteTolerance = 03,
             E_RelativeTolerance = 06
         };
@@ -117,44 +102,41 @@ class CToleranceTypes
 //! ourselves, we can't implement this.
 template<typename T>
 class CEqualWithTolerance : public std::binary_function<T, T, bool>,
-                            public CToleranceTypes
-{
+                            public CToleranceTypes {
     public:
         CEqualWithTolerance(unsigned int toleranceType,
                             const T &eps) :
-                m_ToleranceType(toleranceType),
-                m_AbsoluteEps(abs(norm(eps))),
-                m_RelativeEps(abs(norm(eps)))
-        {}
+            m_ToleranceType(toleranceType),
+            m_AbsoluteEps(abs(norm(eps))),
+            m_RelativeEps(abs(norm(eps))) {
+        }
 
         CEqualWithTolerance(unsigned int toleranceType,
                             const T &absoluteEps,
                             const T &relativeEps) :
-                m_ToleranceType(toleranceType),
-                m_AbsoluteEps(abs(norm(absoluteEps))),
-                m_RelativeEps(abs(norm(relativeEps)))
-        {}
+            m_ToleranceType(toleranceType),
+            m_AbsoluteEps(abs(norm(absoluteEps))),
+            m_RelativeEps(abs(norm(relativeEps))) {
+        }
 
-        bool operator()(const T &lhs, const T &rhs) const
-        {
+        bool operator()(const T &lhs, const T &rhs) const {
             const T &max    = norm(rhs) > norm(lhs) ? rhs : lhs;
             const T &min    = norm(rhs) > norm(lhs) ? lhs : rhs;
             const T &maxAbs = abs(norm(rhs)) > abs(norm(lhs)) ? rhs : lhs;
 
             T difference = max - min;
 
-            switch (m_ToleranceType)
-            {
-            case 2: // absolute & relative
-                return     (norm(difference) <= m_AbsoluteEps)
-                        && (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
-            case 3: // absolute
-                return      norm(difference) <= m_AbsoluteEps;
-            case 6: // relative
-                return      norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
-            case 7: // absolute | relative
-                return     (norm(difference) <= m_AbsoluteEps)
-                        || (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+            switch (m_ToleranceType) {
+                case 2: // absolute & relative
+                    return (norm(difference) <= m_AbsoluteEps) &&
+                           (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+                case 3: // absolute
+                    return norm(difference) <= m_AbsoluteEps;
+                case 6: // relative
+                    return norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
+                case 7: // absolute | relative
+                    return (norm(difference) <= m_AbsoluteEps) ||
+                           (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
             }
             LOG_ERROR("Unexpected tolerance type " << m_ToleranceType);
             return false;
@@ -166,21 +148,19 @@ class CEqualWithTolerance : public std::binary_function<T, T, bool>,
     private:
         //! A type agnostic implementation of fabs.
         template<typename U>
-        static inline U abs(const U &x)
-        {
+        static inline U abs(const U &x) {
             return x < U(0) ? -x : x;
         }
 
         //! Get the norm of the specified type.
-        static TNorm norm(const T &t)
-        {
+        static TNorm norm(const T &t) {
             return equal_with_tolerance_detail::SNorm<T>::dispatch(t);
         }
 
     private:
         unsigned int m_ToleranceType;
-        TNorm m_AbsoluteEps;
-        TNorm m_RelativeEps;
+        TNorm        m_AbsoluteEps;
+        TNorm        m_RelativeEps;
 };
 
 }

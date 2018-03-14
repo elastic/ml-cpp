@@ -19,14 +19,11 @@
 #include <model/CModelFactory.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief A factory class implementation for CCountingModel.
 //!
@@ -34,8 +31,7 @@ namespace model
 //! This concrete factory implements the methods to make new models
 //! and data gatherers, and create default priors suitable for the
 //! CCountingModel class.
-class MODEL_EXPORT CCountingModelFactory : public CModelFactory
-{
+class MODEL_EXPORT CCountingModelFactory : public CModelFactory {
     public:
         //! Lift all overloads of the defaultPrior function into scope.
         using CModelFactory::defaultPrior;
@@ -132,8 +128,8 @@ class MODEL_EXPORT CCountingModelFactory : public CModelFactory
         virtual void features(const TFeatureVec &features);
 
         //! Set the bucket results delay
-        virtual void bucketResultsDelay(std::size_t bucketResultsDelay) ;
-        //@}
+        virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
+    //@}
 
     private:
         //! Get the field values which partition the data for modeling.
@@ -141,30 +137,30 @@ class MODEL_EXPORT CCountingModelFactory : public CModelFactory
 
     private:
         //! The identifier of the search for which this generates models.
-        int m_Identifier;
+        int                        m_Identifier;
 
         //! Indicates whether the data being gathered are already summarized
         //! by an external aggregation process.
-        model_t::ESummaryMode m_SummaryMode;
+        model_t::ESummaryMode      m_SummaryMode;
 
         //! If m_SummaryMode is E_Manual then this is the name of the field
         //! holding the summary count.
-        std::string m_SummaryCountFieldName;
+        std::string                m_SummaryCountFieldName;
 
         //! The name of the field which splits the data.
-        std::string m_PartitionFieldName;
+        std::string                m_PartitionFieldName;
 
         //! The name of the field whose values will be counted.
-        std::string m_PersonFieldName;
+        std::string                m_PersonFieldName;
 
         //! If true the models will process missing person fields.
-        bool m_UseNull;
+        bool                       m_UseNull;
 
         //! The count features which will be modeled.
-        TFeatureVec m_Features;
+        TFeatureVec                m_Features;
 
         //! The bucket results delay.
-        std::size_t m_BucketResultsDelay;
+        std::size_t                m_BucketResultsDelay;
 
         //! A cached search key.
         mutable TOptionalSearchKey m_SearchKeyCache;

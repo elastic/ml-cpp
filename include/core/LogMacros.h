@@ -62,7 +62,7 @@
 #undef LOG_ABORT
 #endif
 #define LOG_ABORT(message) LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), message); \
-                           ml::core::CLogger::fatal()
+    ml::core::CLogger::fatal()
 
 // Log at a level specified at runtime as a string, for example
 // LOG_AT_LEVEL("WARN", "Stay away from here " << username)

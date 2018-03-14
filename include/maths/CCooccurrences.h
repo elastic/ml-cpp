@@ -26,27 +26,23 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CMemory;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Computes various measures for the co-occurrence of events,
 //! as encoded by an indicator variable, and finds events with significantly
 //! evidence that they are co-occuring.
 //!
 //! DESCRIPTION:\n
-class MATHS_EXPORT CCooccurrences
-{
+class MATHS_EXPORT CCooccurrences {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
+        typedef std::vector<double>                 TDoubleVec;
+        typedef std::vector<std::size_t>            TSizeVec;
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+        typedef std::vector<TSizeSizePr>            TSizeSizePrVec;
 
     public:
         CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth);
@@ -96,23 +92,23 @@ class MATHS_EXPORT CCooccurrences
 
     private:
         typedef boost::unordered_set<std::size_t> TSizeUSet;
-        typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+        typedef std::vector<CPackedBitVector>     TPackedBitVectorVec;
 
     private:
         //! The maximum permitted event sequence length.
-        std::size_t m_MaximumLength;
+        std::size_t         m_MaximumLength;
 
         //! The current length of the event sequences.
-        std::size_t m_Length;
+        std::size_t         m_Length;
 
         //! The width of the indicator function in "captures".
-        std::size_t m_IndicatorWidth;
+        std::size_t         m_IndicatorWidth;
 
         //! The current offset from the start of the current indicator.
-        std::size_t m_Offset;
+        std::size_t         m_Offset;
 
         //! The event indicators to add in the next capture.
-        TSizeUSet m_CurrentIndicators;
+        TSizeUSet           m_CurrentIndicators;
 
         //! The indicator variables for event streams.
         TPackedBitVectorVec m_Indicators;

@@ -26,10 +26,8 @@
 
 #include <functional>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -64,8 +62,7 @@ namespace core
 template<typename MESSAGE,
          typename RECEIVER,
          size_t QUEUE_CAPACITY>
-class CBlockingMessageQueue
-{
+class CBlockingMessageQueue {
     public:
         //! Prototype for function to be called on queue shutdown
         using TShutdownFunc = std::function<void()>;
@@ -78,21 +75,17 @@ class CBlockingMessageQueue
               m_ConsumerCondition(m_Mutex),
               m_Receiver(receiver),
               m_Queue(QUEUE_CAPACITY),
-              m_ShutdownFunc(shutdownFunc)
-        {
+              m_ShutdownFunc(shutdownFunc) {
         }
 
-        virtual ~CBlockingMessageQueue(void)
-        {
+        virtual ~CBlockingMessageQueue(void) {
         }
 
         //! Initialise - create the receiving thread
-        bool start(void)
-        {
+        bool start(void) {
             CScopedLock lock(m_Mutex);
 
-            if (m_Thread.start() == false)
-            {
+            if (m_Thread.start() == false) {
                 LOG_ERROR("Unable to initialise thread");
                 return false;
             }
@@ -103,28 +96,24 @@ class CBlockingMessageQueue
         }
 
         //! Shutdown - kill thread
-        bool stop(void)
-        {
+        bool stop(void) {
             m_Thread.stop();
 
             return true;
         }
 
         //! Send a message to the message queue thread (from any thread)
-        void dispatchMsg(const MESSAGE &msg)
-        {
+        void dispatchMsg(const MESSAGE &msg) {
             size_t dummy(0);
             this->dispatchMsg(msg, dummy);
         }
 
         //! Send a message to the message queue thread (from any thread),
         //! and get the pending count at the same time
-        void dispatchMsg(const MESSAGE &msg, size_t &pending)
-        {
+        void dispatchMsg(const MESSAGE &msg, size_t &pending) {
             CScopedLock lock(m_Mutex);
 
-            if (!m_Thread.isRunning())
-            {
+            if (!m_Thread.isRunning()) {
                 pending = 0;
 
                 // Should be fatal error
@@ -132,13 +121,11 @@ class CBlockingMessageQueue
                 return;
             }
 
-            for (;;)
-            {
+            for (;;) {
                 // The pending count includes the item to be added
                 pending = 1 + m_Queue.size();
 
-                if (pending <= QUEUE_CAPACITY)
-                {
+                if (pending <= QUEUE_CAPACITY) {
                     break;
                 }
 
@@ -149,8 +136,7 @@ class CBlockingMessageQueue
 
             // If there was already work queued up, we can save the cost of
             // signalling (which is expensive as it involves kernel interaction)
-            if (pending <= 1)
-            {
+            if (pending <= 1) {
                 m_ConsumerCondition.signal();
             }
         }
@@ -159,8 +145,7 @@ class CBlockingMessageQueue
         //! much more efficient to get this when dispatching a message, as
         //! everything can then be done under a single mutex lock.  This method
         //! must be used sparingly to avoid excessive lock contention.
-        size_t pending(void) const
-        {
+        size_t pending(void) const {
             CScopedLock lock(m_Mutex);
 
             return m_Queue.size();
@@ -168,44 +153,37 @@ class CBlockingMessageQueue
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void)
-        {
+        static void defaultShutdownFunc(void) {
         }
 
     private:
-        class CMessageQueueThread : public CThread
-        {
+        class CMessageQueueThread : public CThread {
             public:
                 CMessageQueueThread(CBlockingMessageQueue<MESSAGE,
                                                           RECEIVER,
                                                           QUEUE_CAPACITY> &messageQueue)
                     : m_MessageQueue(messageQueue),
                       m_ShuttingDown(false),
-                      m_IsRunning(false)
-                {
+                      m_IsRunning(false) {
                 }
 
                 //! The queue must have the mutex for this to be called
-                bool isRunning(void) const
-                {
+                bool isRunning(void) const {
                     // Assumes lock
                     return m_IsRunning;
                 }
 
             protected:
-                void run(void)
-                {
+                void run(void) {
                     m_MessageQueue.m_Mutex.lock();
                     m_MessageQueue.m_ProducerCondition.signal();
 
                     m_IsRunning = true;
 
-                    while (!m_ShuttingDown)
-                    {
+                    while (!m_ShuttingDown) {
                         m_MessageQueue.m_ConsumerCondition.wait();
 
-                        while (!m_MessageQueue.m_Queue.empty())
-                        {
+                        while (!m_MessageQueue.m_Queue.empty()) {
                             MESSAGE &msg = m_MessageQueue.m_Queue.front();
 
                             // Don't include the current work item in the backlog
@@ -223,8 +201,7 @@ class CBlockingMessageQueue
 
                             // If the queue was full, signal a thread waiting to
                             // add data
-                            if (m_MessageQueue.m_Queue.size() == QUEUE_CAPACITY)
-                            {
+                            if (m_MessageQueue.m_Queue.size() == QUEUE_CAPACITY) {
                                 // Only do this if the queue is full, as it
                                 // involves kernel interaction, so is expensive
                                 m_MessageQueue.m_ProducerCondition.signal();
@@ -241,8 +218,7 @@ class CBlockingMessageQueue
                     m_MessageQueue.m_Mutex.unlock();
                 }
 
-                void shutdown(void)
-                {
+                void shutdown(void) {
                     CScopedLock lock(m_MessageQueue.m_Mutex);
 
                     m_ShuttingDown = true;
@@ -256,8 +232,7 @@ class CBlockingMessageQueue
                 //! possible outside the lock.  This is the most generic case,
                 //! where we can't do anything.
                 template <typename ANYTHING>
-                void destroyMsgDataUnlocked(ANYTHING &)
-                {
+                void destroyMsgDataUnlocked(ANYTHING &) {
                     // For an arbitrary type we have no idea how to destroy some
                     // of its data without calling its destructor
                 }
@@ -266,12 +241,11 @@ class CBlockingMessageQueue
                 //! data if the MESSAGE type is a shared pointer (if no other
                 //! shared pointer points to it).
                 template <typename POINTEE>
-                void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr)
-                {
+                void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr) {
                     ptr.reset();
                 }
 
-                // Other specialisations could potentially be added here
+            // Other specialisations could potentially be added here
 
             private:
                 CBlockingMessageQueue<MESSAGE,
@@ -292,12 +266,12 @@ class CBlockingMessageQueue
         //! does not allocate any heap memory in its constructor).
         typedef boost::circular_buffer<MESSAGE> TMessageCircBuf;
 
-        TMessageCircBuf     m_Queue;
+        TMessageCircBuf m_Queue;
 
         //! Function to be called on queue shutdown
-        TShutdownFunc       m_ShutdownFunc;
+        TShutdownFunc   m_ShutdownFunc;
 
-    friend class CMessageQueueThread;
+        friend class CMessageQueueThread;
 };
 
 

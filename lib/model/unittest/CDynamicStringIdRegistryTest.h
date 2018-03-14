@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDynamicStringIdRegistryTest : public CppUnit::TestFixture
-{
+class CDynamicStringIdRegistryTest : public CppUnit::TestFixture {
     public:
         void testAddName(void);
         void testPersist(void);

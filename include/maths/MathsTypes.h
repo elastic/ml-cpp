@@ -24,25 +24,22 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 using core::CFloatStorage;
 class CCalendarComponent;
 class CSeasonalComponent;
 }
-namespace maths_t
-{
+namespace maths_t {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef core::CSmallVector<TDouble10Vec, 4> TDouble10Vec4Vec;
+typedef std::pair<double, double>               TDoubleDoublePr;
+typedef core::CSmallVector<double, 4>           TDouble4Vec;
+typedef core::CSmallVector<double, 10>          TDouble10Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>      TDouble4Vec1Vec;
+typedef core::CSmallVector<TDouble10Vec, 4>     TDouble10Vec4Vec;
 typedef core::CSmallVector<TDouble10Vec4Vec, 1> TDouble10Vec4Vec1Vec;
-typedef std::vector<maths::CSeasonalComponent> TSeasonalComponentVec;
-typedef std::vector<maths::CCalendarComponent> TCalendarComponentVec;
+typedef std::vector<maths::CSeasonalComponent>  TSeasonalComponentVec;
+typedef std::vector<maths::CCalendarComponent>  TCalendarComponentVec;
 
 //! An enumeration of the types of data which can be modeled.
 //!
@@ -54,8 +51,7 @@ typedef std::vector<maths::CCalendarComponent> TCalendarComponentVec;
 //!   -# ContinuousData: which indicates the takes real values.
 //!   -# MixedData: which indicates the data can be decomposed into
 //!      some combination of the other three data types.
-enum EDataType
-{
+enum EDataType {
     E_DiscreteData,
     E_IntegerData,
     E_ContinuousData,
@@ -79,8 +75,7 @@ enum EDataType
 //!   -# WinsorisationWeight: only affects update where it basically
 //!      behaves like CountWeight except for the way it interacts
 //!      with clustering.
-enum ESampleWeightStyle
-{
+enum ESampleWeightStyle {
     E_SampleCountWeight,
     E_SampleSeasonalVarianceScaleWeight,
     E_SampleCountVarianceScaleWeight,
@@ -193,35 +188,32 @@ bool hasCountVarianceScale(const TWeightStyleVec &weightStyles,
 //! for the sample minimum or larger values for the sample maximum.
 //! Note that we normalize the one sided probabilities so they equal
 //! 1 at the distribution median.
-enum EProbabilityCalculation
-    {
-        E_OneSidedBelow,
-        E_TwoSided,
-        E_OneSidedAbove
-    };
+enum EProbabilityCalculation {
+    E_OneSidedBelow,
+    E_TwoSided,
+    E_OneSidedAbove
+};
 
 //! This controls the calculation of the cluster probabilities.
 //! There are two styles available:
 //!   -# Equal: all clusters have equal weight.
 //!   -# Fraction: the weight of a cluster is proportional to the
 //!      number of points which have been assigned to the cluster.
-enum EClusterWeightCalc
-    {
-        E_ClustersEqualWeight,
-        E_ClustersFractionWeight
-    };
+enum EClusterWeightCalc {
+    E_ClustersEqualWeight,
+    E_ClustersFractionWeight
+};
 
 //! A set of statuses which track the result of a floating point
 //! calculations. These provide finer grained information than
 //! a pass/fail boolean which can be used to take appropriate
 //! action in the calling context.
-enum EFloatingPointErrorStatus
-    {
-        E_FpNoErrors    = 0x0,
-        E_FpOverflowed  = 0x1,
-        E_FpFailed      = 0x2,
-        E_FpAllErrors   = 0x3
-    };
+enum EFloatingPointErrorStatus {
+    E_FpNoErrors    = 0x0,
+    E_FpOverflowed  = 0x1,
+    E_FpFailed      = 0x2,
+    E_FpAllErrors   = 0x3
+};
 
 //! Enumerates the cases that a collection of samples is either in
 //! the left tail, right tail or a mixture or neither of the tails
@@ -235,13 +227,12 @@ enum EFloatingPointErrorStatus
 //!   -# Mixed or neither is used to denote the case that some are
 //!      to left, some to the right and/or some are between the left
 //!      and rightmost modes.
-enum ETail
-    {
-        E_UndeterminedTail   = 0x0,
-        E_LeftTail           = 0x1,
-        E_RightTail          = 0x2,
-        E_MixedOrNeitherTail = 0x3
-    };
+enum ETail {
+    E_UndeterminedTail   = 0x0,
+    E_LeftTail           = 0x1,
+    E_RightTail          = 0x2,
+    E_MixedOrNeitherTail = 0x3
+};
 
 }
 }

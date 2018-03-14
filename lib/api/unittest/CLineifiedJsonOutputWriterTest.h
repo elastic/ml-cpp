@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLineifiedJsonOutputWriterTest : public CppUnit::TestFixture
-{
+class CLineifiedJsonOutputWriterTest : public CppUnit::TestFixture {
     public:
         void testStringOutput(void);
         void testNumericOutput(void);

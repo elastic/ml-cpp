@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -44,8 +42,7 @@ namespace core
 //! whereas Unix formats it as a numeric offset.  We want the numeric offset on
 //! all platforms.
 //!
-class CORE_EXPORT CStrFTime : private CNonInstantiatable
-{
+class CORE_EXPORT CStrFTime : private CNonInstantiatable {
     public:
         static size_t strFTime(char *buf,
                                size_t maxSize,

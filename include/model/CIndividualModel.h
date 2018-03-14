@@ -34,10 +34,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnnotatedProbabilityBuilder;
 class CProbabilityAndInfluenceCalculator;
 
@@ -56,8 +54,7 @@ class CProbabilityAndInfluenceCalculator;
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel {
     public:
         using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
         using TTimeVec = std::vector<core_t::TTime>;
@@ -232,7 +229,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
                              std::size_t pid,
                              core_t::TTime time,
                              const std::vector<std::pair<model_t::EFeature,
-                             std::vector<std::pair<std::size_t, T> > > > &featureData) const;
+                                                         std::vector<std::pair<std::size_t, T> > > > &featureData) const;
 
         //! Sample the bucket statistics and write the results in to
         //! \p featureData.
@@ -296,7 +293,7 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const = 0;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void) = 0;
+        virtual TSizeUInt64PrVec       &currentBucketPersonCounts(void) = 0;
 
         //! Get the total number of correlation models.
         std::size_t numberCorrelations(void) const;
@@ -322,10 +319,10 @@ class MODEL_EXPORT CIndividualModel : public CAnomalyDetectorModel
         //! IMPORTANT this must come before m_FeatureModels in the class declaration
         //! so its destructor is called afterwards (12.6.2) because feature models
         //! unregister themselves from correlation models.
-        TFeatureCorrelateModelsVec m_FeatureCorrelatesModels;
+        TFeatureCorrelateModelsVec    m_FeatureCorrelatesModels;
 
         //! The individual person models for each feature.
-        TFeatureModelsVec m_FeatureModels;
+        TFeatureModelsVec             m_FeatureModels;
 
         //! The memory estimator.
         mutable CMemoryUsageEstimator m_MemoryEstimator;

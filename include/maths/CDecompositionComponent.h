@@ -29,29 +29,25 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Common functionality used by our decomposition component classes.
-class MATHS_EXPORT CDecompositionComponent
-{
+class MATHS_EXPORT CDecompositionComponent {
     public:
         using TDoubleDoublePr = maths_t::TDoubleDoublePr;
         using TDoubleVec = std::vector<double>;
         using TFloatVec = std::vector<CFloatStorage>;
         using TSplineCRef = CSpline<boost::reference_wrapper<const TFloatVec>,
                                     boost::reference_wrapper<const TFloatVec>,
-                                    boost::reference_wrapper<const TDoubleVec>>;
+                                    boost::reference_wrapper<const TDoubleVec> >;
         using TSplineRef = CSpline<boost::reference_wrapper<TFloatVec>,
                                    boost::reference_wrapper<TFloatVec>,
-                                   boost::reference_wrapper<TDoubleVec>>;
+                                   boost::reference_wrapper<TDoubleVec> >;
 
     public:
         //! Persist state by passing information to \p inserter.
@@ -62,11 +58,9 @@ class MATHS_EXPORT CDecompositionComponent
 
     protected:
         //! \brief A low memory representation of the value and variance splines.
-        class MATHS_EXPORT CPackedSplines
-        {
+        class MATHS_EXPORT CPackedSplines {
             public:
-                enum ESpline
-                {
+                enum ESpline {
                     E_Value    = 0,
                     E_Variance = 1
                 };
@@ -125,11 +119,11 @@ class MATHS_EXPORT CDecompositionComponent
 
             private:
                 //! The splines' types.
-                TTypeArray m_Types;
+                TTypeArray      m_Types;
                 //! The splines' knots.
-                TFloatVec m_Knots;
+                TFloatVec       m_Knots;
                 //! The splines' values.
-                TFloatVecArray m_Values;
+                TFloatVecArray  m_Values;
                 //! The splines' curvatures.
                 TDoubleVecArray m_Curvatures;
         };
@@ -213,24 +207,24 @@ class MATHS_EXPORT CDecompositionComponent
 
     private:
         //! The minimum permitted size for the points sketch.
-        static const std::size_t MIN_MAX_SIZE;
+        static const std::size_t         MIN_MAX_SIZE;
 
     private:
         //! The maximum number of buckets to use to cover the period.
-        std::size_t m_MaxSize;
+        std::size_t                      m_MaxSize;
 
         //! The boundary condition to use for the splines.
         CSplineTypes::EBoundaryCondition m_BoundaryCondition;
 
         //! The spline we fit through the function points and the function point
         //! residual variances.
-        CPackedSplines m_Splines;
+        CPackedSplines                   m_Splines;
 
         //! The mean value in the period.
-        double m_MeanValue;
+        double                           m_MeanValue;
 
         //! The mean residual variance in the period.
-        double m_MeanVariance;
+        double                           m_MeanVariance;
 };
 
 }

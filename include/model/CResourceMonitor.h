@@ -27,10 +27,8 @@ class CResourceMonitorTest;
 class CResourceLimitTest;
 class CAnomalyJobLimitTest;
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 class CAnomalyDetector;
 class CAnomalyDetectorModel;
@@ -40,11 +38,9 @@ class CResourcePruner;
 //!
 //! DESCRIPTION:\n
 //! Assess memory used by models and decide on further memory allocations.
-class MODEL_EXPORT CResourceMonitor
-{
+class MODEL_EXPORT CResourceMonitor {
     public:
-        struct MODEL_EXPORT SResults
-        {
+        struct MODEL_EXPORT SResults {
             std::size_t s_Usage;
             std::size_t s_ByFields;
             std::size_t s_PartitionFields;
@@ -55,16 +51,16 @@ class MODEL_EXPORT CResourceMonitor
         };
 
     public:
-        typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
-        typedef std::map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeMap;
-        typedef std::function<void(const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
-        typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
+        typedef std::pair<CAnomalyDetectorModel*, std::size_t>          TModelPtrSizePr;
+        typedef std::map<CAnomalyDetectorModel*, std::size_t>           TModelPtrSizeMap;
+        typedef std::function<void (const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
+        typedef std::map<core_t::TTime, std::size_t>                    TTimeSizeMap;
 
         //! The minimum time between prunes
         static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
 
         //! Default memory limit for resource monitor
-        static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
+        static const std::size_t   DEFAULT_MEMORY_LIMIT_MB;
 
     public:
         //! Default constructor
@@ -161,62 +157,62 @@ class MODEL_EXPORT CResourceMonitor
 
     private:
         //! The registered collection of components
-        TModelPtrSizeMap m_Models;
+        TModelPtrSizeMap         m_Models;
 
         //! Is there enough free memory to allow creating new components
-        bool m_AllowAllocations;
+        bool                     m_AllowAllocations;
 
         //! The upper limit for memory usage, checked on increasing values
-        std::size_t m_ByteLimitHigh;
+        std::size_t              m_ByteLimitHigh;
 
         //! The lower limit for memory usage, checked on decreasing values
-        std::size_t m_ByteLimitLow;
+        std::size_t              m_ByteLimitLow;
 
         //! Memory usage by anomaly detectors on the most recent calculation
-        std::size_t m_CurrentAnomalyDetectorMemory;
+        std::size_t              m_CurrentAnomalyDetectorMemory;
 
         //! Extra memory to enable accounting of soon to be allocated memory
-        std::size_t m_ExtraMemory;
+        std::size_t              m_ExtraMemory;
 
         //! The total memory usage on the previous usage report
-        std::size_t m_PreviousTotal;
+        std::size_t              m_PreviousTotal;
 
         //! The highest known value for total memory usage
-        std::size_t m_Peak;
+        std::size_t              m_Peak;
 
         //! Callback function to fire when memory usage increases by 1%
         TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
         //! Keep track of classes telling us about allocation failures
-        TTimeSizeMap m_AllocationFailures;
+        TTimeSizeMap             m_AllocationFailures;
 
         //! The time at which the last allocation failure was reported
-        core_t::TTime m_LastAllocationFailureReport;
+        core_t::TTime            m_LastAllocationFailureReport;
 
         //! Keep track of the model memory status
-        model_t::EMemoryStatus m_MemoryStatus;
+        model_t::EMemoryStatus   m_MemoryStatus;
 
         //! Keep track of whether pruning has started, for efficiency in most cases
-        bool m_HasPruningStarted;
+        bool                     m_HasPruningStarted;
 
         //! The threshold at which pruning should kick in and head
         //! towards for the sweet spot
-        std::size_t m_PruneThreshold;
+        std::size_t              m_PruneThreshold;
 
         //! The last time we did a full prune of all the models
-        core_t::TTime m_LastPruneTime;
+        core_t::TTime            m_LastPruneTime;
 
         //! Number of buckets to go back when pruning
-        std::size_t m_PruneWindow;
+        std::size_t              m_PruneWindow;
 
         //! The largest that the prune window can grow to - determined from the models
-        std::size_t m_PruneWindowMaximum;
+        std::size_t              m_PruneWindowMaximum;
 
         //! The smallest that the prune window can shrink to - 4 weeks
-        std::size_t m_PruneWindowMinimum;
+        std::size_t              m_PruneWindowMinimum;
 
         //! Don't do any sort of memory checking if this is set
-        bool m_NoLimit;
+        bool                     m_NoLimit;
 
         //! Test friends
         friend class ::CResourceMonitorTest;

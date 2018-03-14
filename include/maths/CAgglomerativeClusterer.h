@@ -21,10 +21,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implements optimum runtime agglomerative clustering for
 //! arbitrary distance matrices.
@@ -47,19 +45,17 @@ namespace maths
 //! </pre>
 //!
 //! For other styles see https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
-class MATHS_EXPORT CAgglomerativeClusterer
-{
+class MATHS_EXPORT CAgglomerativeClusterer {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
+        typedef std::vector<double>           TDoubleVec;
+        typedef std::vector<TDoubleVec>       TDoubleVecVec;
+        typedef std::vector<std::size_t>      TSizeVec;
+        typedef std::vector<TSizeVec>         TSizeVecVec;
+        typedef std::pair<double, TSizeVec>   TDoubleSizeVecPr;
         typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
 
         //! \brief A representation of a node in the tree of clusters.
-        class MATHS_EXPORT CNode
-        {
+        class MATHS_EXPORT CNode {
             public:
                 //! Set the rightmost point below this node.
                 CNode(std::size_t index, double height);
@@ -94,24 +90,23 @@ class MATHS_EXPORT CAgglomerativeClusterer
 
             private:
                 //! The parent cluster.
-                CNode *m_Parent;
+                CNode       *m_Parent;
                 //! The left child cluster.
-                CNode *m_LeftChild;
+                CNode       *m_LeftChild;
                 //! The right child cluster.
-                CNode *m_RightChild;
+                CNode       *m_RightChild;
                 //! The unique index of this cluster.
                 std::size_t m_Index;
                 //! The height of this cluster, i.e. the value of the
                 //! objective function at which the cluster forms.
-                double m_Height;
+                double      m_Height;
         };
 
         typedef std::vector<CNode> TNodeVec;
 
     public:
         //! Possible clustering objective functions supported.
-        enum EObjective
-        {
+        enum EObjective {
             E_Single,
             E_Complete,
             E_Average,
@@ -133,13 +128,13 @@ class MATHS_EXPORT CAgglomerativeClusterer
         TDoubleVecVec m_DistanceMatrix;
         //! Filled in with the last object in each cluster to which
         //! i'th point connects.
-        TSizeVec m_Pi;
+        TSizeVec      m_Pi;
         //! Filled in with the lowest level at which the i'th point
         //! is no longer the last object in its cluster.
-        TDoubleVec m_Lambda;
+        TDoubleVec    m_Lambda;
         //! Holds a copy of a column of the distance matrix during
         //! update point representation.
-        TDoubleVec m_M;
+        TDoubleVec    m_M;
 };
 
 }

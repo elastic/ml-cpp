@@ -29,15 +29,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Interface for a prior distribution function.
 //!
@@ -48,8 +45,7 @@ namespace maths
 //! This exists to support a one-of-n prior distribution which comprises
 //! a weighted selection of basic likelihood functions and is implemented
 //! using the composite pattern.
-class MATHS_EXPORT CPrior
-{
+class MATHS_EXPORT CPrior {
     public:
         using TDoubleVec = std::vector<double>;
         using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -62,15 +58,13 @@ class MATHS_EXPORT CPrior
         using TWeights = CConstantWeights;
 
         //! \brief Data for plotting a series
-        struct MATHS_EXPORT SPlot
-        {
+        struct MATHS_EXPORT SPlot {
             TDouble1Vec s_Abscissa;
             TDouble1Vec s_Ordinates;
         };
 
         //! Enumeration of prior types.
-        enum EPrior
-        {
+        enum EPrior {
             E_Constant    = 0x1,
             E_Gamma       = 0x2,
             E_LogNormal   = 0x4,
@@ -82,8 +76,7 @@ class MATHS_EXPORT CPrior
         };
 
         //! \brief Defines a filter for removing models from selection.
-        class MATHS_EXPORT CModelFilter
-        {
+        class MATHS_EXPORT CModelFilter {
             public:
                 CModelFilter(void);
 
@@ -103,8 +96,7 @@ class MATHS_EXPORT CPrior
         //! DESCRIPTION:\n
         //! This adapts the jointLogMarginalLikelihood function for use with
         //! CIntegration.
-        class MATHS_EXPORT CLogMarginalLikelihood
-        {
+        class MATHS_EXPORT CLogMarginalLikelihood {
             public:
                 using result_type = double;
 
@@ -117,12 +109,12 @@ class MATHS_EXPORT CPrior
                 bool operator()(double x, double &result) const;
 
             private:
-                const CPrior *m_Prior;
+                const CPrior          *m_Prior;
                 const TWeightStyleVec *m_WeightStyles;
                 const TDouble4Vec1Vec *m_Weights;
                 //! Avoids creating the vector argument to jointLogMarginalLikelihood
                 //! more than once.
-                mutable TDouble1Vec m_X;
+                mutable TDouble1Vec   m_X;
         };
 
     public:
@@ -256,9 +248,9 @@ class MATHS_EXPORT CPrior
         //! \param[in] weights Optional variance scale weights.
         //! \note \p percentage should be in the range [0.0, 100.0).
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const = 0;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const = 0;
 
         //! Get the variance of the marginal likelihood.
         virtual double marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
@@ -274,10 +266,10 @@ class MATHS_EXPORT CPrior
         //! \param[in] weights The weights of each sample in \p samples.
         //! \param[out] result Filled in with the joint likelihood of \p samples.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const = 0;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const = 0;
 
         //! Sample the marginal likelihood function.
         //!
@@ -485,8 +477,7 @@ class MATHS_EXPORT CPrior
     protected:
         //! \brief Defines a set of operations to adjust the offset parameter
         //! of those priors with non-negative support.
-        class MATHS_EXPORT COffsetParameters
-        {
+        class MATHS_EXPORT COffsetParameters {
             public:
                 COffsetParameters(CPrior &prior);
                 virtual ~COffsetParameters(void) = default;
@@ -502,18 +493,18 @@ class MATHS_EXPORT CPrior
             protected:
                 CPrior &prior(void) const;
                 const maths_t::TWeightStyleVec &weightStyles(void) const;
-                const TDouble1Vec &samples(void) const;
-                const TDouble4Vec1Vec &weights(void) const;
-                const TDouble1Vec &resamples(void) const;
-                const TDouble4Vec1Vec &resamplesWeights(void) const;
+                const TDouble1Vec              &samples(void) const;
+                const TDouble4Vec1Vec          &weights(void) const;
+                const TDouble1Vec              &resamples(void) const;
+                const TDouble4Vec1Vec          &resamplesWeights(void) const;
 
             private:
-                CPrior *m_Prior;
+                CPrior                         *m_Prior;
                 const maths_t::TWeightStyleVec *m_WeightStyles;
-                const TDouble1Vec *m_Samples;
-                const TDouble4Vec1Vec *m_Weights;
-                TDouble1Vec m_Resamples;
-                TDouble4Vec1Vec m_ResamplesWeights;
+                const TDouble1Vec              *m_Samples;
+                const TDouble4Vec1Vec          *m_Weights;
+                TDouble1Vec                    m_Resamples;
+                TDouble4Vec1Vec                m_ResamplesWeights;
         };
 
         //! \brief Computes the likelihood of a collection of samples and
@@ -521,8 +512,7 @@ class MATHS_EXPORT CPrior
         //!
         //! This is used to maximize the data likelihood w.r.t. the choice
         //! of offset.
-        class MATHS_EXPORT COffsetCost : public COffsetParameters
-        {
+        class MATHS_EXPORT COffsetCost : public COffsetParameters {
             public:
                 using result_type = double;
 
@@ -538,8 +528,7 @@ class MATHS_EXPORT CPrior
         };
 
         //! \brief Apply a specified offset to a prior.
-        class MATHS_EXPORT CApplyOffset : public COffsetParameters
-        {
+        class MATHS_EXPORT CApplyOffset : public COffsetParameters {
             public:
                 CApplyOffset(CPrior &prior);
 
@@ -576,10 +565,10 @@ class MATHS_EXPORT CPrior
 
         //! The rate at which the prior returns to non-informative. Note that
         //! this is not persisted.
-        CFloatStorage m_DecayRate;
+        CFloatStorage      m_DecayRate;
 
         //! The number of samples with which the prior has been updated.
-        CFloatStorage m_NumberSamples;
+        CFloatStorage      m_NumberSamples;
 };
 
 }

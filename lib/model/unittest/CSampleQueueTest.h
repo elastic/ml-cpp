@@ -19,8 +19,7 @@
 
 #include "../../../include/model/CSampleQueue.h"
 
-class CSampleQueueTest : public CppUnit::TestFixture
-{
+class CSampleQueueTest : public CppUnit::TestFixture {
     public:
         void testSampleToString(void);
         void testSampleFromString(void);

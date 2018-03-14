@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CSingleStreamDataAdderTest : public CppUnit::TestFixture
-{
+class CSingleStreamDataAdderTest : public CppUnit::TestFixture {
     public:
         void testDetectorPersistBy(void);
         void testDetectorPersistOver(void);

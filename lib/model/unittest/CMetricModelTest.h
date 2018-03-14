@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricModelTest : public CppUnit::TestFixture
-{
+class CMetricModelTest : public CppUnit::TestFixture {
     public:
         void testSample(void);
         void testMultivariateSample(void);

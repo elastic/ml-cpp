@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CReportWriterTest : public CppUnit::TestFixture
-{
+class CReportWriterTest : public CppUnit::TestFixture {
     public:
         void testPretty(void);
         void testJSON(void);

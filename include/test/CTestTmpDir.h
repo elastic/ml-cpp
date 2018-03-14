@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace test
 //! On Unix the temporary directory is /tmp.  On Windows it's a
 //! sub-directory of the current user's home directory.
 //!
-class TEST_EXPORT CTestTmpDir : private core::CNonInstantiatable
-{
+class TEST_EXPORT CTestTmpDir : private core::CNonInstantiatable {
     public:
         //! Returns /tmp on Unix or an expansion of %TEMP% on Windows
         static std::string tmpDir(void);

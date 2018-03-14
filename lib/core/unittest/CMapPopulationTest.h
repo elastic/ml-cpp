@@ -24,8 +24,7 @@
 #include <vector>
 
 
-class CMapPopulationTest : public CppUnit::TestFixture
-{
+class CMapPopulationTest : public CppUnit::TestFixture {
     public:
         CMapPopulationTest(void);
 
@@ -47,8 +46,7 @@ class CMapPopulationTest : public CppUnit::TestFixture
         void setUp(void);
 
     private:
-        class CTestData
-        {
+        class CTestData {
             public:
                 typedef std::vector<std::string>  TStrVec;
                 typedef std::vector<const char *> TCharPVec;
@@ -62,11 +60,11 @@ class CMapPopulationTest : public CppUnit::TestFixture
                 const TCharPVec &charPtrVals(void) const;
 
             private:
-                TStrVec   m_StringKeys;
-                TStrVec   m_StringVals;
+                TStrVec         m_StringKeys;
+                TStrVec         m_StringVals;
 
-                TCharPVec m_CharPtrKeys;
-                TCharPVec m_CharPtrVals;
+                TCharPVec       m_CharPtrKeys;
+                TCharPVec       m_CharPtrVals;
         };
 
     private:
@@ -89,7 +87,7 @@ class CMapPopulationTest : public CppUnit::TestFixture
         static const size_t FILL_SIZE;
         static const size_t TEST_SIZE;
 
-        const CTestData *m_TestData;
+        const CTestData     *m_TestData;
 };
 
 #endif // INCLUDED_CMapPopulationTest_h

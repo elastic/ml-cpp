@@ -23,10 +23,8 @@
 #include <rapidjson/reader.h>
 #include <rapidjson/istreamwrapper.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A CDataSearcher-derived class that decompresses chunked and compressed data
@@ -50,23 +48,21 @@ namespace core
 //! Parses JSON from the downstream store, using a stream
 //! interface.
 //!
-class CORE_EXPORT CStateDecompressor : public CDataSearcher
-{
+class CORE_EXPORT CStateDecompressor : public CDataSearcher {
     public:
         typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
-        typedef boost::shared_ptr<TFilteredInput> TFilteredInputP;
+        typedef boost::shared_ptr<TFilteredInput>                           TFilteredInputP;
 
         static const std::string EMPTY_DATA;
 
         // Implements the boost::iostreams Source template interface
-        class CDechunkFilter
-        {
+        class CDechunkFilter {
             public:
                 typedef char char_type;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :
-                                public boost::iostreams::source_tag
+                    public boost::iostreams::source_tag
                 {};
 
             public:
@@ -98,8 +94,7 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                 //! <a href="http://rapidjson.org/classrapidjson_1_1_handler.html">Handler</a>
                 //! for events fired by rapidjson during parsing.
                 //! Note: using the base handler, so we only need to implement what is needed
-                struct SRapidJsonHandler final : public rapidjson::BaseReaderHandler<>
-                {
+                struct SRapidJsonHandler final : public rapidjson::BaseReaderHandler<> {
                     bool Bool(bool b);
                     bool String(const char *str, rapidjson::SizeType length, bool);
                     bool StartObject();
@@ -108,8 +103,7 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                     bool StartArray();
                     bool EndArray(rapidjson::SizeType);
 
-                    enum ETokenType
-                    {
+                    enum ETokenType {
                         E_TokenKey = 1,
                         E_TokenBool = 2,
                         E_TokenString = 3,
@@ -120,50 +114,50 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
                     };
 
                     //! the last token type extracted
-                    ETokenType                   s_Type;
+                    ETokenType s_Type;
 
                     //! the last string (c string) as pointer (only valid till next call)
                     const char                   *s_CompressedChunk;
 
                     //! the last string length (only valid till next call)
-                    rapidjson::SizeType          s_CompressedChunkLength;
+                    rapidjson::SizeType s_CompressedChunkLength;
                 };
 
 
                 //! Has a valid document been seen?
-                bool m_Initialised;
+                bool                                         m_Initialised;
 
                 //! Has any data been written downstream?
-                bool m_SentData;
+                bool                                         m_SentData;
 
                 //! The downstream data store to read from
-                CDataSearcher &m_Searcher;
+                CDataSearcher                                &m_Searcher;
 
                 //! The stream given to clients to read from
-                CDataSearcher::TIStreamP m_IStream;
+                CDataSearcher::TIStreamP                     m_IStream;
 
                 //! The sequential document number currently being written to
-                std::size_t m_CurrentDocNum;
+                std::size_t                                  m_CurrentDocNum;
 
                 //! Have we read all the data possible from downstream?
-                bool m_EndOfStream;
+                bool                                         m_EndOfStream;
 
                 //! The search configuration parameter set by the upstream caller
-                std::string m_SearchString;
+                std::string                                  m_SearchString;
 
                 //! Wrapper around the downstream reader
                 boost::shared_ptr<rapidjson::IStreamWrapper> m_InputStreamWrapper;
 
                 //! JSON reader for the downstream stream
-                boost::shared_ptr<rapidjson::Reader> m_Reader;
+                boost::shared_ptr<rapidjson::Reader>         m_Reader;
 
-                SRapidJsonHandler                     m_Handler;
+                SRapidJsonHandler                            m_Handler;
 
                 //! The offset into the current token that has been read
-                std::streamsize m_BufferOffset;
+                std::streamsize                              m_BufferOffset;
 
                 //! Level of nested objects, used to unwind later on.
-                size_t  m_NestedLevel;
+                size_t                                       m_NestedLevel;
         };
 
     public:
@@ -182,10 +176,10 @@ class CORE_EXPORT CStateDecompressor : public CDataSearcher
 
     private:
         //! Reference to the downstream data store
-        CDataSearcher &m_Searcher;
+        CDataSearcher   &m_Searcher;
 
         //! The dechunker object
-        CDechunkFilter m_FilterSource;
+        CDechunkFilter  m_FilterSource;
 
         //! The boost filtering_stream object that handles decompression
         TFilteredInputP m_InFilter;

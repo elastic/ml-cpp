@@ -44,15 +44,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 class CEventData;
 class CSearchKey;
@@ -70,47 +67,44 @@ class CResourceMonitor;
 //! This functionality has been separated from the CDataGatherer in order
 //! to allow the CDataGatherer to support multiple overlapping buckets and
 //! buckets with different time spans.
-class MODEL_EXPORT CBucketGatherer
-{
+class MODEL_EXPORT CBucketGatherer {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::vector<const std::string*> TStrCPtrVec;
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef model_t::TFeatureVec TFeatureVec;
-        typedef boost::optional<double> TOptionalDouble;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
-        typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
-        typedef core::CCompressedDictionary<2> TDictionary;
-        typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
-        typedef TWordSizeUMap::iterator TWordSizeUMapItr;
-        typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
-        typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-        typedef TSizeSizePrUInt64UMap::iterator TSizeSizePrUInt64UMapItr;
-        typedef TSizeSizePrUInt64UMap::const_iterator TSizeSizePrUInt64UMapCItr;
-        typedef CBucketQueue<TSizeSizePrUInt64UMap> TSizeSizePrUInt64UMapQueue;
-        typedef std::map<core_t::TTime, TSizeSizePrUInt64UMap> TTimeSizeSizePrUInt64UMapMap;
-        typedef TSizeSizePrUInt64UMapQueue::iterator TSizeSizePrUInt64UMapQueueItr;
-        typedef TSizeSizePrUInt64UMapQueue::const_iterator TSizeSizePrUInt64UMapQueueCItr;
+        typedef std::vector<double>                                TDoubleVec;
+        typedef core::CSmallVector<double, 1>                      TDouble1Vec;
+        typedef std::vector<std::size_t>                           TSizeVec;
+        typedef std::vector<std::string>                           TStrVec;
+        typedef TStrVec::const_iterator                            TStrVecCItr;
+        typedef std::vector<const std::string*>                    TStrCPtrVec;
+        typedef std::pair<std::size_t, uint64_t>                   TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                         TSizeUInt64PrVec;
+        typedef model_t::TFeatureVec                               TFeatureVec;
+        typedef boost::optional<double>                            TOptionalDouble;
+        typedef std::pair<std::size_t, std::size_t>                TSizeSizePr;
+        typedef std::pair<TSizeSizePr, uint64_t>                   TSizeSizePrUInt64Pr;
+        typedef std::vector<TSizeSizePrUInt64Pr>                   TSizeSizePrUInt64PrVec;
+        typedef core::CCompressedDictionary<2>                     TDictionary;
+        typedef TDictionary::CWordUMap<std::size_t>::Type          TWordSizeUMap;
+        typedef TWordSizeUMap::iterator                            TWordSizeUMapItr;
+        typedef TWordSizeUMap::const_iterator                      TWordSizeUMapCItr;
+        typedef boost::unordered_map<TSizeSizePr, uint64_t>        TSizeSizePrUInt64UMap;
+        typedef TSizeSizePrUInt64UMap::iterator                    TSizeSizePrUInt64UMapItr;
+        typedef TSizeSizePrUInt64UMap::const_iterator              TSizeSizePrUInt64UMapCItr;
+        typedef CBucketQueue<TSizeSizePrUInt64UMap>                TSizeSizePrUInt64UMapQueue;
+        typedef std::map<core_t::TTime, TSizeSizePrUInt64UMap>     TTimeSizeSizePrUInt64UMapMap;
+        typedef TSizeSizePrUInt64UMapQueue::iterator               TSizeSizePrUInt64UMapQueueItr;
+        typedef TSizeSizePrUInt64UMapQueue::const_iterator         TSizeSizePrUInt64UMapQueueCItr;
         typedef TSizeSizePrUInt64UMapQueue::const_reverse_iterator TSizeSizePrUInt64UMapQueueCRItr;
-        typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-        typedef TSizeSizePrUSet::const_iterator TSizeSizePrUSetCItr;
-        typedef CBucketQueue<TSizeSizePrUSet> TSizeSizePrUSetQueue;
-        typedef std::map<core_t::TTime, TSizeSizePrUSet> TTimeSizeSizePrUSetMap;
-        typedef TSizeSizePrUSetQueue::const_iterator TSizeSizePrUSetQueueCItr;
-        typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
-        typedef std::pair<TSizeSizePr, core::CStoredStringPtr> TSizeSizePrStoredStringPtrPr;
+        typedef boost::unordered_set<TSizeSizePr>                  TSizeSizePrUSet;
+        typedef TSizeSizePrUSet::const_iterator                    TSizeSizePrUSetCItr;
+        typedef CBucketQueue<TSizeSizePrUSet>                      TSizeSizePrUSetQueue;
+        typedef std::map<core_t::TTime, TSizeSizePrUSet>           TTimeSizeSizePrUSetMap;
+        typedef TSizeSizePrUSetQueue::const_iterator               TSizeSizePrUSetQueueCItr;
+        typedef std::vector<core::CStoredStringPtr>                TStoredStringPtrVec;
+        typedef std::pair<TSizeSizePr, core::CStoredStringPtr>     TSizeSizePrStoredStringPtrPr;
 
         //! \brief Hashes a ((size_t, size_t), string*) pair.
-        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash
-        {
-            std::size_t operator()(const TSizeSizePrStoredStringPtrPr &key) const
-            {
+        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
+            std::size_t operator()(const TSizeSizePrStoredStringPtrPr &key) const {
                 uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first),
                                                             static_cast<uint64_t>(key.first.second));
                 return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
@@ -119,11 +113,9 @@ class MODEL_EXPORT CBucketGatherer
         };
 
         //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
-        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual
-        {
+        struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
             bool operator()(const TSizeSizePrStoredStringPtrPr &lhs,
-                            const TSizeSizePrStoredStringPtrPr &rhs) const
-            {
+                            const TSizeSizePrStoredStringPtrPr &rhs) const {
                 return lhs.first == rhs.first && *lhs.second == *rhs.second;
             }
         };
@@ -132,18 +124,18 @@ class MODEL_EXPORT CBucketGatherer
                                      uint64_t,
                                      SSizeSizePrStoredStringPtrPrHash,
                                      SSizeSizePrStoredStringPtrPrEqual> TSizeSizePrStoredStringPtrPrUInt64UMap;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
-        typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-        typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec> TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr;
+        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator             TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
+        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator                   TSizeSizePrStoredStringPtrPrUInt64UMapItr;
+        typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>                TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+        typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>            TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
+        typedef TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator          TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr;
         typedef std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec> TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap;
-        typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
-        typedef std::pair<model_t::EFeature, boost::any> TFeatureAnyPr;
-        typedef std::vector<TFeatureAnyPr> TFeatureAnyPrVec;
-        typedef std::vector<model_t::EMetricCategory> TMetricCategoryVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef TTimeVec::const_iterator TTimeVecCItr;
+        typedef boost::reference_wrapper<const CSearchKey>                         TSearchKeyCRef;
+        typedef std::pair<model_t::EFeature, boost::any>                           TFeatureAnyPr;
+        typedef std::vector<TFeatureAnyPr>                                         TFeatureAnyPrVec;
+        typedef std::vector<model_t::EMetricCategory>                              TMetricCategoryVec;
+        typedef std::vector<core_t::TTime>                                         TTimeVec;
+        typedef TTimeVec::const_iterator                                           TTimeVecCItr;
 
     public:
         static const std::string EVENTRATE_BUCKET_GATHERER_TAG;
@@ -319,7 +311,7 @@ class MODEL_EXPORT CBucketGatherer
         //@{
         //! Get the non-zero (person, attribute) pair counts in the
         //! bucketing interval corresponding to the given time.
-        const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
+        const TSizeSizePrUInt64UMap                     &bucketCounts(core_t::TTime time) const;
 
         //! Get the non-zero (person, attribute) pair counts for each
         //! value of influencing field.
@@ -356,24 +348,18 @@ class MODEL_EXPORT CBucketGatherer
         template<typename F, typename T>
         static void remove(const TSizeVec &toRemove,
                            const F &extractId,
-                           CBucketQueue<T> &queue)
-        {
+                           CBucketQueue<T> &queue) {
             typedef typename CBucketQueue<T>::iterator TQueueItr;
 
-            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr)
-            {
+            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
                 T &bucket = *bucketItr;
-                for (typename T::iterator i = bucket.begin(); i != bucket.end(); /**/)
-                 {
-                     if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(*i)))
-                     {
-                         i = bucket.erase(i);
-                     }
-                     else
-                     {
-                         ++i;
-                     }
-                 }
+                for (typename T::iterator i = bucket.begin(); i != bucket.end(); /**/) {
+                    if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(*i))) {
+                        i = bucket.erase(i);
+                    } else {
+                        ++i;
+                    }
+                }
             }
         }
 
@@ -385,23 +371,16 @@ class MODEL_EXPORT CBucketGatherer
         template<typename F, typename T>
         static void remove(const TSizeVec &toRemove,
                            const F &extractId,
-                           CBucketQueue<std::vector<T> > &queue)
-        {
+                           CBucketQueue<std::vector<T> > &queue) {
             typedef typename CBucketQueue<std::vector<T> >::iterator TQueueItr;
 
-            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr)
-            {
-                for (std::size_t i = 0u; i < bucketItr->size(); ++i)
-                {
+            for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
+                for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
                     T &bucket = (*bucketItr)[i];
-                    for (typename T::iterator j = bucket.begin(); j != bucket.end(); /**/)
-                    {
-                        if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first)))
-                        {
+                    for (typename T::iterator j = bucket.begin(); j != bucket.end(); /**/) {
+                        if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first))) {
                             j = bucket.erase(j);
-                        }
-                        else
-                        {
+                        } else {
                             ++j;
                         }
                     }
@@ -465,33 +444,33 @@ class MODEL_EXPORT CBucketGatherer
 
     protected:
         //! Reference to the owning data gatherer
-        CDataGatherer &m_DataGatherer;
+        CDataGatherer                                    &m_DataGatherer;
 
     private:
         //! The earliest time of any record that has arrived.
-        core_t::TTime m_EarliestTime;
+        core_t::TTime                                    m_EarliestTime;
 
         //! The start of the current bucketing interval.
-        core_t::TTime m_BucketStart;
+        core_t::TTime                                    m_BucketStart;
 
         //! The non-zero (person, attribute) pair counts in the current
         //! bucketing interval.
-        TSizeSizePrUInt64UMapQueue m_PersonAttributeCounts;
+        TSizeSizePrUInt64UMapQueue                       m_PersonAttributeCounts;
 
         //! The counts for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.
-        TTimeSizeSizePrUInt64UMapMap m_MultiBucketPersonAttributeCounts;
+        TTimeSizeSizePrUInt64UMapMap                     m_MultiBucketPersonAttributeCounts;
 
         //! A set per bucket that contains a (pid,cid) pair if at least
         //! one explicit null record has been seen.
-        TSizeSizePrUSetQueue m_PersonAttributeExplicitNulls;
+        TSizeSizePrUSetQueue                             m_PersonAttributeExplicitNulls;
 
         //! The explicit nulls for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.
-        TTimeSizeSizePrUSetMap m_MultiBucketPersonAttributeExplicitNulls;
+        TTimeSizeSizePrUSetMap                           m_MultiBucketPersonAttributeExplicitNulls;
 
         //! The influencing field value counts per person and/or attribute.
-        TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue m_InfluencerCounts;
+        TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue   m_InfluencerCounts;
 
         //! The influencing field value counts for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.

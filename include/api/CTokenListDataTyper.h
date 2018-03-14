@@ -28,10 +28,8 @@
 #include <ctype.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Concrete implementation class to categorise strings.
@@ -59,8 +57,7 @@ template <bool DO_WARPING = true,
           bool IGNORE_FIELD_NAMES = true,
           size_t MIN_DICTIONARY_LENGTH = 2,
           typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
-class CTokenListDataTyper : public CBaseTokenListDataTyper
-{
+class CTokenListDataTyper : public CBaseTokenListDataTyper {
     public:
         //! Create a data typer with threshold for how comparable types are
         //! 0.0 means everything is the same type
@@ -71,8 +68,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
             : CBaseTokenListDataTyper(reverseSearchCreator,
                                       threshold,
                                       fieldName),
-              m_Dict(core::CWordDictionary::instance())
-        {
+              m_Dict(core::CWordDictionary::instance()) {
         }
 
     protected:
@@ -83,8 +79,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
                                     const std::string &str,
                                     TSizeSizePrVec &tokenIds,
                                     TSizeSizeMap &tokenUniqueIds,
-                                    size_t &totalWeight)
-        {
+                                    size_t &totalWeight) {
             tokenIds.clear();
             tokenUniqueIds.clear();
             totalWeight = 0;
@@ -93,36 +88,28 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
 
             // TODO - make more efficient
             std::string::size_type nonHexPos(std::string::npos);
-            for (std::string::size_type i = 0; i < str.size(); ++i)
-            {
+            for (std::string::size_type i = 0; i < str.size(); ++i) {
                 const char curChar(str[i]);
 
                 // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
                 // allowing underscores, dots and dashes in the middle
                 if (::isalnum(static_cast<unsigned char>(curChar)) ||
-                       (!temp.empty() &&
-                           (
-                               (ALLOW_UNDERSCORE && curChar == '_') ||
-                               (ALLOW_DOT && curChar == '.') ||
-                               (ALLOW_DASH && curChar == '-')
-                           )
-                       )
-                   )
-                {
+                    (!temp.empty() &&
+                     (
+                         (ALLOW_UNDERSCORE && curChar == '_') ||
+                         (ALLOW_DOT && curChar == '.') ||
+                         (ALLOW_DASH && curChar == '-')
+                     )
+                    )) {
                     temp += curChar;
-                    if (IGNORE_HEX)
-                    {
+                    if (IGNORE_HEX) {
                         // Count dots and dashes as numeric
-                        if (!::isxdigit(static_cast<unsigned char>(curChar)) && curChar != '.' && curChar != '-')
-                        {
+                        if (!::isxdigit(static_cast<unsigned char>(curChar)) && curChar != '.' && curChar != '-') {
                             nonHexPos = temp.length() - 1;
                         }
                     }
-                }
-                else
-                {
-                    if (!temp.empty())
-                    {
+                } else {
+                    if (!temp.empty()) {
                         this->considerToken(fields,
                                             nonHexPos,
                                             temp,
@@ -132,15 +119,13 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
                         temp.clear();
                     }
 
-                    if (IGNORE_HEX)
-                    {
+                    if (IGNORE_HEX) {
                         nonHexPos = std::string::npos;
                     }
                 }
             }
 
-            if (!temp.empty())
-            {
+            if (!temp.empty()) {
                 this->considerToken(fields,
                                     nonHexPos,
                                     temp,
@@ -159,12 +144,10 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
         virtual void tokenToIdAndWeight(const std::string &token,
                                         TSizeSizePrVec &tokenIds,
                                         TSizeSizeMap &tokenUniqueIds,
-                                        size_t &totalWeight)
-        {
+                                        size_t &totalWeight) {
             TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
-            if (token.length() >= MIN_DICTIONARY_LENGTH)
-            {
+            if (token.length() >= MIN_DICTIONARY_LENGTH) {
                 // Give more weighting to tokens that are dictionary words.
                 idWithWeight.second += m_DictionaryWeightFunc(m_Dict.partOfSpeech(token));
             }
@@ -177,13 +160,11 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
         virtual double similarity(const TSizeSizePrVec &left,
                                   size_t leftWeight,
                                   const TSizeSizePrVec &right,
-                                  size_t rightWeight) const
-        {
+                                  size_t rightWeight) const {
             double similarity(1.0);
 
             size_t maxWeight(std::max(leftWeight, rightWeight));
-            if (maxWeight > 0)
-            {
+            if (maxWeight > 0) {
                 size_t diff(DO_WARPING ?
                             m_SimilarityTester.weightedEditDistance(left, right) :
                             this->compareNoWarp(left, right));
@@ -199,34 +180,26 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
         //! alternative to using the Levenshtein distance, which is a form of
         //! warping)
         size_t compareNoWarp(const TSizeSizePrVec &left,
-                             const TSizeSizePrVec &right) const
-        {
+                             const TSizeSizePrVec &right) const {
             size_t minSize(std::min(left.size(), right.size()));
             size_t maxSize(std::max(left.size(), right.size()));
 
             size_t diff(0);
 
-            for (size_t index = 0; index < minSize; ++index)
-            {
-                if (left[index].first != right[index].first)
-                {
+            for (size_t index = 0; index < minSize; ++index) {
+                if (left[index].first != right[index].first) {
                     diff += std::max(left[index].second,
                                      right[index].second);
                 }
             }
 
             // Account for different length vector instances
-            if (left.size() < right.size())
-            {
-                for (size_t index = minSize; index < maxSize; ++index)
-                {
+            if (left.size() < right.size()) {
+                for (size_t index = minSize; index < maxSize; ++index) {
                     diff += right[index].second;
                 }
-            }
-            else if (left.size() > right.size())
-            {
-                for (size_t index = minSize; index < maxSize; ++index)
-                {
+            } else if (left.size() > right.size()) {
+                for (size_t index = minSize; index < maxSize; ++index) {
                     diff += left[index].second;
                 }
             }
@@ -242,19 +215,15 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
                            std::string &token,
                            TSizeSizePrVec &tokenIds,
                            TSizeSizeMap &tokenUniqueIds,
-                           size_t &totalWeight)
-        {
-            if (IGNORE_LEADING_DIGIT && ::isdigit(static_cast<unsigned char>(token[0])))
-            {
+                           size_t &totalWeight) {
+            if (IGNORE_LEADING_DIGIT && ::isdigit(static_cast<unsigned char>(token[0]))) {
                 return;
             }
 
             // If configured, ignore pure hex numbers, with or without a 0x
             // prefix.
-            if (IGNORE_HEX)
-            {
-                if (nonHexPos == std::string::npos)
-                {
+            if (IGNORE_HEX) {
+                if (nonHexPos == std::string::npos) {
                     // Implies hex without 0x prefix.
                     return;
                 }
@@ -266,26 +235,22 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper
                 if (!IGNORE_LEADING_DIGIT &&
                     nonHexPos == 1 &&
                     token.compare(0, 2, "0x") == 0 &&
-                    token.length() != 2)
-                {
+                    token.length() != 2) {
                     // Implies hex with 0x prefix.
                     return;
                 }
             }
 
             // If the last character is not alphanumeric, strip it.
-            while (!::isalnum(static_cast<unsigned char>(token[token.length() - 1])))
-            {
+            while (!::isalnum(static_cast<unsigned char>(token[token.length() - 1]))) {
                 token.erase(token.length() - 1);
             }
 
-            if (IGNORE_DATE_WORDS && core::CTimeUtils::isDateWord(token))
-            {
+            if (IGNORE_DATE_WORDS && core::CTimeUtils::isDateWord(token)) {
                 return;
             }
 
-            if (IGNORE_FIELD_NAMES && fields.find(token) != fields.end())
-            {
+            if (IGNORE_FIELD_NAMES && fields.find(token) != fields.end()) {
                 return;
             }
 

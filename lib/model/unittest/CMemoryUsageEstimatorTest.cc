@@ -27,15 +27,13 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
 void addValue(CMemoryUsageEstimator &estimator,
               std::size_t memory,
               std::size_t people,
               std::size_t attributes,
-              std::size_t correlations = 0)
-{
+              std::size_t correlations = 0) {
     CMemoryUsageEstimator::TSizeArray predictors;
     predictors[CMemoryUsageEstimator::E_People]       = people;
     predictors[CMemoryUsageEstimator::E_Attributes]   = attributes;
@@ -46,8 +44,7 @@ void addValue(CMemoryUsageEstimator &estimator,
 CMemoryUsageEstimator::TOptionalSize estimate(CMemoryUsageEstimator &estimator,
                                               std::size_t people,
                                               std::size_t attributes,
-                                              std::size_t correlations = 0)
-{
+                                              std::size_t correlations = 0) {
     CMemoryUsageEstimator::TSizeArray predictors;
     predictors[CMemoryUsageEstimator::E_People]       = people;
     predictors[CMemoryUsageEstimator::E_Attributes]   = attributes;
@@ -57,8 +54,7 @@ CMemoryUsageEstimator::TOptionalSize estimate(CMemoryUsageEstimator &estimator,
 
 }
 
-void CMemoryUsageEstimatorTest::testEstimateLinear(void)
-{
+void CMemoryUsageEstimatorTest::testEstimateLinear(void) {
     LOG_DEBUG("Running estimator test estimate linear");
 
     CMemoryUsageEstimator estimator;
@@ -92,8 +88,7 @@ void CMemoryUsageEstimatorTest::testEstimateLinear(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(1042), mem.get());
 
     // Test that after 10 estimates we need to add some more real values
-    for (std::size_t i = 0; i < 10; i++)
-    {
+    for (std::size_t i = 0; i < 10; i++) {
         mem = estimate(estimator, 4, 1);
     }
     CPPUNIT_ASSERT(!mem);
@@ -113,8 +108,7 @@ void CMemoryUsageEstimatorTest::testEstimateLinear(void)
     CPPUNIT_ASSERT(!mem);
 }
 
-void CMemoryUsageEstimatorTest::testEstimateNonlinear(void)
-{
+void CMemoryUsageEstimatorTest::testEstimateNonlinear(void) {
     LOG_DEBUG("Running estimator test estimate non-linear");
 
     {
@@ -157,14 +151,13 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear(void)
         addValue(estimator, pScale * 20*20 + aScale * 25*25 + cScale * 40*40, 20, 25, 40);
 
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
-        std::size_t actual = pScale * 25*25 + aScale * 35*35 + cScale * 45*45;
+        std::size_t                          actual = pScale * 25*25 + aScale * 35*35 + cScale * 45*45;
         LOG_DEBUG("actual = " << actual << ", estimated = " << mem.get());
         CPPUNIT_ASSERT(static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
     }
 }
 
-void CMemoryUsageEstimatorTest::testPersist(void)
-{
+void CMemoryUsageEstimatorTest::testPersist(void) {
     LOG_DEBUG("Running estimator test persist");
 
     CMemoryUsageEstimator origEstimator;
@@ -238,19 +231,18 @@ void CMemoryUsageEstimatorTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CMemoryUsageEstimatorTest::suite()
-{
+CppUnit::Test *CMemoryUsageEstimatorTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-                                   "CMemoryUsageEstimatorTest::testEstimateLinear",
-                                   &CMemoryUsageEstimatorTest::testEstimateLinear) );
+                               "CMemoryUsageEstimatorTest::testEstimateLinear",
+                               &CMemoryUsageEstimatorTest::testEstimateLinear) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-                                   "CMemoryUsageEstimatorTest::testEstimateNonlinear",
-                                   &CMemoryUsageEstimatorTest::testEstimateNonlinear) );
+                               "CMemoryUsageEstimatorTest::testEstimateNonlinear",
+                               &CMemoryUsageEstimatorTest::testEstimateNonlinear) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-                                   "CMemoryUsageEstimatorTest::testPersist",
-                                   &CMemoryUsageEstimatorTest::testPersist) );
+                               "CMemoryUsageEstimatorTest::testPersist",
+                               &CMemoryUsageEstimatorTest::testPersist) );
 
     return suiteOfTests;
 }

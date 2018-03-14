@@ -42,15 +42,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CEventData;
 class CMetricBucketGatherer;
 class CResourceMonitor;
@@ -110,44 +107,43 @@ class CSearchKey;
 //!
 //! Time-based data gathering is handled by further classes derived from
 //! CBucketGatherer, for Metrics and EventRates accordingly.
-class MODEL_EXPORT CDataGatherer
-{
+class MODEL_EXPORT CDataGatherer {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::vector<const std::string*> TStrCPtrVec;
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef model_t::TFeatureVec TFeatureVec;
-        typedef TFeatureVec::const_iterator TFeatureVecCItr;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
-        typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
-        typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-        typedef TSizeSizePrUInt64UMap::iterator TSizeSizePrUInt64UMapItr;
-        typedef TSizeSizePrUInt64UMap::const_iterator TSizeSizePrUInt64UMapCItr;
-        typedef CBucketQueue<TSizeSizePrUInt64UMap> TSizeSizePrUInt64UMapQueue;
-        typedef TSizeSizePrUInt64UMapQueue::iterator TSizeSizePrUInt64UMapQueueItr;
-        typedef TSizeSizePrUInt64UMapQueue::const_iterator TSizeSizePrUInt64UMapQueueCItr;
-        typedef TSizeSizePrUInt64UMapQueue::const_reverse_iterator TSizeSizePrUInt64UMapQueueCRItr;
+        typedef std::vector<double>                                     TDoubleVec;
+        typedef core::CSmallVector<double, 1>                           TDouble1Vec;
+        typedef std::vector<std::size_t>                                TSizeVec;
+        typedef std::vector<std::string>                                TStrVec;
+        typedef TStrVec::const_iterator                                 TStrVecCItr;
+        typedef std::vector<const std::string*>                         TStrCPtrVec;
+        typedef std::pair<std::size_t, uint64_t>                        TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                              TSizeUInt64PrVec;
+        typedef model_t::TFeatureVec                                    TFeatureVec;
+        typedef TFeatureVec::const_iterator                             TFeatureVecCItr;
+        typedef std::pair<std::size_t, std::size_t>                     TSizeSizePr;
+        typedef std::pair<TSizeSizePr, uint64_t>                        TSizeSizePrUInt64Pr;
+        typedef std::vector<TSizeSizePrUInt64Pr>                        TSizeSizePrUInt64PrVec;
+        typedef boost::unordered_map<TSizeSizePr, uint64_t>             TSizeSizePrUInt64UMap;
+        typedef TSizeSizePrUInt64UMap::iterator                         TSizeSizePrUInt64UMapItr;
+        typedef TSizeSizePrUInt64UMap::const_iterator                   TSizeSizePrUInt64UMapCItr;
+        typedef CBucketQueue<TSizeSizePrUInt64UMap>                     TSizeSizePrUInt64UMapQueue;
+        typedef TSizeSizePrUInt64UMapQueue::iterator                    TSizeSizePrUInt64UMapQueueItr;
+        typedef TSizeSizePrUInt64UMapQueue::const_iterator              TSizeSizePrUInt64UMapQueueCItr;
+        typedef TSizeSizePrUInt64UMapQueue::const_reverse_iterator      TSizeSizePrUInt64UMapQueueCRItr;
         typedef CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap TSizeSizePrStoredStringPtrPrUInt64UMap;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
-        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
-        typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator  TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
+        typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator        TSizeSizePrStoredStringPtrPrUInt64UMapItr;
+        typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>     TSizeSizePrStoredStringPtrPrUInt64UMapVec;
         typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec> TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
-        typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
-        typedef std::vector<CBucketGatherer*> TBucketGathererPVec;
-        typedef TBucketGathererPVec::iterator TBucketGathererPVecItr;
-        typedef TBucketGathererPVec::const_iterator TBucketGathererPVecCItr;
-        typedef std::pair<model_t::EFeature, boost::any> TFeatureAnyPr;
-        typedef std::vector<TFeatureAnyPr> TFeatureAnyPrVec;
-        typedef std::vector<model_t::EMetricCategory> TMetricCategoryVec;
-        typedef boost::shared_ptr<CSampleCounts> TSampleCountsPtr;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef TTimeVec::const_iterator TTimeVecCItr;
+        typedef boost::reference_wrapper<const CSearchKey>              TSearchKeyCRef;
+        typedef std::vector<CBucketGatherer*>                           TBucketGathererPVec;
+        typedef TBucketGathererPVec::iterator                           TBucketGathererPVecItr;
+        typedef TBucketGathererPVec::const_iterator                     TBucketGathererPVecCItr;
+        typedef std::pair<model_t::EFeature, boost::any>                TFeatureAnyPr;
+        typedef std::vector<TFeatureAnyPr>                              TFeatureAnyPrVec;
+        typedef std::vector<model_t::EMetricCategory>                   TMetricCategoryVec;
+        typedef boost::shared_ptr<CSampleCounts>                        TSampleCountsPtr;
+        typedef std::vector<core_t::TTime>                              TTimeVec;
+        typedef TTimeVec::const_iterator                                TTimeVecCItr;
 
     public:
         //! The summary count indicating an explicit null record.
@@ -366,8 +362,7 @@ class MODEL_EXPORT CDataGatherer
         //! \tparam T The type of the feature data.
         template<typename T>
         bool featureData(core_t::TTime time, core_t::TTime bucketLength,
-                         std::vector<std::pair<model_t::EFeature, T> > &result) const
-        {
+                         std::vector<std::pair<model_t::EFeature, T> > &result) const {
             TFeatureAnyPrVec rawFeatureData;
             this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
 
@@ -375,17 +370,15 @@ class MODEL_EXPORT CDataGatherer
 
             result.clear();
             result.reserve(rawFeatureData.size());
-            for (std::size_t i = 0u; i < rawFeatureData.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < rawFeatureData.size(); ++i) {
                 TFeatureAnyPr &feature = rawFeatureData[i];
 
                 // Check the typeid before attempting the cast so we
                 // don't use throw to handle failure, which is slow.
-                if (feature.second.type() != typeid(T))
-                {
+                if (feature.second.type() != typeid(T)) {
                     LOG_ERROR("Bad type for feature = " << model_t::print(feature.first)
-                              << ", expected " << typeid(T).name()
-                              << " got " << feature.second.type().name());
+                                                        << ", expected " << typeid(T).name()
+                                                        << " got " << feature.second.type().name());
                     succeeded = false;
                     continue;
                 }
@@ -604,7 +597,7 @@ class MODEL_EXPORT CDataGatherer
         //@{
         //! Get the non-zero (person, attribute) pair counts in the
         //! bucketing interval corresponding to the given time.
-        const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
+        const TSizeSizePrUInt64UMap                     &bucketCounts(core_t::TTime time) const;
 
         //! Get the non-zero (person, attribute) pair counts for each
         //! value of influencing field.
@@ -640,68 +633,56 @@ class MODEL_EXPORT CDataGatherer
         //@{
         //! Extract the person identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.first.first;
         }
         //! Extract the person identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.first.first;
         }
         //! Extract the person identifier from a tuple.
-        static inline std::size_t extractPersonId(const TSizeSizePr &tuple)
-        {
+        static inline std::size_t extractPersonId(const TSizeSizePr &tuple) {
             return tuple.first;
         }
         //! Extracts the person identifier from a tuple.
-        struct SExtractPersonId
-        {
+        struct SExtractPersonId {
             template<typename TUPLE>
-            std::size_t operator()(const TUPLE &t) const
-            {
+            std::size_t operator()(const TUPLE &t) const {
                 return CDataGatherer::extractPersonId(t);
             }
         };
 
         //! Extract the attribute identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.first.second;
         }
         //! Extract the attribute identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.first.second;
         }
         //! Extract the attribute identifier from a tuple.
-        static inline std::size_t extractAttributeId(const TSizeSizePr &tuple)
-        {
+        static inline std::size_t extractAttributeId(const TSizeSizePr &tuple) {
             return tuple.second;
         }
         //! Extracts the attribute identifier from a tuple.
-        struct SExtractAttributeId
-        {
+        struct SExtractAttributeId {
             template<typename TUPLE>
-            std::size_t operator()(const TUPLE &t) const
-            {
+            std::size_t operator()(const TUPLE &t) const {
                 return CDataGatherer::extractAttributeId(t);
             }
         };
 
         //! Extract the data from a tuple.
         template<typename T>
-        static inline const T &extractData(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline const T &extractData(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.second;
         }
         //! Extract the data from a tuple.
         template<typename T>
-        static inline const T &extractData(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline const T &extractData(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.second;
         }
         //@}
@@ -744,7 +725,7 @@ class MODEL_EXPORT CDataGatherer
 
         //! Select the correct bucket gatherer based on the time: if we have
         //! out-of-phase buckets, select either in-phase or out-of-phase.
-        CBucketGatherer &chooseBucketGatherer(core_t::TTime time);
+        CBucketGatherer       &chooseBucketGatherer(core_t::TTime time);
 
         //! Restore state from supplied traverser.
         bool acceptRestoreTraverser(const std::string &summaryCountFieldName,
@@ -781,42 +762,42 @@ class MODEL_EXPORT CDataGatherer
         model_t::EAnalysisCategory m_GathererType;
 
         //! The collection of features on which to gather data.
-        TFeatureVec m_Features;
+        TFeatureVec                m_Features;
 
         //! The collection of bucket gatherers which contain the bucket-specific
         //! metrics and counts.
-        TBucketGathererPVec m_Gatherers;
+        TBucketGathererPVec        m_Gatherers;
 
         //! Indicates whether the data being gathered are already summarized
         //! by an external aggregation process.
-        model_t::ESummaryMode m_SummaryMode;
+        model_t::ESummaryMode      m_SummaryMode;
 
         //! The global configuration parameters.
-        TModelParamsCRef m_Params;
+        TModelParamsCRef           m_Params;
 
         //! The partition field name or an empty string if there isn't one.
-        std::string m_PartitionFieldName;
+        std::string                m_PartitionFieldName;
 
         //! The value of the partition field for this detector.
-        core::CStoredStringPtr m_PartitionFieldValue;
+        core::CStoredStringPtr     m_PartitionFieldValue;
 
         //! The key of the search for which data is being gathered.
-        TSearchKeyCRef m_SearchKey;
+        TSearchKeyCRef             m_SearchKey;
 
         //! A registry where person names are mapped to unique IDs.
-        CDynamicStringIdRegistry m_PeopleRegistry;
+        CDynamicStringIdRegistry   m_PeopleRegistry;
 
         //! A registry where attribute names are mapped to unique IDs.
-        CDynamicStringIdRegistry m_AttributesRegistry;
+        CDynamicStringIdRegistry   m_AttributesRegistry;
 
         //! True if this is a population data gatherer and false otherwise.
-        bool m_Population;
+        bool                       m_Population;
 
         //! If true the gatherer will process missing person field values.
-        bool m_UseNull;
+        bool                       m_UseNull;
 
         //! The object responsible for managing sample counts.
-        TSampleCountsPtr m_SampleCounts;
+        TSampleCountsPtr           m_SampleCounts;
 };
 
 }

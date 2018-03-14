@@ -29,10 +29,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -59,29 +57,28 @@ namespace core
 //! On Windows, we have to explicitly request 64 bit types in the
 //! typedefs and functions in this class.
 //!
-class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
-{
+class CORE_EXPORT COsFileFuncs : private CNonInstantiatable {
     public:
         //! Use in place of OS level file flags - will be defined as zero on
         //! platforms that don't support them
-        static const int APPEND;
-        static const int BINARY;
-        static const int CREAT;
-        static const int EXCL;
-        static const int NOFOLLOW;
-        static const int RDONLY;
-        static const int RDWR;
-        static const int TEXT;
-        static const int TRUNC;
-        static const int WRONLY;
-        static const int RENAMABLE;
+        static const int  APPEND;
+        static const int  BINARY;
+        static const int  CREAT;
+        static const int  EXCL;
+        static const int  NOFOLLOW;
+        static const int  RDONLY;
+        static const int  RDWR;
+        static const int  TEXT;
+        static const int  TRUNC;
+        static const int  WRONLY;
+        static const int  RENAMABLE;
 
         //! Use in place of OS level access flags - will be defined as zero on
         //! platforms that don't support them
-        static const int EXISTS;
-        static const int READABLE;
-        static const int WRITABLE;
-        static const int EXECUTABLE;
+        static const int  EXISTS;
+        static const int  READABLE;
+        static const int  WRITABLE;
+        static const int  EXECUTABLE;
 
         //! The name of the magic file that discards everything written to it
         static const char *NULL_FILENAME;
@@ -89,55 +86,54 @@ class CORE_EXPORT COsFileFuncs : private CNonInstantiatable
     public:
         //! Signed size type (to be used instead of ssize_t)
 #ifdef Windows
-        typedef int             TSignedSize;
+        typedef int TSignedSize;
 #else
-        typedef ssize_t         TSignedSize;
+        typedef ssize_t TSignedSize;
 #endif
 
         //! Offset type (to be used instead of off_t)
 #ifdef Windows
-        typedef __int64         TOffset;
+        typedef __int64 TOffset;
 #else
-        typedef off_t           TOffset;
+        typedef off_t TOffset;
 #endif
 
         //! Mode type (to be used instead of mode_t)
 #ifdef Windows
-        typedef int             TMode;
+        typedef int TMode;
 #else
-        typedef mode_t          TMode;
+        typedef mode_t TMode;
 #endif
 
         //! Inode type (to be used instead of ino_t)
 #ifdef Windows
-        typedef uint64_t        TIno;
+        typedef uint64_t TIno;
 #else
-        typedef ino_t           TIno;
+        typedef ino_t TIno;
 #endif
 
         //! Stat buffer struct (to be used instead of struct stat)
 #ifdef Windows
-        struct SStat
-        {
+        struct SStat {
             // Member names don't conform to the coding standards because they
             // need to match those of struct stat
-            _dev_t         st_dev;
+            _dev_t st_dev;
             //! Replaces the _ino_t member of _stati64
-            TIno           st_ino;
+            TIno st_ino;
             unsigned short st_mode;
-            short          st_nlink;
-            short          st_uid;
-            short          st_gid;
-            _dev_t         st_rdev;
-            __int64        st_size;
-            __time64_t     st_atime;
-            __time64_t     st_mtime;
-            __time64_t     st_ctime;
+            short st_nlink;
+            short st_uid;
+            short st_gid;
+            _dev_t st_rdev;
+            __int64 st_size;
+            __time64_t st_atime;
+            __time64_t st_mtime;
+            __time64_t st_ctime;
         };
 
-        typedef SStat           TStat;
+        typedef SStat TStat;
 #else
-        typedef struct stat     TStat;
+        typedef struct stat TStat;
 #endif
 
     public:

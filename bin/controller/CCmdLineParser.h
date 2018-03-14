@@ -20,10 +20,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 //! \brief
 //! Very simple command line parser.
@@ -34,8 +32,7 @@ namespace controller
 //! IMPLEMENTATION DECISIONS:\n
 //! Put in a class rather than main to allow testing.
 //!
-class CCmdLineParser
-{
+class CCmdLineParser {
     public:
         typedef std::vector<std::string> TStrVec;
 

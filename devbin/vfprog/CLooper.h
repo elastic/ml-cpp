@@ -18,14 +18,11 @@
 #include <stddef.h>
 
 
-namespace ml
-{
-namespace vflib
-{
+namespace ml {
+namespace vflib {
 class CIncrementer;
 }
-namespace vfprog
-{
+namespace vfprog {
 class CIncrementer;
 
 
@@ -42,8 +39,7 @@ class CIncrementer;
 //! b) To ensure that the object code of these loops is in the
 //!    intended program
 //!
-class CLooper
-{
+class CLooper {
     public:
         //! Loop calling the inlined incrementer
         static size_t inlinedProgramCallLoop(CIncrementer &incrementer,

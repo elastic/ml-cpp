@@ -37,19 +37,15 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CPrior;
 }
-namespace model
-{
+namespace model {
 
 //! \brief The most basic population model interface.
 //!
@@ -69,14 +65,13 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
     public:
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef std::vector<maths::CCountMinSketch> TCountMinSketchVec;
-        typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
+        typedef std::vector<core_t::TTime>                       TTimeVec;
+        typedef std::pair<std::size_t, uint64_t>                 TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                       TSizeUInt64PrVec;
+        typedef std::vector<maths::CCountMinSketch>              TCountMinSketchVec;
+        typedef std::vector<maths::CBjkstUniqueValues>           TBjkstUniqueValuesVec;
         typedef boost::unordered_map<std::size_t, core_t::TTime> TSizeTimeUMap;
 
         //! Lift the overloads of baselineBucketMean into the class scope.
@@ -136,7 +131,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         //! Extract the bucket value for metric feature data.
         static inline TDouble1Vec extractValue(model_t::EFeature feature,
                                                const std::pair<TSizeSizePr, SMetricFeatureData> &data);
-        //@}
+    //@}
 
     public:
         //! \name Person
@@ -197,8 +192,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
 
     protected:
         //! \brief A key for the partial bucket corrections map.
-        class MODEL_EXPORT CCorrectionKey
-        {
+        class MODEL_EXPORT CCorrectionKey {
             public:
                 CCorrectionKey(model_t::EFeature feature,
                                std::size_t pid,
@@ -209,21 +203,19 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
 
             private:
                 model_t::EFeature m_Feature;
-                std::size_t m_Pid;
-                std::size_t m_Cid;
-                std::size_t m_Correlate;
+                std::size_t       m_Pid;
+                std::size_t       m_Cid;
+                std::size_t       m_Correlate;
         };
 
         //! \brief A hasher for the partial bucket corrections map key.
-        struct MODEL_EXPORT CHashCorrectionKey
-        {
-            std::size_t operator()(const CCorrectionKey &key) const
-            {
+        struct MODEL_EXPORT CHashCorrectionKey {
+            std::size_t operator()(const CCorrectionKey &key) const {
                 return key.hash();
             }
         };
         using TCorrectionKeyDouble1VecUMap =
-                boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
+            boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
 
     protected:
         //! Persist state by passing information to the supplied inserter.
@@ -299,26 +291,26 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
 
     private:
         //! The last time each person was seen.
-        TTimeVec m_PersonLastBucketTimes;
+        TTimeVec                  m_PersonLastBucketTimes;
 
         //! The first time each attribute was seen.
-        TTimeVec m_AttributeFirstBucketTimes;
+        TTimeVec                  m_AttributeFirstBucketTimes;
 
         //! The last time each attribute was seen.
-        TTimeVec m_AttributeLastBucketTimes;
+        TTimeVec                  m_AttributeLastBucketTimes;
 
         //! The initial sketch to use for estimating the number of distinct people.
         maths::CBjkstUniqueValues m_NewDistinctPersonCounts;
 
         //! The number of distinct people generating each attribute.
-        TBjkstUniqueValuesVec m_DistinctPersonCounts;
+        TBjkstUniqueValuesVec     m_DistinctPersonCounts;
 
         //! The initial sketch to use for estimating person bucket counts.
-        TOptionalCountMinSketch m_NewPersonBucketCounts;
+        TOptionalCountMinSketch   m_NewPersonBucketCounts;
 
         //! The bucket count of each (person, attribute) pair in the exponentially
         //! decaying window with decay rate equal to CAnomalyDetectorModel::m_DecayRate.
-        TCountMinSketchVec m_PersonAttributeBucketCounts;
+        TCountMinSketchVec        m_PersonAttributeBucketCounts;
 };
 
 }

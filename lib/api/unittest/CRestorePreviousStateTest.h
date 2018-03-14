@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CRestorePreviousStateTest : public CppUnit::TestFixture
-{
+class CRestorePreviousStateTest : public CppUnit::TestFixture {
     public:
         void testRestoreDetectorBy(void);
         void testRestoreDetectorOver(void);
@@ -38,7 +37,7 @@ class CRestorePreviousStateTest : public CppUnit::TestFixture
                                           int latencyBuckets);
 
         void categorizerRestoreHelper(const std::string &stateFile,
-                                    bool isSymmetric);
+                                      bool isSymmetric);
 
         std::string stripDocIds(const std::string &peristedState);
 };

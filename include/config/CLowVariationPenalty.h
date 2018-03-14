@@ -20,10 +20,8 @@
 
 #include <config/ImportExport.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CPartitionDataCountStatistics;
 class CByAndPartitionDataCountStatistics;
 class CByOverAndPartitionDataCountStatistics;
@@ -37,8 +35,7 @@ class CByOverAndPartitionDataCountStatistics;
 //! every category of a distinct count function argument appears in every bucket,
 //! say because it labels a monitor, and the case that polled data is analyzed for
 //! count anomalies.
-class CONFIG_EXPORT CLowVariationPenalty : public CPenalty
-{
+class CONFIG_EXPORT CLowVariationPenalty : public CPenalty {
     public:
         CLowVariationPenalty(const CAutoconfigurerParams &params);
 

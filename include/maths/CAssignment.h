@@ -22,23 +22,20 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implementation of algorithms for assignment problems.
 //!
 //! DESCRIPTION:\n
 //! Implements the Kuhn-Munkres algorithm to find the minimum
 //! cost perfect matching given an n x m cost matrix.
-class MATHS_EXPORT CAssignment
-{
+class MATHS_EXPORT CAssignment {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        typedef std::vector<double>                 TDoubleVec;
+        typedef std::vector<TDoubleVec>             TDoubleVecVec;
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+        typedef std::vector<TSizeSizePr>            TSizeSizePrVec;
 
     public:
         //! \brief The Kuhn-Munkres algorithm for solving the

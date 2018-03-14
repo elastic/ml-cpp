@@ -26,26 +26,21 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief Data necessary to create a model plot
-class MODEL_EXPORT CModelPlotData
-{
+class MODEL_EXPORT CModelPlotData {
     public:
         typedef std::pair<std::string, double> TStrDoublePr;
-        typedef std::vector<TStrDoublePr> TStrDoublePrVec;
+        typedef std::vector<TStrDoublePr>      TStrDoublePrVec;
 
     public:
-        struct MODEL_EXPORT SByFieldData
-        {
+        struct MODEL_EXPORT SByFieldData {
             SByFieldData(void);
             SByFieldData(double lowerBound, double upperBound, double median);
 
@@ -62,21 +57,21 @@ class MODEL_EXPORT CModelPlotData
         };
 
     public:
-        typedef boost::unordered_map<std::string, SByFieldData> TStrByFieldDataUMap;
-        typedef std::pair<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapPr;
+        typedef boost::unordered_map<std::string, SByFieldData>              TStrByFieldDataUMap;
+        typedef std::pair<model_t::EFeature, TStrByFieldDataUMap>            TFeatureStrByFieldDataUMapPr;
         typedef boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapUMap;
-        typedef boost::unordered_map<int, TStrByFieldDataUMap> TIntStrByFieldDataUMapUMap;
-        typedef TFeatureStrByFieldDataUMapUMap::const_iterator TFeatureStrByFieldDataUMapUMapCItr;
+        typedef boost::unordered_map<int, TStrByFieldDataUMap>               TIntStrByFieldDataUMapUMap;
+        typedef TFeatureStrByFieldDataUMapUMap::const_iterator               TFeatureStrByFieldDataUMapUMapCItr;
 
     public:
         CModelPlotData(void);
         CModelPlotData(core_t::TTime time,
-                     const std::string &partitionFieldName,
-                     const std::string &partitionFieldValue,
-                     const std::string &overFieldName,
-                     const std::string &byFieldName,
-                     core_t::TTime bucketSpan,
-                     int detectorIndex);
+                       const std::string &partitionFieldName,
+                       const std::string &partitionFieldValue,
+                       const std::string &overFieldName,
+                       const std::string &byFieldName,
+                       core_t::TTime bucketSpan,
+                       int detectorIndex);
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
         TFeatureStrByFieldDataUMapUMapCItr begin(void) const;
@@ -93,13 +88,13 @@ class MODEL_EXPORT CModelPlotData
 
     private:
         TFeatureStrByFieldDataUMapUMap m_DataPerFeature;
-        core_t::TTime m_Time;
-        std::string m_PartitionFieldName;
-        std::string m_PartitionFieldValue;
-        std::string m_OverFieldName;
-        std::string m_ByFieldName;
-        core_t::TTime m_BucketSpan;
-        int m_DetectorIndex;
+        core_t::TTime                  m_Time;
+        std::string                    m_PartitionFieldName;
+        std::string                    m_PartitionFieldValue;
+        std::string                    m_OverFieldName;
+        std::string                    m_ByFieldName;
+        core_t::TTime                  m_BucketSpan;
+        int                            m_DetectorIndex;
 };
 
 

@@ -32,10 +32,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Basic summary statistics for both categorical and numerical
 //! data.
@@ -43,8 +41,7 @@ namespace config
 //! DESCRIPTION:\n
 //! This gets the time range of the data set and computes the mean rate
 //! of records in the data set.
-class CONFIG_EXPORT CDataSummaryStatistics
-{
+class CONFIG_EXPORT CDataSummaryStatistics {
     public:
         CDataSummaryStatistics(void);
 
@@ -64,7 +61,7 @@ class CONFIG_EXPORT CDataSummaryStatistics
         double meanRate(void) const;
 
     protected:
-        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>                               TMinTimeAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime> > TMaxTimeAccumulator;
 
     private:
@@ -73,7 +70,7 @@ class CONFIG_EXPORT CDataSummaryStatistics
         //! The latest example time.
         TMaxTimeAccumulator m_Latest;
         //! The total count of examples.
-        uint64_t m_Count;
+        uint64_t            m_Count;
 };
 
 //! \brief Computes simple summary statistics for a categorical data set.
@@ -87,11 +84,10 @@ class CONFIG_EXPORT CDataSummaryStatistics
 //! The estimates of distinct count and most frequent category counts
 //! are exact for small data sets and then switch seemlessly to using
 //! appropriate sketch data structures for very high distinct counts.
-class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics
-{
+class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics {
     public:
         typedef std::pair<std::string, std::size_t> TStrSizePr;
-        typedef std::vector<TStrSizePr> TStrSizePrVec;
+        typedef std::vector<TStrSizePr>             TStrSizePrVec;
 
         //! The smallest cardinality at which we'll approximate the statistics.
         static const std::size_t TO_APPROXIMATE = 5000000;
@@ -128,17 +124,17 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         static const std::size_t NUMBER_N_GRAMS = 5;
 
     private:
-        typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-        typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
-        typedef boost::unordered_map<std::string, uint64_t> TStrUInt64UMap;
-        typedef TStrUInt64UMap::iterator TStrUInt64UMapItr;
-        typedef TStrUInt64UMap::const_iterator TStrUInt64UMapCItr;
-        typedef std::vector<TStrUInt64UMapCItr> TStrUInt64UMapCItrVec;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1> TMinSizeAccumulator;
+        typedef std::pair<uint32_t, uint64_t>                                                              TUInt32UInt64Pr;
+        typedef std::vector<TUInt32UInt64Pr>                                                               TUInt32UInt64PrVec;
+        typedef boost::unordered_map<std::size_t, uint64_t>                                                TSizeUInt64UMap;
+        typedef boost::unordered_map<std::string, uint64_t>                                                TStrUInt64UMap;
+        typedef TStrUInt64UMap::iterator                                                                   TStrUInt64UMapItr;
+        typedef TStrUInt64UMap::const_iterator                                                             TStrUInt64UMapCItr;
+        typedef std::vector<TStrUInt64UMapCItr>                                                            TStrUInt64UMapCItrVec;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1>                             TMinSizeAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t> > TMaxSizeAccumulator;
-        typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
-        typedef std::vector<maths::CEntropySketch> TEntropySketchVec;
+        typedef std::vector<maths::CBjkstUniqueValues>                                                     TBjkstUniqueValuesVec;
+        typedef std::vector<maths::CEntropySketch>                                                         TEntropySketchVec;
 
     private:
         //! Extract the \p n grams and update the relevant statistics.
@@ -164,47 +160,47 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         maths::CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The smallest cardinality at which we'll approximate the statistics.
-        std::size_t m_ToApproximate;
+        std::size_t                     m_ToApproximate;
 
         //! Set to true if we are approximating the statistics.
-        bool m_Approximating;
+        bool                            m_Approximating;
 
         //! The distinct field values and their counts in the data set.
-        TSizeUInt64UMap m_ValueCounts;
+        TSizeUInt64UMap                 m_ValueCounts;
 
         //! The approximate distinct count of values.
-        maths::CBjkstUniqueValues m_DistinctValues;
+        maths::CBjkstUniqueValues       m_DistinctValues;
 
         //! A set of exact counts for a small number of categories
         //! which are used to calibrate the count sketch counts.
-        TUInt32UInt64PrVec m_Calibrators;
+        TUInt32UInt64PrVec              m_Calibrators;
 
         //! A min-sketch of the category counts.
-        maths::CCountMinSketch m_CountSketch;
+        maths::CCountMinSketch          m_CountSketch;
 
         //! The number of top-n distinct categories to count.
-        std::size_t m_N;
+        std::size_t                     m_N;
 
         //! The top n categories by count and their counts.
-        TStrUInt64UMap m_TopN;
+        TStrUInt64UMap                  m_TopN;
 
         //! The smallest count in the top n category counts collection.
-        TStrUInt64UMapCItr m_LowestTopN;
+        TStrUInt64UMapCItr              m_LowestTopN;
 
         //! The minimum category length.
-        TMinSizeAccumulator m_MinLength;
+        TMinSizeAccumulator             m_MinLength;
 
         //! The maximum category length.
-        TMaxSizeAccumulator m_MaxLength;
+        TMaxSizeAccumulator             m_MaxLength;
 
         //! The approximate empirical entropy of the categories.
-        maths::CEntropySketch m_EmpiricalEntropy;
+        maths::CEntropySketch           m_EmpiricalEntropy;
 
         //! The count of distinct n-grams in the categories.
-        TBjkstUniqueValuesVec m_DistinctNGrams;
+        TBjkstUniqueValuesVec           m_DistinctNGrams;
 
         //! The approximate empirical entropy of the n-grams in the categories.
-        TEntropySketchVec m_NGramEmpricalEntropy;
+        TEntropySketchVec               m_NGramEmpricalEntropy;
 };
 
 //! \brief Computes simple summary statistics of a metric data set.
@@ -219,10 +215,9 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
 //! it to use only Gaussian modes and allow many more clusters since
 //! we want an accurate description of the bulk of the distribution
 //! and don't care about over fitting as we do for anomaly detection.
-class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics
-{
+class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics {
     public:
-        typedef std::pair<double, double> TDoubleDoublePr;
+        typedef std::pair<double, double>    TDoubleDoublePr;
         typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
 
     public:
@@ -246,7 +241,7 @@ class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistic
 
     private:
         //! The count of non-numeric values.
-        uint64_t m_NonNumericCount;
+        uint64_t               m_NonNumericCount;
 
         //! A quantile sketch used for estimating the median of the
         //! data in a space efficient manner.

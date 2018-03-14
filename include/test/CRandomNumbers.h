@@ -26,14 +26,11 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief Creates random numbers from a variety of distributions.
-class TEST_EXPORT CRandomNumbers
-{
+class TEST_EXPORT CRandomNumbers {
     public:
         using TDoubleVec = std::vector<double>;
         using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -45,8 +42,7 @@ class TEST_EXPORT CRandomNumbers
 
     public:
         //! A uniform generator on the interval [a,b].
-        class TEST_EXPORT CUniform0nGenerator
-        {
+        class TEST_EXPORT CUniform0nGenerator {
             public:
                 CUniform0nGenerator(const TGenerator &generator);
 

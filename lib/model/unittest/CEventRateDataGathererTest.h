@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CEventRateDataGathererTest : public CppUnit::TestFixture
-{
+class CEventRateDataGathererTest : public CppUnit::TestFixture {
     public:
         void singleSeriesTests(void);
         void multipleSeriesTests(void);

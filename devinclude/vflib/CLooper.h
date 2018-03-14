@@ -20,10 +20,8 @@
 #include <stddef.h>
 
 
-namespace ml
-{
-namespace vflib
-{
+namespace ml {
+namespace vflib {
 class CIncrementer;
 
 
@@ -41,8 +39,7 @@ class CIncrementer;
 //! b) To ensure that the object code of these loops is in the
 //!    intended library
 //!
-class VFLIB_EXPORT CLooper
-{
+class VFLIB_EXPORT CLooper {
     public:
         //! Loop calling the inlined incrementer
         static size_t inlinedLibraryCallLoop(CIncrementer &incrementer,

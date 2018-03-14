@@ -21,8 +21,7 @@
 #include <vector>
 
 
-class CAnomalyScoreTest : public CppUnit::TestFixture
-{
+class CAnomalyScoreTest : public CppUnit::TestFixture {
     public:
         typedef std::vector<double> TDoubleVec;
 

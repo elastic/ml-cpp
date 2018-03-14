@@ -37,25 +37,21 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief
 //! Sink for data created from forecasting
 //!
 //! NOTE: Except for push, this is a stub implementation and going
 //! to change (e.g. the json writing should not happen in this class).
-class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
-{
+class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
     public:
         using TMathsModelPtr = std::unique_ptr<maths::CModel>;
         using TStrUMap = boost::unordered_set<std::string>;
 
         //! Wrapper for 1 timeseries model, its feature and by Field
-        struct MODEL_EXPORT SForecastModelWrapper
-        {
+        struct MODEL_EXPORT SForecastModelWrapper {
             SForecastModelWrapper(model_t::EFeature feature,
                                   TMathsModelPtr &&forecastModel,
                                   const std::string &byFieldValue);
@@ -65,14 +61,13 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
             SForecastModelWrapper(const SForecastModelWrapper &that) = delete;
             SForecastModelWrapper & operator=(const SForecastModelWrapper &) = delete;
 
-            model_t::EFeature           s_Feature;
-            TMathsModelPtr              s_ForecastModel;
-            std::string                 s_ByFieldValue;
+            model_t::EFeature s_Feature;
+            TMathsModelPtr s_ForecastModel;
+            std::string s_ByFieldValue;
         };
 
         //! Everything that defines 1 series of forecasts
-        struct MODEL_EXPORT SForecastResultSeries
-        {
+        struct MODEL_EXPORT SForecastResultSeries {
             SForecastResultSeries();
 
             SForecastResultSeries(SForecastResultSeries &&other);
@@ -80,21 +75,20 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
             SForecastResultSeries(const SForecastResultSeries &that) = delete;
             SForecastResultSeries & operator=(const SForecastResultSeries &) = delete;
 
-            int                                     s_DetectorIndex;
+            int s_DetectorIndex;
             std::vector<SForecastModelWrapper>      s_ToForecast;
-            std::string                             s_PartitionFieldName;
-            std::string                             s_PartitionFieldValue;
-            std::string                             s_ByFieldName;
+            std::string s_PartitionFieldName;
+            std::string s_PartitionFieldValue;
+            std::string s_ByFieldName;
         };
 
         //! \brief Data describing prerequisites prior predictions
-        struct MODEL_EXPORT SForecastModelPrerequisites
-        {
-            std::size_t                             s_NumberOfModels;
-            std::size_t                             s_NumberOfForecastableModels;
-            std::size_t                             s_MemoryUsageForDetector;
-            bool                                    s_IsPopulation;
-            bool                                    s_IsSupportedFunction;
+        struct MODEL_EXPORT SForecastModelPrerequisites {
+            std::size_t s_NumberOfModels;
+            std::size_t s_NumberOfForecastableModels;
+            std::size_t s_MemoryUsageForDetector;
+            bool s_IsPopulation;
+            bool s_IsSupportedFunction;
         };
 
     private:
@@ -170,34 +164,34 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable
 
     private:
         //! The job ID
-        std::string                                 m_JobId;
+        std::string                          m_JobId;
 
         //! The forecast ID
-        std::string                                 m_ForecastId;
+        std::string                          m_ForecastId;
 
         //! The forecast alias
-        std::string                                 m_ForecastAlias;
+        std::string                          m_ForecastAlias;
 
         //! JSON line writer
-        core::CRapidJsonConcurrentLineWriter        m_Writer;
+        core::CRapidJsonConcurrentLineWriter m_Writer;
 
         //! count of how many records written
-        uint64_t                                    m_NumRecordsWritten;
+        uint64_t                             m_NumRecordsWritten;
 
         //! Forecast create time
-        core_t::TTime                               m_CreateTime;
+        core_t::TTime                        m_CreateTime;
 
         //! Forecast start time
-        core_t::TTime                               m_StartTime;
+        core_t::TTime                        m_StartTime;
 
         //! Forecast end time
-        core_t::TTime                               m_EndTime;
+        core_t::TTime                        m_EndTime;
 
         //! Forecast expiry time
-        core_t::TTime                               m_ExpiryTime;
+        core_t::TTime                        m_ExpiryTime;
 
         //! Forecast memory usage for models
-        size_t                                      m_MemoryUsage;
+        size_t                               m_MemoryUsage;
 };
 
 } /* namespace model  */

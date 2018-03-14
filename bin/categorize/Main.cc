@@ -58,8 +58,7 @@
 #include <stdlib.h>
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     // Read command line options
     std::string       limitConfigFile;
     std::string       jobId;
@@ -94,8 +93,7 @@ int main(int argc, char **argv)
                                               isRestoreFileNamedPipe,
                                               persistFileName,
                                               isPersistFileNamedPipe,
-                                              categorizationFieldName) == false)
-    {
+                                              categorizationFieldName) == false) {
         return EXIT_FAILURE;
     }
 
@@ -110,8 +108,7 @@ int main(int argc, char **argv)
                               persistFileName,
                               isPersistFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
         return EXIT_FAILURE;
     }
@@ -123,28 +120,24 @@ int main(int argc, char **argv)
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
+    if (ioMgr.initIo() == false) {
         LOG_FATAL("Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
-    if (jobId.empty())
-    {
+    if (jobId.empty()) {
         LOG_FATAL("No job ID specified");
         return EXIT_FAILURE;
     }
 
     ml::model::CLimits limits;
-    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false)
-    {
+    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL("Ml limit config file '" << limitConfigFile <<
                   "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (categorizationFieldName.empty())
-    {
+    if (categorizationFieldName.empty()) {
         LOG_FATAL("No categorization field name specified");
         return EXIT_FAILURE;
     }
@@ -152,37 +145,30 @@ int main(int argc, char **argv)
 
     typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
     TScopedDataSearcherP restoreSearcher;
-    if (ioMgr.restoreStream() != 0)
-    {
+    if (ioMgr.restoreStream() != 0) {
         // Check whether state is restored from a file, if so we assume that this is a debugging case
         // and therefore does not originate from X-Pack.
-        if (!isRestoreFileNamedPipe)
-        {
+        if (!isRestoreFileNamedPipe) {
             // apply a filter to overcome differences in the way persistence vs. restore works
             auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
             strm->push(ml::api::CStateRestoreStreamFilter());
             strm->push(*ioMgr.restoreStream());
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(strm));
-        }
-        else
-        {
+        } else {
             restoreSearcher.reset(new ml::api::CSingleStreamSearcher(ioMgr.restoreStream()));
         }
     }
 
     typedef boost::scoped_ptr<ml::core::CDataAdder> TScopedDataAdderP;
     TScopedDataAdderP persister;
-    if (ioMgr.persistStream() != 0)
-    {
+    if (ioMgr.persistStream() != 0) {
         persister.reset(new ml::api::CSingleStreamDataAdder(ioMgr.persistStream()));
     }
 
     typedef boost::scoped_ptr<ml::api::CBackgroundPersister> TScopedBackgroundPersisterP;
     TScopedBackgroundPersisterP periodicPersister;
-    if (persistInterval >= 0)
-    {
-        if (persister == 0)
-        {
+    if (persistInterval >= 0) {
+        if (persister == 0) {
             LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
                       "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
@@ -194,12 +180,9 @@ int main(int argc, char **argv)
 
     typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
     TScopedInputParserP inputParser;
-    if (lengthEncodedInput)
-    {
+    if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
+    } else {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(),
                                                        delimiter));
     }
@@ -221,8 +204,7 @@ int main(int argc, char **argv)
                                    outputWriter,
                                    periodicPersister.get());
 
-    if (periodicPersister != nullptr)
-    {
+    if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(&ml::api::CFieldDataTyper::periodicPersistState,
                                                                          &typer,
                                                                          _1));
@@ -241,8 +223,7 @@ int main(int argc, char **argv)
     // writer as it was constructed last.
     outputWriter.finalise();
 
-    if (!ioLoopSucceeded)
-    {
+    if (!ioLoopSucceeded) {
         LOG_FATAL("Ml categorization job failed");
         return EXIT_FAILURE;
     }

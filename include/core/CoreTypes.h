@@ -18,10 +18,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core_t
-{
+namespace ml {
+namespace core_t {
 
 
 //! For now just use seconds as the ml time granularity

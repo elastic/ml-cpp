@@ -24,10 +24,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Shrink wrap zlib calls.
@@ -47,8 +45,7 @@ namespace core
 //! a multi-threaded application it would be best to create
 //! one object for each thread.
 //!
-class CORE_EXPORT CCompressUtils : private CNonCopyable
-{
+class CORE_EXPORT CCompressUtils : private CNonCopyable {
     public:
         //! The output type
         typedef std::vector<Bytef> TByteVec;
@@ -87,8 +84,7 @@ class CORE_EXPORT CCompressUtils : private CNonCopyable
         bool doCompress(bool finish, const std::string &input);
 
     private:
-        enum EState
-        {
+        enum EState {
             E_Unused,
             E_Compressing,
             E_Finished

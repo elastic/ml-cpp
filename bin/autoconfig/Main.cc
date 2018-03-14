@@ -47,8 +47,7 @@
 #include <stdlib.h>
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     // Read command line options
     std::string logProperties;
     std::string logPipe;
@@ -77,8 +76,7 @@ int main(int argc, char **argv)
                                               outputFileName,
                                               isOutputFileNamedPipe,
                                               verbose,
-                                              writeDetectorConfigs) == false)
-    {
+                                              writeDetectorConfigs) == false) {
         return EXIT_FAILURE;
     }
 
@@ -89,8 +87,7 @@ int main(int argc, char **argv)
                               outputFileName,
                               isOutputFileNamedPipe);
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
         return EXIT_FAILURE;
     }
@@ -102,20 +99,16 @@ int main(int argc, char **argv)
 
     ml::core::CProcessPriority::reducePriority();
 
-    if (ioMgr.initIo() == false)
-    {
+    if (ioMgr.initIo() == false) {
         LOG_FATAL("Failed to initialise IO");
         return EXIT_FAILURE;
     }
 
     typedef boost::scoped_ptr<ml::api::CInputParser> TScopedInputParserP;
     TScopedInputParserP inputParser;
-    if (lengthEncodedInput)
-    {
+    if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
-    }
-    else
-    {
+    } else {
         inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), delimiter));
     }
 
@@ -134,8 +127,7 @@ int main(int argc, char **argv)
                                    0, // no persistence at present
                                    *inputParser,
                                    configurer);
-    if (skeleton.ioLoop() == false)
-    {
+    if (skeleton.ioLoop() == false) {
         LOG_FATAL("Ml autoconfig failed");
         return EXIT_FAILURE;
     }

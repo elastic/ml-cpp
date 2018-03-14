@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXmlNodeWithChildrenTest : public CppUnit::TestFixture
-{
+class CXmlNodeWithChildrenTest : public CppUnit::TestFixture {
     public:
         void testNodeHierarchyToXml(void);
         void testParserToNodeHierarchy(void);

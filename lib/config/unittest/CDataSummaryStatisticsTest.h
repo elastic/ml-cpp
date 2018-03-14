@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataSummaryStatisticsTest : public CppUnit::TestFixture
-{
+class CDataSummaryStatisticsTest : public CppUnit::TestFixture {
     public:
         void testRate(void);
         void testCategoricalDistinctCount(void);

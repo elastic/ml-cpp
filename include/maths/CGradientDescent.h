@@ -25,32 +25,27 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implements gradient descent with momentum.
 //!
 //! DESCRIPTION\n
 //! \see https://en.wikipedia.org/wiki/Gradient_descent.
-class MATHS_EXPORT CGradientDescent
-{
+class MATHS_EXPORT CGradientDescent {
     public:
         typedef std::vector<double> TDoubleVec;
-        typedef CVector<double> TVector;
+        typedef CVector<double>     TVector;
 
         //! \brief The interface for the function calculation.
-        class MATHS_EXPORT CFunction
-        {
+        class MATHS_EXPORT CFunction {
             public:
                 virtual ~CFunction(void);
                 virtual bool operator()(const TVector &x, double &result) const = 0;
         };
 
         //! \brief The interface for the gradient calculation.
-        class MATHS_EXPORT CGradient
-        {
+        class MATHS_EXPORT CGradient {
             public:
                 virtual ~CGradient(void);
                 virtual bool operator()(const TVector &x, TVector &result) const = 0;
@@ -62,8 +57,7 @@ class MATHS_EXPORT CGradientDescent
         //! DESCRIPTION:\n
         //! \see https://en.wikipedia.org/wiki/Finite_difference.
         class MATHS_EXPORT CEmpiricalCentralGradient : public CGradient,
-                                                       private core::CNonCopyable
-        {
+                                                       private core::CNonCopyable {
             public:
                 CEmpiricalCentralGradient(const CFunction &f, double eps);
 
@@ -71,7 +65,7 @@ class MATHS_EXPORT CGradientDescent
 
             private:
                 //! The shift used to get the offset points.
-                double m_Eps;
+                double          m_Eps;
                 //! The function for which to compute the gradient.
                 const CFunction &m_F;
                 //! A placeholder for the shifted points.
@@ -106,10 +100,10 @@ class MATHS_EXPORT CGradientDescent
 
     private:
         //! The multiplier of the unit vector along the gradient.
-        double m_LearnRate;
+        double  m_LearnRate;
 
         //! The proportion of the previous step to add.
-        double m_Momentum;
+        double  m_Momentum;
 
         //! The last step.
         TVector m_PreviousStep;

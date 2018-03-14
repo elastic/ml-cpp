@@ -20,10 +20,8 @@
 #include <stddef.h>
 
 
-namespace ml
-{
-namespace vflib
-{
+namespace ml {
+namespace vflib {
 
 
 //! \brief
@@ -38,15 +36,13 @@ namespace vflib
 //! that passes arguments in registers no memory access should
 //! be required.
 //!
-class VFLIB_EXPORT CIncrementer
-{
+class VFLIB_EXPORT CIncrementer {
     public:
         //! Best practice, though not really required in this case
         virtual ~CIncrementer(void);
 
         //! Inlined incrementer
-        size_t inlinedIncrement(size_t val)
-        {
+        size_t inlinedIncrement(size_t val) {
             return val + 1;
         }
 

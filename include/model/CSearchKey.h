@@ -33,15 +33,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief
 //! Associative store key for simple searches.
@@ -81,10 +78,9 @@ namespace model
 //! class is intended purely to store the information and be used as
 //! a key in associative containers.
 //!
-class MODEL_EXPORT CSearchKey
-{
+class MODEL_EXPORT CSearchKey {
     public:
-        typedef std::vector<std::string> TStrVec;
+        typedef std::vector<std::string>            TStrVec;
         typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 
         //! The type of a search key which mixes in the partition field
@@ -223,65 +219,55 @@ class MODEL_EXPORT CSearchKey
         //! Used for efficient comparison.
         mutable uint64_t          m_Hash;
 
-    // For debug output
-    friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
-                                                 const CSearchKey &);
+        // For debug output
+        friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
+                                                     const CSearchKey &);
 };
 
 MODEL_EXPORT
 std::ostream &operator<<(std::ostream &strm, const CSearchKey &key);
 
 //! Hashes a (string, search key) pair.
-class CStrKeyPrHash
-{
+class CStrKeyPrHash {
     public:
-        std::size_t operator()(const CSearchKey::TStrKeyPr &key) const
-        {
+        std::size_t operator()(const CSearchKey::TStrKeyPr &key) const {
             return this->hash(key);
         }
-        std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr &key) const
-        {
+        std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr &key) const {
             return this->hash(key);
         }
 
     private:
         template<typename T>
-        std::size_t hash(const T &key) const
-        {
+        std::size_t hash(const T &key) const {
             core::CHashing::CSafeMurmurHash2String64 stringHasher;
-            uint64_t result = stringHasher(boost::unwrap_ref(key.first));
+            uint64_t                                 result = stringHasher(boost::unwrap_ref(key.first));
             core::CHashing::hashCombine(boost::unwrap_ref(key.second).hash(), result);
             return static_cast<std::size_t>(result);
         }
 };
 
 //! Checks if two (string, search key) pairs are equal.
-class CStrKeyPrEqual
-{
+class CStrKeyPrEqual {
     public:
-        bool operator()(const CSearchKey::TStrKeyPr &lhs, const CSearchKey::TStrKeyPr &rhs) const
-        {
+        bool operator()(const CSearchKey::TStrKeyPr &lhs, const CSearchKey::TStrKeyPr &rhs) const {
             return this->equal(lhs, rhs);
         }
-        bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs, const CSearchKey::TStrKeyPr &rhs) const
-        {
+        bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs, const CSearchKey::TStrKeyPr &rhs) const {
             return this->equal(lhs, rhs);
         }
-        bool operator()(const CSearchKey::TStrKeyPr &lhs, const CSearchKey::TStrCRefKeyCRefPr &rhs) const
-        {
+        bool operator()(const CSearchKey::TStrKeyPr &lhs, const CSearchKey::TStrCRefKeyCRefPr &rhs) const {
             return this->equal(lhs, rhs);
         }
-        bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs, const CSearchKey::TStrCRefKeyCRefPr &rhs) const
-        {
+        bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs, const CSearchKey::TStrCRefKeyCRefPr &rhs) const {
             return this->equal(lhs, rhs);
         }
 
     private:
         template<typename U, typename V>
-        bool equal(const U &lhs, const V &rhs) const
-        {
-            return    boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second)
-                   && boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
+        bool equal(const U &lhs, const V &rhs) const {
+            return boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second) &&
+                   boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
         }
 };
 

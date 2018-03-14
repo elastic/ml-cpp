@@ -36,10 +36,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implementation of x-means algorithm.
 //!
@@ -57,14 +55,13 @@ namespace maths
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
 template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC> >
-class CXMeans
-{
+class CXMeans {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef boost::unordered_set<uint64_t> TUInt64USet;
-        typedef TUInt64USet::iterator TUInt64USetItr;
+        typedef std::vector<double>                                         TDoubleVec;
+        typedef std::vector<POINT>                                          TPointVec;
+        typedef std::vector<TPointVec>                                      TPointVecVec;
+        typedef boost::unordered_set<uint64_t>                              TUInt64USet;
+        typedef TUInt64USet::iterator                                       TUInt64USetItr;
         typedef typename CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
 
         //! A cluster.
@@ -73,84 +70,73 @@ class CXMeans
         //! This associates the cost, cluster centre and points. It
         //! also provides fast comparison by a checksum and sorts the
         //! points for stable comparison.
-        class CCluster
-        {
+        class CCluster {
             public:
                 CCluster(void) :
-                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0)
-                {}
+                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {
+                }
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
-                bool operator==(const CCluster &other) const
-                {
+                bool operator==(const CCluster &other) const {
                     return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
                 }
 
                 //! Total ordering by checksum breaking ties using expensive
                 //! comparison on all points.
-                bool operator<(const CCluster &rhs) const
-                {
+                bool operator<(const CCluster &rhs) const {
                     return COrderings::lexicographical_compare(m_Checksum, m_Points,
                                                                rhs.m_Checksum, rhs.m_Points);
                 }
 
                 //! Get the number of points in the cluster.
-                std::size_t size(void) const
-                {
+                std::size_t size(void) const {
                     return m_Points.size();
                 }
 
                 //! Set the cluster cost.
-                void cost(double cost)
-                {
+                void cost(double cost) {
                     m_Cost = cost;
                 }
                 //! Get the cluster cost.
-                double cost(void) const
-                {
+                double cost(void) const {
                     return m_Cost;
                 }
 
                 //! Set the cluster centre.
-                void centre(const POINT &centre)
-                {
+                void centre(const POINT &centre) {
                     m_Centre = centre;
                 }
                 //! Get the cluster centre.
-                const POINT &centre(void) const
-                {
+                const POINT &centre(void) const {
                     return m_Centre;
                 }
 
                 //! Swap the points into place and recalculate the checksum.
-                void points(TPointVec &points)
-                {
+                void points(TPointVec &points) {
                     m_Points.swap(points);
                     std::sort(m_Points.begin(), m_Points.end());
                     m_Checksum = CChecksum::calculate(0, m_Points);
                 }
                 //! Get the cluster points.
-                const TPointVec &points(void) const
-                {
+                const TPointVec &points(void) const {
                     return m_Points;
                 }
 
                 //! Get the cluster checksum.
-                uint64_t checksum(void) const
-                {
+                uint64_t checksum(void) const {
                     return m_Checksum;
                 }
 
             private:
                 //! The information criterion cost of this cluster.
-                double m_Cost;
+                double    m_Cost;
                 //! The centroid of the points in this cluster.
-                POINT m_Centre;
+                POINT     m_Centre;
                 //! The points in the cluster.
                 TPointVec m_Points;
                 //! A checksum for the points in the cluster.
-                uint64_t m_Checksum;
+                uint64_t  m_Checksum;
         };
 
         typedef std::vector<CCluster> TClusterVec;
@@ -158,8 +144,7 @@ class CXMeans
     public:
         CXMeans(std::size_t kmax) :
             m_Kmax(kmax),
-            m_MinCost(std::numeric_limits<double>::max())
-        {
+            m_MinCost(std::numeric_limits<double>::max()) {
             m_BestCentres.reserve(m_Kmax);
             m_Clusters.reserve(m_Kmax);
         }
@@ -167,8 +152,7 @@ class CXMeans
         //! Set the points to cluster.
         //!
         //! \note These are swapped in to place.
-        void setPoints(TPointVec &points)
-        {
+        void setPoints(TPointVec &points) {
             m_Kmeans.setPoints(points);
             m_Clusters.clear();
             m_Clusters.push_back(CCluster());
@@ -183,14 +167,12 @@ class CXMeans
         }
 
         //! Get the best centres found to date.
-        const TPointVec &centres(void) const
-        {
+        const TPointVec   &centres(void) const {
             return m_BestCentres;
         }
 
         //! Get the best clusters found to date.
-        const TClusterVec &clusters(void) const
-        {
+        const TClusterVec &clusters(void) const {
             return m_Clusters;
         }
 
@@ -211,11 +193,9 @@ class CXMeans
         //! a single round of improve structure.
         void run(std::size_t improveParamsKmeansIterations,
                  std::size_t improveStructureClusterSeeds,
-                 std::size_t improveStructureKmeansIterations)
-        {
+                 std::size_t improveStructureKmeansIterations) {
             while (this->improveStructure(improveStructureClusterSeeds,
-                                          improveStructureKmeansIterations))
-            {
+                                          improveStructureKmeansIterations)) {
                 this->improveParams(improveParamsKmeansIterations);
             }
             this->polish(10 * improveParamsKmeansIterations);
@@ -227,9 +207,8 @@ class CXMeans
         //!
         //! \param[in] kmeansIterations The limit on the number of
         //! iterations of Lloyd's algorithm to use.
-        void improveParams(std::size_t kmeansIterations)
-        {
-            typedef const CCluster *TClusterCPtr;
+        void improveParams(std::size_t kmeansIterations) {
+            typedef const CCluster *          TClusterCPtr;
             typedef std::vector<TClusterCPtr> TClusterCPtrVec;
 
             std::size_t n = m_Clusters.size();
@@ -240,8 +219,7 @@ class CXMeans
             oldCentres.reserve(n);
             TClusterCPtrVec oldClusters;
             oldClusters.reserve(n);
-            for (std::size_t i = 0u; i < n; ++i)
-            {
+            for (std::size_t i = 0u; i < n; ++i) {
                 oldCentres.push_back(m_Clusters[i].centre());
                 oldClusters.push_back(&m_Clusters[i]);
             }
@@ -253,7 +231,7 @@ class CXMeans
             // k-means to improve parameters.
             m_Kmeans.run(kmeansIterations);
             const TPointVec &newCentres = m_Kmeans.centres();
-            TPointVecVec newClusterPoints;
+            TPointVecVec    newClusterPoints;
             m_Kmeans.clusters(newClusterPoints);
 
             // Note that oldClusters holds pointers to the current
@@ -263,24 +241,20 @@ class CXMeans
             TClusterVec newClusters;
             newClusters.reserve(newCentres.size());
             TUInt64USet preserved;
-            COST cost_;
+            COST        cost_;
 
-            for (std::size_t i = 0u; i < n; ++i)
-            {
+            for (std::size_t i = 0u; i < n; ++i) {
                 newClusters.push_back(CCluster());
                 CCluster &cluster = newClusters.back();
                 cluster.centre(newCentres[i]);
                 cluster.points(newClusterPoints[i]);
                 typename TClusterCPtrVec::const_iterator j =
-                        std::lower_bound(oldClusters.begin(), oldClusters.end(),
-                                         &cluster, COrderings::SPtrLess());
-                if (j != oldClusters.end() && **j == cluster)
-                {
+                    std::lower_bound(oldClusters.begin(), oldClusters.end(),
+                                     &cluster, COrderings::SPtrLess());
+                if (j != oldClusters.end() && **j == cluster) {
                     cluster.cost((*j)->cost());
                     preserved.insert(cluster.checksum());
-                }
-                else
-                {
+                } else {
                     cluster.cost(COST(cluster.points()).calculate());
                 }
                 cost_.add(cluster.points());
@@ -288,25 +262,19 @@ class CXMeans
 
             // Refresh the clusters and inactive list.
             m_Clusters.swap(newClusters);
-            for (TUInt64USetItr i = m_Inactive.begin(); i != m_Inactive.end(); /**/)
-            {
-                if (preserved.count(*i) > 0)
-                {
+            for (TUInt64USetItr i = m_Inactive.begin(); i != m_Inactive.end(); /**/) {
+                if (preserved.count(*i) > 0) {
                     ++i;
-                }
-                else
-                {
+                } else {
                     i = m_Inactive.erase(i);
                 }
             }
 
             // Refresh the best clustering found so far.
             double cost = cost_.calculate();
-            if (cost < m_MinCost)
-            {
+            if (cost < m_MinCost) {
                 m_BestCentres.clear();
-                for (std::size_t i = 0u; i < n; ++i)
-                {
+                for (std::size_t i = 0u; i < n; ++i) {
                     m_BestCentres.push_back(m_Clusters[i].centre());
                 }
                 m_MinCost = cost;
@@ -321,24 +289,21 @@ class CXMeans
         //! \param[in] kmeansIterations The limit on the number of
         //! iterations of Lloyd's algorithm to use for each k-means.
         bool improveStructure(std::size_t clusterSeeds,
-                              std::size_t kmeansIterations)
-        {
-            if (m_Clusters.empty())
-            {
+                              std::size_t kmeansIterations) {
+            if (m_Clusters.empty()) {
                 return false;
             }
 
             // Declared outside the loop to minimize allocations.
             CKMeansFast<POINT> kmeans;
-            TPointVec points;
-            TPointVecVec clusterPoints;
-            TPointVec bestClusterCentres;
-            TPointVecVec bestClusterPoints;
-            TPointVec seedClusterCentres;
+            TPointVec          points;
+            TPointVecVec       clusterPoints;
+            TPointVec          bestClusterCentres;
+            TPointVecVec       bestClusterPoints;
+            TPointVec          seedClusterCentres;
 
             std::size_t largest = 0;
-            for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 largest = std::max(largest, m_Clusters[i].size());
             }
 
@@ -353,10 +318,8 @@ class CXMeans
 
             for (std::size_t i = 0u, n = m_Clusters.size();
                  i < n && m_Clusters.size() < m_Kmax;
-                 ++i)
-            {
-                if (m_Inactive.count(m_Clusters[i].checksum()) > 0)
-                {
+                 ++i) {
+                if (m_Inactive.count(m_Clusters[i].checksum()) > 0) {
                     continue;
                 }
 
@@ -369,8 +332,7 @@ class CXMeans
                 kmeans.setPoints(points);
                 double minCost = std::numeric_limits<double>::max();
 
-                for (std::size_t j = 0u; j < clusterSeeds; ++j)
-                {
+                for (std::size_t j = 0u; j < clusterSeeds; ++j) {
                     this->generateSeedCentres(points, 2, seedClusterCentres);
                     LOG_TRACE("seed centres = "
                               << core::CContainerPrinter::print(seedClusterCentres));
@@ -386,8 +348,7 @@ class CXMeans
                     double cost = COST(clusterPoints).calculate();
                     LOG_TRACE("cost = " << cost);
 
-                    if (cost < minCost)
-                    {
+                    if (cost < minCost) {
                         minCost = cost;
                         bestClusterCentres.assign(centres.begin(), centres.end());
                         bestClusterPoints.swap(clusterPoints);
@@ -395,23 +356,19 @@ class CXMeans
                 }
 
                 // Check if we should split.
-                if (minCost < m_Clusters[i].cost())
-                {
+                if (minCost < m_Clusters[i].cost()) {
                     m_Inactive.erase(m_Clusters[i].checksum());
                     m_Clusters[i].cost(COST(bestClusterPoints[0]).calculate());
                     m_Clusters[i].centre(bestClusterCentres[0]);
                     m_Clusters[i].points(bestClusterPoints[0]);
-                    for (std::size_t j = 1u; j < bestClusterCentres.size(); ++j)
-                    {
+                    for (std::size_t j = 1u; j < bestClusterCentres.size(); ++j) {
                         m_Clusters.push_back(CCluster());
                         m_Clusters.back().cost(COST(bestClusterPoints[j]).calculate());
                         m_Clusters.back().centre(bestClusterCentres[j]);
                         m_Clusters.back().points(bestClusterPoints[j]);
                     }
                     split = true;
-                }
-                else
-                {
+                } else {
                     LOG_TRACE("Setting inactive = " << m_Clusters[i].checksum());
                     m_Inactive.insert(m_Clusters[i].checksum());
                 }
@@ -421,8 +378,7 @@ class CXMeans
         }
 
         //! Get the checksums of the clusters which are inactive.
-        const TUInt64USet &inactive(void) const
-        {
+        const TUInt64USet &inactive(void) const {
             return m_Inactive;
         }
 
@@ -434,8 +390,7 @@ class CXMeans
         //! step to improve structure.
         void generateSeedCentres(const TPointVec &points,
                                  std::size_t k,
-                                 TPointVec &result) const
-        {
+                                 TPointVec &result) const {
             CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> kmeansPlusPlus(m_Rng);
             kmeansPlusPlus.run(points, k, result);
         }
@@ -444,10 +399,8 @@ class CXMeans
         //!
         //! \param[in] kmeansIterations The limit on the number of
         //! iterations of Lloyd's algorithm to use.
-        void polish(std::size_t kmeansIterations)
-        {
-            if (m_BestCentres.size() > 1)
-            {
+        void polish(std::size_t kmeansIterations) {
+            if (m_BestCentres.size() > 1) {
                 m_Kmeans.setCentres(m_BestCentres);
                 m_Kmeans.run(kmeansIterations);
                 m_BestCentres = m_Kmeans.centres();
@@ -455,8 +408,7 @@ class CXMeans
                 m_Kmeans.clusters(polishedClusterPoints);
                 m_Clusters.clear();
                 m_Clusters.reserve(m_BestCentres.size());
-                for (std::size_t i = 0u; i < m_BestCentres.size(); ++i)
-                {
+                for (std::size_t i = 0u; i < m_BestCentres.size(); ++i) {
                     m_Clusters.push_back(CCluster());
                     CCluster &cluster = m_Clusters.back();
                     cluster.cost(COST(polishedClusterPoints[i]).calculate());
@@ -471,23 +423,23 @@ class CXMeans
         mutable CPRNG::CXorShift1024Mult m_Rng;
 
         //! The maximum number of clusters.
-        std::size_t m_Kmax;
+        std::size_t                      m_Kmax;
 
         //! The current clusters.
-        TClusterVec m_Clusters;
+        TClusterVec                      m_Clusters;
 
         //! Checksums of clusters which weren't modified in the last
         //! iteration.
-        TUInt64USet m_Inactive;
+        TUInt64USet                      m_Inactive;
 
         //! The fast k-means state for the full set of points.
-        CKMeansFast<POINT> m_Kmeans;
+        CKMeansFast<POINT>               m_Kmeans;
 
         //! The minimum cost clustering found to date.
-        double m_MinCost;
+        double                           m_MinCost;
 
         //! The cluster centres corresponding to the maximum score.
-        TPointVec m_BestCentres;
+        TPointVec                        m_BestCentres;
 };
 
 }

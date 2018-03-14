@@ -19,16 +19,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnomalyDetector;
 }
 }
 
-class CResourceMonitorTest : public CppUnit::TestFixture
-{
+class CResourceMonitorTest : public CppUnit::TestFixture {
     public:
         void setUp(void);
 
@@ -42,9 +39,9 @@ class CResourceMonitorTest : public CppUnit::TestFixture
         void reportCallback(const ml::model::CResourceMonitor::SResults &results);
 
         void addTestData(ml::core_t::TTime &firstTime, const ml::core_t::TTime bucketLength,
-                     const std::size_t buckets, const std::size_t newPeoplePerBucket,
-                     std::size_t &startOffset, ml::model::CAnomalyDetector &detector,
-                     ml::model::CResourceMonitor &monitor);
+                         const std::size_t buckets, const std::size_t newPeoplePerBucket,
+                         std::size_t &startOffset, ml::model::CAnomalyDetector &detector,
+                         ml::model::CResourceMonitor &monitor);
 
     private:
         ml::model::CResourceMonitor::SResults m_CallbackResults;

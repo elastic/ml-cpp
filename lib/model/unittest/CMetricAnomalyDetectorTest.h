@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMetricAnomalyDetectorTest : public CppUnit::TestFixture
-{
+class CMetricAnomalyDetectorTest : public CppUnit::TestFixture {
     public:
         void testAnomalies(void);
         void testPersist(void);

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CKMeansOnlineTest : public CppUnit::TestFixture
-{
+class CKMeansOnlineTest : public CppUnit::TestFixture {
     public:
         void testVariance(void);
         void testAdd(void);

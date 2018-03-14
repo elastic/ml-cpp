@@ -36,33 +36,27 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace mixture_detail
-{
+namespace mixture_detail {
 
 typedef std::pair<double, double> TDoubleDoublePr;
 
 //! \brief Implements the "polymorphic" mixture mode.
-class MATHS_EXPORT CMixtureModeImpl
-{
+class MATHS_EXPORT CMixtureModeImpl {
     public:
         CMixtureModeImpl(const boost::math::normal_distribution<> &normal);
         CMixtureModeImpl(const boost::math::gamma_distribution<> &gamma);
         CMixtureModeImpl(const boost::math::lognormal_distribution<> &lognormal);
 
         template<typename F>
-        typename F::result_type visit(const F &f, double x) const
-        {
+        typename F::result_type visit(const F &f, double x) const {
             return boost::apply_visitor(boost::bind(f, _1, x), m_Distribution);
         }
 
         template<typename F>
-        typename F::result_type visit(const F &f) const
-        {
+        typename F::result_type visit(const F &f) const {
             return boost::apply_visitor(f, m_Distribution);
         }
 
@@ -95,8 +89,7 @@ class CMixtureMode;
 //! a mode up front and it avoids heap allocation. The complement concept is
 //! encoded in a type parameter to avoid condition checking.
 template<>
-class MATHS_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl
-{
+class MATHS_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl {
     public:
         CMixtureMode(const boost::math::normal_distribution<> &normal);
         CMixtureMode(const boost::math::gamma_distribution<> &gamma);
@@ -106,8 +99,7 @@ class MATHS_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl
 //! \brief A wrapper around the complement of one of the standard mode
 //! distributions.
 template<>
-class MATHS_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl
-{
+class MATHS_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl {
     public:
         CMixtureMode(const CMixtureMode<false> &other);
 };
@@ -160,76 +152,64 @@ CMixtureMode<true> complement(const CMixtureMode<false> &mode);
 //! distribution. In order to get this to support mixtures of
 //! different distributions use the CMixtureMode object.
 template<typename T>
-class CMixtureDistribution
-{
+class CMixtureDistribution {
     public:
         typedef std::vector<double> TDoubleVec;
-        typedef std::vector<T> TModeVec;
+        typedef std::vector<T>      TModeVec;
 
     public:
-        CMixtureDistribution(void) {}
+        CMixtureDistribution(void) {
+        }
 
         //! \note The length of \p weights should match \p modes.
         CMixtureDistribution(const TDoubleVec &weights, const TModeVec &modes) :
-                m_Weights(weights),
-                m_Modes(modes)
-        {
+            m_Weights(weights),
+            m_Modes(modes) {
             std::size_t w = m_Weights.size();
-            if (w != m_Modes.size())
-            {
+            if (w != m_Modes.size()) {
                 LOG_ERROR("# weights = " << w << ", # modes = " << m_Modes.size());
                 m_Weights.resize(m_Modes.size(), 0.0);
             }
 
             // Normalize the weights.
             double weightSum = 0.0;
-            for (std::size_t i = 0u; i < w; ++i)
-            {
+            for (std::size_t i = 0u; i < w; ++i) {
                 weightSum += m_Weights[i];
             }
-            if (weightSum == 0.0)
-            {
+            if (weightSum == 0.0) {
                 LOG_ERROR("Expected non-zero weight sum");
             }
-            for (std::size_t i = 0u; i < w; ++i)
-            {
+            for (std::size_t i = 0u; i < w; ++i) {
                 m_Weights[i] = weightSum == 0.0 ?
                                1.0 / static_cast<double>(w) : m_Weights[i] / weightSum;
             }
         }
 
-        void swap(CMixtureDistribution &other)
-        {
+        void swap(CMixtureDistribution &other) {
             m_Weights.swap(other.m_Weights);
             m_Modes.swap(other.m_Modes);
         }
 
-        inline const TDoubleVec &weights(void) const
-        {
+        inline const TDoubleVec &weights(void) const {
             return m_Weights;
         }
-        inline TDoubleVec &weights(void)
-        {
+        inline TDoubleVec       &weights(void) {
             return m_Weights;
         }
 
-        inline const TModeVec &modes(void) const
-        {
+        inline const TModeVec   &modes(void) const {
             return m_Modes;
         }
-        inline TModeVec &modes(void)
-        {
+        inline TModeVec         &modes(void) {
             return m_Modes;
         }
 
-        std::string print(void) const
-        {
+        std::string print(void) const {
             std::string result;
-            for (std::size_t i = 0u; i < m_Weights.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
                 result +=  ' ' + core::CStringUtils::typeToStringPretty(m_Weights[i])
-                         + '/' + core::CStringUtils::typeToStringPretty(mean(m_Modes[i]))
-                         + '/' + core::CStringUtils::typeToStringPretty(standard_deviation(m_Modes[i]));
+                          + '/' + core::CStringUtils::typeToStringPretty(mean(m_Modes[i]))
+                          + '/' + core::CStringUtils::typeToStringPretty(standard_deviation(m_Modes[i]));
 
             }
             result += (m_Weights.empty() ? "" : " ");
@@ -239,28 +219,24 @@ class CMixtureDistribution
 
     private:
         TDoubleVec m_Weights;
-        TModeVec m_Modes;
+        TModeVec   m_Modes;
 };
 
 
-namespace mixture_detail
-{
+namespace mixture_detail {
 
 //! Adapts the free p.d.f. function for use with the solver.
 template<typename T>
-class CPdfAdpater
-{
+class CPdfAdpater {
     public:
         typedef double result_type;
 
     public:
         CPdfAdpater(const CMixtureDistribution<T> &distribution) :
-            m_Distribution(&distribution)
-        {
+            m_Distribution(&distribution) {
         }
 
-        double operator()(double x) const
-        {
+        double operator()(double x) const {
             return pdf(*m_Distribution, x);
         }
 
@@ -272,14 +248,12 @@ class CPdfAdpater
 
 //! Get the support for \p distribution.
 template<typename T>
-mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribution)
-{
+mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribution) {
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
 
     const TModeVec &modes = distribution.modes();
 
-    if (modes.empty())
-    {
+    if (modes.empty()) {
         return mixture_detail::TDoubleDoublePr(boost::numeric::bounds<double>::lowest(),
                                                boost::numeric::bounds<double>::highest());
     }
@@ -287,16 +261,12 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribut
     mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
                                            boost::numeric::bounds<double>::lowest());
 
-    for (std::size_t i = 0u; i < modes.size(); ++i)
-    {
-        try
-        {
+    for (std::size_t i = 0u; i < modes.size(); ++i) {
+        try {
             mixture_detail::TDoubleDoublePr modeSupport = support(modes[i]);
             result.first = std::min(result.first, modeSupport.first);
             result.second = std::max(result.second, modeSupport.second);
-        }
-        catch (const std::exception &e)
-        {
+        } catch (const std::exception &e) {
             LOG_ERROR("Failed to compute support for mode: " << e.what());
         }
     }
@@ -309,47 +279,39 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribut
 //!
 //! \warning This propagates boost exceptions.
 template<typename T>
-double mode(const CMixtureDistribution<T> &distribution)
-{
+double mode(const CMixtureDistribution<T> &distribution) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
     static const std::size_t MAX_ITERATIONS = 20u;
 
     double result = 0.0;
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
-    if (weights.empty())
-    {
+    if (weights.empty()) {
         return result;
     }
-    if (weights.size() == 1)
-    {
+    if (weights.size() == 1) {
         return mode(modes[0]);
     }
 
     mixture_detail::CPdfAdpater<T> f(distribution);
-    double fMax = 0.0;
-    for (std::size_t i = 0u; i < weights.size(); ++i)
-    {
-        try
-        {
-            double x25 = quantile(modes[i], 0.25);
-            double x75 = quantile(modes[i], 0.75);
+    double                         fMax = 0.0;
+    for (std::size_t i = 0u; i < weights.size(); ++i) {
+        try {
+            double      x25 = quantile(modes[i], 0.25);
+            double      x75 = quantile(modes[i], 0.75);
             std::size_t maxIterations = MAX_ITERATIONS;
-            double x;
-            double fx;
+            double      x;
+            double      fx;
             CSolvers::maximize(x25, x75, f(x25), f(x75), f, 0.0, maxIterations, x, fx);
-            if (fx > fMax)
-            {
+            if (fx > fMax) {
                 result = x;
                 fMax = fx;
             }
-        }
-        catch (const std::exception &e)
-        {
+        } catch (const std::exception &e) {
             LOG_ERROR("Failed to compute f(x) at mode: " << e.what());
             throw e;
         }
@@ -363,13 +325,11 @@ double mode(const CMixtureDistribution<T> &distribution)
 //!
 //! \warning This propagates boost exceptions.
 template<typename T>
-double pdf(const CMixtureDistribution<T> &distribution, double x)
-{
+double pdf(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
-    if (CMathsFuncs::isNan(x))
-    {
+    if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);
         return 0.0;
     }
@@ -377,34 +337,26 @@ double pdf(const CMixtureDistribution<T> &distribution, double x)
     double result = 0.0;
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
-    if (weights.empty())
-    {
+    if (weights.empty()) {
         return result;
     }
 
-    for (std::size_t i = 0u; i < weights.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < weights.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
-        if (x >= ms.first && x <= ms.second)
-        {
-            try
-            {
+        if (x >= ms.first && x <= ms.second) {
+            try {
                 double fx = pdf(modes[i], x);
                 LOG_TRACE("x = " << x
-                          << ", w(" << i << ") = " << weights[i]
-                          << ", f(x, " << i << ") " << fx);
+                                 << ", w(" << i << ") = " << weights[i]
+                                 << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_ERROR("Failed to compute f(x) for mode at " << x << ": " << e.what());
                 throw e;
             }
-        }
-        else
-        {
+        } else {
             LOG_TRACE("x = " << x << ", support = (" << ms.first << "," << ms.second << ")");
         }
     }
@@ -416,54 +368,42 @@ double pdf(const CMixtureDistribution<T> &distribution, double x)
 //!
 //! \warning This propagates boost exceptions.
 template<typename T>
-double cdf(const CMixtureDistribution<T> &distribution, double x)
-{
+double cdf(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
-    if (CMathsFuncs::isNan(x))
-    {
+    if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);
         return 1.0;
     }
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
-    if (weights.empty())
-    {
+    if (weights.empty()) {
         return 0.0;
     }
 
     double result = 0.0;
-    for (std::size_t i = 0u; i < modes.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < modes.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
-        if (x >= ms.second)
-        {
+        if (x >= ms.second) {
             result += weights[i];
-        }
-        else if (x >= ms.first)
-        {
-            try
-            {
+        } else if (x >= ms.first) {
+            try {
                 double fx = cdf(modes[i], x);
                 LOG_TRACE("x = " << x
-                          << ", w(" << i << ") = " << weights[i]
-                          << ", f(x, " << i << ") " << fx);
+                                 << ", w(" << i << ") = " << weights[i]
+                                 << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_ERROR("Failed to compute f(x) for mode at "
                           << x << ": " << e.what());
                 throw e;
             }
-        }
-        else
-        {
+        } else {
             LOG_TRACE("x = " << x
-                      << ", support = (" << ms.first << "," << ms.second << ")");
+                             << ", support = (" << ms.first << "," << ms.second << ")");
         }
     }
 
@@ -474,54 +414,42 @@ double cdf(const CMixtureDistribution<T> &distribution, double x)
 //!
 //! \warning This propagates boost exceptions.
 template<typename T>
-double cdfComplement(const CMixtureDistribution<T> &distribution, double x)
-{
+double cdfComplement(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
-    if (CMathsFuncs::isNan(x))
-    {
+    if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);
         return 1.0;
     }
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
-    if (weights.empty())
-    {
+    if (weights.empty()) {
         return 1.0;
     }
 
     double result = 0.0;
-    for (std::size_t i = 0u; i < modes.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < modes.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
-        if (x < ms.first)
-        {
+        if (x < ms.first) {
             result += weights[i];
-        }
-        else if (x < ms.second)
-        {
-            try
-            {
+        } else if (x < ms.second) {
+            try {
                 double fx = cdf(complement(modes[i], x));
                 LOG_TRACE("x = " << x
-                          << ", w(" << i << ") = " << weights[i]
-                          << ", f(x, " << i << ") " << fx);
+                                 << ", w(" << i << ") = " << weights[i]
+                                 << ", f(x, " << i << ") " << fx);
                 result += weights[i] * fx;
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_ERROR("Failed to compute f(x) for mode at "
                           << x << ": " << e.what());
                 throw e;
             }
-        }
-        else
-        {
+        } else {
             LOG_TRACE("x = " << x
-                      << ", support = (" << ms.first << "," << ms.second << ")");
+                             << ", support = (" << ms.first << "," << ms.second << ")");
         }
     }
 
@@ -529,24 +457,20 @@ double cdfComplement(const CMixtureDistribution<T> &distribution, double x)
 
 }
 
-namespace mixture_detail
-{
+namespace mixture_detail {
 
 //! Adapts the free c.d.f. function for use with the solver.
 template<typename T>
-class CCdfAdapter
-{
+class CCdfAdapter {
     public:
         typedef double result_type;
 
     public:
         CCdfAdapter(const CMixtureDistribution<T> &distribution) :
-            m_Distribution(&distribution)
-        {
+            m_Distribution(&distribution) {
         }
 
-        double operator()(const double x) const
-        {
+        double operator()(const double x) const {
             return cdf(*m_Distribution, x);
         }
 
@@ -560,85 +484,70 @@ class CCdfAdapter
 //!
 //! \warning This propagates boost exceptions.
 template<typename T>
-double quantile(const CMixtureDistribution<T> &distribution, const double q)
-{
+double quantile(const CMixtureDistribution<T> &distribution, const double q) {
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
 
     mixture_detail::TDoubleDoublePr s = support(distribution);
 
-    if (q <= 0.0)
-    {
-        if (q < 0.0)
-        {
+    if (q <= 0.0) {
+        if (q < 0.0) {
             LOG_ERROR("Bad quantile " << q);
         }
         return s.first;
-    }
-    else if (q >= 1.0)
-    {
-        if (q > 1.0)
-        {
+    } else if (q >= 1.0) {
+        if (q > 1.0) {
             LOG_ERROR("Bad quantile " << q);
         }
         return s.second;
     }
 
     const TModeVec &modes = distribution.modes();
-    if (modes.empty())
-    {
+    if (modes.empty()) {
         return q < 0.5 ? s.first : (q > 0.5 ? s.second : 0.0);
-    }
-    else if (modes.size() == 1)
-    {
+    } else if (modes.size() == 1) {
         return quantile(modes[0], q);
     }
 
-    mixture_detail::CCdfAdapter<T> f(distribution);
+    mixture_detail::CCdfAdapter<T>                                       f(distribution);
     CCompositeFunctions::CMinusConstant<mixture_detail::CCdfAdapter<T> > fq(f, q);
 
     static const std::size_t MAX_ITERATIONS = 100u;
-    static const double EPS = 1e-3;
+    static const double      EPS = 1e-3;
 
     double x0 = mode(distribution);
     double result = x0;
 
-    try
-    {
+    try {
         double f0 = fq(x0);
         double a = x0, b = x0, fa = f0, fb = f0;
         LOG_TRACE("(a,b) = [" << a << "," << b << "], "
-                  << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
+                              << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
 
         std::size_t maxIterations = MAX_ITERATIONS;
         if (   (f0 < 0 && !CSolvers::rightBracket(a, b, fa, fb, fq,
                                                   maxIterations,
-                                                  s.first, s.second))
-            || (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq,
+                                                  s.first, s.second)) ||
+               (f0 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, fq,
                                                   maxIterations,
-                                                  s.first, s.second)))
-        {
+                                                  s.first, s.second))) {
             LOG_ERROR("Unable to bracket quantile = " << q
-                      << ", (a,b) = (" << a << "," << b << ")"
-                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                                                      << ", (a,b) = (" << a << "," << b << ")"
+                                                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
             result = ::fabs(fa) < ::fabs(fb) ? a : b;
-        }
-        else
-        {
+        } else {
             LOG_TRACE("(a,b) = (" << a << "," << b << ")"
-                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
+                                  << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
             maxIterations = MAX_ITERATIONS - maxIterations;
             CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
                                               std::min(std::numeric_limits<double>::epsilon() * b,
                                                        EPS * q / std::max(fa, fb)));
             CSolvers::solve(a, b, fa, fb, fq, maxIterations, equal, result);
             LOG_TRACE("q = " << q
-                      << ", x = " << result
-                      << ", f(x) = " << fq(result)
-                      << ", iterations = " << maxIterations);
+                             << ", x = " << result
+                             << ", f(x) = " << fq(result)
+                             << ", iterations = " << maxIterations);
         }
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         LOG_ERROR("Failed to compute quantile " << q);
         throw e;
     }

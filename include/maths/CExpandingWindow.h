@@ -27,16 +27,13 @@
 #include <functional>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 
 //! \brief Implements a fixed memory expanding time window.
 //!
@@ -48,8 +45,7 @@ namespace maths
 //! constructor. At the point it overflows, i.e. time since the
 //! beginning of the window exceeds "size" x "maximum bucket length",
 //! it will re-initialize the bucketing and update the start time.
-class MATHS_EXPORT CExpandingWindow
-{
+class MATHS_EXPORT CExpandingWindow {
     public:
         using TDoubleVec = std::vector<double>;
         using TTimeVec = std::vector<core_t::TTime>;
@@ -108,25 +104,25 @@ class MATHS_EXPORT CExpandingWindow
 
     private:
         //! The rate at which the bucket values are aged.
-        double m_DecayRate;
+        double                   m_DecayRate;
 
         //! The data bucketing length.
-        core_t::TTime m_BucketLength;
+        core_t::TTime            m_BucketLength;
 
         //! The bucket lengths to test.
-        TTimeCRng m_BucketLengths;
+        TTimeCRng                m_BucketLengths;
 
         //! The index in m_BucketLengths of the current bucketing interval.
-        std::size_t m_BucketLengthIndex;
+        std::size_t              m_BucketLengthIndex;
 
         //! The time of the first data point.
-        core_t::TTime m_StartTime;
+        core_t::TTime            m_StartTime;
 
         //! The bucket values.
         TFloatMeanAccumulatorVec m_BucketValues;
 
         //! The mean value time modulo the data bucketing length.
-        TFloatMeanAccumulator m_MeanOffset;
+        TFloatMeanAccumulator    m_MeanOffset;
 };
 
 }

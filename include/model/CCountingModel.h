@@ -24,10 +24,8 @@
 
 class CCountingModelTest;
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A very simple model for counting events in the sampled bucket.
 //!
@@ -40,8 +38,7 @@ namespace model
 //! any time series models. This avoids a potential pathology where
 //! memory limiting can cause us to stop getting counts and also makes
 //! interpreting the maths library logging easier.
-class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel {
     public:
         //! \name Life-cycle.
         //@{
@@ -231,10 +228,10 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
         virtual const TStr1Vec &scheduledEventDescriptions(core_t::TTime time) const;
 
     public:
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
+        typedef std::pair<std::size_t, uint64_t>                           TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                                 TSizeUInt64PrVec;
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+        typedef std::vector<TMeanAccumulator>                              TMeanAccumulatorVec;
 
     protected:
         //! Get the start time of the current bucket.
@@ -295,18 +292,18 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel
 
     private:
         //! The start time of the last sampled bucket.
-        core_t::TTime m_StartTime;
+        core_t::TTime       m_StartTime;
 
         //! The current bucket counts.
-        TSizeUInt64PrVec m_Counts;
+        TSizeUInt64PrVec    m_Counts;
 
         //! The baseline bucket counts.
         TMeanAccumulatorVec m_MeanCounts;
 
         //! Map of matched scheduled event descriptions by bucket time
-        TTimeStr1VecUMap m_ScheduledEventDescriptions;
+        TTimeStr1VecUMap    m_ScheduledEventDescriptions;
 
-    friend class ::CCountingModelTest;
+        friend class ::CCountingModelTest;
 };
 }
 }

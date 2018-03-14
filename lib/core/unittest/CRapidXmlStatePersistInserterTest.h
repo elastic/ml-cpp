@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CRapidXmlStatePersistInserterTest : public CppUnit::TestFixture
-{
+class CRapidXmlStatePersistInserterTest : public CppUnit::TestFixture {
     public:
         void testPersist(void);
 

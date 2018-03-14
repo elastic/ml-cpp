@@ -24,29 +24,25 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace lasso_logistic_regression_detail
-{
+namespace lasso_logistic_regression_detail {
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>                 TDoubleVec;
 typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
-typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
+typedef std::pair<TSizeSizePr, double>      TSizeSizePrDoublePr;
+typedef std::vector<TSizeSizePrDoublePr>    TSizeSizePrDoublePrVec;
 
 //! Very simple dynamically sized dense matrix.
 //!
 //! DESCRIPTION:\n
 //! Used to represent dense feature vectors. This only implements
 //! the interface needed by the CLG algorithm.
-class MATHS_EXPORT CDenseMatrix
-{
+class MATHS_EXPORT CDenseMatrix {
     public:
         typedef TDoubleVec::const_iterator iterator;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        typedef std::vector<TDoubleVec>    TDoubleVecVec;
 
     public:
         CDenseMatrix(void);
@@ -56,33 +52,27 @@ class MATHS_EXPORT CDenseMatrix
         void swap(CDenseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
-        {
+        std::size_t rows(void) const {
             return m_Elements.empty() ? 0 : m_Elements[0].size();
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
-        {
+        std::size_t columns(void) const {
             return m_Elements.size();
         }
         //! Get the beginning of the rows present for the j'th column.
-        iterator beginRows(std::size_t j) const
-        {
+        iterator beginRows(std::size_t j) const {
             return m_Elements[j].begin();
         }
         //! Get the end of the rows present for the j'th column.
-        iterator endRows(std::size_t j) const
-        {
+        iterator endRows(std::size_t j) const {
             return m_Elements[j].end();
         }
         //! Get the row represented by the j'th column row iterator.
-        std::size_t row(iterator itr, std::size_t j) const
-        {
+        std::size_t row(iterator itr, std::size_t j) const {
             return itr - m_Elements[j].begin();
         }
         //! Get the element represented by the iterator.
-        double element(iterator itr) const
-        {
+        double element(iterator itr) const {
             return *itr;
         }
 
@@ -95,8 +85,7 @@ class MATHS_EXPORT CDenseMatrix
 //!
 //! DESCRIPTION:\n
 //! This only implements the interface needed by the CLG algorithm.
-class MATHS_EXPORT CSparseMatrix
-{
+class MATHS_EXPORT CSparseMatrix {
     public:
         typedef TSizeSizePrDoublePrVec::const_iterator iterator;
 
@@ -110,47 +99,41 @@ class MATHS_EXPORT CSparseMatrix
         void swap(CSparseMatrix &other);
 
         //! Get the number of rows.
-        std::size_t rows(void) const
-        {
+        std::size_t rows(void) const {
             return m_Rows;
         }
         //! Get the number of columns.
-        std::size_t columns(void) const
-        {
+        std::size_t columns(void) const {
             return m_Columns;
         }
         //! Get the beginning of the rows present for the j'th column.
-        iterator beginRows(std::size_t j) const
-        {
+        iterator beginRows(std::size_t j) const {
             return std::lower_bound(m_Elements.begin(),
                                     m_Elements.end(),
                                     TSizeSizePr(j, size_t(0)),
                                     COrderings::SFirstLess());
         }
         //! Get the end of the rows present for the j'th column.
-        iterator endRows(std::size_t j) const
-        {
+        iterator endRows(std::size_t j) const {
             return std::upper_bound(m_Elements.begin(),
                                     m_Elements.end(),
                                     TSizeSizePr(j, m_Rows),
                                     COrderings::SFirstLess());
         }
         //! Get the row represented by the j'th column row iterator.
-        std::size_t row(iterator itr, std::size_t /*j*/) const
-        {
+        std::size_t row(iterator itr, std::size_t /*j*/) const {
             return itr->first.second;
         }
         //! Get the element represented by the iterator.
-        double element(iterator itr) const
-        {
+        double element(iterator itr) const {
             return itr->second;
         }
 
     private:
         //! The number of rows.
-        std::size_t m_Rows;
+        std::size_t            m_Rows;
         //! The number of columns.
-        std::size_t m_Columns;
+        std::size_t            m_Columns;
         //! Representation of the non-zero elements.
         TSizeSizePrDoublePrVec m_Elements;
 };
@@ -183,8 +166,7 @@ class MATHS_EXPORT CSparseMatrix
 //!
 //! \see http://www.stat.columbia.edu/~madigan/PAPERS/techno.pdf for
 //! more details.
-class MATHS_EXPORT CCyclicCoordinateDescent
-{
+class MATHS_EXPORT CCyclicCoordinateDescent {
     public:
         CCyclicCoordinateDescent(std::size_t maxIterations,
                                  double eps);
@@ -264,7 +246,7 @@ class MATHS_EXPORT CCyclicCoordinateDescent
         //! The maximum number of iterations of the main loop.
         std::size_t m_MaxIterations;
         //! The relative convergence threshold.
-        double m_Eps;
+        double      m_Eps;
 };
 
 //! The possible styles for learning hyperparameter \f$\lambda\f$.
@@ -274,8 +256,7 @@ class MATHS_EXPORT CCyclicCoordinateDescent
 //!      cross validation and searches the interval
 //!      \f$[\frac{\lambda_n}{10}, 10 \lambda_n]\f$ for the value
 //!      maximizing the test data likelihood.
-enum EHyperparametersStyle
-{
+enum EHyperparametersStyle {
     E_LambdaNormBased,
     E_LambdaCrossValidated
 };
@@ -294,12 +275,11 @@ enum EHyperparametersStyle
 //! The parameters \f$(\beta, \beta_0)\f$ are chosen to minimize
 //! the log likelihood of a collection training data. For more
 //! information on fitting this see CLassoLogisticRegression.
-class MATHS_EXPORT CLogisticRegressionModel
-{
+class MATHS_EXPORT CLogisticRegressionModel {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>            TDoubleVec;
         typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::vector<TSizeDoublePr>     TSizeDoublePrVec;
 
     public:
         CLogisticRegressionModel(void);
@@ -317,7 +297,7 @@ class MATHS_EXPORT CLogisticRegressionModel
 
     private:
         //! The intercept.
-        double m_Beta0;
+        double           m_Beta0;
 
         //! The non-zero beta parameters.
         TSizeDoublePrVec m_Beta;
@@ -352,10 +332,9 @@ class MATHS_EXPORT CLogisticRegressionModel
 //! the functionality to train the hyperparameters, which can be
 //! shared between the two implementations.
 template<typename STORAGE>
-class MATHS_EXPORT CLassoLogisticRegression
-{
+class MATHS_EXPORT CLassoLogisticRegression {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>                                     TDoubleVec;
         typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
     protected:
@@ -378,34 +357,46 @@ class MATHS_EXPORT CLassoLogisticRegression
         bool sanityChecks(void) const;
 
         //! Get the training feature vectors.
-        inline const STORAGE &x(void) const { return m_X; }
+        inline const STORAGE &x(void) const {
+            return m_X;
+        }
         //! Get the training feature vectors.
-        inline STORAGE &x(void) { return m_X; }
+        inline STORAGE       &x(void) {
+            return m_X;
+        }
 
         //! Get the feature vector dimension.
-        inline std::size_t d(void) const { return m_D; }
+        inline std::size_t d(void) const {
+            return m_D;
+        }
         //! Get the feature vector dimension.
-        inline std::size_t &d(void) { return m_D; }
+        inline std::size_t &d(void) {
+            return m_D;
+        }
 
         //! Get the training feature vectors.
-        inline const TDoubleVec &y(void) const { return m_Y; }
+        inline const TDoubleVec &y(void) const {
+            return m_Y;
+        }
         //! Get the training feature vectors.
-        inline TDoubleVec &y(void) { return m_Y; }
+        inline TDoubleVec       &y(void) {
+            return m_Y;
+        }
 
     private:
         //! The feature vectors.
-        STORAGE m_X;
+        STORAGE     m_X;
         //! The dimension of the feature vectors.
         std::size_t m_D;
         //! The feature vector labels.
-        TDoubleVec m_Y;
+        TDoubleVec  m_Y;
         //! The precision of the Laplace prior.
-        double m_Lambda;
+        double      m_Lambda;
         //! The (last) learned regression parameters.
-        TDoubleVec m_Beta;
+        TDoubleVec  m_Beta;
 };
 
-typedef std::vector<std::vector<double> > TDenseStorage;
+typedef std::vector<std::vector<double> >                          TDenseStorage;
 typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorage;
 
 //! \brief Lasso logistic regression using dense encoding of the
@@ -417,11 +408,10 @@ typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorag
 //! IMPLEMENTATION DECISIONS:\n
 //! This uses a dense encoding of the feature vector for the case that
 //! they are small and mostly non-zero.
-class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage>
-{
+class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage> {
     public:
         typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::vector<TSizeDoublePr>     TSizeDoublePrVec;
 
     public:
         //! Add a labeled feature vector \p x. The label is either
@@ -453,11 +443,10 @@ class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegressi
 //! IMPLEMENTATION DECISIONS:\n
 //! This uses a sparse encoding of the feature vector for the case
 //! that they are high dimensional, but most components are zero.
-class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage>
-{
+class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage> {
     public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::pair<std::size_t, double>                          TSizeDoublePr;
+        typedef std::vector<TSizeDoublePr>                              TSizeDoublePrVec;
         typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
     public:

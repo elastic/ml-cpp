@@ -26,10 +26,8 @@
 
 #include <boost/variant.hpp>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implements Count-Min Sketch approximate counting of
 //! categories.
@@ -57,8 +55,7 @@ namespace maths
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CCountMinSketch
-{
+class MATHS_EXPORT CCountMinSketch {
     public:
         CCountMinSketch(std::size_t rows, std::size_t columns);
 
@@ -127,12 +124,11 @@ class MATHS_EXPORT CCountMinSketch
 
     private:
         typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
-        typedef std::vector<CFloatStorage> TFloatVec;
-        typedef std::vector<TFloatVec> TFloatVecVec;
+        typedef std::vector<CFloatStorage>                                 TFloatVec;
+        typedef std::vector<TFloatVec>                                     TFloatVecVec;
 
         //! Wraps up the sketch data.
-        struct MATHS_EXPORT SSketch
-        {
+        struct MATHS_EXPORT SSketch {
             SSketch(void) = default;
             SSketch(std::size_t rows, std::size_t columns);
 
@@ -151,8 +147,8 @@ class MATHS_EXPORT CCountMinSketch
             TFloatVecVec s_Counts;
         };
 
-        typedef std::pair<uint32_t, CFloatStorage> TUInt32FloatPr;
-        typedef std::vector<TUInt32FloatPr> TUInt32FloatPrVec;
+        typedef std::pair<uint32_t, CFloatStorage>         TUInt32FloatPr;
+        typedef std::vector<TUInt32FloatPr>                TUInt32FloatPrVec;
         typedef boost::variant<TUInt32FloatPrVec, SSketch> TUInt32FloatPrVecOrSketch;
 
         //! Maybe switch to sketching the counts.
@@ -160,13 +156,13 @@ class MATHS_EXPORT CCountMinSketch
 
     private:
         //! The number of rows.
-        std::size_t m_Rows;
+        std::size_t               m_Rows;
 
         //! The number of columns.
-        std::size_t m_Columns;
+        std::size_t               m_Columns;
 
         //! The total count.
-        CFloatStorage m_TotalCount;
+        CFloatStorage             m_TotalCount;
 
         //! The sketch.
         TUInt32FloatPrVecOrSketch m_Sketch;

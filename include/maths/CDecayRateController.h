@@ -25,15 +25,12 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 class CStatePersistInserter;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Manages the decay rate based on the data characteristics.
 //!
@@ -52,8 +49,7 @@ namespace maths
 //! and prediction error is large compared to the long term prediction
 //! error then the system has recently undergone some state change and
 //! we should re-learn the model parameters as fast as possible.
-class MATHS_EXPORT CDecayRateController
-{
+class MATHS_EXPORT CDecayRateController {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble1VecVec = std::vector<TDouble1Vec>;
@@ -61,13 +57,12 @@ class MATHS_EXPORT CDecayRateController
         using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
 
         //! Enumerates the type of model check we can perform.
-        enum EChecks
-        {
+        enum EChecks {
             E_PredictionBias          = 0x1, //!< Check for prediction bias.
             E_PredictionErrorIncrease = 0x2, //!< Check for recent increases
-                                             //! in the prediction errors.
+            //! in the prediction errors.
             E_PredictionErrorDecrease = 0x4  //!< Check for recent decreases
-                                             //! in the prediction errors.
+                                        //! in the prediction errors.
         };
 
     public:
@@ -115,28 +110,28 @@ class MATHS_EXPORT CDecayRateController
 
     private:
         //! The checks we perform to detect error conditions.
-        int m_Checks;
+        int                      m_Checks;
 
         //! The current target multiplier.
-        double m_Target;
+        double                   m_Target;
 
         //! The cumulative multiplier applied to the decay rate.
-        TMeanAccumulator m_Multiplier;
+        TMeanAccumulator         m_Multiplier;
 
         //! A random number generator.
         CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The mean predicted value.
-        TMeanAccumulator1Vec m_PredictionMean;
+        TMeanAccumulator1Vec     m_PredictionMean;
 
         //! The mean bias in the model predictions.
-        TMeanAccumulator1Vec m_Bias;
+        TMeanAccumulator1Vec     m_Bias;
 
         //! The short term absolute errors in the model predictions.
-        TMeanAccumulator1Vec m_RecentAbsError;
+        TMeanAccumulator1Vec     m_RecentAbsError;
 
         //! The long term absolute errors in the model predictions.
-        TMeanAccumulator1Vec m_HistoricalAbsError;
+        TMeanAccumulator1Vec     m_HistoricalAbsError;
 };
 
 }

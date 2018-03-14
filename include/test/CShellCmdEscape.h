@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace test
 //! On Unix characters are escaped for sh/ksh/bash.  On Windows,
 //! for cmd.exe.
 //!
-class TEST_EXPORT CShellCmdEscape : private core::CNonInstantiatable
-{
+class TEST_EXPORT CShellCmdEscape : private core::CNonInstantiatable {
     public:
         //! Modifies the command such that special characters are appropriately
         //! escaped

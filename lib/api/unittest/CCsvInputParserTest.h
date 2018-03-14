@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CCsvInputParserTest : public CppUnit::TestFixture
-{
+class CCsvInputParserTest : public CppUnit::TestFixture {
     public:
         void testSimpleDelims(void);
         void testComplexDelims(void);

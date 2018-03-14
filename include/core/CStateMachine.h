@@ -26,10 +26,8 @@
 #include <list>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 
@@ -73,11 +71,10 @@ class CStateRestoreTraverser;
 //! structure while it's being changed.  Do not use this class in multithreaded
 //! code until this is fixed.  The bug reference is:
 //! https://github.com/elastic/machine-learning-cpp/issues/10
-class CORE_EXPORT CStateMachine
-{
+class CORE_EXPORT CStateMachine {
     public:
         typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
+        typedef std::vector<TSizeVec>    TSizeVecVec;
         typedef std::vector<std::string> TStrVec;
 
     public:
@@ -130,8 +127,7 @@ class CORE_EXPORT CStateMachine
 
     private:
         //! \brief The state of a single machine.
-        struct CORE_EXPORT SMachine
-        {
+        struct CORE_EXPORT SMachine {
             SMachine(const TStrVec &alphabet,
                      const TStrVec &states,
                      const TSizeVecVec &transitionFunction);
@@ -146,8 +142,7 @@ class CORE_EXPORT CStateMachine
         };
 
         //! \brief A lightweight object to lookup a single machine.
-        struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine>
-        {
+        struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine> {
             SLookupMachine(const TStrVec &alphabet,
                            const TStrVec &states,
                            const TSizeVecVec &transitionFunction);
@@ -182,8 +177,7 @@ class CORE_EXPORT CStateMachine
         //! is not suitable. Instead we prefer to use a list of preallocated
         //! std::vectors, on which it is also safe to call push_back, for our
         //! use case, provided doing so doesn't cause them to reallocate.
-        class CORE_EXPORT CMachineDeque
-        {
+        class CORE_EXPORT CMachineDeque {
             private:
                 //! The default vector capacity.
                 static const std::size_t DEFAULT_CAPACITY = 20;
@@ -207,7 +201,7 @@ class CORE_EXPORT CStateMachine
                 void clear(void);
 
             private:
-                typedef std::vector<SMachine> TMachineVec;
+                typedef std::vector<SMachine>  TMachineVec;
                 typedef std::list<TMachineVec> TMachineVecList;
 
             private:
@@ -216,13 +210,13 @@ class CORE_EXPORT CStateMachine
                 //! \note This should be set to slightly more than the number
                 //! of distinct machines which are created by the program
                 //! which uses this class.
-                std::size_t m_Capacity;
+                std::size_t              m_Capacity;
 
                 //! Get the number of available machines.
                 std::atomic<std::size_t> m_NumberMachines;
 
                 //! The actual machines.
-                TMachineVecList m_Machines;
+                TMachineVecList          m_Machines;
         };
 
     private:
@@ -235,9 +229,9 @@ class CORE_EXPORT CStateMachine
 
     private:
         //! The machine identifier.
-        std::size_t m_Machine;
+        std::size_t          m_Machine;
         //! The current state of the machine.
-        std::size_t m_State;
+        std::size_t          m_State;
         //! A complete list of available machines.
         static CMachineDeque ms_Machines;
 };

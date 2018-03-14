@@ -33,19 +33,15 @@
 
 class CXMeansOnline1dTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Encodes the distributions available to model the modes.
-class MATHS_EXPORT CAvailableModeDistributions
-{
+class MATHS_EXPORT CAvailableModeDistributions {
     public:
         static const int NORMAL     = 1;
         static const int GAMMA      = 2;
@@ -117,20 +113,18 @@ class MATHS_EXPORT CAvailableModeDistributions
 //! is expected to give largely order (of points processed) invariant
 //! unsupervised clustering of the data which identifies reasonably
 //! well separated clusters.
-class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
-{
+class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
     public:
         class CCluster;
-        typedef CClusterer1d::TPointPreciseVec TDoubleVec;
+        typedef CClusterer1d::TPointPreciseVec         TDoubleVec;
         typedef CClusterer1d::TPointPreciseDoublePrVec TDoubleDoublePrVec;
-        typedef std::pair<CCluster, CCluster> TClusterClusterPr;
-        typedef boost::optional<TClusterClusterPr> TOptionalClusterClusterPr;
-        typedef std::pair<double, double> TDoubleDoublePr;
+        typedef std::pair<CCluster, CCluster>          TClusterClusterPr;
+        typedef boost::optional<TClusterClusterPr>     TOptionalClusterClusterPr;
+        typedef std::pair<double, double>              TDoubleDoublePr;
         using CClusterer1d::add;
 
         //! \brief Represents a cluster.
-        class MATHS_EXPORT CCluster
-        {
+        class MATHS_EXPORT CCluster {
             public:
                 explicit CCluster(const CXMeansOnline1d &clusterer);
 
@@ -232,7 +226,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
 
             private:
                 //! A unique identifier for this cluster.
-                std::size_t m_Index;
+                std::size_t              m_Index;
 
                 //! The data representing this cluster.
                 CNormalMeanPrecConjugate m_Prior;
@@ -241,8 +235,8 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
                 CNaturalBreaksClassifier m_Structure;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
-        typedef TClusterVec::iterator TClusterVecItr;
+        typedef std::vector<CCluster>       TClusterVec;
+        typedef TClusterVec::iterator       TClusterVecItr;
         typedef TClusterVec::const_iterator TClusterVecCItr;
 
     public:
@@ -400,7 +394,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         CIndexGenerator &indexGenerator(void);
 
     private:
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+        typedef CBasicStatistics::COrderStatisticsStack<double, 1>                        TMinAccumulator;
         typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
 
     private:
@@ -418,7 +412,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
         //! for which we'll delete a cluster. This is intended to
         //! introduce hysteresis in the cluster creation and deletion
         //! process and so should be in the range (0, 1).
-        static const double CLUSTER_DELETE_FRACTION;
+        static const double      CLUSTER_DELETE_FRACTION;
 
         //! The size of the data we use to maintain cluster detail.
         static const std::size_t STRUCTURE_SIZE;
@@ -448,46 +442,46 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d
 
     private:
         //! The type of data being clustered.
-        maths_t::EDataType m_DataType;
+        maths_t::EDataType          m_DataType;
 
         //! The distributions available to model the clusters.
         CAvailableModeDistributions m_AvailableDistributions;
 
         //! The initial rate at which information is lost.
-        double m_InitialDecayRate;
+        double                      m_InitialDecayRate;
 
         //! The rate at which information is lost.
-        double m_DecayRate;
+        double                      m_DecayRate;
 
         //! A measure of the length of history of the data clustered.
-        double m_HistoryLength;
+        double                      m_HistoryLength;
 
         //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
         maths_t::EClusterWeightCalc m_WeightCalc;
 
         //! The minimum cluster fractional count.
-        double m_MinimumClusterFraction;
+        double                      m_MinimumClusterFraction;
 
         //! The minimum cluster count.
-        double m_MinimumClusterCount;
+        double                      m_MinimumClusterCount;
 
         //! The minimum count for a category in the sketch to cluster.
-        double m_MinimumCategoryCount;
+        double                      m_MinimumCategoryCount;
 
         //! The data central confidence interval on which to Winsorise.
-        double m_WinsorisationConfidenceInterval;
+        double                      m_WinsorisationConfidenceInterval;
 
         //! A generator of unique cluster indices.
-        CIndexGenerator m_ClusterIndexGenerator;
+        CIndexGenerator             m_ClusterIndexGenerator;
 
         //! The smallest sample added to date.
-        TMinAccumulator m_Smallest;
+        TMinAccumulator             m_Smallest;
 
         //! The largest sample added to date.
-        TMaxAccumulator m_Largest;
+        TMaxAccumulator             m_Largest;
 
         //! The clusters.
-        TClusterVec m_Clusters;
+        TClusterVec                 m_Clusters;
 
         friend ::CXMeansOnline1dTest;
 };

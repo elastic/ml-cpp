@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBootstrapClustererTest : public CppUnit::TestFixture
-{
+class CBootstrapClustererTest : public CppUnit::TestFixture {
     public:
         void testFacade(void);
         void testBuildClusterGraph(void);

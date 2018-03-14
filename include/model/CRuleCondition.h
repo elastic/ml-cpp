@@ -23,14 +23,11 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CPatternSet;
 }
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModel;
 
 //! \brief A condition that may trigger a rule.
@@ -41,14 +38,12 @@ class CAnomalyDetectorModel;
 //! that will be performed. The specified fieldName/fieldValue,
 //! when present, determines the series against which the
 //! condition is checked.
-class MODEL_EXPORT CRuleCondition
-{
+class MODEL_EXPORT CRuleCondition {
     public:
         typedef boost::reference_wrapper<const core::CPatternSet> TPatternSetCRef;
 
     public:
-        enum ERuleConditionType
-        {
+        enum ERuleConditionType {
             E_Categorical,
             E_NumericalActual,
             E_NumericalTypical,
@@ -56,16 +51,14 @@ class MODEL_EXPORT CRuleCondition
             E_Time
         };
 
-        enum EConditionOperator
-        {
+        enum EConditionOperator {
             E_LT,
             E_LTE,
             E_GT,
             E_GTE
         };
 
-        struct SCondition
-        {
+        struct SCondition {
             SCondition(EConditionOperator op, double threshold);
 
             bool test(double value) const;
@@ -126,15 +119,15 @@ class MODEL_EXPORT CRuleCondition
         ERuleConditionType m_Type;
 
         //! The numerical condition.
-        SCondition m_Condition;
+        SCondition         m_Condition;
 
         //! The field name. Empty when not specified.
-        std::string m_FieldName;
+        std::string        m_FieldName;
 
         //! The field value. Empty when not specified.
-        std::string m_FieldValue;
+        std::string        m_FieldValue;
 
-        TPatternSetCRef m_ValueFilter;
+        TPatternSetCRef    m_ValueFilter;
 };
 
 }

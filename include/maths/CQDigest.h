@@ -28,15 +28,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief This class implements the q-digest quantile approximation.
 //!
@@ -88,11 +85,10 @@ namespace maths
 //! This uses the fact the maximum length of the q-digest is \f$3k\f$
 //! to ensure constant complexity of all operations at various points
 //! and to reserve sufficient memory up front for our node allocator.
-class MATHS_EXPORT CQDigest : private core::CNonCopyable
-{
+class MATHS_EXPORT CQDigest : private core::CNonCopyable {
     public:
         typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-        typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+        typedef std::vector<TUInt32UInt64Pr>  TUInt32UInt64PrVec;
 
     public:
         //! \name XML Tag Names
@@ -102,7 +98,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
         static const std::string K_TAG;
         static const std::string N_TAG;
         static const std::string NODE_TAG;
-        //@}
+    //@}
 
     public:
         CQDigest(uint64_t k, double decayRate = 0.0);
@@ -215,37 +211,34 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
 
         //! Print the q-digest.
         std::string print(void) const;
-        //@}
+    //@}
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef TSizeVec::const_iterator TSizeVecCItr;
+        typedef std::vector<std::size_t>  TSizeVec;
+        typedef TSizeVec::const_iterator  TSizeVecCItr;
         typedef std::greater<std::size_t> TSizeGreater;
 
         class CNode;
         class CNodeAllocator;
 
-        typedef std::vector<CNode*> TNodePtrVec;
-        typedef TNodePtrVec::iterator TNodePtrVecItr;
-        typedef TNodePtrVec::const_iterator TNodePtrVecCItr;
+        typedef std::vector<CNode*>                 TNodePtrVec;
+        typedef TNodePtrVec::iterator               TNodePtrVecItr;
+        typedef TNodePtrVec::const_iterator         TNodePtrVecCItr;
         typedef TNodePtrVec::const_reverse_iterator TNodePtrVecCRItr;
 
         //! Orders node pointers by level order.
-        struct MATHS_EXPORT SLevelLess
-        {
+        struct MATHS_EXPORT SLevelLess {
             bool operator()(const CNode *lhs, const CNode *rhs) const;
         };
 
         //! Order node pointers by post order in completed tree.
-        struct MATHS_EXPORT SPostLess
-        {
+        struct MATHS_EXPORT SPostLess {
             bool operator()(const CNode *lhs, const CNode *rhs) const;
         };
 
         //! Represents a node of the q-digest with convenience
         //! operations for compression.
-        class MATHS_EXPORT CNode
-        {
+        class MATHS_EXPORT CNode {
             public:
                 //! \name XML Tag Names
                 //!
@@ -254,7 +247,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
                 static const std::string MIN_TAG;
                 static const std::string MAX_TAG;
                 static const std::string COUNT_TAG;
-                //@}
+            //@}
 
             public:
                 CNode(void);
@@ -374,27 +367,26 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
 
             private:
                 //! The immediate ancestor of this node in the q-digest.
-                CNode *m_Ancestor;
+                CNode       *m_Ancestor;
 
                 //! The immediate descendants of this node in the q-digest.
                 TNodePtrVec m_Descendants;
 
                 //! The minimum value covered by the node.
-                uint32_t m_Min;
+                uint32_t    m_Min;
 
                 //! The maximum value covered by the node.
-                uint32_t m_Max;
+                uint32_t    m_Max;
 
                 //! The count of the node.
-                uint64_t m_Count;
+                uint64_t    m_Count;
 
                 //! The count in the subtree root at this node.
-                uint64_t m_SubtreeCount;
+                uint64_t    m_SubtreeCount;
         };
 
         //! Manages the creation and recycling of nodes.
-        class MATHS_EXPORT CNodeAllocator
-        {
+        class MATHS_EXPORT CNodeAllocator {
             public:
                 CNodeAllocator(std::size_t size);
 
@@ -405,19 +397,19 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
                 void release(CNode &node);
 
             private:
-                typedef std::vector<TNodePtrVec> TNodePtrVecVec;
-                typedef std::vector<CNode> TNodeVec;
+                typedef std::vector<TNodePtrVec>           TNodePtrVecVec;
+                typedef std::vector<CNode>                 TNodeVec;
                 typedef std::vector<CNode>::const_iterator TNodeVecCItr;
-                typedef std::list<TNodeVec> TNodeVecList;
-                typedef TNodeVecList::iterator TNodeVecListItr;
-                typedef TNodeVecList::const_iterator TNodeVecListCItr;
+                typedef std::list<TNodeVec>                TNodeVecList;
+                typedef TNodeVecList::iterator             TNodeVecListItr;
+                typedef TNodeVecList::const_iterator       TNodeVecListCItr;
 
             private:
                 //! Find the block to which \p node belongs.
                 std::size_t findBlock(const CNode &node) const;
 
             private:
-                TNodeVecList m_Nodes;
+                TNodeVecList   m_Nodes;
                 TNodePtrVecVec m_FreeNodes;
         };
 
@@ -433,15 +425,15 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
     private:
         //! Controls the maximum number of values stored. In particular,
         //! the number of nodes is less than \f$3k\f$.
-        uint64_t m_K;
+        uint64_t       m_K;
         //! The number of values added to the q-digest.
-        uint64_t m_N;
+        uint64_t       m_N;
         //! The root node.
-        CNode *m_Root;
+        CNode          *m_Root;
         //! The node allocator.
         CNodeAllocator m_NodeAllocator;
         //! The rate at which information is lost by the digest.
-        double m_DecayRate;
+        double         m_DecayRate;
 };
 
 }

@@ -31,10 +31,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDataCountStatistics;
 class CFieldStatistics;
@@ -53,29 +51,26 @@ class CPenalty;
 //! is a JSON document which can be used to configure the our
 //! autodetect API or Splunk.
 class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetectorSpecification,
-                                             boost::less_than_comparable< CDetectorSpecification > >
-{
+                                                                         boost::less_than_comparable< CDetectorSpecification > > {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<std::string> TOptionalStr;
+        typedef std::vector<double>           TDoubleVec;
+        typedef std::vector<TDoubleVec>       TDoubleVecVec;
+        typedef std::vector<std::size_t>      TSizeVec;
+        typedef std::vector<core_t::TTime>    TTimeVec;
+        typedef std::vector<std::string>      TStrVec;
+        typedef boost::optional<std::string>  TOptionalStr;
         typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+        typedef boost::shared_ptr<CPenalty>   TPenaltyPtr;
 
         //! Ternary boolean type which supports unknown.
-        enum EFuzzyBool
-        {
+        enum EFuzzyBool {
             E_True,
             E_False,
             E_Maybe
         };
 
         //! \brief The score for a given set of parameters.
-        struct CONFIG_EXPORT SParamScores
-        {
+        struct CONFIG_EXPORT SParamScores {
             SParamScores(core_t::TTime bucketLength,
                          const std::string &ignoreEmpty,
                          double score,
@@ -177,7 +172,7 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         const TOptionalStr &partitionField(void) const;
 
         //! Get the influences which have been configured.
-        const TStrVec &influences(void) const;
+        const TStrVec      &influences(void) const;
 
         //! Get the bucket lengths.
         void candidateBucketLengths(TTimeVec &result) const;
@@ -221,9 +216,9 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         std::string description(void) const;
 
     private:
-        typedef std::vector<TStrVec> TStrVecVec;
-        typedef boost::optional<core_t::TTime> TOptionalTime;
-        typedef boost::array<const TSizeVec*, 2> TSizeVecCPtrAry;
+        typedef std::vector<TStrVec>                                  TStrVecVec;
+        typedef boost::optional<core_t::TTime>                        TOptionalTime;
+        typedef boost::array<const TSizeVec*, 2>                      TSizeVecCPtrAry;
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
     private:
@@ -245,7 +240,7 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef   m_Params;
 
         //! \name Specification
         //@{
@@ -254,24 +249,24 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
 
         //! The side of the anomaly the detector is sensitive, i.e.
         //! high, low or both.
-        config_t::ESide m_Side;
+        config_t::ESide             m_Side;
 
         //! Set to true if the function can ignore empty buckets and
         //! should, false if it can ignore empty buckets and shouldn't
         //! and left as maybe otherwise.
-        EFuzzyBool m_IgnoreEmpty;
+        EFuzzyBool                  m_IgnoreEmpty;
 
         //! The argument and partitioning fields (i.e. by, over and
         //! partition) for the detector. A null value means the it
         //! doesn't have one.
-        TOptionalStr m_FunctionFields[constants::NUMBER_FIELD_INDICES];
+        TOptionalStr                m_FunctionFields[constants::NUMBER_FIELD_INDICES];
 
         //! The influences configured for the detector.
-        TStrVec m_Influencers;
+        TStrVec                     m_Influencers;
 
         //! The shortest (in the context of multi-) bucket length to
         //! use for this detector.
-        TOptionalTime m_BucketLength;
+        TOptionalTime               m_BucketLength;
 
         // TODO exclude frequent + frequency
 
@@ -285,19 +280,19 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         //! These are in the range [0, 1.0] and are updated during the
         //! configuration process. A higher penalty indicates a better
         //! detector.
-        TDoubleVec m_Penalties;
+        TDoubleVec                 m_Penalties;
 
         //! The function for computing the penalties to apply to this detector.
-        TPenaltyPtr m_Penalty;
+        TPenaltyPtr                m_Penalty;
 
         //! Descriptions of the penalties that apply.
-        TStrVecVec m_PenaltyDescriptions;
+        TStrVecVec                 m_PenaltyDescriptions;
 
         //! A unique identifier of this detector.
-        std::size_t m_Id;
+        std::size_t                m_Id;
 
         //! The statistics for each of the detectors fields.
-        const CFieldStatistics *m_FieldStatistics[constants::NUMBER_FIELD_INDICES];
+        const CFieldStatistics     *m_FieldStatistics[constants::NUMBER_FIELD_INDICES];
 
         //! The count statistics for the detector.
         const CDataCountStatistics *m_CountStatistics;

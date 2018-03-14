@@ -23,21 +23,17 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate normal conjugate priors.
-class MATHS_EXPORT CMultivariateNormalConjugateFactory
-{
+class MATHS_EXPORT CMultivariateNormalConjugateFactory {
     public:
         typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
 

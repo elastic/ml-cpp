@@ -25,10 +25,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDetectorSpecification;
 
@@ -42,8 +40,7 @@ class CDetectorSpecification;
 //! This is essentially the builder pattern. The intention is that suitable
 //! fields are added one at a time based on their statistical properties
 //! and once all fields have been added the configurations are generated.
-class CONFIG_EXPORT CDetectorEnumerator
-{
+class CONFIG_EXPORT CDetectorEnumerator {
     public:
         typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
 
@@ -81,9 +78,9 @@ class CONFIG_EXPORT CDetectorEnumerator
         void generate(TDetectorSpecificationVec &result);
 
     private:
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<std::string> TOptionalStr;
-        typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
+        typedef std::vector<std::string>                              TStrVec;
+        typedef boost::optional<std::string>                          TOptionalStr;
+        typedef std::vector<config_t::EFunctionCategory>              TFunctionCategoryVec;
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
     private:
@@ -119,25 +116,25 @@ class CONFIG_EXPORT CDetectorEnumerator
         TAutoconfigurerParamsCRef m_Params;
 
         //! The list of functions to be considered.
-        TFunctionCategoryVec m_Functions;
+        TFunctionCategoryVec      m_Functions;
 
         //! Candidate field names for arguments categorical functions.
-        TStrVec m_CandidateCategoricalFunctionArguments;
+        TStrVec                   m_CandidateCategoricalFunctionArguments;
 
         //! Candidate arguments for metric functions.
-        TStrVec m_CandidateMetricFunctionArguments;
+        TStrVec                   m_CandidateMetricFunctionArguments;
 
         //! Candidate by fields.
-        TStrVec m_CandidateByFields;
+        TStrVec                   m_CandidateByFields;
 
         //! Candidate by fields for rare commands.
-        TStrVec m_CandidateRareByFields;
+        TStrVec                   m_CandidateRareByFields;
 
         //! Candidate over fields.
-        TStrVec m_CandidateOverFields;
+        TStrVec                   m_CandidateOverFields;
 
         //! Candidate partition fields.
-        TStrVec m_CandidatePartitionFields;
+        TStrVec                   m_CandidatePartitionFields;
 };
 
 }

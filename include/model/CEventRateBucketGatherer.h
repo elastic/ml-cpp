@@ -36,32 +36,29 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A structure to handle storing unique strings per person,
 //! attribute and influencer, used for the analytic functions
 //! "distinct_count" and "info_content"
-class MODEL_EXPORT CUniqueStringFeatureData
-{
+class MODEL_EXPORT CUniqueStringFeatureData {
     public:
-        typedef core::CCompressedDictionary<1> TDictionary1;
-        typedef TDictionary1::CWord TWord;
-        typedef TDictionary1::TWordSet TWordSet;
-        typedef TWordSet::const_iterator TWordSetCItr;
-        typedef TDictionary1::CWordUMap<std::string>::Type TWordStringUMap;
-        typedef TWordStringUMap::const_iterator TWordStringUMapCItr;
+        typedef core::CCompressedDictionary<1>                         TDictionary1;
+        typedef TDictionary1::CWord                                    TWord;
+        typedef TDictionary1::TWordSet                                 TWordSet;
+        typedef TWordSet::const_iterator                               TWordSetCItr;
+        typedef TDictionary1::CWordUMap<std::string>::Type             TWordStringUMap;
+        typedef TWordStringUMap::const_iterator                        TWordStringUMapCItr;
         typedef boost::unordered_map<core::CStoredStringPtr, TWordSet> TStoredStringPtrWordSetUMap;
-        typedef TStoredStringPtrWordSetUMap::const_iterator TStoredStringPtrWordSetUMapCItr;
-        typedef std::vector<TStoredStringPtrWordSetUMap> TStoredStringPtrWordSetUMapVec;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
+        typedef TStoredStringPtrWordSetUMap::const_iterator            TStoredStringPtrWordSetUMapCItr;
+        typedef std::vector<TStoredStringPtrWordSetUMap>               TStoredStringPtrWordSetUMapVec;
+        typedef SEventRateFeatureData::TStrCRef                        TStrCRef;
+        typedef SEventRateFeatureData::TDouble1Vec                     TDouble1Vec;
+        typedef SEventRateFeatureData::TDouble1VecDoublePr             TDouble1VecDoublePr;
+        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr    TStrCRefDouble1VecDoublePrPr;
         typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-        typedef CBucketGatherer::TStoredStringPtrVec TStoredStringPtrVec;
+        typedef CBucketGatherer::TStoredStringPtrVec                   TStoredStringPtrVec;
 
     public:
         //! Add a string into the collection
@@ -92,8 +89,8 @@ class MODEL_EXPORT CUniqueStringFeatureData
         std::string print(void) const;
 
     private:
-        TDictionary1 m_Dictionary1;
-        TWordStringUMap m_UniqueStrings;
+        TDictionary1                   m_Dictionary1;
+        TWordStringUMap                m_UniqueStrings;
         TStoredStringPtrWordSetUMapVec m_InfluencerUniqueStrings;
 };
 
@@ -104,20 +101,19 @@ class MODEL_EXPORT CUniqueStringFeatureData
 //! to model the event rate in an arbitrary time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
-{
+class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer {
     public:
-        typedef std::map<model_t::EEventRateCategory, boost::any> TCategoryAnyMap;
-        typedef SEventRateFeatureData::TStrCRef TStrCRef;
-        typedef SEventRateFeatureData::TDouble1Vec TDouble1Vec;
-        typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
+        typedef std::map<model_t::EEventRateCategory, boost::any>         TCategoryAnyMap;
+        typedef SEventRateFeatureData::TStrCRef                           TStrCRef;
+        typedef SEventRateFeatureData::TDouble1Vec                        TDouble1Vec;
+        typedef SEventRateFeatureData::TDouble1VecDoublePr                TDouble1VecDoublePr;
+        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr       TStrCRefDouble1VecDoublePrPr;
+        typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec    TStrCRefDouble1VecDoublePrPrVec;
         typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec TStrCRefDouble1VecDoublePrPrVecVec;
-        typedef std::pair<std::size_t, SEventRateFeatureData> TSizeFeatureDataPr;
-        typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-        typedef std::pair<TSizeSizePr, SEventRateFeatureData> TSizeSizePrFeatureDataPr;
-        typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
+        typedef std::pair<std::size_t, SEventRateFeatureData>             TSizeFeatureDataPr;
+        typedef std::vector<TSizeFeatureDataPr>                           TSizeFeatureDataPrVec;
+        typedef std::pair<TSizeSizePr, SEventRateFeatureData>             TSizeSizePrFeatureDataPr;
+        typedef std::vector<TSizeSizePrFeatureDataPr>                     TSizeSizePrFeatureDataPrVec;
 
     public:
         //! \name Life-cycle
@@ -284,7 +280,7 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! \param[in] time The time of interest.
         //! \param[out] result Filled in with the feature data at \p time.
         virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec &result) const;
-        //@}
+    //@}
 
     private:
         //! No-op.
@@ -496,16 +492,16 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //!   -# [The name of the field which identifies a function to key off],
         //!   -# [The name of the field containing the person(/attribute) count
         //!       if summarized data are being gathered]
-        TStrVec m_FieldNames;
+        TStrVec         m_FieldNames;
 
         //! The position of the first influencer field
-        std::size_t m_BeginInfluencingFields;
+        std::size_t     m_BeginInfluencingFields;
 
         //! The position of the first count/value field.
-        std::size_t m_BeginValueField;
+        std::size_t     m_BeginValueField;
 
         //! The position of the field holding the summarised count.
-        std::size_t m_BeginSummaryFields;
+        std::size_t     m_BeginSummaryFields;
 
         //! The data features we are gathering.
         TCategoryAnyMap m_FeatureData;
@@ -514,14 +510,12 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
 }
 }
 
-namespace std
-{
+namespace std {
 
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
 inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &rhs)
-{
+                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }
@@ -529,8 +523,7 @@ inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &lhs,
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
 inline void swap(ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &rhs)
-{
+                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }

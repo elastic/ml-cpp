@@ -24,15 +24,12 @@
 
 #include <boost/optional.hpp>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief A very lightweight prior for representing data for which
 //! expect a single value.
@@ -42,8 +39,7 @@ namespace maths
 //! only ever takes a single value. This is useful for modeling data
 //! features such as the value of an indicator function in a consistent
 //! manner to all other types of data.
-class MATHS_EXPORT CConstantPrior : public CPrior
-{
+class MATHS_EXPORT CConstantPrior : public CPrior {
     public:
         using TOptionalDouble = boost::optional<double>;
 
@@ -105,9 +101,9 @@ class MATHS_EXPORT CConstantPrior : public CPrior
 
         //! All confidence intervals are the point [constant, constant].
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Get the variance of the marginal likelihood.
         virtual double marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
@@ -116,10 +112,10 @@ class MATHS_EXPORT CConstantPrior : public CPrior
         //! Returns a large value if all samples are equal to the constant
         //! and zero otherwise.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Get \p numberSamples times the constant.
         virtual void sampleMarginalLikelihood(std::size_t numberSamples,

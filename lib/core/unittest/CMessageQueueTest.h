@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMessageQueueTest : public CppUnit::TestFixture
-{
+class CMessageQueueTest : public CppUnit::TestFixture {
     public:
         void testSendReceive(void);
         void testTiming(void);

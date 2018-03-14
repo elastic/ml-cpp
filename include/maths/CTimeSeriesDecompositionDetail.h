@@ -35,16 +35,13 @@
 #include <functional>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CExpandingWindow;
 class CTimeSeriesDecomposition;
 
 //! \brief Utilities for computing the decomposition.
-class MATHS_EXPORT CTimeSeriesDecompositionDetail
-{
+class MATHS_EXPORT CTimeSeriesDecompositionDetail {
     public:
         using TPredictor = std::function<double (core_t::TTime)>;
         using TDoubleVec = std::vector<double>;
@@ -52,8 +49,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         class CMediator;
 
         //! \brief The base message passed.
-        struct MATHS_EXPORT SMessage
-        {
+        struct MATHS_EXPORT SMessage {
             SMessage(core_t::TTime time, core_t::TTime lastTime);
 
             //! The message time.
@@ -64,8 +60,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief The message passed to add a point.
         struct MATHS_EXPORT SAddValue : public SMessage,
-                                        private core::CNonCopyable
-        {
+                                        private core::CNonCopyable {
             SAddValue(core_t::TTime time,
                       core_t::TTime lastTime,
                       double value,
@@ -97,8 +92,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief The message passed to indicate periodic components have
         //! been detected.
-        struct MATHS_EXPORT SDetectedSeasonal : public SMessage
-        {
+        struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
             SDetectedSeasonal(core_t::TTime time,
                               core_t::TTime lastTime,
                               const CPeriodicityHypothesisTestsResult &result,
@@ -115,8 +109,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief The message passed to indicate calendar components have
         //! been detected.
-        struct MATHS_EXPORT SDetectedCalendar : public SMessage
-        {
+        struct MATHS_EXPORT SDetectedCalendar : public SMessage {
             SDetectedCalendar(core_t::TTime time,
                               core_t::TTime lastTime,
                               CCalendarFeature feature);
@@ -127,10 +120,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief The message passed to indicate new components are being
         //! modeled.
-        struct MATHS_EXPORT SNewComponents : public SMessage
-        {
-            enum EComponent
-            {
+        struct MATHS_EXPORT SNewComponents : public SMessage {
+            enum EComponent {
                 E_DiurnalSeasonal,
                 E_GeneralSeasonal,
                 E_CalendarCyclic
@@ -146,8 +137,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief The basic interface for one aspect of the modeling of a time
         //! series decomposition.
-        class MATHS_EXPORT CHandler : core::CNonCopyable
-        {
+        class MATHS_EXPORT CHandler : core::CNonCopyable {
             public:
                 CHandler(void);
                 virtual ~CHandler(void);
@@ -176,8 +166,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         };
 
         //! \brief Manages communication between handlers.
-        class MATHS_EXPORT CMediator : core::CNonCopyable
-        {
+        class MATHS_EXPORT CMediator : core::CNonCopyable {
             public:
                 //! Forward \p message to all registered models.
                 template<typename M>
@@ -203,8 +192,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief Scans through increasingly low frequencies looking for custom
         //! diurnal and any other large amplitude seasonal components.
-        class MATHS_EXPORT CPeriodicityTest : public CHandler
-        {
+        class MATHS_EXPORT CPeriodicityTest : public CHandler {
             public:
                 CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
                 CPeriodicityTest(const CPeriodicityTest &other);
@@ -271,13 +259,13 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
             private:
                 //! The state machine.
-                core::CStateMachine m_Machine;
+                core::CStateMachine    m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double m_DecayRate;
+                double                 m_DecayRate;
 
                 //! The raw data bucketing interval.
-                core_t::TTime m_BucketLength;
+                core_t::TTime          m_BucketLength;
 
                 //! Expanding windows on the "recent" time series values.
                 TExpandingWindowPtrAry m_Windows;
@@ -285,8 +273,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
         //! \brief Tests for cyclic calendar components explaining large prediction
         //! errors.
-        class MATHS_EXPORT CCalendarTest : public CHandler
-        {
+        class MATHS_EXPORT CCalendarTest : public CHandler {
             public:
                 CCalendarTest(double decayRate, core_t::TTime bucketLength);
                 CCalendarTest(const CCalendarTest &other);
@@ -340,21 +327,20 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 std::size_t extraMemoryOnInitialization(void) const;
             private:
                 //! The state machine.
-                core::CStateMachine m_Machine;
+                core::CStateMachine    m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double m_DecayRate;
+                double                 m_DecayRate;
 
                 //! The last month for which the test was run.
-                int m_LastMonth;
+                int                    m_LastMonth;
 
                 //! The test for arbitrary periodic components.
                 TCalendarCyclicTestPtr m_Test;
         };
 
         //! \brief Holds and updates the components of the decomposition.
-        class MATHS_EXPORT CComponents : public CHandler
-        {
+        class MATHS_EXPORT CComponents : public CHandler {
             public:
                 CComponents(double decayRate,
                             core_t::TTime bucketLength,
@@ -362,8 +348,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 CComponents(const CComponents &other);
 
                 //! \brief Watches to see if the seasonal components state changes.
-                class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable
-                {
+                class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable {
                     public:
                         CScopeNotifyOnStateChange(CComponents &components);
                         ~CScopeNotifyOnStateChange(void);
@@ -376,7 +361,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                         CComponents &m_Components;
 
                         //! The flag used to watch for changes.
-                        bool m_Watcher;
+                        bool        m_Watcher;
                 };
 
                 //! Initialize by reading state from \p traverser.
@@ -459,8 +444,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! This tracks the prediction errors with and without seasonal and
                 //! calendar periodic components and tests to see if including the
                 //! component is worthwhile.
-                class MATHS_EXPORT CComponentErrors
-                {
+                class MATHS_EXPORT CComponentErrors {
                     public:
                         //! Initialize from a delimited string.
                         bool fromDelimited(const std::string &str);
@@ -507,8 +491,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
                 //! \brief The seasonal components of the decomposition.
-                struct MATHS_EXPORT SSeasonal
-                {
+                struct MATHS_EXPORT SSeasonal {
                     //! Initialize by reading state from \p traverser.
                     bool acceptRestoreTraverser(double decayRate,
                                                 core_t::TTime bucketLength,
@@ -567,8 +550,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 using TSeasonalPtr = boost::shared_ptr<SSeasonal>;
 
                 //! \brief Calendar periodic components of the decomposition.
-                struct MATHS_EXPORT SCalendar
-                {
+                struct MATHS_EXPORT SCalendar {
                     //! Initialize by reading state from \p traverser.
                     bool acceptRestoreTraverser(double decayRate,
                                                 core_t::TTime bucketLength,
@@ -671,64 +653,61 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
 
             private:
                 //! The state machine.
-                core::CStateMachine m_Machine;
+                core::CStateMachine   m_Machine;
 
                 //! Controls the rate at which information is lost.
-                double m_DecayRate;
+                double                m_DecayRate;
 
                 //! The raw data bucketing interval.
-                core_t::TTime m_BucketLength;
+                core_t::TTime         m_BucketLength;
 
                 //! The number of buckets to use to estimate a periodic component.
-                std::size_t m_SeasonalComponentSize;
+                std::size_t           m_SeasonalComponentSize;
 
                 //! The number of buckets to use to estimate a periodic component.
-                std::size_t m_CalendarComponentSize;
+                std::size_t           m_CalendarComponentSize;
 
                 //! The long term trend.
-                CTrendComponent m_Trend;
+                CTrendComponent       m_Trend;
 
                 //! The seasonal components.
-                TSeasonalPtr m_Seasonal;
+                TSeasonalPtr          m_Seasonal;
 
                 //! The calendar components.
-                TCalendarPtr m_Calendar;
+                TCalendarPtr          m_Calendar;
 
                 //! The mean error variance scale for the components.
                 TFloatMeanAccumulator m_MeanVarianceScale;
 
                 //! The moments of the values added.
-                TMeanVarAccumulator m_Moments;
+                TMeanVarAccumulator   m_Moments;
 
                 //! The moments of the values added after subtracting a trend.
-                TMeanVarAccumulator m_MomentsMinusTrend;
+                TMeanVarAccumulator   m_MomentsMinusTrend;
 
                 //! Set to true if the trend model should be used for prediction.
-                bool m_UsingTrendForPrediction;
+                bool                  m_UsingTrendForPrediction;
 
                 //! Set to true if non-null when the seasonal components change.
-                bool *m_Watcher;
+                bool                  *m_Watcher;
         };
 };
 
 //! Create a free function which will be found by Koenig lookup.
 inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest &lhs,
-                 CTimeSeriesDecompositionDetail::CPeriodicityTest &rhs)
-{
+                 CTimeSeriesDecompositionDetail::CPeriodicityTest &rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
 inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest &lhs,
-                 CTimeSeriesDecompositionDetail::CCalendarTest &rhs)
-{
+                 CTimeSeriesDecompositionDetail::CCalendarTest &rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
 inline void swap(CTimeSeriesDecompositionDetail::CComponents &lhs,
-                 CTimeSeriesDecompositionDetail::CComponents &rhs)
-{
+                 CTimeSeriesDecompositionDetail::CComponents &rhs) {
     lhs.swap(rhs);
 }
 

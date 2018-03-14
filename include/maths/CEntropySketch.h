@@ -22,10 +22,8 @@
 #include <vector>
 #include <stdint.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A sketch data structure for computing the Shannon entropy of a data
 //! stream under the turnstile model.
@@ -38,8 +36,7 @@ namespace maths
 //! is \f$\frac{1}{\epsilon^2} \log(T) \log(\frac{T}{\epsilon}\f$.
 //!
 //! See http://www.jmlr.org/proceedings/papers/v31/clifford13a.pdf for details.
-class MATHS_EXPORT CEntropySketch
-{
+class MATHS_EXPORT CEntropySketch {
     public:
         CEntropySketch(std::size_t k);
 
@@ -50,7 +47,7 @@ class MATHS_EXPORT CEntropySketch
         double calculate(void) const;
 
     private:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>   TDoubleVec;
         typedef std::vector<uint64_t> TUInt64Vec;
 
     private:
@@ -59,7 +56,7 @@ class MATHS_EXPORT CEntropySketch
 
     private:
         //! The overall count.
-        uint64_t m_Y;
+        uint64_t   m_Y;
 
         //! The sketch count.
         TDoubleVec m_Yi;

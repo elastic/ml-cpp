@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIntegerToolsTest : public CppUnit::TestFixture
-{
+class CIntegerToolsTest : public CppUnit::TestFixture {
     public:
         void testNextPow2(void);
         void testReverseBits(void);

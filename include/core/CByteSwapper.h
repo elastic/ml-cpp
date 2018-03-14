@@ -23,10 +23,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -46,13 +44,11 @@ namespace core
 //! to the caller to ensure it's only called for types where
 //! it's sensible, e.g. builtin numeric types.
 //!
-class CORE_EXPORT CByteSwapper : private CNonInstantiatable
-{
+class CORE_EXPORT CByteSwapper : private CNonInstantiatable {
     public:
         template <typename TYPE>
-        static TYPE swapBytes(TYPE var)
-        {
-            void *varAddress(&var);
+        static TYPE swapBytes(TYPE var) {
+            void    *   varAddress(&var);
             uint8_t *begin(static_cast<uint8_t *>(varAddress));
             uint8_t *end(begin + sizeof(var));
 

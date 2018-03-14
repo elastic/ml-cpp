@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStringStoreTest : public CppUnit::TestFixture
-{
+class CStringStoreTest : public CppUnit::TestFixture {
     public:
         void setUp(void);
 

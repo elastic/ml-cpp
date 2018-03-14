@@ -29,10 +29,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CDetectorSpecification;
 
 //! \brief Holds the field values needed to update a detector.
@@ -41,12 +39,11 @@ class CDetectorSpecification;
 //! The state from a record need to update a detector's penalty functions.
 //! This is its time and its field values corresponding to the argument
 //! and partitioning field(s) used by the detector.
-class CONFIG_EXPORT CDetectorRecord
-{
+class CONFIG_EXPORT CDetectorRecord {
     public:
-        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
+        typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>        TSizeAry;
         typedef boost::array<const std::string*, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
-        typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
+        typedef boost::unordered_map<std::string, std::string>                    TStrStrUMap;
 
     public:
         CDetectorRecord(core_t::TTime time,
@@ -102,19 +99,19 @@ class CONFIG_EXPORT CDetectorRecord
 
     private:
         //! The record time.
-        core_t::TTime m_Time;
+        core_t::TTime               m_Time;
 
         //! The function of the record's detector.
         config_t::EFunctionCategory m_Function;
 
         //! The relevant field names.
-        TStrCPtrAry m_FieldNames;
+        TStrCPtrAry                 m_FieldNames;
 
         //! The relevant field values.
-        TStrCPtrAry m_FieldValues;
+        TStrCPtrAry                 m_FieldValues;
 
         //! Hashes of the field values.
-        TSizeAry m_HashedFieldValues;
+        TSizeAry                    m_HashedFieldValues;
 };
 
 //! \brief Defines a fast scheme, which minimizes lookups in the field values
@@ -126,12 +123,11 @@ class CONFIG_EXPORT CDetectorRecord
 //! address table from every detector, built once up front on the set of initial
 //! candidate detectors, to a corresponding collection of entries in a field
 //! value vector which we populate once per record.
-class CONFIG_EXPORT CDetectorRecordDirectAddressTable
-{
+class CONFIG_EXPORT CDetectorRecordDirectAddressTable {
     public:
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
+        typedef std::vector<CDetectorSpecification>            TDetectorSpecificationVec;
+        typedef std::vector<CDetectorRecord>                   TDetectorRecordVec;
 
     public:
         //! Build the table from \p specs.
@@ -148,12 +144,12 @@ class CONFIG_EXPORT CDetectorRecordDirectAddressTable
         void clear(void);
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::string, std::size_t> TStrSizePr;
-        typedef std::vector<TStrSizePr> TStrSizePrVec;
+        typedef std::vector<std::size_t>                                   TSizeVec;
+        typedef std::pair<std::string, std::size_t>                        TStrSizePr;
+        typedef std::vector<TStrSizePr>                                    TStrSizePrVec;
         typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-        typedef std::vector<TSizeAry> TSizeAryVec;
-        typedef std::vector<const std::string*> TStrCPtrVec;
+        typedef std::vector<TSizeAry>                                      TSizeAryVec;
+        typedef std::vector<const std::string*>                            TStrCPtrVec;
 
     private:
         //! A map from field to its value entry in the field value table.
@@ -161,13 +157,13 @@ class CONFIG_EXPORT CDetectorRecordDirectAddressTable
 
         //! A map from detectors to their field value entries in the field
         //! value table.
-        TSizeAryVec m_DetectorFieldSchema;
+        TSizeAryVec   m_DetectorFieldSchema;
 
         //! The table of field values populated once per record.
-        TStrCPtrVec m_FieldValueTable;
+        TStrCPtrVec   m_FieldValueTable;
 
         //! The table of field value hashes populated once per record.
-        TSizeVec m_HashedFieldValueTable;
+        TSizeVec      m_HashedFieldValueTable;
 };
 
 }

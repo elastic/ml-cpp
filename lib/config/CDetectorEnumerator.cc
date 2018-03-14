@@ -24,17 +24,14 @@
 #include <boost/range.hpp>
 #include <boost/ref.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
-namespace
-{
+namespace {
 
-typedef std::vector<std::string> TStrVec;
+typedef std::vector<std::string>                TStrVec;
 typedef boost::reference_wrapper<const TStrVec> TStrVecCRef;
-typedef std::vector<TStrVecCRef> TStrVecCRefVec;
+typedef std::vector<TStrVecCRef>                TStrVecCRefVec;
 
 //! Add detectors for the partitioning fields \p candidates.
 void add(std::size_t p,
@@ -42,25 +39,19 @@ void add(std::size_t p,
          const TStrVecCRef *candidates,
          std::size_t a,
          std::size_t b,
-         CDetectorEnumerator::TDetectorSpecificationVec &result)
-{
+         CDetectorEnumerator::TDetectorSpecificationVec &result) {
     LOG_TRACE("a = " << a << " b = " << b);
-    if (a == b)
-    {
+    if (a == b) {
         return;
     }
 
-    for (std::size_t i = 0u; i < p; ++i)
-    {
-        for (std::size_t j = a; j < b; ++j)
-        {
+    for (std::size_t i = 0u; i < p; ++i) {
+        for (std::size_t j = a; j < b; ++j) {
             const TStrVec &ci = candidates[i];
             LOG_TRACE("candidates = " << core::CContainerPrinter::print(ci));
 
-            for (std::size_t k = 0u; k < ci.size(); ++k)
-            {
-                if (result[j].canAddPartitioning(indices[i], ci[k]))
-                {
+            for (std::size_t k = 0u; k < ci.size(); ++k) {
+                if (result[j].canAddPartitioning(indices[i], ci[k])) {
                     std::size_t id = result.size();
                     result.push_back(CDetectorSpecification(result[j]));
                     result.back().id(id);
@@ -74,46 +65,38 @@ void add(std::size_t p,
 }
 
 CDetectorEnumerator::CDetectorEnumerator(const CAutoconfigurerParams &params) :
-        m_Params(params)
-{}
+    m_Params(params) {
+}
 
-void CDetectorEnumerator::addFunction(config_t::EFunctionCategory category)
-{
+void CDetectorEnumerator::addFunction(config_t::EFunctionCategory category) {
     m_Functions.push_back(category);
 }
 
-void CDetectorEnumerator::addCategoricalFunctionArgument(const std::string &argument)
-{
+void CDetectorEnumerator::addCategoricalFunctionArgument(const std::string &argument) {
     m_CandidateCategoricalFunctionArguments.push_back(argument);
 }
 
-void CDetectorEnumerator::addMetricFunctionArgument(const std::string &argument)
-{
+void CDetectorEnumerator::addMetricFunctionArgument(const std::string &argument) {
     m_CandidateMetricFunctionArguments.push_back(argument);
 }
 
-void CDetectorEnumerator::addByField(const std::string &by)
-{
+void CDetectorEnumerator::addByField(const std::string &by) {
     m_CandidateByFields.push_back(by);
 }
 
-void CDetectorEnumerator::addRareByField(const std::string &by)
-{
+void CDetectorEnumerator::addRareByField(const std::string &by) {
     m_CandidateRareByFields.push_back(by);
 }
 
-void CDetectorEnumerator::addOverField(const std::string &over)
-{
+void CDetectorEnumerator::addOverField(const std::string &over) {
     m_CandidateOverFields.push_back(over);
 }
 
-void CDetectorEnumerator::addPartitionField(const std::string &partition)
-{
+void CDetectorEnumerator::addPartitionField(const std::string &partition) {
     m_CandidatePartitionFields.push_back(partition);
 }
 
-void CDetectorEnumerator::generate(TDetectorSpecificationVec &result)
-{
+void CDetectorEnumerator::generate(TDetectorSpecificationVec &result) {
     result.clear();
 
     this->generateNoPartitioning(result);
@@ -128,71 +111,54 @@ void CDetectorEnumerator::generate(TDetectorSpecificationVec &result)
     this->addThreePartitioning(n1, n2, result);
 }
 
-void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec &result) const
-{
-    for (std::size_t i = 0u; i < m_Functions.size(); ++i)
-    {
+void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec &result) const {
+    for (std::size_t i = 0u; i < m_Functions.size(); ++i) {
         config_t::EFunctionCategory function = m_Functions[i];
 
-        if (config_t::isRare(function))
-        {
+        if (config_t::isRare(function)) {
             continue;
         }
 
-        try
-        {
+        try {
             std::size_t id = result.size();
 
-            if (config_t::hasArgument(function))
-            {
+            if (config_t::hasArgument(function)) {
                 const TStrVec &arguments = config_t::isMetric(function) ?
                                            m_CandidateMetricFunctionArguments :
                                            m_CandidateCategoricalFunctionArguments;
-                for (std::size_t j = 0u; j < arguments.size(); ++j)
-                {
+                for (std::size_t j = 0u; j < arguments.size(); ++j) {
                     result.push_back(CDetectorSpecification(m_Params, function, arguments[j], id));
                 }
-            }
-            else
-            {
+            } else {
                 result.push_back(CDetectorSpecification(m_Params, function, id));
             }
-        }
-        catch (std::exception &e)
-        {
+        } catch (std::exception &e) {
             LOG_ERROR("Bad detector: " << e.what());
         }
     }
 }
 
 void CDetectorEnumerator::addOnePartitioning(std::size_t a, std::size_t b,
-                                             TDetectorSpecificationVec &result) const
-{
+                                             TDetectorSpecificationVec &result) const {
     TStrVecCRef candidates[] =
-        {
-            boost::cref(m_CandidateByFields),
-            boost::cref(m_CandidateOverFields),
-            boost::cref(m_CandidatePartitionFields)
-        };
+    {
+        boost::cref(m_CandidateByFields),
+        boost::cref(m_CandidateOverFields),
+        boost::cref(m_CandidatePartitionFields)
+    };
     add(boost::size(constants::CFieldIndices::PARTITIONING),
         constants::CFieldIndices::PARTITIONING, candidates, a, b, result);
 
-    for (std::size_t i = 0u; i < m_Functions.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Functions.size(); ++i) {
         config_t::EFunctionCategory function = m_Functions[i];
-        if (config_t::isRare(function))
-        {
-            try
-            {
-                for (std::size_t j = 0u; j < m_CandidateRareByFields.size(); ++j)
-                {
+        if (config_t::isRare(function)) {
+            try {
+                for (std::size_t j = 0u; j < m_CandidateRareByFields.size(); ++j) {
                     std::size_t id = result.size();
                     result.push_back(CDetectorSpecification(m_Params, function, id));
                     result.back().addPartitioning(constants::BY_INDEX, m_CandidateRareByFields[j]);
                 }
-            }
-            catch (std::exception &e)
-            {
+            } catch (std::exception &e) {
                 LOG_ERROR("Bad detector: " << e.what());
             }
         }
@@ -200,26 +166,24 @@ void CDetectorEnumerator::addOnePartitioning(std::size_t a, std::size_t b,
 }
 
 void CDetectorEnumerator::addTwoPartitioning(std::size_t a, std::size_t b,
-                                             TDetectorSpecificationVec &result) const
-{
+                                             TDetectorSpecificationVec &result) const {
     static std::size_t OVER_AND_PARTITION[] =
-        {
-            constants::OVER_INDEX,
-            constants::PARTITION_INDEX
-        };
+    {
+        constants::OVER_INDEX,
+        constants::PARTITION_INDEX
+    };
     TStrVecCRef candidates[] =
-        {
-            boost::cref(m_CandidateOverFields),
-            boost::cref(m_CandidatePartitionFields)
-        };
+    {
+        boost::cref(m_CandidateOverFields),
+        boost::cref(m_CandidatePartitionFields)
+    };
     add(boost::size(OVER_AND_PARTITION), OVER_AND_PARTITION, candidates, a, b, result);
 }
 
 void CDetectorEnumerator::addThreePartitioning(std::size_t a, std::size_t b,
-                                               TDetectorSpecificationVec &result) const
-{
+                                               TDetectorSpecificationVec &result) const {
     static std::size_t PARTITION[] = { constants::PARTITION_INDEX };
-    TStrVecCRef candidates[] = { boost::cref(m_CandidatePartitionFields) };
+    TStrVecCRef        candidates[] = { boost::cref(m_CandidatePartitionFields) };
     add(boost::size(PARTITION), PARTITION, candidates, a, b, result);
 }
 

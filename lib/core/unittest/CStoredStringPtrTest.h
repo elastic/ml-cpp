@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CStoredStringPtrTest : public CppUnit::TestFixture
-{
+class CStoredStringPtrTest : public CppUnit::TestFixture {
     public:
         void testPointerSemantics(void);
         void testMemoryUsage(void);

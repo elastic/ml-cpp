@@ -18,20 +18,18 @@
 #include <core/CProcess.h>
 
 
-CppUnit::Test *CProcessTest::suite()
-{
+CppUnit::Test *CProcessTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProcessTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CProcessTest>(
-                                   "CProcessTest::testPids",
-                                   &CProcessTest::testPids) );
+                               "CProcessTest::testPids",
+                               &CProcessTest::testPids) );
 
     return suiteOfTests;
 }
 
-void CProcessTest::testPids(void)
-{
-    ml::core::CProcess &process = ml::core::CProcess::instance();
+void CProcessTest::testPids(void) {
+    ml::core::CProcess       &     process = ml::core::CProcess::instance();
     ml::core::CProcess::TPid pid = process.id();
     ml::core::CProcess::TPid ppid = process.parentId();
 

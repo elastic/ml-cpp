@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPRNGTest : public CppUnit::TestFixture
-{
+class CPRNGTest : public CppUnit::TestFixture {
     public:
         void testSplitMix64(void);
         void testXorOShiro128Plus(void);

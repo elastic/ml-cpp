@@ -24,18 +24,15 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A wrapper around the partitioning fields of a model.
 //!
 //! DESCTIPTION:\n
 //! This wraps a list of field (name, value) pairs and encapsulates
 //! constant cost access to the partition field.
-class MODEL_EXPORT CPartitioningFields
-{
+class MODEL_EXPORT CPartitioningFields {
     public:
         using TStrCRef = boost::reference_wrapper<const std::string>;
         using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
@@ -59,7 +56,7 @@ class MODEL_EXPORT CPartitioningFields
         //! Get a read only reference to the last field (name, value) pair.
         const TStrCRefStrCRefPr &back(void) const;
         //! Get the last field (name, value) pair.
-        TStrCRefStrCRefPr &back(void);
+        TStrCRefStrCRefPr       &back(void);
 
         //! Get the partition field value.
         const std::string &partitionFieldValue(void) const;

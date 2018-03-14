@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSmallVectorTest : public CppUnit::TestFixture
-{
+class CSmallVectorTest : public CppUnit::TestFixture {
     public:
         void testNonStandard(void);
 

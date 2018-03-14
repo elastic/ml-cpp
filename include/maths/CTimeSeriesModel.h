@@ -27,10 +27,8 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CDecayRateController;
 class CMultivariatePrior;
 class CPrior;
@@ -40,8 +38,7 @@ struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
 //! \brief A CModel implementation for modeling a univariate time series.
-class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
-{
+class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
     public:
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
@@ -179,14 +176,14 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! \name Test Functions
         //@{
         //! Get the sliding window of recent values.
-        const TTimeDoublePrCBuf &slidingWindow(void) const;
+        const TTimeDoublePrCBuf                 &slidingWindow(void) const;
 
         //! Get the trend.
         const CTimeSeriesDecompositionInterface &trend(void) const;
 
         //! Get the prior.
-        const CPrior &prior(void) const;
-        //@}
+        const CPrior                            &prior(void) const;
+    //@}
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -222,42 +219,41 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
 
     private:
         //! A unique identifier for this model.
-        std::size_t m_Id;
+        std::size_t                 m_Id;
 
         //! True if the data are non-negative.
-        bool m_IsNonNegative;
+        bool                        m_IsNonNegative;
 
         //! True if the model can be forecast.
-        bool m_IsForecastable;
+        bool                        m_IsForecastable;
 
         //! A random number generator for sampling the sliding window.
-        CPRNG::CXorOShiro128Plus m_Rng;
+        CPRNG::CXorOShiro128Plus    m_Rng;
 
         //! These control the trend and prior decay rates (see CDecayRateController
         //! for more details).
         TDecayRateController2AryPtr m_Controllers;
 
         //! The time series trend decomposition.
-        TDecompositionPtr m_Trend;
+        TDecompositionPtr           m_Trend;
 
         //! The prior for the time series' residual model.
-        TPriorPtr m_Prior;
+        TPriorPtr                   m_Prior;
 
         //! A model for time periods when the basic model can't predict the value
         //! of the time series.
-        TAnomalyModelPtr m_AnomalyModel;
+        TAnomalyModelPtr            m_AnomalyModel;
 
         //! A sliding window of the recent samples (used to reinitialize the
         //! residual model when a new trend component is detected).
-        TTimeDoublePrCBuf m_SlidingWindow;
+        TTimeDoublePrCBuf           m_SlidingWindow;
 
         //! Models the correlations between time series.
-        CTimeSeriesCorrelations *m_Correlations;
+        CTimeSeriesCorrelations     *m_Correlations;
 };
 
 //! \brief Manages the creation correlate models.
-class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator
-{
+class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator {
     public:
         using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;
 
@@ -295,10 +291,9 @@ class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator
 //! The user of this class simply needs to pass it to CUnivariateTimeSeriesModel on
 //! construction and manage the calls to update it after a batch of samples has been
 //! added and to refresh it before a batch of samples is added to the individual models.
-class MATHS_EXPORT CTimeSeriesCorrelations
-{
+class MATHS_EXPORT CTimeSeriesCorrelations {
     public:
-        using TTime1Vec = core::CSmallVector<core_t::TTime, 1> ;
+        using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble2Vec = core::CSmallVector<double, 2>;
         using TDouble4Vec = core::CSmallVector<double, 4>;
@@ -315,8 +310,7 @@ class MATHS_EXPORT CTimeSeriesCorrelations
         using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
 
         //! \brief Wraps up the sampled data for a feature.
-        struct MATHS_EXPORT SSampleData
-        {
+        struct MATHS_EXPORT SSampleData {
             //! The data type.
             maths_t::EDataType s_Type;
             //! The times of the samples.
@@ -380,7 +374,7 @@ class MATHS_EXPORT CTimeSeriesCorrelations
         using TModelCPtrVec = std::vector<const CUnivariateTimeSeriesModel*>;
         using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
         using TSizeSizePrMultivariatePriorPtrDoublePrPr =
-                  std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
+            std::pair<TSizeSizePr, TMultivariatePriorPtrDoublePr>;
 
     private:
         CTimeSeriesCorrelations(const CTimeSeriesCorrelations &other,
@@ -433,17 +427,17 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 
     private:
         //! The minimum significant Pearson correlation.
-        double m_MinimumSignificantCorrelation;
+        double                                      m_MinimumSignificantCorrelation;
 
         //! Filled in with the sample data if we are modeling correlates.
-        TSizeSampleDataUMap m_SampleData;
+        TSizeSampleDataUMap                         m_SampleData;
 
         //! Estimates the Pearson correlations of the k-most correlated
         //! time series.
-        CKMostCorrelated m_Correlations;
+        CKMostCorrelated                            m_Correlations;
 
         //! A lookup by time series identifier for correlated time series.
-        TSizeSize1VecUMap m_CorrelatedLookup;
+        TSizeSize1VecUMap                           m_CorrelatedLookup;
 
         //! Models of the joint distribution (of the residuals) of the pairs
         //! of time series which have significant correlation.
@@ -451,14 +445,13 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 
         //! A collection of univariate time series models for which this is
         //! modeling correlations (indexed by their identifier).
-        TModelCPtrVec m_TimeSeriesModels;
+        TModelCPtrVec                               m_TimeSeriesModels;
 
         friend class CUnivariateTimeSeriesModel;
 };
 
 //! \brief A CModel implementation for modeling a multivariate time series.
-class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
-{
+class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel {
     public:
         using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
         using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
@@ -593,14 +586,14 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! \name Test Functions
         //@{
         //! Get the sliding window of recent values.
-        const TTimeDouble2VecPrCBuf &slidingWindow(void) const;
+        const TTimeDouble2VecPrCBuf  &slidingWindow(void) const;
 
         //! Get the trend.
         const TDecompositionPtr10Vec &trend(void) const;
 
         //! Get the prior.
-        const CMultivariatePrior &prior(void) const;
-        //@}
+        const CMultivariatePrior     &prior(void) const;
+    //@}
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -620,7 +613,7 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
 
         //! Compute the prediction errors for \p sample.
         void appendPredictionErrors(double interval,
-                                    const TDouble2Vec &sample,
+                                    const TDouble2Vec & sample,
                                     TDouble1VecVec (&result)[2]);
 
         //! Get the model dimension.
@@ -628,28 +621,28 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
 
     private:
         //! True if the data are non-negative.
-        bool m_IsNonNegative;
+        bool                        m_IsNonNegative;
 
         //! A random number generator for sampling the sliding window.
-        CPRNG::CXorOShiro128Plus m_Rng;
+        CPRNG::CXorOShiro128Plus    m_Rng;
 
         //! These control the trend and prior decay rates (see CDecayRateController
         //! for more details).
         TDecayRateController2AryPtr m_Controllers;
 
         //! The time series trend decomposition.
-        TDecompositionPtr10Vec m_Trend;
+        TDecompositionPtr10Vec      m_Trend;
 
         //! The prior for the time series' residual model.
-        TMultivariatePriorPtr m_Prior;
+        TMultivariatePriorPtr       m_Prior;
 
         //! A model for time periods when the basic model can't predict the value
         //! of the time series.
-        TAnomalyModelPtr m_AnomalyModel;
+        TAnomalyModelPtr            m_AnomalyModel;
 
         //! A sliding window of the recent samples (used to reinitialize the
         //! residual model when a new trend component is detected).
-        TTimeDouble2VecPrCBuf m_SlidingWindow;
+        TTimeDouble2VecPrCBuf       m_SlidingWindow;
 };
 
 }

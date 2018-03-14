@@ -30,21 +30,17 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CLimits;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CFieldConfig;
 class CJsonOutputWriter;
@@ -58,8 +54,7 @@ class COutputHandler;
 //! Adds a new field called mlcategory and assigns to it
 //! integers that correspond to the various cateogories
 //!
-class API_EXPORT CFieldDataTyper : public CDataProcessor
-{
+class API_EXPORT CFieldDataTyper : public CDataProcessor {
     public:
         //! The index where state is stored
         static const std::string ML_STATE_INDEX;
@@ -87,7 +82,7 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
                                     false, // Ignore field names
                                     2,     // Min dictionary word length
                                     core::CWordDictionary::TWeightVerbs5Other2>
-                TTokenListDataTyperKeepsFields;
+            TTokenListDataTyperKeepsFields;
 
     public:
         //! Construct without persistence capability

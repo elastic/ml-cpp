@@ -19,8 +19,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAnomalyJobTest : public CppUnit::TestFixture
-{
+class CAnomalyJobTest : public CppUnit::TestFixture {
     public:
         void testLicense(void);
         void testBadTimes(void);

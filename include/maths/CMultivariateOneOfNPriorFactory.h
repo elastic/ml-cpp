@@ -23,24 +23,20 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate 1-of-n priors.
-class MATHS_EXPORT CMultivariateOneOfNPriorFactory
-{
+class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
     public:
         typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
+        typedef std::vector<TPriorPtr>                TPriorPtrVec;
 
     public:
         //! Create a new non-informative multivariate normal prior.

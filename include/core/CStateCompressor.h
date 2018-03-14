@@ -23,10 +23,8 @@
 #include <ios>
 #include <ostream>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 class CCompressOStream;
 
@@ -50,27 +48,25 @@ class CCompressOStream;
 //! that downstream CDataAdder/CDataSearcher store will
 //! support strings of Base64 encoded data
 //!
-class CORE_EXPORT CStateCompressor : public CDataAdder
-{
+class CORE_EXPORT CStateCompressor : public CDataAdder {
     public:
         static const std::string COMPRESSED_ATTRIBUTE;
         static const std::string END_OF_STREAM_ATTRIBUTE;
 
     public:
         typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-        typedef boost::shared_ptr<TFilteredOutput> TFilteredOutputP;
-        typedef boost::shared_ptr<CCompressOStream> TCompressOStreamP;
+        typedef boost::shared_ptr<TFilteredOutput>                           TFilteredOutputP;
+        typedef boost::shared_ptr<CCompressOStream>                          TCompressOStreamP;
 
         // Implements the boost::iostreams Sink template interface
-        class CChunkFilter
-        {
+        class CChunkFilter {
             public:
                 typedef char char_type;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :
-                        public boost::iostreams::sink_tag,
-                        public boost::iostreams::closable_tag
+                    public boost::iostreams::sink_tag,
+                    public boost::iostreams::closable_tag
                 {};
 
             public:
@@ -104,29 +100,29 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
 
             private:
                 //! The underlying datastore
-                CDataAdder &m_Adder;
+                CDataAdder            &m_Adder;
 
                 //! The filtering_stream compressor given to external clients
                 CDataAdder::TOStreamP m_OStream;
 
                 //! The sequential document number currently being written to
-                std::size_t m_CurrentDocNum;
+                std::size_t           m_CurrentDocNum;
 
                 //! The number of bytes written to the current CDataAdder stream
-                std::size_t m_BytesDone;
+                std::size_t           m_BytesDone;
 
                 //! The largest document size permitted by the downstream CDataAdder
-                std::size_t m_MaxDocSize;
+                std::size_t           m_MaxDocSize;
 
                 //! The search index to use - set by the upstream CDataAdder
-                std::string m_Index;
+                std::string           m_Index;
 
                 //! The base ID
-                std::string m_BaseId;
+                std::string           m_BaseId;
 
                 //! true if all the writes were successfull
-                bool m_WritesSuccessful;
-            };
+                bool                  m_WritesSuccessful;
+        };
 
     public:
         //! Constructor: take a reference to the underlying downstream datastore
@@ -157,10 +153,10 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
     private:
 
         //! The chunking part of the iostreams filter chain
-        CChunkFilter m_FilterSink;
+        CChunkFilter      m_FilterSink;
 
         //! The iostreams filter chain that handles compression/chunking
-        TFilteredOutputP m_OutFilter;
+        TFilteredOutputP  m_OutFilter;
 
         TCompressOStreamP m_OutStream;
 };

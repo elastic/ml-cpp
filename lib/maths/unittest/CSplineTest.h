@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSplineTest : public CppUnit::TestFixture
-{
+class CSplineTest : public CppUnit::TestFixture {
     public:
         void testNatural(void);
         void testParabolicRunout(void);

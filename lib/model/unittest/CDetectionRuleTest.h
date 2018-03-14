@@ -19,8 +19,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectionRuleTest : public CppUnit::TestFixture
-{
+class CDetectionRuleTest : public CppUnit::TestFixture {
     public:
         void testApplyGivenCategoricalCondition(void);
         void testApplyGivenNumericalActualCondition(void);

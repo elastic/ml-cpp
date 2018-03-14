@@ -22,8 +22,7 @@
 //!
 //! DESCRIPTION:\n
 //! A couple of module tests of forecast including regression tests
-class CForecastRunnerTest : public CppUnit::TestFixture
-{
+class CForecastRunnerTest : public CppUnit::TestFixture {
     public:
         void testSummaryCount();
         void testPopulation();

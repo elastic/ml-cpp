@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CInterimBucketCorrectorTest : public CppUnit::TestFixture
-{
+class CInterimBucketCorrectorTest : public CppUnit::TestFixture {
     public:
         void testCorrectionsGivenSingleValue(void);
         void testCorrectionsGivenSingleValueAndNoBaseline(void);

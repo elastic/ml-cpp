@@ -32,19 +32,15 @@
 #include <stdint.h>
 
 
-namespace
-{
+namespace {
 class CMockMetricModel;
 }
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CModelFactory;
 
 //! \brief The metric model common functionality.
@@ -64,8 +60,7 @@ class CModelFactory;
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CMetricModel : public CIndividualModel
-{
+class MODEL_EXPORT CMetricModel : public CIndividualModel {
     public:
         using TFeatureData = SMetricFeatureData;
         using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
@@ -74,8 +69,7 @@ class MODEL_EXPORT CMetricModel : public CIndividualModel
         using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.
@@ -296,10 +290,10 @@ class MODEL_EXPORT CMetricModel : public CIndividualModel
         TFeatureSizeSizeTripleDouble1VecUMap &currentBucketInterimCorrections(void) const;
 
         //! Get the person counts in the current bucket.
-        virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
+        virtual const TSizeUInt64PrVec       &currentBucketPersonCounts(void) const;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
+        virtual TSizeUInt64PrVec             &currentBucketPersonCounts(void);
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);

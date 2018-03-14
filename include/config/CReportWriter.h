@@ -24,10 +24,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CCategoricalDataSummaryStatistics;
 class CDataSummaryStatistics;
 class CDetectorSpecification;
@@ -44,12 +42,11 @@ class CNumericDataSummaryStatistics;
 //! IMPLEMENTATION:\n
 //! This uses the builder pattern accepting different objects from
 //! which to create the report.
-class CONFIG_EXPORT CReportWriter : public api::COutputHandler
-{
+class CONFIG_EXPORT CReportWriter : public api::COutputHandler {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<TStrVec> TStrVecVec;
-        typedef std::vector<TStrVecVec> TStrVecVecVec;
+        typedef std::vector<std::string>   TStrVec;
+        typedef std::vector<TStrVec>       TStrVecVec;
+        typedef std::vector<TStrVecVec>    TStrVecVecVec;
         typedef std::vector<TStrVecVecVec> TStrVecVecVecVec;
 
         //! \name Summary Statistics.
@@ -155,25 +152,25 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler
 
     private:
         //! The stream to which to write the report.
-        std::ostream &m_WriteStream;
+        std::ostream             &m_WriteStream;
 
         //! The total number of records processed.
-        std::string m_TotalRecords;
+        std::string              m_TotalRecords;
 
         //! The total number of invalid records processed.
-        std::string m_InvalidRecords;
+        std::string              m_InvalidRecords;
 
         //! The summary statistics.
-        TStrVecVec m_UnclassifiedFields;
+        TStrVecVec               m_UnclassifiedFields;
 
         //! The summary statistics for categorical fields.
-        TStrVecVec m_CategoricalFields;
+        TStrVecVec               m_CategoricalFields;
 
         //! The summary statistics for numeric fields.
-        TStrVecVec m_NumericFields;
+        TStrVecVec               m_NumericFields;
 
         //! The summary of a candidate detector.
-        TStrVecVecVecVec m_Detectors;
+        TStrVecVecVecVec         m_Detectors;
 };
 
 }

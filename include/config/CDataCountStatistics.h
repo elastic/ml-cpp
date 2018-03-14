@@ -37,40 +37,36 @@
 #include <vector>
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDetectorRecord;
 class CDetectorSpecification;
 
 //! \brief Statistics for the bucketed data.
-class CONFIG_EXPORT CBucketCountStatistics
-{
+class CONFIG_EXPORT CBucketCountStatistics {
     public:
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef core::CTriple<std::size_t, std::size_t, std::size_t> TSizeSizeSizeTr;
-        typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-        typedef boost::unordered_map<TSizeSizeSizeTr, uint64_t> TSizeSizeSizeTrUInt64UMap;
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
-        typedef core::CMaskIterator<TDetectorRecordVec::const_iterator> TDetectorRecordCItr;
+        typedef std::pair<std::size_t, std::size_t>                               TSizeSizePr;
+        typedef core::CTriple<std::size_t, std::size_t, std::size_t>              TSizeSizeSizeTr;
+        typedef boost::unordered_map<TSizeSizePr, uint64_t>                       TSizeSizePrUInt64UMap;
+        typedef boost::unordered_map<TSizeSizeSizeTr, uint64_t>                   TSizeSizeSizeTrUInt64UMap;
+        typedef std::vector<CDetectorRecord>                                      TDetectorRecordVec;
+        typedef core::CMaskIterator<TDetectorRecordVec::const_iterator>           TDetectorRecordCItr;
         typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMoments;
 
         //! \brief The moments of a categorical function argument field.
-        struct CONFIG_EXPORT SArgumentMoments
-        {
+        struct CONFIG_EXPORT SArgumentMoments {
             //! The distinct count moments.
             TMoments s_DistinctCount;
             //! The information content moments.
             TMoments s_InfoContent;
         };
 
-        typedef boost::unordered_map<TSizeSizePr, TMoments> TSizeSizePrMomentsUMap;
-        typedef boost::unordered_map<TSizeSizePr, SArgumentMoments> TSizeSizePrArgumentMomentsUMap;
+        typedef boost::unordered_map<TSizeSizePr, TMoments>                   TSizeSizePrMomentsUMap;
+        typedef boost::unordered_map<TSizeSizePr, SArgumentMoments>           TSizeSizePrArgumentMomentsUMap;
         typedef std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap> TStrCPtrSizeSizePrArgumentMomentsUMapPr;
-        typedef std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr> TStrCPtrSizeSizePrArgumentMomentsUMapPrVec;
-        typedef boost::unordered_map<TSizeSizePr, maths::CQuantileSketch> TSizeSizePrQuantileUMap;
+        typedef std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr>          TStrCPtrSizeSizePrArgumentMomentsUMapPrVec;
+        typedef boost::unordered_map<TSizeSizePr, maths::CQuantileSketch>     TSizeSizePrQuantileUMap;
 
     public:
         //! Add the record for \p partition.
@@ -85,10 +81,10 @@ class CONFIG_EXPORT CBucketCountStatistics
         uint64_t bucketPartitionCount(void) const;
 
         //! Get the moments of the count distribution per partition.
-        const TSizeSizePrMomentsUMap &countMomentsPerPartition(void) const;
+        const TSizeSizePrMomentsUMap         &countMomentsPerPartition(void) const;
 
         //! Get the quantile summary for the count distribution per partition.
-        const TSizeSizePrQuantileUMap &countQuantilesPerPartition(void) const;
+        const TSizeSizePrQuantileUMap        &countQuantilesPerPartition(void) const;
 
         //! Get the moments of the distribution of the distinct count of argument
         //! field values for \p name.
@@ -98,41 +94,40 @@ class CONFIG_EXPORT CBucketCountStatistics
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMean;
 
         //! \brief Bucket data stored about argument field.
-        struct CONFIG_EXPORT SBucketArgumentData
-        {
+        struct CONFIG_EXPORT SBucketArgumentData {
             SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) :
-                    s_DistinctValues(distinctValues)
-            {}
+                s_DistinctValues(distinctValues) {
+            }
             //! The approximate distinct values.
             maths::CBjkstUniqueValues s_DistinctValues;
             //! A sample of the unique strings in the bucket.
             TMean s_MeanStringLength;
         };
 
-        typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData> TSizeSizeSizeTrArgumentDataUMap;
+        typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData>     TSizeSizeSizeTrArgumentDataUMap;
         typedef std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap> TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr;
-        typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr> TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
+        typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr>     TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
 
     private:
         //! The distinct partitions seen this bucket.
-        TSizeSizeSizeTrUInt64UMap m_CurrentBucketPartitionCounts;
+        TSizeSizeSizeTrUInt64UMap                   m_CurrentBucketPartitionCounts;
 
         //! The distinct counts of the argument fields for each partition
         //! for the current bucket.
         TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec m_CurrentBucketArgumentDataPerPartition;
 
         //! The total count of distinct partitions and buckets seen to date.
-        uint64_t m_BucketPartitionCount;
+        uint64_t                                    m_BucketPartitionCount;
 
         //! The moments of the distribution of partition counts.
-        TSizeSizePrMomentsUMap m_CountMomentsPerPartition;
+        TSizeSizePrMomentsUMap                      m_CountMomentsPerPartition;
 
         //! The count quantiles.
-        TSizeSizePrQuantileUMap m_CountQuantiles;
+        TSizeSizePrQuantileUMap                     m_CountQuantiles;
 
         //! The moments of the distribution of distinct counts of the argument
         //! fields per partition and bucket length.
-        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec m_ArgumentMomentsPerPartition;
+        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec  m_ArgumentMomentsPerPartition;
 };
 
 //! \brief The root of the class hierarchy for useful count statistics.
@@ -148,13 +143,12 @@ class CONFIG_EXPORT CBucketCountStatistics
 //! Each logical set of data statistics has its own hierarchy and is managed
 //! by a direct address table which enumerates unique combinations and maps
 //! detectors to their appropriate statistics.
-class CONFIG_EXPORT CDataCountStatistics
-{
+class CONFIG_EXPORT CDataCountStatistics {
     public:
-        typedef std::vector<uint64_t> TUInt64Vec;
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
+        typedef std::vector<uint64_t>                                   TUInt64Vec;
+        typedef std::vector<CDetectorRecord>                            TDetectorRecordVec;
         typedef core::CMaskIterator<TDetectorRecordVec::const_iterator> TDetectorRecordCItr;
-        typedef std::vector<CBucketCountStatistics> TBucketStatisticsVec;
+        typedef std::vector<CBucketCountStatistics>                     TBucketStatisticsVec;
 
     public:
         CDataCountStatistics(const CAutoconfigurerParams &params);
@@ -184,20 +178,18 @@ class CONFIG_EXPORT CDataCountStatistics
 
         //! Extract the by field value.
         template<typename T>
-        static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p)
-        {
+        static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
             return p.first.first;
         }
 
         //! Extract the partition field value.
         template<typename T>
-        static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p)
-        {
+        static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
             return p.first.second;
         }
 
     protected:
-        typedef std::vector<core_t::TTime> TTimeVec;
+        typedef std::vector<core_t::TTime>        TTimeVec;
         typedef boost::unordered_set<std::size_t> TSizeUSet;
 
     protected:
@@ -208,14 +200,14 @@ class CONFIG_EXPORT CDataCountStatistics
         bool samplePartition(std::size_t partition) const;
 
     private:
-        typedef std::vector<bool> TBoolVec;
-        typedef std::vector<TBoolVec> TBoolVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-        typedef boost::optional<core_t::TTime> TOptionalTime;
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
+        typedef std::vector<bool>                                                                              TBoolVec;
+        typedef std::vector<TBoolVec>                                                                          TBoolVecVec;
+        typedef std::vector<std::size_t>                                                                       TSizeVec;
+        typedef std::pair<std::size_t, std::size_t>                                                            TSizeSizePr;
+        typedef boost::unordered_set<TSizeSizePr>                                                              TSizeSizePrUSet;
+        typedef boost::optional<core_t::TTime>                                                                 TOptionalTime;
+        typedef boost::reference_wrapper<const CAutoconfigurerParams>                                          TAutoconfigurerParamsCRef;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>                               TMinTimeAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime> > TMaxTimeAccumulator;
 
     private:
@@ -224,54 +216,53 @@ class CONFIG_EXPORT CDataCountStatistics
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef       m_Params;
 
         //! The total count of records added.
-        uint64_t m_RecordCount;
+        uint64_t                        m_RecordCount;
 
         //! The last record time.
-        TOptionalTime m_LastRecordTime;
+        TOptionalTime                   m_LastRecordTime;
 
         //! The approximate distribution function of arrival times.
-        maths::CQuantileSketch m_ArrivalTimeDistribution;
+        maths::CQuantileSketch          m_ArrivalTimeDistribution;
 
         //! The earliest example time.
-        TMinTimeAccumulator m_Earliest;
+        TMinTimeAccumulator             m_Earliest;
 
         //! The latest example time.
-        TMaxTimeAccumulator m_Latest;
+        TMaxTimeAccumulator             m_Latest;
 
         //! The times of the ends of the last complete buckets.
-        TTimeVec m_LastBucketEndTimes;
+        TTimeVec                        m_LastBucketEndTimes;
 
         //! The set of all partitions.
-        TSizeUSet m_Partitions;
+        TSizeUSet                       m_Partitions;
 
         //! The partitions which are being sampled.
-        TSizeUSet m_SampledPartitions;
+        TSizeUSet                       m_SampledPartitions;
 
         //! The sampled distinct time series.
-        TSizeSizePrUSet m_SampledTimeSeries;
+        TSizeSizePrUSet                 m_SampledTimeSeries;
 
         //! The pseudo r.n.g. for generating permutations of the masks.
         maths::CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The current index into the masks.
-        TSizeVec m_BucketIndices;
+        TSizeVec                        m_BucketIndices;
 
         //! The bucket sampling masks.
-        TBoolVecVec m_BucketMasks;
+        TBoolVecVec                     m_BucketMasks;
 
         //! The total count of complete buckets seen.
-        TUInt64Vec m_BucketCounts;
+        TUInt64Vec                      m_BucketCounts;
 
         //! The bucket statistics.
-        TBucketStatisticsVec m_BucketStatistics;
+        TBucketStatisticsVec            m_BucketStatistics;
 };
 
 //! \brief The count statistics for detectors with no "by" or "over" field.
-class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics {
     public:
         CPartitionDataCountStatistics(const CAutoconfigurerParams &params);
 
@@ -280,13 +271,12 @@ class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics
 };
 
 //! \brief The count statistics for detectors with no "over" field.
-class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatistics {
     public:
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
+        typedef std::pair<std::size_t, std::size_t>         TSizeSizePr;
+        typedef boost::unordered_set<TSizeSizePr>           TSizeSizePrUSet;
         typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-        typedef TSizeSizePrUInt64UMap::const_iterator TSizeSizePrUInt64UMapCItr;
+        typedef TSizeSizePrUInt64UMap::const_iterator       TSizeSizePrUInt64UMapCItr;
 
     public:
         CByAndPartitionDataCountStatistics(const CAutoconfigurerParams &params);
@@ -296,13 +286,12 @@ class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatis
 };
 
 //! \brief The count statistics for detectors with a "by" and an "over" field.
-class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountStatistics {
     public:
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
+        typedef boost::unordered_map<std::size_t, uint64_t>                  TSizeUInt64UMap;
+        typedef std::pair<std::size_t, std::size_t>                          TSizeSizePr;
         typedef boost::unordered_map<TSizeSizePr, maths::CBjkstUniqueValues> TSizeSizePrCBjkstUMap;
-        typedef TSizeSizePrCBjkstUMap::const_iterator TSizeSizePrCBjkstUMapCItr;
+        typedef TSizeSizePrCBjkstUMap::const_iterator                        TSizeSizePrCBjkstUMapCItr;
 
     public:
         CByOverAndPartitionDataCountStatistics(const CAutoconfigurerParams &params);
@@ -315,7 +304,7 @@ class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountSt
 
     private:
         //! The distinct count of over values per (by, partition) pair.
-        TSizeSizePrCBjkstUMap m_DistinctOverValues;
+        TSizeSizePrCBjkstUMap       m_DistinctOverValues;
 };
 
 //! \brief Responsible for creating unique data count statistics and providing
@@ -328,10 +317,9 @@ class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountSt
 //! maintain a direct address table from every detector, built once up front
 //! on the set of initial candidate detectors, to a corresponding collection
 //! unique data count statistics.
-class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable
-{
+class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable {
     public:
-        typedef std::vector<CDetectorRecord> TDetectorRecordVec;
+        typedef std::vector<CDetectorRecord>        TDetectorRecordVec;
         typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
 
     public:
@@ -350,12 +338,12 @@ class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable
         const CDataCountStatistics &statistics(const CDetectorSpecification &spec) const;
 
     private:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<ptrdiff_t> TPtrDiffVec;
-        typedef std::vector<TPtrDiffVec> TPtrDiffVecVec;
+        typedef std::vector<std::size_t>                              TSizeVec;
+        typedef std::vector<ptrdiff_t>                                TPtrDiffVec;
+        typedef std::vector<TPtrDiffVec>                              TPtrDiffVecVec;
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
-        typedef std::shared_ptr<CDataCountStatistics> TDataCountStatisticsPtr;
-        typedef std::vector<TDataCountStatisticsPtr> TDataCountStatisticsPtrVec;
+        typedef std::shared_ptr<CDataCountStatistics>                 TDataCountStatisticsPtr;
+        typedef std::vector<TDataCountStatisticsPtr>                  TDataCountStatisticsPtrVec;
 
     private:
         //! Get the statistics for \p spec.
@@ -363,13 +351,13 @@ class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef  m_Params;
 
         //! The many-to-one map from detector to data count statistic.
-        TSizeVec m_DetectorSchema;
+        TSizeVec                   m_DetectorSchema;
 
         //! The one-to-one map from data count statistic to first detector.
-        TPtrDiffVecVec m_RecordSchema;
+        TPtrDiffVecVec             m_RecordSchema;
 
         //! The actual count statistics.
         TDataCountStatisticsPtrVec m_DataCountStatistics;

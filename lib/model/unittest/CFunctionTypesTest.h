@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CFunctionTypesTest : public CppUnit::TestFixture
-{
+class CFunctionTypesTest : public CppUnit::TestFixture {
     public:
         void testFeaturesToFunction(void);
 

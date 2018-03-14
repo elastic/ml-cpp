@@ -19,18 +19,15 @@
 #include <model/CHierarchicalResults.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CLimits;
 
 //! \brief FIXME
 //!
 //! DESCRIPTION:\n
 //! FIXME
-class MODEL_EXPORT CHierarchicalResultsPopulator : public CHierarchicalResultsVisitor
-{
+class MODEL_EXPORT CHierarchicalResultsPopulator : public CHierarchicalResultsVisitor {
     public:
         //! Constructor
         CHierarchicalResultsPopulator(const CLimits &limits);

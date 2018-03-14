@@ -18,10 +18,8 @@
 
 #include <core/CRapidJsonWriterBase.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! Writes each Json object to a single line.
 //! Not as verbose as rapidjson::prettywriter but it is still possible to
@@ -32,22 +30,20 @@ namespace core
     \tparam TARGET_ENCODING Encoding of output stream.
     \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
     \note implements Handler concept
-*/
+ */
 template<typename OUTPUT_STREAM,
          typename SOURCE_ENCODING = rapidjson::UTF8<>,
          typename TARGET_ENCODING = rapidjson::UTF8<>,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
-class CRapidJsonLineWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer >
-{
+class CRapidJsonLineWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer > {
     public:
 
         using TRapidJsonWriterBase = CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer>;
         using TRapidJsonWriterBase::TRapidJsonWriterBase;
 
         //! Overwrites the Writer::StartObject in order to count nested objects
-        bool StartObject()
-        {
+        bool StartObject() {
             ++m_ObjectCount;
             return TRapidJsonWriterBase::StartObject();
         }
@@ -55,14 +51,12 @@ class CRapidJsonLineWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_
         //! Overwrites Writer::EndObject in order to inject new lines if:
         //! - it's the end of the json object or array
         //! - it's the end of a json object as part of an array
-        bool EndObject(rapidjson::SizeType memberCount = 0)
-        {
+        bool EndObject(rapidjson::SizeType memberCount = 0) {
             bool baseReturnCode = TRapidJsonWriterBase::EndObject(memberCount);
             --m_ObjectCount;
 
             // put a new line if at top level or if inside an array
-            if (TRapidJsonWriterBase::level_stack_.Empty() || m_ObjectCount == 0)
-            {
+            if (TRapidJsonWriterBase::level_stack_.Empty() || m_ObjectCount == 0) {
                 TRapidJsonWriterBase::os_->Put('\n');
             }
             return baseReturnCode;
@@ -72,8 +66,7 @@ class CRapidJsonLineWriter : public CRapidJsonWriterBase< OUTPUT_STREAM, SOURCE_
         //! Note this non-virtual overwrite is needed to avoid slicing of the writer
         //! and hence ensure the correct StartObject/EndObject functions are called
         //! \p doc reference to rapidjson document value
-        void write(rapidjson::Value &doc)
-        {
+        void write(rapidjson::Value &doc) {
             doc.Accept(*this);
         }
 

@@ -27,15 +27,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief This does online segmentation with fixed space by approximate
@@ -106,18 +103,17 @@ struct SDistributionRestoreParams;
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CNaturalBreaksClassifier
-{
+class MATHS_EXPORT CNaturalBreaksClassifier {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TDoubleTuple;
-        typedef std::vector<TDoubleTuple> TDoubleTupleVec;
+        typedef std::vector<std::size_t>                                      TSizeVec;
+        typedef std::vector<double>                                           TDoubleVec;
+        typedef std::pair<double, double>                                     TDoubleDoublePr;
+        typedef std::vector<TDoubleDoublePr>                                  TDoubleDoublePrVec;
+        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator        TDoubleTuple;
+        typedef std::vector<TDoubleTuple>                                     TDoubleTupleVec;
         typedef CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator TTuple;
-        typedef std::vector<TTuple> TTupleVec;
-        typedef std::vector<CNaturalBreaksClassifier> TClassifierVec;
+        typedef std::vector<TTuple>                                           TTupleVec;
+        typedef std::vector<CNaturalBreaksClassifier>                         TClassifierVec;
 
     public:
         //! The type of optimization object which it is possible
@@ -126,8 +122,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         //!      variation.
         //!   -# Variation is the total sample variation, i.e. the
         //!      sum of the square differences from the sample mean.
-        enum EObjective
-        {
+        enum EObjective {
             E_TargetDeviation,
             E_TargetVariation
         };
@@ -331,28 +326,26 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         static double variation(const TTuple &category);
 
         //! Wrapper to evaluate the specified object function.
-        static inline double objective(EObjective objective, const TTuple &category)
-        {
-            switch (objective)
-            {
-            case E_TargetDeviation: return deviation(category);
-            case E_TargetVariation: return variation(category);
+        static inline double objective(EObjective objective, const TTuple &category) {
+            switch (objective) {
+                case E_TargetDeviation: return deviation(category);
+                case E_TargetVariation: return variation(category);
             }
             return deviation(category);
         }
 
     private:
         //! The maximum space in doubles.
-        std::size_t m_Space;
+        std::size_t        m_Space;
 
         //! The rate at which the categories lose information.
-        double m_DecayRate;
+        double             m_DecayRate;
 
         //! The minimum permitted count for a category.
-        double m_MinimumCategoryCount;
+        double             m_MinimumCategoryCount;
 
         //! The categories we are maintaining.
-        TTupleVec m_Categories;
+        TTupleVec          m_Categories;
 
         //! A buffer of the points added while the space constraint is satisfied.
         TDoubleDoublePrVec m_PointsBuffer;

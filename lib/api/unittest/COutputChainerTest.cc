@@ -31,19 +31,17 @@
 #include <fstream>
 
 
-CppUnit::Test *COutputChainerTest::suite()
-{
+CppUnit::Test *COutputChainerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<COutputChainerTest>(
-                                   "COutputChainerTest::testChaining",
-                                   &COutputChainerTest::testChaining) );
+                               "COutputChainerTest::testChaining",
+                               &COutputChainerTest::testChaining) );
 
     return suiteOfTests;
 }
 
-void COutputChainerTest::testChaining(void)
-{
+void COutputChainerTest::testChaining(void) {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
@@ -60,12 +58,12 @@ void COutputChainerTest::testChaining(void)
         // Set up the processing chain as:
         // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
 
-        ml::model::CLimits limits;
+        ml::model::CLimits    limits;
         ml::api::CFieldConfig fieldConfig;
         CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig =
-                ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
         ml::api::CAnomalyJob job("job",
                                  limits,
@@ -91,13 +89,12 @@ void COutputChainerTest::testChaining(void)
 
     // Check the results by re-reading the output file
     std::ifstream reReadStrm(outputFileName.c_str());
-    std::string line;
-    std::string modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
+    std::string   line;
+    std::string   modelSizeString("\"" + ml::api::CJsonOutputWriter::MODEL_BYTES + "\":");
 
     std::string expectedLineStart("{\"bucket\":{\"job_id\":\"job\",\"timestamp\":1431853200000,");
 
-    while (line.length() == 0 || line.find(modelSizeString) != std::string::npos)
-    {
+    while (line.length() == 0 || line.find(modelSizeString) != std::string::npos) {
         std::getline(reReadStrm, line);
         LOG_DEBUG("Read line: " << line);
     }

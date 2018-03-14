@@ -34,10 +34,8 @@
 #include <limits>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CLogTDistribution;
 template<typename T> class CMixtureDistribution;
 
@@ -54,8 +52,7 @@ template<typename T> class CMixtureDistribution;
 //! all member functions should be static and it should be state-less.
 //! If your functionality doesn't fit this pattern just make it a nested
 //! class.
-class MATHS_EXPORT CTools : private core::CNonInstantiatable
-{
+class MATHS_EXPORT CTools : private core::CNonInstantiatable {
     public:
         BOOST_MATH_DECLARE_DISTRIBUTIONS(double, boost::math::policies::policy<>)
         using TDoubleDoublePr = std::pair<double, double>;
@@ -70,8 +67,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
 
         //! \brief Computes minus the log of the c.d.f. of a specified sample
         //! of an R.V. for various distributions.
-        struct MATHS_EXPORT SMinusLogCdf
-        {
+        struct MATHS_EXPORT SMinusLogCdf {
             double operator()(const SImproperDistribution &, double x) const;
             double operator()(const normal &normal_, double x) const;
             double operator()(const students_t &students, double x) const;
@@ -87,8 +83,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! precision, i.e. these do not lose precision when the result is
         //! close to 1 and the smallest value is the minimum double rather
         //! than epsilon.
-        struct MATHS_EXPORT SMinusLogCdfComplement
-        {
+        struct MATHS_EXPORT SMinusLogCdfComplement {
             double operator()(const SImproperDistribution &, double) const;
             double operator()(const normal &normal_, double x) const;
             double operator()(const students_t &students, double x) const;
@@ -125,8 +120,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //!
         //! and normalizes the result so that it equals one at the distribution
         //! median.
-        class MATHS_EXPORT CProbabilityOfLessLikelySample
-        {
+        class MATHS_EXPORT CProbabilityOfLessLikelySample {
             public:
                 CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
 
@@ -159,8 +153,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! from a mixture model.
         //!
         //! \sa CProbabilityOfLessLikelySample
-        class MATHS_EXPORT CMixtureProbabilityOfLessLikelySample
-        {
+        class MATHS_EXPORT CMixtureProbabilityOfLessLikelySample {
             public:
                 //! Computes the value of the smooth kernel of an integral
                 //! which approximates the probability of less likely samples.
@@ -180,8 +173,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                 //! kernel, i.e. \f$k'(s) = k(s)/f(x)\f$ so the output must
                 //! be scaled by \f$f(x)\f$ to recover the true probability.
                 template<typename LOGF>
-                class CSmoothedKernel : private core::CNonCopyable
-                {
+                class CSmoothedKernel : private core::CNonCopyable {
                     public:
                         CSmoothedKernel(LOGF logf, double logF0, double k);
 
@@ -189,7 +181,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                         bool operator()(double x, double &result) const;
 
                     private:
-                        LOGF m_LogF;
+                        LOGF   m_LogF;
                         double m_LogF0;
                         double m_K;
                         double m_Scale;
@@ -293,15 +285,15 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
 
             private:
                 //! The sample.
-                double m_X;
+                double          m_X;
                 //! The log p.d.f. of the sample for which to compute the
                 //! probability.
-                double m_LogFx;
+                double          m_LogFx;
                 //! The integration interval [a, b].
-                double m_A, m_B;
+                double          m_A, m_B;
                 //! Filled in with the end points of the seed intervals for
                 //! adaptive quadrature.
-                TDoubleVec m_Endpoints;
+                TDoubleVec      m_Endpoints;
                 //! The maximum deviation of the sample from any mode.
                 TMaxAccumulator m_MaxDeviation;
         };
@@ -315,8 +307,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! <pre class="fragment">
         //!   \f$E[ X 1{[a,b]} ] / E[ 1{a,b]} ]\f$
         //! </pre>
-        struct MATHS_EXPORT SIntervalExpectation
-        {
+        struct MATHS_EXPORT SIntervalExpectation {
             double operator()(const normal &normal_, double a, double b) const;
             double operator()(const lognormal &logNormal, double a, double b) const;
             double operator()(const gamma &gamma_, double a, double b) const;
@@ -412,16 +403,14 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         static double differentialEntropy(const lognormal &logNormal);
         static double differentialEntropy(const gamma &gamma_);
         template<typename T>
-        class CDifferentialEntropyKernel
-        {
+        class CDifferentialEntropyKernel {
             public:
                 CDifferentialEntropyKernel(const CMixtureDistribution<T> &mixture) :
-                        m_Mixture(&mixture)
-                {}
+                    m_Mixture(&mixture) {
+                }
 
-                inline bool operator()(double x, double &result) const
-                {
-                    double fx = pdf(*m_Mixture, x);
+                inline bool operator()(double x, double &result) const {
+                    double                         fx = pdf(*m_Mixture, x);
                     result = fx == 0.0 ? 0.0 : -fx * std::log(fx);
                     return true;
                 }
@@ -437,17 +426,16 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //!
         //! \tparam T must be a floating point type.
         template<typename T>
-        static bool logWillUnderflow(T log)
-        {
+        static bool logWillUnderflow(T log) {
             static const T LOG_DENORM_MIN = std::log(std::numeric_limits<T>::min());
             return log < LOG_DENORM_MIN;
         }
 
-        //! \name Fast Log
+    //! \name Fast Log
     private:
         //! The precision to use for fastLog, which gives good runtime
         //! accuracy tradeoff.
-        static const int FAST_LOG_PRECISION = 14;
+        static const int         FAST_LOG_PRECISION = 14;
 
         //! Shift used to index the lookup table in fastLog.
         static const std::size_t FAST_LOG_SHIFT = 52 - FAST_LOG_PRECISION;
@@ -466,8 +454,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! This is taken from the approach given in
         //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
         template<int BITS>
-        class CLookupTableForFastLog
-        {
+        class CLookupTableForFastLog {
             public:
                 static const std::size_t BINS = 1 << BITS;
 
@@ -476,8 +463,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
 
             public:
                 //! Builds the table.
-                CLookupTableForFastLog(void)
-                {
+                CLookupTableForFastLog(void) {
                     // Notes:
                     //   1) The shift is the maximum mantissa / BINS.
                     //   2) The sign bit is set to 0 which is positive.
@@ -488,14 +474,13 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                     //      (interpreted as an integer) to the corresponding
                     //      double value and fastLog uses the same approach
                     //      to extract the mantissa.
-                    uint64_t dx = 0x10000000000000ull / BINS;
+                    uint64_t                   dx = 0x10000000000000ull / BINS;
                     core::CIEEE754::SDoubleRep x;
                     x.s_Sign = 0;
                     x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
                     x.s_Exponent = 1022;
                     for (std::size_t i = 0u; i < BINS; ++i,
-                          x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK)
-                    {
+                         x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                         double value;
                         static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
                                       "SDoubleRep definition unsuitable for memcpy to double");
@@ -507,8 +492,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                 }
 
                 //! Lookup log2 for a given mantissa.
-                const double &operator[](uint64_t mantissa) const
-                {
+                const double &operator[](uint64_t mantissa) const {
                     return m_Table[mantissa >> FAST_LOG_SHIFT];
                 }
 
@@ -527,45 +511,39 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! \param[in] x The value for which to compute the natural log.
         //! \note This is taken from the approach given in
         //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
-        static double fastLog(double x)
-        {
+        static double fastLog(double x) {
             uint64_t mantissa;
-            int log2;
+            int      log2;
             core::CIEEE754::decompose(x, mantissa, log2);
             return 0.693147180559945 * (FAST_LOG_TABLE[mantissa] + log2);
         }
-        //@}
+    //@}
 
     private:
         //! Get the location of the point \p x.
         template<typename T>
-        static double location(T x)
-        {
+        static double location(T x) {
             return x;
         }
         //! Set \p x to \p y.
         template<typename T>
-        static void setLocation(T &x, double y)
-        {
+        static void setLocation(T &x, double y) {
             x = static_cast<T>(y);
         }
         //! Get a writable location of the point \p x.
         template<typename T>
-        static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator &x)
-        {
+        static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator &x) {
             return CBasicStatistics::mean(x);
         }
         //! Set the mean of \p x to \p y.
         template<typename T>
-        static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator &x, double y)
-        {
+        static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator &x, double y) {
             x.s_Moments[0] = static_cast<T>(y);
         }
 
         //! \brief Utility class to represent points which are adjacent
         //! in the spreading algorithm.
-        class MATHS_EXPORT CGroup
-        {
+        class MATHS_EXPORT CGroup {
             public:
                 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -573,11 +551,10 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                 //! Create a new points group.
                 template<typename T>
                 CGroup(std::size_t index, const T &points) :
-                        m_A(index),
-                        m_B(index),
-                        m_Centre()
-                {
-                     m_Centre.add(location(points[index]));
+                    m_A(index),
+                    m_B(index),
+                    m_Centre() {
+                    m_Centre.add(location(points[index]));
                 }
 
                 //! Merge this group and \p other group.
@@ -593,18 +570,14 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                 //! Update the locations of the points in this group based
                 //! on its centre position.
                 template<typename T>
-                bool spread(double separation, T &points) const
-                {
-                    if (m_A == m_B)
-                    {
+                bool spread(double separation, T &points) const {
+                    if (m_A == m_B) {
                         return false;
                     }
-                    bool result = false;
+                    bool   result = false;
                     double x = this->leftEndpoint(separation);
-                    for (std::size_t i = m_A; i <= m_B; ++i, x += separation)
-                    {
-                        if (location(points[i]) != x)
-                        {
+                    for (std::size_t i = m_A; i <= m_B; ++i, x += separation) {
+                        if (location(points[i]) != x) {
                             setLocation(points[i], x);
                             result = true;
                         }
@@ -619,18 +592,16 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
                 //! Get the position of the right end point of this group.
                 double rightEndpoint(double separation) const;
 
-                std::size_t m_A;
-                std::size_t m_B;
+                std::size_t      m_A;
+                std::size_t      m_B;
                 TMeanAccumulator m_Centre;
         };
 
         //! \brief Orders two points by their position.
-        class CPointLess
-        {
+        class CPointLess {
             public:
                 template<typename T>
-                bool operator()(const T &lhs, const T &rhs) const
-                {
+                bool operator()(const T &lhs, const T &rhs) const {
                     return location(lhs) < location(rhs);
                 }
         };
@@ -664,8 +635,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! \note Conversion of 0 and -1 to T should be well defined.
         //! \note Zero maps to 1.
         template<typename T>
-        static T sign(const T &x)
-        {
+        static T sign(const T &x) {
             return x < T(0) ? T(-1) : T(1);
         }
 
@@ -673,8 +643,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //!
         //! \tparam T Must support operator<.
         template<typename T>
-        static const T &truncate(const T &x, const T &a, const T &b)
-        {
+        static const T &truncate(const T &x, const T &a, const T &b) {
             return x < a ? a : (b < x ? b : x);
         }
 
@@ -682,11 +651,9 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         template<typename T, std::size_t N>
         static CVectorNx1<T, N> truncate(const CVectorNx1<T, N> &x,
                                          const CVectorNx1<T, N> &a,
-                                         const CVectorNx1<T, N> &b)
-        {
+                                         const CVectorNx1<T, N> &b) {
             CVectorNx1<T, N> result(x);
-            for (std::size_t i = 0u; i < N; ++i)
-            {
+            for (std::size_t i = 0u; i < N; ++i) {
                 result(i) = truncate(result(i), a(i), b(i));
             }
             return result;
@@ -696,11 +663,9 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         template<typename T>
         static CVector<T> truncate(const CVector<T> &x,
                                    const CVector<T> &a,
-                                   const CVector<T> &b)
-        {
+                                   const CVector<T> &b) {
             CVector<T> result(x);
-            for (std::size_t i = 0u; i < result.dimension(); ++i)
-            {
+            for (std::size_t i = 0u; i < result.dimension(); ++i) {
                 result(i) = truncate(result(i), a(i), b(i));
             }
             return result;
@@ -710,11 +675,9 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         template<typename T, std::size_t N>
         static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N> &x,
                                                  const core::CSmallVector<T, N> &a,
-                                                 const core::CSmallVector<T, N> &b)
-        {
+                                                 const core::CSmallVector<T, N> &b) {
             core::CSmallVector<T, N> result(x);
-            for (std::size_t i = 0u; i < result.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < result.size(); ++i) {
                 result[i] = truncate(result[i], a[i], b[i]);
             }
             return result;
@@ -727,8 +690,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         static double shiftRight(double x, double eps = std::numeric_limits<double>::epsilon());
 
         //! Sigmoid function of \p p.
-        static double sigmoid(double p)
-        {
+        static double sigmoid(double p) {
             return 1.0 / (1.0 + 1.0 / p);
         }
 
@@ -743,10 +705,9 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! \param[in] x The argument.
         //! \param[in] width The step width.
         //! \param[in] sign Determines whether it's a step up or down.
-        static double smoothHeaviside(double x, double width, double sign = 1.0)
-        {
-            return  sigmoid(std::exp(sign * (x - 1.0) / width))
-                  / sigmoid(std::exp(1.0 / width));
+        static double smoothHeaviside(double x, double width, double sign = 1.0) {
+            return sigmoid(std::exp(sign * (x - 1.0) / width))
+                   / sigmoid(std::exp(1.0 / width));
         }
 };
 

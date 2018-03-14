@@ -24,10 +24,8 @@
 #include <map>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -41,8 +39,7 @@ namespace core
 //! Directly uses RapidXml to avoid the inefficiency of an
 //! intermediate node hierarchy.
 //!
-class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
-{
+class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
     public:
         typedef std::map<std::string, std::string> TStrStrMap;
         typedef TStrStrMap::const_iterator         TStrStrMapCItr;
@@ -83,7 +80,7 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter
     private:
         //! XML documents are likely to contain the same node names many times,
         //! so just store each unique name once for efficiency
-        CStringCache          m_NameCache;
+        CStringCache m_NameCache;
 
         typedef rapidxml::xml_document<char>  TCharRapidXmlDocument;
         typedef rapidxml::xml_node<char>      TCharRapidXmlNode;

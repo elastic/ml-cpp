@@ -31,15 +31,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief Manages the indexing for the feature values in the statistics
 //! vectors passed from data gatherers to the model classes.
-class MODEL_EXPORT CFeatureDataIndexing
-{
+class MODEL_EXPORT CFeatureDataIndexing {
     public:
         using TSizeVec = std::vector<std::size_t>;
 
@@ -50,8 +47,7 @@ class MODEL_EXPORT CFeatureDataIndexing
 };
 
 //! \brief The data for an event rate series feature.
-struct MODEL_EXPORT SEventRateFeatureData
-{
+struct MODEL_EXPORT SEventRateFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TStrCRef = boost::reference_wrapper<const std::string>;
     using TDouble1VecDoublePr = std::pair<TDouble1Vec, double>;
@@ -78,8 +74,7 @@ struct MODEL_EXPORT SEventRateFeatureData
 };
 
 //! \brief The data for a metric series feature.
-struct MODEL_EXPORT SMetricFeatureData
-{
+struct MODEL_EXPORT SMetricFeatureData {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TOptionalSample = boost::optional<CSample>;
     using TSampleVec = std::vector<CSample>;

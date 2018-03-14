@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CHashingTest : public CppUnit::TestFixture
-{
+class CHashingTest : public CppUnit::TestFixture {
     public:
         void testUniversalHash(void);
         void testMurmurHash(void);

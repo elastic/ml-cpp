@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class COsFileFuncsTest : public CppUnit::TestFixture
-{
+class COsFileFuncsTest : public CppUnit::TestFixture {
     public:
         void testInode(void);
         void testLStat(void);

@@ -24,14 +24,11 @@
 #include <complex>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Useful functions from signal processing.
-class MATHS_EXPORT CSignal
-{
+class MATHS_EXPORT CSignal {
     public:
         using TDoubleVec = std::vector<double>;
         using TComplex = std::complex<double>;

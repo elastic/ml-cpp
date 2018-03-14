@@ -28,10 +28,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -72,8 +70,7 @@ namespace core
 //! write lock).  These are faster than critical sections, presumably
 //! because critical sections are recursive.
 //!
-class CORE_EXPORT CFastMutex : private CNonCopyable
-{
+class CORE_EXPORT CFastMutex : private CNonCopyable {
     public:
         CFastMutex(void);
         ~CFastMutex(void);
@@ -83,11 +80,11 @@ class CORE_EXPORT CFastMutex : private CNonCopyable
 
     private:
 #ifdef Windows
-        SRWLOCK            m_Mutex;
+        SRWLOCK m_Mutex;
 #elif defined(MacOSX)
-        OSSpinLock         m_Mutex;
+        OSSpinLock m_Mutex;
 #else
-        pthread_mutex_t    m_Mutex;
+        pthread_mutex_t m_Mutex;
 #endif
 };
 

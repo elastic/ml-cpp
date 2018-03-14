@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAllocationStrategyTest : public CppUnit::TestFixture
-{
+class CAllocationStrategyTest : public CppUnit::TestFixture {
     public:
         void test(void);
 

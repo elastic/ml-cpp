@@ -27,12 +27,11 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<std::string> TStrVec;
 
-void CDataSemanticsTest::testBinary(void)
-{
+void CDataSemanticsTest::testBinary(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------+");
     LOG_DEBUG("|  CDataSemanticsTest::testBinary  |");
@@ -41,22 +40,20 @@ void CDataSemanticsTest::testBinary(void)
     // Try a numeric and non-numeric example of a binary variable.
 
     std::string categories[][2] =
-        {
-            {"false", "true"},
-            {"0", "1"}
-        };
+    {
+        {"false", "true"},
+        {"0", "1"}
+    };
 
     test::CRandomNumbers rng;
 
     TSizeVec v;
     rng.generateUniformSamples(0, 2, 100, v);
 
-    for (std::size_t i = 0u; i < boost::size(categories); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(categories); ++i) {
         config::CDataSemantics semantics;
         CPPUNIT_ASSERT_EQUAL(config_t::E_UndeterminedType, semantics.type());
-        for (std::size_t j = 0u; j < v.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < v.size(); ++j) {
             semantics.add(categories[i][v[j]]);
         }
         semantics.computeType();
@@ -64,8 +61,7 @@ void CDataSemanticsTest::testBinary(void)
     }
 }
 
-void CDataSemanticsTest::testNonNumericCategorical(void)
-{
+void CDataSemanticsTest::testNonNumericCategorical(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------------------------+");
     LOG_DEBUG("|  CDataSemanticsTest::testNonNumericCategorical  |");
@@ -84,19 +80,16 @@ void CDataSemanticsTest::testNonNumericCategorical(void)
 
     config::CDataSemantics semantics;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < samples.size(); ++i) {
         semantics.add(categories[samples[i]]);
-        if (i > 10)
-        {
+        if (i > 10) {
             semantics.computeType();
             CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
         }
     }
 }
 
-void CDataSemanticsTest::testNumericCategorical(void)
-{
+void CDataSemanticsTest::testNumericCategorical(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+----------------------------------------------+");
     LOG_DEBUG("|  CDataSemanticsTest::testNumericCategorical  |");
@@ -106,13 +99,13 @@ void CDataSemanticsTest::testNumericCategorical(void)
     // identified as categorical.
 
     double codes[] =
-        {
-            200, 201, 202, 303, 400, 403, 404, 500, 501, 503, 506, 598, 599
-        };
+    {
+        200, 201, 202, 303, 400, 403, 404, 500, 501, 503, 506, 598, 599
+    };
     double frequencies[] =
-        {
-            0.7715, 0.03, 0.05, 0.001, 0.005, 0.041, 0.061, 0.002, 0.0005, 0.021, 0.001, 0.002, 0.014
-        };
+    {
+        0.7715, 0.03, 0.05, 0.001, 0.005, 0.041, 0.061, 0.002, 0.0005, 0.021, 0.001, 0.002, 0.014
+    };
 
     test::CRandomNumbers rng;
 
@@ -124,8 +117,7 @@ void CDataSemanticsTest::testNumericCategorical(void)
 
     config::CDataSemantics semantics;
 
-    for (std::size_t i = 0u; i < status.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < status.size(); ++i) {
         semantics.add(core::CStringUtils::typeToString(static_cast<unsigned int>(status[i])));
     }
     semantics.computeType();
@@ -133,8 +125,7 @@ void CDataSemanticsTest::testNumericCategorical(void)
     CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
 }
 
-void CDataSemanticsTest::testInteger(void)
-{
+void CDataSemanticsTest::testInteger(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CDataSemanticsTest::testInteger  |");
@@ -151,10 +142,8 @@ void CDataSemanticsTest::testInteger(void)
         rng.generateUniformSamples(0.0, 25.0, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
@@ -175,15 +164,12 @@ void CDataSemanticsTest::testInteger(void)
         rng.generateNormalSamples(-10.0, 100.0, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
-            if ((i + 1) % 100 == 0)
-            {
+            if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
@@ -196,15 +182,12 @@ void CDataSemanticsTest::testInteger(void)
         rng.generateLogNormalSamples(0.1, 2.0, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
-            if ((i + 1) % 100 == 0)
-            {
+            if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
@@ -224,19 +207,15 @@ void CDataSemanticsTest::testInteger(void)
         rng.random_shuffle(samples.begin(), samples.end());
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 2 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 2 == 0) {
                 LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
-            if ((i + 1) % 10 == 0)
-            {
+            if ((i + 1) % 10 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
-                if (i > 30)
-                {
+                if (i > 30) {
                     CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
                 }
             }
@@ -244,8 +223,7 @@ void CDataSemanticsTest::testInteger(void)
     }
 }
 
-void CDataSemanticsTest::testReal(void)
-{
+void CDataSemanticsTest::testReal(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+--------------------------------+");
     LOG_DEBUG("|  CDataSemanticsTest::testReal  |");
@@ -262,15 +240,12 @@ void CDataSemanticsTest::testReal(void)
         rng.generateUniformSamples(0.0, 10.0, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
-            if ((i + 1) % 50 == 0)
-            {
+            if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
@@ -283,15 +258,12 @@ void CDataSemanticsTest::testReal(void)
         rng.generateNormalSamples(-10.0, 100.0, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
-            if ((i + 1) % 50 == 0)
-            {
+            if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
@@ -304,15 +276,12 @@ void CDataSemanticsTest::testReal(void)
         rng.generateLogNormalSamples(0.1, 1.5, 500, samples);
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
-            if (i % 10 == 0)
-            {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            if (i % 10 == 0) {
                 LOG_DEBUG("    adding " << samples[i]);
             }
             semantics.add(core::CStringUtils::typeToString(samples[i]));
-            if ((i + 1) % 50 == 0)
-            {
+            if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
                 CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
@@ -332,16 +301,13 @@ void CDataSemanticsTest::testReal(void)
         rng.random_shuffle(samples.begin(), samples.end());
 
         config::CDataSemantics semantics;
-        for (std::size_t i = 0u; i < samples.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
             LOG_DEBUG("    adding " << samples[i]);
             semantics.add(core::CStringUtils::typeToString(samples[i]));
-            if ((i + 1) % 5 == 0)
-            {
+            if ((i + 1) % 5 == 0) {
                 semantics.computeType();
                 LOG_DEBUG("  type = " << semantics.type());
-                if (i > 25)
-                {
+                if (i > 25) {
                     CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
                 }
             }
@@ -349,25 +315,24 @@ void CDataSemanticsTest::testReal(void)
     }
 }
 
-CppUnit::Test *CDataSemanticsTest::suite(void)
-{
+CppUnit::Test *CDataSemanticsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CDataSemanticsTest>(
-                                   "CDataSemanticsTest::testBinary",
-                                   &CDataSemanticsTest::testBinary) );
+                               "CDataSemanticsTest::testBinary",
+                               &CDataSemanticsTest::testBinary) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDataSemanticsTest>(
-                                   "CDataSemanticsTest::testNonNumericCategorical",
-                                   &CDataSemanticsTest::testNonNumericCategorical) );
+                               "CDataSemanticsTest::testNonNumericCategorical",
+                               &CDataSemanticsTest::testNonNumericCategorical) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDataSemanticsTest>(
-                                   "CDataSemanticsTest::testNumericCategorical",
-                                   &CDataSemanticsTest::testNumericCategorical) );
+                               "CDataSemanticsTest::testNumericCategorical",
+                               &CDataSemanticsTest::testNumericCategorical) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDataSemanticsTest>(
-                                   "CDataSemanticsTest::testInteger",
-                                   &CDataSemanticsTest::testInteger) );
+                               "CDataSemanticsTest::testInteger",
+                               &CDataSemanticsTest::testInteger) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CDataSemanticsTest>(
-                                   "CDataSemanticsTest::testReal",
-                                   &CDataSemanticsTest::testReal) );
+                               "CDataSemanticsTest::testReal",
+                               &CDataSemanticsTest::testReal) );
 
     return suiteOfTests;
 }

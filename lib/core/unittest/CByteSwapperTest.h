@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CByteSwapperTest : public CppUnit::TestFixture
-{
+class CByteSwapperTest : public CppUnit::TestFixture {
     public:
         void testByteSwaps(void);
 

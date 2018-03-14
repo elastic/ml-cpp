@@ -15,29 +15,23 @@
 #include <api/CTokenListReverseSearchCreatorIntf.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 CTokenListReverseSearchCreatorIntf::CTokenListReverseSearchCreatorIntf(const std::string &fieldName)
-    : m_FieldName(fieldName)
-{
+    : m_FieldName(fieldName) {
 }
 
-CTokenListReverseSearchCreatorIntf::~CTokenListReverseSearchCreatorIntf(void)
-{
+CTokenListReverseSearchCreatorIntf::~CTokenListReverseSearchCreatorIntf(void) {
 }
 
-void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string &/*part1*/,
-                                                             std::string &/*part2*/) const
-{
+void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string & /*part1*/,
+                                                             std::string & /*part2*/) const {
     // Default is to do nothing
 }
 
-const std::string &CTokenListReverseSearchCreatorIntf::fieldName(void) const
-{
+const std::string &CTokenListReverseSearchCreatorIntf::fieldName(void) const {
     return m_FieldName;
 }
 

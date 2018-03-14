@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPatternSetTest : public CppUnit::TestFixture
-{
+class CPatternSetTest : public CppUnit::TestFixture {
     public:
         void testInitFromJson_GivenInvalidJson(void);
         void testInitFromJson_GivenNonArray(void);

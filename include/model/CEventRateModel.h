@@ -35,19 +35,15 @@
 #include <stdint.h>
 
 
-namespace
-{
+namespace {
 class CMockEventRateModel;
 }
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief The event rate model common functionality.
 //!
@@ -67,8 +63,7 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CEventRateModel : public CIndividualModel
-{
+class MODEL_EXPORT CEventRateModel : public CIndividualModel {
     public:
         using TFeatureData = SEventRateFeatureData;
         using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
@@ -78,8 +73,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
         using TCategoryProbabilityCache = CModelTools::CCategoryProbabilityCache;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.
@@ -294,7 +288,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
         virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
+        virtual TSizeUInt64PrVec       &currentBucketPersonCounts(void);
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);
@@ -338,7 +332,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
 
     private:
         //! The statistics we maintain about the bucket.
-        SBucketStats m_CurrentBucketStats;
+        SBucketStats                 m_CurrentBucketStats;
 
         //! The prior for the joint probabilities of seeing the people
         //! we are modeling (this captures information about the person
@@ -347,7 +341,7 @@ class MODEL_EXPORT CEventRateModel : public CIndividualModel
 
         //! A cache of the person probabilities as of the start of the
         //! for the bucketing interval.
-        TCategoryProbabilityCache m_Probabilities;
+        TCategoryProbabilityCache    m_Probabilities;
 
         friend class CEventRateModelDetailsView;
         friend class ::CMockEventRateModel;

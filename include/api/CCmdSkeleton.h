@@ -22,15 +22,12 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CDataProcessor;
 class CInputParser;
 
@@ -45,8 +42,7 @@ class CInputParser;
 //! this class, which, in practice, means that the CIoManager object managing
 //! them must outlive this object.
 //!
-class API_EXPORT CCmdSkeleton : private core::CNonCopyable
-{
+class API_EXPORT CCmdSkeleton : private core::CNonCopyable {
     public:
         CCmdSkeleton(core::CDataSearcher *restoreSearcher,
                      core::CDataAdder *persister,

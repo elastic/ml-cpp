@@ -29,15 +29,12 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 
 //! \brief
@@ -57,8 +54,7 @@ class CBackgroundPersister;
 //! for the strings that hold the field names.  The nested CPreComputedHash
 //! class and TPreComputedHashVec typedef can be used to implement this.
 //!
-class API_EXPORT COutputHandler : private core::CNonCopyable
-{
+class API_EXPORT COutputHandler : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
         typedef TStrVec::iterator                              TStrVecItr;
@@ -118,8 +114,7 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
     protected:
         //! Class to cache a hash value so that it doesn't have to be repeatedly
         //! recomputed
-        class API_EXPORT CPreComputedHash : public std::unary_function<std::string, size_t>
-        {
+        class API_EXPORT CPreComputedHash : public std::unary_function<std::string, size_t> {
             public:
                 //! Store the given hash
                 CPreComputedHash(size_t hash);

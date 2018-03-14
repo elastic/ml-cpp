@@ -25,10 +25,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CMutex;
 
 
@@ -43,8 +41,7 @@ class CMutex;
 //! they do not consume system handles, and match the semantics
 //! of pthread condition variables.
 //!
-class CORE_EXPORT CCondition : private CNonCopyable
-{
+class CORE_EXPORT CCondition : private CNonCopyable {
     public:
         CCondition(CMutex &);
         ~CCondition(void);
@@ -70,7 +67,7 @@ class CORE_EXPORT CCondition : private CNonCopyable
     private:
 #ifndef Windows
         //! Convert milliseconds to timespec
-        static bool convert(uint32_t, timespec &);
+        static bool        convert(uint32_t, timespec &);
 #endif
 
     private:

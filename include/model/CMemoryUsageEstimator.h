@@ -26,15 +26,12 @@
 
 #include <utility>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 //! \brief Estimate memory usage based on previous model parameters.
 //!
 //! DESCRIPTION:\n
@@ -49,19 +46,17 @@ namespace model
 //! forming the input matrix A, which is solved for the memory usage
 //! calculations in vector B.
 //! See http://eigen.tuxfamily.org/dox-devel/group__LeastSquares.html
-class MODEL_EXPORT CMemoryUsageEstimator
-{
+class MODEL_EXPORT CMemoryUsageEstimator {
     public:
         //! Enumeration of the components included in the memory estimate.
-        enum EComponent
-        {
+        enum EComponent {
             E_People = 0,
             E_Attributes,
             E_Correlations,
             E_NumberPredictors
         };
         typedef boost::array<std::size_t, E_NumberPredictors> TSizeArray;
-        typedef boost::optional<std::size_t> TOptionalSize;
+        typedef boost::optional<std::size_t>                  TOptionalSize;
 
     public:
         //! Constructor
@@ -92,9 +87,9 @@ class MODEL_EXPORT CMemoryUsageEstimator
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
     private:
-        typedef std::pair<TSizeArray, std::size_t> TSizeArraySizePr;
+        typedef std::pair<TSizeArray, std::size_t>       TSizeArraySizePr;
         typedef boost::circular_buffer<TSizeArraySizePr> TSizeArraySizePrBuf;
-        typedef TSizeArraySizePrBuf::const_iterator TSizeArraySizePrBufCItr;
+        typedef TSizeArraySizePrBuf::const_iterator      TSizeArraySizePrBufCItr;
 
     private:
         //! Get the maximum amount by which we'll extrapolate the memory usage.
@@ -106,7 +101,7 @@ class MODEL_EXPORT CMemoryUsageEstimator
 
         //! The number of times estimate has been called since the last
         //! real value was added
-        std::size_t m_NumEstimatesSinceValue;
+        std::size_t         m_NumEstimatesSinceValue;
 };
 
 } // model

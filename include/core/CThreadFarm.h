@@ -31,10 +31,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -57,8 +55,7 @@ namespace core
 //! The result type must have both a default constructor and a copy constructor.
 //!
 template<typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT>
-class CThreadFarm : private CNonCopyable
-{
+class CThreadFarm : private CNonCopyable {
     public:
         CThreadFarm(HANDLER &handler, const std::string &name)
             : m_Handler(handler),
@@ -66,20 +63,16 @@ class CThreadFarm : private CNonCopyable
               m_LastPrint(0),
               m_MessagesAdded(0),
               m_Started(false),
-              m_Name(name)
-        {
+              m_Name(name) {
         }
 
-        virtual ~CThreadFarm(void)
-        {
+        virtual ~CThreadFarm(void) {
             // Shared_ptr cleans up
         }
 
         //! Add a processor
-        bool addProcessor(PROCESSOR &processor)
-        {
-            if (m_Started == true)
-            {
+        bool addProcessor(PROCESSOR &processor) {
+            if (m_Started == true) {
                 LOG_ERROR("Can't add receiver to running " << m_Name <<
                           " thread farm");
                 return false;
@@ -87,7 +80,7 @@ class CThreadFarm : private CNonCopyable
 
             TReceiverP receiver(new TReceiver(processor, *this));
 
-            TMessageQueueP  mq(new CMessageQueue<MESSAGE, TReceiver>(*receiver));
+            TMessageQueueP mq(new CMessageQueue<MESSAGE, TReceiver>(*receiver));
 
             m_MessageQueues.push_back(mq);
             m_Receivers.push_back(receiver);
@@ -97,12 +90,10 @@ class CThreadFarm : private CNonCopyable
 
         //! Add some work, and find out how many results are pending
         //! following the addition
-        bool addMessage(const MESSAGE &msg, size_t &pending)
-        {
+        bool addMessage(const MESSAGE &msg, size_t &pending) {
             CScopedLock lock(m_Mutex);
 
-            if (m_Started == false)
-            {
+            if (m_Started == false) {
                 LOG_ERROR("Can't add message to the " << m_Name <<
                           " thread farm because it's not running.  Call 'start'");
                 return false;
@@ -110,15 +101,13 @@ class CThreadFarm : private CNonCopyable
 
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
                  itr != m_MessageQueues.end();
-                 ++itr)
-            {
+                 ++itr) {
                 (*itr)->dispatchMsg(msg);
                 ++m_Pending;
             }
 
             ++m_MessagesAdded;
-            if (m_MessagesAdded % 1000 == 0)
-            {
+            if (m_MessagesAdded % 1000 == 0) {
                 LOG_INFO("Added message " << m_MessagesAdded << " to the " <<
                          m_Name << " thread farm; pending count now " <<
                          m_Pending);
@@ -130,17 +119,14 @@ class CThreadFarm : private CNonCopyable
         }
 
         //! Add some work
-        bool addMessage(const MESSAGE &msg)
-        {
+        bool addMessage(const MESSAGE &msg) {
             size_t dummy = 0;
             return this->addMessage(msg, dummy);
         }
 
         //! Initialise - create the receiving threads
-        bool start(void)
-        {
-            if (m_Started == true)
-            {
+        bool start(void) {
+            if (m_Started == true) {
                 LOG_ERROR("Can't start the " << m_Name <<
                           " thread farm because it's already running.");
                 return false;
@@ -149,10 +135,8 @@ class CThreadFarm : private CNonCopyable
             size_t count(1);
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
                  itr != m_MessageQueues.end();
-                 ++itr)
-            {
-                if ((*itr)->start() == false)
-                {
+                 ++itr) {
+                if ((*itr)->start() == false) {
                     LOG_ERROR("Unable to start message queue " << count <<
                               " for the " << m_Name << " thread farm");
                     return false;
@@ -167,10 +151,8 @@ class CThreadFarm : private CNonCopyable
         }
 
         //! Shutdown - kill threads
-        bool stop(void)
-        {
-            if (m_Started == false)
-            {
+        bool stop(void) {
+            if (m_Started == false) {
                 LOG_ERROR("Can't stop the " << m_Name <<
                           " thread farm because it's not running.");
                 return false;
@@ -179,10 +161,8 @@ class CThreadFarm : private CNonCopyable
             size_t count(1);
             for (TMessageQueuePVecItr itr = m_MessageQueues.begin();
                  itr != m_MessageQueues.end();
-                 ++itr)
-            {
-                if ((*itr)->stop() == false)
-                {
+                 ++itr) {
+                if ((*itr)->stop() == false) {
                     LOG_ERROR("Unable to stop message queue " << count <<
                               " for the " << m_Name << " thread farm");
                     return false;
@@ -199,8 +179,7 @@ class CThreadFarm : private CNonCopyable
             m_MessagesAdded = 0;
             m_LastPrint = 0;
 
-            if (m_Pending != 0)
-            {
+            if (m_Pending != 0) {
                 LOG_ERROR("Inconsistency - " << m_Pending <<
                           " pending messages after stopping the " << m_Name <<
                           " thread farm");
@@ -213,12 +192,10 @@ class CThreadFarm : private CNonCopyable
     private:
         //! This should only be called by our friend the CThreadFarmReceiver
         //! otherwise the pending count will get messed up
-        void addResult(const RESULT &result)
-        {
+        void addResult(const RESULT &result) {
             CScopedLock lock(m_Mutex);
 
-            if (m_Pending <= 0)
-            {
+            if (m_Pending <= 0) {
                 LOG_ERROR("Inconsistency - result added with " << m_Pending <<
                           " pending messages in the " << m_Name <<
                           " thread farm");
@@ -230,15 +207,13 @@ class CThreadFarm : private CNonCopyable
             --m_Pending;
 
             // Log how much work is outstanding every so often
-            if ((m_Pending % 10000) == 0 && m_Pending != m_LastPrint)
-            {
+            if ((m_Pending % 10000) == 0 && m_Pending != m_LastPrint) {
                 LOG_INFO("Pending count now " << m_Pending << " for the " <<
                          m_Name << " thread farm");
                 m_LastPrint = m_Pending;
             }
 
-            if (m_Pending == 0)
-            {
+            if (m_Pending == 0) {
                 //m_Handler.allComplete();
             }
         }
@@ -281,7 +256,7 @@ class CThreadFarm : private CNonCopyable
         //! Purely for better logging messages
         std::string       m_Name;
 
-    friend class CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
+        friend class CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT>;
 };
 
 

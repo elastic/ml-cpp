@@ -29,15 +29,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Implementation for a multimodal prior distribution.
 //!
@@ -60,16 +57,15 @@ namespace maths
 //! by composite priors. This allows us to select the most appropriate model for
 //! the data when using one-of-n composition (see COneOfNPrior). From a design
 //! point of view this is the composite pattern.
-class MATHS_EXPORT CMultimodalPrior : public CPrior
-{
+class MATHS_EXPORT CMultimodalPrior : public CPrior {
     public:
-        typedef boost::shared_ptr<CClusterer1d> TClustererPtr;
-        typedef boost::shared_ptr<CPrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef TPriorPtrVec::iterator TPriorPtrVecItr;
-        typedef TPriorPtrVec::const_iterator TPriorPtrVecCItr;
+        typedef boost::shared_ptr<CClusterer1d>                        TClustererPtr;
+        typedef boost::shared_ptr<CPrior>                              TPriorPtr;
+        typedef std::vector<TPriorPtr>                                 TPriorPtrVec;
+        typedef TPriorPtrVec::iterator                                 TPriorPtrVecItr;
+        typedef TPriorPtrVec::const_iterator                           TPriorPtrVecCItr;
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
+        typedef std::vector<TMeanVarAccumulator>                       TMeanVarAccumulatorVec;
 
         // Lift all overloads into scope.
         //{
@@ -77,7 +73,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         using CPrior::decayRate;
         using CPrior::addSamples;
         using CPrior::print;
-        //}
+    //}
 
     public:
         //! \name Life-Cycle
@@ -204,9 +200,9 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         //! \param[in] weights Optional variance scale weights.
         //! \note \p percentage should be in the range [0.0, 100.0).
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Compute the log marginal likelihood function at \p samples integrating
         //! over the prior density function for the mode parameters and summing
@@ -221,10 +217,10 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!
@@ -335,12 +331,11 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         bool checkInvariants(const std::string &tag = std::string()) const;
 
     private:
-        typedef std::vector<TDouble1Vec> TDouble1VecVec;
+        typedef std::vector<TDouble1Vec>     TDouble1VecVec;
         typedef std::vector<TDouble4Vec1Vec> TDouble4Vec1VecVec;
 
         //! The callback invoked when a mode is split.
-        class MATHS_EXPORT CModeSplitCallback
-        {
+        class MATHS_EXPORT CModeSplitCallback {
             public:
                 CModeSplitCallback(CMultimodalPrior &prior);
                 void operator()(std::size_t sourceIndex,
@@ -352,8 +347,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         };
 
         //! The callback invoked when two modes are merged.
-        class MATHS_EXPORT CModeMergeCallback
-        {
+        class MATHS_EXPORT CModeMergeCallback {
             public:
                 CModeMergeCallback(CMultimodalPrior &prior);
                 void operator()(std::size_t leftMergeIndex,
@@ -365,7 +359,7 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         };
 
         typedef SMultimodalPriorMode<boost::shared_ptr<CPrior> > TMode;
-        typedef std::vector<TMode> TModeVec;
+        typedef std::vector<TMode>                               TModeVec;
 
     private:
         //! Read parameters from \p traverser.
@@ -388,10 +382,10 @@ class MATHS_EXPORT CMultimodalPrior : public CPrior
         TClustererPtr m_Clusterer;
 
         //! The object used to initialize new cluster priors.
-        TPriorPtr m_SeedPrior;
+        TPriorPtr     m_SeedPrior;
 
         //! The modes of the distribution.
-        TModeVec m_Modes;
+        TModeVec      m_Modes;
 };
 
 }

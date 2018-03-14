@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Persists data to a single C++ stream.
@@ -46,8 +44,7 @@ namespace api
 //!
 //! The single stream must be already open when passed to the constructor.
 //!
-class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder
-{
+class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder {
     public:
         //! The \p stream must already be open when the constructor is
         //! called.
@@ -78,7 +75,7 @@ class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder
 
     private:
         //! The stream we're writing to.
-        TOStreamP m_Stream;
+        TOStreamP           m_Stream;
 };
 
 

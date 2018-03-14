@@ -20,19 +20,17 @@
 #include <stdint.h>
 
 
-CppUnit::Test *CByteSwapperTest::suite()
-{
+CppUnit::Test *CByteSwapperTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CByteSwapperTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CByteSwapperTest>(
-                                   "CByteSwapperTest::testByteSwaps",
-                                   &CByteSwapperTest::testByteSwaps) );
+                               "CByteSwapperTest::testByteSwaps",
+                               &CByteSwapperTest::testByteSwaps) );
 
     return suiteOfTests;
 }
 
-void CByteSwapperTest::testByteSwaps(void)
-{
+void CByteSwapperTest::testByteSwaps(void) {
     uint8_t type1(0x12);
     CPPUNIT_ASSERT(ml::core::CByteSwapper::swapBytes(type1) == 0x12);
 

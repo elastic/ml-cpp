@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CFileDeleterTest : public CppUnit::TestFixture
-{
+class CFileDeleterTest : public CppUnit::TestFixture {
     public:
         void testDelete(void);
 

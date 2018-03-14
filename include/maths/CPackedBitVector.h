@@ -32,10 +32,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief A compact representation of binary vector.
 //!
@@ -56,14 +54,12 @@ namespace maths
 //! number of runs in between. In practice we store one extra bit, the
 //! vector parity to allow us to extend the vector efficiently.
 class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPackedBitVector,
-                                              boost::partially_ordered< CPackedBitVector > >
-{
+                                                                          boost::partially_ordered< CPackedBitVector > > {
     public:
         typedef std::vector<bool> TBoolVec;
 
         //! Operations which can be performed in the inner product.
-        enum EOperation
-        {
+        enum EOperation {
             E_AND,
             E_OR,
             E_XOR
@@ -110,14 +106,12 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
                      EOperation op = E_AND) const;
 
         //! Euclidean norm.
-        double euclidean(void) const
-        {
+        double euclidean(void) const {
             return ::sqrt(this->inner(*this));
         }
 
         //! Manhattan norm.
-        double manhattan(void) const
-        {
+        double manhattan(void) const {
             return this->inner(*this);
         }
 
@@ -146,15 +140,15 @@ class MATHS_EXPORT CPackedBitVector : private boost::equality_comparable< CPacke
         // three variables will be packed into the 64 bits.
 
         //! The dimension of the vector.
-        uint32_t m_Dimension;
+        uint32_t  m_Dimension;
 
         //! The value of the first component in the vector.
-        bool m_First;
+        bool      m_First;
 
         //! The parity of the vector: true indicates that there are an
         //! even number runs and false that there are an odd. Together
         //! with m_First this determines the value of the last component.
-        bool m_Parity;
+        bool      m_Parity;
 
         //! The length of each run. Note that if the length of a run
         //! exceeds 255 then this is encoded in multiple run lengths.

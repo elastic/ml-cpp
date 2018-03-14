@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelPlotDataJsonWriterTest : public CppUnit::TestFixture
-{
+class CModelPlotDataJsonWriterTest : public CppUnit::TestFixture {
     public:
         void testWriteFlat(void);
 

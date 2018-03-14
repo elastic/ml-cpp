@@ -29,15 +29,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 //! \brief The model for computing the anomalousness of the values
 //! each person in a population generates in a data stream.
 //!
@@ -63,8 +60,7 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
-{
+class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel {
     public:
         using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
         using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
@@ -79,8 +75,7 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         using TProbabilityCache = CModelTools::CProbabilityCache;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.
@@ -317,7 +312,7 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         virtual const TSizeUInt64PrVec &personCounts(void) const;
 
         //! Get the interim corrections of the current bucket.
-        TCorrectionKeyDouble1VecUMap &currentBucketInterimCorrections(void) const;
+        TCorrectionKeyDouble1VecUMap   &currentBucketInterimCorrections(void) const;
 
         //! Initialize the time series models for "n" newly observed people
         //! and "m" attributes.
@@ -373,13 +368,13 @@ class MODEL_EXPORT CMetricPopulationModel : public CPopulationModel
         //! IMPORTANT this must come before m_FeatureModels in the class declaration
         //! so its destructor is called afterwards (12.6.2) because feature models
         //! unregister themselves from correlation models.
-        TFeatureCorrelateModelsVec m_FeatureCorrelatesModels;
+        TFeatureCorrelateModelsVec    m_FeatureCorrelatesModels;
 
         //! The population attribute models for each feature.
-        TFeatureModelsVec m_FeatureModels;
+        TFeatureModelsVec             m_FeatureModels;
 
         //! A cache of the probability calculation results.
-        mutable TProbabilityCache m_Probabilities;
+        mutable TProbabilityCache     m_Probabilities;
 
         //! The memory estimator.
         mutable CMemoryUsageEstimator m_MemoryEstimator;

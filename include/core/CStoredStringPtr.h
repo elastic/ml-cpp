@@ -24,10 +24,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A pointer-like proxy for strings owned by a string store.
@@ -44,8 +42,7 @@ namespace core
 //! The private constructors make it hard to accidentally construct
 //! stored string pointers that are not managed by a string store.
 //!
-class CORE_EXPORT CStoredStringPtr
-{
+class CORE_EXPORT CStoredStringPtr {
     public:
         //! NULL constructor.
         CStoredStringPtr() noexcept;
@@ -81,7 +78,9 @@ class CORE_EXPORT CStoredStringPtr
         //! Claim memory usage is 0 in the main memory usage calculation, on the
         //! assumption that the actual memory usage will be accounted for in a
         //! string store.
-        static bool dynamicSizeAlwaysZero() { return true; }
+        static bool dynamicSizeAlwaysZero() {
+            return true;
+        }
 
         //! Get the actual memory usage of the string.  For use by the string
         //! store.
@@ -107,7 +106,7 @@ class CORE_EXPORT CStoredStringPtr
         //! The wrapped shared_ptr.
         TStrCPtr m_String;
 
-    friend CORE_EXPORT std::size_t hash_value(const CStoredStringPtr &);
+        friend CORE_EXPORT std::size_t hash_value(const CStoredStringPtr &);
 };
 
 //! Hash function named such that it will work automatically with Boost

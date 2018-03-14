@@ -68,32 +68,28 @@
 #include <string.h>
 
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     const std::string &defaultNamedPipePath =
-            ml::core::CNamedPipeFactory::defaultPath();
+        ml::core::CNamedPipeFactory::defaultPath();
     const std::string &progName = ml::core::CProgName::progName();
 
     // Read command line options
     std::string jvmPidStr =
-            ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().parentId());
+        ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().parentId());
     std::string logPipe;
     std::string commandPipe;
     if (ml::controller::CCmdLineParser::parse(argc,
                                               argv,
                                               jvmPidStr,
                                               logPipe,
-                                              commandPipe) == false)
-    {
+                                              commandPipe) == false) {
         return EXIT_FAILURE;
     }
 
-    if (logPipe.empty())
-    {
+    if (logPipe.empty()) {
         logPipe = defaultNamedPipePath + progName + "_log_" + jvmPidStr;
     }
-    if (commandPipe.empty())
-    {
+    if (commandPipe.empty()) {
         commandPipe = defaultNamedPipePath + progName + "_command_" + jvmPidStr;
     }
 
@@ -108,16 +104,14 @@ int main(int argc, char **argv)
     // process's STDIN will be closed.
     ml::controller::CBlockingCallCancellerThread cancellerThread(ml::core::CThread::currentThreadId(),
                                                                  std::cin);
-    if (cancellerThread.start() == false)
-    {
+    if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
         // real stderr of this process rather than the log pipe...
         LOG_FATAL("Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(logPipe) == false)
-    {
+    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(logPipe) == false) {
         LOG_FATAL("Could not reconfigure logging");
         cancellerThread.stop();
         return EXIT_FAILURE;
@@ -133,9 +127,8 @@ int main(int argc, char **argv)
     // requirements should always be very low.
 
     ml::core::CNamedPipeFactory::TIStreamP commandStream =
-            ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
-    if (commandStream == 0)
-    {
+        ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
+    if (commandStream == 0) {
         LOG_FATAL("Could not open command pipe");
         cancellerThread.stop();
         return EXIT_FAILURE;
@@ -145,8 +138,7 @@ int main(int argc, char **argv)
     // permitted paths all assume the current working directory contains the
     // permitted programs
     const std::string &progDir = ml::core::CProgName::progDir();
-    if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1)
-    {
+    if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1) {
         LOG_FATAL("Could not change directory to '" << progDir << "': " <<
                   ::strerror(errno));
         cancellerThread.stop();

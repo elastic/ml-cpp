@@ -26,10 +26,8 @@
 
 #include <iosfwd>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -48,8 +46,7 @@ namespace core
 //! have attributes).  This may complicate code that needs to be 100%
 //! JSON/XML agnostic.
 //!
-class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
-{
+class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser {
     public:
         CJsonStateRestoreTraverser(std::istream &inputStream);
 
@@ -119,8 +116,7 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
 
         //! <a href="http://rapidjson.org/classrapidjson_1_1_handler.html">Handler</a>
         //! for events fired by rapidjson during parsing.
-        struct SRapidJsonHandler final
-        {
+        struct SRapidJsonHandler final {
             SRapidJsonHandler();
 
             bool Null();
@@ -138,8 +134,7 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
             bool StartArray();
             bool EndArray(rapidjson::SizeType);
 
-            enum ETokenType
-            {
+            enum ETokenType {
                 E_TokenNull = 0,
                 E_TokenKey = 1,
                 E_TokenBool = 2,
@@ -155,37 +150,37 @@ class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser
                 E_TokenArrayEnd = 12
             };
 
-            ETokenType                   s_Type;
+            ETokenType s_Type;
 
-            size_t                       s_Level[2];
-            bool                         s_IsEndOfLevel[2];
-            std::string                  s_Name[2];
-            std::string                  s_Value[2];
+            size_t s_Level[2];
+            bool s_IsEndOfLevel[2];
+            std::string s_Name[2];
+            std::string s_Value[2];
 
             //! Setting m_NextIndex = (1 - m_NextIndex) advances the
             //! stored details.
-            size_t                       s_NextIndex;
+            size_t s_NextIndex;
 
-            bool                         s_RememberValue;
+            bool s_RememberValue;
         };
 
         //! JSON reader istream wrapper
-        rapidjson::IStreamWrapper    m_ReadStream;
+        rapidjson::IStreamWrapper m_ReadStream;
 
         //! JSON reader
-        rapidjson::Reader            m_Reader;
+        rapidjson::Reader         m_Reader;
 
-        SRapidJsonHandler            m_Handler;
+        SRapidJsonHandler         m_Handler;
 
         //! Flag to indicate whether we've started parsing
-        bool                         m_Started;
+        bool                      m_Started;
 
         //! Which level within the JSON structure do we want to be getting
         //! values from?
-        size_t                       m_DesiredLevel;
+        size_t                    m_DesiredLevel;
 
         //! If the first token is an '[' then we are parsing an array of objects
-        bool                         m_IsArrayOfObjects;
+        bool                      m_IsArrayOfObjects;
 };
 
 

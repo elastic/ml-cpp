@@ -28,12 +28,11 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<std::string> TStrVec;
 
-void CReportWriterTest::testPretty(void)
-{
+void CReportWriterTest::testPretty(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+---------------------------------+");
     LOG_DEBUG("|  CReportWriterTest::testPretty  |");
@@ -45,83 +44,81 @@ void CReportWriterTest::testPretty(void)
     core_t::TTime endTime   = startTime + 7 * core::constants::DAY;
 
     std::string fields[] =
-        {
-            std::string("name"),
-            std::string("phylum"),
-            std::string("species"),
-            std::string("code"),
-            std::string("weight")
-        };
+    {
+        std::string("name"),
+        std::string("phylum"),
+        std::string("species"),
+        std::string("code"),
+        std::string("weight")
+    };
 
     std::string categories1[] =
-        {
-            std::string("Annelida"),
-            std::string("Nematoda"),
-            std::string("Arthropoda"),
-            std::string("Chordata")
-        };
+    {
+        std::string("Annelida"),
+        std::string("Nematoda"),
+        std::string("Arthropoda"),
+        std::string("Chordata")
+    };
 
     std::size_t breaks[] = { 0, 6, 10, 13, 20 };
     std::string categories2[] =
-        {
-            // Annelida
-            std::string("Amage auricula"),
-            std::string("Eunice purpurea"),
-            std::string("Dorvillea kastjani"),
-            std::string("Dalhousiella carpenteri"),
-            std::string("Dysponetus gracilisi"),
-            std::string("Macellicephala incerta"),
-            // Nematoda
-            std::string("Microlaimus robustidens"),
-            std::string("Theristus longisetosus"),
-            std::string("Rhynchonema cemae"),
-            std::string("Contracaecum chubutensis"),
-            // Arthropoda
-            std::string("black widow"),
-            std::string("Daddy longleg"),
-            std::string("Lobster"),
-            // Chordata
-            std::string("hag fish"),
-            std::string("hen"),
-            std::string("elephant"),
-            std::string("dog"),
-            std::string("shrew"),
-            std::string("weasel"),
-            std::string("lemming")
-        };
+    {
+        // Annelida
+        std::string("Amage auricula"),
+        std::string("Eunice purpurea"),
+        std::string("Dorvillea kastjani"),
+        std::string("Dalhousiella carpenteri"),
+        std::string("Dysponetus gracilisi"),
+        std::string("Macellicephala incerta"),
+        // Nematoda
+        std::string("Microlaimus robustidens"),
+        std::string("Theristus longisetosus"),
+        std::string("Rhynchonema cemae"),
+        std::string("Contracaecum chubutensis"),
+        // Arthropoda
+        std::string("black widow"),
+        std::string("Daddy longleg"),
+        std::string("Lobster"),
+        // Chordata
+        std::string("hag fish"),
+        std::string("hen"),
+        std::string("elephant"),
+        std::string("dog"),
+        std::string("shrew"),
+        std::string("weasel"),
+        std::string("lemming")
+    };
 
     TStrVec codes;
     rng.generateWords(6, 2000, codes);
 
     double weights[] =
-        {
-               0.01,      0.05,   0.1,    0.05,   0.01,
-               0.5,       0.001,  0.0003, 0.01,   0.0004,
-               1.3,       1.1,    520.0,  1200.0, 810.1,
-               1000000.0, 5334.0, 70.0,   180.0,  100.3
-        };
+    {
+        0.01,      0.05,   0.1,    0.05,   0.01,
+        0.5,       0.001,  0.0003, 0.01,   0.0004,
+        1.3,       1.1,    520.0,  1200.0, 810.1,
+        1000000.0, 5334.0, 70.0,   180.0,  100.3
+    };
 
-    config::CDataSummaryStatistics stats1;
+    config::CDataSummaryStatistics            stats1;
     config::CCategoricalDataSummaryStatistics stats2[] =
-        {
-            config::CCategoricalDataSummaryStatistics(10),
-            config::CCategoricalDataSummaryStatistics(10),
-            config::CCategoricalDataSummaryStatistics(10)
-        };
+    {
+        config::CCategoricalDataSummaryStatistics(10),
+        config::CCategoricalDataSummaryStatistics(10),
+        config::CCategoricalDataSummaryStatistics(10)
+    };
     config::CNumericDataSummaryStatistics stats3(false);
 
     uint64_t n = 0;
 
-    double lastProgress = 0.0;
+    double     lastProgress = 0.0;
     TDoubleVec dt;
     TDoubleVec weight;
-    TSizeVec index;
-    for (core_t::TTime time = startTime; time < endTime; time += static_cast<double>(dt[0]))
-    {
+    TSizeVec   index;
+    for (core_t::TTime time = startTime; time < endTime; time += static_cast<double>(dt[0])) {
         double progress =  static_cast<double>(time - startTime)
-                         / static_cast<double>((endTime - startTime));
-        if (progress > lastProgress + 0.05)
-        {
+                          / static_cast<double>((endTime - startTime));
+        if (progress > lastProgress + 0.05) {
             LOG_DEBUG("Processed " << progress * 100.0 << "%");
             lastProgress = progress;
         }
@@ -167,21 +164,19 @@ void CReportWriterTest::testPretty(void)
     LOG_DEBUG(o.str());
 }
 
-void CReportWriterTest::testJSON(void)
-{
+void CReportWriterTest::testJSON(void) {
     LOG_DEBUG("");
     LOG_DEBUG("+-------------------------------+");
     LOG_DEBUG("|  CReportWriterTest::testJSON  |");
     LOG_DEBUG("+-------------------------------+");
 }
 
-CppUnit::Test *CReportWriterTest::suite(void)
-{
+CppUnit::Test *CReportWriterTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CReportWriterTest>(
-                                   "CReportWriterTest::testPretty",
-                                   &CReportWriterTest::testPretty) );
+                               "CReportWriterTest::testPretty",
+                               &CReportWriterTest::testPretty) );
 
     return suiteOfTests;
 }

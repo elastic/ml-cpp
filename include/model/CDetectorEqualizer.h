@@ -26,15 +26,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CLimits;
 class CModelConfig;
 
@@ -45,11 +42,10 @@ class CModelConfig;
 //! for each detector. A corrected probability is obtained by converting
 //! raw probabilities to a rank and then reading off median probability
 //! for that rank over all detectors.
-class MODEL_EXPORT CDetectorEqualizer
-{
+class MODEL_EXPORT CDetectorEqualizer {
     public:
         typedef std::pair<int, maths::CQuantileSketch> TIntQuantileSketchPr;
-        typedef std::vector<TIntQuantileSketchPr> TIntQuantileSketchPrVec;
+        typedef std::vector<TIntQuantileSketchPr>      TIntQuantileSketchPrVec;
 
     public:
         //! Add \p probability to the detector's quantile sketch.
@@ -84,14 +80,14 @@ class MODEL_EXPORT CDetectorEqualizer
         //! The style of interpolation to use for the sketch.
         static const maths::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
         //! The maximum size of the quantile sketch.
-        static const std::size_t SKETCH_SIZE;
+        static const std::size_t                            SKETCH_SIZE;
         //! The minimum count in a detector's sketch for which we'll
         //! apply a correction to the probability.
-        static const double MINIMUM_COUNT_FOR_CORRECTION;
+        static const double                                 MINIMUM_COUNT_FOR_CORRECTION;
 
     private:
         //! The sketches (one for each detector).
-        TIntQuantileSketchPrVec m_Sketches;
+        TIntQuantileSketchPrVec                             m_Sketches;
 };
 
 }

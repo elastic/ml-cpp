@@ -21,21 +21,19 @@
 using namespace ml;
 using namespace domain_name_entropy;
 
-CppUnit::Test *CCompressUtilsTest::suite()
-{
+CppUnit::Test *CCompressUtilsTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCompressUtilsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testCompressString1",
-                                   &CCompressUtilsTest::testCompressString1) );
+                               "CCompressUtilsTest::testCompressString1",
+                               &CCompressUtilsTest::testCompressString1) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCompressUtilsTest>(
-                                   "CCompressUtilsTest::testCompressString2",
-                                   &CCompressUtilsTest::testCompressString2) );
+                               "CCompressUtilsTest::testCompressString2",
+                               &CCompressUtilsTest::testCompressString2) );
     return suiteOfTests;
 }
 
-void CCompressUtilsTest::testCompressString1(void)
-{
+void CCompressUtilsTest::testCompressString1(void) {
     CCompressUtils tester3;
 
     std::string str1("1234567890");
@@ -47,7 +45,7 @@ void CCompressUtilsTest::testCompressString1(void)
     CPPUNIT_ASSERT(tester3.compressString(true, str3));
 
     std::string compressed3;
-    size_t length3;
+    size_t      length3;
 
     CPPUNIT_ASSERT(tester3.compressedString(true, compressed3));
     CPPUNIT_ASSERT(tester3.compressedStringLength(true, length3));
@@ -64,7 +62,7 @@ void CCompressUtilsTest::testCompressString1(void)
     CPPUNIT_ASSERT(tester1.compressString(true, str));
 
     std::string compressed1;
-    size_t length1;
+    size_t      length1;
 
     CPPUNIT_ASSERT(tester1.compressedString(true, compressed1));
     CPPUNIT_ASSERT(tester1.compressedStringLength(true, length1));
@@ -73,22 +71,20 @@ void CCompressUtilsTest::testCompressString1(void)
     CPPUNIT_ASSERT_EQUAL(compressed1, compressed3);
 }
 
-void CCompressUtilsTest::testCompressString2(void)
-{
+void CCompressUtilsTest::testCompressString2(void) {
     CCompressUtils mTester;
 
     std::string str1("qwertyuiopa1234sdfghjklzxcvbnm");
 
     std::string str;
 
-    for (int i = 0; i < 1000; ++i)
-    {
+    for (int i = 0; i < 1000; ++i) {
         str += str1;
         CPPUNIT_ASSERT(mTester.compressString(false, str1));
     }
 
     std::string mCompressed;
-    size_t mLength;
+    size_t      mLength;
 
     CPPUNIT_ASSERT(mTester.compressedString(true, mCompressed));
     CPPUNIT_ASSERT(mTester.compressedStringLength(true, mLength));
@@ -98,7 +94,7 @@ void CCompressUtilsTest::testCompressString2(void)
     CCompressUtils tester;
 
     std::string compressed;
-    size_t length;
+    size_t      length;
 
     CPPUNIT_ASSERT(tester.compressString(false, str));
 

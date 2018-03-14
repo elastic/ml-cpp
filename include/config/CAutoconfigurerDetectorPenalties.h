@@ -23,10 +23,8 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CAutoconfigurerFieldRolePenalties;
 class CDetectorSpecification;
@@ -42,8 +40,7 @@ class CPenalty;
 //! This provides a single definition point for a logical group of penalties
 //! and has been factored into its own class to avoid CAutoconfigurer becoming
 //! monolithic.
-class CONFIG_EXPORT CAutoconfigurerDetectorPenalties
-{
+class CONFIG_EXPORT CAutoconfigurerDetectorPenalties {
     public:
         typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
 
@@ -55,29 +52,29 @@ class CONFIG_EXPORT CAutoconfigurerDetectorPenalties
         TPenaltyPtr penaltyFor(const CDetectorSpecification &spec);
 
     private:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        typedef boost::reference_wrapper<const CAutoconfigurerParams>             TAutoconfigurerParamsCRef;
         typedef boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties> TAutoconfigurerFieldRolePenaltiesCRef;
-        typedef std::vector<TPenaltyPtr> TPenaltyPtrVec;
+        typedef std::vector<TPenaltyPtr>                                          TPenaltyPtrVec;
 
     private:
         //! Get the penalty for the detector \p spec based on its field roles.
-        const CPenalty &fieldRolePenalty(const CDetectorSpecification &spec);
+        const CPenalty                        &fieldRolePenalty(const CDetectorSpecification &spec);
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef             m_Params;
 
         //! The field role penalties.
         TAutoconfigurerFieldRolePenaltiesCRef m_FieldRolePenalties;
 
         //! The detector penalties based on their fields and roles.
-        TPenaltyPtrVec m_DetectorFieldRolePenalties;
+        TPenaltyPtrVec                        m_DetectorFieldRolePenalties;
 
         //! The bucket length penalties.
-        TPenaltyPtrVec m_BucketLengthPenalties;
+        TPenaltyPtrVec                        m_BucketLengthPenalties;
 
         //! The function specific penalties.
-        TPenaltyPtrVec m_FunctionSpecificPenalties;
+        TPenaltyPtrVec                        m_FunctionSpecificPenalties;
 };
 
 }

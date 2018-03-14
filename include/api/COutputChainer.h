@@ -23,15 +23,12 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CDataProcessor;
 
@@ -49,8 +46,7 @@ class CDataProcessor;
 //! The function to be called for each output record is encapsulated
 //! in a std::function to reduce coupling.
 //!
-class API_EXPORT COutputChainer : public COutputHandler
-{
+class API_EXPORT COutputChainer : public COutputHandler {
     public:
         //! Construct with a reference to the next data processor in the chain
         COutputChainer(CDataProcessor &dataProcessor);
@@ -124,7 +120,7 @@ class API_EXPORT COutputChainer : public COutputHandler
         //! References to the strings within m_WorkRecordFields in the same
         //! order as the field names in m_FieldNames.  This avoids the need to
         //! do hash lookups when populating m_WorkRecordFields.
-        TStrRefVec          m_WorkRecordFieldRefs;
+        TStrRefVec m_WorkRecordFieldRefs;
 };
 
 

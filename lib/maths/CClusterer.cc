@@ -15,33 +15,25 @@
 
 #include <maths/CClusterer.h>
 
-namespace ml
-{
-namespace maths
-{
-namespace
-{
+namespace ml {
+namespace maths {
+namespace {
 const std::string INDEX_TAG("a");
 }
 
 CClustererTypes::CIndexGenerator::CIndexGenerator(void) :
-        m_IndexHeap(new TSizeVec(1u, 0u))
-{
+    m_IndexHeap(new TSizeVec(1u, 0u)) {
 }
 
-bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
-{
+bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     m_IndexHeap->clear();
 
-    do
-    {
-        if (core::CPersistUtils::restore(INDEX_TAG, *m_IndexHeap, traverser) == false)
-        {
+    do {
+        if (core::CPersistUtils::restore(INDEX_TAG, *m_IndexHeap, traverser) == false) {
             LOG_ERROR("Invalid indices in " << traverser.value());
             return false;
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     return true;
 }
@@ -63,15 +55,13 @@ std::size_t CClustererTypes::CIndexGenerator::next(void) const
     std::size_t result = m_IndexHeap->front();
     std::pop_heap(m_IndexHeap->begin(), m_IndexHeap->end(), std::greater<std::size_t>());
     m_IndexHeap->pop_back();
-    if (m_IndexHeap->empty())
-    {
+    if (m_IndexHeap->empty()) {
         m_IndexHeap->push_back(result + 1u);
     }
     return result;
 }
 
-void CClustererTypes::CIndexGenerator::recycle(std::size_t index)
-{
+void CClustererTypes::CIndexGenerator::recycle(std::size_t index) {
     m_IndexHeap->push_back(index);
     std::push_heap(m_IndexHeap->begin(), m_IndexHeap->end(), std::greater<std::size_t>());
 }

@@ -21,10 +21,8 @@
 #include <boost/ref.hpp>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 const std::string CStateCompressor::COMPRESSED_ATTRIBUTE("compressed");
 const std::string CStateCompressor::END_OF_STREAM_ATTRIBUTE("eos");
@@ -32,30 +30,26 @@ const std::string CStateCompressor::END_OF_STREAM_ATTRIBUTE("eos");
 
 CStateCompressor::CStateCompressor(CDataAdder &compressedAdder)
     : m_FilterSink(compressedAdder),
-      m_OutStream(boost::make_shared<CCompressOStream>(boost::ref(m_FilterSink)))
-{
+      m_OutStream(boost::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
     LOG_TRACE("New compressor");
 }
 
 CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string &index,
-                                                    const std::string &baseId)
-{
+                                                    const std::string &baseId) {
     LOG_TRACE("StateCompressor asking for index " << index);
 
     m_FilterSink.index(index, baseId);
     return m_OutStream;
 }
 
-bool CStateCompressor::streamComplete(CDataAdder::TOStreamP &/*strm*/,
-                                      bool /*force*/)
-{
+bool CStateCompressor::streamComplete(CDataAdder::TOStreamP & /*strm*/,
+                                      bool /*force*/) {
     LOG_TRACE("Stream Complete");
     m_OutStream->close();
     return m_FilterSink.allWritesSuccessful();
 }
 
-size_t CStateCompressor::numCompressedDocs(void) const
-{
+size_t CStateCompressor::numCompressedDocs(void) const {
     return m_FilterSink.numCompressedDocs();
 }
 
@@ -64,32 +58,26 @@ CStateCompressor::CChunkFilter::CChunkFilter(CDataAdder &adder)
       m_CurrentDocNum(1),
       m_BytesDone(0),
       m_MaxDocSize(adder.maxDocumentSize()),
-      m_WritesSuccessful(true)
-{
+      m_WritesSuccessful(true) {
 }
 
-std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::streamsize n)
-{
+std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::streamsize n) {
     // Write up to n characters from the buffer
     // s to the output sequence, returning the
     // number of characters written
     std::streamsize written = 0;
-    while (n > 0)
-    {
-        if (!m_OStream)
-        {
+    while (n > 0) {
+        if (!m_OStream) {
             const std::string &currentDocId = m_Adder.makeCurrentDocId(m_BaseId,
                                                                        m_CurrentDocNum);
             LOG_TRACE("Add streamed: " << m_Index << ", " << currentDocId);
 
             m_OStream = m_Adder.addStreamed(m_Index, currentDocId);
-            if (!m_OStream)
-            {
+            if (!m_OStream) {
                 LOG_ERROR("Failed to connect to store");
                 return 0;
             }
-            if (m_OStream->bad())
-            {
+            if (m_OStream->bad()) {
                 LOG_ERROR("Error connecting to store");
                 return 0;
             }
@@ -103,16 +91,13 @@ std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::stream
             LOG_TRACE("Write: " << header);
             m_OStream->write(header.c_str(), header.size());
             m_BytesDone += header.size();
-        }
-        else
-        {
+        } else {
             LOG_TRACE("Write: ,");
             m_OStream->write(",", 1);
             m_BytesDone += 1;
         }
         this->writeInternal(s, written, n);
-        if (m_BytesDone >= (m_MaxDocSize - 1))
-        {
+        if (m_BytesDone >= (m_MaxDocSize - 1)) {
             LOG_TRACE("Terminated stream " << m_CurrentDocNum);
             this->closeStream(false);
             m_OStream.reset();
@@ -123,18 +108,14 @@ std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::stream
     return written;
 }
 
-void CStateCompressor::CChunkFilter::close(void)
-{
+void CStateCompressor::CChunkFilter::close(void) {
     this->closeStream(true);
 }
 
-void CStateCompressor::CChunkFilter::closeStream(bool isFinal)
-{
-    if (m_OStream)
-    {
+void CStateCompressor::CChunkFilter::closeStream(bool isFinal) {
+    if (m_OStream) {
         std::string footer(1, ']');
-        if (isFinal)
-        {
+        if (isFinal) {
             footer += ",\"";
             footer += END_OF_STREAM_ATTRIBUTE;
             footer += "\":true";
@@ -150,16 +131,14 @@ void CStateCompressor::CChunkFilter::closeStream(bool isFinal)
 }
 
 void CStateCompressor::CChunkFilter::index(const std::string &index,
-                                           const std::string &baseId)
-{
+                                           const std::string &baseId) {
     m_Index = index;
     m_BaseId = baseId;
 }
 
 void CStateCompressor::CChunkFilter::writeInternal(const char *s,
                                                    std::streamsize &written,
-                                                   std::streamsize &n)
-{
+                                                   std::streamsize &n) {
     std::size_t bytesToWrite = std::min(std::size_t(n), m_MaxDocSize - m_BytesDone);
     LOG_TRACE("Writing string: " << std::string(&s[written], bytesToWrite));
     m_OStream->write("\"", 1);
@@ -170,8 +149,7 @@ void CStateCompressor::CChunkFilter::writeInternal(const char *s,
     m_BytesDone += bytesToWrite + 2;
 }
 
-bool CStateCompressor::CChunkFilter::allWritesSuccessful(void)
-{
+bool CStateCompressor::CChunkFilter::allWritesSuccessful(void) {
     return m_WritesSuccessful;
 }
 

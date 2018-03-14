@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CTickerTest : public CppUnit::TestFixture
-{
+class CTickerTest : public CppUnit::TestFixture {
     public:
         void    testTicker(void);
 

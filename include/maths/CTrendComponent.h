@@ -26,10 +26,8 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Models the trend component of a time series.
 //!
@@ -48,8 +46,7 @@ namespace maths
 //! we see w.r.t. the predictions from the next longer time scale component).
 //! This produces plausible looking and this sort of mean reversion is common
 //! in many real world time series.
-class MATHS_EXPORT CTrendComponent
-{
+class MATHS_EXPORT CTrendComponent {
     public:
         using TDoubleDoublePr = maths_t::TDoubleDoublePr;
         using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -146,8 +143,7 @@ class MATHS_EXPORT CTrendComponent
         using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
         //! \brief A model of the trend at a specific time scale.
-        struct SModel
-        {
+        struct SModel {
             explicit SModel(double weight);
             void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
             bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -181,22 +177,22 @@ class MATHS_EXPORT CTrendComponent
 
     private:
         //! The default rate at which information is aged out of the trend models.
-        double m_DefaultDecayRate;
+        double              m_DefaultDecayRate;
 
         //! The target rate at which information is aged out of the ensemble.
-        double m_TargetDecayRate;
+        double              m_TargetDecayRate;
 
         //! The time the model was first updated.
-        core_t::TTime m_FirstUpdate;
+        core_t::TTime       m_FirstUpdate;
         //! The time the model was last updated.
-        core_t::TTime m_LastUpdate;
+        core_t::TTime       m_LastUpdate;
 
         //! The start time of the regression models.
-        core_t::TTime m_RegressionOrigin;
+        core_t::TTime       m_RegressionOrigin;
         //! The regression models (we have them for multiple time scales).
-        TModelVec m_Models;
+        TModelVec           m_Models;
         //! The variance of the prediction errors.
-        double m_PredictionErrorVariance;
+        double              m_PredictionErrorVariance;
         //! The mean and variance of the values added to the trend component.
         TMeanVarAccumulator m_ValueMoments;
 };

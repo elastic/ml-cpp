@@ -23,62 +23,53 @@
 #include <stdint.h>
 
 
-CppUnit::Test *CMessageQueueTest::suite()
-{
+CppUnit::Test *CMessageQueueTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMessageQueueTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMessageQueueTest>(
-                                   "CMessageQueueTest::testSendReceive",
-                                   &CMessageQueueTest::testSendReceive) );
+                               "CMessageQueueTest::testSendReceive",
+                               &CMessageQueueTest::testSendReceive) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMessageQueueTest>(
-                                   "CMessageQueueTest::testTiming",
-                                   &CMessageQueueTest::testTiming) );
+                               "CMessageQueueTest::testTiming",
+                               &CMessageQueueTest::testTiming) );
 
     return suiteOfTests;
 }
 
-namespace
-{
-    class CReceiver
-    {
-        public:
-            CReceiver(uint32_t sleepTime = 0)
-                : m_SleepTime(sleepTime)
-            {
+namespace {
+class CReceiver {
+    public:
+        CReceiver(uint32_t sleepTime = 0)
+            : m_SleepTime(sleepTime) {
+        }
+
+        void processMsg(const std::string &str, size_t /* backlog */) {
+            m_Strings.push_back(str);
+            if ((m_Strings.size() % 1000) == 0) {
+                LOG_DEBUG("Received " << m_Strings.size() << " strings");
             }
 
-            void processMsg(const std::string &str, size_t /* backlog */)
-            {
-                m_Strings.push_back(str);
-                if ((m_Strings.size() % 1000) == 0)
-                {
-                    LOG_DEBUG("Received " << m_Strings.size() << " strings");
-                }
-
-                // Delay the processing if requested - this enables us to test
-                // the timing functionality
-                if (m_SleepTime > 0)
-                {
-                    ml::core::CSleep::sleep(m_SleepTime);
-                }
+            // Delay the processing if requested - this enables us to test
+            // the timing functionality
+            if (m_SleepTime > 0) {
+                ml::core::CSleep::sleep(m_SleepTime);
             }
+        }
 
-            size_t size(void) const
-            {
-                return m_Strings.size();
-            }
+        size_t size(void) const {
+            return m_Strings.size();
+        }
 
-        private:
-            typedef std::vector<std::string> TStrVec;
+    private:
+        typedef std::vector<std::string> TStrVec;
 
-            TStrVec  m_Strings;
+        TStrVec  m_Strings;
 
-            uint32_t m_SleepTime;
-    };
+        uint32_t m_SleepTime;
+};
 }
 
-void CMessageQueueTest::testSendReceive(void)
-{
+void CMessageQueueTest::testSendReceive(void) {
     CReceiver receiver;
 
     ml::core::CMessageQueue<std::string, CReceiver> queue(receiver);
@@ -89,8 +80,7 @@ void CMessageQueueTest::testSendReceive(void)
 
     LOG_DEBUG("Sending " << TEST_SIZE << " strings");
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 
@@ -101,16 +91,15 @@ void CMessageQueueTest::testSendReceive(void)
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 }
 
-void CMessageQueueTest::testTiming(void)
-{
+void CMessageQueueTest::testTiming(void) {
     // Tell the receiver to delay processing by 29ms for each item (otherwise
     // it will be too fast to time on a modern computer).
     CReceiver receiver(29);
 
     static const size_t NUM_TO_TIME(100);
     ml::core::CMessageQueue<std::string,
-                                 CReceiver,
-                                 NUM_TO_TIME> queue(receiver);
+                            CReceiver,
+                            NUM_TO_TIME> queue(receiver);
 
     CPPUNIT_ASSERT(queue.start());
 
@@ -118,8 +107,7 @@ void CMessageQueueTest::testTiming(void)
 
     LOG_DEBUG("Sending " << TEST_SIZE << " strings");
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 

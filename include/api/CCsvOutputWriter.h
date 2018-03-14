@@ -25,10 +25,8 @@
 #include <utility>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in CSV format
@@ -53,8 +51,7 @@ namespace api
 //! It is not acceptable to have the separator character be the same as the
 //! escape character, the quote character or the record end character.
 //!
-class API_EXPORT CCsvOutputWriter : public COutputHandler
-{
+class API_EXPORT CCsvOutputWriter : public COutputHandler {
     public:
         //! CSV separator
         static const char COMMA;
@@ -143,22 +140,22 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler
         //! stream, so that invalid write requests can have no effect on the
         //! output stream.  Held as a member so that the capacity adjusts to
         //! an appropriate level, avoiding regular memory allocations.
-        std::string         m_WorkRecord;
+        std::string m_WorkRecord;
 
         typedef std::pair<std::string, std::string > TStrStrPr;
         typedef std::set<TStrStrPr>                  TStrStrPrSet;
         typedef TStrStrPrSet::const_iterator         TStrStrPrSetCItr;
 
         //! Messages to be printed before the next lot of output
-        TStrStrPrSet        m_Messages;
+        TStrStrPrSet m_Messages;
 
         //! Character to use for escaping quotes (const to allow compiler
         //! optimisations, since the value can't be changed after construction)
-        const char          m_Escape;
+        const char   m_Escape;
 
         //! Output field separator by default this is ',' but can be
         //! overridden in the constructor
-        const char          m_Separator;
+        const char   m_Separator;
 };
 
 

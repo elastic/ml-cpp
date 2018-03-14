@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CProcessTest : public CppUnit::TestFixture
-{
+class CProcessTest : public CppUnit::TestFixture {
     public:
         void testPids(void);
 

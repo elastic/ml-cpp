@@ -20,10 +20,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace categorize
-{
+namespace ml {
+namespace categorize {
 
 
 //! \brief
@@ -36,8 +34,7 @@ namespace categorize
 //! Put in a class rather than main to allow testing.
 //! TODO make this generic.
 //!
-class CCmdLineParser
-{
+class CCmdLineParser {
     public:
         //! Parse the arguments and return options if appropriate.  Unamed
         //! options are placed in a vector for further processing/validation

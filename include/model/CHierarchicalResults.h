@@ -37,26 +37,22 @@
 
 class CHierarchicalResultsTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModel;
 class CLimits;
 
-namespace hierarchical_results_detail
-{
+namespace hierarchical_results_detail {
 
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+typedef std::vector<core::CStoredStringPtr>                       TStoredStringPtrVec;
 typedef std::pair<core::CStoredStringPtr, core::CStoredStringPtr> TStoredStringPtrStoredStringPtrPr;
-typedef std::pair<TStoredStringPtrStoredStringPtrPr, double> TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr> TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef core::CSmallVector<std::string, 1> TStr1Vec;
+typedef std::pair<TStoredStringPtrStoredStringPtrPr, double>      TStoredStringPtrStoredStringPtrPrDoublePr;
+typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>    TStoredStringPtrStoredStringPtrPrDoublePrVec;
+typedef core::CSmallVector<std::string, 1>                        TStr1Vec;
 
 //! \brief The data fully describing a result node.
 //!
@@ -79,8 +75,7 @@ typedef core::CSmallVector<std::string, 1> TStr1Vec;
 //!   -# autodetect sum(bytes) over host
 //!   -# autodetect rare by uri_path over clientip
 //!   -# and so on.
-struct MODEL_EXPORT SResultSpec
-{
+struct MODEL_EXPORT SResultSpec {
     SResultSpec(void);
 
     //! Persist the result specification by passing information to \p inserter.
@@ -143,11 +138,10 @@ struct MODEL_EXPORT SResultSpec
 //! aggregation process.
 //!
 //! \see buildHierarchicalResults for more details.
-struct MODEL_EXPORT SNode
-{
-    typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-    typedef const SNode *TNodeCPtr;
-    typedef std::vector<TNodeCPtr> TNodeCPtrVec;
+struct MODEL_EXPORT SNode {
+    typedef std::vector<SAttributeProbability>           TAttributeProbabilityVec;
+    typedef const SNode *                                TNodeCPtr;
+    typedef std::vector<TNodeCPtr>                       TNodeCPtrVec;
     typedef boost::unordered_map<TNodeCPtr, std::size_t> TNodePtrSizeUMap;
     typedef boost::unordered_map<std::size_t, TNodeCPtr> TSizeNodePtrUMap;
 
@@ -222,7 +216,7 @@ struct MODEL_EXPORT SNode
     //! The start time of the bucket generating the anomaly.
     core_t::TTime s_BucketStartTime;
 
-     //! The length of the bucket for this result.
+    //! The length of the bucket for this result.
     core_t::TTime s_BucketLength;
     //@}
 };
@@ -261,22 +255,21 @@ class CHierarchicalResultsVisitor;
 //! invalid if it is kept longer than to output a single result. This is
 //! to minimize the amount of state that needs to be copied when outputting
 //! results (to minimize both runtime and transient memory usage).
-class MODEL_EXPORT CHierarchicalResults
-{
+class MODEL_EXPORT CHierarchicalResults {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-        typedef hierarchical_results_detail::SResultSpec TResultSpec;
-        typedef core::CStoredStringPtr TStoredStringPtr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-        typedef hierarchical_results_detail::SNode TNode;
-        typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap TNodePtrSizeUMap;
-        typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap TSizeNodePtrUMap;
-        typedef std::deque<TNode> TNodeDeque;
+        typedef std::vector<double>                                                                            TDoubleVec;
+        typedef std::vector<SAttributeProbability>                                                             TAttributeProbabilityVec;
+        typedef hierarchical_results_detail::SResultSpec                                                       TResultSpec;
+        typedef core::CStoredStringPtr                                                                         TStoredStringPtr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr                                 TStoredStringPtrStoredStringPtrPr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr                         TStoredStringPtrStoredStringPtrPrDoublePr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec                      TStoredStringPtrStoredStringPtrPrDoublePrVec;
+        typedef hierarchical_results_detail::SNode                                                             TNode;
+        typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap                                           TNodePtrSizeUMap;
+        typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap                                           TSizeNodePtrUMap;
+        typedef std::deque<TNode>                                                                              TNodeDeque;
         typedef std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare> TStoredStringPtrStoredStringPtrPrNodeMap;
-        typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess> TStoredStringPtrNodeMap;
+        typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>                                    TStoredStringPtrNodeMap;
 
     public:
         CHierarchicalResults(void);
@@ -416,23 +409,22 @@ class MODEL_EXPORT CHierarchicalResults
 
     private:
         //! Storage for the nodes.
-        TNodeDeque m_Nodes;
+        TNodeDeque                               m_Nodes;
 
         //! Storage for the pivot nodes.
         TStoredStringPtrStoredStringPtrPrNodeMap m_PivotNodes;
 
         //! Pivot root nodes.
-        TStoredStringPtrNodeMap m_PivotRootNodes;
+        TStoredStringPtrNodeMap                  m_PivotRootNodes;
 
         //! Is the result final or interim?
         //! This field is transient - does not get persisted because interim results
         //! never get persisted.
-        model_t::CResultType m_ResultType;
+        model_t::CResultType                     m_ResultType;
 };
 
 //! \brief Interface for visiting the results.
-class MODEL_EXPORT CHierarchicalResultsVisitor
-{
+class MODEL_EXPORT CHierarchicalResultsVisitor {
     public:
         typedef CHierarchicalResults::TNode TNode;
 
@@ -482,7 +474,7 @@ class MODEL_EXPORT CHierarchicalResultsVisitor
                                       const TNode &node,
                                       bool pivot);
 
-    friend class ::CHierarchicalResultsTest;
+        friend class ::CHierarchicalResultsTest;
 };
 
 }

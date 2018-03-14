@@ -25,10 +25,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Basic wrapper class around pthread_create etc.
@@ -41,15 +39,14 @@ namespace core
 //! conditions when a thread is started and stopped in quick
 //! succession.
 //!
-class CORE_EXPORT CThread : private CNonCopyable
-{
+class CORE_EXPORT CThread : private CNonCopyable {
     public:
         //! Thread ID type
 #ifdef Windows
-        typedef DWORD         TThreadId;
-        typedef unsigned  int TThreadRet;
+        typedef DWORD        TThreadId;
+        typedef unsigned int TThreadRet;
 #else
-        typedef pthread_t     TThreadId;
+        typedef pthread_t      TThreadId;
         typedef void          *TThreadRet;
 #endif
 

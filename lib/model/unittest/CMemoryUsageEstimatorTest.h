@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMemoryUsageEstimatorTest : public CppUnit::TestFixture
-{
+class CMemoryUsageEstimatorTest : public CppUnit::TestFixture {
     public:
         void testEstimateLinear(void);
         void testEstimateNonlinear(void);

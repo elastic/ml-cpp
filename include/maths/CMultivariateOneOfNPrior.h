@@ -28,16 +28,13 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief Interface for a multivariate prior distribution which assumes data
@@ -64,18 +61,17 @@ struct SDistributionRestoreParams;
 //! hierarchy can be mixed in. All component models are owned by the object
 //! (it wouldn't make sense to share them) so this also defines the necessary
 //! functions to support value semantics and manage the heap.
-class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
-{
+class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
     public:
-        typedef core::CSmallVector<double, 3> TDouble3Vec;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
-        typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
+        typedef core::CSmallVector<double, 3>                    TDouble3Vec;
+        typedef std::vector<TPriorPtr>                           TPriorPtrVec;
+        typedef std::pair<double, TPriorPtr>                     TDoublePriorPtrPr;
+        typedef std::vector<TDoublePriorPtrPr>                   TDoublePriorPtrPrVec;
+        typedef std::pair<CModelWeight, TPriorPtr>               TWeightPriorPtrPr;
+        typedef std::vector<TWeightPriorPtrPr>                   TWeightPriorPtrPrVec;
         typedef core::CSmallVector<const CMultivariatePrior*, 3> TPriorCPtr3Vec;
-        typedef CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-        typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+        typedef CBasicStatistics::SMin<double>::TAccumulator     TMinAccumulator;
+        typedef CBasicStatistics::SMax<double>::TAccumulator     TMaxAccumulator;
 
         // Lift all overloads of into scope.
         //{
@@ -84,7 +80,7 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         using CMultivariatePrior::addSamples;
         using CMultivariatePrior::probabilityOfLessLikelySamples;
         using CMultivariatePrior::print;
-        //}
+    //}
 
     private:
         //! The maximum relative error we'll tolerate in c.d.f. and probability calculations.
@@ -252,10 +248,10 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble10Vec1Vec &samples,
-                                       const TDouble10Vec4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble10Vec1Vec &samples,
+                                   const TDouble10Vec4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!
@@ -308,7 +304,7 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
 
         //! Get the current constituent models.
         TPriorCPtr3Vec models(void) const;
-        //@}
+    //@}
 
     private:
         //! Check that the model weights are valid.
@@ -319,7 +315,7 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior
 
     private:
         //! The model dimension.
-        std::size_t m_Dimension;
+        std::size_t          m_Dimension;
 
         //! A collection of component models and their probabilities.
         TWeightPriorPtrPrVec m_Models;

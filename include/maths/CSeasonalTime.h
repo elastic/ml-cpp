@@ -24,20 +24,16 @@
 
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Provides times for seasonal components of a time series
 //! decomposition.
-class MATHS_EXPORT CSeasonalTime
-{
+class MATHS_EXPORT CSeasonalTime {
     public:
         using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
@@ -157,13 +153,12 @@ class MATHS_EXPORT CSeasonalTime
         core_t::TTime m_RegressionOrigin;
         //! The precedence of the corresponding component when
         //! deciding which to keep amongst alternatives.
-        double m_Precedence;
+        double        m_Precedence;
 };
 
 //! \brief Provides times for daily and weekly period seasonal
 //! components of a time series decomposition.
-class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
-{
+class MATHS_EXPORT CDiurnalTime : public CSeasonalTime {
     public:
         CDiurnalTime(void);
         CDiurnalTime(core_t::TTime startOfWeek,
@@ -214,8 +209,7 @@ class MATHS_EXPORT CDiurnalTime : public CSeasonalTime
 
 //! \brief Provides times for arbitrary period seasonal components
 //! of a time series decomposition.
-class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime
-{
+class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime {
     public:
         CGeneralPeriodTime(void) = default;
         CGeneralPeriodTime(core_t::TTime period, double precedence = 1.0);
@@ -258,8 +252,7 @@ class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime
 //! Encapsulate the conversion of arbitrary CSeasonalTime sub-classes to/from
 //! textual state. In particular, the field name associated with each type of
 //! CSeasonalTime is then in one file.
-class MATHS_EXPORT CSeasonalTimeStateSerializer
-{
+class MATHS_EXPORT CSeasonalTimeStateSerializer {
     public:
         //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
         //! base class.

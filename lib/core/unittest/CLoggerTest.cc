@@ -37,31 +37,29 @@ const char     *TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
-CppUnit::Test *CLoggerTest::suite()
-{
+CppUnit::Test *CLoggerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CLoggerTest>(
-                                   "CLoggerTest::testLogging",
-                                   &CLoggerTest::testLogging) );
+                               "CLoggerTest::testLogging",
+                               &CLoggerTest::testLogging) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLoggerTest>(
-                                   "CLoggerTest::testReconfiguration",
-                                   &CLoggerTest::testReconfiguration) );
+                               "CLoggerTest::testReconfiguration",
+                               &CLoggerTest::testReconfiguration) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLoggerTest>(
-                                   "CLoggerTest::testSetLevel",
-                                   &CLoggerTest::testSetLevel) );
+                               "CLoggerTest::testSetLevel",
+                               &CLoggerTest::testSetLevel) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLoggerTest>(
-                                   "CLoggerTest::testLogEnvironment",
-                                   &CLoggerTest::testLogEnvironment) );
+                               "CLoggerTest::testLogEnvironment",
+                               &CLoggerTest::testLogEnvironment) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLoggerTest>(
-                                   "CLoggerTest::testNonAsciiJsonLogging",
-                                   &CLoggerTest::testNonAsciiJsonLogging) );
+                               "CLoggerTest::testNonAsciiJsonLogging",
+                               &CLoggerTest::testNonAsciiJsonLogging) );
 
     return suiteOfTests;
 }
 
-void CLoggerTest::testLogging(void)
-{
+void CLoggerTest::testLogging(void) {
     std::string t("Test message");
 
     LOG_TRACE("Trace");
@@ -76,20 +74,16 @@ void CLoggerTest::testLogging(void)
     LOG_AT_LEVEL("ERROR", "Dynamic ERROR");
     LOG_FATAL("Fatal - application to handle exit");
     LOG_AT_LEVEL("FATAL", "Dynamic FATAL " << t);
-    try
-    {
+    try {
         LOG_ABORT("Throwing exception " << 1221U << ' ' << 0.23124);
 
         CPPUNIT_ASSERT(false);
-    }
-    catch (std::runtime_error &)
-    {
+    } catch (std::runtime_error &) {
         CPPUNIT_ASSERT(true);
     }
 }
 
-void CLoggerTest::testReconfiguration(void)
-{
+void CLoggerTest::testReconfiguration(void) {
     ml::core::CLogger &logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger reconfiguration test");
@@ -110,8 +104,7 @@ void CLoggerTest::testReconfiguration(void)
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());
 }
 
-void CLoggerTest::testSetLevel(void)
-{
+void CLoggerTest::testSetLevel(void) {
     ml::core::CLogger &logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger level test");
@@ -166,28 +159,25 @@ void CLoggerTest::testSetLevel(void)
     LOG_DEBUG("Finished logger level test");
 }
 
-void CLoggerTest::testNonAsciiJsonLogging(void)
-{
+void CLoggerTest::testNonAsciiJsonLogging(void) {
     std::vector<std::string> messages {"Non-iso8859-15: 编码", "Non-ascii: üaöä", "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
-    std::thread reader([&loggedData]
-    {
-        // wait a bit so that pipe has been created
-        ml::core::CSleep::sleep(200);
-        std::ifstream strm(TEST_PIPE_NAME);
-        std::copy(std::istreambuf_iterator<char>(strm),
-                  std::istreambuf_iterator<char>(),
-                  std::ostreambuf_iterator<char>(loggedData));
-    });
+    std::thread        reader([&loggedData] {
+                              // wait a bit so that pipe has been created
+                              ml::core::CSleep::sleep(200);
+                              std::ifstream strm(TEST_PIPE_NAME);
+                              std::copy(std::istreambuf_iterator<char>(strm),
+                                        std::istreambuf_iterator<char>(),
+                                        std::ostreambuf_iterator<char>(loggedData));
+        });
 
     ml::core::CLogger &logger = ml::core::CLogger::instance();
     // logger might got reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
     logger.reconfigure(TEST_PIPE_NAME, "");
 
-    for (const auto &m : messages)
-    {
+    for (const auto &m : messages) {
         LOG_INFO(m);
     }
 
@@ -196,14 +186,12 @@ void CLoggerTest::testNonAsciiJsonLogging(void)
 
     reader.join();
     std::istringstream inputStream (loggedData.str());
-    std::string line;
-    size_t foundMessages = 0;
+    std::string        line;
+    size_t             foundMessages = 0;
 
     // test that we found the messages we put in,
-    while (std::getline(inputStream, line))
-    {
-        if (line.empty())
-        {
+    while (std::getline(inputStream, line)) {
+        if (line.empty()) {
             continue;
         }
         rapidjson::Document doc;
@@ -211,23 +199,19 @@ void CLoggerTest::testNonAsciiJsonLogging(void)
         CPPUNIT_ASSERT(!doc.HasParseError());
         CPPUNIT_ASSERT(doc.HasMember("message"));
         const rapidjson::Value &messageValue = doc["message"];
-        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
+        std::string            messageString(messageValue.GetString(), messageValue.GetStringLength());
 
         // we expect messages to be in order, so we only need to test the current one
-        if (messageString.find(messages[foundMessages]) != std::string::npos)
-        {
+        if (messageString.find(messages[foundMessages]) != std::string::npos) {
             ++foundMessages;
-        }
-        else if (foundMessages > 0)
-        {
+        } else if (foundMessages > 0) {
             CPPUNIT_FAIL(messageString + " did not contain " + messages[foundMessages]);
         }
     }
     CPPUNIT_ASSERT_EQUAL(messages.size(), foundMessages);
 }
 
-void CLoggerTest::testLogEnvironment(void)
-{
+void CLoggerTest::testLogEnvironment(void) {
     ml::core::CLogger::instance().logEnvironment();
 }
 

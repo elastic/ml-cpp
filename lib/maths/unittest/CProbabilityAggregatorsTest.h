@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CProbabilityAggregatorsTest : public CppUnit::TestFixture
-{
+class CProbabilityAggregatorsTest : public CppUnit::TestFixture {
     public:
         void testJointProbabilityOfLessLikelySamples(void);
         void testLogJointProbabilityOfLessLikelySamples(void);

@@ -31,31 +31,29 @@ using namespace ml;
 using namespace model;
 
 
-CppUnit::Test *CDynamicStringIdRegistryTest::suite()
-{
+CppUnit::Test *CDynamicStringIdRegistryTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testAddName",
-           &CDynamicStringIdRegistryTest::testAddName));
+                              "CDynamicStringIdRegistryTest::testAddName",
+                              &CDynamicStringIdRegistryTest::testAddName));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-           "CDynamicStringIdRegistryTest::testPersist",
-           &CDynamicStringIdRegistryTest::testPersist));
+                              "CDynamicStringIdRegistryTest::testPersist",
+                              &CDynamicStringIdRegistryTest::testPersist));
 
     return suiteOfTests;
 }
 
-void CDynamicStringIdRegistryTest::testAddName(void)
-{
+void CDynamicStringIdRegistryTest::testAddName(void) {
     LOG_DEBUG("*** testAddName ***");
 
-    CResourceMonitor resourceMonitor;
+    CResourceMonitor         resourceMonitor;
     CDynamicStringIdRegistry registry("person",
                                       stat_t::E_NumberNewPeople,
                                       stat_t::E_NumberNewPeopleNotAllowed,
                                       stat_t::E_NumberNewPeopleRecycled);
 
-    bool personAdded = false;
+    bool        personAdded = false;
     std::string person1("foo");
     std::string person2("bar");
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), registry.addName(person1, 100, resourceMonitor, personAdded));
@@ -77,7 +75,7 @@ void CDynamicStringIdRegistryTest::testAddName(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), registry.numberNames());
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), registry.numberActiveNames());
 
-    std::string defaultName("-");
+    std::string                        defaultName("-");
     CDynamicStringIdRegistry::TSizeVec toRecycle;
     toRecycle.push_back(std::size_t(1));
     registry.recycleNames(toRecycle, defaultName);
@@ -97,17 +95,16 @@ void CDynamicStringIdRegistryTest::testAddName(void)
     CPPUNIT_ASSERT(registry.isIdActive(2));
 }
 
-void CDynamicStringIdRegistryTest::testPersist(void)
-{
+void CDynamicStringIdRegistryTest::testPersist(void) {
     LOG_DEBUG("*** testPersist ***");
 
-    CResourceMonitor resourceMonitor;
+    CResourceMonitor         resourceMonitor;
     CDynamicStringIdRegistry registry("person",
                                       stat_t::E_NumberNewPeople,
                                       stat_t::E_NumberNewPeopleNotAllowed,
                                       stat_t::E_NumberNewPeopleRecycled);
 
-    bool addedPerson = false;
+    bool        addedPerson = false;
     std::string person1("foo");
     std::string person2("bar");
     registry.addName(person1, 0, resourceMonitor, addedPerson);
@@ -124,10 +121,10 @@ void CDynamicStringIdRegistryTest::testPersist(void)
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CDynamicStringIdRegistry restoredRegistry("person",
-                                              stat_t::E_NumberNewPeople,
-                                              stat_t::E_NumberNewPeopleNotAllowed,
-                                              stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry             restoredRegistry("person",
+                                                          stat_t::E_NumberNewPeople,
+                                                          stat_t::E_NumberNewPeopleNotAllowed,
+                                                          stat_t::E_NumberNewPeopleRecycled);
     traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser,
                                            &restoredRegistry,
                                            _1));

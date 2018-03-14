@@ -31,10 +31,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Create normalized anomaly scores
@@ -56,8 +54,7 @@ namespace api
 //! Does not support processor chaining functionality as it is unlikely
 //! that this class would ever be chained to another data processor.
 //!
-class API_EXPORT CResultNormalizer
-{
+class API_EXPORT CResultNormalizer {
     public:
         //! Field names used in records to be normalised
         static const std::string LEVEL;
@@ -112,14 +109,12 @@ class API_EXPORT CResultNormalizer
         template<typename T>
         bool parseDataField(const TStrStrUMap &dataRowFields,
                             const std::string &fieldName,
-                            T &result) const
-        {
+                            T &result) const {
             TStrStrUMapCItr iter = dataRowFields.find(fieldName);
             if (iter == dataRowFields.end() ||
-                core::CStringUtils::stringToType(iter->second, result) == false)
-            {
+                core::CStringUtils::stringToType(iter->second, result) == false) {
                 LOG_ERROR("Cannot interpret " << fieldName << " field in record:\n" <<
-                        CDataProcessor::debugPrintRecord(dataRowFields));
+                          CDataProcessor::debugPrintRecord(dataRowFields));
                 return false;
             }
             return true;

@@ -27,15 +27,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Represents the probability assigned to a model in the mixture.
 //!
@@ -44,11 +41,12 @@ namespace maths
 //! form any weight which is small w.r.t. the largest weight (i.e. less
 //! than double_eps * largest weight) is effectively zero and the corresponding
 //! model is (temporarily) removed from the collection.
-class MATHS_EXPORT CModelWeight
-{
+class MATHS_EXPORT CModelWeight {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero(void) {
+            return true;
+        }
 
     public:
         explicit CModelWeight(double weight);
@@ -88,24 +86,21 @@ class MATHS_EXPORT CModelWeight
 
 //! \brief Re-normalizes weights (so that the sum to one) on destruction.
 template<typename PRIOR>
-class CScopeCanonicalizeWeights : private core::CNonCopyable
-{
+class CScopeCanonicalizeWeights : private core::CNonCopyable {
     public:
         typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;
-        typedef std::vector<TWeightPriorPr> TWeightPriorPrVec;
+        typedef std::vector<TWeightPriorPr>    TWeightPriorPrVec;
 
     public:
-        CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
+        CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {
+        }
 
-        ~CScopeCanonicalizeWeights(void)
-        {
+        ~CScopeCanonicalizeWeights(void) {
             CBasicStatistics::SMax<double>::TAccumulator logMaxWeight;
-            for (const auto &model : m_Models)
-            {
+            for (const auto &model : m_Models) {
                 logMaxWeight.add(model.first.logWeight());
             }
-            for (auto &&model : m_Models)
-            {
+            for (auto &&model : m_Models) {
                 model.first.logWeight(model.first.logWeight() - logMaxWeight[0]);
             }
         }

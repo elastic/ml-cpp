@@ -22,15 +22,12 @@
 #include <maths/CPrior.h>
 #include <maths/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief A conjugate prior distribution for a multinomial variable.
@@ -53,8 +50,7 @@ struct SDistributionRestoreParams;
 //! the data when using one-of-n composition (see COneOfNPrior) or model data with
 //! multiple modes when using multi-modal composition (see CMultimodalPrior).
 //! From a design point of view this is the composite pattern.
-class MATHS_EXPORT CMultinomialConjugate : public CPrior
-{
+class MATHS_EXPORT CMultinomialConjugate : public CPrior {
     public:
         typedef CEqualWithTolerance<double> TEqualWithTolerance;
 
@@ -169,9 +165,9 @@ class MATHS_EXPORT CMultinomialConjugate : public CPrior
         //! \param[in] weights Ignored.
         //! \note \p percentage should be in the range [0.0, 100.0).
         virtual TDoubleDoublePr
-            marginalLikelihoodConfidenceInterval(double percentage,
-                                                 const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                                                 const TDouble4Vec &weights = TWeights::UNIT) const;
+        marginalLikelihoodConfidenceInterval(double percentage,
+                                             const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
+                                             const TDouble4Vec &weights = TWeights::UNIT) const;
 
         //! Compute the log marginal likelihood function at \p samples integrating
         //! over the prior density function for the category probability parameters.
@@ -188,10 +184,10 @@ class MATHS_EXPORT CMultinomialConjugate : public CPrior
         //! \note The samples are assumed to be independent and identically
         //! distributed.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble1Vec &samples,
-                                       const TDouble4Vec1Vec &weights,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble1Vec &samples,
+                                   const TDouble4Vec1Vec &weights,
+                                   double &result) const;
 
         //! Sample the marginal likelihood function.
         //!
@@ -379,7 +375,7 @@ class MATHS_EXPORT CMultinomialConjugate : public CPrior
         //! Check if two priors are equal to the specified tolerance.
         bool equalTolerance(const CMultinomialConjugate &rhs,
                             const TEqualWithTolerance &equal) const;
-        //@}
+    //@}
 
     private:
         //! Read parameters from \p traverser.
@@ -397,18 +393,18 @@ class MATHS_EXPORT CMultinomialConjugate : public CPrior
         static const double NON_INFORMATIVE_CONCENTRATION;
 
         //! Set to true if we overflow the permitted number of categories.
-        int m_NumberAvailableCategories;
+        int                 m_NumberAvailableCategories;
 
         //! The category values.
-        TDoubleVec m_Categories;
+        TDoubleVec          m_Categories;
 
         //! The concentration parameters of the Dirichlet prior.
-        TDoubleVec m_Concentrations;
+        TDoubleVec          m_Concentrations;
 
         //! The total concentration. Note that if we have observed more
         //! categories than we were permitted this is not equal to the
         //! sum of the concentration parameters.
-        double m_TotalConcentration;
+        double              m_TotalConcentration;
 };
 
 }

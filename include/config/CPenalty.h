@@ -28,10 +28,8 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CCategoricalDataSummaryStatistics;
 class CFieldStatistics;
@@ -70,20 +68,18 @@ class CNumericDataSummaryStatistics;
 //! is a closure, i.e. (MyPenaltyA * MyPenaltyB) is a new CPenalty object
 //! whose penalty function is the product of the penalty functions of
 //! MyPenaltyA and MyPenaltyB.
-class CONFIG_EXPORT CPenalty
-{
+class CONFIG_EXPORT CPenalty {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+        typedef std::vector<double>               TDoubleVec;
+        typedef std::vector<std::size_t>          TSizeVec;
+        typedef std::vector<core_t::TTime>        TTimeVec;
+        typedef std::vector<std::string>          TStrVec;
+        typedef boost::shared_ptr<CPenalty>       TPenaltyPtr;
         typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
-        typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+        typedef std::vector<TPenaltyCPtr>         TPenaltyCPtrVec;
 
         //! \brief Represents the result of multiplying penalties.
-        class CClosure
-        {
+        class CClosure {
             public:
                 CClosure(const CPenalty &penalty);
 
@@ -120,8 +116,7 @@ class CONFIG_EXPORT CPenalty
         const CPenalty &operator*=(CClosure rhs);
 
         //! Compute the penalty to apply for the first property.
-        void penalty(const CFieldStatistics &stats, double &penalty) const
-        {
+        void penalty(const CFieldStatistics &stats, double &penalty) const {
             std::string ignore;
             this->penalty(stats, penalty, ignore);
         }
@@ -168,7 +163,7 @@ class CONFIG_EXPORT CPenalty
         TAutoconfigurerParamsCRef m_Params;
 
         //! The penalties.
-        TPenaltyCPtrVec m_Penalties;
+        TPenaltyCPtrVec           m_Penalties;
 };
 
 //! Multiply a two penalties.

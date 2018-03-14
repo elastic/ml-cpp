@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CSeasonalComponentTest : public CppUnit::TestFixture
-{
+class CSeasonalComponentTest : public CppUnit::TestFixture {
     public:
         void testNoPeriodicity(void);
         void testConstantPeriodic(void);

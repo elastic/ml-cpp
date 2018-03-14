@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCommandProcessorTest : public CppUnit::TestFixture
-{
+class CCommandProcessorTest : public CppUnit::TestFixture {
     public:
         void testStartPermitted(void);
         void testStartNonPermitted(void);

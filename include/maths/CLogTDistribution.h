@@ -22,10 +22,8 @@
 
 #include <utility>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Representation of a log t distribution.
 //!
@@ -41,11 +39,10 @@ namespace maths
 //! which defines lightweight objects to represent distributions
 //! and free functions for computing various properties of the
 //! distribution.
-class MATHS_EXPORT CLogTDistribution
-{
+class MATHS_EXPORT CLogTDistribution {
     public:
         typedef std::pair<double, double> TDoubleDoublePr;
-        typedef boost::optional<double> TOptionalDouble;
+        typedef boost::optional<double>   TOptionalDouble;
 
     public:
         CLogTDistribution(double degreesFreedom,

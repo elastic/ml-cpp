@@ -26,22 +26,20 @@
 #endif
 
 
-CppUnit::Test *COsFileFuncsTest::suite()
-{
+CppUnit::Test *COsFileFuncsTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<COsFileFuncsTest>(
-                                   "COsFileFuncsTest::testInode",
-                                   &COsFileFuncsTest::testInode) );
+                               "COsFileFuncsTest::testInode",
+                               &COsFileFuncsTest::testInode) );
     suiteOfTests->addTest( new CppUnit::TestCaller<COsFileFuncsTest>(
-                                   "COsFileFuncsTest::testLStat",
-                                   &COsFileFuncsTest::testLStat) );
+                               "COsFileFuncsTest::testLStat",
+                               &COsFileFuncsTest::testLStat) );
 
     return suiteOfTests;
 }
 
-void COsFileFuncsTest::testInode(void)
-{
+void COsFileFuncsTest::testInode(void) {
     // Windows doesn't have inodes as such, but on NTFS we can simulate a number
     // that fulfils the purpose of determining when a file has been renamed and
     // another one with the original name has been created.
@@ -61,8 +59,8 @@ void COsFileFuncsTest::testInode(void)
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerOpen(0);
-    int headerFd(ml::core::COsFileFuncs::open(headerFile.c_str(),
-                                              ml::core::COsFileFuncs::RDONLY));
+    int                          headerFd(ml::core::COsFileFuncs::open(headerFile.c_str(),
+                                                                       ml::core::COsFileFuncs::RDONLY));
     CPPUNIT_ASSERT(headerFd != -1);
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd,
                                                           &statBuf));
@@ -81,8 +79,8 @@ void COsFileFuncsTest::testInode(void)
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implOpen(0);
-    int implFd(ml::core::COsFileFuncs::open(implFile.c_str(),
-                                            ml::core::COsFileFuncs::RDONLY));
+    int                          implFd(ml::core::COsFileFuncs::open(implFile.c_str(),
+                                                                     ml::core::COsFileFuncs::RDONLY));
     CPPUNIT_ASSERT(implFd != -1);
     CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::fstat(implFd,
                                                           &statBuf));
@@ -96,8 +94,7 @@ void COsFileFuncsTest::testInode(void)
     CPPUNIT_ASSERT(implDirect != headerDirect);
 }
 
-void COsFileFuncsTest::testLStat(void)
-{
+void COsFileFuncsTest::testLStat(void) {
     std::string file("Main.cc");
     std::string symLink("Main.symlink.cc");
 

@@ -18,11 +18,9 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CContainerThroughputTest : public CppUnit::TestFixture
-{
+class CContainerThroughputTest : public CppUnit::TestFixture {
     public:
-        struct SContent
-        {
+        struct SContent {
             SContent(size_t count);
 
             size_t s_Size;

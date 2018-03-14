@@ -24,10 +24,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Manages the various IO streams of an API command.
@@ -55,8 +53,7 @@ namespace api
 //! always required.  Persist/restore streams are returned as pointers
 //! because some processes may not require both.
 //!
-class API_EXPORT CIoManager : private core::CNonCopyable
-{
+class API_EXPORT CIoManager : private core::CNonCopyable {
     public:
         //! Leave \p inputFileName/\p outputFileName empty to indicate
         //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to

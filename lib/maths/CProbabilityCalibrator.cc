@@ -27,28 +27,23 @@
 
 #include <string>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace
-{
+namespace {
 
 const uint64_t QUANTILE_SIZE = 200u;
-const double DISCRETIZATION_FACTOR = 100.0;
+const double   DISCRETIZATION_FACTOR = 100.0;
 
 //! Convert a probability to a positive integer.
-uint32_t discreteProbability(const double probability)
-{
+uint32_t discreteProbability(const double probability) {
     return static_cast<uint32_t>(DISCRETIZATION_FACTOR
                                  * -::log(probability) + 0.5);
 }
 
 //! Convert a discrete probability integer into the
 //! approximate probability which generated it.
-double rawProbability(const uint32_t &discreteProbability)
-{
+double rawProbability(const uint32_t &discreteProbability) {
     return ::exp(-static_cast<double>(discreteProbability)
                  / DISCRETIZATION_FACTOR);
 }
@@ -62,19 +57,16 @@ const std::string EMPTY_STRING;
 
 CProbabilityCalibrator::CProbabilityCalibrator(EStyle style,
                                                double cutoffProbability) :
-        m_Style(style),
-        m_CutoffProbability(cutoffProbability),
-        m_DiscreteProbabilityQuantiles(new CQDigest(QUANTILE_SIZE))
-{
-    if (!(m_CutoffProbability >= 0.0 && m_CutoffProbability <= 1.0))
-    {
+    m_Style(style),
+    m_CutoffProbability(cutoffProbability),
+    m_DiscreteProbabilityQuantiles(new CQDigest(QUANTILE_SIZE)) {
+    if (!(m_CutoffProbability >= 0.0 && m_CutoffProbability <= 1.0)) {
         LOG_ERROR("Invalid cutoff probability " << m_CutoffProbability);
         CTools::truncate(m_CutoffProbability, 0.0, 1.0);
     }
 }
 
-void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter &inserter) const
-{
+void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
     inserter.insertValue(STYLE_TAG, static_cast<int>(m_Style));
     inserter.insertValue(CUTOFF_PROBABILITY_TAG, m_CutoffProbability);
     inserter.insertLevel(DISCRETE_PROBABILITY_QUANTILE_TAG,
@@ -83,54 +75,41 @@ void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter &
                                      _1));
 }
 
-bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
-{
-    do
-    {
+bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+    do {
         const std::string &name = traverser.name();
-        if (name == STYLE_TAG)
-        {
+        if (name == STYLE_TAG) {
             int style;
-            if (core::CStringUtils::stringToType(traverser.value(), style) == false)
-            {
+            if (core::CStringUtils::stringToType(traverser.value(), style) == false) {
                 LOG_ERROR("Invalid style in " << traverser.value());
                 return false;
             }
             m_Style = static_cast<EStyle>(style);
-        }
-        else if (name == CUTOFF_PROBABILITY_TAG)
-        {
+        } else if (name == CUTOFF_PROBABILITY_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(),
-                                                 m_CutoffProbability) == false)
-            {
+                                                 m_CutoffProbability) == false) {
                 LOG_ERROR("Invalid cutoff in " << traverser.value());
                 return false;
             }
-        }
-        else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG)
-        {
+        } else if (name == DISCRETE_PROBABILITY_QUANTILE_TAG) {
             if (traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser,
                                                        m_DiscreteProbabilityQuantiles.get(),
-                                                       _1)) == false)
-            {
+                                                       _1)) == false) {
                 LOG_ERROR("Invalid quantiles in " << traverser.value());
                 return false;
             }
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     return true;
 }
 
-void CProbabilityCalibrator::add(double probability)
-{
+void CProbabilityCalibrator::add(double probability) {
     uint32_t pDiscrete = discreteProbability(probability);
     m_DiscreteProbabilityQuantiles->add(pDiscrete);
 }
 
-double CProbabilityCalibrator::calibrate(double probability) const
-{
+double CProbabilityCalibrator::calibrate(double probability) const {
     LOG_TRACE("Calibrating " << probability);
 
     // The basic idea is to calibrate the probability to the historical
@@ -156,9 +135,9 @@ double CProbabilityCalibrator::calibrate(double probability) const
     // bound for the probability.
 
     Fu = CTools::truncate(Fu, 0.0, 1.0);
-    double n = static_cast<double>(m_DiscreteProbabilityQuantiles->n());
-    double a = n * Fu + 1.0;
-    double b = n * (1.0 - Fu) + 1.0;
+    double                           n = static_cast<double>(m_DiscreteProbabilityQuantiles->n());
+    double                           a = n * Fu + 1.0;
+    double                           b = n * (1.0 - Fu) + 1.0;
     boost::math::beta_distribution<> beta(a, b);
     Fu = boost::math::quantile(beta, 0.75);
     LOG_TRACE("(1 - F)(25) = " << 1.0 - Fu);
@@ -183,29 +162,27 @@ double CProbabilityCalibrator::calibrate(double probability) const
     // probabilities will be very far from what we'd expect, i.e.
     // we won't see any probabilities less than 1.
 
-    switch (m_Style)
-    {
-    case E_PartialCalibration:
-        if (Fu > m_CutoffProbability)
-        {
-            uint32_t pThreshold;
-            m_DiscreteProbabilityQuantiles->quantileSublevelSetSupremum(m_CutoffProbability,
-                                                                        pThreshold);
-            m_DiscreteProbabilityQuantiles->cdf(pThreshold, 0.0, Fl, Fu);
-            a = n * Fu + 1.0;
-            b = n * (1.0 - Fu) + 1.0;
-            beta = boost::math::beta_distribution<>(a, b);
-            Fu = boost::math::quantile(beta, 0.75);
-            double scale = std::max((1.0 - Fu) / rawProbability(pThreshold), 1.0);
-            LOG_TRACE("scale = " << scale
-                      << ", 1 - F = " << 1.0 - Fu
-                      << ", p = " << rawProbability(pThreshold));
-            return probability * scale;
-        }
-        return std::max(probability, 1.0 - Fu);
+    switch (m_Style) {
+        case E_PartialCalibration:
+            if (Fu > m_CutoffProbability) {
+                uint32_t pThreshold;
+                m_DiscreteProbabilityQuantiles->quantileSublevelSetSupremum(m_CutoffProbability,
+                                                                            pThreshold);
+                m_DiscreteProbabilityQuantiles->cdf(pThreshold, 0.0, Fl, Fu);
+                a = n * Fu + 1.0;
+                b = n * (1.0 - Fu) + 1.0;
+                beta = boost::math::beta_distribution<>(a, b);
+                Fu = boost::math::quantile(beta, 0.75);
+                double scale = std::max((1.0 - Fu) / rawProbability(pThreshold), 1.0);
+                LOG_TRACE("scale = " << scale
+                                     << ", 1 - F = " << 1.0 - Fu
+                                     << ", p = " << rawProbability(pThreshold));
+                return probability * scale;
+            }
+            return std::max(probability, 1.0 - Fu);
 
-    case E_FullCalibration:
-        return 1.0 - Fu;
+        case E_FullCalibration:
+            return 1.0 - Fu;
     }
 
     LOG_ABORT("Unexpected style " << m_Style);

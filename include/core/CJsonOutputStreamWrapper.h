@@ -40,8 +40,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Pool and buffer sizes are hardcoded.
-class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable
-{
+class CORE_EXPORT CJsonOutputStreamWrapper final : CNonCopyable {
     private:
         //! number of buffers in the pool
         static const size_t BUFFER_POOL_SIZE = 16;
@@ -52,9 +51,9 @@ class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable
         //! back to BUFFER_START_SIZE after last usage
         static const size_t BUFFER_REALLOC_TRIGGER_SIZE = 4096;
 
-        static const char JSON_ARRAY_START;
-        static const char JSON_ARRAY_END;
-        static const char JSON_ARRAY_DELIMITER;
+        static const char   JSON_ARRAY_START;
+        static const char   JSON_ARRAY_END;
+        static const char   JSON_ARRAY_DELIMITER;
 
     public:
         using TOStreamConcurrentWrapper = core::CConcurrentWrapper<std::ostream>;

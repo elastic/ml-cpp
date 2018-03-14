@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture
-{
+class CLogNormalMeanPrecConjugateTest : public CppUnit::TestFixture {
     public:
         void testMultipleUpdate(void);
         void testPropagation(void);

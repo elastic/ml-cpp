@@ -30,10 +30,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Randomized linear complexity search for the most correlated
 //! pairs of variables.
@@ -61,22 +59,21 @@ namespace maths
 //! components are the projected normalised residuals, finding the
 //! most correlated variables amounts to a collection neighbourhood
 //! searches around each point.
-class MATHS_EXPORT CKMostCorrelated
-{
+class MATHS_EXPORT CKMostCorrelated {
     public:
         //! The number of projections of the data to maintain
         //! simultaneously.
         static const std::size_t NUMBER_PROJECTIONS = 10u;
 
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS> TVector;
-        typedef std::vector<TVector> TVectorVec;
-        typedef boost::unordered_map<std::size_t, TVector> TSizeVectorUMap;
-        typedef std::pair<TVector, CPackedBitVector> TVectorPackedBitVectorPr;
+        typedef std::vector<double>                                         TDoubleVec;
+        typedef std::vector<std::size_t>                                    TSizeVec;
+        typedef std::pair<std::size_t, std::size_t>                         TSizeSizePr;
+        typedef std::vector<TSizeSizePr>                                    TSizeSizePrVec;
+        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS>        TVector;
+        typedef std::vector<TVector>                                        TVectorVec;
+        typedef boost::unordered_map<std::size_t, TVector>                  TSizeVectorUMap;
+        typedef std::pair<TVector, CPackedBitVector>                        TVectorPackedBitVectorPr;
         typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr> TSizeVectorPackedBitVectorPrUMap;
 
     public:
@@ -131,16 +128,16 @@ class MATHS_EXPORT CKMostCorrelated
         static const std::size_t PROJECTION_DIMENSION;
         //! The minimum sparseness, in terms of proportion of missing values,
         //! for a variable we'll consider trying to correlate.
-        static const double MINIMUM_SPARSENESS;
+        static const double      MINIMUM_SPARSENESS;
         //! The proportion of values to replace for each projection.
-        static const double REPLACE_FRACTION;
+        static const double      REPLACE_FRACTION;
 
     protected:
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-        typedef TSizeVectorUMap::const_iterator TSizeVectorUMapCItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::iterator TSizeVectorPackedBitVectorPrUMapItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator TSizeVectorPackedBitVectorPrUMapCItr;
+        typedef std::vector<TMeanVarAccumulator>                       TMeanVarAccumulatorVec;
+        typedef TSizeVectorUMap::const_iterator                        TSizeVectorUMapCItr;
+        typedef TSizeVectorPackedBitVectorPrUMap::iterator             TSizeVectorPackedBitVectorPrUMapItr;
+        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator       TSizeVectorPackedBitVectorPrUMapCItr;
 
         //! \brief A pair of variables and their correlation.
         //!
@@ -148,10 +145,11 @@ class MATHS_EXPORT CKMostCorrelated
         //! This manages the estimation of the sample correlation,
         //! i.e. \f$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}\f$,
         //! from the projected data.
-        struct MATHS_EXPORT SCorrelation
-        {
+        struct MATHS_EXPORT SCorrelation {
             //! See core::CMemory.
-            static bool dynamicSizeAlwaysZero(void) { return true; }
+            static bool dynamicSizeAlwaysZero(void) {
+                return true;
+            }
 
             SCorrelation(void);
             SCorrelation(std::size_t X,
@@ -203,8 +201,7 @@ class MATHS_EXPORT CKMostCorrelated
         };
 
         //! \brief Checks if a correlation includes a specified variable.
-        class MATHS_EXPORT CMatches
-        {
+        class MATHS_EXPORT CMatches {
             public:
                 CMatches(std::size_t x);
 
@@ -225,44 +222,44 @@ class MATHS_EXPORT CKMostCorrelated
         void nextProjection(void);
 
         //! Get the projections.
-        const TVectorVec &projections(void) const;
+        const TVectorVec                       &projections(void) const;
 
         //! Get the projected residuals.
         const TSizeVectorPackedBitVectorPrUMap &projected(void) const;
 
         //! Get the current correlation collection.
-        const TCorrelationVec &correlations(void) const;
+        const TCorrelationVec                  &correlations(void) const;
 
         //! Get the variable moments.
-        const TMeanVarAccumulatorVec &moments(void) const;
+        const TMeanVarAccumulatorVec           &moments(void) const;
 
     private:
         //! The number of correlations to find.
-        std::size_t m_K;
+        std::size_t                            m_K;
 
         //! The rate at which to forget about historical correlations.
-        double m_DecayRate;
+        double                                 m_DecayRate;
 
         //! The random number generator.
-        mutable CPRNG::CXorShift1024Mult m_Rng;
+        mutable CPRNG::CXorShift1024Mult       m_Rng;
 
         //! The random projections.
-        TVectorVec m_Projections;
+        TVectorVec                             m_Projections;
 
         //! The values to add in the next capture.
-        TSizeVectorUMap m_CurrentProjected;
+        TSizeVectorUMap                        m_CurrentProjected;
 
         //! The projected variables' "normalised" residuals.
-        TSizeVectorPackedBitVectorPrUMap m_Projected;
+        TSizeVectorPackedBitVectorPrUMap       m_Projected;
 
         //! The maximum possible metric measurement count.
-        double m_MaximumCount;
+        double                                 m_MaximumCount;
 
         //! The variables' means and variances.
-        TMeanVarAccumulatorVec m_Moments;
+        TMeanVarAccumulatorVec                 m_Moments;
 
         //! The 2 * m_Size most correlated variables.
-        TCorrelationVec m_MostCorrelated;
+        TCorrelationVec                        m_MostCorrelated;
 };
 
 }

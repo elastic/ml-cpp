@@ -27,13 +27,10 @@
 #include <ostream>
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-namespace
-{
+namespace {
 
 typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
@@ -49,8 +46,7 @@ static const std::string VALUE_TAG("b");
 void addStringInt(TGenericLineWriter &writer,
                   const std::string &name,
                   const std::string &description,
-                  uint64_t stat)
-{
+                  uint64_t stat) {
     writer.StartObject();
 
     writer.String(NAME_TYPE);
@@ -67,26 +63,21 @@ void addStringInt(TGenericLineWriter &writer,
 
 }
 
-CStatistics::CStatistics(void)
-{
+CStatistics::CStatistics(void) {
 }
 
-CStatistics &CStatistics::instance(void)
-{
+CStatistics &CStatistics::instance(void) {
     return ms_Instance;
 }
 
-CStat &CStatistics::stat(int index)
-{
-    if (static_cast<std::size_t>(index) >= ms_Instance.m_Stats.size())
-    {
+CStat &CStatistics::stat(int index) {
+    if (static_cast<std::size_t>(index) >= ms_Instance.m_Stats.size()) {
         LOG_ABORT("Bad index " << index);
     }
     return ms_Instance.m_Stats[index];
 }
 
-void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter)
-{
+void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter) {
     // This does not guarantee that consistent statistics get persisted for a
     // background persistence.  The analytics thread could be updating
     // statistics while this method is running.  There is no danger of memory
@@ -100,35 +91,27 @@ void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter)
     // statistics, so that it would know it was not updating statistics during
     // the copy operation.)
 
-    for (int i = 0; i < stat_t::E_LastEnumStat; ++i)
-    {
+    for (int i = 0; i < stat_t::E_LastEnumStat; ++i) {
         inserter.insertValue(KEY_TAG, i);
         inserter.insertValue(VALUE_TAG, stat(i).value());
     }
 }
 
-bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser)
-{
+bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser) {
     uint64_t value = 0;
-    int key = 0;
-    do
-    {
+    int      key = 0;
+    do {
         const std::string &name = traverser.name();
-        if (name == KEY_TAG)
-        {
+        if (name == KEY_TAG) {
             value = 0;
             if (CStringUtils::stringToType(traverser.value(),
-                                           key) == false)
-            {
+                                           key) == false) {
                 LOG_ERROR("Invalid key value in " << traverser.value());
                 return false;
             }
-        }
-        else if (name == VALUE_TAG)
-        {
+        } else if (name == VALUE_TAG) {
             if (CStringUtils::stringToType(traverser.value(),
-                                           value) == false)
-            {
+                                           value) == false) {
                 LOG_ERROR("Invalid stat value in " << traverser.value());
                 return false;
             }
@@ -136,8 +119,7 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverse
             key = 0;
             value = 0;
         }
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     return true;
 }
@@ -145,10 +127,9 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverse
 CStatistics CStatistics::ms_Instance;
 
 
-std::ostream &operator<<(std::ostream &o, const CStatistics &/*stats*/)
-{
+std::ostream &operator<<(std::ostream &o, const CStatistics & /*stats*/) {
     rapidjson::OStreamWrapper writeStream(o);
-    TGenericLineWriter writer(writeStream);
+    TGenericLineWriter        writer(writeStream);
 
     writer.StartArray();
 

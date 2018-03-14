@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCalendarFeatureTest : public CppUnit::TestFixture
-{
+class CCalendarFeatureTest : public CppUnit::TestFixture {
     public:
         void testInitialize(void);
         void testComparison(void);

@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -47,8 +45,7 @@ namespace core
 //! it is more likely to be killed than other processes when the Linux kernel
 //! decides that there isn't enough free memory.
 //!
-class CORE_EXPORT CProcessPriority : private CNonInstantiatable
-{
+class CORE_EXPORT CProcessPriority : private CNonInstantiatable {
     public:
         //! Reduce whatever priority measures are deemed appropriate for the
         //! current OS.

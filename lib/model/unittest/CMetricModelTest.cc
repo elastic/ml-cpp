@@ -60,48 +60,45 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::pair<double, std::size_t> TDoubleSizePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef boost::optional<TTimeDoublePr> TOptionalTimeDoublePr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
+typedef std::pair<double, double>                                                         TDoubleDoublePr;
+typedef std::pair<std::size_t, double>                                                    TSizeDoublePr;
+typedef std::pair<double, std::size_t>                                                    TDoubleSizePr;
+typedef std::vector<double>                                                               TDoubleVec;
+typedef std::vector<TDoubleVec>                                                           TDoubleVecVec;
+typedef std::vector<TDoubleDoublePr>                                                      TDoubleDoublePrVec;
+typedef std::vector<std::string>                                                          TStrVec;
+typedef std::vector<TStrVec>                                                              TStrVecVec;
+typedef boost::optional<uint64_t>                                                         TOptionalUInt64;
+typedef boost::optional<double>                                                           TOptionalDouble;
+typedef std::vector<TOptionalDouble>                                                      TOptionalDoubleVec;
+typedef boost::optional<std::string>                                                      TOptionalStr;
+typedef std::pair<core_t::TTime, double>                                                  TTimeDoublePr;
+typedef boost::optional<TTimeDoublePr>                                                    TOptionalTimeDoublePr;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator                        TMeanAccumulator;
+typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u>                        TMinAccumulator;
 typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef boost::shared_ptr<maths::CMultivariatePrior> TMultivariatePriorPtr;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<core_t::TTime, TStrVec> TTimeStrVecPr;
-typedef std::vector<TTimeStrVecPr> TTimeStrVecPrVec;
+typedef boost::shared_ptr<maths::CModel>                                                  TMathsModelPtr;
+typedef boost::shared_ptr<maths::CPrior>                                                  TPriorPtr;
+typedef boost::shared_ptr<maths::CMultivariatePrior>                                      TMultivariatePriorPtr;
+typedef std::pair<double, std::string>                                                    TDoubleStrPr;
+typedef core::CSmallVector<double, 1>                                                     TDouble1Vec;
+typedef core::CSmallVector<double, 2>                                                     TDouble2Vec;
+typedef core::CSmallVector<double, 4>                                                     TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>                                                TDouble4Vec1Vec;
+typedef std::pair<std::size_t, double>                                                    TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 1>                                              TSizeDoublePr1Vec;
+typedef std::vector<std::string>                                                          TStrVec;
+typedef std::pair<core_t::TTime, TStrVec>                                                 TTimeStrVecPr;
+typedef std::vector<TTimeStrVecPr>                                                        TTimeStrVecPrVec;
 
 const std::string EMPTY_STRING;
 
-class CTimeLess
-{
+class CTimeLess {
     public:
         bool operator()(const CEventData &lhs,
-                        const CEventData &rhs) const
-        {
+                        const CEventData &rhs) const {
             return lhs.time() < rhs.time();
         }
 };
@@ -112,13 +109,11 @@ void makeModel(CMetricModelFactory &factory,
                core_t::TTime bucketLength,
                CModelFactory::TDataGathererPtr &gatherer,
                CAnomalyDetectorModel::TModelPtr &model,
-               unsigned int *sampleCount = 0)
-{
+               unsigned int *sampleCount = 0) {
     factory.features(features);
     factory.bucketLength(bucketLength);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    if (sampleCount)
-    {
+    if (sampleCount) {
         gathererInitData.s_SampleOverrideCount = *sampleCount;
     }
     gatherer.reset(factory.makeDataGatherer(gathererInitData));
@@ -131,8 +126,7 @@ void makeModel(CMetricModelFactory &factory,
 
 std::size_t addPerson(const std::string &p,
                       const CModelFactory::TDataGathererPtr &gatherer,
-                      CResourceMonitor &resourceMonitor)
-{
+                      CResourceMonitor &resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     person.resize(gatherer->fieldsOfInterest().size(), 0);
@@ -148,20 +142,16 @@ void addArrival(CDataGatherer &gatherer,
                 double value,
                 const TOptionalStr &inf1 = TOptionalStr(),
                 const TOptionalStr &inf2 = TOptionalStr(),
-                const TOptionalStr &count = TOptionalStr())
-{
+                const TOptionalStr &count = TOptionalStr()) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
-    if (inf1)
-    {
+    if (inf1) {
         fieldValues.push_back(&(inf1.get()));
     }
-    if (inf2)
-    {
+    if (inf2) {
         fieldValues.push_back(&(inf2.get()));
     }
-    if (count)
-    {
+    if (count) {
         fieldValues.push_back(&(count.get()));
     }
     std::string valueAsString(core::CStringUtils::typeToStringPrecise(
@@ -181,26 +171,23 @@ void addArrival(CDataGatherer &gatherer,
                 const std::string &person,
                 double lat, double lng,
                 const TOptionalStr &inf1 = TOptionalStr(),
-                const TOptionalStr &inf2 = TOptionalStr())
-{
+                const TOptionalStr &inf2 = TOptionalStr()) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
-    if (inf1)
-    {
+    if (inf1) {
         fieldValues.push_back(&(inf1.get()));
     }
-    if (inf2)
-    {
+    if (inf2) {
         fieldValues.push_back(&(inf2.get()));
     }
     std::string valueAsString;
     valueAsString += core::CStringUtils::typeToStringPrecise(
-                         lat,
-                         core::CIEEE754::E_DoublePrecision);
+        lat,
+        core::CIEEE754::E_DoublePrecision);
     valueAsString += model::CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
     valueAsString += core::CStringUtils::typeToStringPrecise(
-                         lng,
-                         core::CIEEE754::E_DoublePrecision);
+        lng,
+        core::CIEEE754::E_DoublePrecision);
     fieldValues.push_back(&valueAsString);
 
     CEventData eventData;
@@ -212,8 +199,7 @@ void addArrival(CDataGatherer &gatherer,
 CEventData makeEventData(core_t::TTime time,
                          std::size_t pid,
                          double value,
-                         const TOptionalStr &influence = TOptionalStr())
-{
+                         const TOptionalStr &influence = TOptionalStr()) {
     CEventData result;
     result.time(time);
     result.person(pid);
@@ -226,11 +212,9 @@ CEventData makeEventData(core_t::TTime time,
 TDouble1Vec featureData(const CMetricModel &model,
                         model_t::EFeature feature,
                         std::size_t pid,
-                        core_t::TTime time)
-{
+                        core_t::TTime time) {
     const CMetricModel::TFeatureData *data = model.featureData(feature, pid, time);
-    if (!data)
-    {
+    if (!data) {
         return TDouble1Vec();
     }
     return data->s_BucketValue ? data->s_BucketValue->value() : TDouble1Vec();
@@ -239,11 +223,9 @@ TDouble1Vec featureData(const CMetricModel &model,
 TDouble1Vec multivariateFeatureData(const CMetricModel &model,
                                     model_t::EFeature feature,
                                     std::size_t pid,
-                                    core_t::TTime time)
-{
+                                    core_t::TTime time) {
     const CMetricModel::TFeatureData *data = model.featureData(feature, pid, time);
-    if (!data)
-    {
+    if (!data) {
         return TDouble1Vec();
     }
     return data->s_BucketValue ? data->s_BucketValue->value() : TDouble1Vec();
@@ -256,15 +238,13 @@ void processBucket(core_t::TTime time,
                    CDataGatherer &gatherer,
                    CResourceMonitor &resourceMonitor,
                    CMetricModel &model,
-                   SAnnotatedProbability &probability)
-{
-    for (std::size_t i = 0u; i < bucket.size(); ++i)
-    {
+                   SAnnotatedProbability &probability) {
+    for (std::size_t i = 0u; i < bucket.size(); ++i) {
         addArrival(gatherer, resourceMonitor, time, "p", bucket[i], TOptionalStr(influencerValues[i]));
     }
     model.sample(time, time + bucketLength, resourceMonitor);
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    model.computeProbability(0/*pid*/, time, time + bucketLength,
+    model.computeProbability(0 /*pid*/, time, time + bucketLength,
                              partitioningFields, 1, probability);
     LOG_DEBUG("influences = " << core::CContainerPrinter::print(probability.s_Influences));
 }
@@ -276,25 +256,20 @@ void processBucket(core_t::TTime time,
                    CResourceMonitor &resourceMonitor,
                    CMetricModel &model,
                    SAnnotatedProbability &probability,
-                   SAnnotatedProbability &probability2)
-{
+                   SAnnotatedProbability &probability2) {
     const std::string person("p");
     const std::string person2("q");
-    for (std::size_t i = 0u; i < bucket.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < bucket.size(); ++i) {
         CDataGatherer::TStrCPtrVec fieldValues;
-        if (i % 2 == 0)
-        {
+        if (i % 2 == 0) {
             fieldValues.push_back(&person);
-        }
-        else
-        {
+        } else {
             fieldValues.push_back(&person2);
         }
 
         std::string valueAsString(core::CStringUtils::typeToStringPrecise(
-                                    bucket[i],
-                                    core::CIEEE754::E_DoublePrecision));
+                                      bucket[i],
+                                      core::CIEEE754::E_DoublePrecision));
         fieldValues.push_back(&valueAsString);
 
         CEventData eventData;
@@ -304,25 +279,24 @@ void processBucket(core_t::TTime time,
     }
     model.sample(time, time + bucketLength, resourceMonitor);
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    model.computeProbability(0/*pid*/, time, time + bucketLength,
+    model.computeProbability(0 /*pid*/, time, time + bucketLength,
                              partitioningFields, 1, probability);
-    model.computeProbability(1/*pid*/, time, time + bucketLength,
+    model.computeProbability(1 /*pid*/, time, time + bucketLength,
                              partitioningFields, 1, probability2);
 }
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
-const TSizeDoublePr1Vec NO_CORRELATES;
+const TDouble4Vec1Vec          UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
+const TSizeDoublePr1Vec        NO_CORRELATES;
 
 }
 
-void CMetricModelTest::testSample(void)
-{
+void CMetricModelTest::testSample(void) {
     LOG_DEBUG("*** testSample ***");
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
-    SModelParams params(bucketLength);
+    SModelParams  params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MaximumUpdatesPerBucket = 0.0;
     CMetricModelFactory factory(params);
@@ -330,56 +304,55 @@ void CMetricModelTest::testSample(void)
     // Check basic sampling.
     {
         TTimeDoublePr data[] =
-            {
-                TTimeDoublePr(49, 1.5),
-                TTimeDoublePr(60, 1.3),
-                TTimeDoublePr(61, 1.3),
-                TTimeDoublePr(62, 1.6),
-                TTimeDoublePr(65, 1.7),
-                TTimeDoublePr(66, 1.33),
-                TTimeDoublePr(68, 1.5),
-                TTimeDoublePr(84, 1.58),
-                TTimeDoublePr(87, 1.99),
-                TTimeDoublePr(157, 1.6),
-                TTimeDoublePr(164, 1.66),
-                TTimeDoublePr(199, 1.28),
-                TTimeDoublePr(202, 1.0),
-                TTimeDoublePr(204, 1.5)
-            };
+        {
+            TTimeDoublePr(49, 1.5),
+            TTimeDoublePr(60, 1.3),
+            TTimeDoublePr(61, 1.3),
+            TTimeDoublePr(62, 1.6),
+            TTimeDoublePr(65, 1.7),
+            TTimeDoublePr(66, 1.33),
+            TTimeDoublePr(68, 1.5),
+            TTimeDoublePr(84, 1.58),
+            TTimeDoublePr(87, 1.99),
+            TTimeDoublePr(157, 1.6),
+            TTimeDoublePr(164, 1.66),
+            TTimeDoublePr(199, 1.28),
+            TTimeDoublePr(202, 1.0),
+            TTimeDoublePr(204, 1.5)
+        };
 
         unsigned int sampleCounts[] = { 2, 1 };
         unsigned int expectedSampleCounts[] = { 2, 1 };
 
-        for (std::size_t i = 0; i < boost::size(sampleCounts); ++i)
-        {
+        for (std::size_t i = 0; i < boost::size(sampleCounts); ++i) {
             CDataGatherer::TFeatureVec features;
             features.push_back(model_t::E_IndividualMeanByPerson);
             features.push_back(model_t::E_IndividualMinByPerson);
             features.push_back(model_t::E_IndividualMaxByPerson);
-            CModelFactory::TDataGathererPtr gatherer;
+            CModelFactory::TDataGathererPtr  gatherer;
             CAnomalyDetectorModel::TModelPtr model_;
             makeModel(factory, features, startTime, bucketLength, gatherer, model_, &sampleCounts[i]);
             CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
             CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
             // Bucket values.
-            uint64_t expectedCount = 0;
+            uint64_t         expectedCount = 0;
             TMeanAccumulator baselineMeanError;
             TMeanAccumulator expectedMean;
             TMeanAccumulator expectedBaselineMean;
-            TMinAccumulator expectedMin;
-            TMaxAccumulator expectedMax;
+            TMinAccumulator  expectedMin;
+            TMaxAccumulator  expectedMax;
 
             // Sampled values.
             TMeanAccumulator expectedSampleTime;
             TMeanAccumulator expectedMeanSample;
-            TMinAccumulator expectedMinSample;
-            TMaxAccumulator expectedMaxSample;
-            TDouble1Vec expectedSampleTimes;
-            TDouble1Vec expectedMeanSamples;
-            TDouble1Vec expectedMinSamples;
-            TDouble1Vec expectedMaxSamples;
-            std::size_t numberSamples = 0;
+            TMinAccumulator  expectedMinSample;
+            TMaxAccumulator  expectedMaxSample;
+            TDouble1Vec      expectedSampleTimes;
+            TDouble1Vec      expectedMeanSamples;
+            TDouble1Vec      expectedMinSamples;
+            TDouble1Vec      expectedMaxSamples;
+            std::size_t      numberSamples = 0;
 
             TMathsModelPtr expectedMeanModel = factory.defaultFeatureModel(model_t::E_IndividualMeanByPerson,
                                                                            bucketLength, 0.4, true);
@@ -388,12 +361,10 @@ void CMetricModelTest::testSample(void)
             TMathsModelPtr expectedMaxModel  = factory.defaultFeatureModel(model_t::E_IndividualMaxByPerson,
                                                                            bucketLength, 0.4, true);
 
-            std::size_t j = 0;
+            std::size_t   j = 0;
             core_t::TTime time = startTime;
-            for (;;)
-            {
-                if (j < boost::size(data) && data[j].first < time + bucketLength)
-                {
+            for (;;) {
+                if (j < boost::size(data) && data[j].first < time + bucketLength) {
                     LOG_DEBUG("Adding " << data[j].second << " at " << data[j].first);
 
                     addArrival(*gatherer, m_ResourceMonitor, data[j].first, "p", data[j].second);
@@ -410,8 +381,7 @@ void CMetricModelTest::testSample(void)
 
                     ++j;
 
-                    if (j % expectedSampleCounts[i] == 0)
-                    {
+                    if (j % expectedSampleCounts[i] == 0) {
                         ++numberSamples;
                         expectedSampleTimes.push_back(maths::CBasicStatistics::mean(expectedSampleTime));
                         expectedMeanSamples.push_back(maths::CBasicStatistics::mean(expectedMeanSample));
@@ -422,37 +392,32 @@ void CMetricModelTest::testSample(void)
                         expectedMinSample  = TMinAccumulator();
                         expectedMaxSample  = TMaxAccumulator();
                     }
-                }
-                else
-                {
+                } else {
                     LOG_DEBUG("Sampling [" << time << ", " << time + bucketLength << ")");
 
                     model.sample(time, time + bucketLength, m_ResourceMonitor);
-                    if (maths::CBasicStatistics::count(expectedMean) > 0.0)
-                    {
+                    if (maths::CBasicStatistics::count(expectedMean) > 0.0) {
                         expectedBaselineMean.add(maths::CBasicStatistics::mean(expectedMean));
                     }
-                    if (numberSamples > 0)
-                    {
+                    if (numberSamples > 0) {
                         LOG_DEBUG("Adding mean samples = " << core::CContainerPrinter::print(expectedMeanSamples)
-                                  << ", min samples = " << core::CContainerPrinter::print(expectedMinSamples)
-                                  << ", max samples = " << core::CContainerPrinter::print(expectedMaxSamples));
+                                                           << ", min samples = " << core::CContainerPrinter::print(expectedMinSamples)
+                                                           << ", max samples = " << core::CContainerPrinter::print(expectedMaxSamples));
 
                         maths::CModelAddSamplesParams::TDouble2Vec4VecVec weights(numberSamples,
                                                                                   maths::CConstantWeights::unit<TDouble2Vec>(1));
                         maths::CModelAddSamplesParams params_;
                         params_.integer(false)
-                               .nonNegative(true)
-                               .propagationInterval(1.0)
-                               .weightStyles(COUNT_WEIGHT)
-                               .trendWeights(weights)
-                               .priorWeights(weights);
+                        .nonNegative(true)
+                        .propagationInterval(1.0)
+                        .weightStyles(COUNT_WEIGHT)
+                        .trendWeights(weights)
+                        .priorWeights(weights);
 
                         maths::CModel::TTimeDouble2VecSizeTrVec expectedMeanSamples_;
                         maths::CModel::TTimeDouble2VecSizeTrVec expectedMinSamples_;
                         maths::CModel::TTimeDouble2VecSizeTrVec expectedMaxSamples_;
-                        for (std::size_t k = 0u; k < numberSamples; ++k)
-                        {
+                        for (std::size_t k = 0u; k < numberSamples; ++k) {
                             // We round to the nearest integer time (note this has to match
                             // the behaviour of CMetricPartialStatistic::time).
                             core_t::TTime sampleTime{static_cast<core_t::TTime>(expectedSampleTimes[k] + 0.5)};
@@ -477,15 +442,15 @@ void CMetricModelTest::testSample(void)
                     }
 
                     model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Final);
-                    TOptionalUInt64 currentCount = model.currentBucketCount(0, time);
-                    TDouble1Vec bucketMean   = model.currentBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, time);
-                    TDouble1Vec baselineMean = model.baselineBucketMean(model_t::E_IndividualMeanByPerson, 0, 0,
-                                                                        type, NO_CORRELATES, time);
+                    TOptionalUInt64      currentCount = model.currentBucketCount(0, time);
+                    TDouble1Vec          bucketMean   = model.currentBucketValue(model_t::E_IndividualMeanByPerson, 0, 0, time);
+                    TDouble1Vec          baselineMean = model.baselineBucketMean(model_t::E_IndividualMeanByPerson, 0, 0,
+                                                                                 type, NO_CORRELATES, time);
 
                     LOG_DEBUG("bucket count = " << core::CContainerPrinter::print(currentCount));
                     LOG_DEBUG("current bucket mean = " << core::CContainerPrinter::print(bucketMean)
-                              << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineMean)
-                              << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineMean));
+                                                       << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineMean)
+                                                       << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineMean));
 
                     CPPUNIT_ASSERT(currentCount);
                     CPPUNIT_ASSERT_EQUAL(expectedCount, *currentCount);
@@ -499,8 +464,7 @@ void CMetricModelTest::testSample(void)
                                        TDouble1Vec(1, expectedMax[0]) : TDouble1Vec();
 
                     CPPUNIT_ASSERT(mean == bucketMean);
-                    if (!baselineMean.empty())
-                    {
+                    if (!baselineMean.empty()) {
                         baselineMeanError.add(std::fabs(baselineMean[0] - maths::CBasicStatistics::mean(expectedBaselineMean)));
                     }
 
@@ -529,7 +493,7 @@ void CMetricModelTest::testSample(void)
                     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
                     CModelFactory::SModelInitializationData initData(gatherer);
-                    CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(initData, traverser));
+                    CAnomalyDetectorModel::TModelPtr        restoredModel(factory.makeModel(initData, traverser));
 
                     // The XML representation of the new filter should be the same as the original
                     std::string newXml;
@@ -551,8 +515,7 @@ void CMetricModelTest::testSample(void)
                     expectedMin   = TMinAccumulator();
                     expectedMax   = TMaxAccumulator();
 
-                    if (j >= boost::size(data))
-                    {
+                    if (j >= boost::size(data)) {
                         break;
                     }
 
@@ -565,42 +528,40 @@ void CMetricModelTest::testSample(void)
     }
 }
 
-void CMetricModelTest::testMultivariateSample(void)
-{
+void CMetricModelTest::testMultivariateSample(void) {
     LOG_DEBUG("*** testMultivariateSample ***");
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-    typedef maths::CVectorNx1<double, 2> TVector2;
+    typedef std::vector<TDoubleVecVec>                                   TDoubleVecVecVec;
+    typedef maths::CVectorNx1<double, 2>                                 TVector2;
     typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-    typedef std::pair<core_t::TTime, boost::array<double, 2> > TTimeDouble2AryPr;
-    typedef std::vector<TTimeDouble2AryPr> TTimeDouble2AryPrVec;
+    typedef std::pair<core_t::TTime, boost::array<double, 2> >           TTimeDouble2AryPr;
+    typedef std::vector<TTimeDouble2AryPr>                               TTimeDouble2AryPrVec;
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
-    SModelParams params(bucketLength);
+    SModelParams  params(bucketLength);
     params.s_MaximumUpdatesPerBucket = 0.0;
     CMetricModelFactory factory(params);
 
     double data_[][3] =
-        {
-            { 49,  1.5,  1.1 },
-            { 60,  1.3,  1.2 },
-            { 61,  1.3,  2.1 },
-            { 62,  1.6,  1.5 },
-            { 65,  1.7,  1.4 },
-            { 66,  1.33, 1.6 },
-            { 68,  1.5,  1.37},
-            { 84,  1.58, 1.42},
-            { 87,  1.99, 2.2 },
-            { 157, 1.6,  1.6 },
-            { 164, 1.66, 1.55},
-            { 199, 1.28, 1.4 },
-            { 202, 1.0,  0.7 },
-            { 204, 1.5,  1.8 }
-        };
-    TTimeDouble2AryPrVec data;
-    for (std::size_t i = 0u; i < boost::size(data_); ++i)
     {
+        { 49,  1.5,  1.1 },
+        { 60,  1.3,  1.2 },
+        { 61,  1.3,  2.1 },
+        { 62,  1.6,  1.5 },
+        { 65,  1.7,  1.4 },
+        { 66,  1.33, 1.6 },
+        { 68,  1.5,  1.37},
+        { 84,  1.58, 1.42},
+        { 87,  1.99, 2.2 },
+        { 157, 1.6,  1.6 },
+        { 164, 1.66, 1.55},
+        { 199, 1.28, 1.4 },
+        { 202, 1.0,  0.7 },
+        { 204, 1.5,  1.8 }
+    };
+    TTimeDouble2AryPrVec data;
+    for (std::size_t i = 0u; i < boost::size(data_); ++i) {
         boost::array<double, 2> values = { { data_[i][1], data_[i][2] } };
         data.push_back(TTimeDouble2AryPr(static_cast<core_t::TTime>(data_[i][0]), values));
     }
@@ -608,35 +569,32 @@ void CMetricModelTest::testMultivariateSample(void)
     unsigned int sampleCounts[] = { 2u, 1u };
     unsigned int expectedSampleCounts[] = { 2u, 1u };
 
-    for (std::size_t i = 0; i < boost::size(sampleCounts); ++i)
-    {
+    for (std::size_t i = 0; i < boost::size(sampleCounts); ++i) {
         LOG_DEBUG("*** sample count = " << sampleCounts[i] << " ***");
 
-        CDataGatherer::TFeatureVec features(1, model_t::E_IndividualMeanLatLongByPerson);
-        CModelFactory::TDataGathererPtr gatherer;
+        CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualMeanLatLongByPerson);
+        CModelFactory::TDataGathererPtr  gatherer;
         CAnomalyDetectorModel::TModelPtr model_;
         makeModel(factory, features, startTime, bucketLength, gatherer, model_, &sampleCounts[i]);
         CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         // Bucket values.
-        uint64_t expectedCount = 0;
+        uint64_t          expectedCount = 0;
         TMean2Accumulator baselineLatLongError;
         TMean2Accumulator expectedLatLong;
         TMean2Accumulator expectedBaselineLatLong;
 
         // Sampled values.
-        TMean2Accumulator expectedLatLongSample;
-        std::size_t numberSamples = 0;
-        TDoubleVecVec expectedLatLongSamples;
+        TMean2Accumulator     expectedLatLongSample;
+        std::size_t           numberSamples = 0;
+        TDoubleVecVec         expectedLatLongSamples;
         TMultivariatePriorPtr expectedMeanPrior = factory.defaultMultivariatePrior(model_t::E_IndividualMeanLatLongByPerson);
 
-        std::size_t j = 0;
+        std::size_t   j = 0;
         core_t::TTime time = startTime;
-        for (;;)
-        {
-            if (j < data.size() && data[j].first < time + bucketLength)
-            {
+        for (;;) {
+            if (j < data.size() && data[j].first < time + bucketLength) {
                 LOG_DEBUG("Adding " << data[j].second[0] << "," << data[j].second[1] << " at " << data[j].first);
 
                 addArrival(*gatherer, m_ResourceMonitor, data[j].first, "p", data[j].second[0], data[j].second[1]);
@@ -645,26 +603,21 @@ void CMetricModelTest::testMultivariateSample(void)
                 expectedLatLong.add(TVector2(data[j].second));
                 expectedLatLongSample.add(TVector2(data[j].second));
 
-                if (++j % expectedSampleCounts[i] == 0)
-                {
+                if (++j % expectedSampleCounts[i] == 0) {
                     ++numberSamples;
                     expectedLatLongSamples.push_back(
-                            TDoubleVec(maths::CBasicStatistics::mean(expectedLatLongSample).begin(),
-                                       maths::CBasicStatistics::mean(expectedLatLongSample).end()));
+                        TDoubleVec(maths::CBasicStatistics::mean(expectedLatLongSample).begin(),
+                                   maths::CBasicStatistics::mean(expectedLatLongSample).end()));
                     expectedLatLongSample = TMean2Accumulator();
                 }
-            }
-            else
-            {
+            } else {
                 LOG_DEBUG("Sampling [" << time << ", " << time + bucketLength << ")");
                 model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0)
-                {
+                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
                     expectedBaselineLatLong.add(maths::CBasicStatistics::mean(expectedLatLong));
                 }
-                if (numberSamples > 0)
-                {
+                if (numberSamples > 0) {
                     std::sort(expectedLatLongSamples.begin(), expectedLatLongSamples.end());
                     LOG_DEBUG("Adding mean samples = " << core::CContainerPrinter::print(expectedLatLongSamples));
                     expectedMeanPrior->dataType(maths_t::E_ContinuousData);
@@ -677,35 +630,33 @@ void CMetricModelTest::testMultivariateSample(void)
                 }
 
                 model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Final);
-                TOptionalUInt64 currentCount = model.currentBucketCount(0, time);
-                TDouble1Vec bucketLatLong    = model.currentBucketValue(model_t::E_IndividualMeanLatLongByPerson, 0, 0, time);
-                TDouble1Vec baselineLatLong  = model.baselineBucketMean(model_t::E_IndividualMeanLatLongByPerson, 0, 0,
-                                                                        type, NO_CORRELATES, time);
+                TOptionalUInt64      currentCount = model.currentBucketCount(0, time);
+                TDouble1Vec          bucketLatLong    = model.currentBucketValue(model_t::E_IndividualMeanLatLongByPerson, 0, 0, time);
+                TDouble1Vec          baselineLatLong  = model.baselineBucketMean(model_t::E_IndividualMeanLatLongByPerson, 0, 0,
+                                                                                 type, NO_CORRELATES, time);
 
                 LOG_DEBUG("bucket count = " << core::CContainerPrinter::print(currentCount));
                 LOG_DEBUG("current bucket mean = " << core::CContainerPrinter::print(bucketLatLong)
-                          << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineLatLong)
-                          << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineLatLong));
+                                                   << ", expected baseline bucket mean = " << maths::CBasicStatistics::mean(expectedBaselineLatLong)
+                                                   << ", baseline bucket mean = " << core::CContainerPrinter::print(baselineLatLong));
 
                 CPPUNIT_ASSERT(currentCount);
                 CPPUNIT_ASSERT_EQUAL(expectedCount, *currentCount);
 
                 TDouble1Vec latLong;
-                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0)
-                {
+                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
                     latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(0));
                     latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(1));
                 }
                 CPPUNIT_ASSERT(latLong == bucketLatLong);
-                if (!baselineLatLong.empty())
-                {
+                if (!baselineLatLong.empty()) {
                     baselineLatLongError.add(maths::fabs(  TVector2(baselineLatLong)
-                                                         - maths::CBasicStatistics::mean(expectedBaselineLatLong)));
+                                                           - maths::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
                 CPPUNIT_ASSERT(latLong == multivariateFeatureData(model, model_t::E_IndividualMeanLatLongByPerson, 0, time));
                 CPPUNIT_ASSERT_EQUAL(expectedMeanPrior->checksum(),
                                      dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
-                                             model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))->prior().checksum());
+                                         model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))->prior().checksum());
 
                 // Test persistence. (We check for idempotency.)
                 std::string origXml;
@@ -721,7 +672,7 @@ void CMetricModelTest::testMultivariateSample(void)
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
 
                 CModelFactory::SModelInitializationData initData(gatherer);
-                CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(initData, traverser));
+                CAnomalyDetectorModel::TModelPtr        restoredModel(factory.makeModel(initData, traverser));
 
                 // The XML representation of the new filter should be the same as the original
                 std::string newXml;
@@ -741,8 +692,7 @@ void CMetricModelTest::testMultivariateSample(void)
                 expectedCount   = 0;
                 expectedLatLong = TMean2Accumulator();
 
-                if (j >= boost::size(data))
-                {
+                if (j >= boost::size(data)) {
                     break;
                 }
 
@@ -755,29 +705,28 @@ void CMetricModelTest::testMultivariateSample(void)
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForMetric(void)
-{
+void CMetricModelTest::testProbabilityCalculationForMetric(void) {
     LOG_DEBUG("*** testProbabilityCalculationForMetric ***");
 
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t bucketCounts[] = { 5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6 };
 
-    double mean = 5.0;
-    double variance = 2.0;
+    double      mean = 5.0;
+    double      variance = 2.0;
     std::size_t anomalousBucket = 12u;
-    double anomaly = 5 * std::sqrt(variance);
+    double      anomaly = 5 * std::sqrt(variance);
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
@@ -788,31 +737,27 @@ void CMetricModelTest::testProbabilityCalculationForMetric(void)
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
         LOG_DEBUG("i = " << i << ", anomalousBucket = " << anomalousBucket
-                  << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
+                         << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p",
                        values[j] + (i == anomalousBucket ? anomaly : 0.0));
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        if (model.computeProbability(0/*pid*/, time, time + bucketLength,
-                                     partitioningFields, 1, annotatedProbability) == false)
-        {
+        if (model.computeProbability(0 /*pid*/, time, time + bucketLength,
+                                     partitioningFields, 1, annotatedProbability) == false) {
             continue;
         }
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-        if (*model.currentBucketCount(0, time) > 0)
-        {
+        if (*model.currentBucketCount(0, time) > 0) {
             minProbabilities.add(TDoubleSizePr(annotatedProbability.s_Probability, i));
         }
         time += bucketLength;
@@ -826,25 +771,24 @@ void CMetricModelTest::testProbabilityCalculationForMetric(void)
     CPPUNIT_ASSERT(minProbabilities[0].first / minProbabilities[1].first < 0.05);
 }
 
-void CMetricModelTest::testProbabilityCalculationForMedian(void)
-{
+void CMetricModelTest::testProbabilityCalculationForMedian(void) {
     LOG_DEBUG("*** testProbabilityCalculationForMedian ***");
 
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t bucketCounts[] = { 5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6 };
 
-    double mean = 5.0;
-    double variance = 2.0;
+    double      mean = 5.0;
+    double      variance = 2.0;
     std::size_t anomalousBucket = 12u;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualMedianByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualMedianByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
@@ -855,43 +799,36 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void)
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
         LOG_DEBUG("i = " << i << ", anomalousBucket = " << anomalousBucket);
 
         TDoubleVec values;
-        if (i == anomalousBucket)
-        {
+        if (i == anomalousBucket) {
             values.push_back(0.0);
             values.push_back(mean * 3.0);
             values.push_back(mean * 3.0);
-        }
-        else
-        {
+        } else {
             rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         }
 
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
 
 
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        if (model.computeProbability(0/*pid*/, time, time + bucketLength,
-                                     partitioningFields, 1, annotatedProbability) == false)
-        {
+        if (model.computeProbability(0 /*pid*/, time, time + bucketLength,
+                                     partitioningFields, 1, annotatedProbability) == false) {
             continue;
         }
 
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
-        if (*model.currentBucketCount(0, time) > 0)
-        {
+        if (*model.currentBucketCount(0, time) > 0) {
             minProbabilities.add(TDoubleSizePr(annotatedProbability.s_Probability, i));
         }
         time += bucketLength;
@@ -906,23 +843,22 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void)
 
 
 
-    std::size_t pid(0);
+    std::size_t                      pid(0);
     const CMetricModel::TFeatureData *fd = model.featureData(
-                                    ml::model_t::E_IndividualMedianByPerson, pid,
-                                    time - bucketLength);
+        ml::model_t::E_IndividualMedianByPerson, pid,
+        time - bucketLength);
 
     // assert there is only 1 value in the last bucket and its the median
     CPPUNIT_ASSERT_EQUAL(fd->s_BucketValue->value()[0], mean * 3.0);
     CPPUNIT_ASSERT_EQUAL(fd->s_BucketValue->value().size(), std::size_t(1));
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMean(void)
-{
+void CMetricModelTest::testProbabilityCalculationForLowMean(void) {
     LOG_DEBUG("*** testProbabilityCalculationForLowMean ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -935,40 +871,36 @@ void CMetricModelTest::testProbabilityCalculationForLowMean(void)
     double lowMean = 2.0;
     double highMean = 10.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualLowMeanByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualLowMeanByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowMeanBucket)
-        {
+        if (i == lowMeanBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highMeanBucket)
-        {
+        if (i == highMeanBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -977,19 +909,18 @@ void CMetricModelTest::testProbabilityCalculationForLowMean(void)
     }
 
     LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities.begin(),
-            probabilities.end()));
+                                                                   probabilities.end()));
 
     CPPUNIT_ASSERT(probabilities[lowMeanBucket] < 0.01);
     CPPUNIT_ASSERT(probabilities[highMeanBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMean(void)
-{
+void CMetricModelTest::testProbabilityCalculationForHighMean(void) {
     LOG_DEBUG("*** testProbabilityCalculationForHighMean ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -1002,40 +933,36 @@ void CMetricModelTest::testProbabilityCalculationForHighMean(void)
     double lowMean = 2.0;
     double highMean = 10.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualHighMeanByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualHighMeanByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowMeanBucket)
-        {
+        if (i == lowMeanBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highMeanBucket)
-        {
+        if (i == highMeanBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -1049,13 +976,12 @@ void CMetricModelTest::testProbabilityCalculationForHighMean(void)
     CPPUNIT_ASSERT(probabilities[highMeanBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowSum(void)
-{
+void CMetricModelTest::testProbabilityCalculationForLowSum(void) {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -1068,40 +994,36 @@ void CMetricModelTest::testProbabilityCalculationForLowSum(void)
     double lowMean = 5.0;
     double highMean = 95.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualLowSumByBucketAndPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualLowSumByBucketAndPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowSumBucket)
-        {
+        if (i == lowSumBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highSumBucket)
-        {
+        if (i == highSumBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -1114,13 +1036,12 @@ void CMetricModelTest::testProbabilityCalculationForLowSum(void)
     CPPUNIT_ASSERT(probabilities[highSumBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighSum(void)
-{
+void CMetricModelTest::testProbabilityCalculationForHighSum(void) {
     LOG_DEBUG("*** testProbabilityCalculationForLowSum ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -1133,40 +1054,36 @@ void CMetricModelTest::testProbabilityCalculationForHighSum(void)
     double lowMean = 5.0;
     double highMean = 95.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualHighSumByBucketAndPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualHighSumByBucketAndPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowSumBucket)
-        {
+        if (i == lowSumBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highSumBucket)
-        {
+        if (i == highSumBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -1179,15 +1096,13 @@ void CMetricModelTest::testProbabilityCalculationForHighSum(void)
     CPPUNIT_ASSERT(probabilities[highSumBucket] < 0.01);
 }
 
-void CMetricModelTest::testProbabilityCalculationForLatLong(void)
-{
+void CMetricModelTest::testProbabilityCalculationForLatLong(void) {
     LOG_DEBUG("*** testProbabilityCalculationForLatLong ***");
 
     // TODO
 }
 
-void CMetricModelTest::testInfluence(void)
-{
+void CMetricModelTest::testInfluence(void) {
     LOG_DEBUG("*** testInfluence ***");
 
     using TMinAccumulator = maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator;
@@ -1198,43 +1113,40 @@ void CMetricModelTest::testInfluence(void)
 
     LOG_DEBUG("Test min and max influence");
 
-    for (auto feature : {model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson})
-    {
+    for (auto feature : {model_t::E_IndividualMinByPerson, model_t::E_IndividualMaxByPerson}) {
         core_t::TTime startTime{0};
         core_t::TTime bucketLength{10};
-        std::size_t numberOfBuckets{50};
-        std::size_t bucketCount{5};
-        double mean{5.0};
-        double variance{1.0};
-        std::string influencer{"I"};
-        TStrVec influencerValues{ "i1", "i2", "i3", "i4", "i5" };
+        std::size_t   numberOfBuckets{50};
+        std::size_t   bucketCount{5};
+        double        mean{5.0};
+        double        variance{1.0};
+        std::string   influencer{"I"};
+        TStrVec       influencerValues{ "i1", "i2", "i3", "i4", "i5" };
 
-        SModelParams params(bucketLength);
-        CMetricModelFactory factory(params);
+        SModelParams               params(bucketLength);
+        CMetricModelFactory        factory(params);
         CDataGatherer::TFeatureVec features{feature};
         factory.features(features);
         factory.bucketLength(bucketLength);
         factory.fieldNames("", "", "P", "V", TStrVec{"I"});
         CModelFactory::SGathererInitializationData gathererInitData(startTime);
-        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+        CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
         CModelFactory::SModelInitializationData initData(gatherer);
-        CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(initData));
+        CAnomalyDetectorModel::TModelPtr        model_(factory.makeModel(initData));
         CPPUNIT_ASSERT(model_);
         CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
         CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
 
         test::CRandomNumbers rng;
-        core_t::TTime time = startTime;
-        for (std::size_t i = 0u; i < numberOfBuckets; ++i, time += bucketLength)
-        {
+        core_t::TTime        time = startTime;
+        for (std::size_t i = 0u; i < numberOfBuckets; ++i, time += bucketLength) {
             TDoubleVec samples;
             rng.generateNormalSamples(mean, variance, bucketCount, samples);
 
             TMinAccumulator min;
             TMaxAccumulator max;
-            for (std::size_t j = 0u; j < samples.size(); ++j)
-            {
+            for (std::size_t j = 0u; j < samples.size(); ++j) {
                 addArrival(*gatherer, m_ResourceMonitor, time, "p", samples[j], TOptionalStr(influencerValues[j]));
                 min.add(TDoubleStrPr(samples[j], influencerValues[j]));
                 max.add(TDoubleStrPr(samples[j], influencerValues[j]));
@@ -1242,27 +1154,23 @@ void CMetricModelTest::testInfluence(void)
 
             model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-            CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+            CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
             SAnnotatedProbability annotatedProbability;
-            model.computeProbability(0/*pid*/, time, time + bucketLength,
+            model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                      partitioningFields, 1, annotatedProbability);
 
             LOG_DEBUG("influences = " << core::CContainerPrinter::print(annotatedProbability.s_Influences));
-            if (!annotatedProbability.s_Influences.empty())
-            {
+            if (!annotatedProbability.s_Influences.empty()) {
                 std::size_t j = 0u;
-                for (/**/; j < annotatedProbability.s_Influences.size(); ++j)
-                {
-                    if (   feature == model_t::E_IndividualMinByPerson
-                        && *annotatedProbability.s_Influences[j].first.second == min[0].second
-                        && std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10)
-                    {
+                for (/**/; j < annotatedProbability.s_Influences.size(); ++j) {
+                    if (   feature == model_t::E_IndividualMinByPerson &&
+                           *annotatedProbability.s_Influences[j].first.second == min[0].second &&
+                           std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
                         break;
                     }
-                    if (   feature == model_t::E_IndividualMaxByPerson
-                        && *annotatedProbability.s_Influences[j].first.second == max[0].second
-                        && std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10)
-                    {
+                    if (   feature == model_t::E_IndividualMaxByPerson &&
+                           *annotatedProbability.s_Influences[j].first.second == max[0].second &&
+                           std::fabs(annotatedProbability.s_Influences[j].second - 1.0) < 1e-10) {
                         break;
                     }
                 }
@@ -1274,55 +1182,49 @@ void CMetricModelTest::testInfluence(void)
     auto testFeature = [this](model_t::EFeature feature,
                               const TDoubleVecVec &values,
                               const TStrVecVec &influencers,
-                              const TStrDoubleDoubleTrVecVec &influences)
-        {
-            core_t::TTime startTime{0};
-            core_t::TTime bucketLength{10};
+                              const TStrDoubleDoubleTrVecVec &influences) {
+                           core_t::TTime startTime{0};
+                           core_t::TTime bucketLength{10};
 
-            SModelParams params(bucketLength);
-            CMetricModelFactory factory(params);
-            CDataGatherer::TFeatureVec features{feature};
-            factory.features(features);
-            factory.bucketLength(bucketLength);
-            factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
-            CModelFactory::SGathererInitializationData gathererInitData(startTime);
-            CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
-            CModelFactory::SModelInitializationData initData(gatherer);
-            CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(initData));
-            CPPUNIT_ASSERT(model_);
-            CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
-            CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
+                           SModelParams               params(bucketLength);
+                           CMetricModelFactory        factory(params);
+                           CDataGatherer::TFeatureVec features{feature};
+                           factory.features(features);
+                           factory.bucketLength(bucketLength);
+                           factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
+                           CModelFactory::SGathererInitializationData gathererInitData(startTime);
+                           CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
+                           CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+                           CModelFactory::SModelInitializationData initData(gatherer);
+                           CAnomalyDetectorModel::TModelPtr        model_(factory.makeModel(initData));
+                           CPPUNIT_ASSERT(model_);
+                           CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
+                           CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
 
-            SAnnotatedProbability annotatedProbability;
+                           SAnnotatedProbability annotatedProbability;
 
-            core_t::TTime time{startTime};
-            for (std::size_t i = 0u; i < values.size(); ++i)
-            {
-                processBucket(time, bucketLength, values[i], influencers[i],
-                              *gatherer, m_ResourceMonitor, model, annotatedProbability);
-                CPPUNIT_ASSERT_EQUAL(influences[i].size(), annotatedProbability.s_Influences.size());
-                if (influences[i].size() > 0)
-                {
-                    for (const auto &expected : influences[i])
-                    {
-                        bool found{false};
-                        for (const auto &actual : annotatedProbability.s_Influences)
-                        {
-                            if (expected.first == *actual.first.second)
-                            {
-                                CPPUNIT_ASSERT(   actual.second >= expected.second
-                                               && actual.second <= expected.third);
-                                found = true;
-                                break;
-                            }
-                        }
-                        CPPUNIT_ASSERT(found);
-                    }
-                }
-                time += bucketLength;
-            }
-        };
+                           core_t::TTime time{startTime};
+                           for (std::size_t i = 0u; i < values.size(); ++i) {
+                               processBucket(time, bucketLength, values[i], influencers[i],
+                                             *gatherer, m_ResourceMonitor, model, annotatedProbability);
+                               CPPUNIT_ASSERT_EQUAL(influences[i].size(), annotatedProbability.s_Influences.size());
+                               if (influences[i].size() > 0) {
+                                   for (const auto &expected : influences[i]) {
+                                       bool found{false};
+                                       for (const auto &actual : annotatedProbability.s_Influences) {
+                                           if (expected.first == *actual.first.second) {
+                                               CPPUNIT_ASSERT(   actual.second >= expected.second &&
+                                                                 actual.second <= expected.third);
+                                               found = true;
+                                               break;
+                                           }
+                                       }
+                                       CPPUNIT_ASSERT(found);
+                                   }
+                               }
+                               time += bucketLength;
+                           }
+                       };
 
     LOG_DEBUG("Test mean");
 
@@ -1440,38 +1342,36 @@ void CMetricModelTest::testInfluence(void)
     }
 }
 
-void CMetricModelTest::testLatLongInfluence(void)
-{
+void CMetricModelTest::testLatLongInfluence(void) {
     LOG_DEBUG("*** testLatLongInfluence ***");
 
     // TODO
 }
 
-void CMetricModelTest::testPrune(void)
-{
+void CMetricModelTest::testPrune(void) {
     LOG_DEBUG("*** testPrune ***");
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<CEventData> TEventDataVec;
+    typedef std::vector<std::size_t>           TSizeVec;
+    typedef std::vector<TSizeVec>              TSizeVecVec;
+    typedef std::vector<CEventData>            TEventDataVec;
     typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
 
     const core_t::TTime startTime = 1346968800;
     const core_t::TTime bucketLength = 3600;
 
     const std::string people[] =
-        {
-            std::string("p1"),
-            std::string("p2"),
-            std::string("p3"),
-            std::string("p4"),
-            std::string("p5"),
-            std::string("p6"),
-            std::string("p7"),
-            std::string("p8")
-        };
+    {
+        std::string("p1"),
+        std::string("p2"),
+        std::string("p3"),
+        std::string("p4"),
+        std::string("p5"),
+        std::string("p6"),
+        std::string("p7"),
+        std::string("p8")
+    };
 
     TSizeVecVec eventCounts;
     eventCounts.push_back(TSizeVec(1000u, 0));
@@ -1505,42 +1405,38 @@ void CMetricModelTest::testPrune(void)
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.01;
-    CMetricModelFactory factory(params);
+    CMetricModelFactory        factory(params);
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
     features.push_back(model_t::E_IndividualMinByPerson);
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(modelInitData));
-    CMetricModel *model = dynamic_cast<CMetricModel*>(model_.get());
+    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::SModelInitializationData    modelInitData(gatherer);
+    CAnomalyDetectorModel::TModelPtr           model_(factory.makeModel(modelInitData));
+    CMetricModel                               *                             model = dynamic_cast<CMetricModel*>(model_.get());
     CPPUNIT_ASSERT(model);
-    CModelFactory::TDataGathererPtr expectedGatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr         expectedGatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData expectedModelInitData(expectedGatherer);
-    CAnomalyDetectorModel::TModelPtr expectedModelHolder(factory.makeModel(expectedModelInitData));
-    CMetricModel *expectedModel = dynamic_cast<CMetricModel*>(expectedModelHolder.get());
+    CAnomalyDetectorModel::TModelPtr        expectedModelHolder(factory.makeModel(expectedModelInitData));
+    CMetricModel                            *                          expectedModel = dynamic_cast<CMetricModel*>(expectedModelHolder.get());
     CPPUNIT_ASSERT(expectedModel);
 
     test::CRandomNumbers rng;
 
     TEventDataVec events;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < eventCounts.size(); ++i, bucketStart = startTime)
-    {
-        for (std::size_t j = 0u; j < eventCounts[i].size(); ++j, bucketStart += bucketLength)
-        {
+    for (std::size_t i = 0u; i < eventCounts.size(); ++i, bucketStart = startTime) {
+        for (std::size_t j = 0u; j < eventCounts[i].size(); ++j, bucketStart += bucketLength) {
             core_t::TTime n = static_cast<core_t::TTime>(eventCounts[i][j]);
-            if (n > 0)
-            {
+            if (n > 0) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.0, 5.0, static_cast<size_t>(n), samples);
 
                 for (core_t::TTime k = 0, time = bucketStart, dt = bucketLength / n;
                      k < n;
-                     ++k, time += dt)
-                {
+                     ++k, time += dt) {
                     std::size_t pid = addPerson(people[i], gatherer, m_ResourceMonitor);
                     events.push_back(makeEventData(time, pid, samples[static_cast<size_t>(k)]));
                 }
@@ -1552,17 +1448,14 @@ void CMetricModelTest::testPrune(void)
     TEventDataVec expectedEvents;
     expectedEvents.reserve(events.size());
     TSizeSizeMap mapping;
-    for (std::size_t i = 0u; i < boost::size(expectedPeople); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(expectedPeople); ++i) {
         std::size_t pid = addPerson(people[expectedPeople[i]], expectedGatherer, m_ResourceMonitor);
         mapping[expectedPeople[i]] = pid;
     }
-    for (std::size_t i = 0u; i < events.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < events.size(); ++i) {
         if (std::binary_search(boost::begin(expectedPeople),
                                boost::end(expectedPeople),
-                               events[i].personId()))
-        {
+                               events[i].personId())) {
             expectedEvents.push_back(makeEventData(events[i].time(),
                                                    mapping[*events[i].personId()],
                                                    events[i].values()[0][0]));
@@ -1570,10 +1463,8 @@ void CMetricModelTest::testPrune(void)
     }
 
     bucketStart = startTime;
-    for (std::size_t i = 0u; i < events.size(); ++i)
-    {
-        if (events[i].time() >= bucketStart + bucketLength)
-        {
+    for (std::size_t i = 0u; i < events.size(); ++i) {
+        if (events[i].time() >= bucketStart + bucketLength) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -1590,10 +1481,8 @@ void CMetricModelTest::testPrune(void)
     CPPUNIT_ASSERT_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = startTime;
-    for (std::size_t i = 0u; i < expectedEvents.size(); ++i)
-    {
-        if (expectedEvents[i].time() >= bucketStart + bucketLength)
-        {
+    for (std::size_t i = 0u; i < expectedEvents.size(); ++i) {
+        if (expectedEvents[i].time() >= bucketStart + bucketLength) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
@@ -1614,8 +1503,7 @@ void CMetricModelTest::testPrune(void)
 
     bucketStart = gatherer->currentBucketStartTime() + bucketLength;
     std::string newPersons[] = {"p9", "p10", "p11", "p12", "13"};
-    for (std::size_t i = 0u; i < boost::size(newPersons); ++i)
-    {
+    for (std::size_t i = 0u; i < boost::size(newPersons); ++i) {
         std::size_t newPid = addPerson(newPersons[i], gatherer, m_ResourceMonitor);
         CPPUNIT_ASSERT(newPid < 8);
 
@@ -1635,37 +1523,32 @@ void CMetricModelTest::testPrune(void)
 
     // Test that calling prune on a cloned model which has seen no new data does nothing
     CAnomalyDetectorModel::TModelPtr clonedModelHolder(model->cloneForPersistence());
-    std::size_t numberOfPeopleBeforePrune(clonedModelHolder->dataGatherer().numberActivePeople());
+    std::size_t                      numberOfPeopleBeforePrune(clonedModelHolder->dataGatherer().numberActivePeople());
     CPPUNIT_ASSERT(numberOfPeopleBeforePrune > 0);
     clonedModelHolder->prune(clonedModelHolder->defaultPruneWindow());
     CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune, clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CMetricModelTest::testKey(void)
-{
+void CMetricModelTest::testKey(void) {
     function_t::EFunction countFunctions[] =
-        {
-            function_t::E_IndividualMetric,
-            function_t::E_IndividualMetricMean,
-            function_t::E_IndividualMetricMin,
-            function_t::E_IndividualMetricMax,
-            function_t::E_IndividualMetricSum
-        };
-    bool useNull[] = { true, false };
+    {
+        function_t::E_IndividualMetric,
+        function_t::E_IndividualMetricMean,
+        function_t::E_IndividualMetricMin,
+        function_t::E_IndividualMetricMax,
+        function_t::E_IndividualMetricSum
+    };
+    bool        useNull[] = { true, false };
     std::string byField[] = { "", "by" };
     std::string partitionField[] = { "", "partition" };
 
     CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
 
     int identifier = 0;
-    for (std::size_t i = 0u; i < boost::size(countFunctions); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(useNull); ++j)
-        {
-            for (std::size_t k = 0u; k < boost::size(byField); ++k)
-            {
-                for (std::size_t l = 0u; l < boost::size(partitionField); ++l)
-                {
+    for (std::size_t i = 0u; i < boost::size(countFunctions); ++i) {
+        for (std::size_t j = 0u; j < boost::size(useNull); ++j) {
+            for (std::size_t k = 0u; k < boost::size(byField); ++k) {
+                for (std::size_t l = 0u; l < boost::size(partitionField); ++l) {
                     CSearchKey key(++identifier,
                                    countFunctions[i],
                                    useNull[j],
@@ -1686,13 +1569,12 @@ void CMetricModelTest::testKey(void)
     }
 }
 
-void CMetricModelTest::testSkipSampling(void)
-{
+void CMetricModelTest::testSkipSampling(void) {
     LOG_DEBUG("*** testSkipSampling ***");
 
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(100);
+    core_t::TTime       bucketLength(100);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     CDataGatherer::TFeatureVec features;
@@ -1701,16 +1583,16 @@ void CMetricModelTest::testSkipSampling(void)
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
+    CModelFactory::TDataGathererPtr            gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
     CModelFactory::SModelInitializationData initDataNoGap(gathererNoGap);
-    CAnomalyDetectorModel::TModelPtr modelNoGapPtr(factory.makeModel(initDataNoGap));
+    CAnomalyDetectorModel::TModelPtr        modelNoGapPtr(factory.makeModel(initDataNoGap));
     CPPUNIT_ASSERT(modelNoGapPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelNoGapPtr->category());
     CMetricModel &modelNoGap = static_cast<CMetricModel&>(*modelNoGapPtr.get());
 
     {
-        TStrVec influencerValues1{ "i1" };
+        TStrVec    influencerValues1{ "i1" };
         TDoubleVec bucket1{ 1.0 };
         TDoubleVec bucket2{ 5.0 };
         TDoubleVec bucket3{ 10.0 };
@@ -1731,17 +1613,17 @@ void CMetricModelTest::testSkipSampling(void)
     }
 
     CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
+    CModelFactory::TDataGathererPtr            gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererWithGap, m_ResourceMonitor));
     CModelFactory::SModelInitializationData initDataWithGap(gathererWithGap);
-    CAnomalyDetectorModel::TModelPtr modelWithGapPtr(factory.makeModel(initDataWithGap));
+    CAnomalyDetectorModel::TModelPtr        modelWithGapPtr(factory.makeModel(initDataWithGap));
     CPPUNIT_ASSERT(modelWithGapPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelWithGapPtr->category());
-    CMetricModel &modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
+    CMetricModel  &modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
     core_t::TTime gap(bucketLength * 10);
 
     {
-        TStrVec influencerValues1{ "i1" };
+        TStrVec    influencerValues1{ "i1" };
         TDoubleVec bucket1{ 1.0 };
         TDoubleVec bucket2{ 5.0 };
         TDoubleVec bucket3{ 10.0 };
@@ -1766,20 +1648,19 @@ void CMetricModelTest::testSkipSampling(void)
     }
 
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
 }
 
-void CMetricModelTest::testExplicitNulls(void)
-{
+void CMetricModelTest::testExplicitNulls(void) {
     LOG_DEBUG("*** testExplicitNulls ***");
 
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
-    SModelParams params(bucketLength);
-    std::string summaryCountField("count");
+    core_t::TTime       startTime(100);
+    core_t::TTime       bucketLength(100);
+    SModelParams        params(bucketLength);
+    std::string         summaryCountField("count");
     CMetricModelFactory factory(params, model_t::E_Manual, summaryCountField);
 
     CDataGatherer::TFeatureVec features;
@@ -1788,9 +1669,9 @@ void CMetricModelTest::testExplicitNulls(void)
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::SGathererInitializationData gathererSkipGapInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererSkipGap(factory.makeDataGatherer(gathererSkipGapInitData));
-    CModelFactory::SModelInitializationData initDataSkipGap(gathererSkipGap);
-    CAnomalyDetectorModel::TModelPtr modelSkipGapPtr(factory.makeModel(initDataSkipGap));
+    CModelFactory::TDataGathererPtr            gathererSkipGap(factory.makeDataGatherer(gathererSkipGapInitData));
+    CModelFactory::SModelInitializationData    initDataSkipGap(gathererSkipGap);
+    CAnomalyDetectorModel::TModelPtr           modelSkipGapPtr(factory.makeModel(initDataSkipGap));
     CPPUNIT_ASSERT(modelSkipGapPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelSkipGapPtr->category());
     CMetricModel &modelSkipGap = static_cast<CMetricModel&>(*modelSkipGapPtr.get());
@@ -1812,9 +1693,9 @@ void CMetricModelTest::testExplicitNulls(void)
     modelSkipGap.sample(600, 700, m_ResourceMonitor);
 
     CModelFactory::SGathererInitializationData gathererExNullInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererExNull(factory.makeDataGatherer(gathererExNullInitData));
-    CModelFactory::SModelInitializationData initDataExNull(gathererExNull);
-    CAnomalyDetectorModel::TModelPtr modelExNullPtr(factory.makeModel(initDataExNull));
+    CModelFactory::TDataGathererPtr            gathererExNull(factory.makeDataGatherer(gathererExNullInitData));
+    CModelFactory::SModelInitializationData    initDataExNull(gathererExNull);
+    CAnomalyDetectorModel::TModelPtr           modelExNullPtr(factory.makeModel(initDataExNull));
     CPPUNIT_ASSERT(modelExNullPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelExNullPtr->category());
     CMetricModel &modelExNullGap = static_cast<CMetricModel&>(*modelExNullPtr.get());
@@ -1841,19 +1722,18 @@ void CMetricModelTest::testExplicitNulls(void)
     modelExNullGap.sample(600, 700, m_ResourceMonitor);
 
     CPPUNIT_ASSERT_EQUAL(
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
-            static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum(),
+        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))->prior().checksum());
 }
 
-void CMetricModelTest::testVarp(void)
-{
+void CMetricModelTest::testVarp(void) {
     LOG_DEBUG("*** testVarp ***");
 
     core_t::TTime startTime(500000);
     core_t::TTime bucketLength(1000);
-    SModelParams params(bucketLength);
+    SModelParams  params(bucketLength);
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualVarianceByPerson);
@@ -1862,12 +1742,12 @@ void CMetricModelTest::testVarp(void)
     factory.bucketLength(bucketLength);
     factory.fieldNames("", "", "P", "V", TStrVec());
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
     CPPUNIT_ASSERT(!gatherer->isPopulation());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("q", gatherer, m_ResourceMonitor));
     CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(initData));
+    CAnomalyDetectorModel::TModelPtr        model_(factory.makeModel(initData));
     CPPUNIT_ASSERT(model_);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
@@ -1965,24 +1845,23 @@ void CMetricModelTest::testVarp(void)
     CPPUNIT_ASSERT(annotatedProbability2.s_Probability > 0.5);
 }
 
-void CMetricModelTest::testInterimCorrections(void)
-{
+void CMetricModelTest::testInterimCorrections(void) {
     LOG_DEBUG("*** testInterimCorrections ***");
 
-    core_t::TTime startTime(3600);
-    core_t::TTime bucketLength(3600);
-    SModelParams params(bucketLength);
-    CMetricModelFactory factory(params);
+    core_t::TTime              startTime(3600);
+    core_t::TTime              bucketLength(3600);
+    SModelParams               params(bucketLength);
+    CMetricModelFactory        factory(params);
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualSumByBucketAndPerson);
     factory.features(features);
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
     CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(initData));
+    CAnomalyDetectorModel::TModelPtr        model_(factory.makeModel(initData));
     CPPUNIT_ASSERT(model_);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
@@ -1991,44 +1870,37 @@ void CMetricModelTest::testInterimCorrections(void)
     std::size_t pid2 = addPerson("p2", gatherer, m_ResourceMonitor);
     std::size_t pid3 = addPerson("p3", gatherer, m_ResourceMonitor);
 
-    core_t::TTime now = startTime;
-    core_t::TTime endTime(now + 2 * 24 * bucketLength);
+    core_t::TTime        now = startTime;
+    core_t::TTime        endTime(now + 2 * 24 * bucketLength);
     test::CRandomNumbers rng;
-    TDoubleVec samples(3, 0.0);
-    while (now < endTime)
-    {
+    TDoubleVec           samples(3, 0.0);
+    while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p1", 1.0, TOptionalStr("i1"));
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p2", 1.0, TOptionalStr("i2"));
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p3", 1.0, TOptionalStr("i3"));
         }
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 35; ++i)
-    {
+    for (std::size_t i = 0; i < 35; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1", 1.0, TOptionalStr("i1"));
     }
-    for (std::size_t i = 0; i < 1; ++i)
-    {
+    for (std::size_t i = 0; i < 1; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p2", 1.0, TOptionalStr("i2"));
     }
-    for (std::size_t i = 0; i < 100; ++i)
-    {
+    for (std::size_t i = 0; i < 100; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p3", 1.0, TOptionalStr("i3"));
     }
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
 
-    CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
+    CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    model_t::CResultType  type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
     SAnnotatedProbability annotatedProbability1;
     annotatedProbability1.s_ResultType = type;
     CPPUNIT_ASSERT(model.computeProbability(pid1, now, now + bucketLength,
@@ -2064,13 +1936,12 @@ void CMetricModelTest::testInterimCorrections(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 59.0 && p3Baseline[0] < 61.0);
 }
 
-void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
-{
+void CMetricModelTest::testInterimCorrectionsWithCorrelations(void) {
     LOG_DEBUG("*** testInterimCorrectionsWithCorrelations ***");
 
     core_t::TTime startTime(3600);
     core_t::TTime bucketLength(3600);
-    SModelParams params(bucketLength);
+    SModelParams  params(bucketLength);
     params.s_MultivariateByFields = true;
     CMetricModelFactory factory(params);
 
@@ -2080,9 +1951,9 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
+    CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
+    CModelFactory::SModelInitializationData    initData(gatherer);
+    CAnomalyDetectorModel::TModelPtr           modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
     CMetricModel &model = static_cast<CMetricModel&>(*modelPtr.get());
@@ -2091,44 +1962,37 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
     std::size_t pid2 = addPerson("p2", gatherer, m_ResourceMonitor);
     std::size_t pid3 = addPerson("p3", gatherer, m_ResourceMonitor);
 
-    core_t::TTime now = startTime;
-    core_t::TTime endTime(now + 2 * 24 * bucketLength);
+    core_t::TTime        now = startTime;
+    core_t::TTime        endTime(now + 2 * 24 * bucketLength);
     test::CRandomNumbers rng;
-    TDoubleVec samples(1, 0.0);
-    while (now < endTime)
-    {
+    TDoubleVec           samples(1, 0.0);
+    while (now < endTime) {
         rng.generateUniformSamples(80.0, 100.0, std::size_t(1), samples);
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p1", 1.0, TOptionalStr("i1"));
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p2", 1.0, TOptionalStr("i2"));
         }
-        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i)
-        {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i) {
             addArrival(*gatherer, m_ResourceMonitor, now, "p3", 1.0, TOptionalStr("i3"));
         }
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
-    for (std::size_t i = 0; i < 9; ++i)
-    {
+    for (std::size_t i = 0; i < 9; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p1", 1.0, TOptionalStr("i1"));
     }
-    for (std::size_t i = 0; i < 10; ++i)
-    {
+    for (std::size_t i = 0; i < 10; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p2", 1.0, TOptionalStr("i2"));
     }
-    for (std::size_t i = 0; i < 8; ++i)
-    {
+    for (std::size_t i = 0; i < 8; ++i) {
         addArrival(*gatherer, m_ResourceMonitor, now, "p3", 1.0, TOptionalStr("i3"));
     }
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
 
-    CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    model_t::CResultType type(model_t::CResultType::E_Conditional | model_t::CResultType::E_Interim);
+    CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    model_t::CResultType  type(model_t::CResultType::E_Conditional | model_t::CResultType::E_Interim);
     SAnnotatedProbability annotatedProbability1;
     annotatedProbability1.s_ResultType = type;
     CPPUNIT_ASSERT(model.computeProbability(pid1, now, now + bucketLength,
@@ -2170,19 +2034,18 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void)
     CPPUNIT_ASSERT(p3Baseline[0] > 7.4 && p3Baseline[0] < 7.6);
 }
 
-void CMetricModelTest::testCorrelatePersist(void)
-{
+void CMetricModelTest::testCorrelatePersist(void) {
     LOG_DEBUG("*** testCorrelatePersist ***");
 
-    typedef maths::CVectorNx1<double, 2> TVector2;
+    typedef maths::CVectorNx1<double, 2>          TVector2;
     typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    const double means[] = { 10.0, 20.0 };
-    const double covariances[] = { 3.0, 2.0, 2.0 };
-    TVector2 mean(means, means + 2);
-    TMatrix2 covariance(covariances, covariances + 3);
+    const double        means[] = { 10.0, 20.0 };
+    const double        covariances[] = { 3.0, 2.0, 2.0 };
+    TVector2            mean(means, means + 2);
+    TMatrix2            covariance(covariances, covariances + 3);
 
     test::CRandomNumbers rng;
 
@@ -2195,9 +2058,9 @@ void CMetricModelTest::testCorrelatePersist(void)
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
     params.s_MultivariateByFields = true;
-    CMetricModelFactory factory(params);
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualMeanByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CMetricModelFactory              factory(params);
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualMeanByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model;
     makeModel(factory, features, startTime, bucketLength, gatherer, model);
 
@@ -2206,18 +2069,15 @@ void CMetricModelTest::testCorrelatePersist(void)
 
     core_t::TTime time   = startTime;
     core_t::TTime bucket = time + bucketLength;
-    for (std::size_t i = 0u; i < samples.size(); ++i, time += 60)
-    {
-        if (time >= bucket)
-        {
+    for (std::size_t i = 0u; i < samples.size(); ++i, time += 60) {
+        if (time >= bucket) {
             model->sample(bucket - bucketLength, bucket, m_ResourceMonitor);
             bucket += bucketLength;
         }
         addArrival(*gatherer, m_ResourceMonitor, time, "p1", samples[i][0]);
         addArrival(*gatherer, m_ResourceMonitor, time, "p2", samples[i][0]);
 
-        if ((i + 1) % 1000 == 0)
-        {
+        if ((i + 1) % 1000 == 0) {
             // Test persistence. (We check for idempotency.)
             std::string origXml;
             {
@@ -2232,7 +2092,7 @@ void CMetricModelTest::testCorrelatePersist(void)
             core::CRapidXmlStateRestoreTraverser traverser(parser);
 
             CModelFactory::SModelInitializationData initData(gatherer);
-            CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(initData, traverser));
+            CAnomalyDetectorModel::TModelPtr        restoredModel(factory.makeModel(initData, traverser));
 
             // The XML representation of the new filter should be the same as the original
             std::string newXml;
@@ -2252,14 +2112,13 @@ void CMetricModelTest::testCorrelatePersist(void)
     }
 }
 
-void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
-{
+void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void) {
     LOG_DEBUG("*** testSummaryCountZeroRecordsAreIgnored ***");
 
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
-    SModelParams params(bucketLength);
-    std::string summaryCountField("count");
+    core_t::TTime       startTime(100);
+    core_t::TTime       bucketLength(100);
+    SModelParams        params(bucketLength);
+    std::string         summaryCountField("count");
     CMetricModelFactory factory(params, model_t::E_Manual, summaryCountField);
 
     CDataGatherer::TFeatureVec features;
@@ -2269,17 +2128,17 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::SGathererInitializationData gathererWithZerosInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererWithZeros(factory.makeDataGatherer(gathererWithZerosInitData));
-    CModelFactory::SModelInitializationData initDataWithZeros(gathererWithZeros);
-    CAnomalyDetectorModel::TModelPtr modelWithZerosPtr(factory.makeModel(initDataWithZeros));
+    CModelFactory::TDataGathererPtr            gathererWithZeros(factory.makeDataGatherer(gathererWithZerosInitData));
+    CModelFactory::SModelInitializationData    initDataWithZeros(gathererWithZeros);
+    CAnomalyDetectorModel::TModelPtr           modelWithZerosPtr(factory.makeModel(initDataWithZeros));
     CPPUNIT_ASSERT(modelWithZerosPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelWithZerosPtr->category());
     CMetricModel &modelWithZeros = static_cast<CMetricModel&>(*modelWithZerosPtr.get());
 
     CModelFactory::SGathererInitializationData gathererNoZerosInitData(startTime);
-    CModelFactory::TDataGathererPtr gathererNoZeros(factory.makeDataGatherer(gathererNoZerosInitData));
-    CModelFactory::SModelInitializationData initDataNoZeros(gathererNoZeros);
-    CAnomalyDetectorModel::TModelPtr modelNoZerosPtr(factory.makeModel(initDataNoZeros));
+    CModelFactory::TDataGathererPtr            gathererNoZeros(factory.makeDataGatherer(gathererNoZerosInitData));
+    CModelFactory::SModelInitializationData    initDataNoZeros(gathererNoZeros);
+    CAnomalyDetectorModel::TModelPtr           modelNoZerosPtr(factory.makeModel(initDataNoZeros));
     CPPUNIT_ASSERT(modelNoZerosPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelNoZerosPtr->category());
     CMetricModel &modelNoZeros = static_cast<CMetricModel&>(*modelNoZerosPtr.get());
@@ -2287,28 +2146,23 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     // The idea here is to compare a model that has records with summary count of zero
     // against a model that has no records at all where the first model had the zero-count records.
 
-    core_t::TTime now = 100;
-    core_t::TTime end = now + 50 * bucketLength;
+    core_t::TTime        now = 100;
+    core_t::TTime        end = now + 50 * bucketLength;
     test::CRandomNumbers rng;
-    double mean = 5.0;
-    double variance = 2.0;
-    TDoubleVec values;
-    std::string summaryCountZero("0");
-    std::string summaryCountOne("1");
-    while (now < end)
-    {
-        for (std::size_t i = 0; i < 10; ++i)
-        {
+    double               mean = 5.0;
+    double               variance = 2.0;
+    TDoubleVec           values;
+    std::string          summaryCountZero("0");
+    std::string          summaryCountOne("1");
+    while (now < end) {
+        for (std::size_t i = 0; i < 10; ++i) {
             rng.generateNormalSamples(mean, variance, 1, values);
             double value = values[0];
             rng.generateUniformSamples(0.0, 1.0, 1, values);
-            if (values[0] < 0.05)
-            {
+            if (values[0] < 0.05) {
                 addArrival(*gathererWithZeros, m_ResourceMonitor, now, "p1", value,
                            TOptionalStr("i1"), TOptionalStr(), TOptionalStr(summaryCountZero));
-            }
-            else
-            {
+            } else {
                 addArrival(*gathererWithZeros, m_ResourceMonitor, now, "p1", value,
                            TOptionalStr("i1"), TOptionalStr(), TOptionalStr(summaryCountOne));
                 addArrival(*gathererNoZeros, m_ResourceMonitor, now, "p1", value,
@@ -2323,14 +2177,13 @@ void CMetricModelTest::testSummaryCountZeroRecordsAreIgnored(void)
     CPPUNIT_ASSERT_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-void CMetricModelTest::testDecayRateControl(void)
-{
+void CMetricModelTest::testDecayRateControl(void) {
     LOG_DEBUG("*** testDecayRateControl ***");
 
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
 
-    model_t::EFeature feature = model_t::E_IndividualMeanByPerson;
+    model_t::EFeature    feature = model_t::E_IndividualMeanByPerson;
     model_t::TFeatureVec features(1, feature);
 
     SModelParams params(bucketLength);
@@ -2347,25 +2200,23 @@ void CMetricModelTest::testDecayRateControl(void)
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;
-        CMetricModelFactory factory(params);
-        CModelFactory::TDataGathererPtr gatherer;
+        CMetricModelFactory              factory(params);
+        CModelFactory::TDataGathererPtr  gatherer;
         CAnomalyDetectorModel::TModelPtr model;
         makeModel(factory, features, startTime, bucketLength, gatherer, model);
 
         params.s_ControlDecayRate = false;
         params.s_DecayRate = 0.0001;
-        CMetricModelFactory referenceFactory(params);
-        CModelFactory::TDataGathererPtr referenceGatherer;
+        CMetricModelFactory              referenceFactory(params);
+        CModelFactory::TDataGathererPtr  referenceGatherer;
         CAnomalyDetectorModel::TModelPtr referenceModel;
         makeModel(referenceFactory, features, startTime, bucketLength, referenceGatherer, referenceModel);
 
-        TMeanAccumulator meanPredictionError;
-        TMeanAccumulator meanReferencePredictionError;
+        TMeanAccumulator     meanPredictionError;
+        TMeanAccumulator     meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 4 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
@@ -2377,13 +2228,13 @@ void CMetricModelTest::testDecayRateControl(void)
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(std::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
@@ -2399,32 +2250,30 @@ void CMetricModelTest::testDecayRateControl(void)
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;
-        CMetricModelFactory factory(params);
-        CModelFactory::TDataGathererPtr gatherer;
+        CMetricModelFactory              factory(params);
+        CModelFactory::TDataGathererPtr  gatherer;
         CAnomalyDetectorModel::TModelPtr model;
         makeModel(factory, features, startTime, bucketLength, gatherer, model);
 
         params.s_ControlDecayRate = false;
         params.s_DecayRate = 0.001;
-        CMetricModelFactory referenceFactory(params);
-        CModelFactory::TDataGathererPtr referenceGatherer;
+        CMetricModelFactory              referenceFactory(params);
+        CModelFactory::TDataGathererPtr  referenceGatherer;
         CAnomalyDetectorModel::TModelPtr referenceModel;
         makeModel(referenceFactory, features, startTime, bucketLength, referenceGatherer, referenceModel);
 
-        TMeanAccumulator meanPredictionError;
-        TMeanAccumulator meanReferencePredictionError;
+        TMeanAccumulator     meanPredictionError;
+        TMeanAccumulator     meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 10 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
             double value = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                               * static_cast<double>(t)
-                                               / static_cast<double>(core::constants::DAY)))
-                                * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
+                                                 * static_cast<double>(t)
+                                                 / static_cast<double>(core::constants::DAY)))
+                           * (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
             addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1", value + noise[0]);
@@ -2432,18 +2281,18 @@ void CMetricModelTest::testDecayRateControl(void)
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(std::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(         maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                                < 0.94 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 
     LOG_DEBUG("*** Test unmodelled cyclic component ***");
@@ -2455,34 +2304,32 @@ void CMetricModelTest::testDecayRateControl(void)
 
         params.s_ControlDecayRate = true;
         params.s_DecayRate = 0.001;
-        CMetricModelFactory factory(params);
-        CModelFactory::TDataGathererPtr gatherer;
+        CMetricModelFactory              factory(params);
+        CModelFactory::TDataGathererPtr  gatherer;
         CAnomalyDetectorModel::TModelPtr model;
         makeModel(factory, features, startTime, bucketLength, gatherer, model);
 
         params.s_ControlDecayRate = false;
         params.s_DecayRate = 0.001;
-        CMetricModelFactory referenceFactory(params);
-        CModelFactory::TDataGathererPtr referenceGatherer;
+        CMetricModelFactory              referenceFactory(params);
+        CModelFactory::TDataGathererPtr  referenceGatherer;
         CAnomalyDetectorModel::TModelPtr referenceModel;
         makeModel(referenceFactory, features, startTime, bucketLength, referenceGatherer, referenceModel);
 
-        TMeanAccumulator meanPredictionError;
-        TMeanAccumulator meanReferencePredictionError;
+        TMeanAccumulator     meanPredictionError;
+        TMeanAccumulator     meanReferencePredictionError;
         model_t::CResultType type(model_t::CResultType::E_Unconditional | model_t::CResultType::E_Interim);
-        for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength)
-        {
-            if (t % core::constants::WEEK == 0)
-            {
+        for (core_t::TTime t = 0; t < 20 * core::constants::WEEK; t += bucketLength) {
+            if (t % core::constants::WEEK == 0) {
                 LOG_DEBUG("week " << t / core::constants::WEEK + 1);
             }
 
             double value = 10.0 * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                               * static_cast<double>(t)
-                                               / static_cast<double>(core::constants::DAY)))
-                                * (1.0 + ::sin(  boost::math::double_constants::two_pi
-                                               * static_cast<double>(t)
-                                               / 10.0 / static_cast<double>(core::constants::WEEK)));
+                                                 * static_cast<double>(t)
+                                                 / static_cast<double>(core::constants::DAY)))
+                           * (1.0 + ::sin(  boost::math::double_constants::two_pi
+                                            * static_cast<double>(t)
+                                            / 10.0 / static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
             addArrival(*gatherer, m_ResourceMonitor, t + bucketLength / 2, "p1", value + noise[0]);
@@ -2490,28 +2337,27 @@ void CMetricModelTest::testDecayRateControl(void)
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
-                    model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - model->baselineBucketMean(feature, 0, 0, type,
-                                              NO_CORRELATES, t + bucketLength / 2)[0]));
+                                        model->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                        - model->baselineBucketMean(feature, 0, 0, type,
+                                                                    NO_CORRELATES, t + bucketLength / 2)[0]));
             meanReferencePredictionError.add(std::fabs(
-                    referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
-                  - referenceModel->baselineBucketMean(feature, 0, 0, type,
-                                                       NO_CORRELATES, t + bucketLength / 2)[0]));
+                                                 referenceModel->currentBucketValue(feature, 0, 0, t + bucketLength / 2)[0]
+                                                 - referenceModel->baselineBucketMean(feature, 0, 0, type,
+                                                                                      NO_CORRELATES, t + bucketLength / 2)[0]));
         }
         LOG_DEBUG("mean = " << maths::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG("reference = " << maths::CBasicStatistics::mean(meanReferencePredictionError));
         CPPUNIT_ASSERT(        maths::CBasicStatistics::mean(meanPredictionError)
-                       < 0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                               < 0.7 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
-void CMetricModelTest::testProbabilityCalculationForLowMedian(void)
-{
+void CMetricModelTest::testProbabilityCalculationForLowMedian(void) {
     LOG_DEBUG("*** testProbabilityCalculationForLowMedian ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -2524,40 +2370,36 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian(void)
     double lowMean = 2.0;
     double highMean = 10.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualLowMedianByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualLowMedianByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowMedianBucket)
-        {
+        if (i == lowMedianBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highMedianBucket)
-        {
+        if (i == highMedianBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -2566,19 +2408,18 @@ void CMetricModelTest::testProbabilityCalculationForLowMedian(void)
     }
 
     LOG_DEBUG("probabilities = " << core::CContainerPrinter::print(probabilities.begin(),
-            probabilities.end()));
+                                                                   probabilities.end()));
 
     CPPUNIT_ASSERT(probabilities[lowMedianBucket] < 0.01);
     CPPUNIT_ASSERT(probabilities[highMedianBucket] > 0.1);
 }
 
-void CMetricModelTest::testProbabilityCalculationForHighMedian(void)
-{
+void CMetricModelTest::testProbabilityCalculationForHighMedian(void) {
     LOG_DEBUG("*** testProbabilityCalculationForHighMedian ***");
 
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(10);
-    SModelParams params(bucketLength);
+    core_t::TTime       startTime(0);
+    core_t::TTime       bucketLength(10);
+    SModelParams        params(bucketLength);
     CMetricModelFactory factory(params);
 
     std::size_t numberOfBuckets = 100;
@@ -2591,40 +2432,36 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian(void)
     double lowMean = 2.0;
     double highMean = 10.0;
 
-    CDataGatherer::TFeatureVec features(1, model_t::E_IndividualHighMeanByPerson);
-    CModelFactory::TDataGathererPtr gatherer;
+    CDataGatherer::TFeatureVec       features(1, model_t::E_IndividualHighMeanByPerson);
+    CModelFactory::TDataGathererPtr  gatherer;
     CAnomalyDetectorModel::TModelPtr model_;
     makeModel(factory, features, startTime, bucketLength, gatherer, model_);
     CMetricModel &model = static_cast<CMetricModel&>(*model_.get());
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-    TOptionalDoubleVec probabilities;
+    TOptionalDoubleVec   probabilities;
     test::CRandomNumbers rng;
-    core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i)
-    {
+    core_t::TTime        time = startTime;
+    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
-        if (i == lowMedianBucket)
-        {
+        if (i == lowMedianBucket) {
             meanForBucket = lowMean;
         }
-        if (i == highMedianBucket)
-        {
+        if (i == highMedianBucket) {
             meanForBucket = highMean;
         }
         TDoubleVec values;
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG("values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < values.size(); ++j) {
             addArrival(*gatherer, m_ResourceMonitor, time + static_cast<core_t::TTime>(j), "p", values[j]);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-        CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+        CPartitioningFields   partitioningFields(EMPTY_STRING, EMPTY_STRING);
         SAnnotatedProbability annotatedProbability;
-        CPPUNIT_ASSERT(model.computeProbability(0/*pid*/, time, time + bucketLength,
+        CPPUNIT_ASSERT(model.computeProbability(0 /*pid*/, time, time + bucketLength,
                                                 partitioningFields, 1, annotatedProbability));
         LOG_DEBUG("probability = " << annotatedProbability.s_Probability);
         probabilities.push_back(annotatedProbability.s_Probability);
@@ -2638,8 +2475,7 @@ void CMetricModelTest::testProbabilityCalculationForHighMedian(void)
     CPPUNIT_ASSERT(probabilities[highMedianBucket] < 0.01);
 }
 
-void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
-{
+void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void) {
     LOG_DEBUG("*** testIgnoreSamplingGivenDetectionRules ***");
 
     // Create 2 models, one of which has a skip sampling rule.
@@ -2658,26 +2494,26 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
     rule.action(CDetectionRule::E_SkipSampling);
     rule.addCondition(condition);
 
-    std::size_t bucketLength(300);
-    std::size_t startTime(300);
+    std::size_t  bucketLength(300);
+    std::size_t  startTime(300);
     SModelParams paramsNoRules(bucketLength);
 
 
     // Model without the skip sampling rule
-    CMetricModelFactory factory(paramsNoRules);
-    model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson};
-    CModelFactory::TDataGathererPtr gathererNoSkip;
+    CMetricModelFactory              factory(paramsNoRules);
+    model_t::TFeatureVec             features{model_t::E_IndividualMeanByPerson};
+    CModelFactory::TDataGathererPtr  gathererNoSkip;
     CAnomalyDetectorModel::TModelPtr modelPtrNoSkip;
     makeModel(factory, features, startTime, bucketLength, gathererNoSkip, modelPtrNoSkip);
     CMetricModel *modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
 
     // Model with the skip sampling rule
-    SModelParams paramsWithRules(bucketLength);
+    SModelParams                    paramsWithRules(bucketLength);
     SModelParams::TDetectionRuleVec rules{rule};
     paramsWithRules.s_DetectionRules = SModelParams::TDetectionRuleVecCRef(rules);
 
-    CMetricModelFactory factoryWithSkip(paramsWithRules);
-    CModelFactory::TDataGathererPtr gathererWithSkip;
+    CMetricModelFactory              factoryWithSkip(paramsWithRules);
+    CModelFactory::TDataGathererPtr  gathererWithSkip;
     CAnomalyDetectorModel::TModelPtr modelPtrWithSkip;
     makeModel(factoryWithSkip, features, startTime, bucketLength, gathererWithSkip, modelPtrWithSkip);
     CMetricModel *modelWithSkip = dynamic_cast<CMetricModel*>(modelPtrWithSkip.get());
@@ -2685,8 +2521,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
     std::size_t endTime = startTime + bucketLength;
 
     // Add a bucket to both models
-    for (std::size_t i=0; i<60; i++)
-    {
+    for (std::size_t i=0; i<60; i++) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime + i, "p1", 1.0);
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime + i, "p1", 1.0);
     }
@@ -2697,8 +2532,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     // Add a bucket to both models
-    for (std::size_t i=0; i<60; i++)
-    {
+    for (std::size_t i=0; i<60; i++) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime + i, "p1", 1.0);
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime + i, "p1", 1.0);
     }
@@ -2709,8 +2543,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
     CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     // this sample will be skipped by the detection rule
-    for (std::size_t i=0; i<60; i++)
-    {
+    for (std::size_t i=0; i<60; i++) {
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime + i, "p1", 110.0);
     }
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
@@ -2721,8 +2554,7 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
     // Wind the other model forward
     modelNoSkip->skipSampling(startTime);
 
-    for (std::size_t i=0; i<60; i++)
-    {
+    for (std::size_t i=0; i<60; i++) {
         addArrival(*gathererNoSkip, m_ResourceMonitor, startTime + i, "p1", 2.0);
         addArrival(*gathererWithSkip, m_ResourceMonitor, startTime + i, "p1", 2.0);
     }
@@ -2757,85 +2589,84 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules(void)
 }
 
 
-CppUnit::Test *CMetricModelTest::suite(void)
-{
+CppUnit::Test *CMetricModelTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricModelTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testSample",
-                                   &CMetricModelTest::testSample) );
+                               "CMetricModelTest::testSample",
+                               &CMetricModelTest::testSample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testMultivariateSample",
-                                   &CMetricModelTest::testMultivariateSample) );
+                               "CMetricModelTest::testMultivariateSample",
+                               &CMetricModelTest::testMultivariateSample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForMetric",
-                                   &CMetricModelTest::testProbabilityCalculationForMetric) );
+                               "CMetricModelTest::testProbabilityCalculationForMetric",
+                               &CMetricModelTest::testProbabilityCalculationForMetric) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForMedian",
-                                   &CMetricModelTest::testProbabilityCalculationForMedian) );
+                               "CMetricModelTest::testProbabilityCalculationForMedian",
+                               &CMetricModelTest::testProbabilityCalculationForMedian) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForLowMean",
-                                   &CMetricModelTest::testProbabilityCalculationForLowMean) );
+                               "CMetricModelTest::testProbabilityCalculationForLowMean",
+                               &CMetricModelTest::testProbabilityCalculationForLowMean) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForHighMean",
-                                   &CMetricModelTest::testProbabilityCalculationForHighMean) );
+                               "CMetricModelTest::testProbabilityCalculationForHighMean",
+                               &CMetricModelTest::testProbabilityCalculationForHighMean) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForLowSum",
-                                   &CMetricModelTest::testProbabilityCalculationForLowSum) );
+                               "CMetricModelTest::testProbabilityCalculationForLowSum",
+                               &CMetricModelTest::testProbabilityCalculationForLowSum) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForHighSum",
-                                   &CMetricModelTest::testProbabilityCalculationForHighSum) );
+                               "CMetricModelTest::testProbabilityCalculationForHighSum",
+                               &CMetricModelTest::testProbabilityCalculationForHighSum) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForLatLong",
-                                   &CMetricModelTest::testProbabilityCalculationForLatLong) );
+                               "CMetricModelTest::testProbabilityCalculationForLatLong",
+                               &CMetricModelTest::testProbabilityCalculationForLatLong) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testInfluence",
-                                   &CMetricModelTest::testInfluence) );
+                               "CMetricModelTest::testInfluence",
+                               &CMetricModelTest::testInfluence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testLatLongInfluence",
-                                   &CMetricModelTest::testLatLongInfluence) );
+                               "CMetricModelTest::testLatLongInfluence",
+                               &CMetricModelTest::testLatLongInfluence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testPrune",
-                                   &CMetricModelTest::testPrune) );
+                               "CMetricModelTest::testPrune",
+                               &CMetricModelTest::testPrune) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testKey",
-                                   &CMetricModelTest::testKey) );
+                               "CMetricModelTest::testKey",
+                               &CMetricModelTest::testKey) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testSkipSampling",
-                                   &CMetricModelTest::testSkipSampling) );
+                               "CMetricModelTest::testSkipSampling",
+                               &CMetricModelTest::testSkipSampling) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testExplicitNulls",
-                                   &CMetricModelTest::testExplicitNulls) );
+                               "CMetricModelTest::testExplicitNulls",
+                               &CMetricModelTest::testExplicitNulls) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testVarp",
-                                   &CMetricModelTest::testVarp) );
+                               "CMetricModelTest::testVarp",
+                               &CMetricModelTest::testVarp) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testInterimCorrections",
-                                   &CMetricModelTest::testInterimCorrections) );
+                               "CMetricModelTest::testInterimCorrections",
+                               &CMetricModelTest::testInterimCorrections) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testInterimCorrectionsWithCorrelations",
-                                   &CMetricModelTest::testInterimCorrectionsWithCorrelations) );
+                               "CMetricModelTest::testInterimCorrectionsWithCorrelations",
+                               &CMetricModelTest::testInterimCorrectionsWithCorrelations) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testCorrelatePersist",
-                                   &CMetricModelTest::testCorrelatePersist) );
+                               "CMetricModelTest::testCorrelatePersist",
+                               &CMetricModelTest::testCorrelatePersist) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testSummaryCountZeroRecordsAreIgnored",
-                                   &CMetricModelTest::testSummaryCountZeroRecordsAreIgnored) );
+                               "CMetricModelTest::testSummaryCountZeroRecordsAreIgnored",
+                               &CMetricModelTest::testSummaryCountZeroRecordsAreIgnored) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testSummaryCountZeroRecordsAreIgnored",
-                                   &CMetricModelTest::testSummaryCountZeroRecordsAreIgnored) );
+                               "CMetricModelTest::testSummaryCountZeroRecordsAreIgnored",
+                               &CMetricModelTest::testSummaryCountZeroRecordsAreIgnored) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testDecayRateControl",
-                                   &CMetricModelTest::testDecayRateControl) );
+                               "CMetricModelTest::testDecayRateControl",
+                               &CMetricModelTest::testDecayRateControl) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForLowMedian",
-                                   &CMetricModelTest::testProbabilityCalculationForLowMedian) );
+                               "CMetricModelTest::testProbabilityCalculationForLowMedian",
+                               &CMetricModelTest::testProbabilityCalculationForLowMedian) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testProbabilityCalculationForHighMedian",
-                                   &CMetricModelTest::testProbabilityCalculationForHighMedian) );
+                               "CMetricModelTest::testProbabilityCalculationForHighMedian",
+                               &CMetricModelTest::testProbabilityCalculationForHighMedian) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CMetricModelTest>(
-                                   "CMetricModelTest::testIgnoreSamplingGivenDetectionRules",
-                                   &CMetricModelTest::testIgnoreSamplingGivenDetectionRules) );
+                               "CMetricModelTest::testIgnoreSamplingGivenDetectionRules",
+                               &CMetricModelTest::testIgnoreSamplingGivenDetectionRules) );
 
     return suiteOfTests;
 }

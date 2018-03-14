@@ -29,10 +29,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Input parser interface
@@ -44,8 +42,7 @@ namespace api
 //! Abstract interface declares the readStream method that must be
 //! implemented in sub-classes.
 //!
-class API_EXPORT CInputParser : private core::CNonCopyable
-{
+class API_EXPORT CInputParser : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
         typedef TStrVec::iterator                              TStrVecItr;
@@ -67,7 +64,7 @@ class API_EXPORT CInputParser : private core::CNonCopyable
         //! Arguments are:
         //! 1) Header row fields
         //! 2) Data row fields
-        typedef std::function<bool(const TStrStrUMap &)>       TReaderFunc;
+        typedef std::function<bool (const TStrStrUMap &)>       TReaderFunc;
 
     public:
         CInputParser(void);
@@ -102,13 +99,13 @@ class API_EXPORT CInputParser : private core::CNonCopyable
 
     private:
         //! Have we got the field names?
-        bool       m_GotFieldNames;
+        bool    m_GotFieldNames;
 
         //! Have we found any data?
-        bool       m_GotData;
+        bool    m_GotData;
 
         //! Field names parsed from the input
-        TStrVec    m_FieldNames;
+        TStrVec m_FieldNames;
 };
 
 

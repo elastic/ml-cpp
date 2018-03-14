@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CAgglomerativeClustererTest : public CppUnit::TestFixture
-{
+class CAgglomerativeClustererTest : public CppUnit::TestFixture {
     public:
         void testNode(void);
         void testSimplePermutations(void);

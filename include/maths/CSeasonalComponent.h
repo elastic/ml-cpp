@@ -28,15 +28,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Estimates a seasonal component of a time series.
 //!
@@ -50,8 +47,7 @@ namespace maths
 //!
 //! The bucketing is aged by relaxing it back towards uniform and aging the counts of the
 //! mean value for each bucket as usual.
-class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
-{
+class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent {
     public:
         using TMatrix = CSymmetricMatrixNxN<double, 2>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
@@ -213,15 +209,14 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
     private:
         //! Used to apply jitter to added value times so that we can accommodate
         //! small time translations of the trend.
-        CPRNG::CXorOShiro128Plus m_Rng;
+        CPRNG::CXorOShiro128Plus            m_Rng;
 
         //! Regression models for a collection of buckets covering the period.
         CSeasonalComponentAdaptiveBucketing m_Bucketing;
 };
 
 //! Create a free function which will be picked up in Koenig lookup.
-inline void swap(CSeasonalComponent &lhs, CSeasonalComponent &rhs)
-{
+inline void swap(CSeasonalComponent &lhs, CSeasonalComponent &rhs) {
     lhs.swap(rhs);
 }
 

@@ -27,10 +27,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Parse the length encoded input data
@@ -84,8 +82,7 @@ namespace api
 //! interfacing with Java (which doesn't have built-in unsigned
 //! types) easier.
 //!
-class API_EXPORT CLengthEncodedInputParser : public CInputParser
-{
+class API_EXPORT CLengthEncodedInputParser : public CInputParser {
     public:
         //! Construct with an input stream to be parsed.  Once a stream is
         //! passed to this constructor, no other object should read from it.
@@ -136,7 +133,7 @@ class API_EXPORT CLengthEncodedInputParser : public CInputParser
         static const size_t WORK_BUFFER_SIZE;
 
         //! Reference to the stream we're going to read from
-        std::istream     &m_StrmIn;
+        std::istream        &m_StrmIn;
 
         typedef boost::scoped_array<char> TScopedCharArray;
 

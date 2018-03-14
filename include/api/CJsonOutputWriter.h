@@ -43,18 +43,14 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CHierarchicalResultsNormalizer;
 }
-namespace core
-{
+namespace core {
 template <typename> class CScopedRapidJsonPoolAllocator;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! Write output data in JSON format
@@ -110,8 +106,7 @@ namespace api
 //! re-normalisation of previous results using the normalize
 //! process, so it's best that this doesn't happen too often.)
 //!
-class API_EXPORT CJsonOutputWriter : public COutputHandler
-{
+class API_EXPORT CJsonOutputWriter : public COutputHandler {
     public:
         typedef boost::shared_ptr<rapidjson::Document>      TDocumentPtr;
         typedef boost::weak_ptr<rapidjson::Document>        TDocumentWeakPtr;
@@ -139,51 +134,50 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
 
         //! Structure to buffer up information about each bucket that we have
         //! unwritten results for
-        struct SBucketData
-        {
+        struct SBucketData {
             SBucketData(void);
 
             //! The max normalized anomaly score of the bucket influencers
-            double                s_MaxBucketInfluencerNormalizedAnomalyScore;
+            double s_MaxBucketInfluencerNormalizedAnomalyScore;
 
             //! Count of input events for the bucket
-            size_t                s_InputEventCount;
+            size_t s_InputEventCount;
 
             //! Count of result records in the bucket for which results are
             //! being built up
-            size_t                s_RecordCount;
+            size_t s_RecordCount;
 
             //! The bucketspan of this bucket
-            core_t::TTime         s_BucketSpan;
+            core_t::TTime s_BucketSpan;
 
             //! The result record documents to be written, in a vector keyed on
             //! detector index
-            TDocumentWeakPtrIntPrVec  s_DocumentsToWrite;
+            TDocumentWeakPtrIntPrVec s_DocumentsToWrite;
 
             //! Bucket Influencer documents
-            TDocumentWeakPtrVec       s_BucketInfluencerDocuments;
+            TDocumentWeakPtrVec s_BucketInfluencerDocuments;
 
             //! Influencer documents
-            TDocumentWeakPtrVec       s_InfluencerDocuments;
+            TDocumentWeakPtrVec s_InfluencerDocuments;
 
             // The highest probability of all the records stored
             // in the s_DocumentsToWrite array. Used for filtering
             // new records with a higher probability
-            double                s_HighestProbability;
+            double s_HighestProbability;
 
             // Used for filtering new influencers
             // when the number to write is limited
-            double                s_LowestInfluencerScore;
+            double s_LowestInfluencerScore;
 
             // Used for filtering new bucket influencers
             // when the number to write is limited
-            double                s_LowestBucketInfluencerScore;
+            double s_LowestBucketInfluencerScore;
 
             //! Partition scores
-            TDocumentWeakPtrVec       s_PartitionScoreDocuments;
+            TDocumentWeakPtrVec s_PartitionScoreDocuments;
 
             //! scheduled event descriptions
-            TStr1Vec              s_ScheduledEventDescriptions;
+            TStr1Vec s_ScheduledEventDescriptions;
         };
 
         typedef std::map<core_t::TTime, SBucketData>   TTimeBucketDataMap;
@@ -257,10 +251,9 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
 
     private:
         typedef CCategoryExamplesCollector::TStrSet TStrSet;
-        typedef TStrSet::const_iterator TStrSetCItr;
+        typedef TStrSet::const_iterator             TStrSetCItr;
 
-        struct SModelSnapshotReport
-        {
+        struct SModelSnapshotReport {
             SModelSnapshotReport(core_t::TTime snapshotTimestamp,
                                  const std::string &description,
                                  const std::string &snapshotId,
@@ -270,14 +263,14 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
                                  core_t::TTime latestRecordTime,
                                  core_t::TTime latestFinalResultTime);
 
-            core_t::TTime                     s_SnapshotTimestamp;
-            std::string                       s_Description;
-            std::string                       s_SnapshotId;
-            size_t                            s_NumDocs;
+            core_t::TTime s_SnapshotTimestamp;
+            std::string s_Description;
+            std::string s_SnapshotId;
+            size_t s_NumDocs;
             model::CResourceMonitor::SResults s_ModelSizeStats;
-            std::string                       s_NormalizerState;
-            core_t::TTime                     s_LatestRecordTime;
-            core_t::TTime                     s_LatestFinalResultTime;
+            std::string s_NormalizerState;
+            core_t::TTime s_LatestRecordTime;
+            core_t::TTime s_LatestFinalResultTime;
         };
 
         typedef std::queue<SModelSnapshotReport> TModelSnapshotReportQueue;
@@ -382,7 +375,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
     private:
         template <typename > friend class core::CScopedRapidJsonPoolAllocator;
         // hooks for the CScopedRapidJsonPoolAllocator interface
-        
+
         //! use a new allocator for JSON output processing
         //! \p allocatorName A unique identifier for the allocator
         void pushAllocator(const std::string &allocatorName);
@@ -439,37 +432,37 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler
 
     private:
         //! The job ID
-        std::string                       m_JobId;
+        std::string                          m_JobId;
 
         //! JSON line writer
-        core::CRapidJsonConcurrentLineWriter        m_Writer;
+        core::CRapidJsonConcurrentLineWriter m_Writer;
 
         //! Time of last non-interim bucket written to output
-        core_t::TTime                     m_LastNonInterimBucketTime;
+        core_t::TTime                        m_LastNonInterimBucketTime;
 
         //! Has the output been finalised?
-        bool                              m_Finalised;
+        bool                                 m_Finalised;
 
         //! Max number of records to write for each bucket/detector
-        size_t                            m_RecordOutputLimit;
+        size_t                               m_RecordOutputLimit;
 
         //! Vector for building up documents representing nested sub-results.
         //! The documents in this vector will reference memory owned by
         //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
         //! so that it's destroyed first when the destructor runs.)
-        TDocumentWeakPtrVec               m_NestedDocs;
+        TDocumentWeakPtrVec m_NestedDocs;
 
         //! Bucket data waiting to be written.  The map is keyed on bucket time.
         //! The documents in this map will reference memory owned by
         //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
         //! so that it's destroyed first when the destructor runs.)
-        TTimeBucketDataMap                m_BucketDataByTime;
+        TTimeBucketDataMap        m_BucketDataByTime;
 
         //! Protects the m_ModelSnapshotReports from concurrent access.
-        core::CMutex                      m_ModelSnapshotReportsQueueMutex;
+        core::CMutex              m_ModelSnapshotReportsQueueMutex;
 
         //! Queue of model snapshot reports waiting to be output.
-        TModelSnapshotReportQueue         m_ModelSnapshotReports;
+        TModelSnapshotReportQueue m_ModelSnapshotReports;
 };
 
 

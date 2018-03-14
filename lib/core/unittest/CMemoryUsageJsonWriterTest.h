@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CMemoryUsageJsonWriterTest : public CppUnit::TestFixture
-{
+class CMemoryUsageJsonWriterTest : public CppUnit::TestFixture {
     public:
         void test(void);
 

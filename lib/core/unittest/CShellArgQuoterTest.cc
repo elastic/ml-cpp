@@ -18,19 +18,17 @@
 #include <core/CShellArgQuoter.h>
 
 
-CppUnit::Test *CShellArgQuoterTest::suite()
-{
+CppUnit::Test *CShellArgQuoterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CShellArgQuoterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CShellArgQuoterTest>(
-                                   "CShellArgQuoterTest::testQuote",
-                                   &CShellArgQuoterTest::testQuote) );
+                               "CShellArgQuoterTest::testQuote",
+                               &CShellArgQuoterTest::testQuote) );
 
     return suiteOfTests;
 }
 
-void CShellArgQuoterTest::testQuote(void)
-{
+void CShellArgQuoterTest::testQuote(void) {
     LOG_DEBUG("\n"
               "echo " << ml::core::CShellArgQuoter::quote("") << "\n"
               "echo " << ml::core::CShellArgQuoter::quote("hello") << "\n"

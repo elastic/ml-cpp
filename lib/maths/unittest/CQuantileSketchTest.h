@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CQuantileSketchTest : public CppUnit::TestFixture
-{
+class CQuantileSketchTest : public CppUnit::TestFixture {
     public:
         void testAdd(void);
         void testReduce(void);

@@ -26,11 +26,10 @@
 using namespace ml;
 using namespace core;
 
-void CIEEE754Test::testRound(void)
-{
+void CIEEE754Test::testRound(void) {
     {
         // Check it matches float precision.
-        double test1 = 0.049999998;
+        double             test1 = 0.049999998;
         std::ostringstream o1;
         o1 << std::setprecision(10) << static_cast<float>(test1);
         std::ostringstream o2;
@@ -40,7 +39,7 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check it matches float precision.
-        double test2 = 0.0499999998;
+        double             test2 = 0.0499999998;
         std::ostringstream o1;
         o1 << std::setprecision(10) << static_cast<float>(test2);
         std::ostringstream o2;
@@ -50,7 +49,7 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding away from zero.
-        double test3 = 0.5 - 0.5 / static_cast<double>(1 << 25);
+        double             test3 = 0.5 - 0.5 / static_cast<double>(1 << 25);
         std::ostringstream o1;
         o1 << std::setprecision(10) << 0.5;
         std::ostringstream o2;
@@ -60,7 +59,7 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding away from zero.
-        double test4 = -(0.5 - 0.5 / static_cast<double>(1 << 25));
+        double             test4 = -(0.5 - 0.5 / static_cast<double>(1 << 25));
         std::ostringstream o1;
         o1 << std::setprecision(10) << -0.5;
         std::ostringstream o2;
@@ -70,7 +69,7 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding for very large numbers.
-        double test5 = 0.49999998 * ::pow(2.0, 1023.0);
+        double             test5 = 0.49999998 * ::pow(2.0, 1023.0);
         std::ostringstream o1;
         o1 << std::setprecision(10) << 0.4999999702 * ::pow(2, 1023.0);
         std::ostringstream o2;
@@ -80,7 +79,7 @@ void CIEEE754Test::testRound(void)
     }
     {
         // Check rounding for very large numbers.
-        double test6 = 0.499999998 * ::pow(2.0, 1023.0);
+        double             test6 = 0.499999998 * ::pow(2.0, 1023.0);
         std::ostringstream o1;
         o1 << std::setprecision(10) << ::pow(2.0, 1022.0);
         std::ostringstream o2;
@@ -90,13 +89,12 @@ void CIEEE754Test::testRound(void)
     }
 }
 
-CppUnit::Test *CIEEE754Test::suite(void)
-{
+CppUnit::Test *CIEEE754Test::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CIEEE754Test>(
-                                   "CIEEE754Test::testRound",
-                                   &CIEEE754Test::testRound) );
+                               "CIEEE754Test::testRound",
+                               &CIEEE754Test::testRound) );
 
     return suiteOfTests;
 

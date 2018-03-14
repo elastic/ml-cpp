@@ -24,15 +24,12 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief Calculate prediction-based corrections for interim results.
 //!
@@ -50,12 +47,11 @@ namespace model
 //! distribution of events over time. The bucket count is modelled via a time
 //! series decomposition. While the decomposition is not initialiased, a mean
 //! accumulator is used.
-class MODEL_EXPORT CInterimBucketCorrector
-{
+class MODEL_EXPORT CInterimBucketCorrector {
     private:
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<double, 10> TDouble10Vec;
+        typedef core::CSmallVector<double, 1>                              TDouble1Vec;
+        typedef core::CSmallVector<double, 10>                             TDouble10Vec;
 
     public:
         //! Constructs an interim bucket corrector for buckets of length \p bucketLength
@@ -111,13 +107,13 @@ class MODEL_EXPORT CInterimBucketCorrector
 
     private:
         //! The bucket length
-        core_t::TTime m_BucketLength;
+        core_t::TTime                   m_BucketLength;
 
         //! The decomposition of the overall bucket count
         maths::CTimeSeriesDecomposition m_CountTrend;
 
         //! The mean statistic for the overall bucket count
-        TMeanAccumulator m_CountMean;
+        TMeanAccumulator                m_CountMean;
 };
 
 }

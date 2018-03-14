@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CNaturalBreaksClassifierTest : public CppUnit::TestFixture
-{
+class CNaturalBreaksClassifierTest : public CppUnit::TestFixture {
     public:
         void testCategories(void);
         void testPropagateForwardsByTime(void);

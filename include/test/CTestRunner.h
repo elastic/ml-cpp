@@ -23,10 +23,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! A class to wrap cppunit tests.
@@ -80,8 +78,7 @@ namespace test
 //! for interactive development where changes to the code are likely to
 //! alter the test results.
 //!
-class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner
-{
+class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner {
     public:
         //! Name of a file storing directories in which tests should be skipped
         //! together with the previous test result
@@ -120,8 +117,8 @@ class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner
         typedef std::vector<std::string> TStrVec;
         typedef TStrVec::iterator        TStrVecItr;
 
-        TStrVec            m_TestCases;
-        std::string        m_ExeName;
+        TStrVec     m_TestCases;
+        std::string m_ExeName;
 };
 
 

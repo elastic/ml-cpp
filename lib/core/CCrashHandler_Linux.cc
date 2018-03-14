@@ -22,14 +22,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! get useful information for debugging
-void crashHandler(int sig, siginfo_t *info, void *context)
-{
+void crashHandler(int sig, siginfo_t *info, void *context) {
     // reset all handlers
     signal(SIGILL, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
@@ -41,7 +38,7 @@ void crashHandler(int sig, siginfo_t *info, void *context)
     // note: Not using backtrace(...) as it does only contain information for the main thread,
     // but the segfault could have happened on a different thread.
     ucontext_t *uContext = static_cast<ucontext_t*>(context);
-    void *errorAddress = 0;
+    void       *      errorAddress = 0;
 
 // various platform specifics, although we do not need all of them
 #ifdef REG_RIP // x86_64
@@ -67,16 +64,15 @@ void crashHandler(int sig, siginfo_t *info, void *context)
             info->si_errno,
             errorAddress, symbolInfo.dli_fname, symbolInfo.dli_fbase,
             reinterpret_cast<void*>(
-            reinterpret_cast<intptr_t>(errorAddress) -
-            reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
+                reinterpret_cast<intptr_t>(errorAddress) -
+                reinterpret_cast<intptr_t>(symbolInfo.dli_fbase)));
 
     // Still generate a core dump,
     // see http://www.alexonlinux.com/how-to-handle-sigsegv-but-also-generate-core-dump
     raise(sig);
 }
 
-void CCrashHandler::installCrashHandler(void)
-{
+void CCrashHandler::installCrashHandler(void) {
     struct sigaction actionOnCrash;
     std::memset(&actionOnCrash, 0, sizeof actionOnCrash);
     actionOnCrash.sa_flags = (SA_SIGINFO | SA_ONSTACK | SA_NODEFER);
