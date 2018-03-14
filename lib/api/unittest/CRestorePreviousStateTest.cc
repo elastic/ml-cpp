@@ -48,7 +48,7 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
                            std::string &snapshotIdOut,
                            size_t &numDocsOut)
 {
-    LOG_INFO("Persist complete with description: " << modelSnapshotReport.s_Description);
+    LOG_DEBUG("Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
