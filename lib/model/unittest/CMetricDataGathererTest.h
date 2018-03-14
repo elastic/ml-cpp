@@ -35,10 +35,10 @@ public:
     void testStatisticsPersist(void);
     void testVarp(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CMetricDataGathererTest_h
+#endif // INCLUDED_CMetricDataGathererTest_h

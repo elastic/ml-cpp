@@ -28,7 +28,8 @@ double TOLERANCE = 1.0;
 double RATIO = 1.1 + 0.05;
 }
 
-template <typename T> void assertSize(const T &t) {
+template <typename T>
+void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();
     LOG_DEBUG("Size " << s << ", capacity " << c);
@@ -78,10 +79,11 @@ void CAllocationStrategyTest::test(void) {
     }
 }
 
-CppUnit::Test *CAllocationStrategyTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAllocationStrategyTest");
+CppUnit::Test* CAllocationStrategyTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAllocationStrategyTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAllocationStrategyTest>(
-        "CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAllocationStrategyTest>("CAllocationStrategyTest::test",
+                                                         &CAllocationStrategyTest::test));
     return suiteOfTests;
 }

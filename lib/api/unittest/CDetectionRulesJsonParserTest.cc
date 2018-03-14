@@ -29,8 +29,8 @@ typedef CDetectionRulesJsonParser::TStrPatternSetUMap TStrPatternSetUMap;
 TStrPatternSetUMap EMPTY_VALUE_FILTER_MAP;
 }
 
-CppUnit::Test *CDetectionRulesJsonParserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectionRulesJsonParserTest");
+CppUnit::Test* CDetectionRulesJsonParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectionRulesJsonParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
         "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString",
@@ -310,9 +310,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithCo
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("FILTER_RESULTS IF ACTUAL < 5.000000 OR ACTUAL(metric) <= 2.300000"),
-        rules[0].print());
+    CPPUNIT_ASSERT_EQUAL(std::string(
+                             "FILTER_RESULTS IF ACTUAL < 5.000000 OR ACTUAL(metric) <= 2.300000"),
+                         rules[0].print());
 }
 
 void CDetectionRulesJsonParserTest::
@@ -425,9 +425,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule(void) {
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), rules.size());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("FILTER_RESULTS IF TIME >= 5000.000000 AND TIME < 10000.000000"),
-        rules[0].print());
+    CPPUNIT_ASSERT_EQUAL(std::string(
+                             "FILTER_RESULTS IF TIME >= 5000.000000 AND TIME < 10000.000000"),
+                         rules[0].print());
 }
 
 void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions(void) {

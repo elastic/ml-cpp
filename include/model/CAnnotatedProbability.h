@@ -63,22 +63,22 @@ struct MODEL_EXPORT SAttributeProbability {
 
     SAttributeProbability(void);
     SAttributeProbability(std::size_t cid,
-                          const core::CStoredStringPtr &attribute,
+                          const core::CStoredStringPtr& attribute,
                           double probability,
                           model_t::CResultType type,
                           model_t::EFeature feature,
-                          const TStoredStringPtr1Vec &correlatedAttributes,
-                          const TSizeDoublePr1Vec &correlated);
+                          const TStoredStringPtr1Vec& correlatedAttributes,
+                          const TSizeDoublePr1Vec& correlated);
 
     //! Total ordering of attribute probabilities by probability
     //! breaking ties using the attribute and finally the feature.
-    bool operator<(const SAttributeProbability &other) const;
+    bool operator<(const SAttributeProbability& other) const;
 
     //! Persist the probability passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the probability reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Add the descriptive data \p value for \p key.
     void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
@@ -132,16 +132,16 @@ struct MODEL_EXPORT SAnnotatedProbability {
     void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(SAnnotatedProbability &other);
+    void swap(SAnnotatedProbability& other);
 
     //! Is the result type interim?
     bool isInterim(void) const;
 
     //! Persist the probability passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the probability reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! The probability of seeing the series' sample in a time interval.
     double s_Probability;
@@ -171,4 +171,4 @@ struct MODEL_EXPORT SAnnotatedProbability {
 }
 }
 
-#endif// INCLUDED_ml_model_CAnnotatedProbability_h
+#endif // INCLUDED_ml_model_CAnnotatedProbability_h

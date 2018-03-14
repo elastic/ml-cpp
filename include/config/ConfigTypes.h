@@ -29,11 +29,11 @@ enum EUserDataType { E_UserCategorical, E_UserNumeric };
 
 //! Get a string for the data type.
 CONFIG_EXPORT
-const std::string &print(EUserDataType type);
+const std::string& print(EUserDataType type);
 
 //! Write the data type to a stream.
 CONFIG_EXPORT
-std::ostream &operator<<(std::ostream &o, EUserDataType type);
+std::ostream& operator<<(std::ostream& o, EUserDataType type);
 
 //! Enumeration of the data types we understand.
 enum EDataType {
@@ -60,11 +60,11 @@ bool isInteger(EDataType type);
 
 //! Get a string for the data type.
 CONFIG_EXPORT
-const std::string &print(EDataType type);
+const std::string& print(EDataType type);
 
 //! Write the data type to a stream.
 CONFIG_EXPORT
-std::ostream &operator<<(std::ostream &o, EDataType type);
+std::ostream& operator<<(std::ostream& o, EDataType type);
 
 //! Enumeration of the top-level functions we'll consider configuring.
 enum EFunctionCategory {
@@ -112,16 +112,16 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function);
 //! Get the prefix of the function corresponding to \p ignoreEmpty
 //! and \p isPopulation.
 CONFIG_EXPORT
-const std::string &
+const std::string&
 ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation);
 
 //! Get a string for the function function.
 CONFIG_EXPORT
-const std::string &print(EFunctionCategory function);
+const std::string& print(EFunctionCategory function);
 
 //! Write the function function to a stream.
 CONFIG_EXPORT
-std::ostream &operator<<(std::ostream &o, EFunctionCategory function);
+std::ostream& operator<<(std::ostream& o, EFunctionCategory function);
 
 //! Enumeration of the sensitivity of the anomaly detection to high,
 //! low, or both tails.
@@ -129,12 +129,12 @@ enum ESide { E_HighSide, E_LowSide, E_TwoSide, E_UndeterminedSide };
 
 //! Get a string for the side.
 CONFIG_EXPORT
-const std::string &print(ESide side);
+const std::string& print(ESide side);
 
 //! Write the side to a stream.
 CONFIG_EXPORT
-std::ostream &operator<<(std::ostream &o, ESide side);
+std::ostream& operator<<(std::ostream& o, ESide side);
 }
 }
 
-#endif// INCLUDED_ml_config_ConfigTypes_h
+#endif // INCLUDED_ml_config_ConfigTypes_h

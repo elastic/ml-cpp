@@ -62,7 +62,7 @@ public:
     //! Arguments are:
     //! 1) Header row fields
     //! 2) Data row fields
-    typedef std::function<bool(const TStrStrUMap &)> TReaderFunc;
+    typedef std::function<bool(const TStrStrUMap&)> TReaderFunc;
 
 public:
     CInputParser(void);
@@ -75,7 +75,7 @@ public:
     bool gotData(void) const;
 
     //! Get field names
-    const TStrVec &fieldNames(void) const;
+    const TStrVec& fieldNames(void) const;
 
     //! Read records from the stream.  The supplied settings function is
     //! called only once.  The supplied reader function is called once per
@@ -83,7 +83,7 @@ public:
     //! stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.  If
-    virtual bool readStream(const TReaderFunc &readerFunc) = 0;
+    virtual bool readStream(const TReaderFunc& readerFunc) = 0;
 
 protected:
     //! Set the "got field names" flag
@@ -93,7 +93,7 @@ protected:
     void gotData(bool gotData);
 
     //! Writable access to the field names for derived classes only
-    TStrVec &fieldNames(void);
+    TStrVec& fieldNames(void);
 
 private:
     //! Have we got the field names?
@@ -108,4 +108,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CInputParser_h
+#endif // INCLUDED_ml_api_CInputParser_h

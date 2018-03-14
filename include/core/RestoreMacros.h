@@ -67,4 +67,4 @@ namespace core {
 }
 }
 
-#endif// INCLUDED_ml_core_RestoreMacros_h
+#endif // INCLUDED_ml_core_RestoreMacros_h

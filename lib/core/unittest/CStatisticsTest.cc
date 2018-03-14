@@ -53,13 +53,14 @@ private:
     int m_N;
 };
 
-}// namespace
+} // namespace
 
-CppUnit::Test *CStatisticsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
+CppUnit::Test* CStatisticsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>(
-        "CStatisticsTest::testStatistics", &CStatisticsTest::testStatistics));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testStatistics",
+                                                 &CStatisticsTest::testStatistics));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticsTest>("CStatisticsTest::testPersist",
                                                                    &CStatisticsTest::testPersist));
 
@@ -68,7 +69,7 @@ CppUnit::Test *CStatisticsTest::suite() {
 
 void CStatisticsTest::testStatistics(void) {
     LOG_TRACE("Starting Statistics test");
-    ml::core::CStatistics &stats = ml::core::CStatistics::instance();
+    ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     static const int N = 6;
     for (int i = 0; i < N; i++) {
@@ -111,7 +112,7 @@ void CStatisticsTest::testStatistics(void) {
 
 void CStatisticsTest::testPersist(void) {
     LOG_DEBUG("Starting persist test");
-    ml::core::CStatistics &stats = ml::core::CStatistics::instance();
+    ml::core::CStatistics& stats = ml::core::CStatistics::instance();
 
     // Check that a save/restore with all zeros is Ok
     for (int i = 0; i < ml::stat_t::E_LastEnumStat; i++) {

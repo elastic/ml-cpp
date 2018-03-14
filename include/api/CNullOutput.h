@@ -39,17 +39,17 @@ namespace api {
 class API_EXPORT CNullOutput : public COutputHandler {
 public:
     //! Does nothing with the field names provided.
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Get field names - always empty.
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Does nothing with the row provided.
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -57,4 +57,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_api_CNullOutput_h
+#endif // INCLUDED_ml_api_CNullOutput_h

@@ -36,7 +36,7 @@ namespace api {
 //!
 class API_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf {
 public:
-    CTokenListReverseSearchCreator(const std::string &fieldName);
+    CTokenListReverseSearchCreator(const std::string& fieldName);
 
     //! What's the maximum cost of tokens we can include in the reverse
     //! search?  This cost is loosely based on the maximum length of an
@@ -45,48 +45,48 @@ public:
 
     //! What would be the cost of adding the specified token occurring the
     //! specified number of times to the reverse search?
-    virtual size_t costOfToken(const std::string &token, size_t numOccurrences) const;
+    virtual size_t costOfToken(const std::string& token, size_t numOccurrences) const;
 
     //! Create a reverse search for a NULL field value.
-    virtual bool createNullSearch(std::string &part1, std::string &part2) const;
+    virtual bool createNullSearch(std::string& part1, std::string& part2) const;
 
     //! If possible, create a reverse search for the case where there are no
     //! unique tokens identifying the type.  (If this is not possible return
     //! false.)
     virtual bool createNoUniqueTokenSearch(int type,
-                                           const std::string &example,
+                                           const std::string& example,
                                            size_t maxMatchingStringLen,
-                                           std::string &part1,
-                                           std::string &part2) const;
+                                           std::string& part1,
+                                           std::string& part2) const;
 
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
     virtual void initStandardSearch(int type,
-                                    const std::string &example,
+                                    const std::string& example,
                                     size_t maxMatchingStringLen,
-                                    std::string &part1,
-                                    std::string &part2) const;
+                                    std::string& part1,
+                                    std::string& part2) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
     //! this type of messages from other types.
     virtual void
-    addCommonUniqueToken(const std::string &token, std::string &part1, std::string &part2) const;
+    addCommonUniqueToken(const std::string& token, std::string& part1, std::string& part2) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
-    virtual void addInOrderCommonToken(const std::string &token,
+    virtual void addInOrderCommonToken(const std::string& token,
                                        bool first,
-                                       std::string &part1,
-                                       std::string &part2) const;
+                                       std::string& part1,
+                                       std::string& part2) const;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
-    virtual void closeStandardSearch(std::string &part1, std::string &part2) const;
+    virtual void closeStandardSearch(std::string& part1, std::string& part2) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CTokenListReverseSearchCreator_h
+#endif // INCLUDED_ml_api_CTokenListReverseSearchCreator_h

@@ -23,7 +23,7 @@ public:
     void testNormal(void);
     void testErrors(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAnomalyDetectorModelConfigTest_h
+#endif // INCLUDED_CAnomalyDetectorModelConfigTest_h

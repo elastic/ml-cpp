@@ -25,11 +25,11 @@ namespace ml {
 namespace api {
 
 namespace {
-const core_t::TTime PERSIST_INTERVAL_INCREMENT(300);// 5 minutes
+const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 }
 
 CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
-                                           core::CDataAdder &dataAdder)
+                                           core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_DataAdder(dataAdder),
@@ -45,8 +45,8 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
 
 CBackgroundPersister::CBackgroundPersister(
     core_t::TTime periodicPersistInterval,
-    const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc,
-    core::CDataAdder &dataAdder)
+    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
+    core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
@@ -61,9 +61,13 @@ CBackgroundPersister::CBackgroundPersister(
     }
 }
 
-CBackgroundPersister::~CBackgroundPersister(void) { this->waitForIdle(); }
+CBackgroundPersister::~CBackgroundPersister(void) {
+    this->waitForIdle();
+}
 
-bool CBackgroundPersister::isBusy(void) const { return m_IsBusy; }
+bool CBackgroundPersister::isBusy(void) const {
+    return m_IsBusy;
+}
 
 bool CBackgroundPersister::waitForIdle(void) {
     {
@@ -139,7 +143,7 @@ bool CBackgroundPersister::clear(void) {
 }
 
 bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(
-    const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc) {
+    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
     if (m_IsBusy) {
@@ -193,7 +197,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
     return true;
 }
 
-CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister &owner)
+CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner)
     : m_Owner(owner) {}
 
 void CBackgroundPersister::CBackgroundThread::run(void) {
@@ -210,6 +214,8 @@ void CBackgroundPersister::CBackgroundThread::run(void) {
     m_Owner.m_IsBusy = false;
 }
 
-void CBackgroundPersister::CBackgroundThread::shutdown(void) { m_Owner.m_IsShutdown = true; }
+void CBackgroundPersister::CBackgroundThread::shutdown(void) {
+    m_Owner.m_IsShutdown = true;
+}
 }
 }

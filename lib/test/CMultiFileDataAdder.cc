@@ -33,9 +33,9 @@ CMultiFileDataAdder::CMultiFileDataAdder(std::string baseFilename, std::string f
     m_FileExtension.swap(fileExtension);
 }
 
-CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::string &index,
-                                                                const std::string &id) {
-    const std::string &filename = this->makeFilename(index, id);
+CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::string& index,
+                                                                const std::string& id) {
+    const std::string& filename = this->makeFilename(index, id);
 
     TOStreamP strm(boost::make_shared<std::ofstream>(filename.c_str()));
     if (!strm->good()) {
@@ -46,8 +46,8 @@ CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::strin
     return strm;
 }
 
-bool CMultiFileDataAdder::streamComplete(TOStreamP &strm, bool /*force*/) {
-    std::ofstream *ofs(dynamic_cast<std::ofstream *>(strm.get()));
+bool CMultiFileDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
+    std::ofstream* ofs(dynamic_cast<std::ofstream*>(strm.get()));
     if (ofs == 0) {
         return false;
     }
@@ -57,8 +57,8 @@ bool CMultiFileDataAdder::streamComplete(TOStreamP &strm, bool /*force*/) {
     return !ofs->bad();
 }
 
-std::string CMultiFileDataAdder::makeFilename(const std::string &index,
-                                              const std::string &id) const {
+std::string CMultiFileDataAdder::makeFilename(const std::string& index,
+                                              const std::string& id) const {
     // NB: The logic in here must mirror that of CMultiFileSearcher::search()
 
     std::string filename(m_BaseFilename);
@@ -72,7 +72,7 @@ std::string CMultiFileDataAdder::makeFilename(const std::string &index,
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(filename);
         boost::filesystem::create_directories(directoryPath);
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Failed to create directory " << filename << " - " << e.what());
     }
 

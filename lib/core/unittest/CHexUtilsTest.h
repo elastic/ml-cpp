@@ -21,7 +21,7 @@ class CHexUtilsTest : public CppUnit::TestFixture {
 public:
     void testHexOutput(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CHexUtilsTest_h
+#endif // INCLUDED_CHexUtilsTest_h

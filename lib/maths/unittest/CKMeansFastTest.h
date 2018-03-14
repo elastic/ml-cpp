@@ -28,7 +28,7 @@ public:
     void testRunWithSphericalClusters(void);
     void testPlusPlus(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CKMeansFastTest_h
+#endif // INCLUDED_CKMeansFastTest_h

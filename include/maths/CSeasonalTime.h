@@ -43,15 +43,15 @@ public:
     virtual ~CSeasonalTime(void) = default;
 
     //! A total order on seasonal times.
-    bool operator<(const CSeasonalTime &rhs) const;
+    bool operator<(const CSeasonalTime& rhs) const;
 
     //! Get a copy of this time.
     //!
     //! \warning The caller owns the result.
-    virtual CSeasonalTime *clone(void) const = 0;
+    virtual CSeasonalTime* clone(void) const = 0;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string &value) = 0;
+    virtual bool fromString(const std::string& value) = 0;
 
     //! Convert to a string.
     virtual std::string toString(void) const = 0;
@@ -125,7 +125,7 @@ public:
 
     //! Check whether this time's seasonal component time excludes
     //! modeling \p other's.
-    bool excludes(const CSeasonalTime &other) const;
+    bool excludes(const CSeasonalTime& other) const;
 
     //! True if this has a weekend and false otherwise.
     virtual bool hasWeekend(void) const = 0;
@@ -168,10 +168,10 @@ public:
                  double precedence = 1.0);
 
     //! Get a copy of this time.
-    CDiurnalTime *clone(void) const;
+    CDiurnalTime* clone(void) const;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string &value);
+    virtual bool fromString(const std::string& value);
 
     //! Convert to a string.
     virtual std::string toString(void) const;
@@ -215,10 +215,10 @@ public:
     CGeneralPeriodTime(core_t::TTime period, double precedence = 1.0);
 
     //! Get a copy of this time.
-    CGeneralPeriodTime *clone(void) const;
+    CGeneralPeriodTime* clone(void) const;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string &value);
+    virtual bool fromString(const std::string& value);
 
     //! Convert to a string.
     virtual std::string toString(void) const;
@@ -261,14 +261,14 @@ public:
 public:
     //! Construct the appropriate CSeasonalTime sub-class from its state
     //! document representation. Sets \p result to NULL on failure.
-    static bool acceptRestoreTraverser(TSeasonalTimePtr &result,
-                                       core::CStateRestoreTraverser &traverser);
+    static bool acceptRestoreTraverser(TSeasonalTimePtr& result,
+                                       core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
-    static void acceptPersistInserter(const CSeasonalTime &time,
-                                      core::CStatePersistInserter &inserter);
+    static void acceptPersistInserter(const CSeasonalTime& time,
+                                      core::CStatePersistInserter& inserter);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CSeasonalTime_h
+#endif // INCLUDED_ml_maths_CSeasonalTime_h

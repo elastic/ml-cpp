@@ -44,7 +44,7 @@ namespace core {
 class CORE_EXPORT CFileDeleter : private CNonCopyable {
 public:
     //! Record the name of the file to delete
-    CFileDeleter(const std::string &fileName);
+    CFileDeleter(const std::string& fileName);
 
     //! Attempt to remove the specified file
     ~CFileDeleter(void);
@@ -55,4 +55,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CFileDeleter_h
+#endif // INCLUDED_ml_core_CFileDeleter_h

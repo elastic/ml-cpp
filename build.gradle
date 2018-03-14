@@ -82,6 +82,12 @@ task strip(type: Exec) {
   dependsOn 'make'
 }
 
+task format(type: Exec) {
+  commandLine bash
+  args '-c', 'source ./set_env.sh && dev-tools/clang-format.sh'
+  workingDir "${projectDir}"
+}
+
 def zipSpec = copySpec {
   from("${projectDir}/build/distribution") {
     // Don't copy Windows import libraries

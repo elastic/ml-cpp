@@ -42,9 +42,9 @@ namespace core {
 //!
 class CORE_EXPORT CStrFTime : private CNonInstantiatable {
 public:
-    static size_t strFTime(char *buf, size_t maxSize, const char *format, struct tm *tm);
+    static size_t strFTime(char* buf, size_t maxSize, const char* format, struct tm* tm);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CStrFTime_h
+#endif // INCLUDED_ml_core_CStrFTime_h

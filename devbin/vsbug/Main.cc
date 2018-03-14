@@ -17,7 +17,7 @@
 #include <iostream>
 #include <vector>
 
-int main(int, char **) {
+int main(int, char**) {
     const std::time_t startTime = 1346968800;
     const std::time_t bucketLength = 3600;
 

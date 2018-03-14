@@ -46,7 +46,7 @@ CCsvOutputWriter::CCsvOutputWriter(bool outputMessages,
     }
 }
 
-CCsvOutputWriter::CCsvOutputWriter(std::ostream &strmOut,
+CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut,
                                    bool outputMessages,
                                    bool outputHeader,
                                    char escape,
@@ -76,7 +76,7 @@ CCsvOutputWriter::~CCsvOutputWriter(void) {
     core::CSleep::sleep(20);
 }
 
-bool CCsvOutputWriter::fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames) {
+bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) {
     m_FieldNames = fieldNames;
 
     // Only add extra field names if they're not already present
@@ -134,10 +134,12 @@ bool CCsvOutputWriter::fieldNames(const TStrVec &fieldNames, const TStrVec &extr
     return true;
 }
 
-const COutputHandler::TStrVec &CCsvOutputWriter::fieldNames(void) const { return m_FieldNames; }
+const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames(void) const {
+    return m_FieldNames;
+}
 
-bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
-                                const TStrStrUMap &overrideDataRowFields) {
+bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR("Attempt to write data before field names");
         return false;
@@ -191,14 +193,14 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
 }
 
 std::string CCsvOutputWriter::internalString(void) const {
-    const_cast<std::ostream &>(m_StrmOut).flush();
+    const_cast<std::ostream&>(m_StrmOut).flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this
     return m_StringOutputBuf.str();
 }
 
-void CCsvOutputWriter::appendField(const std::string &field) {
+void CCsvOutputWriter::appendField(const std::string& field) {
     // Note: although std::string::find_first_of() would be less verbose, it's
     // also considerably less efficient (at least on Linux) than this hardcoded
     // loop.  The reason is that it flips the find around, calling memchr() once
@@ -232,6 +234,8 @@ void CCsvOutputWriter::appendField(const std::string &field) {
     }
 }
 
-std::ostream &CCsvOutputWriter::outputStream(void) { return m_StrmOut; }
+std::ostream& CCsvOutputWriter::outputStream(void) {
+    return m_StrmOut;
+}
 }
 }

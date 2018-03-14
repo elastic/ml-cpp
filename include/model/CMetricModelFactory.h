@@ -42,12 +42,12 @@ public:
     //! intended for unit testing and are not necessarily good defaults.
     //! The CModelConfig class is responsible for providing sensible
     //! default values for the factory for use within our products.
-    explicit CMetricModelFactory(const SModelParams &params,
+    explicit CMetricModelFactory(const SModelParams& params,
                                  model_t::ESummaryMode summaryMode = model_t::E_None,
-                                 const std::string &summaryCountFieldName = "");
+                                 const std::string& summaryCountFieldName = "");
 
     //! Create a copy of the factory owned by the calling code.
-    virtual CMetricModelFactory *clone(void) const;
+    virtual CMetricModelFactory* clone(void) const;
 
     //! \name Factory Methods
     //@{
@@ -55,7 +55,7 @@ public:
     //!
     //! \param[in] initData The parameters needed to initialize the model.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData) const;
 
     //! Make a new metric model from part of a state document.
     //!
@@ -63,23 +63,23 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData,
-                                             core::CStateRestoreTraverser &traverser) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
+                                             core::CStateRestoreTraverser& traverser) const;
 
     //! Make a new metric data gatherer.
     //!
     //! \param[in] initData The parameters needed to initialize the
     //! data gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const SGathererInitializationData &initData) const;
+    virtual CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const;
 
     //! Make a new metric data gatherer from part of a state document.
     //!
     //! \param[in] partitionFieldValue The partition field value.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const std::string &partitionFieldValue,
-                                            core::CStateRestoreTraverser &traverser) const;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
+                                            core::CStateRestoreTraverser& traverser) const;
     //@}
 
     //! \name Defaults
@@ -88,14 +88,14 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams &params) const;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default multivariate prior for \p feature.
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams &params) const;
+                                                           const SModelParams& params) const;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature.
@@ -103,11 +103,11 @@ public:
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultCorrelatePrior(model_t::EFeature feature,
-                                                        const SModelParams &params) const;
+                                                        const SModelParams& params) const;
     //@}
 
     //! Get the search key corresponding to this factory.
-    virtual const CSearchKey &searchKey(void) const;
+    virtual const CSearchKey& searchKey(void) const;
 
     //! Returns false.
     virtual bool isSimpleCount(void) const;
@@ -124,17 +124,17 @@ public:
     virtual void identifier(int identifier);
 
     //! Set the name of the field whose values will be counted.
-    virtual void fieldNames(const std::string &partitionFieldName,
-                            const std::string &overFieldName,
-                            const std::string &byFieldName,
-                            const std::string &valueFieldName,
-                            const TStrVec &influenceFieldNames);
+    virtual void fieldNames(const std::string& partitionFieldName,
+                            const std::string& overFieldName,
+                            const std::string& byFieldName,
+                            const std::string& valueFieldName,
+                            const TStrVec& influenceFieldNames);
 
     //! Set whether the models should process missing person fields.
     virtual void useNull(bool useNull);
 
     //! Set the features which will be modeled.
-    virtual void features(const TFeatureVec &features);
+    virtual void features(const TFeatureVec& features);
 
     //! Set the modeled bucket length.
     virtual void bucketLength(core_t::TTime bucketLength);
@@ -193,4 +193,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CMetricModelFactory_h
+#endif // INCLUDED_ml_model_CMetricModelFactory_h

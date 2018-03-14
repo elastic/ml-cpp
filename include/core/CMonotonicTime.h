@@ -79,4 +79,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CMonotonicTime_h
+#endif // INCLUDED_ml_core_CMonotonicTime_h

@@ -28,7 +28,7 @@ public:
     void testReverseIterators(void);
     void testBucketQueueUMap(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CBucketQueueTest_h
+#endif // INCLUDED_CBucketQueueTest_h

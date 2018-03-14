@@ -25,7 +25,7 @@ public:
     void testGcd(void);
     void testBinomial(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CIntegerToolsTest_h
+#endif // INCLUDED_CIntegerToolsTest_h

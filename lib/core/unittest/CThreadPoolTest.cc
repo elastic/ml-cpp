@@ -18,8 +18,8 @@
 
 #include <boost/threadpool.hpp>
 
-CppUnit::Test *CThreadPoolTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
+CppUnit::Test* CThreadPoolTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadPoolTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CThreadPoolTest>("CThreadPoolTest::testPool",
                                                                    &CThreadPoolTest::testPool));
@@ -29,9 +29,13 @@ CppUnit::Test *CThreadPoolTest::suite() {
 
 namespace {
 
-void first_task() { LOG_DEBUG("first task is running"); }
+void first_task() {
+    LOG_DEBUG("first task is running");
+}
 
-void second_task() { LOG_DEBUG("second task is running"); }
+void second_task() {
+    LOG_DEBUG("second task is running");
+}
 }
 
 void CThreadPoolTest::testPool(void) {

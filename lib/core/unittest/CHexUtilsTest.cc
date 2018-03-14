@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-CppUnit::Test *CHexUtilsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHexUtilsTest");
+CppUnit::Test* CHexUtilsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHexUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHexUtilsTest>("CHexUtilsTest::testHexOutput",
                                                                  &CHexUtilsTest::testHexOutput));

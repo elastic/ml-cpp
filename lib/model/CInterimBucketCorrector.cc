@@ -44,7 +44,7 @@ CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
     : m_BucketLength(bucketLength),
       m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {}
 
-CInterimBucketCorrector::CInterimBucketCorrector(const CInterimBucketCorrector &other)
+CInterimBucketCorrector::CInterimBucketCorrector(const CInterimBucketCorrector& other)
     : m_BucketLength(other.m_BucketLength),
       m_CountTrend(other.m_CountTrend),
       m_CountMean(other.m_CountMean) {}
@@ -84,22 +84,24 @@ double CInterimBucketCorrector::corrections(core_t::TTime time,
                                             double mode,
                                             double value) const {
     double correction = (1.0 - this->estimateBucketCompleteness(time, currentCount)) * mode;
-    return maths::CTools::truncate(
-        mode - value, std::min(0.0, correction), std::max(0.0, correction));
+    return maths::CTools::truncate(mode - value,
+                                   std::min(0.0, correction),
+                                   std::max(0.0, correction));
 }
 
 CInterimBucketCorrector::TDouble10Vec
 CInterimBucketCorrector::corrections(core_t::TTime time,
                                      std::size_t currentCount,
-                                     const TDouble10Vec &modes,
-                                     const TDouble10Vec &values) const {
+                                     const TDouble10Vec& modes,
+                                     const TDouble10Vec& values) const {
     TDouble10Vec corrections(values.size(), 0.0);
     double incompleteBucketFraction = 1.0 - this->estimateBucketCompleteness(time, currentCount);
     double correction = 0.0;
     for (std::size_t i = 0; i < corrections.size(); ++i) {
         correction = incompleteBucketFraction * modes[i];
-        corrections[i] = maths::CTools::truncate(
-            modes[i] - values[i], std::min(0.0, correction), std::max(0.0, correction));
+        corrections[i] = maths::CTools::truncate(modes[i] - values[i],
+                                                 std::min(0.0, correction),
+                                                 std::max(0.0, correction));
     }
     return corrections;
 }
@@ -113,17 +115,19 @@ std::size_t CInterimBucketCorrector::memoryUsage(void) const {
     return core::CMemory::dynamicSize(m_CountTrend);
 }
 
-void CInterimBucketCorrector::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CInterimBucketCorrector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(COUNT_MEAN_TAG, m_CountMean.toDelimited());
     core::CPersistUtils::persist(COUNT_TREND_TAG, m_CountTrend, inserter);
 }
 
-bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == COUNT_TREND_TAG) {
-            maths::CTimeSeriesDecomposition restored(
-                trendDecayRate(m_BucketLength), m_BucketLength, COMPONENT_SIZE, traverser);
+            maths::CTimeSeriesDecomposition restored(trendDecayRate(m_BucketLength),
+                                                     m_BucketLength,
+                                                     COMPONENT_SIZE,
+                                                     traverser);
             m_CountTrend.swap(restored);
         } else if (name == COUNT_MEAN_TAG) {
             if (m_CountMean.fromDelimited(traverser.value()) == false) {

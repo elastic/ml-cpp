@@ -37,16 +37,16 @@ std::string CProgName::progName(void) {
         return std::string();
     }
 
-    char *progName(longPathBuffer);
+    char* progName(longPathBuffer);
 
     // Strip the path
-    char *lastSlash(std::max(::strrchr(progName, '/'), ::strrchr(progName, '\\')));
+    char* lastSlash(std::max(::strrchr(progName, '/'), ::strrchr(progName, '\\')));
     if (lastSlash != 0) {
         progName = lastSlash + 1;
     }
 
     // Strip the extension
-    char *lastDot(::strrchr(progName, '.'));
+    char* lastDot(::strrchr(progName, '.'));
     if (lastDot != 0) {
         *lastDot = '\0';
     }

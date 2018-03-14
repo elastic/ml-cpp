@@ -34,16 +34,16 @@ public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
 
     struct MODEL_EXPORT SToString {
-        std::string operator()(const CSample &sample) const;
+        std::string operator()(const CSample& sample) const;
     };
 
     struct MODEL_EXPORT SFromString {
-        bool operator()(const std::string &token, CSample &value) const;
+        bool operator()(const std::string& token, CSample& value) const;
     };
 
 public:
     CSample(void);
-    CSample(core_t::TTime time, const TDouble1Vec &value, double varianceScale, double count);
+    CSample(core_t::TTime time, const TDouble1Vec& value, double varianceScale, double count);
 
     //! Get the time.
     core_t::TTime time(void) const { return m_Time; }
@@ -55,15 +55,15 @@ public:
     double count(void) const { return m_Count; }
 
     //! Get a writable count.
-    double &count(void) { return m_Count; }
+    double& count(void) { return m_Count; }
 
     //! Get the value and any ancillary statistics needed to calculate
     //! influence.
-    const TDouble1Vec &value(void) const { return m_Value; }
+    const TDouble1Vec& value(void) const { return m_Value; }
 
     //! Get a writable value and any ancillary statistics needed to
     //! calculate influence.
-    TDouble1Vec &value(void) { return m_Value; }
+    TDouble1Vec& value(void) { return m_Value; }
 
     //! Get the value of the feature.
     TDouble1Vec value(std::size_t dimension) const;
@@ -89,4 +89,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CSample_h
+#endif // INCLUDED_ml_model_CSample_h

@@ -163,8 +163,9 @@ void CChecksumTest::testContainers(void) {
         uint64_t expected = seed;
         core::CHashing::CSafeMurmurHash2String64 hasher;
         for (TStrSetCItr itr = a.begin(); itr != a.end(); ++itr) {
-            expected = core::CHashing::safeMurmurHash64(
-                itr->data(), static_cast<int>(itr->size()), expected);
+            expected = core::CHashing::safeMurmurHash64(itr->data(),
+                                                        static_cast<int>(itr->size()),
+                                                        expected);
         }
         LOG_DEBUG("checksum expected = " << expected);
         LOG_DEBUG("checksum actual   = " << maths::CChecksum::calculate(seed, a));
@@ -336,8 +337,8 @@ void CChecksumTest::testCombinations(void) {
     // slightly, i.e. by changing an element value, permuting elements,
     // etc.
     {
-        SFoo values[] = {
-            SFoo(static_cast<uint64_t>(-1)), SFoo(20), SFoo(10), SFoo(15), SFoo(2), SFoo(2)};
+        SFoo values[] =
+            {SFoo(static_cast<uint64_t>(-1)), SFoo(20), SFoo(10), SFoo(15), SFoo(2), SFoo(2)};
         TFooDeque a(boost::begin(values), boost::end(values));
         TFooDeque b(boost::begin(values), boost::end(values));
         LOG_DEBUG("checksum a = " << maths::CChecksum::calculate(seed, a));
@@ -363,8 +364,8 @@ void CChecksumTest::testCombinations(void) {
                        maths::CChecksum::calculate(seed, b));
     }
     {
-        SBar values[] = {
-            SBar(static_cast<uint64_t>(-1)), SBar(20), SBar(10), SBar(15), SBar(2), SBar(2)};
+        SBar values[] =
+            {SBar(static_cast<uint64_t>(-1)), SBar(20), SBar(10), SBar(15), SBar(2), SBar(2)};
         TBarVec a(boost::begin(values), boost::end(values));
         TBarVec b(boost::begin(values), boost::end(values));
         LOG_DEBUG("checksum a = " << maths::CChecksum::calculate(seed, a));
@@ -391,11 +392,12 @@ void CChecksumTest::testCombinations(void) {
     }
 }
 
-CppUnit::Test *CChecksumTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CChecksumTest");
+CppUnit::Test* CChecksumTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CChecksumTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>(
-        "CChecksumTest::testMemberChecksum", &CChecksumTest::testMemberChecksum));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testMemberChecksum",
+                                               &CChecksumTest::testMemberChecksum));
     suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testContainers",
                                                                  &CChecksumTest::testContainers));
     suiteOfTests->addTest(new CppUnit::TestCaller<CChecksumTest>("CChecksumTest::testNullable",

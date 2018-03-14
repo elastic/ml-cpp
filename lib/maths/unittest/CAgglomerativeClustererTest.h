@@ -25,7 +25,7 @@ public:
     void testDegenerate(void);
     void testRandom(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAgglomerativeClustererTest_h
+#endif // INCLUDED_CAgglomerativeClustererTest_h

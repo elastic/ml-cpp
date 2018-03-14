@@ -50,8 +50,8 @@ public:
     //! object should read from it.  For example, if std::cin is passed, no
     //! other object should read from std::cin, otherwise unpredictable and
     //! incorrect results will be generated.
-    CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
-                             std::istream &strmIn,
+    CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
+                             std::istream& strmIn,
                              bool allDocsSameStructure = false);
 
     //! Read records from the stream. The supplied reader function is called
@@ -59,19 +59,19 @@ public:
     //! reading will stop.  This method keeps reading until it reaches the
     //! end of the stream or an error occurs.  If it successfully reaches
     //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc &readerFunc);
+    virtual bool readStream(const TReaderFunc& readerFunc);
 
 private:
     //! Attempt to parse the current working record into data fields.
-    bool decodeDocumentWithCommonFields(TStrVec &fieldNames,
-                                        TStrRefVec &fieldValRefs,
-                                        TStrStrUMap &recordFields);
+    bool decodeDocumentWithCommonFields(TStrVec& fieldNames,
+                                        TStrRefVec& fieldValRefs,
+                                        TStrStrUMap& recordFields);
 
-    void decodeDocumentWithArbitraryFields(TStrVec &fieldNames, TStrStrUMap &recordFields);
+    void decodeDocumentWithArbitraryFields(TStrVec& fieldNames, TStrStrUMap& recordFields);
 
 private:
     //! Reference to the parser we're going to use
-    core::CXmlParserIntf &m_Parser;
+    core::CXmlParserIntf& m_Parser;
 
     //! Are all XML documents expected to contain the same fields in the
     //! same order?
@@ -80,4 +80,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CLineifiedXmlInputParser_h
+#endif // INCLUDED_ml_api_CLineifiedXmlInputParser_h

@@ -71,17 +71,17 @@ const std::string INDIVIDUAL_STATE_TAG("a");
 const maths_t::TWeightStyleVec SAMPLE_WEIGHT_STYLES{maths_t::E_SampleCountWeight,
                                                     maths_t::E_SampleWinsorisationWeight,
                                                     maths_t::E_SampleCountVarianceScaleWeight};
-const maths_t::TWeightStyleVec PROBABILITY_WEIGHT_STYLES{
-    maths_t::E_SampleSeasonalVarianceScaleWeight,
-    maths_t::E_SampleCountVarianceScaleWeight};
+const maths_t::TWeightStyleVec
+    PROBABILITY_WEIGHT_STYLES{maths_t::E_SampleSeasonalVarianceScaleWeight,
+                              maths_t::E_SampleCountVarianceScaleWeight};
 }
 
-CMetricModel::CMetricModel(const SModelParams &params,
-                           const TDataGathererPtr &dataGatherer,
-                           const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                           const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-                           const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-                           const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators)
+CMetricModel::CMetricModel(const SModelParams& params,
+                           const TDataGathererPtr& dataGatherer,
+                           const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                           const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                           const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                           const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CIndividualModel(params,
                        dataGatherer,
                        newFeatureModels,
@@ -90,13 +90,13 @@ CMetricModel::CMetricModel(const SModelParams &params,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {}
 
-CMetricModel::CMetricModel(const SModelParams &params,
-                           const TDataGathererPtr &dataGatherer,
-                           const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                           const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-                           const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-                           const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators,
-                           core::CStateRestoreTraverser &traverser)
+CMetricModel::CMetricModel(const SModelParams& params,
+                           const TDataGathererPtr& dataGatherer,
+                           const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                           const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                           const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                           const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                           core::CStateRestoreTraverser& traverser)
     : CIndividualModel(params,
                        dataGatherer,
                        newFeatureModels,
@@ -107,23 +107,23 @@ CMetricModel::CMetricModel(const SModelParams &params,
     traverser.traverseSubLevel(boost::bind(&CMetricModel::acceptRestoreTraverser, this, _1));
 }
 
-CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel &other)
+CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel& other)
     : CIndividualModel(isForPersistence, other),
-      m_CurrentBucketStats(0)// Not needed for persistence so minimally constructed
+      m_CurrentBucketStats(0) // Not needed for persistence so minimally constructed
 {
     if (!isForPersistence) {
         LOG_ABORT("This constructor only creates clones for persistence");
     }
 }
 
-void CMetricModel::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CMetricModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(INDIVIDUAL_STATE_TAG,
                          boost::bind(&CMetricModel::doAcceptPersistInserter, this, _1));
 }
 
-bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == INDIVIDUAL_STATE_TAG) {
             if (traverser.traverseSubLevel(
                     boost::bind(&CMetricModel::doAcceptRestoreTraverser, this, _1)) == false) {
@@ -136,19 +136,26 @@ bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser &traverse
     return true;
 }
 
-CAnomalyDetectorModel *CMetricModel::cloneForPersistence(void) const {
+CAnomalyDetectorModel* CMetricModel::cloneForPersistence(void) const {
     return new CMetricModel(true, *this);
 }
 
-model_t::EModelType CMetricModel::category(void) const { return model_t::E_MetricOnline; }
+model_t::EModelType CMetricModel::category(void) const {
+    return model_t::E_MetricOnline;
+}
 
-bool CMetricModel::isEventRate(void) const { return false; }
+bool CMetricModel::isEventRate(void) const {
+    return false;
+}
 
-bool CMetricModel::isMetric(void) const { return true; }
+bool CMetricModel::isMetric(void) const {
+    return true;
+}
 
-void CMetricModel::currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const {
-    this->CIndividualModel::currentBucketPersonIds(
-        time, m_CurrentBucketStats.s_FeatureData, result);
+void CMetricModel::currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const {
+    this->CIndividualModel::currentBucketPersonIds(time,
+                                                   m_CurrentBucketStats.s_FeatureData,
+                                                   result);
 }
 
 CMetricModel::TOptionalDouble CMetricModel::baselineBucketCount(const std::size_t /*pid*/) const {
@@ -159,9 +166,9 @@ CMetricModel::TDouble1Vec CMetricModel::currentBucketValue(model_t::EFeature fea
                                                            std::size_t pid,
                                                            std::size_t /*cid*/,
                                                            core_t::TTime time) const {
-    const TFeatureData *data = this->featureData(feature, pid, time);
+    const TFeatureData* data = this->featureData(feature, pid, time);
     if (data) {
-        const TOptionalSample &value = data->s_BucketValue;
+        const TOptionalSample& value = data->s_BucketValue;
         return value ? value->value(model_t::dimension(feature)) : TDouble1Vec();
     }
     return TDouble1Vec();
@@ -171,23 +178,27 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
                                                            std::size_t pid,
                                                            std::size_t /*cid*/,
                                                            model_t::CResultType type,
-                                                           const TSizeDoublePr1Vec &correlated,
+                                                           const TSizeDoublePr1Vec& correlated,
                                                            core_t::TTime time) const {
-    const maths::CModel *model{this->model(feature, pid)};
+    const maths::CModel* model{this->model(feature, pid)};
     if (!model) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
     TDouble1Vec result(model->predict(time, type.isUnconditional() ? NO_CORRELATED : correlated));
-    this->correctBaselineForInterim(
-        feature, pid, type, correlated, this->currentBucketInterimCorrections(), result);
+    this->correctBaselineForInterim(feature,
+                                    pid,
+                                    type,
+                                    correlated,
+                                    this->currentBucketInterimCorrections(),
+                                    result);
     TDouble1VecDouble1VecPr support = model_t::support(feature);
     return maths::CTools::truncate(result, support.first, support.second);
 }
 
 void CMetricModel::sampleBucketStatistics(core_t::TTime startTime,
                                           core_t::TTime endTime,
-                                          CResourceMonitor &resourceMonitor) {
+                                          CResourceMonitor& resourceMonitor) {
     this->createUpdateNewModels(startTime, resourceMonitor);
     m_CurrentBucketStats.s_InterimCorrections.clear();
     this->CIndividualModel::sampleBucketStatistics(startTime,
@@ -199,8 +210,8 @@ void CMetricModel::sampleBucketStatistics(core_t::TTime startTime,
 
 void CMetricModel::sample(core_t::TTime startTime,
                           core_t::TTime endTime,
-                          CResourceMonitor &resourceMonitor) {
-    CDataGatherer &gatherer = this->dataGatherer();
+                          CResourceMonitor& resourceMonitor) {
+    CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (!gatherer.validateSampleTimes(startTime, endTime)) {
@@ -216,10 +227,10 @@ void CMetricModel::sample(core_t::TTime startTime,
         gatherer.sampleNow(time);
         gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
 
-        const CIndividualModel::TTimeVec &preSampleLastBucketTimes = this->lastBucketTimes();
+        const CIndividualModel::TTimeVec& preSampleLastBucketTimes = this->lastBucketTimes();
         CIndividualModel::TSizeTimeUMap lastBucketTimesMap;
-        for (const auto &featureData : m_CurrentBucketStats.s_FeatureData) {
-            for (const auto &data : featureData.second) {
+        for (const auto& featureData : m_CurrentBucketStats.s_FeatureData) {
+            for (const auto& data : featureData.second) {
                 std::size_t pid = data.first;
                 lastBucketTimesMap[pid] = preSampleLastBucketTimes[pid];
             }
@@ -232,32 +243,34 @@ void CMetricModel::sample(core_t::TTime startTime,
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec trendWeights;
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights;
 
-        for (auto &&featureData : m_CurrentBucketStats.s_FeatureData) {
+        for (auto&& featureData : m_CurrentBucketStats.s_FeatureData) {
             model_t::EFeature feature = featureData.first;
-            TSizeFeatureDataPrVec &data = featureData.second;
+            TSizeFeatureDataPrVec& data = featureData.second;
             std::size_t dimension = model_t::dimension(feature);
             LOG_TRACE(model_t::print(feature)
                       << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
-            for (const auto &data_ : data) {
+            for (const auto& data_ : data) {
                 std::size_t pid = data_.first;
-                const CGathererTools::TSampleVec &samples = data_.second.s_Samples;
+                const CGathererTools::TSampleVec& samples = data_.second.s_Samples;
 
-                maths::CModel *model = this->model(feature, pid);
+                maths::CModel* model = this->model(feature, pid);
                 if (!model) {
                     LOG_ERROR("Missing model for " << this->personName(pid));
                     continue;
                 }
 
                 core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
-                if (this->shouldIgnoreSample(
-                        feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, sampleTime)) {
+                if (this->shouldIgnoreSample(feature,
+                                             pid,
+                                             model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                                             sampleTime)) {
                     model->skipTime(time - lastBucketTimesMap[pid]);
                     continue;
                 }
 
-                const TOptionalSample &bucket = data_.second.s_BucketValue;
+                const TOptionalSample& bucket = data_.second.s_BucketValue;
                 if (model_t::isSampled(feature) && bucket) {
                     values.assign(1,
                                   core::make_triple(bucket->time(),
@@ -302,8 +315,9 @@ void CMetricModel::sample(core_t::TTime startTime,
                         core::make_triple(model_t::sampleTime(feature, time, bucketLength, ti),
                                           vi,
                                           model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
-                    trendWeights[i][0].assign(
-                        dimension, emptyBucketWeight * count * this->learnRate(feature) / vs);
+                    trendWeights[i][0].assign(dimension,
+                                              emptyBucketWeight * count * this->learnRate(feature) /
+                                                  vs);
                     trendWeights[i][1] = model->winsorisationWeight(derate, ti, vi);
                     trendWeights[i][2].assign(dimension, vs);
                     priorWeights[i][0].assign(dimension,
@@ -333,12 +347,12 @@ void CMetricModel::sample(core_t::TTime startTime,
 bool CMetricModel::computeProbability(const std::size_t pid,
                                       core_t::TTime startTime,
                                       core_t::TTime endTime,
-                                      CPartitioningFields &partitioningFields,
+                                      CPartitioningFields& partitioningFields,
                                       const std::size_t /*numberAttributeProbabilities*/,
-                                      SAnnotatedProbability &result) const {
+                                      SAnnotatedProbability& result) const {
     CAnnotatedProbabilityBuilder resultBuilder(result);
 
-    const CDataGatherer &gatherer = this->dataGatherer();
+    const CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
@@ -362,17 +376,19 @@ bool CMetricModel::computeProbability(const std::size_t pid,
         if (model_t::isCategorical(feature)) {
             continue;
         }
-        const TFeatureData *data = this->featureData(feature, pid, startTime);
+        const TFeatureData* data = this->featureData(feature, pid, startTime);
         if (!data || !data->s_BucketValue) {
             continue;
         }
-        const TOptionalSample &bucket = data->s_BucketValue;
-        if (this->shouldIgnoreResult(
-                feature,
-                result.s_ResultType,
-                pid,
-                model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                model_t::sampleTime(feature, startTime, bucketLength, bucket->time()))) {
+        const TOptionalSample& bucket = data->s_BucketValue;
+        if (this->shouldIgnoreResult(feature,
+                                     result.s_ResultType,
+                                     pid,
+                                     model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                                     model_t::sampleTime(feature,
+                                                         startTime,
+                                                         bucketLength,
+                                                         bucket->time()))) {
             continue;
         }
 
@@ -386,8 +402,11 @@ bool CMetricModel::computeProbability(const std::size_t pid,
         } else {
             CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
             this->fill(feature, pid, startTime, result.isInterim(), params);
-            this->addProbabilityAndInfluences(
-                pid, params, data->s_InfluenceValues, pJoint, resultBuilder);
+            this->addProbabilityAndInfluences(pid,
+                                              params,
+                                              data->s_InfluenceValues,
+                                              pJoint,
+                                              resultBuilder);
         }
     }
 
@@ -418,11 +437,11 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 
     TStrCRefUInt64Map hashes;
     if (includeCurrentBucketStats) {
-        const TFeatureSizeFeatureDataPrVecPrVec &featureData = m_CurrentBucketStats.s_FeatureData;
+        const TFeatureSizeFeatureDataPrVecPrVec& featureData = m_CurrentBucketStats.s_FeatureData;
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
             for (std::size_t j = 0u; j < featureData[i].second.size(); ++j) {
-                uint64_t &hash = hashes[KEY(featureData[i].second[j].first)];
-                const TFeatureData &data = featureData[i].second[j].second;
+                uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
+                const TFeatureData& data = featureData[i].second[j].second;
                 hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(hash, static_cast<uint64_t>(data.s_IsInteger));
                 hash = maths::CChecksum::calculate(hash, data.s_Samples);
@@ -441,16 +460,20 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
 void CMetricModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CMetricModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
-    core::CMemoryDebug::dynamicSize(
-        "m_CurrentBucketStats.s_PersonCounts", m_CurrentBucketStats.s_PersonCounts, mem);
-    core::CMemoryDebug::dynamicSize(
-        "m_CurrentBucketStats.s_FeatureData", m_CurrentBucketStats.s_FeatureData, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
+                                    m_CurrentBucketStats.s_PersonCounts,
+                                    mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_FeatureData",
+                                    m_CurrentBucketStats.s_FeatureData,
+                                    mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections,
                                     mem);
 }
 
-std::size_t CMetricModel::memoryUsage(void) const { return this->CIndividualModel::memoryUsage(); }
+std::size_t CMetricModel::memoryUsage(void) const {
+    return this->CIndividualModel::memoryUsage();
+}
 
 std::size_t CMetricModel::computeMemoryUsage(void) const {
     std::size_t mem = this->CIndividualModel::computeMemoryUsage();
@@ -460,26 +483,32 @@ std::size_t CMetricModel::computeMemoryUsage(void) const {
     return mem;
 }
 
-std::size_t CMetricModel::staticSize(void) const { return sizeof(*this); }
+std::size_t CMetricModel::staticSize(void) const {
+    return sizeof(*this);
+}
 
 CMetricModel::CModelDetailsViewPtr CMetricModel::details(void) const {
     return CModelDetailsViewPtr(new CMetricModelDetailsView(*this));
 }
 
-const CMetricModel::TFeatureData *
+const CMetricModel::TFeatureData*
 CMetricModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
-    return this->CIndividualModel::featureData(
-        feature, pid, time, m_CurrentBucketStats.s_FeatureData);
+    return this->CIndividualModel::featureData(feature,
+                                               pid,
+                                               time,
+                                               m_CurrentBucketStats.s_FeatureData);
 }
 
 void CMetricModel::createNewModels(std::size_t n, std::size_t m) {
     this->CIndividualModel::createNewModels(n, m);
 }
 
-void CMetricModel::updateRecycledModels(void) { this->CIndividualModel::updateRecycledModels(); }
+void CMetricModel::updateRecycledModels(void) {
+    this->CIndividualModel::updateRecycledModels();
+}
 
-void CMetricModel::clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes) {
-    CDataGatherer &gatherer = this->dataGatherer();
+void CMetricModel::clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) {
+    CDataGatherer& gatherer = this->dataGatherer();
 
     // Stop collecting for these people and add them to the free list.
     gatherer.recyclePeople(people);
@@ -504,16 +533,16 @@ uint64_t CMetricModel::currentBucketTotalCount(void) const {
     return m_CurrentBucketStats.s_TotalCount;
 }
 
-CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap &
+CIndividualModel::TFeatureSizeSizeTripleDouble1VecUMap&
 CMetricModel::currentBucketInterimCorrections(void) const {
     return m_CurrentBucketStats.s_InterimCorrections;
 }
 
-const CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts(void) const {
+const CMetricModel::TSizeUInt64PrVec& CMetricModel::currentBucketPersonCounts(void) const {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
-CMetricModel::TSizeUInt64PrVec &CMetricModel::currentBucketPersonCounts(void) {
+CMetricModel::TSizeUInt64PrVec& CMetricModel::currentBucketPersonCounts(void) {
     return m_CurrentBucketStats.s_PersonCounts;
 }
 
@@ -528,8 +557,8 @@ bool CMetricModel::correlates(model_t::EFeature feature,
         return false;
     }
 
-    const maths::CModel *model{this->model(feature, pid)};
-    for (const auto &correlate : model->correlates()) {
+    const maths::CModel* model{this->model(feature, pid)};
+    for (const auto& correlate : model->correlates()) {
         if (this->featureData(feature, pid == correlate[0] ? correlate[1] : correlate[0], time)) {
             return true;
         }
@@ -541,11 +570,11 @@ void CMetricModel::fill(model_t::EFeature feature,
                         std::size_t pid,
                         core_t::TTime bucketTime,
                         bool interim,
-                        CProbabilityAndInfluenceCalculator::SParams &params) const {
+                        CProbabilityAndInfluenceCalculator::SParams& params) const {
     std::size_t dimension{model_t::dimension(feature)};
-    const TFeatureData *data{this->featureData(feature, pid, bucketTime)};
-    const TOptionalSample &bucket{data->s_BucketValue};
-    const maths::CModel *model{this->model(feature, pid)};
+    const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    const TOptionalSample& bucket{data->s_BucketValue};
+    const maths::CModel* model{this->model(feature, pid)};
     core_t::TTime time{
         model_t::sampleTime(feature, bucketTime, this->bucketLength(), bucket->time())};
     TDouble2Vec4Vec weights(2);
@@ -560,8 +589,11 @@ void CMetricModel::fill(model_t::EFeature feature,
     params.s_Value.assign(1, bucket->value());
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         TDouble2Vec mode(params.s_Model->mode(time, PROBABILITY_WEIGHT_STYLES, weights));
-        TDouble2Vec correction(this->interimValueCorrector().corrections(
-            time, this->currentBucketTotalCount(), mode, bucket->value(dimension)));
+        TDouble2Vec correction(
+            this->interimValueCorrector().corrections(time,
+                                                      this->currentBucketTotalCount(),
+                                                      mode,
+                                                      bucket->value(dimension)));
         params.s_Value[0] += correction;
         this->currentBucketInterimCorrections().emplace(core::make_triple(feature, pid, pid),
                                                         correction);
@@ -577,14 +609,14 @@ void CMetricModel::fill(model_t::EFeature feature,
                         std::size_t pid,
                         core_t::TTime bucketTime,
                         bool interim,
-                        CProbabilityAndInfluenceCalculator::SCorrelateParams &params,
-                        TStrCRefDouble1VecDouble1VecPrPrVecVecVec &influenceValues) const {
+                        CProbabilityAndInfluenceCalculator::SCorrelateParams& params,
+                        TStrCRefDouble1VecDouble1VecPrPrVecVecVec& influenceValues) const {
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
 
-    const CDataGatherer &gatherer{this->dataGatherer()};
-    const maths::CModel *model{this->model(feature, pid)};
-    const TSize2Vec1Vec &correlates{model->correlates()};
-    const TTimeVec &firstBucketTimes{this->firstBucketTimes()};
+    const CDataGatherer& gatherer{this->dataGatherer()};
+    const maths::CModel* model{this->model(feature, pid)};
+    const TSize2Vec1Vec& correlates{model->correlates()};
+    const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime bucketLength{gatherer.bucketLength()};
 
     params.s_Feature = feature;
@@ -614,22 +646,22 @@ void CMetricModel::fill(model_t::EFeature feature,
         params.s_CorrelatedLabels[i] = gatherer.personNamePtr(correlates[i][variables[1]]);
         params.s_Correlated[i] = correlates[i][variables[1]];
         params.s_Variables[i] = variables;
-        const maths::CModel *models[]{model, this->model(feature, correlates[i][variables[1]])};
+        const maths::CModel* models[]{model, this->model(feature, correlates[i][variables[1]])};
         TDouble2Vec4Vec weight(2, TDouble2Vec(2, 1.0));
         weight[0][variables[0]] =
             models[0]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
         weight[0][variables[1]] =
             models[1]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
 
-        const TFeatureData *data[2];
+        const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);
         data[1] = this->featureData(feature, correlates[i][1], bucketTime);
         if (data[0] && data[1] && data[0]->s_BucketValue && data[1]->s_BucketValue) {
-            const TOptionalSample &bucket0{data[0]->s_BucketValue};
-            const TOptionalSample &bucket1{data[1]->s_BucketValue};
-            core_t::TTime times[] = {
-                model_t::sampleTime(feature, bucketTime, bucketLength, bucket0->time()),
-                model_t::sampleTime(feature, bucketTime, bucketLength, bucket1->time())};
+            const TOptionalSample& bucket0{data[0]->s_BucketValue};
+            const TOptionalSample& bucket1{data[1]->s_BucketValue};
+            core_t::TTime times[] =
+                {model_t::sampleTime(feature, bucketTime, bucketLength, bucket0->time()),
+                 model_t::sampleTime(feature, bucketTime, bucketLength, bucket1->time())};
             params.s_ElapsedTime =
                 std::min(params.s_ElapsedTime, times[0] - firstBucketTimes[correlates[i][0]]);
             params.s_ElapsedTime =
@@ -643,18 +675,18 @@ void CMetricModel::fill(model_t::EFeature feature,
             weight[1][variables[0]] = bucket0->varianceScale();
             weight[1][variables[1]] = bucket1->varianceScale();
             for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
-                for (const auto &influenceValue : data[0]->s_InfluenceValues[j]) {
+                for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
                     std::size_t match = static_cast<std::size_t>(
                         std::find_if(data[1]->s_InfluenceValues[j].begin(),
                                      data[1]->s_InfluenceValues[j].end(),
-                                     [influence](const TStrCRefDouble1VecDoublePrPr &value_) {
+                                     [influence](const TStrCRefDouble1VecDoublePrPr& value_) {
                                          return value_.first.get() == influence.get();
                                      }) -
                         data[1]->s_InfluenceValues[j].begin());
                     if (match < data[1]->s_InfluenceValues[j].size()) {
-                        const TDouble1VecDoublePr &value0 = influenceValue.second;
-                        const TDouble1VecDoublePr &value1 =
+                        const TDouble1VecDoublePr& value0 = influenceValue.second;
+                        const TDouble1VecDoublePr& value1 =
                             data[1]->s_InfluenceValues[j][match].second;
                         value.first.resize(2 * value0.first.size());
                         for (std::size_t k = 0u; k < value0.first.size(); ++k) {
@@ -676,19 +708,24 @@ void CMetricModel::fill(model_t::EFeature feature,
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         core_t::TTime time{bucketTime + bucketLength / 2};
-        TDouble2Vec1Vec modes(params.s_Model->correlateModes(
-            time, PROBABILITY_WEIGHT_STYLES, params.s_ComputeProbabilityParams.weights()));
+        TDouble2Vec1Vec modes(
+            params.s_Model->correlateModes(time,
+                                           PROBABILITY_WEIGHT_STYLES,
+                                           params.s_ComputeProbabilityParams.weights()));
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             if (!params.s_Values.empty()) {
                 TDouble2Vec value_{params.s_Values[i][0], params.s_Values[i][1]};
-                TDouble2Vec correction(this->interimValueCorrector().corrections(
-                    time, this->currentBucketTotalCount(), modes[i], value_));
+                TDouble2Vec correction(
+                    this->interimValueCorrector().corrections(time,
+                                                              this->currentBucketTotalCount(),
+                                                              modes[i],
+                                                              value_));
                 for (std::size_t j = 0u; j < 2; ++j) {
                     params.s_Values[i][j] += correction[j];
                 }
-                this->currentBucketInterimCorrections().emplace(
-                    core::make_triple(feature, pid, params.s_Correlated[i]),
-                    TDouble1Vec(1, correction[params.s_Variables[i][0]]));
+                this->currentBucketInterimCorrections()
+                    .emplace(core::make_triple(feature, pid, params.s_Correlated[i]),
+                             TDouble1Vec(1, correction[params.s_Variables[i][0]]));
             }
         }
     }

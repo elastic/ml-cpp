@@ -59,7 +59,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testInitialize(void) {
     const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
 
     CPPUNIT_ASSERT(bucketing.initialize(10));
-    const TFloatVec &endpoints = bucketing.endpoints();
+    const TFloatVec& endpoints = bucketing.endpoints();
     CPPUNIT_ASSERT_EQUAL(expectedEndpoints, core::CContainerPrinter::print(endpoints));
 
     for (core_t::TTime t = 5; t < 100; t += 10) {
@@ -171,7 +171,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void) {
 
         TMeanAccumulator meanError1;
         TMaxAccumulator maxError1;
-        const TFloatVec &endpoints1 = bucketing1.endpoints();
+        const TFloatVec& endpoints1 = bucketing1.endpoints();
         TDoubleVec values1 = bucketing1.values(20 * 86400);
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t =
@@ -189,7 +189,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void) {
 
         TMeanAccumulator meanError2;
         TMaxAccumulator maxError2;
-        const TFloatVec &endpoints2 = bucketing2.endpoints();
+        const TFloatVec& endpoints2 = bucketing2.endpoints();
         TDoubleVec values2 = bucketing2.values(20 * 86400);
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t =
@@ -235,7 +235,7 @@ void CSeasonalComponentAdaptiveBucketingTest::testRefine(void) {
             bucketing.propagateForwardsByTime(1.0);
         }
 
-        const TFloatVec &endpoints = bucketing.endpoints();
+        const TFloatVec& endpoints = bucketing.endpoints();
         TDoubleVec values = bucketing.values(5100);
         TDoubleVec variances = bucketing.variances();
         LOG_DEBUG("endpoints = " << core::CContainerPrinter::print(endpoints));
@@ -385,8 +385,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testMinimumBucketLength(void) {
         bucketing1.refine(static_cast<core_t::TTime>(i) * period);
         bucketing2.refine(static_cast<core_t::TTime>(i) * period);
 
-        const TFloatVec &endpoints1 = bucketing1.endpoints();
-        const TFloatVec &endpoints2 = bucketing2.endpoints();
+        const TFloatVec& endpoints1 = bucketing1.endpoints();
+        const TFloatVec& endpoints2 = bucketing2.endpoints();
 
         CPPUNIT_ASSERT_EQUAL(endpoints1.size(), endpoints2.size());
         TMinAccumulator minimumBucketLength1;
@@ -754,8 +754,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testPersist(void) {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
-    maths::CSeasonalComponentAdaptiveBucketing restoredBucketing(
-        decayRate + 0.1, minimumBucketLength, traverser);
+    maths::CSeasonalComponentAdaptiveBucketing restoredBucketing(decayRate + 0.1,
+                                                                 minimumBucketLength,
+                                                                 traverser);
 
     LOG_DEBUG("orig checksum = " << checksum
                                  << " restored checksum = " << restoredBucketing.checksum());
@@ -783,8 +784,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void) {
     double minimumBucketLength = 1.0;
 
     maths::CDiurnalTime time(0, 0, 86400, 86400);
-    maths::CSeasonalComponentAdaptiveBucketing expectedBucketing(
-        time, decayRate, minimumBucketLength);
+    maths::CSeasonalComponentAdaptiveBucketing expectedBucketing(time,
+                                                                 decayRate,
+                                                                 minimumBucketLength);
 
     expectedBucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
@@ -808,8 +810,9 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void) {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
-    maths::CSeasonalComponentAdaptiveBucketing restoredBucketing(
-        decayRate + 0.1, minimumBucketLength, traverser);
+    maths::CSeasonalComponentAdaptiveBucketing restoredBucketing(decayRate + 0.1,
+                                                                 minimumBucketLength,
+                                                                 traverser);
 
     // Check that the knots points we get back are very nearly
     // those we expect.
@@ -817,14 +820,20 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void) {
     TDoubleVec expectedKnots;
     TDoubleVec expectedValues;
     TDoubleVec expectedVariances;
-    expectedBucketing.knots(
-        863136, maths::CSplineTypes::E_Periodic, expectedKnots, expectedValues, expectedVariances);
+    expectedBucketing.knots(863136,
+                            maths::CSplineTypes::E_Periodic,
+                            expectedKnots,
+                            expectedValues,
+                            expectedVariances);
 
     TDoubleVec restoredKnots;
     TDoubleVec restoredValues;
     TDoubleVec restoredVariances;
-    expectedBucketing.knots(
-        863136, maths::CSplineTypes::E_Periodic, restoredKnots, restoredValues, restoredVariances);
+    expectedBucketing.knots(863136,
+                            maths::CSplineTypes::E_Periodic,
+                            restoredKnots,
+                            restoredValues,
+                            restoredVariances);
 
     CPPUNIT_ASSERT_EQUAL(expectedBucketing.decayRate(), restoredBucketing.decayRate());
 
@@ -844,8 +853,8 @@ void CSeasonalComponentAdaptiveBucketingTest::testUpgrade(void) {
                          core::CContainerPrinter::print(restoredVariances));
 }
 
-CppUnit::Test *CSeasonalComponentAdaptiveBucketingTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests =
+CppUnit::Test* CSeasonalComponentAdaptiveBucketingTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CSeasonalComponentAdaptiveBucketingTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSeasonalComponentAdaptiveBucketingTest>(

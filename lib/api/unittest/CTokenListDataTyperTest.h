@@ -36,7 +36,7 @@ public:
     void setUp(void);
     void tearDown(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTokenListDataTyperTest_h
+#endif // INCLUDED_CTokenListDataTyperTest_h

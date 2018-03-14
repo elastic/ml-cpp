@@ -79,16 +79,16 @@ public:
     //! \name Persistence
     //@{
     //! Restore the static members by reading state from \p traverser.
-    static bool staticsAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    static bool staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist the static members by passing information to \p inserter.
-    static void staticsAcceptPersistInserter(core::CStatePersistInserter &inserter);
+    static void staticsAcceptPersistInserter(core::CStatePersistInserter& inserter);
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! Add a new value \p value at \p time.
@@ -139,8 +139,8 @@ private:
 
 private:
     //! Refresh \p projections and update \p statistics.
-    static void updateStatistics(TVector2NMeanAccumulator &projections,
-                                 TVector2MeanAccumulator &statistics);
+    static void updateStatistics(TVector2NMeanAccumulator& projections,
+                                 TVector2MeanAccumulator& statistics);
 
     //! Re-sample the projections.
     static void resample(core_t::TTime time);
@@ -189,10 +189,10 @@ public:
     explicit CCalendarCyclicTest(double decayRate = 0.0);
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
@@ -258,4 +258,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTrendTests_h
+#endif // INCLUDED_ml_maths_CTrendTests_h

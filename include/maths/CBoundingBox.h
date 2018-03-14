@@ -32,7 +32,8 @@ namespace maths {
 //! DESCRIPTION\n
 //! Holds the bottom left and top right corners and provides
 //! various utility functions need by the x-means algorithm.
-template <typename POINT> class CBoundingBox {
+template <typename POINT>
+class CBoundingBox {
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero(void) {
@@ -43,7 +44,7 @@ public:
 public:
     CBoundingBox(void) : m_Empty(true), m_A(), m_B() {}
 
-    CBoundingBox(const POINT &x) : m_Empty(false), m_A(x), m_B(x) {}
+    CBoundingBox(const POINT& x) : m_Empty(false), m_A(x), m_B(x) {}
 
     //! Clear the bounding box.
     void clear(void) {
@@ -53,7 +54,7 @@ public:
 
     //! Add \p p point, i.e. find the bounding box of the point
     //! and this bounding box.
-    void add(const POINT &p) {
+    void add(const POINT& p) {
         if (m_Empty) {
             m_A = m_B = p;
         } else {
@@ -65,7 +66,7 @@ public:
 
     //! Add \p other bounding box, i.e. find the bounding box of
     //! the two bounding boxes.
-    void add(const CBoundingBox &other) {
+    void add(const CBoundingBox& other) {
         if (m_Empty) {
             *this = other;
         } else if (!other.m_Empty) {
@@ -76,10 +77,10 @@ public:
     }
 
     //! Get the bottom left corner.
-    const POINT &blc(void) const { return m_A; }
+    const POINT& blc(void) const { return m_A; }
 
     //! Get the top right corner.
-    const POINT &trc(void) const { return m_B; }
+    const POINT& trc(void) const { return m_B; }
 
     //! Get the centre of the bounding box.
     POINT centre(void) const { return POINT(TPointPrecise(m_A + m_B) / 2.0); }
@@ -94,7 +95,7 @@ public:
     //! region closer to \p x then the bounding box must necessarily
     //! be in this region too and no point can therefore be closer
     //! to \p y than \p x.
-    bool closerToX(const POINT &x, const POINT &y) const {
+    bool closerToX(const POINT& x, const POINT& y) const {
         POINT xy = y - x;
         POINT f(0);
         for (std::size_t i = 0u; i < x.dimension(); ++i) {
@@ -120,4 +121,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CBoundingBox_h
+#endif // INCLUDED_ml_maths_CBoundingBox_h

@@ -69,16 +69,16 @@ public:
 
     public:
         //! Constructor
-        CChunkFilter(CDataAdder &adder);
+        CChunkFilter(CDataAdder& adder);
 
         //! Interface method: accept n bytes from s
-        std::streamsize write(const char *s, std::streamsize n);
+        std::streamsize write(const char* s, std::streamsize n);
 
         //! Interface method: flush the output and close the stream
         void close(void);
 
         //! Set the search ID to use
-        void index(const std::string &index, const std::string &id);
+        void index(const std::string& index, const std::string& id);
 
         //! True if all of the chunked writes were successful.
         //! If one or any of the writes failed the result is false
@@ -90,14 +90,14 @@ public:
     private:
         //! Handle the details of writing a stream of bytes to the internal
         //! CDataAdder object
-        void writeInternal(const char *s, std::streamsize &written, std::streamsize &n);
+        void writeInternal(const char* s, std::streamsize& written, std::streamsize& n);
 
         //! Close stream - end the JSON output
         void closeStream(bool isFinal);
 
     private:
         //! The underlying datastore
-        CDataAdder &m_Adder;
+        CDataAdder& m_Adder;
 
         //! The filtering_stream compressor given to external clients
         CDataAdder::TOStreamP m_OStream;
@@ -123,7 +123,7 @@ public:
 
 public:
     //! Constructor: take a reference to the underlying downstream datastore
-    CStateCompressor(CDataAdder &compressedAdder);
+    CStateCompressor(CDataAdder& compressedAdder);
 
     //! Add streamed data - return of NULL stream indicates failure.
     //! Since the data to be written isn't known at the time this function
@@ -133,14 +133,14 @@ public:
     //! As this class compresses incoming stream data, it is responsible for
     //! dealing with the underlying storage layer, so only 1 stream will ever
     //! be given out to clients.
-    virtual TOStreamP addStreamed(const std::string &index, const std::string &id);
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
     //! They should set force to true.
     //! Returns true if all of the chunked uploads were
     //! successful
-    virtual bool streamComplete(TOStreamP &strm, bool force);
+    virtual bool streamComplete(TOStreamP& strm, bool force);
 
     //! How many compressed documents have been generated?
     size_t numCompressedDocs(void) const;
@@ -157,4 +157,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CStateCompressor_h
+#endif // INCLUDED_ml_core_CStateCompressor_h

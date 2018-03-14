@@ -24,7 +24,7 @@ namespace maths {
 namespace xmeans_online_factory_detail {
 
 #define XMEANS_FACTORY(T, N)                                                                       \
-    CClusterer<CVectorNx1<T, N>> *CFactory<T, N>::make(maths_t::EDataType dataType,                \
+    CClusterer<CVectorNx1<T, N>>* CFactory<T, N>::make(maths_t::EDataType dataType,                \
                                                        maths_t::EClusterWeightCalc weightCalc,     \
                                                        double decayRate,                           \
                                                        double minimumClusterFraction,              \
@@ -37,11 +37,11 @@ namespace xmeans_online_factory_detail {
                                        minimumClusterCount,                                        \
                                        minimumCategoryCount);                                      \
     }                                                                                              \
-    CClusterer<CVectorNx1<T, N>> *CFactory<T, N>::restore(                                         \
-        const SDistributionRestoreParams &params,                                                  \
-        const CClustererTypes::TSplitFunc &splitFunc,                                              \
-        const CClustererTypes::TMergeFunc &mergeFunc,                                              \
-        core::CStateRestoreTraverser &traverser) {                                                 \
+    CClusterer<CVectorNx1<T, N>>*                                                                  \
+    CFactory<T, N>::restore(const SDistributionRestoreParams& params,                              \
+                            const CClustererTypes::TSplitFunc& splitFunc,                          \
+                            const CClustererTypes::TMergeFunc& mergeFunc,                          \
+                            core::CStateRestoreTraverser& traverser) {                             \
         return new CXMeansOnline<T, N>(params, splitFunc, mergeFunc, traverser);                   \
     }
 XMEANS_FACTORY(CFloatStorage, 2)

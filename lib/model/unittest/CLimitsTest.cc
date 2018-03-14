@@ -16,8 +16,8 @@
 
 #include <model/CLimits.h>
 
-CppUnit::Test *CLimitsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLimitsTest");
+CppUnit::Test* CLimitsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLimitsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>("CLimitsTest::testTrivial",
                                                                &CLimitsTest::testTrivial));

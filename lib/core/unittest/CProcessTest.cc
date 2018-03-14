@@ -17,8 +17,8 @@
 #include <core/CLogger.h>
 #include <core/CProcess.h>
 
-CppUnit::Test *CProcessTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProcessTest");
+CppUnit::Test* CProcessTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CProcessTest>("CProcessTest::testPids", &CProcessTest::testPids));
@@ -27,7 +27,7 @@ CppUnit::Test *CProcessTest::suite() {
 }
 
 void CProcessTest::testPids(void) {
-    ml::core::CProcess &process = ml::core::CProcess::instance();
+    ml::core::CProcess& process = ml::core::CProcess::instance();
     ml::core::CProcess::TPid pid = process.id();
     ml::core::CProcess::TPid ppid = process.parentId();
 

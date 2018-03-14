@@ -19,8 +19,8 @@
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 
-CppUnit::Test *CSleepTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSleepTest");
+CppUnit::Test* CSleepTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSleepTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CSleepTest>("CSleepTest::testSleep", &CSleepTest::testSleep));

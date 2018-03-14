@@ -46,17 +46,17 @@ namespace core {
 class CORE_EXPORT CJsonStatePersistInserter : public CStatePersistInserter {
 public:
     //! Root node has no attributes
-    CJsonStatePersistInserter(std::ostream &outputStream);
+    CJsonStatePersistInserter(std::ostream& outputStream);
 
     //! Destructor flushes
     virtual ~CJsonStatePersistInserter(void);
 
     //! Store a name/value
-    virtual void insertValue(const std::string &name, const std::string &value);
+    virtual void insertValue(const std::string& name, const std::string& value);
 
     //! Write as an integer avoiding the string conversion
     //! overloads
-    void insertInteger(const std::string &name, size_t value);
+    void insertInteger(const std::string& name, size_t value);
 
     // Bring extra base class overloads into scope
     using CStatePersistInserter::insertValue;
@@ -66,7 +66,7 @@ public:
 
 protected:
     //! Start a new level with the given name
-    virtual void newLevel(const std::string &name);
+    virtual void newLevel(const std::string& name);
 
     //! End the current level
     virtual void endLevel(void);
@@ -83,4 +83,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CJsonStatePersistInserter_h
+#endif // INCLUDED_ml_core_CJsonStatePersistInserter_h

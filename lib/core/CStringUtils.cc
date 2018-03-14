@@ -44,7 +44,7 @@ double clampToReadable(double x) {
 // require it, call locale() during the static initialisation phase of the
 // program.  Of course, the locale may already be constructed before this if
 // another static object has used it.
-const std::locale &DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
+const std::locale& DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
 }
 
 namespace ml {
@@ -94,7 +94,7 @@ std::string CStringUtils::toUpper(std::string str) {
     return str;
 }
 
-size_t CStringUtils::numMatches(const std::string &str, const std::string &word) {
+size_t CStringUtils::numMatches(const std::string& str, const std::string& word) {
     size_t count(0);
     std::string::size_type pos(0);
 
@@ -111,9 +111,11 @@ size_t CStringUtils::numMatches(const std::string &str, const std::string &word)
     return count;
 }
 
-void CStringUtils::trimWhitespace(std::string &str) { CStringUtils::trim(WHITESPACE_CHARS, str); }
+void CStringUtils::trimWhitespace(std::string& str) {
+    CStringUtils::trim(WHITESPACE_CHARS, str);
+}
 
-void CStringUtils::trim(const std::string &toTrim, std::string &str) {
+void CStringUtils::trim(const std::string& toTrim, std::string& str) {
     if (toTrim.empty() || str.empty()) {
         return;
     }
@@ -133,7 +135,7 @@ void CStringUtils::trim(const std::string &toTrim, std::string &str) {
     }
 }
 
-std::string CStringUtils::normaliseWhitespace(const std::string &str) {
+std::string CStringUtils::normaliseWhitespace(const std::string& str) {
     std::string result;
     result.reserve(str.length());
 
@@ -154,7 +156,7 @@ std::string CStringUtils::normaliseWhitespace(const std::string &str) {
     return result;
 }
 
-size_t CStringUtils::replace(const std::string &from, const std::string &to, std::string &str) {
+size_t CStringUtils::replace(const std::string& from, const std::string& to, std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -178,7 +180,7 @@ size_t CStringUtils::replace(const std::string &from, const std::string &to, std
 }
 
 size_t
-CStringUtils::replaceFirst(const std::string &from, const std::string &to, std::string &str) {
+CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -193,7 +195,7 @@ CStringUtils::replaceFirst(const std::string &from, const std::string &to, std::
     return 1;
 }
 
-void CStringUtils::escape(char escape, const std::string &toEscape, std::string &str) {
+void CStringUtils::escape(char escape, const std::string& toEscape, std::string& str) {
     if (escape == '\0' || toEscape.empty()) {
         return;
     }
@@ -213,7 +215,7 @@ void CStringUtils::escape(char escape, const std::string &toEscape, std::string 
     }
 }
 
-void CStringUtils::unEscape(char escape, std::string &str) {
+void CStringUtils::unEscape(char escape, std::string& str) {
     if (escape == '\0') {
         return;
     }
@@ -235,7 +237,7 @@ void CStringUtils::unEscape(char escape, std::string &str) {
     }
 }
 
-std::string CStringUtils::_typeToString(const unsigned long long &i) {
+std::string CStringUtils::_typeToString(const unsigned long long& i) {
     char buf[4 * sizeof(unsigned long long)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -244,7 +246,7 @@ std::string CStringUtils::_typeToString(const unsigned long long &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const unsigned long &i) {
+std::string CStringUtils::_typeToString(const unsigned long& i) {
     char buf[4 * sizeof(unsigned long)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -253,7 +255,7 @@ std::string CStringUtils::_typeToString(const unsigned long &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const unsigned int &i) {
+std::string CStringUtils::_typeToString(const unsigned int& i) {
     char buf[4 * sizeof(unsigned int)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -262,7 +264,7 @@ std::string CStringUtils::_typeToString(const unsigned int &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const unsigned short &i) {
+std::string CStringUtils::_typeToString(const unsigned short& i) {
     char buf[4 * sizeof(unsigned short)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -271,7 +273,7 @@ std::string CStringUtils::_typeToString(const unsigned short &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const long long &i) {
+std::string CStringUtils::_typeToString(const long long& i) {
     char buf[4 * sizeof(long long)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -280,7 +282,7 @@ std::string CStringUtils::_typeToString(const long long &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const long &i) {
+std::string CStringUtils::_typeToString(const long& i) {
     char buf[4 * sizeof(long)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -289,7 +291,7 @@ std::string CStringUtils::_typeToString(const long &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const int &i) {
+std::string CStringUtils::_typeToString(const int& i) {
     char buf[4 * sizeof(int)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -298,7 +300,7 @@ std::string CStringUtils::_typeToString(const int &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const short &i) {
+std::string CStringUtils::_typeToString(const short& i) {
     char buf[4 * sizeof(short)];
     ::memset(buf, 0, sizeof(buf));
 
@@ -307,9 +309,11 @@ std::string CStringUtils::_typeToString(const short &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const bool &b) { return (b ? "true" : "false"); }
+std::string CStringUtils::_typeToString(const bool& b) {
+    return (b ? "true" : "false");
+}
 
-std::string CStringUtils::_typeToString(const double &i) {
+std::string CStringUtils::_typeToString(const double& i) {
     // Note the extra large buffer here, which is because the format string is
     // "%f" rather than "%g", which means we could be printing a 308 digit
     // number without resorting to scientific notation
@@ -321,12 +325,18 @@ std::string CStringUtils::_typeToString(const double &i) {
     return buf;
 }
 
-std::string CStringUtils::_typeToString(const char *str) { return str; }
+std::string CStringUtils::_typeToString(const char* str) {
+    return str;
+}
 
-std::string CStringUtils::_typeToString(const char &c) { return std::string(1, c); }
+std::string CStringUtils::_typeToString(const char& c) {
+    return std::string(1, c);
+}
 
 // This may seem silly, but it allows generic code to be written
-const std::string &CStringUtils::_typeToString(const std::string &str) { return str; }
+const std::string& CStringUtils::_typeToString(const std::string& str) {
+    return str;
+}
 
 std::string CStringUtils::typeToStringPretty(double d) {
     // Maximum size =   1  (for sign)
@@ -391,13 +401,13 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     // 1.23456000000000e-11 so we strip these off in the following.
     if (ret > 2) {
         // Look for an 'e'
-        char *ptr(static_cast<char *>(::memchr(buf, 'e', ret - 1)));
+        char* ptr(static_cast<char*>(::memchr(buf, 'e', ret - 1)));
         if (ptr != 0) {
             bool edit = false;
             bool minus = false;
 
             // Strip off any trailing zeros and a trailing point.
-            char *bwd = ptr;
+            char* bwd = ptr;
             for (;;) {
                 --bwd;
                 if (*bwd == '0' || *bwd == '.') {
@@ -408,7 +418,7 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
             }
 
             // Strip off any leading zeros in the exponent.
-            char *fwd = ptr;
+            char* fwd = ptr;
             for (;;) {
                 ++fwd;
                 if (*fwd == '-') {
@@ -438,7 +448,7 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     return buf;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned long long &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
     if (str.empty()) {
         if (!silent) {
             LOG_ERROR("Unable to convert empty string to unsigned long long");
@@ -446,7 +456,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
         return false;
     }
 
-    char *endPtr(0);
+    char* endPtr(0);
     errno = 0;
     unsigned long long ret(::strtoull(str.c_str(), &endPtr, 0));
 
@@ -460,7 +470,8 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
         return false;
     }
 
-    if (ret == ULLONG_MAX && errno == ERANGE)// note ULLONG_MAX used for compatability with strtoull
+    if (ret == ULLONG_MAX &&
+        errno == ERANGE) // note ULLONG_MAX used for compatability with strtoull
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -487,7 +498,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned long &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long& i) {
     if (str.empty()) {
         if (!silent) {
             LOG_ERROR("Unable to convert empty string to unsigned long");
@@ -495,7 +506,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
         return false;
     }
 
-    char *endPtr(0);
+    char* endPtr(0);
     errno = 0;
     unsigned long ret(::strtoul(str.c_str(), &endPtr, 0));
 
@@ -509,7 +520,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
         return false;
     }
 
-    if (ret == ULONG_MAX && errno == ERANGE)// note ULONG_MAX used for compatability with strtoul
+    if (ret == ULONG_MAX && errno == ERANGE) // note ULONG_MAX used for compatability with strtoul
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -535,7 +546,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned l
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned int &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned int& i) {
     // First try to convert to unsigned long.
     // If that works check the range for unsigned int.
     unsigned long ret(0);
@@ -558,7 +569,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned i
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned short &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned short& i) {
     // First try to convert to unsigned long.
     // If that works check the range for unsigned short.
     unsigned long ret(0);
@@ -581,7 +592,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, unsigned s
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, long long &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, long long& i) {
     if (str.empty()) {
         if (!silent) {
             LOG_ERROR("Unable to convert empty string to long long");
@@ -589,7 +600,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long long 
         return false;
     }
 
-    char *endPtr(0);
+    char* endPtr(0);
     errno = 0;
     long long ret(::strtoll(str.c_str(), &endPtr, 0));
 
@@ -604,7 +615,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long long 
     }
 
     if ((ret == LLONG_MIN || ret == LLONG_MAX) &&
-        errno == ERANGE)// note LLONG_MAX used for compatability with strtoll
+        errno == ERANGE) // note LLONG_MAX used for compatability with strtoll
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -630,7 +641,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long long 
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, long &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     if (str.empty()) {
         if (!silent) {
             LOG_ERROR("Unable to convert empty string to long");
@@ -638,7 +649,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long &i) {
         return false;
     }
 
-    char *endPtr(0);
+    char* endPtr(0);
     errno = 0;
     long ret(::strtol(str.c_str(), &endPtr, 0));
 
@@ -653,7 +664,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long &i) {
     }
 
     if ((ret == LONG_MIN || ret == LONG_MAX) &&
-        errno == ERANGE)// note LONG_MAX used for compatability with strtol
+        errno == ERANGE) // note LONG_MAX used for compatability with strtol
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -679,7 +690,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, long &i) {
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, int &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, int& i) {
     // First try to convert to long.  If that works check the range for int.
     long ret(0);
     if (CStringUtils::_stringToType(silent, str, ret) == false) {
@@ -701,7 +712,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, int &i) {
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, short &i) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, short& i) {
     // First try to convert to long.  If that works check the range for short.
     long ret(0);
     if (CStringUtils::_stringToType(silent, str, ret) == false) {
@@ -723,7 +734,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, short &i) 
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, bool &ret) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, bool& ret) {
     switch (str.length()) {
         case 0:
             if (!silent) {
@@ -793,7 +804,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, bool &ret)
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, double &d) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d) {
     if (str.empty()) {
         if (!silent) {
             LOG_ERROR("Unable to convert empty string to double");
@@ -801,7 +812,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, double &d)
         return false;
     }
 
-    char *endPtr(0);
+    char* endPtr(0);
     errno = 0;
     double ret(::strtod(str.c_str(), &endPtr));
 
@@ -840,7 +851,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, double &d)
     return true;
 }
 
-bool CStringUtils::_stringToType(bool silent, const std::string &str, char &c) {
+bool CStringUtils::_stringToType(bool silent, const std::string& str, char& c) {
     if (str.length() != 1) {
         if (!silent) {
             LOG_ERROR("Unable to convert string '"
@@ -855,16 +866,16 @@ bool CStringUtils::_stringToType(bool silent, const std::string &str, char &c) {
 }
 
 // This may seem silly, but it allows generic code to be written
-bool CStringUtils::_stringToType(bool /* silent */, const std::string &str, std::string &outStr) {
+bool CStringUtils::_stringToType(bool /* silent */, const std::string& str, std::string& outStr) {
     outStr = str;
 
     return true;
 }
 
-void CStringUtils::tokenise(const std::string &delim,
-                            const std::string &str,
-                            TStrVec &tokens,
-                            std::string &remainder) {
+void CStringUtils::tokenise(const std::string& delim,
+                            const std::string& str,
+                            TStrVec& tokens,
+                            std::string& remainder) {
     std::string::size_type pos(0);
 
     for (;;) {
@@ -879,7 +890,7 @@ void CStringUtils::tokenise(const std::string &delim,
     }
 }
 
-std::string CStringUtils::longestCommonSubstr(const std::string &str1, const std::string &str2) {
+std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -926,8 +937,8 @@ std::string CStringUtils::longestCommonSubstr(const std::string &str1, const std
     return common;
 }
 
-std::string CStringUtils::longestCommonSubsequence(const std::string &str1,
-                                                   const std::string &str2) {
+std::string CStringUtils::longestCommonSubsequence(const std::string& str1,
+                                                   const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;
@@ -998,7 +1009,7 @@ std::string CStringUtils::longestCommonSubsequence(const std::string &str1,
     return common;
 }
 
-std::string CStringUtils::wideToNarrow(const std::wstring &wideStr) {
+std::string CStringUtils::wideToNarrow(const std::wstring& wideStr) {
     // Annoyingly, the STL character transformations only work on
     // character arrays, and not std::string objects
     std::string narrowStr(wideStr.length(), '\0');
@@ -1012,7 +1023,7 @@ std::string CStringUtils::wideToNarrow(const std::wstring &wideStr) {
     return narrowStr;
 }
 
-std::wstring CStringUtils::narrowToWide(const std::string &narrowStr) {
+std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
     // Annoyingly, the STL character transformations only work on
     // character arrays, and not std::string objects
     std::wstring wideStr(narrowStr.length(), L'\0');
@@ -1026,7 +1037,7 @@ std::wstring CStringUtils::narrowToWide(const std::string &narrowStr) {
     return wideStr;
 }
 
-const std::locale &CStringUtils::locale(void) {
+const std::locale& CStringUtils::locale(void) {
     static std::locale loc;
     return loc;
 }

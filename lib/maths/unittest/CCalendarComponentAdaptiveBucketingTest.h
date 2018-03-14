@@ -31,10 +31,10 @@ public:
     void testKnots(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     std::string m_Timezone;
 };
 
-#endif// INCLUDED_CCalendarComponentAdaptiveBucketingTest_h
+#endif // INCLUDED_CCalendarComponentAdaptiveBucketingTest_h

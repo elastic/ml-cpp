@@ -24,7 +24,7 @@ public:
     void testAge(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CDetectorEqualizerTest_h
+#endif // INCLUDED_CDetectorEqualizerTest_h

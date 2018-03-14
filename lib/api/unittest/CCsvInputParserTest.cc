@@ -29,21 +29,27 @@
 #include <functional>
 #include <vector>
 
-CppUnit::Test *CCsvInputParserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCsvInputParserTest");
+CppUnit::Test* CCsvInputParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testSimpleDelims", &CCsvInputParserTest::testSimpleDelims));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testComplexDelims", &CCsvInputParserTest::testComplexDelims));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testThroughput", &CCsvInputParserTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testDateParse", &CCsvInputParserTest::testDateParse));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testQuoteParsing", &CCsvInputParserTest::testQuoteParsing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testLineParser", &CCsvInputParserTest::testLineParser));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testSimpleDelims",
+                                                     &CCsvInputParserTest::testSimpleDelims));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testComplexDelims",
+                                                     &CCsvInputParserTest::testComplexDelims));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testThroughput",
+                                                     &CCsvInputParserTest::testThroughput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testDateParse",
+                                                     &CCsvInputParserTest::testDateParse));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testQuoteParsing",
+                                                     &CCsvInputParserTest::testQuoteParsing));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvInputParserTest>("CCsvInputParserTest::testLineParser",
+                                                     &CCsvInputParserTest::testLineParser));
 
     return suiteOfTests;
 }
@@ -54,11 +60,11 @@ class CVisitor {
 public:
     CVisitor(void) : m_Fast(true), m_RecordCount(0) {}
 
-    CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
+    CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
         : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordCount;
 
         // For the throughput test, the assertions below will skew the
@@ -68,7 +74,7 @@ public:
         }
 
         // Check the field names
-        for (const auto &entry : dataRowFields) {
+        for (const auto& entry : dataRowFields) {
             auto iter =
                 std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), entry.first);
             CPPUNIT_ASSERT(iter != m_ExpectedFieldNames.end());
@@ -104,16 +110,16 @@ public:
     typedef std::vector<ml::core_t::TTime> TTimeVec;
 
 public:
-    CTimeCheckingVisitor(const std::string &timeField,
-                         const std::string &timeFormat,
-                         const TTimeVec &expectedTimes)
+    CTimeCheckingVisitor(const std::string& timeField,
+                         const std::string& timeFormat,
+                         const TTimeVec& expectedTimes)
         : m_RecordCount(0),
           m_TimeField(timeField),
           m_TimeFormat(timeFormat),
           m_ExpectedTimes(expectedTimes) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Check the time field exists
         CPPUNIT_ASSERT(m_RecordCount < m_ExpectedTimes.size());
 
@@ -153,7 +159,7 @@ public:
     CQuoteCheckingVisitor(void) : m_RecordCount(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Now check quoted fields
         ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find("q1");
         CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
@@ -317,12 +323,12 @@ void CCsvInputParserTest::testThroughput(void) {
 }
 
 void CCsvInputParserTest::testDateParse(void) {
-    static const ml::core_t::TTime EXPECTED_TIMES[] = {
-        1359331200, 1359331200, 1359331207, 1359331220, 1359331259, 1359331262,
-        1359331269, 1359331270, 1359331272, 1359331296, 1359331301, 1359331311,
-        1359331314, 1359331315, 1359331316, 1359331321, 1359331328, 1359331333,
-        1359331349, 1359331352, 1359331370, 1359331382, 1359331385, 1359331386,
-        1359331395, 1359331404, 1359331416, 1359331416, 1359331424, 1359331429};
+    static const ml::core_t::TTime EXPECTED_TIMES[] =
+        {1359331200, 1359331200, 1359331207, 1359331220, 1359331259, 1359331262,
+         1359331269, 1359331270, 1359331272, 1359331296, 1359331301, 1359331311,
+         1359331314, 1359331315, 1359331316, 1359331321, 1359331328, 1359331333,
+         1359331349, 1359331352, 1359331370, 1359331382, 1359331385, 1359331386,
+         1359331395, 1359331404, 1359331416, 1359331416, 1359331424, 1359331429};
 
     CTimeCheckingVisitor::TTimeVec expectedTimes(boost::begin(EXPECTED_TIMES),
                                                  boost::end(EXPECTED_TIMES));

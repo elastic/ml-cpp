@@ -24,7 +24,7 @@
 namespace ml {
 namespace core {
 
-CCompressOStream::CCompressOStream(CStateCompressor::CChunkFilter &filter)
+CCompressOStream::CCompressOStream(CStateCompressor::CChunkFilter& filter)
     : std::ostream(&m_StreamBuf), m_UploadThread(*this, m_StreamBuf, filter) {
 
     if (m_UploadThread.start() == false) {
@@ -32,7 +32,9 @@ CCompressOStream::CCompressOStream(CStateCompressor::CChunkFilter &filter)
     }
 }
 
-CCompressOStream::~CCompressOStream(void) { this->close(); }
+CCompressOStream::~CCompressOStream(void) {
+    this->close();
+}
 
 void CCompressOStream::close(void) {
     if (m_UploadThread.isStarted()) {
@@ -43,9 +45,9 @@ void CCompressOStream::close(void) {
     }
 }
 
-CCompressOStream::CCompressThread::CCompressThread(CCompressOStream &stream,
-                                                   CDualThreadStreamBuf &streamBuf,
-                                                   CStateCompressor::CChunkFilter &filter)
+CCompressOStream::CCompressThread::CCompressThread(CCompressOStream& stream,
+                                                   CDualThreadStreamBuf& streamBuf,
+                                                   CStateCompressor::CChunkFilter& filter)
     : m_Stream(stream),
       m_StreamBuf(streamBuf),
       m_FilterSink(filter),
@@ -84,5 +86,5 @@ void CCompressOStream::CCompressThread::shutdown(void) {
     LOG_TRACE("CompressThread shutdown called");
 }
 
-}// core
-}// ml
+} // core
+} // ml

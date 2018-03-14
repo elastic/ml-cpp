@@ -30,7 +30,9 @@ CWindowsError::CWindowsError(void) : m_ErrorCode(GetLastError()) {}
 
 CWindowsError::CWindowsError(uint32_t errorCode) : m_ErrorCode(errorCode) {}
 
-uint32_t CWindowsError::errorCode(void) const { return m_ErrorCode; }
+uint32_t CWindowsError::errorCode(void) const {
+    return m_ErrorCode;
+}
 
 std::string CWindowsError::errorString(void) const {
     char message[BUFFER_SIZE] = {'\0'};
@@ -50,7 +52,7 @@ std::string CWindowsError::errorString(void) const {
     return message;
 }
 
-std::ostream &operator<<(std::ostream &os, const CWindowsError &windowsError) {
+std::ostream& operator<<(std::ostream& os, const CWindowsError& windowsError) {
     char message[BUFFER_SIZE] = {'\0'};
 
     DWORD msgLen(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |

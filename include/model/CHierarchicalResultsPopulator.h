@@ -30,15 +30,15 @@ class CLimits;
 class MODEL_EXPORT CHierarchicalResultsPopulator : public CHierarchicalResultsVisitor {
 public:
     //! Constructor
-    CHierarchicalResultsPopulator(const CLimits &limits);
+    CHierarchicalResultsPopulator(const CLimits& limits);
 
     //! Visit \p node.
-    virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
 
 private:
-    const CLimits &m_Limits;
+    const CLimits& m_Limits;
 };
 }
 }
 
-#endif// INCLUDED_ml_model_CHierarchicalResultsPopulator_h
+#endif // INCLUDED_ml_model_CHierarchicalResultsPopulator_h

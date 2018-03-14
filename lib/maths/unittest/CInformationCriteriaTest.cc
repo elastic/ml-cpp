@@ -43,14 +43,14 @@ typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
 typedef std::vector<TMatrix4> TMatrix4Vec;
 
 template <typename POINT>
-double logfSphericalGaussian(const POINT &mean, double variance, const POINT &x) {
+double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
     return -0.5 * (d * ::log(boost::math::double_constants::two_pi * variance) + r * r / variance);
 }
 
 template <typename POINT, typename MATRIX>
-double logfGaussian(const POINT &mean, const MATRIX &covariance, const POINT &x) {
+double logfGaussian(const POINT& mean, const MATRIX& covariance, const POINT& x) {
     double result;
     maths::gaussianLogLikelihood(covariance, x - mean, result);
     return result;
@@ -106,8 +106,8 @@ void CInformationCriteriaTest::testSphericalGaussian(void) {
     {
         double variance = 8.0;
         double mean_[] = {-5.0, 30.0, 2.0, 7.9};
-        double lowerTriangle[] = {
-            variance, 0.0, variance, 0.0, 0.0, variance, 0.0, 0.0, 0.0, variance};
+        double lowerTriangle[] =
+            {variance, 0.0, variance, 0.0, 0.0, variance, 0.0, 0.0, 0.0, variance};
 
         TVector4 mean(boost::begin(mean_), boost::end(mean_));
         TMatrix4 covariance(boost::begin(lowerTriangle), boost::end(lowerTriangle));
@@ -263,8 +263,9 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void) {
         LOG_DEBUG("BIC points  = " << bicPoints.calculate());
         LOG_DEBUG("BIC clusters  = " << bicClusters.calculate());
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            bicPoints.calculate(), bicClusters.calculate(), 1e-10 * bicPoints.calculate());
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(),
+                                     bicClusters.calculate(),
+                                     1e-10 * bicPoints.calculate());
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
         aicPoints.add(points);
@@ -272,8 +273,9 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster(void) {
         aicClusters.add(clusters);
         LOG_DEBUG("AICc points   = " << aicPoints.calculate());
         LOG_DEBUG("AICc clusters = " << aicClusters.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            aicPoints.calculate(), aicClusters.calculate(), 1e-10 * aicPoints.calculate());
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(),
+                                     aicClusters.calculate(),
+                                     1e-10 * aicPoints.calculate());
     }
 }
 
@@ -470,8 +472,9 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void) {
         LOG_DEBUG("BIC points  = " << bicPoints.calculate());
         LOG_DEBUG("BIC clusters  = " << bicClusters.calculate());
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            bicPoints.calculate(), bicClusters.calculate(), 2e-3 * bicPoints.calculate());
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(),
+                                     bicClusters.calculate(),
+                                     2e-3 * bicPoints.calculate());
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
         aicPoints.add(points);
@@ -479,25 +482,29 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster(void) {
         aicClusters.add(clusters);
         LOG_DEBUG("AICc points   = " << aicPoints.calculate());
         LOG_DEBUG("AICc clusters = " << aicClusters.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            aicPoints.calculate(), aicClusters.calculate(), 2e-3 * aicPoints.calculate());
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(),
+                                     aicClusters.calculate(),
+                                     2e-3 * aicPoints.calculate());
     }
 }
 
-CppUnit::Test *CInformationCriteriaTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
+CppUnit::Test* CInformationCriteriaTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testSphericalGaussian",
-        &CInformationCriteriaTest::testSphericalGaussian));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CInformationCriteriaTest>("CInformationCriteriaTest::testSphericalGaussian",
+                                      &CInformationCriteriaTest::testSphericalGaussian));
     suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
         "CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster",
         &CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testGaussian", &CInformationCriteriaTest::testGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testGaussianWithSphericalCluster",
-        &CInformationCriteriaTest::testGaussianWithSphericalCluster));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CInformationCriteriaTest>("CInformationCriteriaTest::testGaussian",
+                                                          &CInformationCriteriaTest::testGaussian));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CInformationCriteriaTest>("CInformationCriteriaTest::testGaussianWithSphericalCluster",
+                                      &CInformationCriteriaTest::testGaussianWithSphericalCluster));
 
     return suiteOfTests;
 }

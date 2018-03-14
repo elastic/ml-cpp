@@ -71,13 +71,13 @@ public:
         return this->maths::CXMeans<POINT, COST>::improveStructure(clusterSeeds, kmeansIterations);
     }
 
-    const TUInt64USet &inactive(void) const {
+    const TUInt64USet& inactive(void) const {
         return this->maths::CXMeans<POINT, COST>::inactive();
     }
 };
 
 template <typename POINT>
-double logfSphericalGaussian(const POINT &mean, double variance, const POINT &x) {
+double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
     return -0.5 * d * ::log(boost::math::double_constants::two_pi * variance) -
@@ -91,7 +91,8 @@ public:
                ::log(maths::CBasicStatistics::count(m_Divergence));
     }
 
-    template <typename POINT> void add(const std::vector<POINT> &points) {
+    template <typename POINT>
+    void add(const std::vector<POINT>& points) {
         typename maths::CBasicStatistics::SSampleMeanVar<POINT>::TAccumulator moments;
         moments.add(points);
         POINT mean = maths::CBasicStatistics::mean(moments);
@@ -111,7 +112,7 @@ private:
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator m_Divergence;
 };
 
-void computePurities(const TSizeVecVec &clusters, TDoubleVec &purities) {
+void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
     purities.clear();
     purities.resize(clusters.size());
 
@@ -438,7 +439,7 @@ void CXMeansTest::testFiveClusters(void) {
 
         std::size_t n = 0u;
         for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
-            const TVector2Vec &clusterPoints = xmeans.clusters()[i].points();
+            const TVector2Vec& clusterPoints = xmeans.clusters()[i].points();
 
             klc.add(clusterPoints);
             n += clusterPoints.size();
@@ -449,10 +450,12 @@ void CXMeansTest::testFiveClusters(void) {
 
                 std::size_t k = 0u;
                 for (/**/; k < points.size(); ++k) {
-                    for (TVector2VecCItr itr = std::lower_bound(
-                                             points[k].begin(), points[k].end(), clusterPoints[j]),
-                                         end = std::upper_bound(
-                                             points[k].begin(), points[k].end(), clusterPoints[j]);
+                    for (TVector2VecCItr itr = std::lower_bound(points[k].begin(),
+                                                                points[k].end(),
+                                                                clusterPoints[j]),
+                                         end = std::upper_bound(points[k].begin(),
+                                                                points[k].end(),
+                                                                clusterPoints[j]);
                          itr != end;
                          ++itr) {
                         if (clusterPoints[j] == *itr) {
@@ -554,7 +557,7 @@ void CXMeansTest::testTwentyClusters(void) {
 
     std::size_t n = 0u;
     for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
-        const TVector2Vec &clusterPoints = xmeans.clusters()[i].points();
+        const TVector2Vec& clusterPoints = xmeans.clusters()[i].points();
 
         klc.add(clusterPoints);
         n += clusterPoints.size();
@@ -621,13 +624,15 @@ void CXMeansTest::testPoorlyConditioned(void) {
 
     maths::CSampling::seed();
 
-    double points_[][2] = {
-        {0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},    {4.0, 2.0},    {5.0, 2.5},
-        {6.0, 3.0},    {7.0, 3.5},    {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2},
-        {101.5, 22.0}, {104.0, 23.0}, {102.6, 21.4}, {101.3, 22.0}, {101.2, 21.0}, {101.1, 22.1},
-        {101.7, 23.0}, {101.0, 24.0}, {50.0, 50.0},  {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},
-        {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},  {53.0, 52.0},  {52.0, 54.0},
-        {52.0, 52.0},  {52.0, 52.0},  {53.0, 52.0},  {51.0, 52.0}};
+    double points_[][2] = {{0.0, 0.0},    {1.0, 0.5},    {2.0, 1.0},    {3.0, 1.5},
+                           {4.0, 2.0},    {5.0, 2.5},    {6.0, 3.0},    {7.0, 3.5},
+                           {8.0, 4.0},    {9.0, 4.5},    {101.0, 21.9}, {102.0, 21.2},
+                           {101.5, 22.0}, {104.0, 23.0}, {102.6, 21.4}, {101.3, 22.0},
+                           {101.2, 21.0}, {101.1, 22.1}, {101.7, 23.0}, {101.0, 24.0},
+                           {50.0, 50.0},  {51.0, 51.0},  {50.0, 51.0},  {54.0, 53.0},
+                           {52.0, 51.0},  {51.0, 52.0},  {51.0, 52.0},  {53.0, 53.0},
+                           {53.0, 52.0},  {52.0, 54.0},  {52.0, 52.0},  {52.0, 52.0},
+                           {53.0, 52.0},  {51.0, 52.0}};
 
     TVector2Vec cluster1;
     for (std::size_t i = 0u; i < 10; ++i) {
@@ -668,8 +673,8 @@ void CXMeansTest::testPoorlyConditioned(void) {
     }
 }
 
-CppUnit::Test *CXMeansTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
+CppUnit::Test* CXMeansTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testCluster",
                                                                &CXMeansTest::testCluster));
@@ -683,8 +688,9 @@ CppUnit::Test *CXMeansTest::suite(void) {
                                                                &CXMeansTest::testFiveClusters));
     suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testTwentyClusters",
                                                                &CXMeansTest::testTwentyClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansTest>(
-        "CXMeansTest::testPoorlyConditioned", &CXMeansTest::testPoorlyConditioned));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CXMeansTest>("CXMeansTest::testPoorlyConditioned",
+                                             &CXMeansTest::testPoorlyConditioned));
 
     return suiteOfTests;
 }

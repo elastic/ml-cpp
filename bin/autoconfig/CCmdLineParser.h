@@ -38,20 +38,20 @@ public:
 public:
     //! Parse the arguments and return options if appropriate.
     static bool parse(int argc,
-                      const char *const *argv,
-                      std::string &logProperties,
-                      std::string &logPipe,
-                      char &delimiter,
-                      bool &lengthEncodedInput,
-                      std::string &timeField,
-                      std::string &timeFormat,
-                      std::string &configFile,
-                      std::string &inputFileName,
-                      bool &isInputFileNamedPipe,
-                      std::string &outputFileName,
-                      bool &isOutputFileNamedPipe,
-                      bool &verbose,
-                      bool &writeDetectorConfigs);
+                      const char* const* argv,
+                      std::string& logProperties,
+                      std::string& logPipe,
+                      char& delimiter,
+                      bool& lengthEncodedInput,
+                      std::string& timeField,
+                      std::string& timeFormat,
+                      std::string& configFile,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe,
+                      bool& verbose,
+                      bool& writeDetectorConfigs);
 
 private:
     static const std::string DESCRIPTION;
@@ -59,4 +59,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_autoconfig_CCmdLineParser_h
+#endif // INCLUDED_ml_autoconfig_CCmdLineParser_h

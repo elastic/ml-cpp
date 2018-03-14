@@ -55,30 +55,42 @@ CRuleCondition::CRuleCondition(void)
       m_FieldValue(),
       m_ValueFilter(EMPTY_FILTER) {}
 
-void CRuleCondition::type(ERuleConditionType ruleType) { m_Type = ruleType; }
+void CRuleCondition::type(ERuleConditionType ruleType) {
+    m_Type = ruleType;
+}
 
-void CRuleCondition::fieldName(const std::string &fieldName) { m_FieldName = fieldName; }
+void CRuleCondition::fieldName(const std::string& fieldName) {
+    m_FieldName = fieldName;
+}
 
-void CRuleCondition::fieldValue(const std::string &fieldValue) { m_FieldValue = fieldValue; }
+void CRuleCondition::fieldValue(const std::string& fieldValue) {
+    m_FieldValue = fieldValue;
+}
 
-CRuleCondition::SCondition &CRuleCondition::condition(void) { return m_Condition; }
+CRuleCondition::SCondition& CRuleCondition::condition(void) {
+    return m_Condition;
+}
 
-void CRuleCondition::valueFilter(const core::CPatternSet &valueFilter) {
+void CRuleCondition::valueFilter(const core::CPatternSet& valueFilter) {
     m_ValueFilter = TPatternSetCRef(valueFilter);
 }
 
-bool CRuleCondition::isCategorical(void) const { return m_Type == E_Categorical; }
+bool CRuleCondition::isCategorical(void) const {
+    return m_Type == E_Categorical;
+}
 
-bool CRuleCondition::isNumerical(void) const { return !this->isCategorical(); }
+bool CRuleCondition::isNumerical(void) const {
+    return !this->isCategorical();
+}
 
-bool CRuleCondition::test(const CAnomalyDetectorModel &model,
+bool CRuleCondition::test(const CAnomalyDetectorModel& model,
                           model_t::EFeature feature,
-                          const model_t::CResultType &resultType,
+                          const model_t::CResultType& resultType,
                           bool isScoped,
                           std::size_t pid,
                           std::size_t cid,
                           core_t::TTime time) const {
-    const CDataGatherer &gatherer = model.dataGatherer();
+    const CDataGatherer& gatherer = model.dataGatherer();
 
     if (this->isCategorical()) {
         if (m_FieldName == gatherer.partitionFieldName()) {
@@ -111,7 +123,7 @@ bool CRuleCondition::test(const CAnomalyDetectorModel &model,
                 //   - the person field name if the detector has only an over field or only a by
                 //   field
                 //   - the attribute field name if the detector has both over and by fields
-                const std::string &fieldValue =
+                const std::string& fieldValue =
                     model.isPopulation() && m_FieldName == gatherer.attributeFieldName()
                         ? gatherer.attributeName(cid)
                         : gatherer.personName(pid);
@@ -124,7 +136,7 @@ bool CRuleCondition::test(const CAnomalyDetectorModel &model,
     }
 }
 
-bool CRuleCondition::checkCondition(const CAnomalyDetectorModel &model,
+bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
                                     model_t::EFeature feature,
                                     model_t::CResultType resultType,
                                     std::size_t pid,

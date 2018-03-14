@@ -28,7 +28,7 @@ public:
     void testArray(void);
     void testCombinations(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CChecksumTest_h
+#endif // INCLUDED_CChecksumTest_h

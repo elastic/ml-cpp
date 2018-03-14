@@ -24,10 +24,10 @@ namespace ml {
 namespace config {
 
 CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(
-    const CAutoconfigurerParams &params)
+    const CAutoconfigurerParams& params)
     : CPenalty(params) {}
 
-CSpanTooSmallForBucketLengthPenalty *CSpanTooSmallForBucketLengthPenalty::clone(void) const {
+CSpanTooSmallForBucketLengthPenalty* CSpanTooSmallForBucketLengthPenalty::clone(void) const {
     return new CSpanTooSmallForBucketLengthPenalty(*this);
 }
 
@@ -35,9 +35,9 @@ std::string CSpanTooSmallForBucketLengthPenalty::name(void) const {
     return "span too small for bucket length";
 }
 
-void CSpanTooSmallForBucketLengthPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
-    if (const CDataCountStatistics *stats = spec.countStatistics()) {
-        const TTimeVec &candidates = this->params().candidateBucketLengths();
+void CSpanTooSmallForBucketLengthPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
+    if (const CDataCountStatistics* stats = spec.countStatistics()) {
+        const TTimeVec& candidates = this->params().candidateBucketLengths();
 
         TSizeVec indices;
         TDoubleVec penalties;
@@ -47,7 +47,7 @@ void CSpanTooSmallForBucketLengthPenalty::penaltyFromMe(CDetectorSpecification &
         descriptions.reserve(2 * candidates.size());
 
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
-            const TSizeVec &indices_ = this->params().penaltyIndicesFor(bid);
+            const TSizeVec& indices_ = this->params().penaltyIndicesFor(bid);
             indices.insert(indices.end(), indices_.begin(), indices_.end());
             double penalty =
                 CTools::logInterpolate(this->params().minimumNumberOfBucketsForConfig(),

@@ -32,9 +32,9 @@ const std::string CCmdLineParser::DESCRIPTION =
     "Options:";
 
 bool CCmdLineParser::parse(int argc,
-                           const char *const *argv,
-                           std::string &configFile,
-                           std::string &syslogLine) {
+                           const char* const* argv,
+                           std::string& configFile,
+                           std::string& syslogLine) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
 
@@ -71,7 +71,7 @@ bool CCmdLineParser::parse(int argc,
         // Raise error
         std::cerr << "Error: Invalid command line options" << std::endl;
         std::cerr << desc << std::endl;
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
     }
 

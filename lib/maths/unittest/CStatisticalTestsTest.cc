@@ -175,13 +175,15 @@ void CStatisticalTestsTest::testPersist(void) {
     }
 }
 
-CppUnit::Test *CStatisticalTestsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
+CppUnit::Test* CStatisticalTestsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testCramerVonMises",
+                                                       &CStatisticalTestsTest::testCramerVonMises));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStatisticalTestsTest>("CStatisticalTestsTest::testPersist",
+                                                       &CStatisticalTestsTest::testPersist));
 
     return suiteOfTests;
 }

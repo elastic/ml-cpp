@@ -19,11 +19,12 @@
 
 #include <vector>
 
-CppUnit::Test *CBlockingMessageQueueTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
+CppUnit::Test* CBlockingMessageQueueTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingMessageQueueTest>(
-        "CBlockingMessageQueueTest::testSendReceive", &CBlockingMessageQueueTest::testSendReceive));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CBlockingMessageQueueTest>("CBlockingMessageQueueTest::testSendReceive",
+                                                     &CBlockingMessageQueueTest::testSendReceive));
 
     return suiteOfTests;
 }
@@ -31,7 +32,7 @@ CppUnit::Test *CBlockingMessageQueueTest::suite() {
 namespace {
 class CReceiver {
 public:
-    void processMsg(const std::string &str, size_t /* backlog */) {
+    void processMsg(const std::string& str, size_t /* backlog */) {
         m_Strings.push_back(str);
         if ((m_Strings.size() % 1000) == 0) {
             LOG_DEBUG("Received " << m_Strings.size() << " strings");

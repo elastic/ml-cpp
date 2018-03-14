@@ -17,7 +17,7 @@
 namespace ml {
 namespace core {
 
-std::string CShellArgQuoter::quote(const std::string &arg) {
+std::string CShellArgQuoter::quote(const std::string& arg) {
     if (arg.empty()) {
         return "''";
     }

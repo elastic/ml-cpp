@@ -35,8 +35,8 @@ typedef core::CSmallVector<double, 10> TDouble10Vec;
 const double EPSILON = 1e-10;
 }
 
-CppUnit::Test *CInterimBucketCorrectorTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
+CppUnit::Test* CInterimBucketCorrectorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
         "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",
@@ -47,8 +47,9 @@ CppUnit::Test *CInterimBucketCorrectorTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
         "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
         &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testPersist", &CInterimBucketCorrectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testPersist",
+                                                       &CInterimBucketCorrectorTest::testPersist));
 
     return suiteOfTests;
 }

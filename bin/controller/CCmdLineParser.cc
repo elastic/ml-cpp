@@ -27,10 +27,10 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: controller [options]\n"
                                                 "Options";
 
 bool CCmdLineParser::parse(int argc,
-                           const char *const *argv,
-                           std::string &jvmPidStr,
-                           std::string &logPipe,
-                           std::string &commandPipe) {
+                           const char* const* argv,
+                           std::string& jvmPidStr,
+                           std::string& logPipe,
+                           std::string& commandPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -68,7 +68,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("commandPipe") > 0) {
             commandPipe = vm["commandPipe"].as<std::string>();
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

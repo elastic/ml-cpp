@@ -70,7 +70,7 @@ public:
                      char separator = COMMA);
 
     //! Constructor that causes output to be written to the specified stream
-    CCsvOutputWriter(std::ostream &strmOut,
+    CCsvOutputWriter(std::ostream& strmOut,
                      bool outputMessages = false,
                      bool outputHeader = true,
                      char escape = QUOTE,
@@ -81,10 +81,10 @@ public:
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Get field names
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
@@ -93,8 +93,8 @@ public:
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -105,12 +105,12 @@ public:
 
 protected:
     //! Output stream accessor
-    std::ostream &outputStream(void);
+    std::ostream& outputStream(void);
 
 private:
     //! Append a field to the work record, quoting it if required, and
     //! escaping embedded quotes
-    void appendField(const std::string &field);
+    void appendField(const std::string& field);
 
 private:
     //! If we've been initialised without a specific stream, output is
@@ -118,7 +118,7 @@ private:
     std::ostringstream m_StringOutputBuf;
 
     //! Reference to the stream we're going to write to
-    std::ostream &m_StrmOut;
+    std::ostream& m_StrmOut;
 
     //! Should we output a messages section before the CSV?
     bool m_OutputMessages;
@@ -158,4 +158,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CCsvOutputWriter_h
+#endif // INCLUDED_ml_api_CCsvOutputWriter_h

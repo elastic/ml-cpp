@@ -25,7 +25,7 @@ public:
     void testSpan(void);
     void testEdgeCases(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CGramSchmidtTest_h
+#endif // INCLUDED_CGramSchmidtTest_h

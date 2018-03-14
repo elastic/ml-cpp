@@ -62,20 +62,20 @@ public:
     //! strptime interface
     //! NOTE: the time returned here is a UTC value
     static bool
-    strptime(const std::string &format, const std::string &dateTime, core_t::TTime &preTime);
+    strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
 
     //! Same strptime interface as above, but doesn't print any error messages
     static bool
-    strptimeSilent(const std::string &format, const std::string &dateTime, core_t::TTime &preTime);
+    strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime);
 
     //! Is a given word a day of the week name, month name, or timezone
     //! abbreviation in the current locale?  Input should be trimmed of
     //! whitespace before calling this function.
-    static bool isDateWord(const std::string &word);
+    static bool isDateWord(const std::string& word);
 
 private:
     //! Factor out common code from the three string conversion methods
-    static void toStringCommon(core_t::TTime t, const std::string &format, std::string &result);
+    static void toStringCommon(core_t::TTime t, const std::string& format, std::string& result);
 
 private:
     //! Class to cache date words so that we don't have to repeatedly use
@@ -83,10 +83,10 @@ private:
     class CDateWordCache {
     public:
         //! Get the singleton instance
-        static const CDateWordCache &instance(void);
+        static const CDateWordCache& instance(void);
 
         //! Check if a word is a date word
-        bool isDateWord(const std::string &word) const;
+        bool isDateWord(const std::string& word) const;
 
     private:
         //! Constructor for a singleton is private
@@ -102,7 +102,7 @@ private:
         //! constructed, and avoids the need to lock the mutex on
         //! subsequent calls of the instance() method (once the updated
         //! value of this variable has made its way into every thread).
-        static volatile CDateWordCache *ms_Instance;
+        static volatile CDateWordCache* ms_Instance;
 
         typedef boost::unordered_set<std::string> TStrUSet;
 
@@ -113,4 +113,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CTimeUtils_h
+#endif // INCLUDED_ml_core_CTimeUtils_h

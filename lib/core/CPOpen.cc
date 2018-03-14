@@ -17,8 +17,12 @@
 namespace ml {
 namespace core {
 
-FILE *CPOpen::pOpen(const char *command, const char *mode) { return ::popen(command, mode); }
+FILE* CPOpen::pOpen(const char* command, const char* mode) {
+    return ::popen(command, mode);
+}
 
-int CPOpen::pClose(FILE *stream) { return ::pclose(stream); }
+int CPOpen::pClose(FILE* stream) {
+    return ::pclose(stream);
+}
 }
 }

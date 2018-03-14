@@ -33,7 +33,7 @@ namespace {
 
 //! fclose() doesn't check for NULL pointers, so wrap it for use as a shared_ptr
 //! deleter
-void safeFClose(FILE *file) {
+void safeFClose(FILE* file) {
     if (file != 0) {
         ::fclose(file);
     }
@@ -86,7 +86,7 @@ public:
     //! Write to the file descriptor provided to the constructor, retrying
     //! in the event of an interrupted system call.  The method signature is
     //! defined by Boost's Sink concept.
-    std::streamsize write(const char *s, std::streamsize n) {
+    std::streamsize write(const char* s, std::streamsize n) {
         std::streamsize totalBytesWritten = 0;
         while (n > 0) {
             ssize_t ret = ::write(this->handle(), s, static_cast<size_t>(n));
@@ -116,7 +116,7 @@ namespace core {
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string &fileName) {
+CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (fd == -1) {
         return TIStreamP();
@@ -127,7 +127,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
         boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string &fileName) {
+CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (fd == -1) {
         return TOStreamP();
@@ -137,7 +137,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
         CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string &fileName) {
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (fd == -1) {
         return TFileP();
@@ -145,7 +145,7 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string 
     return TFileP(::fdopen(fd, "r"), safeFClose);
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string &fileName) {
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
     TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (fd == -1) {
         return TFileP();
@@ -153,7 +153,7 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string
     return TFileP(::fdopen(fd, "w"), safeFClose);
 }
 
-bool CNamedPipeFactory::isNamedPipe(const std::string &fileName) {
+bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
     COsFileFuncs::TStat statbuf;
     if (COsFileFuncs::stat(fileName.c_str(), &statbuf) < 0) {
         return false;
@@ -169,7 +169,7 @@ std::string CNamedPipeFactory::defaultPath(void) {
     // $TMPDIR is generally set on Mac OS X (to something like
     // /var/folders/k5/5sqcdlps5sg3cvlp783gcz740000h0/T/) and not set on other
     // platforms.
-    const char *tmpDir(::getenv("TMPDIR"));
+    const char* tmpDir(::getenv("TMPDIR"));
 
     // Make sure path ends with a slash so it's ready to have a file name
     // appended.  (_PATH_VARTMP already has this on all platforms I've seen,
@@ -181,7 +181,7 @@ std::string CNamedPipeFactory::defaultPath(void) {
     return path;
 }
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string &fileName,
+CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName,
                                                                  bool forWrite) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN("Failed to ignore SIGPIPE - this process will not terminate "

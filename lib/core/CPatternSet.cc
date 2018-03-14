@@ -33,7 +33,7 @@ const char WILDCARD = '*';
 CPatternSet::CPatternSet(void)
     : m_FullMatchPatterns(), m_PrefixPatterns(), m_SuffixPatterns(), m_ContainsPatterns() {}
 
-bool CPatternSet::initFromJson(const std::string &json) {
+bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec fullPatterns;
     TStrVec prefixPatterns;
     TStrVec suffixPatterns;
@@ -85,12 +85,12 @@ bool CPatternSet::initFromJson(const std::string &json) {
            m_SuffixPatterns.build(suffixPatterns) && m_ContainsPatterns.build(containsPatterns);
 }
 
-void CPatternSet::sortAndPruneDuplicates(TStrVec &keys) {
+void CPatternSet::sortAndPruneDuplicates(TStrVec& keys) {
     std::sort(keys.begin(), keys.end());
     keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
 }
 
-bool CPatternSet::contains(const std::string &key) const {
+bool CPatternSet::contains(const std::string& key) const {
     if (m_PrefixPatterns.matchesStart(key)) {
         return true;
     }

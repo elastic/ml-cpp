@@ -45,7 +45,7 @@ public:
     void add(model_t::EFeature feature, double value, unsigned int count);
 
     //! Update the classification with \p value.
-    void add(model_t::EFeature feature, const TDouble1Vec &value, unsigned int count);
+    void add(model_t::EFeature feature, const TDouble1Vec& value, unsigned int count);
 
     //! Check if the values are all integers.
     bool isInteger() const;
@@ -61,10 +61,10 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create from part of an XML document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     //@}
 
 private:
@@ -77,4 +77,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CDataClassifier_h
+#endif // INCLUDED_ml_model_CDataClassifier_h

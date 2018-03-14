@@ -51,9 +51,13 @@ namespace {
 class BasicCompare {};
 class ContainerCompare {};
 
-template <typename T, typename R = void> struct enable_if_type { typedef R type; };
+template <typename T, typename R = void>
+struct enable_if_type {
+    typedef R type;
+};
 
-template <typename T, typename ITR = void> struct compare_container_selector {
+template <typename T, typename ITR = void>
+struct compare_container_selector {
     typedef BasicCompare value;
 };
 template <typename T>
@@ -61,16 +65,18 @@ struct compare_container_selector<T, typename enable_if_type<typename T::const_i
     typedef ContainerCompare value;
 };
 
-template <typename SELECTOR> class CCompareImpl {};
+template <typename SELECTOR>
+class CCompareImpl {};
 
 //! Convenience function to select implementation.
-template <typename T> bool compare(const T &lhs, const T &rhs) {
+template <typename T>
+bool compare(const T& lhs, const T& rhs) {
     return CCompareImpl<typename compare_container_selector<T>::value>::dispatch(lhs, rhs);
 }
 
 struct SFirstLess {
     template <typename U, typename V>
-    inline bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+    inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
         return lhs.first < rhs.first;
     }
 };
@@ -80,31 +86,36 @@ struct SEqual {
         return ::fabs(lhs - rhs) <= 1e-5 * std::max(::fabs(lhs), ::fabs(rhs));
     }
 
-    template <typename T> bool operator()(T lhs, T rhs) const {
+    template <typename T>
+    bool operator()(T lhs, T rhs) const {
         return this->operator()(static_cast<double>(lhs), static_cast<double>(rhs));
     }
 
-    bool operator()(const TSizeDoublePr &lhs, const TSizeDoublePr &rhs) {
+    bool operator()(const TSizeDoublePr& lhs, const TSizeDoublePr& rhs) {
         return lhs.first == rhs.first && this->operator()(lhs.second, rhs.second);
     }
 
     template <typename A, typename B>
-    bool operator()(const std::pair<A, B> &lhs, const std::pair<A, B> &rhs) {
+    bool operator()(const std::pair<A, B>& lhs, const std::pair<A, B>& rhs) {
         return compare(lhs.first, rhs.first) && compare(lhs.second, rhs.second);
     }
 };
 
-template <> class CCompareImpl<BasicCompare> {
+template <>
+class CCompareImpl<BasicCompare> {
 public:
-    template <typename T> static bool dispatch(const T &lhs, const T &rhs) {
+    template <typename T>
+    static bool dispatch(const T& lhs, const T& rhs) {
         SEqual eq;
         return eq(lhs, rhs);
     }
 };
 
-template <> class CCompareImpl<ContainerCompare> {
+template <>
+class CCompareImpl<ContainerCompare> {
 public:
-    template <typename T> static bool dispatch(const T &lhs, const T &rhs) {
+    template <typename T>
+    static bool dispatch(const T& lhs, const T& rhs) {
         typedef typename T::const_iterator TCItr;
         if (lhs.size() != rhs.size()) {
             return false;
@@ -118,8 +129,8 @@ public:
     }
 
     template <typename K, typename V>
-    static bool dispatch(const boost::unordered_map<K, V> &lhs,
-                         const boost::unordered_map<K, V> &rhs) {
+    static bool dispatch(const boost::unordered_map<K, V>& lhs,
+                         const boost::unordered_map<K, V>& rhs) {
         typedef std::vector<std::pair<K, V>> TVec;
         TVec lKeys(lhs.begin(), lhs.end());
         TVec rKeys(rhs.begin(), rhs.end());
@@ -129,7 +140,7 @@ public:
     }
 
     template <typename T>
-    static bool dispatch(const boost::unordered_set<T> &lhs, const boost::unordered_set<T> &rhs) {
+    static bool dispatch(const boost::unordered_set<T>& lhs, const boost::unordered_set<T>& rhs) {
         typedef std::vector<T> TVec;
         TVec lKeys(lhs.begin(), lhs.end());
         TVec rKeys(rhs.begin(), rhs.end());
@@ -139,11 +150,13 @@ public:
     }
 };
 
-template <typename T> bool equal(const T &lhs, const T &rhs) {
+template <typename T>
+bool equal(const T& lhs, const T& rhs) {
     return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin(), SEqual());
 }
 
-template <typename T> void testPersistRestore(const T &collection, const T &initial = T()) {
+template <typename T>
+void testPersistRestore(const T& collection, const T& initial = T()) {
     const std::string tag("baseTag");
     std::stringstream origSs;
     {
@@ -160,7 +173,7 @@ template <typename T> void testPersistRestore(const T &collection, const T &init
     }
     LOG_TRACE(" - doing persist again " << typeid(T).name());
     {
-        const T &restoredRef = restored;
+        const T& restoredRef = restored;
         core::CJsonStatePersistInserter inserter(restoredSs);
         core::CPersistUtils::persist(tag, restoredRef, inserter);
     }
@@ -588,15 +601,18 @@ void CPersistUtilsTest::testAppend(void) {
     }
 }
 
-CppUnit::Test *CPersistUtilsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
+CppUnit::Test* CPersistUtilsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testPersistContainers", &CPersistUtilsTest::testPersistContainers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testPersistIterators", &CPersistUtilsTest::testPersistIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testAppend", &CPersistUtilsTest::testAppend));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistContainers",
+                                                   &CPersistUtilsTest::testPersistContainers));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistIterators",
+                                                   &CPersistUtilsTest::testPersistIterators));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testAppend",
+                                                   &CPersistUtilsTest::testAppend));
 
     return suiteOfTests;
 }

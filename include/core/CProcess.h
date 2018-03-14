@@ -49,14 +49,14 @@ namespace core {
 class CORE_EXPORT CProcess : private CNonCopyable {
 public:
     //! These messages need to be 100% standard across all services
-    static const char *STARTING_MSG;
-    static const char *STARTED_MSG;
-    static const char *STOPPING_MSG;
-    static const char *STOPPED_MSG;
+    static const char* STARTING_MSG;
+    static const char* STARTED_MSG;
+    static const char* STOPPING_MSG;
+    static const char* STOPPED_MSG;
 
 public:
     //! Prototype of the mlMain() function
-    typedef int (*TMlMainFunc)(int, char *[]);
+    typedef int (*TMlMainFunc)(int, char* []);
 
     //! Vector of process arguments
     typedef std::vector<std::string> TStrVec;
@@ -74,7 +74,7 @@ public:
 
 public:
     //! Access to singleton
-    static CProcess &instance(void);
+    static CProcess& instance(void);
 
     //! Is this process running as a Windows service?
     bool isService(void) const;
@@ -89,7 +89,7 @@ public:
     //! immediately pass control to the mlMain() function.  If this
     //! process is running as a Windows service, the thread that calls this
     //! method will become the service dispatcher thread.
-    bool startDispatcher(TMlMainFunc mlMain, int argc, char *argv[]);
+    bool startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]);
 
     //! Check if the application is initialised
     bool isInitialised(void) const;
@@ -97,7 +97,7 @@ public:
     //! Record successful completion of the application's initialisation
     //! phase.  This must be passed a shutdown function that can be used
     //! to stop the application gracefully if requested.
-    void initialisationComplete(const TShutdownFunc &shutdownFunc);
+    void initialisationComplete(const TShutdownFunc& shutdownFunc);
 
     //! Record successful completion of the application's initialisation
     //! phase.  No shutdown function is passed, so the application will
@@ -115,7 +115,7 @@ public:
 
 #ifdef Windows
     //! Windows service main function
-    static void WINAPI serviceMain(DWORD argc, char *argv[]);
+    static void WINAPI serviceMain(DWORD argc, char* argv[]);
 
     //! Windows service control function
     static void WINAPI serviceCtrlHandler(DWORD ctrlType);
@@ -156,4 +156,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CProcess_h
+#endif // INCLUDED_ml_core_CProcess_h

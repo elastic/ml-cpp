@@ -108,7 +108,7 @@ std::string CUname::mlPlatform(void) {
     }
 #endif
 
-    const std::string &machine = CStringUtils::toLower(name.machine);
+    const std::string& machine = CStringUtils::toLower(name.machine);
     if (machine.length() == 4 && machine[0] == 'i' && machine[2] == '8' && machine[3] == '6') {
         return os + "-x86";
     }
@@ -120,6 +120,8 @@ std::string CUname::mlPlatform(void) {
     return os + '-' + machine;
 }
 
-std::string CUname::mlOsVer(void) { return CUname::release(); }
+std::string CUname::mlOsVer(void) {
+    return CUname::release();
+}
 }
 }

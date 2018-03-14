@@ -63,10 +63,10 @@ public:
     virtual TIStreamP search(size_t currentDocNum, size_t limit) = 0;
 
     //! Set the search for all documents in the index
-    virtual void setStateRestoreSearch(const std::string &index);
+    virtual void setStateRestoreSearch(const std::string& index);
 
     //! Set the search for all documents in the index with the ID
-    virtual void setStateRestoreSearch(const std::string &index, const std::string &id);
+    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
 
 protected:
     TStrVec m_SearchTerms;
@@ -74,4 +74,4 @@ protected:
 }
 }
 
-#endif// INCLUDED_ml_core_CDataSearcher_h
+#endif // INCLUDED_ml_core_CDataSearcher_h

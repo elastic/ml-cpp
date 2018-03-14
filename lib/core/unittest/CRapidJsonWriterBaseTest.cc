@@ -24,14 +24,16 @@
 #include <limits>
 #include <sstream>
 
-CppUnit::Test *CRapidJsonWriterBaseTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
+CppUnit::Test* CRapidJsonWriterBaseTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-        "CRapidJsonWriterBaseTest::testAddFields", &CRapidJsonWriterBaseTest::testAddFields));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-        "CRapidJsonWriterBaseTest::testRemoveMemberIfPresent",
-        &CRapidJsonWriterBaseTest::testRemoveMemberIfPresent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CRapidJsonWriterBaseTest>("CRapidJsonWriterBaseTest::testAddFields",
+                                                    &CRapidJsonWriterBaseTest::testAddFields));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRapidJsonWriterBaseTest>("CRapidJsonWriterBaseTest::testRemoveMemberIfPresent",
+                                      &CRapidJsonWriterBaseTest::testRemoveMemberIfPresent));
 
     return suiteOfTests;
 }
@@ -75,14 +77,17 @@ void CRapidJsonWriterBaseTest::testAddFields(void) {
     writer.addIntFieldToObj(INT_NAME, -9, doc);
     writer.addUIntFieldToObj(UINT_NAME, 999999999999999ull, doc);
     writer.addStringArrayFieldToObj(STR_ARRAY_NAME, TGenericLineWriter::TStrVec(3, "blah"), doc);
-    writer.addDoubleArrayFieldToObj(
-        DOUBLE_ARRAY_NAME, TGenericLineWriter::TDoubleVec(10, 1.5), doc);
-    writer.addDoubleArrayFieldToObj(
-        NAN_ARRAY_NAME,
-        TGenericLineWriter::TDoubleVec(2, std::numeric_limits<double>::quiet_NaN()),
-        doc);
-    writer.addTimeArrayFieldToObj(
-        TTIME_ARRAY_NAME, TGenericLineWriter::TTimeVec(2, 1421421421), doc);
+    writer.addDoubleArrayFieldToObj(DOUBLE_ARRAY_NAME,
+                                    TGenericLineWriter::TDoubleVec(10, 1.5),
+                                    doc);
+    writer.addDoubleArrayFieldToObj(NAN_ARRAY_NAME,
+                                    TGenericLineWriter::TDoubleVec(2,
+                                                                   std::numeric_limits<
+                                                                       double>::quiet_NaN()),
+                                    doc);
+    writer.addTimeArrayFieldToObj(TTIME_ARRAY_NAME,
+                                  TGenericLineWriter::TTimeVec(2, 1421421421),
+                                  doc);
 
     writer.write(doc);
     writer.Flush();

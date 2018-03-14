@@ -143,13 +143,15 @@ void CAutoconfigurerParamsTest::testInit(void) {
     CPPUNIT_ASSERT_EQUAL(expected, actual);
 }
 
-CppUnit::Test *CAutoconfigurerParamsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
+CppUnit::Test* CAutoconfigurerParamsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-        "CAutoconfigurerParamsTest::testDefaults", &CAutoconfigurerParamsTest::testDefaults));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-        "CAutoconfigurerParamsTest::testInit", &CAutoconfigurerParamsTest::testInit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testDefaults",
+                                                     &CAutoconfigurerParamsTest::testDefaults));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAutoconfigurerParamsTest>("CAutoconfigurerParamsTest::testInit",
+                                                           &CAutoconfigurerParamsTest::testInit));
 
     return suiteOfTests;
 }

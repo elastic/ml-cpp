@@ -34,8 +34,8 @@ namespace {
 //! Assumes the document contains the field.
 //! The caller is responsible for ensuring this, and a
 //! program crash is likely if this requirement is not met.
-double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr &weakDoc,
-                          const std::string &field) {
+double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr& weakDoc,
+                          const std::string& field) {
     CJsonOutputWriter::TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
         LOG_ERROR("Inconsistent program state. JSON document unavailable.");
@@ -47,8 +47,8 @@ double doubleFromDocument(const CJsonOutputWriter::TDocumentWeakPtr &weakDoc,
 //! Sort rapidjson documents by the probability lowest to highest
 class CProbabilityLess {
 public:
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr &lhs,
-                    const CJsonOutputWriter::TDocumentWeakPtrIntPr &rhs) const {
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
         return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY) <
                doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
     }
@@ -59,8 +59,8 @@ const CProbabilityLess PROBABILITY_LESS = CProbabilityLess();
 //! Sort rapidjson documents by detector name first then probability lowest to highest
 class CDetectorThenProbabilityLess {
 public:
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr &lhs,
-                    const CJsonOutputWriter::TDocumentWeakPtrIntPr &rhs) const {
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtrIntPr& rhs) const {
         if (lhs.second == rhs.second) {
             return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY) <
                    doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
@@ -74,8 +74,8 @@ const CDetectorThenProbabilityLess DETECTOR_PROBABILITY_LESS = CDetectorThenProb
 //! Sort influences from highes to lowest
 class CInfluencesLess {
 public:
-    bool operator()(const std::pair<const char *, double> &lhs,
-                    const std::pair<const char *, double> &rhs) const {
+    bool operator()(const std::pair<const char*, double>& lhs,
+                    const std::pair<const char*, double>& rhs) const {
         return lhs.second > rhs.second;
     }
 };
@@ -85,15 +85,15 @@ const CInfluencesLess INFLUENCE_LESS = CInfluencesLess();
 //! Sort influencer from highest to lowest by score
 class CInfluencerGreater {
 public:
-    CInfluencerGreater(const std::string &field) : m_Field(field) {}
+    CInfluencerGreater(const std::string& field) : m_Field(field) {}
 
-    bool operator()(const CJsonOutputWriter::TDocumentWeakPtr &lhs,
-                    const CJsonOutputWriter::TDocumentWeakPtr &rhs) const {
+    bool operator()(const CJsonOutputWriter::TDocumentWeakPtr& lhs,
+                    const CJsonOutputWriter::TDocumentWeakPtr& rhs) const {
         return doubleFromDocument(lhs, m_Field) > doubleFromDocument(rhs, m_Field);
     }
 
 private:
-    const std::string &m_Field;
+    const std::string& m_Field;
 };
 
 const CInfluencerGreater INFLUENCER_GREATER =
@@ -168,8 +168,8 @@ const std::string CJsonOutputWriter::TIME_INFLUENCER("bucket_time");
 const std::string CJsonOutputWriter::PARTITION_SCORES("partition_scores");
 const std::string CJsonOutputWriter::SCHEDULED_EVENTS("scheduled_events");
 
-CJsonOutputWriter::CJsonOutputWriter(const std::string &jobId,
-                                     core::CJsonOutputStreamWrapper &strmOut)
+CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId,
+                                     core::CJsonOutputStreamWrapper& strmOut)
     : m_JobId(jobId),
       m_Writer(strmOut),
       m_LastNonInterimBucketTime(0),
@@ -179,7 +179,9 @@ CJsonOutputWriter::CJsonOutputWriter(const std::string &jobId,
     // the moment, the output stream might be redirected after construction
 }
 
-CJsonOutputWriter::~CJsonOutputWriter(void) { finalise(); }
+CJsonOutputWriter::~CJsonOutputWriter(void) {
+    finalise();
+}
 
 void CJsonOutputWriter::finalise(void) {
     if (m_Finalised) {
@@ -194,8 +196,8 @@ void CJsonOutputWriter::finalise(void) {
     m_Finalised = true;
 }
 
-bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults &results) {
-    SBucketData &bucketData = m_BucketDataByTime[results.s_BucketStartTime];
+bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults& results) {
+    SBucketData& bucketData = m_BucketDataByTime[results.s_BucketStartTime];
 
     if (results.s_ResultType == CHierarchicalResultsWriter::E_SimpleCountResult) {
         if (!results.s_CurrentRate) {
@@ -228,7 +230,7 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 
     ++bucketData.s_RecordCount;
 
-    TDocumentWeakPtrIntPrVec &detectorDocumentsToWrite = bucketData.s_DocumentsToWrite;
+    TDocumentWeakPtrIntPrVec& detectorDocumentsToWrite = bucketData.s_DocumentsToWrite;
 
     bool makeHeap(false);
     // If a max number of records to output has not been set or we haven't
@@ -250,8 +252,9 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 
         newDoc = m_Writer.makeStorableDoc();
         // remove the highest prob doc and insert new one
-        std::pop_heap(
-            detectorDocumentsToWrite.begin(), detectorDocumentsToWrite.end(), PROBABILITY_LESS);
+        std::pop_heap(detectorDocumentsToWrite.begin(),
+                      detectorDocumentsToWrite.end(),
+                      PROBABILITY_LESS);
         detectorDocumentsToWrite.pop_back();
 
         detectorDocumentsToWrite.push_back(TDocumentWeakPtrIntPr(newDoc, results.s_Identifier));
@@ -272,8 +275,9 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
     this->addInfluences(results.s_Influences, newDoc);
 
     if (makeHeap) {
-        std::make_heap(
-            detectorDocumentsToWrite.begin(), detectorDocumentsToWrite.end(), PROBABILITY_LESS);
+        std::make_heap(detectorDocumentsToWrite.begin(),
+                       detectorDocumentsToWrite.end(),
+                       PROBABILITY_LESS);
 
         bucketData.s_HighestProbability =
             doubleFromDocument(detectorDocumentsToWrite.front().first, PROBABILITY);
@@ -284,17 +288,17 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 }
 
 bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
-                                         const model::CHierarchicalResults::TNode &node,
+                                         const model::CHierarchicalResults::TNode& node,
                                          bool isBucketInfluencer) {
     TDocumentWeakPtr newDoc = m_Writer.makeStorableDoc();
-    SBucketData &bucketData = m_BucketDataByTime[time];
-    TDocumentWeakPtrVec &documents = (isBucketInfluencer) ? bucketData.s_BucketInfluencerDocuments
+    SBucketData& bucketData = m_BucketDataByTime[time];
+    TDocumentWeakPtrVec& documents = (isBucketInfluencer) ? bucketData.s_BucketInfluencerDocuments
                                                           : bucketData.s_InfluencerDocuments;
 
     bool isLimitedWrite(m_RecordOutputLimit > 0);
 
     if (isLimitedWrite && documents.size() == m_RecordOutputLimit) {
-        double &lowestScore = (isBucketInfluencer) ? bucketData.s_LowestBucketInfluencerScore
+        double& lowestScore = (isBucketInfluencer) ? bucketData.s_LowestBucketInfluencerScore
                                                    : bucketData.s_LowestInfluencerScore;
 
         if (node.s_NormalizedAnomalyScore < lowestScore) {
@@ -318,8 +322,9 @@ bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
     }
 
     if (isBucketInfluencer) {
-        bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore = std::max(
-            bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore, node.s_NormalizedAnomalyScore);
+        bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore =
+            std::max(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore,
+                     node.s_NormalizedAnomalyScore);
 
         bucketData.s_LowestBucketInfluencerScore =
             std::min(bucketData.s_LowestBucketInfluencerScore,
@@ -337,7 +342,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
                                                    double probability,
                                                    double rawAnomalyScore,
                                                    double normalizedAnomalyScore) {
-    SBucketData &bucketData = m_BucketDataByTime[time];
+    SBucketData& bucketData = m_BucketDataByTime[time];
     if (bucketData.s_RecordCount == 0) {
         return;
     }
@@ -378,17 +383,17 @@ bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessing
     return true;
 }
 
-bool CJsonOutputWriter::fieldNames(const TStrVec & /*fieldNames*/,
-                                   const TStrVec & /*extraFieldNames*/) {
+bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
+                                   const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
-const CJsonOutputWriter::TStrVec &CJsonOutputWriter::fieldNames(void) const {
+const CJsonOutputWriter::TStrVec& CJsonOutputWriter::fieldNames(void) const {
     return EMPTY_FIELD_NAMES;
 }
 
-bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
-                                 const TStrStrUMap &overrideDataRowFields) {
+bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                 const TStrStrUMap& overrideDataRowFields) {
     rapidjson::Document doc = m_Writer.makeDoc();
 
     // Write all the fields to the document as strings
@@ -396,8 +401,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
          fieldValueIter != dataRowFields.end();
          ++fieldValueIter) {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         // Only output fields that aren't overridden
         if (overrideDataRowFields.find(name) == overrideDataRowFields.end()) {
@@ -408,8 +413,8 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
     for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin();
          fieldValueIter != overrideDataRowFields.end();
          ++fieldValueIter) {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         m_Writer.addMemberRef(name, value, doc);
     }
@@ -421,7 +426,7 @@ bool CJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
 
 void CJsonOutputWriter::writeBucket(bool isInterim,
                                     core_t::TTime bucketTime,
-                                    SBucketData &bucketData,
+                                    SBucketData& bucketData,
                                     uint64_t bucketProcessingTime) {
     // Write records
     if (!bucketData.s_DocumentsToWrite.empty()) {
@@ -563,7 +568,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
     if (bucketData.s_ScheduledEventDescriptions.empty() == false) {
         m_Writer.String(SCHEDULED_EVENTS);
         m_Writer.StartArray();
-        for (const auto &it : bucketData.s_ScheduledEventDescriptions) {
+        for (const auto& it : bucketData.s_ScheduledEventDescriptions) {
             m_Writer.String(it);
         }
         m_Writer.EndArray();
@@ -573,7 +578,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
     m_Writer.EndObject();
 }
 
-void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults &results,
+void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResults& results,
                                         TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -592,15 +597,19 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
         // If name is present then force output of value too, even when empty
         m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(
-            CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue,
+                                         *docPtr);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName,
+                                         *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         results.s_PartitionFieldValue,
+                                         *docPtr,
+                                         true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
     m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
@@ -608,7 +617,7 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
 }
 
-void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults &results,
+void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
                                             TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -632,11 +641,14 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, results.s_OverFieldValue, *docPtr, true);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName,
+                                         *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         results.s_PartitionFieldValue,
+                                         *docPtr,
+                                         true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
     m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
@@ -651,7 +663,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
                 LOG_ERROR("Inconsistent program state. JSON document unavailable.");
                 continue;
             }
-            rapidjson::Value &docAsValue = *nDocPtr;
+            rapidjson::Value& docAsValue = *nDocPtr;
 
             m_Writer.pushBack(docAsValue, causeArray);
         }
@@ -664,7 +676,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
 }
 
 void CJsonOutputWriter::addPopulationCauseFields(
-    const CHierarchicalResultsWriter::TResults &results,
+    const CHierarchicalResultsWriter::TResults& results,
     TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -682,8 +694,9 @@ void CJsonOutputWriter::addPopulationCauseFields(
         // If name is present then force output of value too, even when empty
         m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(
-            CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue,
+                                         *docPtr);
     }
     if (!results.s_OverFieldName.empty()) {
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, results.s_OverFieldName, *docPtr);
@@ -691,11 +704,14 @@ void CJsonOutputWriter::addPopulationCauseFields(
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, results.s_OverFieldValue, *docPtr, true);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName,
+                                         *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         results.s_PartitionFieldValue,
+                                         *docPtr,
+                                         true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
     m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
@@ -704,8 +720,8 @@ void CJsonOutputWriter::addPopulationCauseFields(
 }
 
 void CJsonOutputWriter::addInfluences(
-    const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec
-        &influenceResults,
+    const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec&
+        influenceResults,
     TDocumentWeakPtr weakDoc) {
     if (influenceResults.empty()) {
         return;
@@ -721,10 +737,10 @@ void CJsonOutputWriter::addInfluences(
     //! influenceResults. These strings must exist up to the time the results
     //! are written
 
-    typedef std::pair<const char *, double> TCharPtrDoublePr;
+    typedef std::pair<const char*, double> TCharPtrDoublePr;
     typedef std::vector<TCharPtrDoublePr> TCharPtrDoublePrVec;
     typedef TCharPtrDoublePrVec::iterator TCharPtrDoublePrVecIter;
-    typedef std::pair<const char *, TCharPtrDoublePrVec> TCharPtrCharPtrDoublePrVecPr;
+    typedef std::pair<const char*, TCharPtrDoublePrVec> TCharPtrCharPtrDoublePrVecPr;
     typedef boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr>
         TStrCharPtrCharPtrDoublePrVecPrUMap;
     typedef TStrCharPtrCharPtrDoublePrVecPrUMap::iterator TStrCharPtrCharPtrDoublePrVecPrUMapIter;
@@ -732,7 +748,7 @@ void CJsonOutputWriter::addInfluences(
     TStrCharPtrCharPtrDoublePrVecPrUMap influences;
 
     // group by influence field
-    for (const auto &influenceResult : influenceResults) {
+    for (const auto& influenceResult : influenceResults) {
         TCharPtrCharPtrDoublePrVecPr infResult(influenceResult.first.first->c_str(),
                                                TCharPtrDoublePrVec());
         auto insertResult = influences.emplace(*influenceResult.first.first, infResult);
@@ -771,7 +787,7 @@ void CJsonOutputWriter::addInfluences(
     m_Writer.addMember(INFLUENCERS, influencesDoc, *docPtr);
 }
 
-void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TResults &results,
+void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TResults& results,
                                            TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -791,15 +807,19 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
         // If name is present then force output of value too, even when empty
         m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE, results.s_ByFieldValue, *docPtr, true);
         // But allow correlatedByFieldValue to be unset if blank
-        m_Writer.addStringFieldCopyToObj(
-            CORRELATED_BY_FIELD_VALUE, results.s_CorrelatedByFieldValue, *docPtr);
+        m_Writer.addStringFieldCopyToObj(CORRELATED_BY_FIELD_VALUE,
+                                         results.s_CorrelatedByFieldValue,
+                                         *docPtr);
     }
     if (!results.s_PartitionFieldName.empty()) {
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
+                                         results.s_PartitionFieldName,
+                                         *docPtr);
         // If name is present then force output of value too, even when empty
-        m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+        m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                         results.s_PartitionFieldValue,
+                                         *docPtr,
+                                         true);
     }
     m_Writer.addStringFieldCopyToObj(FUNCTION, results.s_FunctionName, *docPtr);
     m_Writer.addStringFieldCopyToObj(FUNCTION_DESCRIPTION, results.s_FunctionDescription, *docPtr);
@@ -808,7 +828,7 @@ void CJsonOutputWriter::addEventRateFields(const CHierarchicalResultsWriter::TRe
 }
 
 void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
-                                            const model::CHierarchicalResults::TNode &node,
+                                            const model::CHierarchicalResults::TNode& node,
                                             TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -823,20 +843,22 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
     m_Writer.addDoubleFieldToObj(isBucketInfluencer ? ANOMALY_SCORE : INFLUENCER_SCORE,
                                  node.s_NormalizedAnomalyScore,
                                  *docPtr);
-    const std::string &personFieldName = *node.s_Spec.s_PersonFieldName;
+    const std::string& personFieldName = *node.s_Spec.s_PersonFieldName;
     m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_NAME, personFieldName, *docPtr);
     if (isBucketInfluencer) {
         m_Writer.addDoubleFieldToObj(RAW_ANOMALY_SCORE, node.s_RawAnomalyScore, *docPtr);
     } else {
         if (!personFieldName.empty()) {
             // If name is present then force output of value too, even when empty
-            m_Writer.addStringFieldCopyToObj(
-                INFLUENCER_FIELD_VALUE, *node.s_Spec.s_PersonFieldValue, *docPtr, true);
+            m_Writer.addStringFieldCopyToObj(INFLUENCER_FIELD_VALUE,
+                                             *node.s_Spec.s_PersonFieldValue,
+                                             *docPtr,
+                                             true);
         }
     }
 }
 
-void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults &results,
+void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
                                            TDocumentWeakPtr weakDoc) {
     TDocumentPtr docPtr = weakDoc.lock();
     if (!docPtr) {
@@ -846,18 +868,24 @@ void CJsonOutputWriter::addPartitionScores(const CHierarchicalResultsWriter::TRe
 
     m_Writer.addDoubleFieldToObj(PROBABILITY, results.s_Probability, *docPtr);
     m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME, results.s_PartitionFieldName, *docPtr);
-    m_Writer.addStringFieldCopyToObj(
-        PARTITION_FIELD_VALUE, results.s_PartitionFieldValue, *docPtr, true);
+    m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_VALUE,
+                                     results.s_PartitionFieldValue,
+                                     *docPtr,
+                                     true);
     m_Writer.addDoubleFieldToObj(INITIAL_RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
     m_Writer.addDoubleFieldToObj(RECORD_SCORE, results.s_NormalizedAnomalyScore, *docPtr);
 }
 
-void CJsonOutputWriter::limitNumberRecords(size_t count) { m_RecordOutputLimit = count; }
+void CJsonOutputWriter::limitNumberRecords(size_t count) {
+    m_RecordOutputLimit = count;
+}
 
-size_t CJsonOutputWriter::limitNumberRecords(void) const { return m_RecordOutputLimit; }
+size_t CJsonOutputWriter::limitNumberRecords(void) const {
+    return m_RecordOutputLimit;
+}
 
-void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNormalizer &normalizer,
-                                          core_t::TTime &persistTime) {
+void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
+                                          core_t::TTime& persistTime) {
     std::string quantilesState;
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
@@ -873,13 +901,15 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     LOG_DEBUG("Wrote quantiles state at " << persistTime);
 }
 
-void CJsonOutputWriter::pushAllocator(const std::string &allocatorName) {
+void CJsonOutputWriter::pushAllocator(const std::string& allocatorName) {
     m_Writer.pushAllocator(allocatorName);
 }
 
-void CJsonOutputWriter::popAllocator() { m_Writer.popAllocator(); }
+void CJsonOutputWriter::popAllocator() {
+    m_Writer.popAllocator();
+}
 
-void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults &results) {
+void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults& results) {
     this->writeModelSnapshotReports();
 
     m_Writer.StartObject();
@@ -889,7 +919,7 @@ void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResult
     LOG_TRACE("Wrote memory usage results");
 }
 
-void CJsonOutputWriter::writeMemoryUsageObject(const model::CResourceMonitor::SResults &results) {
+void CJsonOutputWriter::writeMemoryUsageObject(const model::CResourceMonitor::SResults& results) {
     m_Writer.String(MODEL_SIZE_STATS);
     m_Writer.StartObject();
 
@@ -933,11 +963,11 @@ void CJsonOutputWriter::writeMemoryUsageObject(const model::CResourceMonitor::SR
 
 void CJsonOutputWriter::reportPersistComplete(
     core_t::TTime snapshotTimestamp,
-    const std::string &description,
-    const std::string &snapshotId,
+    const std::string& description,
+    const std::string& snapshotId,
     size_t numDocs,
-    const model::CResourceMonitor::SResults &modelSizeStats,
-    const std::string &normalizerState,
+    const model::CResourceMonitor::SResults& modelSizeStats,
+    const std::string& normalizerState,
     core_t::TTime latestRecordTime,
     core_t::TTime latestFinalResultTime) {
     core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
@@ -956,7 +986,7 @@ void CJsonOutputWriter::writeModelSnapshotReports(void) {
     core::CScopedLock lock(m_ModelSnapshotReportsQueueMutex);
 
     while (!m_ModelSnapshotReports.empty()) {
-        const SModelSnapshotReport &report = m_ModelSnapshotReports.front();
+        const SModelSnapshotReport& report = m_ModelSnapshotReports.front();
 
         m_Writer.StartObject();
         m_Writer.String(MODEL_SNAPSHOT);
@@ -1010,7 +1040,7 @@ void CJsonOutputWriter::writeModelSnapshotReports(void) {
     }
 }
 
-void CJsonOutputWriter::writeQuantileState(const std::string &state, core_t::TTime time) {
+void CJsonOutputWriter::writeQuantileState(const std::string& state, core_t::TTime time) {
     m_Writer.StartObject();
     m_Writer.String(JOB_ID);
     m_Writer.String(m_JobId);
@@ -1021,7 +1051,7 @@ void CJsonOutputWriter::writeQuantileState(const std::string &state, core_t::TTi
     m_Writer.EndObject();
 }
 
-void CJsonOutputWriter::acknowledgeFlush(const std::string &flushId,
+void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
                                          core_t::TTime lastFinalizedBucketEnd) {
     this->writeModelSnapshotReports();
 
@@ -1043,10 +1073,10 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string &flushId,
 }
 
 void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
-                                                const std::string &terms,
-                                                const std::string &regex,
+                                                const std::string& terms,
+                                                const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
-                                                const TStrSet &examples) {
+                                                const TStrSet& examples) {
     this->writeModelSnapshotReports();
 
     m_Writer.StartObject();
@@ -1065,7 +1095,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.String(EXAMPLES);
     m_Writer.StartArray();
     for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
-        const std::string &example = *itr;
+        const std::string& example = *itr;
         m_Writer.String(example);
     }
     m_Writer.EndArray();
@@ -1084,11 +1114,11 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
 
 CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(
     core_t::TTime snapshotTimestamp,
-    const std::string &description,
-    const std::string &snapshotId,
+    const std::string& description,
+    const std::string& snapshotId,
     size_t numDocs,
-    const model::CResourceMonitor::SResults &modelSizeStats,
-    const std::string &normalizerState,
+    const model::CResourceMonitor::SResults& modelSizeStats,
+    const std::string& normalizerState,
     core_t::TTime latestRecordTime,
     core_t::TTime latestFinalResultTime)
     : s_SnapshotTimestamp(snapshotTimestamp),

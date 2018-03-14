@@ -24,7 +24,7 @@ public:
     void testPermitted(void);
     void testNonExistent(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CDetachedProcessSpawnerTest_h
+#endif // INCLUDED_CDetachedProcessSpawnerTest_h

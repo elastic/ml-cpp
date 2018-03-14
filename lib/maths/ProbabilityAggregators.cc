@@ -38,7 +38,9 @@ typedef std::vector<double> TDoubleVec;
 typedef std::pair<double, double> TDoubleDoublePr;
 
 //! Compute \f$x^2\f$.
-inline double square(double x) { return x * x; }
+inline double square(double x) {
+    return x * x;
+}
 
 //! Compute the deviation corresponding to a probability of less likely
 //! samples \p p.
@@ -54,12 +56,12 @@ inline double square(double x) { return x * x; }
 //! avoids loss of precision which we'd get when subtracting \f$P(R(i))\f$
 //! from 1. See CJointProbabilityOfLessLikelySamples::calculate for details
 //! of how the \f$z(i)\f$ are used to compute the joint probability.
-bool deviation(double p, double &result) {
+bool deviation(double p, double& result) {
     try {
         boost::math::normal_distribution<> normal(0.0, 1.0);
         result = square(boost::math::quantile(normal, p / 2.0));
         return true;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Unable to compute quantile: " << e.what() << ", probability = " << p);
     }
     return false;
@@ -90,8 +92,8 @@ double powOneMinusX(double x, double p) {
 
     double y = p * x;
     if (::fabs(y) < EPS) {
-        static const double COEFFS[] = {
-            -1.0, +1.0 / 2.0, -1.0 / 6.0, +1.0 / 24.0, -1.0 / 120.0, +1.0 / 720.0};
+        static const double COEFFS[] =
+            {-1.0, +1.0 / 2.0, -1.0 / 6.0, +1.0 / 24.0, -1.0 / 120.0, +1.0 / 720.0};
         static const std::size_t N = boost::size(COEFFS);
 
         double remainder = 0.0;
@@ -140,8 +142,8 @@ double oneMinusPowOneMinusX(double x, double p) {
 
     double y = p * x;
     if (::fabs(y) < EPS) {
-        static const double COEFFS[] = {
-            +1.0, -1.0 / 2.0, +1.0 / 6.0, -1.0 / 24.0, +1.0 / 120.0, -1.0 / 720.0};
+        static const double COEFFS[] =
+            {+1.0, -1.0 / 2.0, +1.0 / 6.0, -1.0 / 24.0, +1.0 / 120.0, -1.0 / 720.0};
         static const std::size_t N = boost::size(COEFFS);
 
         double result = 0.0;
@@ -210,15 +212,15 @@ public:
         //! \param n The total number of samples.
         //! \param m The number of extreme samples.
         //! \param i The variable being integrated, i.e. \f$t_i\f$.
-        CLogIntegrand(const TDoubleVec &limits,
-                      const TDoubleVec &corrections,
+        CLogIntegrand(const TDoubleVec& limits,
+                      const TDoubleVec& corrections,
                       std::size_t n,
                       std::size_t m,
                       std::size_t i)
             : m_Limits(&limits), m_Corrections(&corrections), m_N(n), m_M(m), m_I(i) {}
 
         //! Wrapper around evaluate which adapts it for CIntegration::gaussLegendre.
-        bool operator()(double x, double &result) const {
+        bool operator()(double x, double& result) const {
             result = this->evaluate(x);
             return true;
         }
@@ -231,14 +233,16 @@ public:
             }
             double result;
             CLogIntegrand f(*m_Limits, *m_Corrections, m_N, m_M, m_I + 1u);
-            CIntegration::logGaussLegendre<CIntegration::OrderThree>(
-                f, x, (*m_Limits)[m_I], result);
+            CIntegration::logGaussLegendre<CIntegration::OrderThree>(f,
+                                                                     x,
+                                                                     (*m_Limits)[m_I],
+                                                                     result);
             result += (*m_Corrections)[m_I];
             return result;
         }
 
-        const TDoubleVec *m_Limits;
-        const TDoubleVec *m_Corrections;
+        const TDoubleVec* m_Limits;
+        const TDoubleVec* m_Corrections;
         std::size_t m_N;
         std::size_t m_M;
         std::size_t m_I;
@@ -251,7 +255,7 @@ public:
 public:
     //! \param p The probabilities (in sorted order).
     //! \param n The total number of samples.
-    CNumericalLogProbabilityOfMFromNExtremeSamples(const TMinValueAccumulator &p, std::size_t n)
+    CNumericalLogProbabilityOfMFromNExtremeSamples(const TMinValueAccumulator& p, std::size_t n)
         : m_N(n) {
         if (p.count() > 0) {
             // For large n the integral is dominated from the contributions
@@ -292,14 +296,14 @@ const std::size_t CNumericalLogProbabilityOfMFromNExtremeSamples::MAX_DIMENSION(
 
 const char DELIMITER(':');
 
-}// unnamed::
+} // unnamed::
 
 //////// CJointProbabilityOfLessLikelySample Implementation ////////
 
 CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples(void)
     : m_Distance(0.0), m_NumberSamples(0.0) {}
 
-bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string &value) {
+bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string& value) {
     core::CPersistUtils::CBuiltinFromString converter(DELIMITER);
 
     TDoubleDoublePr distanceAndNumberSamples;
@@ -329,8 +333,8 @@ std::string CJointProbabilityOfLessLikelySamples::toDelimited(void) const {
     return converter(distanceAndNumberSamples);
 }
 
-const CJointProbabilityOfLessLikelySamples &CJointProbabilityOfLessLikelySamples::
-operator+=(const CJointProbabilityOfLessLikelySamples &other) {
+const CJointProbabilityOfLessLikelySamples& CJointProbabilityOfLessLikelySamples::
+operator+=(const CJointProbabilityOfLessLikelySamples& other) {
     if (m_NumberSamples == 0.0) {
         m_OnlyProbability = other.m_OnlyProbability;
     } else if (other.m_NumberSamples == 0.0) {
@@ -387,7 +391,7 @@ void CJointProbabilityOfLessLikelySamples::add(double probability, double weight
     }
 }
 
-bool CJointProbabilityOfLessLikelySamples::calculate(double &result) const {
+bool CJointProbabilityOfLessLikelySamples::calculate(double& result) const {
     result = 1.0;
 
     // This is defined as one for the case there are no samples.
@@ -420,7 +424,7 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double &result) const {
 
     try {
         result = boost::math::gamma_q(m_NumberSamples / 2.0, m_Distance / 2.0);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Unable to compute probability: " << e.what()
                                                     << ", m_NumberSamples = " << m_NumberSamples
                                                     << ", m_Distance = " << m_Distance);
@@ -438,7 +442,7 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double &result) const {
     return true;
 }
 
-bool CJointProbabilityOfLessLikelySamples::averageProbability(double &result) const {
+bool CJointProbabilityOfLessLikelySamples::averageProbability(double& result) const {
     result = 1.0;
 
     // This is defined as one for the case there are no samples.
@@ -457,7 +461,7 @@ bool CJointProbabilityOfLessLikelySamples::averageProbability(double &result) co
     try {
         boost::math::normal_distribution<> normal(0.0, 1.0);
         result = 2.0 * boost::math::cdf(normal, -::sqrt(m_Distance / m_NumberSamples));
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Unable to compute probability: " << e.what()
                                                     << ", m_NumberSamples = " << m_NumberSamples
                                                     << ", m_Distance = " << m_Distance);
@@ -480,9 +484,13 @@ CJointProbabilityOfLessLikelySamples::onlyProbability(void) const {
     return m_OnlyProbability;
 }
 
-double CJointProbabilityOfLessLikelySamples::distance(void) const { return m_Distance; }
+double CJointProbabilityOfLessLikelySamples::distance(void) const {
+    return m_Distance;
+}
 
-double CJointProbabilityOfLessLikelySamples::numberSamples(void) const { return m_NumberSamples; }
+double CJointProbabilityOfLessLikelySamples::numberSamples(void) const {
+    return m_NumberSamples;
+}
 
 uint64_t CJointProbabilityOfLessLikelySamples::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_OnlyProbability);
@@ -490,16 +498,16 @@ uint64_t CJointProbabilityOfLessLikelySamples::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
-std::ostream &CJointProbabilityOfLessLikelySamples::print(std::ostream &o) const {
+std::ostream& CJointProbabilityOfLessLikelySamples::print(std::ostream& o) const {
     return o << '(' << m_NumberSamples << ", " << m_Distance << ')';
 }
 
-std::ostream &operator<<(std::ostream &o, const CJointProbabilityOfLessLikelySamples &probability) {
+std::ostream& operator<<(std::ostream& o, const CJointProbabilityOfLessLikelySamples& probability) {
     return probability.print(o);
 }
 
-CJointProbabilityOfLessLikelySamples &CJointProbabilityOfLessLikelySamples::SAddProbability::
-operator()(CJointProbabilityOfLessLikelySamples &jointProbability,
+CJointProbabilityOfLessLikelySamples& CJointProbabilityOfLessLikelySamples::SAddProbability::
+operator()(CJointProbabilityOfLessLikelySamples& jointProbability,
            const double probability,
            const double weight) const {
     jointProbability.add(probability, weight);
@@ -510,8 +518,8 @@ operator()(CJointProbabilityOfLessLikelySamples &jointProbability,
 
 CLogJointProbabilityOfLessLikelySamples::CLogJointProbabilityOfLessLikelySamples(void) {}
 
-const CLogJointProbabilityOfLessLikelySamples &CLogJointProbabilityOfLessLikelySamples::
-operator+=(const CLogJointProbabilityOfLessLikelySamples &other) {
+const CLogJointProbabilityOfLessLikelySamples& CLogJointProbabilityOfLessLikelySamples::
+operator+=(const CLogJointProbabilityOfLessLikelySamples& other) {
     this->CJointProbabilityOfLessLikelySamples::operator+=(other);
     return *this;
 }
@@ -520,7 +528,7 @@ void CLogJointProbabilityOfLessLikelySamples::add(double probability, double wei
     this->CJointProbabilityOfLessLikelySamples::add(probability, weight);
 }
 
-bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double &result) const {
+bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double& result) const {
     result = 0.0;
 
     // This is defined as log(1) = 0 for the case there are no samples.
@@ -671,7 +679,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double &result
 
         LOG_TRACE("s = " << s << ", x = " << x << ", p = " << p << ", m = " << m << ", b1 = " << b1
                          << ", b2 = " << b2 << ", log(sum) = " << logSum << ", bound = " << bound);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x);
     }
 
@@ -681,7 +689,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateLowerBound(double &result
     return true;
 }
 
-bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double &result) const {
+bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result) const {
     result = 0.0;
 
     // This is defined as log(1) = 0 for the case there are no samples.
@@ -783,7 +791,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double &result
 
         LOG_TRACE("s = " << s << ", x = " << x << ", b1 = " << b1 << ", b2 = " << b2
                          << ", log(sum) = " << logSum << ", bound = " << bound);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed computing bound: " << e.what() << ", s = " << s << ", x = " << x);
     }
 
@@ -797,7 +805,7 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double &result
 
 CProbabilityOfExtremeSample::CProbabilityOfExtremeSample(void) : m_NumberSamples(0.0) {}
 
-bool CProbabilityOfExtremeSample::fromDelimited(const std::string &value) {
+bool CProbabilityOfExtremeSample::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);
     if (!core::CStringUtils::stringToType(value.substr(0, i), m_NumberSamples)) {
         LOG_ERROR("Failed to extract number samples from " << value);
@@ -810,8 +818,8 @@ std::string CProbabilityOfExtremeSample::toDelimited(void) const {
     return core::CStringUtils::typeToString(m_NumberSamples) + DELIMITER + m_MinValue.toDelimited();
 }
 
-const CProbabilityOfExtremeSample &CProbabilityOfExtremeSample::
-operator+=(const CProbabilityOfExtremeSample &other) {
+const CProbabilityOfExtremeSample& CProbabilityOfExtremeSample::
+operator+=(const CProbabilityOfExtremeSample& other) {
     m_MinValue += other.m_MinValue;
     m_NumberSamples += other.m_NumberSamples;
     return *this;
@@ -823,7 +831,7 @@ bool CProbabilityOfExtremeSample::add(double probability, double weight) {
     return result;
 }
 
-bool CProbabilityOfExtremeSample::calculate(double &result) const {
+bool CProbabilityOfExtremeSample::calculate(double& result) const {
     result = 1.0;
     if (m_NumberSamples > 0) {
         result = CTools::truncate(oneMinusPowOneMinusX(m_MinValue[0], m_NumberSamples), 0.0, 1.0);
@@ -836,11 +844,11 @@ uint64_t CProbabilityOfExtremeSample::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_NumberSamples);
 }
 
-std::ostream &CProbabilityOfExtremeSample::print(std::ostream &o) const {
+std::ostream& CProbabilityOfExtremeSample::print(std::ostream& o) const {
     return o << "(" << m_NumberSamples << ", " << m_MinValue.print() << ")";
 }
 
-std::ostream &operator<<(std::ostream &o, const CProbabilityOfExtremeSample &probability) {
+std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& probability) {
     return probability.print(o);
 }
 
@@ -849,7 +857,7 @@ std::ostream &operator<<(std::ostream &o, const CProbabilityOfExtremeSample &pro
 CLogProbabilityOfMFromNExtremeSamples::CLogProbabilityOfMFromNExtremeSamples(std::size_t m)
     : m_MinValues(m), m_NumberSamples(0u) {}
 
-bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string &value) {
+bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);
     if (!core::CStringUtils::stringToType(value.substr(0, i), m_NumberSamples)) {
         LOG_ERROR("Failed to extract number samples from " << value);
@@ -863,8 +871,8 @@ std::string CLogProbabilityOfMFromNExtremeSamples::toDelimited(void) const {
            m_MinValues.toDelimited();
 }
 
-const CLogProbabilityOfMFromNExtremeSamples &CLogProbabilityOfMFromNExtremeSamples::
-operator+=(const CLogProbabilityOfMFromNExtremeSamples &other) {
+const CLogProbabilityOfMFromNExtremeSamples& CLogProbabilityOfMFromNExtremeSamples::
+operator+=(const CLogProbabilityOfMFromNExtremeSamples& other) {
     m_MinValues += other.m_MinValues;
     m_NumberSamples += other.m_NumberSamples;
     return *this;
@@ -875,7 +883,7 @@ void CLogProbabilityOfMFromNExtremeSamples::add(const double probability) {
     ++m_NumberSamples;
 }
 
-bool CLogProbabilityOfMFromNExtremeSamples::calculate(double &result) {
+bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     result = 0.0;
 
     if (m_NumberSamples == 0) {
@@ -1038,8 +1046,9 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double &result) {
                     for (std::size_t i = 0u; i < terms.size(); ++i) {
                         double remainder = ::fabs(terms[i]) * pMin / sum + terms[i];
                         result += remainder;
-                        double absTerms[] = {
-                            ::fabs(terms[i]), ::fabs(terms[i] * pMin / sum), ::fabs(remainder)};
+                        double absTerms[] = {::fabs(terms[i]),
+                                             ::fabs(terms[i] * pMin / sum),
+                                             ::fabs(remainder)};
                         condition = std::max(condition, *std::max_element(absTerms, absTerms + 3));
                     }
                 }
@@ -1094,7 +1103,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double &result) {
     return true;
 }
 
-bool CLogProbabilityOfMFromNExtremeSamples::calibrated(double &result) {
+bool CLogProbabilityOfMFromNExtremeSamples::calibrated(double& result) {
     // This probability systematically decreases for increasing min(M, N).
     // Ideally, we would like the probability to be calibrated, such that,
     // with probability P it is less than or equal to P for individual

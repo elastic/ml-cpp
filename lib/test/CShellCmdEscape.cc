@@ -19,7 +19,7 @@
 namespace ml {
 namespace test {
 
-void CShellCmdEscape::escapeCmd(std::string &cmd) {
+void CShellCmdEscape::escapeCmd(std::string& cmd) {
     // Special characters are \ * ? < > # & | ( ) ' " ` ;
     // Escape character is \ on Unix
 

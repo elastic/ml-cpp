@@ -26,7 +26,7 @@ namespace domain_name_entropy {
 const std::string CTopLevelDomainDb::PUNY_CODE = "xn--";
 const std::string CTopLevelDomainDb::PERIOD = ".";
 
-CTopLevelDomainDb::CTopLevelDomainDb(const std::string &effectiveTldNamesFileName)
+CTopLevelDomainDb::CTopLevelDomainDb(const std::string& effectiveTldNamesFileName)
     : m_EffectiveTldNamesFileName(effectiveTldNamesFileName) {}
 
 bool CTopLevelDomainDb::init(void) {
@@ -49,7 +49,7 @@ bool CTopLevelDomainDb::init(void) {
     return this->readLine(remainder);
 }
 
-bool CTopLevelDomainDb::readLine(const std::string &line) {
+bool CTopLevelDomainDb::readLine(const std::string& line) {
     /*
     https://publicsuffix.org/list/#list-format
 
@@ -123,8 +123,8 @@ bool CTopLevelDomainDb::readLine(const std::string &line) {
     return true;
 }
 
-bool CTopLevelDomainDb::registeredDomainName(const std::string &host,
-                                             std::string &registeredHostName) const {
+bool CTopLevelDomainDb::registeredDomainName(const std::string& host,
+                                             std::string& registeredHostName) const {
     std::string subDomain;
     std::string domain;
     std::string suffix;
@@ -143,10 +143,10 @@ bool CTopLevelDomainDb::registeredDomainName(const std::string &host,
     return false;
 }
 
-void CTopLevelDomainDb::splitHostName(const std::string &host,
-                                      std::string &subDomain,
-                                      std::string &domain,
-                                      std::string &suffix) const {
+void CTopLevelDomainDb::splitHostName(const std::string& host,
+                                      std::string& subDomain,
+                                      std::string& domain,
+                                      std::string& suffix) const {
     if (m_EffectiveTldNames.empty()) {
         LOG_ERROR("No rules. Call ::init to initialize object.");
     }
@@ -171,10 +171,10 @@ void CTopLevelDomainDb::splitHostName(const std::string &host,
     }
 }
 
-void CTopLevelDomainDb::extract(const std::string &str,
-                                std::string &subDomain,
-                                std::string &domain,
-                                std::string &suffix) const {
+void CTopLevelDomainDb::extract(const std::string& str,
+                                std::string& subDomain,
+                                std::string& domain,
+                                std::string& suffix) const {
     /*
     https://publicsuffix.org/list/#list-format
 
@@ -247,7 +247,7 @@ namespace {
 
 typedef std::vector<std::string::size_type> TSizeTypeVec;
 
-std::string::size_type _last(const TSizeTypeVec &v) {
+std::string::size_type _last(const TSizeTypeVec& v) {
     if (v.empty()) {
         return 0;
     }
@@ -255,7 +255,7 @@ std::string::size_type _last(const TSizeTypeVec &v) {
     return v[v.size() - 1];
 }
 
-std::string::size_type _penultimate(const TSizeTypeVec &v) {
+std::string::size_type _penultimate(const TSizeTypeVec& v) {
     if (v.size() < 2) {
         return 0;
     }
@@ -263,7 +263,7 @@ std::string::size_type _penultimate(const TSizeTypeVec &v) {
     return v[v.size() - 2];
 }
 
-std::string::size_type _antepenultimate(const TSizeTypeVec &v) {
+std::string::size_type _antepenultimate(const TSizeTypeVec& v) {
     if (v.size() < 3) {
         return 0;
     }
@@ -272,11 +272,11 @@ std::string::size_type _antepenultimate(const TSizeTypeVec &v) {
 }
 }
 
-void CTopLevelDomainDb::ruleDomains(const std::string &str,
-                                    const TSizeTypeVec &periods,
-                                    std::string &subDomain,
-                                    std::string &domain,
-                                    std::string &suffix)
+void CTopLevelDomainDb::ruleDomains(const std::string& str,
+                                    const TSizeTypeVec& periods,
+                                    std::string& subDomain,
+                                    std::string& domain,
+                                    std::string& suffix)
 
 {
     std::string::size_type last = _last(periods);
@@ -291,11 +291,11 @@ void CTopLevelDomainDb::ruleDomains(const std::string &str,
     suffix = str.substr(last, std::string::npos);
 }
 
-void CTopLevelDomainDb::wildcardDomains(const std::string &str,
-                                        const TSizeTypeVec &periods,
-                                        std::string &subDomain,
-                                        std::string &domain,
-                                        std::string &suffix)
+void CTopLevelDomainDb::wildcardDomains(const std::string& str,
+                                        const TSizeTypeVec& periods,
+                                        std::string& subDomain,
+                                        std::string& domain,
+                                        std::string& suffix)
 
 {
     std::string::size_type last = _penultimate(periods);
@@ -310,15 +310,15 @@ void CTopLevelDomainDb::wildcardDomains(const std::string &str,
     suffix = str.substr(last, std::string::npos);
 }
 
-void CTopLevelDomainDb::exceptionDomains(const std::string &str,
-                                         const TSizeTypeVec &periods,
-                                         std::string &subDomain,
-                                         std::string &domain,
-                                         std::string &suffix) {
+void CTopLevelDomainDb::exceptionDomains(const std::string& str,
+                                         const TSizeTypeVec& periods,
+                                         std::string& subDomain,
+                                         std::string& domain,
+                                         std::string& suffix) {
     CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
 }
 
-CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string &suffix) const {
+CTopLevelDomainDb::ERuleType CTopLevelDomainDb::isSuffixTld(const std::string& suffix) const {
     // If more than one rule matches, the prevailing rule is the one which is an exception rule.
     // - check exception rules first
     // If the prevailing rule is a exception rule, modify it by removing the leftmost label.

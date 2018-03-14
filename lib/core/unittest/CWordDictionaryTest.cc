@@ -18,23 +18,27 @@
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
 
-CppUnit::Test *CWordDictionaryTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
+CppUnit::Test* CWordDictionaryTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testLookups", &CWordDictionaryTest::testLookups));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testPartOfSpeech", &CWordDictionaryTest::testPartOfSpeech));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testWeightingFunctors", &CWordDictionaryTest::testWeightingFunctors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testPerformance", &CWordDictionaryTest::testPerformance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testLookups",
+                                                     &CWordDictionaryTest::testLookups));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPartOfSpeech",
+                                                     &CWordDictionaryTest::testPartOfSpeech));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testWeightingFunctors",
+                                                     &CWordDictionaryTest::testWeightingFunctors));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPerformance",
+                                                     &CWordDictionaryTest::testPerformance));
 
     return suiteOfTests;
 }
 
 void CWordDictionaryTest::testLookups(void) {
-    const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
+    const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     CPPUNIT_ASSERT(dict.isInDictionary("hello"));
     CPPUNIT_ASSERT(dict.isInDictionary("Hello"));
@@ -51,7 +55,7 @@ void CWordDictionaryTest::testLookups(void) {
 }
 
 void CWordDictionaryTest::testPartOfSpeech(void) {
-    const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
+    const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_NotInDictionary, dict.partOfSpeech("ajksdf"));
     CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_UnknownPart, dict.partOfSpeech("callback"));
@@ -106,7 +110,7 @@ void CWordDictionaryTest::testWeightingFunctors(void) {
 }
 
 void CWordDictionaryTest::testPerformance(void) {
-    const ml::core::CWordDictionary &dict = ml::core::CWordDictionary::instance();
+    const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO("Starting word dictionary throughput test at "

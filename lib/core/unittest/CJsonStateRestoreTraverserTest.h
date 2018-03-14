@@ -27,7 +27,7 @@ public:
     void testRestore1IgnoreArrays(void);
     void testRestore1IgnoreArraysNested(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CJsonStateRestoreTraverserTest_h
+#endif // INCLUDED_CJsonStateRestoreTraverserTest_h

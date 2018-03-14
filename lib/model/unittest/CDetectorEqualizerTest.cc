@@ -174,8 +174,10 @@ void CDetectorEqualizerTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &model::CDetectorEqualizer::acceptRestoreTraverser, &restoredEqualizer, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            boost::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
+                        &restoredEqualizer,
+                        _1)));
     }
 
     // Checksums should agree.
@@ -191,15 +193,18 @@ void CDetectorEqualizerTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CDetectorEqualizerTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
+CppUnit::Test* CDetectorEqualizerTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testCorrect",
+                                                        &CDetectorEqualizerTest::testCorrect));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testAge",
+                                                        &CDetectorEqualizerTest::testAge));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectorEqualizerTest>("CDetectorEqualizerTest::testPersist",
+                                                        &CDetectorEqualizerTest::testPersist));
 
     return suiteOfTests;
 }

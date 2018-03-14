@@ -32,7 +32,7 @@ namespace maths {
 class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
 public:
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionStub *clone(void) const;
+    virtual CTimeSeriesDecompositionStub* clone(void) const;
 
     //! No-op.
     virtual void decayRate(double decayRate);
@@ -46,8 +46,8 @@ public:
     //! No-op returning false.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec &weights = TWeights::UNIT);
+                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
+                          const maths_t::TDouble4Vec& weights = TWeights::UNIT);
 
     //! No-op.
     virtual void propagateForwardsTo(core_t::TTime time);
@@ -67,7 +67,7 @@ public:
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
-                          TDouble3VecVec &result);
+                          TDouble3VecVec& result);
 
     //! Returns \p value.
     virtual double detrend(core_t::TTime time, double value, double confidence) const;
@@ -95,7 +95,7 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Get the seasonal components.
-    virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
+    virtual const maths_t::TSeasonalComponentVec& seasonalComponents(void) const;
 
     //! Returns 0.
     virtual core_t::TTime lastValueTime(void) const;
@@ -103,4 +103,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTimeSeriesDecompositionStub_h
+#endif // INCLUDED_ml_maths_CTimeSeriesDecompositionStub_h

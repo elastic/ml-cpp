@@ -69,9 +69,9 @@ public:
     //! \brief The score for a given set of parameters.
     struct CONFIG_EXPORT SParamScores {
         SParamScores(core_t::TTime bucketLength,
-                     const std::string &ignoreEmpty,
+                     const std::string& ignoreEmpty,
                      double score,
-                     const TStrVec &descriptions);
+                     const TStrVec& descriptions);
 
         //! The bucket length.
         core_t::TTime s_BucketLength;
@@ -89,16 +89,16 @@ public:
     typedef std::vector<SParamScores> TParamScoresVec;
 
 public:
-    CDetectorSpecification(const CAutoconfigurerParams &params,
+    CDetectorSpecification(const CAutoconfigurerParams& params,
                            config_t::EFunctionCategory function,
                            std::size_t id);
-    CDetectorSpecification(const CAutoconfigurerParams &params,
+    CDetectorSpecification(const CAutoconfigurerParams& params,
                            config_t::EFunctionCategory function,
-                           const std::string &argument,
+                           const std::string& argument,
                            std::size_t id);
 
     //! Efficiently exchange the contents of two detectors.
-    void swap(CDetectorSpecification &other);
+    void swap(CDetectorSpecification& other);
 
     //! \name Builder Interface
     //@{
@@ -109,26 +109,26 @@ public:
     void ignoreEmpty(bool ignoreEmpty);
 
     //! Check if we can add the partitioning field \p value.
-    bool canAddPartitioning(std::size_t index, const std::string &value) const;
+    bool canAddPartitioning(std::size_t index, const std::string& value) const;
 
     //! Set the field identified by \p index which must be one
     //! of ARGUMENT_INDEX, BY_INDEX, OVER_INDEX or PARTITION_INDEX.
-    void addPartitioning(std::size_t index, const std::string &value);
+    void addPartitioning(std::size_t index, const std::string& value);
 
     //! Add \p influence as an influencer.
-    void addInfluencer(const std::string &influence);
+    void addInfluencer(const std::string& influence);
 
     //! Set the shortest bucket length.
     void bucketLength(core_t::TTime bucketLength);
 
     //! Add the statistics for the detector's fields.
-    void addFieldStatistics(const TFieldStatisticsVec &stats);
+    void addFieldStatistics(const TFieldStatisticsVec& stats);
 
     //! Set the detector's count statistics.
-    void setCountStatistics(const CDataCountStatistics &stats);
+    void setCountStatistics(const CDataCountStatistics& stats);
 
     //! Set the penalty function for this detector.
-    void setPenalty(const TPenaltyPtr &penalty);
+    void setPenalty(const TPenaltyPtr& penalty);
     //@}
 
     //! \name Detector Scoring
@@ -137,14 +137,14 @@ public:
     double score(void) const;
 
     //! The penalties that apply to the various
-    void scores(TParamScoresVec &result) const;
+    void scores(TParamScoresVec& result) const;
 
     //! Apply the penalty \p penalty.
-    void applyPenalty(double penalty, const std::string &description);
+    void applyPenalty(double penalty, const std::string& description);
 
     //! Apply the penalty for the bucket length \p bucketLength.
     void
-    applyPenalties(const TSizeVec &indices, const TDoubleVec &penalty, const TStrVec &description);
+    applyPenalties(const TSizeVec& indices, const TDoubleVec& penalty, const TStrVec& description);
 
     //! Refresh all scores.
     void refreshScores(void);
@@ -156,32 +156,32 @@ public:
     config_t::EFunctionCategory function(void) const;
 
     //! Get the field which is the argument of the function.
-    const TOptionalStr &argumentField(void) const;
+    const TOptionalStr& argumentField(void) const;
 
     //! Get the by field name. Null if there isn't one.
-    const TOptionalStr &byField(void) const;
+    const TOptionalStr& byField(void) const;
 
     //! Get the over field name. Null if there isn't one.
-    const TOptionalStr &overField(void) const;
+    const TOptionalStr& overField(void) const;
 
     //! Get the partition field name. Null if there isn't one.
-    const TOptionalStr &partitionField(void) const;
+    const TOptionalStr& partitionField(void) const;
 
     //! Get the influences which have been configured.
-    const TStrVec &influences(void) const;
+    const TStrVec& influences(void) const;
 
     //! Get the bucket lengths.
-    void candidateBucketLengths(TTimeVec &result) const;
+    void candidateBucketLengths(TTimeVec& result) const;
 
     //! Check if this detector is for population analysis.
     bool isPopulation(void) const;
     //@}
 
     //! A total order of two detector specifications.
-    bool operator<(const CDetectorSpecification &rhs) const;
+    bool operator<(const CDetectorSpecification& rhs) const;
 
     //! Equality comparison for two detector specifications.
-    bool operator==(const CDetectorSpecification &rhs) const;
+    bool operator==(const CDetectorSpecification& rhs) const;
 
     //! Get the identifier.
     std::size_t id(void) const;
@@ -190,19 +190,19 @@ public:
     void id(std::size_t id);
 
     //! Get the argument field statistics if there is one.
-    const CFieldStatistics *argumentFieldStatistics(void) const;
+    const CFieldStatistics* argumentFieldStatistics(void) const;
 
     //! Get the by field statistics if there is one.
-    const CFieldStatistics *byFieldStatistics(void) const;
+    const CFieldStatistics* byFieldStatistics(void) const;
 
     //! Get the over field statistics if there is one.
-    const CFieldStatistics *overFieldStatistics(void) const;
+    const CFieldStatistics* overFieldStatistics(void) const;
 
     //! Get the partition field statistics if there is one.
-    const CFieldStatistics *partitionFieldStatistics(void) const;
+    const CFieldStatistics* partitionFieldStatistics(void) const;
 
     //! Get the count statistics for this detector.
-    const CDataCountStatistics *countStatistics(void) const;
+    const CDataCountStatistics* countStatistics(void) const;
 
     //! Write a configuration which can be interpreted by our
     //! autodetect processes.
@@ -214,12 +214,12 @@ public:
 private:
     typedef std::vector<TStrVec> TStrVecVec;
     typedef boost::optional<core_t::TTime> TOptionalTime;
-    typedef boost::array<const TSizeVec *, 2> TSizeVecCPtrAry;
+    typedef boost::array<const TSizeVec*, 2> TSizeVecCPtrAry;
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
 private:
     //! Get the parameters.
-    const CAutoconfigurerParams &params(void) const;
+    const CAutoconfigurerParams& params(void) const;
 
     //! Get the highest index of any non-null function field.
     int highestFieldIndex(void) const;
@@ -288,13 +288,13 @@ private:
     std::size_t m_Id;
 
     //! The statistics for each of the detectors fields.
-    const CFieldStatistics *m_FieldStatistics[constants::NUMBER_FIELD_INDICES];
+    const CFieldStatistics* m_FieldStatistics[constants::NUMBER_FIELD_INDICES];
 
     //! The count statistics for the detector.
-    const CDataCountStatistics *m_CountStatistics;
+    const CDataCountStatistics* m_CountStatistics;
     //@}
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CDetectorSpecification_h
+#endif // INCLUDED_ml_config_CDetectorSpecification_h

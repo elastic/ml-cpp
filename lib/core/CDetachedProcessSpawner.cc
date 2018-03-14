@@ -37,7 +37,7 @@
 #include <unistd.h>
 
 // environ is a global variable from the C runtime library
-extern char **environ;
+extern char** environ;
 
 namespace {
 
@@ -45,7 +45,7 @@ namespace {
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
 //! at all, but other errors are ignored.
-bool setupFileActions(posix_spawn_file_actions_t *fileActions) {
+bool setupFileActions(posix_spawn_file_actions_t* fileActions) {
     if (::posix_spawn_file_actions_init(fileActions) != 0) {
         return false;
     }
@@ -53,7 +53,7 @@ bool setupFileActions(posix_spawn_file_actions_t *fileActions) {
     struct rlimit rlim;
     ::memset(&rlim, 0, sizeof(struct rlimit));
     if (::getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        rlim.rlim_cur = 36;// POSIX default
+        rlim.rlim_cur = 36; // POSIX default
     }
 
     // Assume a limit on file descriptors that is greater than a million really
@@ -96,7 +96,7 @@ public:
 
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
-    CMutex &mutex(void) { return m_Mutex; }
+    CMutex& mutex(void) { return m_Mutex; }
 
     //! Add a PID to track.
     void addPid(CProcess::TPid pid) {
@@ -134,7 +134,7 @@ public:
         CScopedLock lock(m_Mutex);
         // Do an extra cycle of waiting for zombies, so we give the most
         // up-to-date answer possible
-        const_cast<CTrackerThread *>(this)->checkForDeadChildren();
+        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
         return m_Pids.find(pid) != m_Pids.end();
     }
 
@@ -217,7 +217,7 @@ private:
 };
 }
 
-CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec &permittedProcessPaths)
+CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths),
       m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
@@ -231,14 +231,14 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner(void) {
     }
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string &processPath, const TStrVec &args) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string &processPath,
-                                    const TStrVec &args,
-                                    CProcess::TPid &childPid) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) ==
         m_PermittedProcessPaths.end()) {
         LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
@@ -250,7 +250,7 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         return false;
     }
 
-    typedef std::vector<char *> TCharPVec;
+    typedef std::vector<char*> TCharPVec;
     // Size of argv is two bigger than the number of arguments because:
     // 1) We add the program name at the beginning
     // 2) The list of arguments must be terminated by a NULL pointer
@@ -259,11 +259,11 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
 
     // These const_casts may cause const data to get modified BUT only in the
     // child post-fork, so this won't corrupt parent process data
-    argv.push_back(const_cast<char *>(processPath.c_str()));
+    argv.push_back(const_cast<char*>(processPath.c_str()));
     for (size_t index = 0; index < args.size(); ++index) {
-        argv.push_back(const_cast<char *>(args[index].c_str()));
+        argv.push_back(const_cast<char*>(args[index].c_str()));
     }
-    argv.push_back(static_cast<char *>(0));
+    argv.push_back(static_cast<char*>(0));
 
     posix_spawn_file_actions_t fileActions;
     if (setupFileActions(&fileActions) == false) {
@@ -285,8 +285,12 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         // quickly
         CScopedLock lock(m_TrackerThread->mutex());
 
-        int err(::posix_spawn(
-            &childPid, processPath.c_str(), &fileActions, &spawnAttributes, &argv[0], environ));
+        int err(::posix_spawn(&childPid,
+                              processPath.c_str(),
+                              &fileActions,
+                              &spawnAttributes,
+                              &argv[0],
+                              environ));
 
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);

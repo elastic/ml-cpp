@@ -64,7 +64,7 @@ public:
 
     typedef boost::unordered_map<TSizeSizePr, TMoments> TSizeSizePrMomentsUMap;
     typedef boost::unordered_map<TSizeSizePr, SArgumentMoments> TSizeSizePrArgumentMomentsUMap;
-    typedef std::pair<const std::string *, TSizeSizePrArgumentMomentsUMap>
+    typedef std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap>
         TStrCPtrSizeSizePrArgumentMomentsUMapPr;
     typedef std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr>
         TStrCPtrSizeSizePrArgumentMomentsUMapPrVec;
@@ -72,7 +72,7 @@ public:
 
 public:
     //! Add the record for \p partition.
-    void add(const TSizeSizeSizeTr &partition,
+    void add(const TSizeSizeSizeTr& partition,
              TDetectorRecordCItr beginRecords,
              TDetectorRecordCItr endRecords);
 
@@ -83,15 +83,15 @@ public:
     uint64_t bucketPartitionCount(void) const;
 
     //! Get the moments of the count distribution per partition.
-    const TSizeSizePrMomentsUMap &countMomentsPerPartition(void) const;
+    const TSizeSizePrMomentsUMap& countMomentsPerPartition(void) const;
 
     //! Get the quantile summary for the count distribution per partition.
-    const TSizeSizePrQuantileUMap &countQuantilesPerPartition(void) const;
+    const TSizeSizePrQuantileUMap& countQuantilesPerPartition(void) const;
 
     //! Get the moments of the distribution of the distinct count of argument
     //! field values for \p name.
-    const TSizeSizePrArgumentMomentsUMap &
-    argumentMomentsPerPartition(const std::string &name) const;
+    const TSizeSizePrArgumentMomentsUMap&
+    argumentMomentsPerPartition(const std::string& name) const;
 
 private:
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMean;
@@ -108,7 +108,7 @@ private:
 
     typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData>
         TSizeSizeSizeTrArgumentDataUMap;
-    typedef std::pair<const std::string *, TSizeSizeSizeTrArgumentDataUMap>
+    typedef std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap>
         TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr;
     typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr>
         TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
@@ -156,7 +156,7 @@ public:
     typedef std::vector<CBucketCountStatistics> TBucketStatisticsVec;
 
 public:
-    CDataCountStatistics(const CAutoconfigurerParams &params);
+    CDataCountStatistics(const CAutoconfigurerParams& params);
     virtual ~CDataCountStatistics(void);
 
     //! Update the statistics with [\p beginRecords, \p endRecords).
@@ -166,10 +166,10 @@ public:
     uint64_t recordCount(void) const;
 
     //! Get the total count of each bucket length.
-    const TUInt64Vec &bucketCounts(void) const;
+    const TUInt64Vec& bucketCounts(void) const;
 
     //! Get the arrival time distribution
-    const maths::CQuantileSketch &arrivalTimeDistribution(void) const;
+    const maths::CQuantileSketch& arrivalTimeDistribution(void) const;
 
     //! Get the total time range.
     core_t::TTime timeRange(void) const;
@@ -179,17 +179,17 @@ public:
 
     //! Get the counts of distinct (bucket, by, partition) triples
     //! per bucket length seen to date.
-    const TBucketStatisticsVec &bucketStatistics(void) const;
+    const TBucketStatisticsVec& bucketStatistics(void) const;
 
     //! Extract the by field value.
     template <typename T>
-    static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
+    static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.first;
     }
 
     //! Extract the partition field value.
     template <typename T>
-    static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
+    static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.second;
     }
 
@@ -199,7 +199,7 @@ protected:
 
 protected:
     //! Get the parameters.
-    const CAutoconfigurerParams &params(void) const;
+    const CAutoconfigurerParams& params(void) const;
 
     //! Check if we should sample the partition.
     bool samplePartition(std::size_t partition) const;
@@ -271,7 +271,7 @@ private:
 //! \brief The count statistics for detectors with no "by" or "over" field.
 class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics {
 public:
-    CPartitionDataCountStatistics(const CAutoconfigurerParams &params);
+    CPartitionDataCountStatistics(const CAutoconfigurerParams& params);
 
     //! Update the statistics with [\p beginRecords, \p endRecords).
     virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
@@ -286,7 +286,7 @@ public:
     typedef TSizeSizePrUInt64UMap::const_iterator TSizeSizePrUInt64UMapCItr;
 
 public:
-    CByAndPartitionDataCountStatistics(const CAutoconfigurerParams &params);
+    CByAndPartitionDataCountStatistics(const CAutoconfigurerParams& params);
 
     //! Update the statistics with [\p beginRecords, \p endRecords).
     virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
@@ -301,13 +301,13 @@ public:
     typedef TSizeSizePrCBjkstUMap::const_iterator TSizeSizePrCBjkstUMapCItr;
 
 public:
-    CByOverAndPartitionDataCountStatistics(const CAutoconfigurerParams &params);
+    CByOverAndPartitionDataCountStatistics(const CAutoconfigurerParams& params);
 
     //! Update the statistics with [\p beginRecords, \p endRecords).
     virtual void add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
 
     //! Get the distinct count of over field values per (by, partition) pair.
-    const TSizeSizePrCBjkstUMap &sampledByAndPartitionDistinctOverCounts(void) const;
+    const TSizeSizePrCBjkstUMap& sampledByAndPartitionDistinctOverCounts(void) const;
 
 private:
     //! The distinct count of over values per (by, partition) pair.
@@ -330,19 +330,19 @@ public:
     typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
 
 public:
-    CDataCountStatisticsDirectAddressTable(const CAutoconfigurerParams &params);
+    CDataCountStatisticsDirectAddressTable(const CAutoconfigurerParams& params);
 
     //! Build the table from \p specs.
-    void build(const TDetectorSpecificationVec &specs);
+    void build(const TDetectorSpecificationVec& specs);
 
     //! Clear the state (as a precursor to build).
-    void pruneUnsed(const TDetectorSpecificationVec &specs);
+    void pruneUnsed(const TDetectorSpecificationVec& specs);
 
     //! Update the statistics with \p records.
-    void add(const TDetectorRecordVec &records);
+    void add(const TDetectorRecordVec& records);
 
     //! Get the detector \p spec's statistics.
-    const CDataCountStatistics &statistics(const CDetectorSpecification &spec) const;
+    const CDataCountStatistics& statistics(const CDetectorSpecification& spec) const;
 
 private:
     typedef std::vector<std::size_t> TSizeVec;
@@ -354,7 +354,7 @@ private:
 
 private:
     //! Get the statistics for \p spec.
-    TDataCountStatisticsPtr stats(const CDetectorSpecification &spec) const;
+    TDataCountStatisticsPtr stats(const CDetectorSpecification& spec) const;
 
 private:
     //! The parameters.
@@ -372,4 +372,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CDataCountStatistics_h
+#endif // INCLUDED_ml_config_CDataCountStatistics_h

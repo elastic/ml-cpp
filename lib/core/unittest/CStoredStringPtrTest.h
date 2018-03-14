@@ -23,7 +23,7 @@ public:
     void testMemoryUsage(void);
     void testHash(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CStoredStringPtrTest_h
+#endif // INCLUDED_CStoredStringPtrTest_h

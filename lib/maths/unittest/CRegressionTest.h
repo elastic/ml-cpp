@@ -36,7 +36,7 @@ public:
     void testPersist(void);
     void testParameterProcess(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CRegressionTest_h
+#endif // INCLUDED_CRegressionTest_h

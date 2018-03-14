@@ -20,24 +20,26 @@
 using namespace ml;
 using namespace core;
 
-CppUnit::Test *CPatternSetTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPatternSetTest");
+CppUnit::Test* CPatternSetTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPatternSetTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPatternSetTest>(
-        "CPatternSetTest::testInitFromJson_GivenInvalidJson",
-        &CPatternSetTest::testInitFromJson_GivenInvalidJson));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CPatternSetTest>("CPatternSetTest::testInitFromJson_GivenInvalidJson",
+                                           &CPatternSetTest::testInitFromJson_GivenInvalidJson));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CPatternSetTest>("CPatternSetTest::testInitFromJson_GivenNonArray",
                                                  &CPatternSetTest::testInitFromJson_GivenNonArray));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPatternSetTest>(
-        "CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem",
-        &CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPatternSetTest>(
-        "CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates",
-        &CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPatternSetTest>(
-        "CPatternSetTest::testContains_GivenFullMatchKeys",
-        &CPatternSetTest::testContains_GivenFullMatchKeys));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPatternSetTest>("CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem",
+                             &CPatternSetTest::testInitFromJson_GivenArrayWithNonStringItem));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPatternSetTest>("CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates",
+                             &CPatternSetTest::testInitFromJson_GivenArrayWithDuplicates));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CPatternSetTest>("CPatternSetTest::testContains_GivenFullMatchKeys",
+                                           &CPatternSetTest::testContains_GivenFullMatchKeys));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CPatternSetTest>("CPatternSetTest::testContains_GivenPrefixKeys",
                                                  &CPatternSetTest::testContains_GivenPrefixKeys));

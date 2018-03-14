@@ -56,11 +56,11 @@ typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>
 typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
 
 struct SMessage {
-    SMessage(const core_t::TTime &time,
-             const std::string &person,
-             const std::string &attribute,
-             const double &value,
-             const TStrVec &influences = TStrVec())
+    SMessage(const core_t::TTime& time,
+             const std::string& person,
+             const std::string& attribute,
+             const double& value,
+             const TStrVec& influences = TStrVec())
         : s_Time(time),
           s_Person(person),
           s_Attribute(attribute),
@@ -75,13 +75,13 @@ struct SMessage {
 };
 typedef std::vector<SMessage> TMessageVec;
 
-TStrVec vec(const std::string &s1, const std::string &s2) {
+TStrVec vec(const std::string& s1, const std::string& s2) {
     TStrVec result(1, s1);
     result.push_back(s2);
     return result;
 }
 
-void generateTestMessages(const core_t::TTime &startTime, TMessageVec &result) {
+void generateTestMessages(const core_t::TTime& startTime, TMessageVec& result) {
     const std::size_t numberMessages = 100000;
     const std::size_t numberPeople = 40;
     const std::size_t numberCategories = 10;
@@ -98,12 +98,16 @@ void generateTestMessages(const core_t::TTime &startTime, TMessageVec &result) {
     std::sort(times.begin(), times.end());
 
     TDoubleVec people;
-    rng.generateUniformSamples(
-        0.0, static_cast<double>(numberPeople) - 0.01, numberMessages, people);
+    rng.generateUniformSamples(0.0,
+                               static_cast<double>(numberPeople) - 0.01,
+                               numberMessages,
+                               people);
 
     TDoubleVec categories;
-    rng.generateUniformSamples(
-        0.0, static_cast<double>(numberCategories) - 0.01, numberMessages, categories);
+    rng.generateUniformSamples(0.0,
+                               static_cast<double>(numberCategories) - 0.01,
+                               numberMessages,
+                               categories);
 
     for (std::size_t i = 0u; i < numberMessages; ++i) {
         core_t::TTime time = startTime + static_cast<core_t::TTime>(times[i]);
@@ -118,15 +122,15 @@ void generateTestMessages(const core_t::TTime &startTime, TMessageVec &result) {
     }
 }
 
-void addArrival(const SMessage &message,
-                CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor) {
+void addArrival(const SMessage& message,
+                CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&message.s_Person);
     fields.push_back(&message.s_Attribute);
     for (std::size_t i = 0u; i < message.s_Influences.size(); ++i) {
         if (message.s_Influences[i].empty()) {
-            fields.push_back(static_cast<std::string *>(0));
+            fields.push_back(static_cast<std::string*>(0));
         } else {
             fields.push_back(&message.s_Influences[i]);
         }
@@ -139,12 +143,14 @@ void addArrival(const SMessage &message,
     gatherer.addArrival(fields, result, resourceMonitor);
 }
 
-bool isSpace(const char x) { return x == ' ' || x == '\t'; }
+bool isSpace(const char x) {
+    return x == ' ' || x == '\t';
+}
 
 const CSearchKey searchKey;
 const std::string EMPTY_STRING;
 
-}// unnamed::
+} // unnamed::
 
 void CMetricPopulationDataGathererTest::testMean(void) {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testMean ***");
@@ -168,7 +174,7 @@ void CMetricPopulationDataGathererTest::testMean(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
     CPPUNIT_ASSERT(gatherer.isPopulation());
 
     TStrStrPrMeanAccumulatorMap accumulators;
@@ -183,7 +189,7 @@ void CMetricPopulationDataGathererTest::testMean(void) {
             CPPUNIT_ASSERT_EQUAL(features.size(), tmp.size());
             CPPUNIT_ASSERT_EQUAL(features[0], tmp[0].first);
 
-            const TSizeSizePrFeatureDataPrVec &data = tmp[0].second;
+            const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             CPPUNIT_ASSERT_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap means;
             for (std::size_t j = 0u; j < data.size(); ++j) {
@@ -236,7 +242,7 @@ void CMetricPopulationDataGathererTest::testMin(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
 
     TStrStrPrMinAccumulatorMap accumulators;
     core_t::TTime bucketStart = startTime;
@@ -250,7 +256,7 @@ void CMetricPopulationDataGathererTest::testMin(void) {
             CPPUNIT_ASSERT_EQUAL(features.size(), tmp.size());
             CPPUNIT_ASSERT_EQUAL(features[0], tmp[0].first);
 
-            const TSizeSizePrFeatureDataPrVec &data = tmp[0].second;
+            const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             CPPUNIT_ASSERT_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap mins;
             for (std::size_t j = 0u; j < data.size(); ++j) {
@@ -304,7 +310,7 @@ void CMetricPopulationDataGathererTest::testMax(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
 
     TStrStrPrMaxAccumulatorMap accumulators;
     core_t::TTime bucketStart = startTime;
@@ -318,7 +324,7 @@ void CMetricPopulationDataGathererTest::testMax(void) {
             CPPUNIT_ASSERT_EQUAL(features.size(), tmp.size());
             CPPUNIT_ASSERT_EQUAL(features[0], tmp[0].first);
 
-            const TSizeSizePrFeatureDataPrVec &data = tmp[0].second;
+            const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             CPPUNIT_ASSERT_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap maxs;
             for (std::size_t j = 0u; j < data.size(); ++j) {
@@ -367,7 +373,7 @@ void CMetricPopulationDataGathererTest::testSum(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
 
     TStrStrPrDoubleMap expectedSums;
     core_t::TTime bucketStart = startTime;
@@ -381,7 +387,7 @@ void CMetricPopulationDataGathererTest::testSum(void) {
             CPPUNIT_ASSERT_EQUAL(features.size(), tmp.size());
             CPPUNIT_ASSERT_EQUAL(features[0], tmp[0].first);
 
-            const TSizeSizePrFeatureDataPrVec &data = tmp[0].second;
+            const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             CPPUNIT_ASSERT_EQUAL(expectedSums.size(), data.size());
             TStrStrPrDoubleMap sums;
             for (std::size_t j = 0u; j < data.size(); ++j) {
@@ -416,15 +422,18 @@ void CMetricPopulationDataGathererTest::testSampleCount(void) {
     const std::string attribute("c1");
     const std::string person("p1");
     const std::size_t numberBuckets = 40;
-    const std::size_t personMessageCount[numberBuckets] = {
-        11,  11,  11,  11,  110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-        110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110,
-        110, 110, 110, 97,  97,  97,  97,  97,  97,  97,  97,  97};
-    const double expectedSampleCounts[] = {
-        0.0,     0.0,     0.0,     11.0,   11.0,    11.0,   11.0,    11.0,    11.0,    11.0,
-        11.0,    11.0,    11.0,    11.0,   11.0,    11.0,   11.0,    11.0,    11.0,    11.0,
-        11.0,    11.0,    11.0,    11.0,   11.0,    11.0,   11.0,    11.0,    11.0,    11.0,
-        11.3597, 11.7164, 12.0701, 12.421, 12.7689, 13.114, 13.4562, 13.7957, 14.1325, 14.4665};
+    const std::size_t personMessageCount[numberBuckets] = {11,  11,  11,  11,  110, 110, 110, 110,
+                                                           110, 110, 110, 110, 110, 110, 110, 110,
+                                                           110, 110, 110, 110, 110, 110, 110, 110,
+                                                           110, 110, 110, 110, 110, 110, 110, 97,
+                                                           97,  97,  97,  97,  97,  97,  97,  97};
+    const double expectedSampleCounts[] = {0.0,     0.0,     0.0,     11.0,   11.0,    11.0,
+                                           11.0,    11.0,    11.0,    11.0,   11.0,    11.0,
+                                           11.0,    11.0,    11.0,    11.0,   11.0,    11.0,
+                                           11.0,    11.0,    11.0,    11.0,   11.0,    11.0,
+                                           11.0,    11.0,    11.0,    11.0,   11.0,    11.0,
+                                           11.3597, 11.7164, 12.0701, 12.421, 12.7689, 13.114,
+                                           13.4562, 13.7957, 14.1325, 14.4665};
     const double tolerance = 5e-4;
 
     TMessageVec messages;
@@ -445,7 +454,7 @@ void CMetricPopulationDataGathererTest::testSampleCount(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
 
     std::size_t bucket = 0u;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
@@ -454,8 +463,9 @@ void CMetricPopulationDataGathererTest::testSampleCount(void) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             gatherer.sampleNow(bucketStart);
             LOG_DEBUG(gatherer.effectiveSampleCount(0));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedSampleCounts[bucket], gatherer.effectiveSampleCount(0), tolerance);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSampleCounts[bucket],
+                                         gatherer.effectiveSampleCount(0),
+                                         tolerance);
             ++bucket;
         }
 
@@ -464,8 +474,9 @@ void CMetricPopulationDataGathererTest::testSampleCount(void) {
 
     core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
     gatherer.sampleNow(bucketStart);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        expectedSampleCounts[bucket], gatherer.effectiveSampleCount(0), tolerance);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSampleCounts[bucket],
+                                 gatherer.effectiveSampleCount(0),
+                                 tolerance);
 }
 
 void CMetricPopulationDataGathererTest::testFeatureData(void) {
@@ -501,7 +512,7 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
 
     TStrStrPrMeanAccumulatorMap bucketMeanAccumulators;
     TStrStrPrMeanAccumulatorMap sampleMeanAccumulators;
@@ -528,13 +539,13 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleMap means;
             TStrStrPrDoubleVecMap meanSamples;
             for (std::size_t j = 0u; j < tmp[0].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr &data = tmp[0].second[j];
+                const TSizeSizePrFeatureDataPr& data = tmp[0].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     means[key] = data.second.s_BucketValue->value()[0];
                 }
-                TDoubleVec &samples = meanSamples[key];
+                TDoubleVec& samples = meanSamples[key];
                 for (std::size_t k = 0u; k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
@@ -544,13 +555,13 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleMap mins;
             TStrStrPrDoubleVecMap minSamples;
             for (std::size_t j = 0u; j < tmp[1].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr &data = tmp[1].second[j];
+                const TSizeSizePrFeatureDataPr& data = tmp[1].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     mins[key] = data.second.s_BucketValue->value()[0];
                 }
-                TDoubleVec &samples = minSamples[key];
+                TDoubleVec& samples = minSamples[key];
                 for (std::size_t k = 0u; k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
@@ -560,13 +571,13 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleMap maxs;
             TStrStrPrDoubleVecMap maxSamples;
             for (std::size_t j = 0u; j < tmp[2].second.size(); ++j) {
-                const TSizeSizePrFeatureDataPr &data = tmp[2].second[j];
+                const TSizeSizePrFeatureDataPr& data = tmp[2].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     maxs[key] = data.second.s_BucketValue->value()[0];
                 }
-                TDoubleVec &samples = maxSamples[key];
+                TDoubleVec& samples = maxSamples[key];
                 for (std::size_t k = 0u; k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
@@ -728,9 +739,10 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void) {
         TSizeUInt64PrVec nonZeroCounts;
         gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
         for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
-            if (!std::binary_search(
-                    peopleToRemove.begin(), peopleToRemove.end(), nonZeroCounts[i].first)) {
-                const std::string &name = gatherer.personName(nonZeroCounts[i].first);
+            if (!std::binary_search(peopleToRemove.begin(),
+                                    peopleToRemove.end(),
+                                    nonZeroCounts[i].first)) {
+                const std::string& name = gatherer.personName(nonZeroCounts[i].first);
                 expectedNonZeroCounts[name] = nonZeroCounts[i].second;
             }
         }
@@ -743,10 +755,11 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
-            const TSizeSizePrFeatureDataPrVec &data = featureData[i].second;
+            const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
-                if (!std::binary_search(
-                        peopleToRemove.begin(), peopleToRemove.end(), data[j].first.first)) {
+                if (!std::binary_search(peopleToRemove.begin(),
+                                        peopleToRemove.end(),
+                                        data[j].first.first)) {
                     std::string key = model_t::print(featureData[i].first) + " " +
                                       gatherer.personName(data[j].first.first) + " " +
                                       gatherer.attributeName(data[j].first.second);
@@ -771,7 +784,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void) {
     TSizeUInt64PrVec nonZeroCounts;
     gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
     for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
-        const std::string &name = gatherer.personName(nonZeroCounts[i].first);
+        const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = nonZeroCounts[i].second;
     }
     LOG_DEBUG("actualNonZeroCounts = " << core::CContainerPrinter::print(actualNonZeroCounts));
@@ -785,7 +798,7 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
-            const TSizeSizePrFeatureDataPrVec &data = featureData[i].second;
+            const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
@@ -880,7 +893,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes(void) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
-            const TSizeSizePrFeatureDataPrVec &data = featureData[i].second;
+            const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 if (!std::binary_search(attributesToRemove.begin(),
                                         attributesToRemove.end(),
@@ -922,7 +935,7 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes(void) {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
-            const TSizeSizePrFeatureDataPrVec &data = featureData[i].second;
+            const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
@@ -954,26 +967,29 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics(void) {
     std::string influencerValues[][3] = {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
 
     SMessage data[] = {
-        SMessage(1, "p1", "", 1.0, vec(influencerValues[0][0], influencerValues[1][0])),// Bucket 1
+        SMessage(1, "p1", "", 1.0, vec(influencerValues[0][0], influencerValues[1][0])), // Bucket 1
         SMessage(150, "p1", "", 5.0, vec(influencerValues[0][1], influencerValues[1][1])),
         SMessage(150, "p1", "", 3.0, vec(influencerValues[0][2], influencerValues[1][2])),
         SMessage(550, "p2", "", 2.0, vec(influencerValues[0][0], influencerValues[1][0])),
         SMessage(551, "p2", "", 2.1, vec(influencerValues[0][1], influencerValues[1][1])),
         SMessage(552, "p2", "", 4.0, vec(influencerValues[0][2], influencerValues[1][2])),
         SMessage(554, "p2", "", 2.2, vec(influencerValues[0][2], influencerValues[1][2])),
-        SMessage(
-            600, "p1", "", 3.0, vec(influencerValues[0][1], influencerValues[1][0])),// Bucket 2
+        SMessage(600,
+                 "p1",
+                 "",
+                 3.0,
+                 vec(influencerValues[0][1], influencerValues[1][0])), // Bucket 2
         SMessage(660, "p2", "", 3.0, vec(influencerValues[0][0], influencerValues[1][2])),
         SMessage(690, "p1", "", 7.3, vec(influencerValues[0][1], "")),
         SMessage(700, "p2", "", 4.0, vec(influencerValues[0][0], influencerValues[1][2])),
         SMessage(800, "p1", "", 2.2, vec(influencerValues[0][2], influencerValues[1][0])),
         SMessage(900, "p2", "", 2.5, vec(influencerValues[0][1], influencerValues[1][0])),
         SMessage(1000, "p1", "", 5.0, vec(influencerValues[0][1], influencerValues[1][0])),
-        SMessage(1200, "p2", "", 6.4, vec("", influencerValues[1][2])),// Bucket 3
+        SMessage(1200, "p2", "", 6.4, vec("", influencerValues[1][2])), // Bucket 3
         SMessage(1210, "p2", "", 6.0, vec("", influencerValues[1][2])),
         SMessage(1240, "p2", "", 7.0, vec("", influencerValues[1][1])),
         SMessage(1600, "p2", "", 11.0, vec("", influencerValues[1][0])),
-        SMessage(1800, "p1", "", 11.0, vec("", ""))// Sentinel
+        SMessage(1800, "p1", "", 11.0, vec("", "")) // Sentinel
     };
 
     std::string expectedStatistics[] = {
@@ -1005,7 +1021,7 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics(void) {
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]"};
-    const std::string *expected = expectedStatistics;
+    const std::string* expected = expectedStatistics;
 
     TFeatureVec features;
     features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
@@ -1039,21 +1055,27 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics(void) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG("feature = " << model_t::print(feature));
 
-                const TSizeSizePrFeatureDataPrVec &data_ = featureData[j].second;
+                const TSizeSizePrFeatureDataPrVec& data_ = featureData[j].second;
                 for (std::size_t k = 0u; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (std::size_t m = 0u; m < data_[k].second.s_InfluenceValues.size(); ++m) {
                         for (std::size_t n = 0u; n < data_[k].second.s_InfluenceValues[m].size();
                              ++n) {
-                            statistics.push_back(TStrDoubleDoublePrPr(
-                                data_[k].second.s_InfluenceValues[m][n].first,
-                                TDoubleDoublePr(
-                                    data_[k].second.s_InfluenceValues[m][n].second.first[0],
-                                    data_[k].second.s_InfluenceValues[m][n].second.second)));
+                            statistics.push_back(
+                                TStrDoubleDoublePrPr(data_[k].second.s_InfluenceValues[m][n].first,
+                                                     TDoubleDoublePr(data_[k]
+                                                                         .second
+                                                                         .s_InfluenceValues[m][n]
+                                                                         .second.first[0],
+                                                                     data_[k]
+                                                                         .second
+                                                                         .s_InfluenceValues[m][n]
+                                                                         .second.second)));
                         }
                     }
-                    std::sort(
-                        statistics.begin(), statistics.end(), maths::COrderings::SFirstLess());
+                    std::sort(statistics.begin(),
+                              statistics.end(),
+                              maths::COrderings::SFirstLess());
 
                     LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
                     LOG_DEBUG("expected   = " << *expected);
@@ -1172,7 +1194,7 @@ void CMetricPopulationDataGathererTest::testReleaseMemory(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &gatherer(*gathererPtr);
+    CDataGatherer& gatherer(*gathererPtr);
     CPPUNIT_ASSERT(gatherer.isPopulation());
 
     core_t::TTime bucketStart = startTime;
@@ -1212,24 +1234,35 @@ void CMetricPopulationDataGathererTest::testReleaseMemory(void) {
     CPPUNIT_ASSERT(gatherer.memoryUsage() < mem - 1000);
 }
 
-CppUnit::Test *CMetricPopulationDataGathererTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricPopulationDataGathererTest");
+CppUnit::Test* CMetricPopulationDataGathererTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricPopulationDataGathererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testMean",
-        &CMetricPopulationDataGathererTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testMin", &CMetricPopulationDataGathererTest::testMin));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testMax", &CMetricPopulationDataGathererTest::testMax));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testSum", &CMetricPopulationDataGathererTest::testSum));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testSampleCount",
-        &CMetricPopulationDataGathererTest::testSampleCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testFeatureData",
-        &CMetricPopulationDataGathererTest::testFeatureData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testMean",
+                                               &CMetricPopulationDataGathererTest::testMean));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testMin",
+                                               &CMetricPopulationDataGathererTest::testMin));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testMax",
+                                               &CMetricPopulationDataGathererTest::testMax));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testSum",
+                                               &CMetricPopulationDataGathererTest::testSum));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testSampleCount",
+                                               &CMetricPopulationDataGathererTest::
+                                                   testSampleCount));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testFeatureData",
+                                               &CMetricPopulationDataGathererTest::
+                                                   testFeatureData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
         "CMetricPopulationDataGathererTest::testRemovePeople",
         &CMetricPopulationDataGathererTest::testRemovePeople));
@@ -1239,9 +1272,11 @@ CppUnit::Test *CMetricPopulationDataGathererTest::suite(void) {
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
         "CMetricPopulationDataGathererTest::testInfluenceStatistics",
         &CMetricPopulationDataGathererTest::testInfluenceStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
-        "CMetricPopulationDataGathererTest::testPersistence",
-        &CMetricPopulationDataGathererTest::testPersistence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricPopulationDataGathererTest>("CMetricPopulationDataGathererTest::testPersistence",
+                                               &CMetricPopulationDataGathererTest::
+                                                   testPersistence));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMetricPopulationDataGathererTest>(
         "CMetricPopulationDataGathererTest::testReleaseMemory",
         &CMetricPopulationDataGathererTest::testReleaseMemory));

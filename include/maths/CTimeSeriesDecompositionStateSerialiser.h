@@ -56,15 +56,15 @@ public:
     //! Construct the appropriate CTimeSeriesDecompositionInterface
     //! sub-class from its state document representation. Sets \p result
     //! to NULL on failure.
-    bool operator()(const STimeSeriesDecompositionRestoreParams &params,
-                    TDecompositionPtr &result,
-                    core::CStateRestoreTraverser &traverser) const;
+    bool operator()(const STimeSeriesDecompositionRestoreParams& params,
+                    TDecompositionPtr& result,
+                    core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter.
-    void operator()(const CTimeSeriesDecompositionInterface &decomposition,
-                    core::CStatePersistInserter &inserter) const;
+    void operator()(const CTimeSeriesDecompositionInterface& decomposition,
+                    core::CStatePersistInserter& inserter) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CTimeSeriesDecompositionStateSerialiser_h
+#endif // INCLUDED_ml_maths_CTimeSeriesDecompositionStateSerialiser_h

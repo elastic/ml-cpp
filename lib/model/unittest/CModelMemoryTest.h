@@ -23,7 +23,7 @@ public:
     void testOnlineEventRateModel(void);
     void testOnlineMetricModel(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CModelMemoryTest_h
+#endif // INCLUDED_CModelMemoryTest_h

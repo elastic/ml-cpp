@@ -25,9 +25,9 @@ namespace api {
 
 namespace {
 
-bool setUpIStream(const std::string &fileName,
+bool setUpIStream(const std::string& fileName,
                   bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TIStreamP &stream) {
+                  core::CNamedPipeFactory::TIStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -36,14 +36,14 @@ bool setUpIStream(const std::string &fileName,
         stream = core::CNamedPipeFactory::openPipeStreamRead(fileName);
         return stream != 0 && !stream->bad();
     }
-    std::ifstream *fileStream(0);
+    std::ifstream* fileStream(0);
     stream.reset(fileStream = new std::ifstream(fileName.c_str()));
     return fileStream->is_open();
 }
 
-bool setUpOStream(const std::string &fileName,
+bool setUpOStream(const std::string& fileName,
                   bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TOStreamP &stream) {
+                  core::CNamedPipeFactory::TOStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -52,19 +52,19 @@ bool setUpOStream(const std::string &fileName,
         stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName);
         return stream != 0 && !stream->bad();
     }
-    std::ofstream *fileStream(0);
+    std::ofstream* fileStream(0);
     stream.reset(fileStream = new std::ofstream(fileName.c_str()));
     return fileStream->is_open();
 }
 }
 
-CIoManager::CIoManager(const std::string &inputFileName,
+CIoManager::CIoManager(const std::string& inputFileName,
                        bool isInputFileNamedPipe,
-                       const std::string &outputFileName,
+                       const std::string& outputFileName,
                        bool isOutputFileNamedPipe,
-                       const std::string &restoreFileName,
+                       const std::string& restoreFileName,
                        bool isRestoreFileNamedPipe,
-                       const std::string &persistFileName,
+                       const std::string& persistFileName,
                        bool isPersistFileNamedPipe)
     : m_IoInitialised(false),
       m_InputFileName(inputFileName),
@@ -99,7 +99,7 @@ bool CIoManager::initIo(void) {
     return m_IoInitialised;
 }
 
-std::istream &CIoManager::inputStream(void) {
+std::istream& CIoManager::inputStream(void) {
     if (m_InputStream != 0) {
         return *m_InputStream;
     }
@@ -111,7 +111,7 @@ std::istream &CIoManager::inputStream(void) {
     return std::cin;
 }
 
-std::ostream &CIoManager::outputStream(void) {
+std::ostream& CIoManager::outputStream(void) {
     if (m_OutputStream != 0) {
         return *m_OutputStream;
     }

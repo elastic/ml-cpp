@@ -39,7 +39,7 @@ public:
 public:
     //! Take a wrapped stream and provide a json writer object
     //! \p outStream reference to an wrapped output stream
-    CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper &outStream);
+    CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
 
     ~CRapidJsonConcurrentLineWriter();
 
@@ -61,14 +61,14 @@ public:
     //! Note this non-virtual overwrite is needed to avoid slicing of the writer
     //! and hence ensure the correct EndObject is called
     //! \p doc reference to rapidjson document value
-    void write(rapidjson::Value &doc) { doc.Accept(*this); }
+    void write(rapidjson::Value& doc) { doc.Accept(*this); }
 
 private:
     //! The stream object
-    CJsonOutputStreamWrapper &m_OutputStreamWrapper;
+    CJsonOutputStreamWrapper& m_OutputStreamWrapper;
 
     //! internal buffer, managed by the stream wrapper
-    rapidjson::StringBuffer *m_StringBuffer;
+    rapidjson::StringBuffer* m_StringBuffer;
 };
 }
 }

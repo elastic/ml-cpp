@@ -28,7 +28,7 @@ public:
     void testBitwiseOr(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CPackedBitVectorTest_h
+#endif // INCLUDED_CPackedBitVectorTest_h

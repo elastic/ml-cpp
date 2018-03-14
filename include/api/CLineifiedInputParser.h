@@ -47,13 +47,13 @@ public:
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CLineifiedInputParser(std::istream &strmIn);
+    CLineifiedInputParser(std::istream& strmIn);
 
 protected:
     //! Line end character
     static const char LINE_END;
 
-    typedef std::pair<char *, size_t> TCharPSizePr;
+    typedef std::pair<char*, size_t> TCharPSizePr;
 
 protected:
     //! Return a pointer to the start of the next line and its length,
@@ -74,7 +74,7 @@ private:
     static const size_t WORK_BUFFER_SIZE;
 
     //! Reference to the stream we're going to read from
-    std::istream &m_StrmIn;
+    std::istream& m_StrmIn;
 
     typedef boost::scoped_array<char> TScopedCharArray;
 
@@ -91,10 +91,10 @@ private:
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
     size_t m_WorkBufferCapacity;
-    char *m_WorkBufferPtr;
-    char *m_WorkBufferEnd;
+    char* m_WorkBufferPtr;
+    char* m_WorkBufferEnd;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CLineifiedJsonInputParser_h
+#endif // INCLUDED_ml_api_CLineifiedJsonInputParser_h

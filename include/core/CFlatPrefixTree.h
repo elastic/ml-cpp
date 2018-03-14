@@ -94,13 +94,13 @@ public:
     //! Builds the tree from a list of \p prefixes. The \p prefixes
     //! vector is required to be lexicographically sorted.
     //! Returns true if the tree was build successfully.
-    bool build(const TStrVec &prefixes);
+    bool build(const TStrVec& prefixes);
 
     //! Returns true if the \p key starts with a prefix present in the tree.
-    bool matchesStart(const std::string &key) const;
+    bool matchesStart(const std::string& key) const;
 
     //! Returns true if the \p key fully matches a prefix present in the tree.
-    bool matchesFully(const std::string &key) const;
+    bool matchesFully(const std::string& key) const;
 
     //! Returns true if the string described by \p start, \p end
     //! starts with a prefix present in the tree.
@@ -126,21 +126,22 @@ public:
 
 private:
     //! The recursive building helper.
-    void buildRecursively(const TStrVec &prefixes,
+    void buildRecursively(const TStrVec& prefixes,
                           std::size_t prefixesStart,
                           std::size_t prefixesEnd,
                           std::size_t charPos);
 
     //! Extracts the distinct characters and stores it in \p distinctChars
     //! along with the start and end index in the \p prefixes vector.
-    void extractDistinctCharacters(const TStrVec &prefixes,
+    void extractDistinctCharacters(const TStrVec& prefixes,
                                    std::size_t prefixesStart,
                                    std::size_t prefixesEnd,
                                    std::size_t charPos,
-                                   TDistinctCharVec &distinctChars);
+                                   TDistinctCharVec& distinctChars);
 
     //! Implementation of the search algorithm.
-    template <typename ITR> bool matches(ITR start, ITR end, bool requireFullMatch) const;
+    template <typename ITR>
+    bool matches(ITR start, ITR end, bool requireFullMatch) const;
 
 private:
     //! The vector representing the trie tree.
@@ -149,4 +150,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CFlatPrefixTree_h
+#endif // INCLUDED_ml_model_CFlatPrefixTree_h

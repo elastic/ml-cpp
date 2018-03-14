@@ -55,16 +55,16 @@ public:
     CPatternSet(void);
 
     //! Initialise the set from JSON that is an array of strings.
-    bool initFromJson(const std::string &json);
+    bool initFromJson(const std::string& json);
 
     //! Check if the set contains the given key.
-    bool contains(const std::string &key) const;
+    bool contains(const std::string& key) const;
 
     //! Clears the set.
     void clear(void);
 
 private:
-    void sortAndPruneDuplicates(TStrVec &keys);
+    void sortAndPruneDuplicates(TStrVec& keys);
 
 private:
     //! The prefix tree containing full patterns (no wildcard).
@@ -83,4 +83,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CPatternSet_h
+#endif // INCLUDED_ml_model_CPatternSet_h

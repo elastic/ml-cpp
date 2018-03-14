@@ -30,7 +30,7 @@ const std::string DASH("-");
 
 CEventData::CEventData(void) : m_Time(0), m_Pid(), m_Cids(), m_Values(), m_IsExplicitNull(false) {}
 
-void CEventData::swap(CEventData &other) {
+void CEventData::swap(CEventData& other) {
     std::swap(m_Time, other.m_Time);
     std::swap(m_Pid, other.m_Pid);
     m_Cids.swap(other.m_Cids);
@@ -50,7 +50,9 @@ void CEventData::clear(void) {
     m_IsExplicitNull = false;
 }
 
-void CEventData::time(core_t::TTime time) { m_Time = time; }
+void CEventData::time(core_t::TTime time) {
+    m_Time = time;
+}
 
 bool CEventData::person(std::size_t pid) {
     if (!m_Pid) {
@@ -62,9 +64,11 @@ bool CEventData::person(std::size_t pid) {
     return true;
 }
 
-void CEventData::addAttribute(TOptionalSize cid) { m_Cids.push_back(cid); }
+void CEventData::addAttribute(TOptionalSize cid) {
+    m_Cids.push_back(cid);
+}
 
-void CEventData::addValue(const TDouble1Vec &value) {
+void CEventData::addValue(const TDouble1Vec& value) {
     m_Values.push_back(TOptionalDouble1VecArraySizePr());
     if (!value.empty()) {
         m_Values.back().reset(TDouble1VecArraySizePr(TDouble1VecArray(), 1));
@@ -73,9 +77,13 @@ void CEventData::addValue(const TDouble1Vec &value) {
     }
 }
 
-void CEventData::stringValue(const std::string &value) { m_StringValue.reset(value); }
+void CEventData::stringValue(const std::string& value) {
+    m_StringValue.reset(value);
+}
 
-void CEventData::addInfluence(const TOptionalStr &influence) { m_Influences.push_back(influence); }
+void CEventData::addInfluence(const TOptionalStr& influence) {
+    m_Influences.push_back(influence);
+}
 
 void CEventData::addCountStatistic(std::size_t count) {
     TDouble1VecArraySizePr values;
@@ -84,11 +92,17 @@ void CEventData::addCountStatistic(std::size_t count) {
     m_Values.push_back(values);
 }
 
-void CEventData::addStatistics(const TDouble1VecArraySizePr &values) { m_Values.push_back(values); }
+void CEventData::addStatistics(const TDouble1VecArraySizePr& values) {
+    m_Values.push_back(values);
+}
 
-core_t::TTime CEventData::time(void) const { return m_Time; }
+core_t::TTime CEventData::time(void) const {
+    return m_Time;
+}
 
-CEventData::TOptionalSize CEventData::personId(void) const { return m_Pid; }
+CEventData::TOptionalSize CEventData::personId(void) const {
+    return m_Pid;
+}
 
 CEventData::TOptionalSize CEventData::attributeId(void) const {
     if (m_Cids.size() != 1) {
@@ -99,7 +113,7 @@ CEventData::TOptionalSize CEventData::attributeId(void) const {
     return m_Cids[0];
 }
 
-const CEventData::TDouble1VecArray &CEventData::values(void) const {
+const CEventData::TDouble1VecArray& CEventData::values(void) const {
     if (m_Values.size() != 1) {
         LOG_ERROR("Call to value ambiguous: " << core::CContainerPrinter::print(m_Values));
         return DUMMY_ARRAY;
@@ -107,9 +121,13 @@ const CEventData::TDouble1VecArray &CEventData::values(void) const {
     return m_Values[0] ? m_Values[0]->first : DUMMY_ARRAY;
 }
 
-const CEventData::TOptionalStr &CEventData::stringValue(void) const { return m_StringValue; }
+const CEventData::TOptionalStr& CEventData::stringValue(void) const {
+    return m_StringValue;
+}
 
-const CEventData::TOptionalStrVec &CEventData::influences(void) const { return m_Influences; }
+const CEventData::TOptionalStrVec& CEventData::influences(void) const {
+    return m_Influences;
+}
 
 CEventData::TOptionalSize CEventData::count(void) const {
     if (m_Values.size() != 1) {
@@ -129,7 +147,7 @@ CEventData::TOptionalSize CEventData::attributeId(std::size_t i) const {
     return i < m_Cids.size() ? m_Cids[i] : TOptionalSize();
 }
 
-const CEventData::TDouble1VecArray &CEventData::values(std::size_t i) const {
+const CEventData::TDouble1VecArray& CEventData::values(std::size_t i) const {
     return i < m_Values.size() && m_Values[i] ? m_Values[i]->first : DUMMY_ARRAY;
 }
 
@@ -144,6 +162,8 @@ void CEventData::setExplicitNull(void) {
     m_IsExplicitNull = true;
 }
 
-bool CEventData::isExplicitNull(void) const { return m_IsExplicitNull; }
+bool CEventData::isExplicitNull(void) const {
+    return m_IsExplicitNull;
+}
 }
 }

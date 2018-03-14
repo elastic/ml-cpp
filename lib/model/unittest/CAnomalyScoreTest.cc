@@ -364,11 +364,11 @@ void CAnomalyScoreTest::testNormalizeScoresNoisy(void) {
         }
     }
 
-    std::size_t largeAnomalyTimes[] = {
-        50, 110, 190, 220, 290, 310, 600, 620, 790, 900, 1100, 1400, 1600, 1900};
+    std::size_t largeAnomalyTimes[] =
+        {50, 110, 190, 220, 290, 310, 600, 620, 790, 900, 1100, 1400, 1600, 1900};
 
-    double largeAnomalies[] = {
-        50.0, 350.0, 30.0, 100.0, 30.0, 45.0, 100.0, 120.0, 60.0, 130.0, 100.0, 90.0, 45.0, 30.0};
+    double largeAnomalies[] =
+        {50.0, 350.0, 30.0, 100.0, 30.0, 45.0, 100.0, 120.0, 60.0, 130.0, 100.0, 90.0, 45.0, 30.0};
 
     // Add in the big anomalies.
     for (size_t i = 0; i < boost::size(largeAnomalyTimes); ++i) {
@@ -476,15 +476,15 @@ void CAnomalyScoreTest::testNormalizeScoresNearZero(void) {
 
     std::size_t nonZeroCounts[] = {0, 100, 200, 249, 251, 300, 400, 450};
 
-    std::string expectedScores[] = {
-        std::string("[41.62776, 32.36435, 26.16873, 32.36435, 37.68726]"),
-        std::string("[41.62776, 32.36435, 26.16873, 32.36435, 37.68726]"),
-        std::string("[41.62776, 32.36435, 17.74216, 32.36435, 37.68726]"),
-        std::string("[41.62776, 32.36435, 11.1645, 32.36435, 37.68726]"),
-        std::string("[41.62776, 32.36435, 11.05937, 32.36435, 37.68726]"),
-        std::string("[41.62776, 32.36435, 8.523397, 32.36435, 37.68726]"),
-        std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
-        std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
+    std::string expectedScores[] =
+        {std::string("[41.62776, 32.36435, 26.16873, 32.36435, 37.68726]"),
+         std::string("[41.62776, 32.36435, 26.16873, 32.36435, 37.68726]"),
+         std::string("[41.62776, 32.36435, 17.74216, 32.36435, 37.68726]"),
+         std::string("[41.62776, 32.36435, 11.1645, 32.36435, 37.68726]"),
+         std::string("[41.62776, 32.36435, 11.05937, 32.36435, 37.68726]"),
+         std::string("[41.62776, 32.36435, 8.523397, 32.36435, 37.68726]"),
+         std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
+         std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
     for (std::size_t i = 0u; i < boost::size(nonZeroCounts); ++i) {
         LOG_DEBUG("non-zero count = " << nonZeroCounts[i]);
@@ -589,8 +589,10 @@ void CAnomalyScoreTest::testJsonConversion(void) {
     model::CAnomalyScore::CNormalizer restoredNormalizer(config);
     {
         core::CJsonStateRestoreTraverser traverser(iss);
-        traverser.traverseSubLevel(boost::bind(
-            &model::CAnomalyScore::CNormalizer::acceptRestoreTraverser, &restoredNormalizer, _1));
+        traverser.traverseSubLevel(
+            boost::bind(&model::CAnomalyScore::CNormalizer::acceptRestoreTraverser,
+                        &restoredNormalizer,
+                        _1));
     }
 
     // The new JSON representation of the new filter should be the same as the original
@@ -606,8 +608,12 @@ void CAnomalyScoreTest::testJsonConversion(void) {
     // representation and extra fields that are used for indexing
     // in a database
     std::string toJson;
-    model::CAnomalyScore::normalizerToJson(
-        origNormalizer, "dummy", "sysChange", "my normalizer", 1234567890, toJson);
+    model::CAnomalyScore::normalizerToJson(origNormalizer,
+                                           "dummy",
+                                           "sysChange",
+                                           "my normalizer",
+                                           1234567890,
+                                           toJson);
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(toJson.c_str());
@@ -619,7 +625,7 @@ void CAnomalyScoreTest::testJsonConversion(void) {
     CPPUNIT_ASSERT(doc.HasMember(model::CAnomalyScore::TIME_ATTRIBUTE.c_str()));
     CPPUNIT_ASSERT(doc.HasMember("a"));
 
-    rapidjson::Value &stateDoc = doc["a"];
+    rapidjson::Value& stateDoc = doc["a"];
 
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -639,8 +645,12 @@ void CAnomalyScoreTest::testJsonConversion(void) {
     CPPUNIT_ASSERT(model::CAnomalyScore::normalizerFromJson(toJson, fromJsonNormalizer));
 
     std::string restoredJson;
-    model::CAnomalyScore::normalizerToJson(
-        fromJsonNormalizer, "dummy", "sysChange", "my normalizer", 1234567890, restoredJson);
+    model::CAnomalyScore::normalizerToJson(fromJsonNormalizer,
+                                           "dummy",
+                                           "sysChange",
+                                           "my normalizer",
+                                           1234567890,
+                                           restoredJson);
 
     CPPUNIT_ASSERT_EQUAL(toJson, restoredJson);
 }
@@ -656,8 +666,12 @@ void CAnomalyScoreTest::testPersistEmpty(void) {
     CPPUNIT_ASSERT(!origNormalizer.canNormalize());
 
     std::string origJson;
-    model::CAnomalyScore::normalizerToJson(
-        origNormalizer, "test", "test", "test", 1234567890, origJson);
+    model::CAnomalyScore::normalizerToJson(origNormalizer,
+                                           "test",
+                                           "test",
+                                           "test",
+                                           1234567890,
+                                           origJson);
 
     model::CAnomalyScore::CNormalizer newNormalizer(config);
 
@@ -666,36 +680,43 @@ void CAnomalyScoreTest::testPersistEmpty(void) {
     CPPUNIT_ASSERT(!newNormalizer.canNormalize());
 
     std::string newJson;
-    model::CAnomalyScore::normalizerToJson(
-        newNormalizer, "test", "test", "test", 1234567890, newJson);
+    model::CAnomalyScore::normalizerToJson(newNormalizer,
+                                           "test",
+                                           "test",
+                                           "test",
+                                           1234567890,
+                                           newJson);
 
     CPPUNIT_ASSERT_EQUAL(origJson, newJson);
 }
 
-CppUnit::Test *CAnomalyScoreTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyScoreTest");
+CppUnit::Test* CAnomalyScoreTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyScoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testComputeScores", &CAnomalyScoreTest::testComputeScores));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testNormalizeScoresQuantiles",
-        &CAnomalyScoreTest::testNormalizeScoresQuantiles));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyScoreTest>("CAnomalyScoreTest::testComputeScores",
+                                                   &CAnomalyScoreTest::testComputeScores));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAnomalyScoreTest>("CAnomalyScoreTest::testNormalizeScoresQuantiles",
+                                             &CAnomalyScoreTest::testNormalizeScoresQuantiles));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CAnomalyScoreTest>("CAnomalyScoreTest::testNormalizeScoresNoisy",
                                                    &CAnomalyScoreTest::testNormalizeScoresNoisy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testNormalizeScoresLargeScore",
-        &CAnomalyScoreTest::testNormalizeScoresLargeScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testNormalizeScoresNearZero",
-        &CAnomalyScoreTest::testNormalizeScoresNearZero));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testNormalizeScoresOrdering",
-        &CAnomalyScoreTest::testNormalizeScoresOrdering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testJsonConversion", &CAnomalyScoreTest::testJsonConversion));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyScoreTest>(
-        "CAnomalyScoreTest::testPersistEmpty", &CAnomalyScoreTest::testPersistEmpty));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAnomalyScoreTest>("CAnomalyScoreTest::testNormalizeScoresLargeScore",
+                                             &CAnomalyScoreTest::testNormalizeScoresLargeScore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAnomalyScoreTest>("CAnomalyScoreTest::testNormalizeScoresNearZero",
+                                             &CAnomalyScoreTest::testNormalizeScoresNearZero));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAnomalyScoreTest>("CAnomalyScoreTest::testNormalizeScoresOrdering",
+                                             &CAnomalyScoreTest::testNormalizeScoresOrdering));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyScoreTest>("CAnomalyScoreTest::testJsonConversion",
+                                                   &CAnomalyScoreTest::testJsonConversion));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyScoreTest>("CAnomalyScoreTest::testPersistEmpty",
+                                                   &CAnomalyScoreTest::testPersistEmpty));
 
     return suiteOfTests;
 }

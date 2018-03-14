@@ -48,10 +48,10 @@ const std::string FIELD_VALUE("field_value");
 const std::string FILTER_ID("filter_id");
 }
 
-CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap &filtersByIdMap)
+CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap)
     : m_FiltersByIdMap(filtersByIdMap) {}
 
-bool CDetectionRulesJsonParser::parseRules(const std::string &json, TDetectionRuleVec &rules) {
+bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRuleVec& rules) {
     LOG_DEBUG("Parsing detection rules");
 
     rules.clear();
@@ -81,9 +81,9 @@ bool CDetectionRulesJsonParser::parseRules(const std::string &json, TDetectionRu
             return false;
         }
 
-        model::CDetectionRule &rule = rules[i];
+        model::CDetectionRule& rule = rules[i];
 
-        rapidjson::Value &ruleObject = doc[i];
+        rapidjson::Value& ruleObject = doc[i];
 
         bool isValid = true;
 
@@ -110,26 +110,26 @@ bool CDetectionRulesJsonParser::parseRules(const std::string &json, TDetectionRu
     return true;
 }
 
-bool CDetectionRulesJsonParser::hasStringMember(const rapidjson::Value &object,
-                                                const std::string &name) {
-    const char *nameAsCStr = name.c_str();
+bool CDetectionRulesJsonParser::hasStringMember(const rapidjson::Value& object,
+                                                const std::string& name) {
+    const char* nameAsCStr = name.c_str();
     return object.HasMember(nameAsCStr) && object[nameAsCStr].IsString();
 }
 
-bool CDetectionRulesJsonParser::hasArrayMember(const rapidjson::Value &object,
-                                               const std::string &name) {
-    const char *nameAsCStr = name.c_str();
+bool CDetectionRulesJsonParser::hasArrayMember(const rapidjson::Value& object,
+                                               const std::string& name) {
+    const char* nameAsCStr = name.c_str();
     return object.HasMember(nameAsCStr) && object[nameAsCStr].IsArray();
 }
 
-bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value &ruleObject,
-                                                 model::CDetectionRule &rule) {
+bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value& ruleObject,
+                                                 model::CDetectionRule& rule) {
     if (!hasArrayMember(ruleObject, ACTIONS)) {
         LOG_ERROR("Missing rule field: " << ACTIONS);
         return false;
     }
 
-    const rapidjson::Value &array = ruleObject[ACTIONS.c_str()];
+    const rapidjson::Value& array = ruleObject[ACTIONS.c_str()];
     if (array.Empty()) {
         LOG_ERROR("At least one rule action is required");
         return false;
@@ -138,7 +138,7 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value &ruleObj
     int action = 0;
     for (unsigned int i = 0; i < array.Size(); ++i) {
         model::CRuleCondition ruleCondition;
-        const std::string &parsedAction = array[i].GetString();
+        const std::string& parsedAction = array[i].GetString();
         if (parsedAction == FILTER_RESULTS) {
             action |= model::CDetectionRule::E_FilterResults;
         } else if (parsedAction == SKIP_SAMPLING) {
@@ -153,14 +153,14 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value &ruleObj
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value &ruleObject,
-                                                          model::CDetectionRule &rule) {
+bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value& ruleObject,
+                                                          model::CDetectionRule& rule) {
     if (!hasStringMember(ruleObject, CONDITIONS_CONNECTIVE)) {
         LOG_ERROR("Missing rule field: " << CONDITIONS_CONNECTIVE);
         return false;
     }
 
-    const std::string &connective = ruleObject[CONDITIONS_CONNECTIVE.c_str()].GetString();
+    const std::string& connective = ruleObject[CONDITIONS_CONNECTIVE.c_str()].GetString();
     if (connective == OR) {
         rule.conditionsConnective(model::CDetectionRule::E_Or);
     } else if (connective == AND) {
@@ -172,14 +172,14 @@ bool CDetectionRulesJsonParser::parseConditionsConnective(const rapidjson::Value
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &ruleObject,
-                                                    model::CDetectionRule &rule) {
+bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value& ruleObject,
+                                                    model::CDetectionRule& rule) {
     if (!hasArrayMember(ruleObject, CONDITIONS)) {
         LOG_ERROR("Missing rule field: " << CONDITIONS);
         return false;
     }
 
-    const rapidjson::Value &array = ruleObject[CONDITIONS.c_str()];
+    const rapidjson::Value& array = ruleObject[CONDITIONS.c_str()];
     if (array.Empty()) {
         LOG_ERROR("At least one condition is required");
         return false;
@@ -187,7 +187,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &rule
 
     for (unsigned int i = 0; i < array.Size(); ++i) {
         model::CRuleCondition condition;
-        const rapidjson::Value &conditionObject = array[i];
+        const rapidjson::Value& conditionObject = array[i];
 
         if (!conditionObject.IsObject()) {
             LOG_ERROR("Unexpected condition type: array conditions is expected to contain objects");
@@ -221,13 +221,13 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &rule
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value &conditionObject,
-                                              model::CRuleCondition &ruleCondition) {
+bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value& conditionObject,
+                                              model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, FILTER_ID)) {
         LOG_ERROR("Missing condition field: " << FILTER_ID);
         return false;
     }
-    const std::string &filterId = conditionObject[FILTER_ID.c_str()].GetString();
+    const std::string& filterId = conditionObject[FILTER_ID.c_str()].GetString();
     auto filterEntry = m_FiltersByIdMap.find(filterId);
     if (filterEntry == m_FiltersByIdMap.end()) {
         LOG_ERROR("Filter with id [" << filterId << "] could not be found");
@@ -237,14 +237,14 @@ bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value &conditionO
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value &ruleConditionObject,
-                                                       model::CRuleCondition &ruleCondition) {
+bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value& ruleConditionObject,
+                                                       model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(ruleConditionObject, TYPE)) {
         LOG_ERROR("Missing ruleCondition field: " << TYPE);
         return false;
     }
 
-    const std::string &type = ruleConditionObject[TYPE.c_str()].GetString();
+    const std::string& type = ruleConditionObject[TYPE.c_str()].GetString();
     if (type == CATEGORICAL) {
         ruleCondition.type(model::CRuleCondition::E_Categorical);
     } else if (type == NUMERICAL_ACTUAL) {
@@ -262,13 +262,13 @@ bool CDetectionRulesJsonParser::parseRuleConditionType(const rapidjson::Value &r
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value &ruleConditionObject,
-                                               model::CRuleCondition &ruleCondition) {
+bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value& ruleConditionObject,
+                                               model::CRuleCondition& ruleCondition) {
     if (!ruleConditionObject.HasMember(CONDITION.c_str())) {
         LOG_ERROR("Missing ruleCondition field: " << CONDITION);
         return false;
     }
-    const rapidjson::Value &conditionObject = ruleConditionObject[CONDITION.c_str()];
+    const rapidjson::Value& conditionObject = ruleConditionObject[CONDITION.c_str()];
     if (!conditionObject.IsObject()) {
         LOG_ERROR("Unexpected type for condition; object was expected");
         return false;
@@ -278,14 +278,14 @@ bool CDetectionRulesJsonParser::parseCondition(const rapidjson::Value &ruleCondi
            parseConditionThreshold(conditionObject, ruleCondition);
 }
 
-bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value &conditionObject,
-                                                       model::CRuleCondition &ruleCondition) {
+bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value& conditionObject,
+                                                       model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, OPERATOR)) {
         LOG_ERROR("Missing condition field: " << OPERATOR);
         return false;
     }
 
-    const std::string &operatorString = conditionObject[OPERATOR.c_str()].GetString();
+    const std::string& operatorString = conditionObject[OPERATOR.c_str()].GetString();
     if (operatorString == LT) {
         ruleCondition.condition().s_Op = model::CRuleCondition::E_LT;
     } else if (operatorString == LTE) {
@@ -301,8 +301,8 @@ bool CDetectionRulesJsonParser::parseConditionOperator(const rapidjson::Value &c
     return true;
 }
 
-bool CDetectionRulesJsonParser::parseConditionThreshold(const rapidjson::Value &conditionObject,
-                                                        model::CRuleCondition &ruleCondition) {
+bool CDetectionRulesJsonParser::parseConditionThreshold(const rapidjson::Value& conditionObject,
+                                                        model::CRuleCondition& ruleCondition) {
     if (!hasStringMember(conditionObject, VALUE)) {
         LOG_ERROR("Missing condition field: " << VALUE);
         return false;

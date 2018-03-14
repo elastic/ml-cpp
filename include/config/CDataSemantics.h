@@ -71,7 +71,7 @@ public:
     explicit CDataSemantics(TOptionalUserDataType override = TOptionalUserDataType());
 
     //! Add an example from the data set.
-    void add(const std::string &example);
+    void add(const std::string& example);
 
     //! Compute the type of the data based on the examples added so far.
     void computeType(void);
@@ -118,13 +118,16 @@ private:
     bool GMMGoodFit(void) const;
 
     //! Add an integer value.
-    template <typename INT> maths::COrdinal addInteger(INT value);
+    template <typename INT>
+    maths::COrdinal addInteger(INT value);
 
     //! Add a positive integer value.
-    template <typename UINT> maths::COrdinal addPositiveInteger(UINT value);
+    template <typename UINT>
+    maths::COrdinal addPositiveInteger(UINT value);
 
     //! Add a real value.
-    template <typename REAL> maths::COrdinal addReal(REAL value);
+    template <typename REAL>
+    maths::COrdinal addReal(REAL value);
 
 private:
     //! The last computed type.
@@ -164,4 +167,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CValueSemantics_h
+#endif // INCLUDED_ml_config_CValueSemantics_h

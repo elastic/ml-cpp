@@ -34,15 +34,15 @@ class CReadWriteLock;
 class CORE_EXPORT CScopedReadLock : private CNonCopyable {
 public:
     //! Read lock specified read/write lock
-    CScopedReadLock(CReadWriteLock &readWriteLock);
+    CScopedReadLock(CReadWriteLock& readWriteLock);
 
     //! Unlock specified read/write lock
     ~CScopedReadLock(void);
 
 private:
-    CReadWriteLock &m_ReadWriteLock;
+    CReadWriteLock& m_ReadWriteLock;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CScopedReadLock_h
+#endif // INCLUDED_ml_core_CScopedReadLock_h

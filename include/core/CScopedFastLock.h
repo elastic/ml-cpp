@@ -34,15 +34,15 @@ class CFastMutex;
 class CORE_EXPORT CScopedFastLock : private CNonCopyable {
 public:
     //! Lock specified mutex
-    CScopedFastLock(CFastMutex &mutex);
+    CScopedFastLock(CFastMutex& mutex);
 
     //! Unlock specified mutex
     ~CScopedFastLock(void);
 
 private:
-    CFastMutex &m_Mutex;
+    CFastMutex& m_Mutex;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CScopedFastLock_h
+#endif // INCLUDED_ml_core_CScopedFastLock_h

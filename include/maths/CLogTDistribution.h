@@ -59,32 +59,32 @@ private:
 
 //! Get the support for a log-t distribution.
 MATHS_EXPORT
-CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution &distribution);
+CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution& distribution);
 
 //! Compute the mode for \p distribution.
 MATHS_EXPORT
-double mode(const CLogTDistribution &distribution);
+double mode(const CLogTDistribution& distribution);
 
 //! Get the finite local minimum if the distribution has one.
 MATHS_EXPORT
-CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution &distribution);
+CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution);
 
 //! Compute the p.d.f. at \p x for \p distribution.
 MATHS_EXPORT
-double pdf(const CLogTDistribution &distribution, double x);
+double pdf(const CLogTDistribution& distribution, double x);
 
 //! Compute the c.d.f. at \p x for \p distribution.
 MATHS_EXPORT
-double cdf(const CLogTDistribution &distribution, double x);
+double cdf(const CLogTDistribution& distribution, double x);
 
 //! Compute one minus the c.d.f. at \p x for \p distribution.
 MATHS_EXPORT
-double cdfComplement(const CLogTDistribution &distribution, double x);
+double cdfComplement(const CLogTDistribution& distribution, double x);
 
 //! Compute the \p q'th quantile for \p distribution.
 MATHS_EXPORT
-double quantile(const CLogTDistribution &distribution, double q);
+double quantile(const CLogTDistribution& distribution, double q);
 }
 }
 
-#endif// INCLUDED_ml_maths_CLogTDistribution_h
+#endif // INCLUDED_ml_maths_CLogTDistribution_h

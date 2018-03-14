@@ -41,8 +41,8 @@ CDualThreadStreamBuf::CDualThreadStreamBuf(size_t bufferCapacity)
       m_Eof(false),
       m_FatalError(false) {
     // Initialise write buffer pointers to indicate an empty buffer
-    char *begin(m_WriteBuffer.get());
-    char *end(begin + m_WriteBufferCapacity);
+    char* begin(m_WriteBuffer.get());
+    char* end(begin + m_WriteBufferCapacity);
     this->setp(begin, end);
 
     // Initialise read buffer pointers to indicate a buffer that has underflowed
@@ -84,13 +84,15 @@ void CDualThreadStreamBuf::signalEndOfFile(void) {
     m_Eof = true;
 }
 
-bool CDualThreadStreamBuf::endOfFile(void) const { return m_Eof; }
+bool CDualThreadStreamBuf::endOfFile(void) const {
+    return m_Eof;
+}
 
 void CDualThreadStreamBuf::signalFatalError(void) {
     CScopedLock lock(m_IntermediateBufferMutex);
 
     // Chuck away the current read buffer
-    char *begin(m_ReadBuffer.get());
+    char* begin(m_ReadBuffer.get());
     this->setg(begin, begin, begin);
 
     // Set a flag to indicate that future reads and writes should fail
@@ -99,7 +101,9 @@ void CDualThreadStreamBuf::signalFatalError(void) {
     m_IntermediateBufferCondition.signal();
 }
 
-bool CDualThreadStreamBuf::hasFatalError(void) const { return m_FatalError; }
+bool CDualThreadStreamBuf::hasFatalError(void) const {
+    return m_FatalError;
+}
 
 std::streamsize CDualThreadStreamBuf::showmanyc(void) {
     // Note that, unlike a file, we have no way of finding out what the total
@@ -137,7 +141,7 @@ int CDualThreadStreamBuf::sync(void) {
     return 0;
 }
 
-std::streamsize CDualThreadStreamBuf::xsgetn(char *s, std::streamsize n) {
+std::streamsize CDualThreadStreamBuf::xsgetn(char* s, std::streamsize n) {
     // Not locked; expected to be called only in the reader thread (see Doxygen
     // comments)
 
@@ -201,9 +205,9 @@ int CDualThreadStreamBuf::pbackfail(int c) {
     std::streamsize countBeforeCurrent(this->gptr() - this->eback());
     std::streamsize countAfterCurrent(this->egptr() - this->gptr());
 
-    char *newBegin(newReadBuffer.get());
-    char *newCurrent(newBegin + countBeforeCurrent);
-    char *newEnd(newCurrent + 1 + countAfterCurrent);
+    char* newBegin(newReadBuffer.get());
+    char* newCurrent(newBegin + countBeforeCurrent);
+    char* newEnd(newCurrent + 1 + countAfterCurrent);
 
     if (countBeforeCurrent > 0) {
         ::memcpy(newBegin, this->eback(), static_cast<size_t>(countBeforeCurrent));
@@ -219,7 +223,7 @@ int CDualThreadStreamBuf::pbackfail(int c) {
     return c;
 }
 
-std::streamsize CDualThreadStreamBuf::xsputn(const char *s, std::streamsize n) {
+std::streamsize CDualThreadStreamBuf::xsputn(const char* s, std::streamsize n) {
     // Not locked; expected to be called only in the writer thread (see Doxygen
     // comments)
 
@@ -325,8 +329,8 @@ bool CDualThreadStreamBuf::swapWriteBuffer(void) {
     m_IntermediateBufferEnd = this->pptr();
     m_WriteBuffer.swap(m_IntermediateBuffer);
     std::swap(m_WriteBufferCapacity, m_IntermediateBufferCapacity);
-    char *begin(m_WriteBuffer.get());
-    char *end(begin + m_WriteBufferCapacity);
+    char* begin(m_WriteBuffer.get());
+    char* end(begin + m_WriteBufferCapacity);
     this->setp(begin, end);
 
     // Signal any waiting reader
@@ -345,13 +349,13 @@ bool CDualThreadStreamBuf::swapReadBuffer(void) {
         }
     }
 
-    char *begin(m_IntermediateBuffer.get());
-    char *end(m_IntermediateBufferEnd);
+    char* begin(m_IntermediateBuffer.get());
+    char* end(m_IntermediateBufferEnd);
     if (begin >= end) {
         if (!m_Eof) {
             LOG_ERROR("Inconsistency - intermediate buffer empty after wait "
                       "when not at end-of-file: begin = "
-                      << static_cast<void *>(begin) << " end = " << static_cast<void *>(end));
+                      << static_cast<void*>(begin) << " end = " << static_cast<void*>(end));
         }
         return false;
     }

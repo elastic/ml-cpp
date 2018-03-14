@@ -29,10 +29,16 @@ CMutex::CMutex(void) {
     InitializeCriticalSectionAndSpinCount(&m_Mutex, SPIN_COUNT);
 }
 
-CMutex::~CMutex(void) { DeleteCriticalSection(&m_Mutex); }
+CMutex::~CMutex(void) {
+    DeleteCriticalSection(&m_Mutex);
+}
 
-void CMutex::lock(void) { EnterCriticalSection(&m_Mutex); }
+void CMutex::lock(void) {
+    EnterCriticalSection(&m_Mutex);
+}
 
-void CMutex::unlock(void) { LeaveCriticalSection(&m_Mutex); }
+void CMutex::unlock(void) {
+    LeaveCriticalSection(&m_Mutex);
+}
 }
 }

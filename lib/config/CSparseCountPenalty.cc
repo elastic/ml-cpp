@@ -35,7 +35,7 @@ namespace {
 typedef std::vector<double> TDoubleVec;
 
 //! Extract the \p n quantiles from \p quantiles.
-void extract(const maths::CQuantileSketch &quantiles, std::size_t n, TDoubleVec &result) {
+void extract(const maths::CQuantileSketch& quantiles, std::size_t n, TDoubleVec& result) {
     for (std::size_t i = 1u; i <= n; ++i) {
         double x;
         quantiles.quantile(100.0 * static_cast<double>(i) / static_cast<double>(n + 1), x);
@@ -44,10 +44,10 @@ void extract(const maths::CQuantileSketch &quantiles, std::size_t n, TDoubleVec 
 }
 
 //! Get the quantiles adjusted for empty buckets.
-const maths::CQuantileSketch &correctForEmptyBuckets(bool ignoreEmpty,
+const maths::CQuantileSketch& correctForEmptyBuckets(bool ignoreEmpty,
                                                      uint64_t buckets,
-                                                     maths::CQuantileSketch &placeholder,
-                                                     const maths::CQuantileSketch &quantiles) {
+                                                     maths::CQuantileSketch& placeholder,
+                                                     const maths::CQuantileSketch& quantiles) {
     if (!ignoreEmpty) {
         double n = static_cast<double>(buckets) - quantiles.count();
         if (n > 0.0) {
@@ -62,7 +62,7 @@ const maths::CQuantileSketch &correctForEmptyBuckets(bool ignoreEmpty,
 //! Get the mean adjusted for empty buckets.
 double correctForEmptyBuckets(bool ignoreEmpty,
                               uint64_t buckets,
-                              const CBucketCountStatistics::TMoments &moments) {
+                              const CBucketCountStatistics::TMoments& moments) {
     double n = maths::CBasicStatistics::count(moments);
     double m = maths::CBasicStatistics::mean(moments);
     return ignoreEmpty ? m : n / static_cast<double>(buckets) * m;
@@ -72,15 +72,17 @@ const uint64_t MINIMUM_BUCKETS_TO_TEST = 20;
 const bool IGNORE_EMPTY[] = {false, true};
 }
 
-CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {}
 
-CSparseCountPenalty *CSparseCountPenalty::clone(void) const {
+CSparseCountPenalty* CSparseCountPenalty::clone(void) const {
     return new CSparseCountPenalty(*this);
 }
 
-std::string CSparseCountPenalty::name(void) const { return "sparse count penalty"; }
+std::string CSparseCountPenalty::name(void) const {
+    return "sparse count penalty";
+}
 
-void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
+void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     if (spec.function() != config_t::E_Count || spec.function() == config_t::E_Sum) {
         return;
     }
@@ -88,14 +90,14 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
     typedef std::vector<TDoubleVec> TDoubleVecVec;
     typedef CBucketCountStatistics::TSizeSizePrQuantileUMap TSizeSizePrQuantileUMap;
     typedef TSizeSizePrQuantileUMap::const_iterator TSizeSizePrQuantileUMapCItr;
-    typedef std::vector<const TSizeSizePrQuantileUMap *> TSizeSizePrQuantileUMapCPtrVec;
-    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap *>
+    typedef std::vector<const TSizeSizePrQuantileUMap*> TSizeSizePrQuantileUMapCPtrVec;
+    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap*>
         TSizeSizePrMomentsUMapCPtrVec;
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
     typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
 
-    if (const CDataCountStatistics *stats = spec.countStatistics()) {
-        const CAutoconfigurerParams::TTimeVec &candidates = this->params().candidateBucketLengths();
+    if (const CDataCountStatistics* stats = spec.countStatistics()) {
+        const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
         TSizeSizePrQuantileUMapCPtrVec quantiles;
         quantiles.reserve(candidates.size());
@@ -125,12 +127,12 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                 for (TSizeSizePrQuantileUMapCItr q0 = quantiles[0]->begin();
                      q0 != quantiles[0]->end();
                      ++q0) {
-                    const CBucketCountStatistics::TSizeSizePr &partition = q0->first;
+                    const CBucketCountStatistics::TSizeSizePr& partition = q0->first;
 
                     uint64_t bc = stats->bucketCounts()[0];
-                    const maths::CQuantileSketch &qe0 =
+                    const maths::CQuantileSketch& qe0 =
                         correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
-                    const CBucketCountStatistics::TMoments &m0 =
+                    const CBucketCountStatistics::TMoments& m0 =
                         moments[0]->find(partition)->second;
                     double me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
                     extract(qe0, nq, xq[0]);
@@ -146,9 +148,9 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                         }
 
                         bc = stats->bucketCounts()[bid];
-                        const maths::CQuantileSketch &qei =
+                        const maths::CQuantileSketch& qei =
                             correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
-                        const CBucketCountStatistics::TMoments &mi =
+                        const CBucketCountStatistics::TMoments& mi =
                             moments[bid]->find(partition)->second;
                         double mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
                         extract(qei, nq, xq[bid]);
@@ -162,9 +164,10 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                     std::fill_n(significances.begin(), nb - 1, 0.0);
                     for (std::size_t i = 0u; i < 2; ++i) {
                         for (std::size_t bid = 0u; bid + 1 < nb; ++bid) {
-                            significances[bid] = std::max(
-                                significances[bid],
-                                maths::CStatisticalTests::twoSampleKS(xq[bid], xq[nb - 1]));
+                            significances[bid] =
+                                std::max(significances[bid],
+                                         maths::CStatisticalTests::twoSampleKS(xq[bid],
+                                                                               xq[nb - 1]));
                         }
 
                         // If the rate is high w.r.t. the bucket length we expect the mean and

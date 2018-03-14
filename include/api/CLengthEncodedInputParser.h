@@ -96,14 +96,14 @@ public:
     //! input of the whole process to binary mode (because it's not possible
     //! to do this for an already opened stream and std::cin will be open
     //! before main() runs).
-    CLengthEncodedInputParser(std::istream &strmIn);
+    CLengthEncodedInputParser(std::istream& strmIn);
 
     //! Read records from the stream. The supplied reader function is called
     //! once per record.  If the supplied reader function returns false,
     //! reading will stop.  This method keeps reading until it reaches the
     //! end of the stream or an error occurs.  If it successfully reaches
     //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc &readerFunc);
+    virtual bool readStream(const TReaderFunc& readerFunc);
 
 private:
     //! Attempt to parse a single length encoded record from the stream into
@@ -113,13 +113,14 @@ private:
     //! argument indicates whether the vector must have the correct size
     //! when the function is called or whether the function is allowed to
     //! resize it.
-    template <bool RESIZE_ALLOWED, typename STR_VEC> bool parseRecordFromStream(STR_VEC &results);
+    template <bool RESIZE_ALLOWED, typename STR_VEC>
+    bool parseRecordFromStream(STR_VEC& results);
 
     //! Parse a 32 bit unsigned integer from the input stream.
-    bool parseUInt32FromStream(uint32_t &num);
+    bool parseUInt32FromStream(uint32_t& num);
 
     //! Parse a string of given length from the input stream.
-    bool parseStringFromStream(size_t length, std::string &str);
+    bool parseStringFromStream(size_t length, std::string& str);
 
     //! Refill the working buffer from the stream
     size_t refillBuffer(void);
@@ -129,7 +130,7 @@ private:
     static const size_t WORK_BUFFER_SIZE;
 
     //! Reference to the stream we're going to read from
-    std::istream &m_StrmIn;
+    std::istream& m_StrmIn;
 
     typedef boost::scoped_array<char> TScopedCharArray;
 
@@ -142,11 +143,11 @@ private:
     //! characters is NOT zero terminated, which is something to be aware of
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
-    const char *m_WorkBufferPtr;
-    const char *m_WorkBufferEnd;
+    const char* m_WorkBufferPtr;
+    const char* m_WorkBufferEnd;
     bool m_NoMoreRecords;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CLengthEncodedInputParser_h
+#endif // INCLUDED_ml_api_CLengthEncodedInputParser_h

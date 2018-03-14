@@ -27,7 +27,7 @@ namespace ml {
 namespace config {
 namespace {
 
-typedef const CFieldStatistics *(CDetectorSpecification::*TGetStatistics)(void)const;
+typedef const CFieldStatistics* (CDetectorSpecification::*TGetStatistics)(void)const;
 const TGetStatistics STATISTIC[] = {
     &CDetectorSpecification::argumentFieldStatistics,
     &CDetectorSpecification::byFieldStatistics,
@@ -36,13 +36,14 @@ const TGetStatistics STATISTIC[] = {
 };
 }
 
-CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams &params)
+CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams& params)
     : CPenalty(params) {
-    std::fill_n(
-        m_FieldRolePenalties, constants::NUMBER_FIELD_INDICES, static_cast<const CPenalty *>(0));
+    std::fill_n(m_FieldRolePenalties,
+                constants::NUMBER_FIELD_INDICES,
+                static_cast<const CPenalty*>(0));
 }
 
-CDetectorFieldRolePenalty *CDetectorFieldRolePenalty::clone(void) const {
+CDetectorFieldRolePenalty* CDetectorFieldRolePenalty::clone(void) const {
     return new CDetectorFieldRolePenalty(*this);
 }
 
@@ -57,14 +58,14 @@ std::string CDetectorFieldRolePenalty::name(void) const {
     return "field role penalty(" + arguments + ")";
 }
 
-void CDetectorFieldRolePenalty::addPenalty(std::size_t index, const CPenalty &penalty) {
+void CDetectorFieldRolePenalty::addPenalty(std::size_t index, const CPenalty& penalty) {
     m_FieldRolePenalties[index] = &penalty;
 }
 
-void CDetectorFieldRolePenalty::penaltyFromMe(CDetectorSpecification &spec) const {
+void CDetectorFieldRolePenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     double penalty = 1.0;
     for (std::size_t i = 0u; i < constants::NUMBER_FIELD_INDICES; ++i) {
-        if (const CFieldStatistics *stats = (spec.*STATISTIC[i])()) {
+        if (const CFieldStatistics* stats = (spec.*STATISTIC[i])()) {
             std::string description;
             m_FieldRolePenalties[i]->penalty(*stats, penalty, description);
             if (!description.empty()) {

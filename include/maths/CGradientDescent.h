@@ -41,14 +41,14 @@ public:
     class MATHS_EXPORT CFunction {
     public:
         virtual ~CFunction(void);
-        virtual bool operator()(const TVector &x, double &result) const = 0;
+        virtual bool operator()(const TVector& x, double& result) const = 0;
     };
 
     //! \brief The interface for the gradient calculation.
     class MATHS_EXPORT CGradient {
     public:
         virtual ~CGradient(void);
-        virtual bool operator()(const TVector &x, TVector &result) const = 0;
+        virtual bool operator()(const TVector& x, TVector& result) const = 0;
     };
 
     //! \brief Computes the gradient using the central difference
@@ -58,15 +58,15 @@ public:
     //! \see https://en.wikipedia.org/wiki/Finite_difference.
     class MATHS_EXPORT CEmpiricalCentralGradient : public CGradient, private core::CNonCopyable {
     public:
-        CEmpiricalCentralGradient(const CFunction &f, double eps);
+        CEmpiricalCentralGradient(const CFunction& f, double eps);
 
-        virtual bool operator()(const TVector &x, TVector &result) const;
+        virtual bool operator()(const TVector& x, TVector& result) const;
 
     private:
         //! The shift used to get the offset points.
         double m_Eps;
         //! The function for which to compute the gradient.
-        const CFunction &m_F;
+        const CFunction& m_F;
         //! A placeholder for the shifted points.
         mutable TVector xShiftEps;
     };
@@ -91,11 +91,11 @@ public:
     //! visited.
     //! \param[out] fi Filled in with the sequence of function values.
     bool run(std::size_t n,
-             const TVector &x0,
-             const CFunction &f,
-             const CGradient &gf,
-             TVector &xBest,
-             TDoubleVec &fi);
+             const TVector& x0,
+             const CFunction& f,
+             const CGradient& gf,
+             TVector& xBest,
+             TDoubleVec& fi);
 
 private:
     //! The multiplier of the unit vector along the gradient.
@@ -110,4 +110,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CGradientDescent_h
+#endif // INCLUDED_ml_maths_CGradientDescent_h

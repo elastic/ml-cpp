@@ -87,10 +87,10 @@ void CReportWriterTest::testPretty(void) {
                         1.3,  1.1,  520.0, 1200.0, 810.1, 1000000.0, 5334.0, 70.0,   180.0, 100.3};
 
     config::CDataSummaryStatistics stats1;
-    config::CCategoricalDataSummaryStatistics stats2[] = {
-        config::CCategoricalDataSummaryStatistics(10),
-        config::CCategoricalDataSummaryStatistics(10),
-        config::CCategoricalDataSummaryStatistics(10)};
+    config::CCategoricalDataSummaryStatistics stats2[] =
+        {config::CCategoricalDataSummaryStatistics(10),
+         config::CCategoricalDataSummaryStatistics(10),
+         config::CCategoricalDataSummaryStatistics(10)};
     config::CNumericDataSummaryStatistics stats3(false);
 
     uint64_t n = 0;
@@ -111,17 +111,17 @@ void CReportWriterTest::testPretty(void) {
         stats1.add(time);
 
         rng.generateUniformSamples(0, boost::size(categories1), 1, index);
-        const std::string &phylum = categories1[index[0]];
+        const std::string& phylum = categories1[index[0]];
         stats2[0].add(time, phylum);
 
         rng.generateUniformSamples(breaks[index[0]], breaks[index[0] + 1], 1, index);
-        const std::string &species = categories2[index[0]];
+        const std::string& species = categories2[index[0]];
         stats2[1].add(time, species);
 
         double weight_ = weights[index[0]];
 
         rng.generateUniformSamples(0, codes.size(), 1, index);
-        const std::string &code = codes[index[0]];
+        const std::string& code = codes[index[0]];
         stats2[2].add(time, code);
 
         double range = weight_ > 1.0 ? ::sqrt(weight_) : weight_ * weight_;
@@ -155,11 +155,12 @@ void CReportWriterTest::testJSON(void) {
     LOG_DEBUG("+-------------------------------+");
 }
 
-CppUnit::Test *CReportWriterTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
+CppUnit::Test* CReportWriterTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReportWriterTest>(
-        "CReportWriterTest::testPretty", &CReportWriterTest::testPretty));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty",
+                                                   &CReportWriterTest::testPretty));
 
     return suiteOfTests;
 }

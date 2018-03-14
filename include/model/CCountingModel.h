@@ -44,22 +44,22 @@ public:
     //@{
     //! \param[in] params The global configuration parameters.
     //! \param[in] dataGatherer The object that gathers time series data.
-    CCountingModel(const SModelParams &params, const TDataGathererPtr &dataGatherer);
+    CCountingModel(const SModelParams& params, const TDataGathererPtr& dataGatherer);
 
     //! Constructor used for restoring persisted models.
     //!
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CCountingModel(const SModelParams &params,
-                   const TDataGathererPtr &dataGatherer,
-                   core::CStateRestoreTraverser &traverser);
+    CCountingModel(const SModelParams& params,
+                   const TDataGathererPtr& dataGatherer,
+                   core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CCountingModel(bool isForPersistence, const CCountingModel &other);
+    CCountingModel(bool isForPersistence, const CCountingModel& other);
     //@}
 
     //! Returns event rate online.
@@ -77,17 +77,17 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Add to the contents of the object.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this model that will result in the same persisted
     //! state.  The clone may be incomplete in ways that do not affect the
     //! persisted representation, and must not be used for any other
     //! purpose.
     //! \warning The caller owns the object returned.
-    virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+    virtual CAnomalyDetectorModel* cloneForPersistence(void) const;
     //@}
 
     //! \name Bucket Statistics
@@ -132,7 +132,7 @@ public:
                                            std::size_t pid,
                                            std::size_t cid,
                                            model_t::CResultType type,
-                                           const TSizeDoublePr1Vec &correlated,
+                                           const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const;
     //@}
 
@@ -144,7 +144,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the person identifiers
     //! in the bucketing time interval of interest.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const;
+    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
     //@}
 
     //! \name Update
@@ -157,7 +157,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CResourceMonitor &resourceMonitor);
+                                        CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -168,7 +168,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleOutOfPhase(core_t::TTime startTime,
                                   core_t::TTime endTime,
-                                  CResourceMonitor &resourceMonitor);
+                                  CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, in the time interval
     //! [\p startTime, \p endTime].
@@ -177,7 +177,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
     virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor);
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! No-op.
     virtual void prune(std::size_t maximumAge);
@@ -189,15 +189,15 @@ public:
     virtual bool computeProbability(std::size_t pid,
                                     core_t::TTime startTime,
                                     core_t::TTime endTime,
-                                    CPartitioningFields &partitioningFields,
+                                    CPartitioningFields& partitioningFields,
                                     std::size_t numberAttributeProbabilities,
-                                    SAnnotatedProbability &result) const;
+                                    SAnnotatedProbability& result) const;
 
     //! Sets \p probability to 1.
-    virtual bool computeTotalProbability(const std::string &person,
+    virtual bool computeTotalProbability(const std::string& person,
                                          std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble &probability,
-                                         TAttributeProbability1Vec &attributeProbabilities) const;
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -221,7 +221,7 @@ public:
     virtual CModelDetailsViewPtr details(void) const;
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
-    virtual const TStr1Vec &scheduledEventDescriptions(core_t::TTime time) const;
+    virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
 public:
     typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
@@ -251,7 +251,7 @@ private:
     virtual double attributeFrequency(std::size_t cid) const;
 
     //! Monitor the resource usage while creating new models.
-    void createUpdateNewModels(core_t::TTime, CResourceMonitor &resourceMonitor);
+    void createUpdateNewModels(core_t::TTime, CResourceMonitor& resourceMonitor);
 
     //! Create the mean counts for "n" newly observed people.
     virtual void createNewModels(std::size_t n, std::size_t m);
@@ -263,7 +263,7 @@ private:
     virtual void updateRecycledModels(void);
 
     //! Initialize the time series models for newly observed people.
-    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes);
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
 
     //! Check if bucket statistics are available for the specified time.
     bool bucketStatsAvailable(core_t::TTime time) const;
@@ -278,7 +278,7 @@ private:
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
 
     //! Get the model memory usage estimator
-    virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+    virtual CMemoryUsageEstimator* memoryUsageEstimator(void) const;
 
 private:
     typedef boost::unordered_map<core_t::TTime, TStr1Vec> TTimeStr1VecUMap;
@@ -301,4 +301,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CModel_h
+#endif // INCLUDED_ml_model_CModel_h

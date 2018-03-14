@@ -81,7 +81,7 @@ public:
     //! Initialise from a config file.  This overwrites current settings
     //! with any found in the config file.  Settings that are not present
     //! in the config file will be reset to their default values.
-    bool init(const std::string &configFile);
+    bool init(const std::string& configFile);
 
     //! Access to settings
     size_t autoConfigEvents(void) const;
@@ -91,20 +91,20 @@ public:
     size_t memoryLimitMB(void) const;
 
     //! Access to the resource monitor
-    CResourceMonitor &resourceMonitor(void);
+    CResourceMonitor& resourceMonitor(void);
 
     //! boost::ini_parser doesn't like UTF-8 ini files that begin with byte
     //! order markers.  This function advances the seek pointer of the
     //! stream over a UTF-8 BOM, but only if one exists.
-    static void skipUtf8Bom(std::ifstream &strm);
+    static void skipUtf8Bom(std::ifstream& strm);
 
 private:
     //! Helper method for init().
     template <typename FIELDTYPE>
-    static bool processSetting(const boost::property_tree::ptree &propTree,
-                               const std::string &iniPath,
-                               const FIELDTYPE &defaultValue,
-                               FIELDTYPE &value) {
+    static bool processSetting(const boost::property_tree::ptree& propTree,
+                               const std::string& iniPath,
+                               const FIELDTYPE& defaultValue,
+                               FIELDTYPE& value) {
         try {
             // This get() will throw an exception if the path isn't found
             std::string valueStr(propTree.template get<std::string>(iniPath));
@@ -115,7 +115,7 @@ private:
                 LOG_ERROR("Invalid value for setting " << iniPath << " : " << valueStr);
                 return false;
             }
-        } catch (boost::property_tree::ptree_error &) {
+        } catch (boost::property_tree::ptree_error&) {
             LOG_DEBUG("Using default value (" << defaultValue << ") for unspecified setting "
                                               << iniPath);
             value = defaultValue;
@@ -147,4 +147,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CLimits_h
+#endif // INCLUDED_ml_model_CLimits_h

@@ -105,17 +105,17 @@ public:
     //! \name Serialization
     //@{
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create from an XML node tree.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     //@}
 
     //! Add \p n values \p value to the q-digest.
     void add(uint32_t value, uint64_t n = 1ull);
 
     //! Merge this and \p digest.
-    void merge(const CQDigest &digest);
+    void merge(const CQDigest& digest);
 
     //! Lose information from the digest. This amounts to aging
     //! the counts held by each node and reducing the total count
@@ -139,7 +139,7 @@ public:
     //! digest isn't empty.
     //! \return True if the quantile could be computed and
     //! false otherwise.
-    bool quantile(double q, uint32_t &result) const;
+    bool quantile(double q, uint32_t& result) const;
 
     //! Find the largest value x such that upper bound of the
     //! c.d.f. is less than \p f, i.e. \f$\sup_y{\{y:F(y)<f\}}\f$.
@@ -148,7 +148,7 @@ public:
     //! only defined on the points where it changes, i.e. the
     //! q-digest node end points. So this returns the rightmost
     //! end point where the upper c.d.f. is less than \p f.
-    bool quantileSublevelSetSupremum(double f, uint32_t &result) const;
+    bool quantileSublevelSetSupremum(double f, uint32_t& result) const;
 
     //! Get the quantile corresponding to the c.d.f. value \p.
     //!
@@ -166,7 +166,7 @@ public:
     //! the c.d.f. at \p x.
     //! \param[out] upperBound Filled in with the upper bound for
     //! the c.d.f. at \p x.
-    bool cdf(uint32_t x, double confidence, double &lowerBound, double &upperBound) const;
+    bool cdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
 
     //! Compute the value of the p.d.f. at \p x.
     //!
@@ -177,20 +177,20 @@ public:
     //! the p.d.f. at \p x.
     //! \param[out] upperBound Filled in with the upper bound for
     //! the p.d.f. at \p x.
-    void pdf(uint32_t x, double confidence, double &lowerBound, double &upperBound) const;
+    void pdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
 
     //! Get the maximum knot point less than \p x.
-    void sublevelSetSupremum(uint32_t x, uint32_t &result) const;
+    void sublevelSetSupremum(uint32_t x, uint32_t& result) const;
 
     //! Get the minimum knot point greater than \p x.
-    void superlevelSetInfimum(uint32_t x, uint32_t &result) const;
+    void superlevelSetInfimum(uint32_t x, uint32_t& result) const;
 
     //! Get a summary of the q-digest. This is the counts less
     //! than or equal to each distinct integer in the quantile
     //! summary.
     //!
     //! \param[out] result Filled in with the summary.
-    void summary(TUInt32UInt64PrVec &result) const;
+    void summary(TUInt32UInt64PrVec& result) const;
 
     //! Get the total number of values added to the q-digest.
     uint64_t n(void) const;
@@ -218,19 +218,19 @@ private:
     class CNode;
     class CNodeAllocator;
 
-    typedef std::vector<CNode *> TNodePtrVec;
+    typedef std::vector<CNode*> TNodePtrVec;
     typedef TNodePtrVec::iterator TNodePtrVecItr;
     typedef TNodePtrVec::const_iterator TNodePtrVecCItr;
     typedef TNodePtrVec::const_reverse_iterator TNodePtrVecCRItr;
 
     //! Orders node pointers by level order.
     struct MATHS_EXPORT SLevelLess {
-        bool operator()(const CNode *lhs, const CNode *rhs) const;
+        bool operator()(const CNode* lhs, const CNode* rhs) const;
     };
 
     //! Order node pointers by post order in completed tree.
     struct MATHS_EXPORT SPostLess {
-        bool operator()(const CNode *lhs, const CNode *rhs) const;
+        bool operator()(const CNode* lhs, const CNode* rhs) const;
     };
 
     //! Represents a node of the q-digest with convenience
@@ -259,34 +259,34 @@ private:
         //! Get the largest value of x for which the upper count
         //! i.e. count of values definitely to the right of x, is
         //! less than \p n.
-        bool quantileSublevelSetSupremum(uint64_t n, uint64_t leftCount, uint32_t &result) const;
+        bool quantileSublevelSetSupremum(uint64_t n, uint64_t leftCount, uint32_t& result) const;
 
         //! Get the lower bound for the c.d.f. at \p x.
-        void cdfLowerBound(uint32_t x, uint64_t &result) const;
+        void cdfLowerBound(uint32_t x, uint64_t& result) const;
 
         //! Get the upper bound for the c.d.f. at \p x.
-        void cdfUpperBound(uint32_t x, uint64_t &result) const;
+        void cdfUpperBound(uint32_t x, uint64_t& result) const;
 
         //! Get the maximum knot point less than \p x.
-        void sublevelSetSupremum(const int64_t x, uint32_t &result) const;
+        void sublevelSetSupremum(const int64_t x, uint32_t& result) const;
 
         //! Get the minimum knot point greater than \p x.
-        void superlevelSetInfimum(uint32_t x, uint32_t &result) const;
+        void superlevelSetInfimum(uint32_t x, uint32_t& result) const;
 
         //! Fill in \p nodes with q-digest nodes in post-order.
-        void postOrder(TNodePtrVec &nodes) const;
+        void postOrder(TNodePtrVec& nodes) const;
 
         //! Expand the node to fit \p value.
-        CNode *expand(CNodeAllocator &allocator, const uint32_t &value);
+        CNode* expand(CNodeAllocator& allocator, const uint32_t& value);
 
         //! Insert the specified node at its lowest ancestor
         //! in the q-digest.
-        CNode &insert(CNodeAllocator &allocator, const CNode &node);
+        CNode& insert(CNodeAllocator& allocator, const CNode& node);
 
         //! Compress the digest at the triple comprising this node,
         //! its sibling and parent in the complete tree if they are
         //! in the q-digest.
-        CNode *compress(CNodeAllocator &allocator, uint64_t compressionFactor);
+        CNode* compress(CNodeAllocator& allocator, uint64_t compressionFactor);
 
         //! Age the counts by the specified factor.
         uint64_t age(double factor);
@@ -298,16 +298,16 @@ private:
         //! Get the maximum value covered by the node.
         uint32_t max(void) const;
         //! Get the count of entries in the node range.
-        const uint64_t &count(void) const;
+        const uint64_t& count(void) const;
         //! Get the count in the subtree rooted at this node.
-        const uint64_t &subtreeCount(void) const;
+        const uint64_t& subtreeCount(void) const;
 
         //! Persist this node and descendents
-        void persistRecursive(const std::string &nodeTag,
-                              core::CStatePersistInserter &inserter) const;
+        void persistRecursive(const std::string& nodeTag,
+                              core::CStatePersistInserter& inserter) const;
 
         //! Create from an XML node tree.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Check the node invariants in the q-digest rooted at this node.
         bool checkInvariants(uint64_t compressionFactor) const;
@@ -319,13 +319,13 @@ private:
         //! Persist state by passing information to the supplied
         //! inserter - this should only be called by persistRecursive()
         //! to ensure the whole tree gets persisted
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Test for equality.
-        bool operator==(const CNode &node) const;
+        bool operator==(const CNode& node) const;
 
         //! Get the index of the immediate ancestor in the q-digest.
-        CNode *ancestor(void) const;
+        CNode* ancestor(void) const;
         //! Get the number of descendants.
         std::size_t numberDescendants(void) const;
         //! Get an iterator over the descendants.
@@ -333,14 +333,14 @@ private:
         //! Get the end of the descendants.
         TNodePtrVecCItr endDescendants(void) const;
         //! Get the sibling of \p node if it exists in the q-digest.
-        CNode *sibling(const CNode &node) const;
+        CNode* sibling(const CNode& node) const;
 
         //! Is this a sibling of \p node?
-        bool isSibling(const CNode &node) const;
+        bool isSibling(const CNode& node) const;
         //! Is this a parent of \p node?
-        bool isParent(const CNode &node) const;
+        bool isParent(const CNode& node) const;
         //! Is this an ancestor of \p node in the complete tree.
-        bool isAncestor(const CNode &node) const;
+        bool isAncestor(const CNode& node) const;
         //! Is this node the root.
         bool isRoot(void) const;
         //! Is this node a leaf.
@@ -349,15 +349,15 @@ private:
         bool isLeftChild(void) const;
 
         //! Detach this node from the q-digest.
-        void detach(CNodeAllocator &allocator);
+        void detach(CNodeAllocator& allocator);
         //! Remove \p node from the descendants.
-        void removeDescendant(CNode &node);
+        void removeDescendant(CNode& node);
         //! Take the descendants of \p node.
-        bool takeDescendants(CNode &node);
+        bool takeDescendants(CNode& node);
 
     private:
         //! The immediate ancestor of this node in the q-digest.
-        CNode *m_Ancestor;
+        CNode* m_Ancestor;
 
         //! The immediate descendants of this node in the q-digest.
         TNodePtrVec m_Descendants;
@@ -381,10 +381,10 @@ private:
         CNodeAllocator(std::size_t size);
 
         //! Create a new node.
-        CNode &create(const CNode &node);
+        CNode& create(const CNode& node);
 
         //! Recycle \p node.
-        void release(CNode &node);
+        void release(CNode& node);
 
     private:
         typedef std::vector<TNodePtrVec> TNodePtrVecVec;
@@ -396,7 +396,7 @@ private:
 
     private:
         //! Find the block to which \p node belongs.
-        std::size_t findBlock(const CNode &node) const;
+        std::size_t findBlock(const CNode& node) const;
 
     private:
         TNodeVecList m_Nodes;
@@ -410,7 +410,7 @@ private:
     //! Starting at the lowest nodes in \p compress in level order
     //! compress all q-digest paths bottom up in level order to the
     //! root.
-    bool compress(TNodePtrVec &compress);
+    bool compress(TNodePtrVec& compress);
 
 private:
     //! Controls the maximum number of values stored. In particular,
@@ -419,7 +419,7 @@ private:
     //! The number of values added to the q-digest.
     uint64_t m_N;
     //! The root node.
-    CNode *m_Root;
+    CNode* m_Root;
     //! The node allocator.
     CNodeAllocator m_NodeAllocator;
     //! The rate at which information is lost by the digest.
@@ -428,4 +428,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CQDigest_h
+#endif // INCLUDED_ml_maths_CQDigest_h

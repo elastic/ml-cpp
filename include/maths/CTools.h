@@ -37,7 +37,8 @@
 namespace ml {
 namespace maths {
 class CLogTDistribution;
-template <typename T> class CMixtureDistribution;
+template <typename T>
+class CMixtureDistribution;
 
 //! \brief A collection of utility functionality.
 //!
@@ -68,14 +69,14 @@ public:
     //! \brief Computes minus the log of the c.d.f. of a specified sample
     //! of an R.V. for various distributions.
     struct MATHS_EXPORT SMinusLogCdf {
-        double operator()(const SImproperDistribution &, double x) const;
-        double operator()(const normal &normal_, double x) const;
-        double operator()(const students_t &students, double x) const;
-        double operator()(const negative_binomial &negativeBinomial, double x) const;
-        double operator()(const lognormal &logNormal, double x) const;
-        double operator()(const CLogTDistribution &logt, double x) const;
-        double operator()(const gamma &gamma_, double x) const;
-        double operator()(const beta &beta_, double x) const;
+        double operator()(const SImproperDistribution&, double x) const;
+        double operator()(const normal& normal_, double x) const;
+        double operator()(const students_t& students, double x) const;
+        double operator()(const negative_binomial& negativeBinomial, double x) const;
+        double operator()(const lognormal& logNormal, double x) const;
+        double operator()(const CLogTDistribution& logt, double x) const;
+        double operator()(const gamma& gamma_, double x) const;
+        double operator()(const beta& beta_, double x) const;
     };
 
     //! \brief Computes minus the log of the 1 - c.d.f. of a specified
@@ -84,14 +85,14 @@ public:
     //! close to 1 and the smallest value is the minimum double rather
     //! than epsilon.
     struct MATHS_EXPORT SMinusLogCdfComplement {
-        double operator()(const SImproperDistribution &, double) const;
-        double operator()(const normal &normal_, double x) const;
-        double operator()(const students_t &students, double x) const;
-        double operator()(const negative_binomial &negativeBinomial, double x) const;
-        double operator()(const lognormal &logNormal, double x) const;
-        double operator()(const CLogTDistribution &logt, double x) const;
-        double operator()(const gamma &gamma_, double x) const;
-        double operator()(const beta &beta_, double x) const;
+        double operator()(const SImproperDistribution&, double) const;
+        double operator()(const normal& normal_, double x) const;
+        double operator()(const students_t& students, double x) const;
+        double operator()(const negative_binomial& negativeBinomial, double x) const;
+        double operator()(const lognormal& logNormal, double x) const;
+        double operator()(const CLogTDistribution& logt, double x) const;
+        double operator()(const gamma& gamma_, double x) const;
+        double operator()(const beta& beta_, double x) const;
     };
 
     //! \brief Computes the probability of seeing a more extreme sample
@@ -124,23 +125,23 @@ public:
     public:
         CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
 
-        double operator()(const SImproperDistribution &, double, maths_t::ETail &tail) const;
-        double operator()(const normal &normal_, double x, maths_t::ETail &tail) const;
-        double operator()(const students_t &students, double x, maths_t::ETail &tail) const;
+        double operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const;
+        double operator()(const normal& normal_, double x, maths_t::ETail& tail) const;
+        double operator()(const students_t& students, double x, maths_t::ETail& tail) const;
         double
-        operator()(const negative_binomial &negativeBinomial, double x, maths_t::ETail &tail) const;
-        double operator()(const lognormal &logNormal, double x, maths_t::ETail &tail) const;
-        double operator()(const CLogTDistribution &logt, double x, maths_t::ETail &tail) const;
-        double operator()(const gamma &gamma_, double x, maths_t::ETail &tail) const;
-        double operator()(const beta &beta_, double x, maths_t::ETail &tail) const;
+        operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const;
+        double operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const;
+        double operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const;
+        double operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const;
+        double operator()(const beta& beta_, double x, maths_t::ETail& tail) const;
 
     private:
         //! Check the value is supported.
         bool
-        check(const TDoubleDoublePr &support, double x, double &px, maths_t::ETail &tail) const;
+        check(const TDoubleDoublePr& support, double x, double& px, maths_t::ETail& tail) const;
 
         //! Update the tail.
-        void tail(double x, double mode, maths_t::ETail &tail) const;
+        void tail(double x, double mode, maths_t::ETail& tail) const;
 
         //! The style of calculation which, i.e. one or two tail.
         maths_t::EProbabilityCalculation m_Calculation;
@@ -170,12 +171,13 @@ public:
         //! approximation. Note also that this computes the scaled
         //! kernel, i.e. \f$k'(s) = k(s)/f(x)\f$ so the output must
         //! be scaled by \f$f(x)\f$ to recover the true probability.
-        template <typename LOGF> class CSmoothedKernel : private core::CNonCopyable {
+        template <typename LOGF>
+        class CSmoothedKernel : private core::CNonCopyable {
         public:
             CSmoothedKernel(LOGF logf, double logF0, double k);
 
             void k(double k);
-            bool operator()(double x, double &result) const;
+            bool operator()(double x, double& result) const;
 
         private:
             LOGF m_LogF;
@@ -228,10 +230,10 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template <typename LOGF, typename EQUAL>
-        bool leftTail(const LOGF &logf,
+        bool leftTail(const LOGF& logf,
                       std::size_t iterations,
-                      const EQUAL &equal,
-                      double &result) const;
+                      const EQUAL& equal,
+                      double& result) const;
 
         //! Find the right tail argument with the same p.d.f. value
         //! as the sample.
@@ -249,10 +251,10 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template <typename LOGF, typename EQUAL>
-        bool rightTail(const LOGF &logf,
+        bool rightTail(const LOGF& logf,
                        std::size_t iterations,
-                       const EQUAL &equal,
-                       double &result) const;
+                       const EQUAL& equal,
+                       double& result) const;
 
         //! Compute the probability of a less likely sample.
         //!
@@ -267,7 +269,8 @@ public:
         //! like signature bool (double, double &) where the first argument
         //! is the p.d.f. argument and the second argument is filled in
         //! with the log p.d.f. at the first argument.
-        template <typename LOGF> double calculate(const LOGF &logf, double pTails);
+        template <typename LOGF>
+        double calculate(const LOGF& logf, double pTails);
 
     private:
         using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
@@ -277,7 +280,7 @@ public:
 
     private:
         //! Compute the seed integration intervals.
-        void intervals(TDoubleDoublePrVec &intervals);
+        void intervals(TDoubleDoublePrVec& intervals);
 
     private:
         //! The sample.
@@ -304,9 +307,9 @@ public:
     //!   \f$E[ X 1{[a,b]} ] / E[ 1{a,b]} ]\f$
     //! </pre>
     struct MATHS_EXPORT SIntervalExpectation {
-        double operator()(const normal &normal_, double a, double b) const;
-        double operator()(const lognormal &logNormal, double a, double b) const;
-        double operator()(const gamma &gamma_, double a, double b) const;
+        double operator()(const normal& normal_, double a, double b) const;
+        double operator()(const lognormal& logNormal, double a, double b) const;
+        double operator()(const gamma& gamma_, double a, double b) const;
     };
 
     //! The smallest value of probability we permit.
@@ -324,15 +327,15 @@ public:
     //! extended to the whole real line in the usual way by treating
     //! them as continuous.
     //@{
-    static double safePdf(const normal &normal_, double x);
-    static double safePdf(const students_t &students, double x);
-    static double safePdf(const poisson &poisson_, double x);
-    static double safePdf(const negative_binomial &negativeBinomial, double x);
-    static double safePdf(const lognormal &logNormal, double x);
-    static double safePdf(const gamma &gamma_, double x);
-    static double safePdf(const beta &beta_, double x);
-    static double safePdf(const binomial &binomial_, double x);
-    static double safePdf(const chi_squared &chi2, double x);
+    static double safePdf(const normal& normal_, double x);
+    static double safePdf(const students_t& students, double x);
+    static double safePdf(const poisson& poisson_, double x);
+    static double safePdf(const negative_binomial& negativeBinomial, double x);
+    static double safePdf(const lognormal& logNormal, double x);
+    static double safePdf(const gamma& gamma_, double x);
+    static double safePdf(const beta& beta_, double x);
+    static double safePdf(const binomial& binomial_, double x);
+    static double safePdf(const chi_squared& chi2, double x);
     //@}
 
     //! \name Safe Cumulative Density Function
@@ -340,15 +343,15 @@ public:
     //! them to the whole real line.
     //! \see safePdf for details.
     //@{
-    static double safeCdf(const normal &normal_, double x);
-    static double safeCdf(const students_t &students, double x);
-    static double safeCdf(const poisson &poisson_, double x);
-    static double safeCdf(const negative_binomial &negativeBinomial, double x);
-    static double safeCdf(const lognormal &logNormal, double x);
-    static double safeCdf(const gamma &gamma_, double x);
-    static double safeCdf(const beta &beta_, double x);
-    static double safeCdf(const binomial &binomial_, double x);
-    static double safeCdf(const chi_squared &chi2, double x);
+    static double safeCdf(const normal& normal_, double x);
+    static double safeCdf(const students_t& students, double x);
+    static double safeCdf(const poisson& poisson_, double x);
+    static double safeCdf(const negative_binomial& negativeBinomial, double x);
+    static double safeCdf(const lognormal& logNormal, double x);
+    static double safeCdf(const gamma& gamma_, double x);
+    static double safeCdf(const beta& beta_, double x);
+    static double safeCdf(const binomial& binomial_, double x);
+    static double safeCdf(const chi_squared& chi2, double x);
     //@}
 
     //! \name Safe Cumulative Density Function Complement
@@ -356,15 +359,15 @@ public:
     //! distributions which extend them to the whole real line.
     //! \see safePdf for details.
     //@{
-    static double safeCdfComplement(const normal &normal_, double x);
-    static double safeCdfComplement(const students_t &students, double x);
-    static double safeCdfComplement(const poisson &poisson_, double x);
-    static double safeCdfComplement(const negative_binomial &negativeBinomial, double x);
-    static double safeCdfComplement(const lognormal &logNormal, double x);
-    static double safeCdfComplement(const gamma &gamma_, double x);
-    static double safeCdfComplement(const beta &beta_, double x);
-    static double safeCdfComplement(const binomial &binomial_, double x);
-    static double safeCdfComplement(const chi_squared &chi2, double x);
+    static double safeCdfComplement(const normal& normal_, double x);
+    static double safeCdfComplement(const students_t& students, double x);
+    static double safeCdfComplement(const poisson& poisson_, double x);
+    static double safeCdfComplement(const negative_binomial& negativeBinomial, double x);
+    static double safeCdfComplement(const lognormal& logNormal, double x);
+    static double safeCdfComplement(const gamma& gamma_, double x);
+    static double safeCdfComplement(const beta& beta_, double x);
+    static double safeCdfComplement(const binomial& binomial_, double x);
+    static double safeCdfComplement(const chi_squared& chi2, double x);
     //@}
 
     //! Compute the deviation from the probability of seeing a more
@@ -394,30 +397,33 @@ public:
     //! This computes the differential entropy in units of "nats",
     //! i.e. the logarithm is the natural logarithm.
     //@{
-    static double differentialEntropy(const poisson &poisson_);
-    static double differentialEntropy(const normal &normal_);
-    static double differentialEntropy(const lognormal &logNormal);
-    static double differentialEntropy(const gamma &gamma_);
-    template <typename T> class CDifferentialEntropyKernel {
+    static double differentialEntropy(const poisson& poisson_);
+    static double differentialEntropy(const normal& normal_);
+    static double differentialEntropy(const lognormal& logNormal);
+    static double differentialEntropy(const gamma& gamma_);
+    template <typename T>
+    class CDifferentialEntropyKernel {
     public:
-        CDifferentialEntropyKernel(const CMixtureDistribution<T> &mixture) : m_Mixture(&mixture) {}
+        CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture) : m_Mixture(&mixture) {}
 
-        inline bool operator()(double x, double &result) const {
+        inline bool operator()(double x, double& result) const {
             double fx = pdf(*m_Mixture, x);
             result = fx == 0.0 ? 0.0 : -fx * std::log(fx);
             return true;
         }
 
     private:
-        const CMixtureDistribution<T> *m_Mixture;
+        const CMixtureDistribution<T>* m_Mixture;
     };
-    template <typename T> static double differentialEntropy(const CMixtureDistribution<T> &mixture);
+    template <typename T>
+    static double differentialEntropy(const CMixtureDistribution<T>& mixture);
     //@}
 
     //! Check if \p log will underflow the smallest positive value of T.
     //!
     //! \tparam T must be a floating point type.
-    template <typename T> static bool logWillUnderflow(T log) {
+    template <typename T>
+    static bool logWillUnderflow(T log) {
         static const T LOG_DENORM_MIN = std::log(std::numeric_limits<T>::min());
         return log < LOG_DENORM_MIN;
     }
@@ -444,7 +450,8 @@ private:
     //!
     //! This is taken from the approach given in
     //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
-    template <int BITS> class CLookupTableForFastLog {
+    template <int BITS>
+    class CLookupTableForFastLog {
     public:
         static const std::size_t BINS = 1 << BITS;
 
@@ -482,7 +489,7 @@ private:
         }
 
         //! Lookup log2 for a given mantissa.
-        const double &operator[](uint64_t mantissa) const {
+        const double& operator[](uint64_t mantissa) const {
             return m_Table[mantissa >> FAST_LOG_SHIFT];
         }
 
@@ -511,17 +518,23 @@ public:
 
 private:
     //! Get the location of the point \p x.
-    template <typename T> static double location(T x) { return x; }
+    template <typename T>
+    static double location(T x) {
+        return x;
+    }
     //! Set \p x to \p y.
-    template <typename T> static void setLocation(T &x, double y) { x = static_cast<T>(y); }
+    template <typename T>
+    static void setLocation(T& x, double y) {
+        x = static_cast<T>(y);
+    }
     //! Get a writable location of the point \p x.
     template <typename T>
-    static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator &x) {
+    static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator& x) {
         return CBasicStatistics::mean(x);
     }
     //! Set the mean of \p x to \p y.
     template <typename T>
-    static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator &x, double y) {
+    static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator& x, double y) {
         x.s_Moments[0] = static_cast<T>(y);
     }
 
@@ -534,19 +547,20 @@ private:
     public:
         //! Create a new points group.
         template <typename T>
-        CGroup(std::size_t index, const T &points) : m_A(index), m_B(index), m_Centre() {
+        CGroup(std::size_t index, const T& points) : m_A(index), m_B(index), m_Centre() {
             m_Centre.add(location(points[index]));
         }
 
         //! Merge this group and \p other group.
-        void merge(const CGroup &other, double separation, double min, double max);
+        void merge(const CGroup& other, double separation, double min, double max);
 
         //! Check if this group and \p other group overlap.
-        bool overlap(const CGroup &other, double separation) const;
+        bool overlap(const CGroup& other, double separation) const;
 
         //! Update the locations of the points in this group based
         //! on its centre position.
-        template <typename T> bool spread(double separation, T &points) const {
+        template <typename T>
+        bool spread(double separation, T& points) const {
             if (m_A == m_B) {
                 return false;
             }
@@ -576,7 +590,8 @@ private:
     //! \brief Orders two points by their position.
     class CPointLess {
     public:
-        template <typename T> bool operator()(const T &lhs, const T &rhs) const {
+        template <typename T>
+        bool operator()(const T& lhs, const T& rhs) const {
             return location(lhs) < location(rhs);
         }
     };
@@ -600,7 +615,8 @@ public:
     //! \param[in] separation The minimum permitted separation between
     //! points.
     //! \param[in,out] points The points to spread.
-    template <typename T> static void spread(double a, double b, double separation, T &points);
+    template <typename T>
+    static void spread(double a, double b, double separation, T& points);
 
     //! Compute the sign of \p x and return T(-1) if it is negative and T(1)
     //! otherwise.
@@ -608,19 +624,23 @@ public:
     //! \param[in] x The value for which to check the sign.
     //! \note Conversion of 0 and -1 to T should be well defined.
     //! \note Zero maps to 1.
-    template <typename T> static T sign(const T &x) { return x < T(0) ? T(-1) : T(1); }
+    template <typename T>
+    static T sign(const T& x) {
+        return x < T(0) ? T(-1) : T(1);
+    }
 
     //! Truncate \p x to the range [\p a, \p b].
     //!
     //! \tparam T Must support operator<.
-    template <typename T> static const T &truncate(const T &x, const T &a, const T &b) {
+    template <typename T>
+    static const T& truncate(const T& x, const T& a, const T& b) {
         return x < a ? a : (b < x ? b : x);
     }
 
     //! Component-wise truncation of stack vectors.
     template <typename T, std::size_t N>
     static CVectorNx1<T, N>
-    truncate(const CVectorNx1<T, N> &x, const CVectorNx1<T, N> &a, const CVectorNx1<T, N> &b) {
+    truncate(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& a, const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
         for (std::size_t i = 0u; i < N; ++i) {
             result(i) = truncate(result(i), a(i), b(i));
@@ -630,7 +650,7 @@ public:
 
     //! Component-wise truncation of heap vectors.
     template <typename T>
-    static CVector<T> truncate(const CVector<T> &x, const CVector<T> &a, const CVector<T> &b) {
+    static CVector<T> truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
         CVector<T> result(x);
         for (std::size_t i = 0u; i < result.dimension(); ++i) {
             result(i) = truncate(result(i), a(i), b(i));
@@ -640,9 +660,9 @@ public:
 
     //! Component-wise truncation of small vector.
     template <typename T, std::size_t N>
-    static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N> &x,
-                                             const core::CSmallVector<T, N> &a,
-                                             const core::CSmallVector<T, N> &b) {
+    static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N>& x,
+                                             const core::CSmallVector<T, N>& a,
+                                             const core::CSmallVector<T, N>& b) {
         core::CSmallVector<T, N> result(x);
         for (std::size_t i = 0u; i < result.size(); ++i) {
             result[i] = truncate(result[i], a[i], b[i]);
@@ -677,4 +697,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTools_h
+#endif // INCLUDED_ml_maths_CTools_h

@@ -40,20 +40,20 @@ public:
 public:
     //! Parse the arguments and return options if appropriate.
     static bool parse(int argc,
-                      const char *const *argv,
-                      std::string &modelConfigFile,
-                      std::string &logProperties,
-                      std::string &logPipe,
-                      core_t::TTime &bucketSpan,
-                      bool &lengthEncodedInput,
-                      std::string &inputFileName,
-                      bool &isInputFileNamedPipe,
-                      std::string &outputFileName,
-                      bool &isOutputFileNamedPipe,
-                      std::string &quantilesState,
-                      bool &deleteStateFiles,
-                      bool &writeCsv,
-                      bool &perPartitionNormalization);
+                      const char* const* argv,
+                      std::string& modelConfigFile,
+                      std::string& logProperties,
+                      std::string& logPipe,
+                      core_t::TTime& bucketSpan,
+                      bool& lengthEncodedInput,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe,
+                      std::string& quantilesState,
+                      bool& deleteStateFiles,
+                      bool& writeCsv,
+                      bool& perPartitionNormalization);
 
 private:
     static const std::string DESCRIPTION;
@@ -61,4 +61,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_normalize_CCmdLineParser_h
+#endif // INCLUDED_ml_normalize_CCmdLineParser_h

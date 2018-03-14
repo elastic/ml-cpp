@@ -66,7 +66,7 @@ public:
     //! \param[in] varianceInterpolationType The style of interpolation to use for
     //! computing variances.
     CSeasonalComponent(
-        const CSeasonalTime &time,
+        const CSeasonalTime& time,
         std::size_t maxSize,
         double decayRate = 0.0,
         double minimumBucketLength = 0.0,
@@ -77,15 +77,15 @@ public:
     //! Construct by traversing part of an state document.
     CSeasonalComponent(double decayRate,
                        double minimumBucketLength,
-                       core::CStateRestoreTraverser &traverser,
+                       core::CStateRestoreTraverser& traverser,
                        CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
                        CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
 
     //! An efficient swap of the contents of two components.
-    void swap(CSeasonalComponent &other);
+    void swap(CSeasonalComponent& other);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Check if the seasonal component has been estimated.
     bool initialized(void) const;
@@ -93,7 +93,7 @@ public:
     //! Initialize the adaptive bucketing.
     bool initialize(core_t::TTime startTime = 0,
                     core_t::TTime endTime = 0,
-                    const TFloatMeanAccumulatorVec &values = TFloatMeanAccumulatorVec());
+                    const TFloatMeanAccumulatorVec& values = TFloatMeanAccumulatorVec());
 
     //! Get the size of this component.
     std::size_t size(void) const;
@@ -134,7 +134,7 @@ public:
     void propagateForwardsByTime(double time, bool meanRevert = false);
 
     //! Get the time provider.
-    const CSeasonalTime &time(void) const;
+    const CSeasonalTime& time(void) const;
 
     //! Interpolate the component at \p time.
     //!
@@ -176,7 +176,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the regression parameters'
     //! covariance matrix.
-    bool covariances(core_t::TTime time, TMatrix &result) const;
+    bool covariances(core_t::TTime time, TMatrix& result) const;
 
     //! Get the value spline.
     TSplineCRef valueSpline(void) const;
@@ -200,7 +200,7 @@ private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(double decayRate,
                                 double minimumBucketLength,
-                                core::CStateRestoreTraverser &traverser);
+                                core::CStateRestoreTraverser& traverser);
 
     //! Get a jitter to apply to the prediction time.
     core_t::TTime jitter(core_t::TTime time);
@@ -215,8 +215,10 @@ private:
 };
 
 //! Create a free function which will be picked up in Koenig lookup.
-inline void swap(CSeasonalComponent &lhs, CSeasonalComponent &rhs) { lhs.swap(rhs); }
+inline void swap(CSeasonalComponent& lhs, CSeasonalComponent& rhs) {
+    lhs.swap(rhs);
+}
 }
 }
 
-#endif// INCLUDED_ml_maths_CSeasonalComponent_h
+#endif // INCLUDED_ml_maths_CSeasonalComponent_h

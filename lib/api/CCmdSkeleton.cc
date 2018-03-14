@@ -26,10 +26,10 @@
 namespace ml {
 namespace api {
 
-CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
-                           core::CDataAdder *persister,
-                           CInputParser &inputParser,
-                           CDataProcessor &processor)
+CCmdSkeleton::CCmdSkeleton(core::CDataSearcher* restoreSearcher,
+                           core::CDataAdder* persister,
+                           CInputParser& inputParser,
+                           CDataProcessor& processor)
     : m_RestoreSearcher(restoreSearcher),
       m_Persister(persister),
       m_InputParser(inputParser),

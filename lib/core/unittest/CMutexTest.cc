@@ -16,8 +16,8 @@
 
 #include <core/CMutex.h>
 
-CppUnit::Test *CMutexTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMutexTest");
+CppUnit::Test* CMutexTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMutexTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMutexTest>("CMutexTest::testRecursive",
                                                               &CMutexTest::testRecursive));

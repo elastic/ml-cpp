@@ -22,7 +22,7 @@ public:
     void testLimit(void);
     void testAccuracy(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CAnomalyJobLimitTest_h
+#endif // INCLUDED_CAnomalyJobLimitTest_h

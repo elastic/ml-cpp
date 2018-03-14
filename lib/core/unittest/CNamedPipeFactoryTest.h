@@ -27,7 +27,7 @@ public:
     void testErrorIfRegularFile(void);
     void testErrorIfSymlink(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CNamedPipeFactoryTest_h
+#endif // INCLUDED_CNamedPipeFactoryTest_h

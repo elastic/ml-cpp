@@ -42,12 +42,12 @@ public:
     //! intended for unit testing and are not necessarily good defaults.
     //! The CModelConfig class is responsible for providing sensible
     //! default values for the factory for use within our products.
-    explicit CMetricPopulationModelFactory(const SModelParams &params,
+    explicit CMetricPopulationModelFactory(const SModelParams& params,
                                            model_t::ESummaryMode summaryMode = model_t::E_None,
-                                           const std::string &summaryCountFieldName = "");
+                                           const std::string& summaryCountFieldName = "");
 
     //! Create a copy of the factory owned by the calling code.
-    virtual CMetricPopulationModelFactory *clone(void) const;
+    virtual CMetricPopulationModelFactory* clone(void) const;
 
     //! \name Factory Methods
     //@{
@@ -55,7 +55,7 @@ public:
     //!
     //! \param[in] initData The parameters needed to initialize the model.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData) const;
 
     //! Make a new metric population model from part of a state document.
     //!
@@ -63,15 +63,15 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData,
-                                             core::CStateRestoreTraverser &traverser) const;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
+                                             core::CStateRestoreTraverser& traverser) const;
 
     //! Make a new metric population data gatherer.
     //!
     //! \param[in] initData The parameters needed to initialize the data
     //! gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const SGathererInitializationData &initData) const;
+    virtual CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const;
 
     //! Make a new metric population data gatherer from part of a state
     //! document.
@@ -79,8 +79,8 @@ public:
     //! \param[in] partitionFieldValue The partition field value.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const std::string &partitionFieldValue,
-                                            core::CStateRestoreTraverser &traverser) const;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
+                                            core::CStateRestoreTraverser& traverser) const;
     //@}
 
     //! \name Defaults
@@ -89,14 +89,14 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams &params) const;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
 
     //! Get the default multivariate prior for \p feature.
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams &params) const;
+                                                           const SModelParams& params) const;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature.
@@ -104,11 +104,11 @@ public:
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultCorrelatePrior(model_t::EFeature feature,
-                                                        const SModelParams &params) const;
+                                                        const SModelParams& params) const;
     //@}
 
     //! Get the search key corresponding to this factory.
-    virtual const CSearchKey &searchKey(void) const;
+    virtual const CSearchKey& searchKey(void) const;
 
     //! Returns false.
     virtual bool isSimpleCount(void) const;
@@ -125,18 +125,18 @@ public:
     virtual void identifier(int identifier);
 
     //! Set the name of the field whose values will be counted.
-    virtual void fieldNames(const std::string &partitionFieldName,
-                            const std::string &overFieldName,
-                            const std::string &byFieldName,
-                            const std::string &valueFieldName,
-                            const TStrVec &influenceFieldNames);
+    virtual void fieldNames(const std::string& partitionFieldName,
+                            const std::string& overFieldName,
+                            const std::string& byFieldName,
+                            const std::string& valueFieldName,
+                            const TStrVec& influenceFieldNames);
 
     //! Set whether the models should process missing person and
     //! attribute fields.
     virtual void useNull(bool useNull);
 
     //! Set the features which will be modeled.
-    virtual void features(const TFeatureVec &features);
+    virtual void features(const TFeatureVec& features);
 
     //! Set the bucket results delay
     virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
@@ -147,9 +147,9 @@ private:
     virtual TStrCRefVec partitioningFields(void) const;
 
     //! Restores a single population metric model.
-    bool modelAcceptRestoreTraverser(const SModelInitializationData &initData,
-                                     core::CStateRestoreTraverser &traverser,
-                                     CAnomalyDetectorModel *&model) const;
+    bool modelAcceptRestoreTraverser(const SModelInitializationData& initData,
+                                     core::CStateRestoreTraverser& traverser,
+                                     CAnomalyDetectorModel*& model) const;
 
 private:
     //! The identifier of the search for which this generates models.
@@ -199,4 +199,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CMetricPopulationModelFactory_h
+#endif // INCLUDED_ml_model_CMetricPopulationModelFactory_h

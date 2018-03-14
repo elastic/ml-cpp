@@ -45,7 +45,7 @@ public:
     typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
 
 public:
-    CDetectorEnumerator(const CAutoconfigurerParams &params);
+    CDetectorEnumerator(const CAutoconfigurerParams& params);
 
     //! \name Builder Interface
     //@{
@@ -53,29 +53,29 @@ public:
     void addFunction(config_t::EFunctionCategory category);
 
     //! Add a candidate for a categorical function argument.
-    void addCategoricalFunctionArgument(const std::string &argument);
+    void addCategoricalFunctionArgument(const std::string& argument);
 
     //! Add a candidate for a metric function argument.
-    void addMetricFunctionArgument(const std::string &argument);
+    void addMetricFunctionArgument(const std::string& argument);
 
     //! Add a candidate by field.
-    void addByField(const std::string &by);
+    void addByField(const std::string& by);
 
     //! Add a candidate by field for a rare detector.
-    void addRareByField(const std::string &by);
+    void addRareByField(const std::string& by);
 
     //! Add a candidate over field.
-    void addOverField(const std::string &over);
+    void addOverField(const std::string& over);
 
     //! Add a candidate partition field.
-    void addPartitionField(const std::string &partition);
+    void addPartitionField(const std::string& partition);
     //@}
 
     //! Generate all the  detectors.
     //!
     //! All detectors which can be built out of the functions and argument,
     //! by, over and partition fields added so far are appended to \p result.
-    void generate(TDetectorSpecificationVec &result);
+    void generate(TDetectorSpecificationVec& result);
 
 private:
     typedef std::vector<std::string> TStrVec;
@@ -85,21 +85,21 @@ private:
 
 private:
     //! Add the detectors with no partitioning fields.
-    void generateNoPartitioning(TDetectorSpecificationVec &result) const;
+    void generateNoPartitioning(TDetectorSpecificationVec& result) const;
 
     //! Add the detectors with one partitioning field.
     //!
     //! The indices \p a and \p b define the start and end of the seed
     //! detectors in \p result used to generate detectors with one
     //! partitioning field.
-    void addOnePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec &result) const;
+    void addOnePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const;
 
     //! Add the detectors with two partitioning fields.
     //!
     //! The indices \p a and \p b define the start and end of the seed
     //! detectors in \p result used to generate detectors with two
     //! partitioning fields.
-    void addTwoPartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec &result) const;
+    void addTwoPartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const;
 
     //! Add the detectors with three partitioning fields.
     //!
@@ -107,7 +107,7 @@ private:
     //! detectors in \p result used to generate detectors with three
     //! partitioning fields.
     void
-    addThreePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec &result) const;
+    addThreePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const;
 
 private:
     //! The parameters.
@@ -137,4 +137,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CDetectorEnumerator_h
+#endif // INCLUDED_ml_config_CDetectorEnumerator_h

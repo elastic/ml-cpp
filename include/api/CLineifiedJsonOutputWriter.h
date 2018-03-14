@@ -54,30 +54,30 @@ public:
 
     //! Constructor that causes output to be written to the internal string
     //! stream, with some numeric fields
-    CLineifiedJsonOutputWriter(const TStrSet &numericFields);
+    CLineifiedJsonOutputWriter(const TStrSet& numericFields);
 
     //! Constructor that causes output to be written to the specified stream
-    CLineifiedJsonOutputWriter(std::ostream &strmOut);
+    CLineifiedJsonOutputWriter(std::ostream& strmOut);
 
     //! Constructor that causes output to be written to the specified stream
-    CLineifiedJsonOutputWriter(const TStrSet &numericFields, std::ostream &strmOut);
+    CLineifiedJsonOutputWriter(const TStrSet& numericFields, std::ostream& strmOut);
 
     //! Destructor flushes the stream
     virtual ~CLineifiedJsonOutputWriter(void);
 
     //! Set field names - this function has no affect it always
     //! returns true
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Returns an empty vector
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -89,7 +89,7 @@ public:
 private:
     //! Write a single field to the document
     void
-    writeField(const std::string &name, const std::string &value, rapidjson::Document &doc) const;
+    writeField(const std::string& name, const std::string& value, rapidjson::Document& doc) const;
 
 private:
     //! Which output fields are numeric?
@@ -100,7 +100,7 @@ private:
     std::ostringstream m_StringOutputBuf;
 
     //! Reference to the stream we're going to write to
-    std::ostream &m_OutStream;
+    std::ostream& m_OutStream;
 
     //! JSON writer ostream wrapper
     rapidjson::OStreamWrapper m_WriteStream;
@@ -113,4 +113,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CLineifiedJsonOutputWriter_h
+#endif // INCLUDED_ml_api_CLineifiedJsonOutputWriter_h

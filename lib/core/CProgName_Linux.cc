@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 // Secret global variable in the Linux glibc...
-extern char *__progname;
+extern char* __progname;
 
 namespace ml {
 namespace core {

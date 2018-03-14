@@ -36,7 +36,7 @@ namespace config {
 namespace {
 
 //! Get the index of the detector \p spec's field role penalty.
-std::size_t fieldRolePenaltyIndex(const CDetectorSpecification &spec) {
+std::size_t fieldRolePenaltyIndex(const CDetectorSpecification& spec) {
     static const std::size_t SKIPS[] = {1, 2, 3, 6, 9, 18};
     return (spec.argumentField() ? SKIPS[0 + config_t::isMetric(spec.function())] : 0) +
            (spec.byField() ? SKIPS[2 + config_t::isRare(spec.function())] : 0) +
@@ -45,12 +45,12 @@ std::size_t fieldRolePenaltyIndex(const CDetectorSpecification &spec) {
 }
 
 CAutoconfigurerDetectorPenalties::CAutoconfigurerDetectorPenalties(
-    const CAutoconfigurerParams &params,
-    const CAutoconfigurerFieldRolePenalties &fieldRolePenalties)
+    const CAutoconfigurerParams& params,
+    const CAutoconfigurerFieldRolePenalties& fieldRolePenalties)
     : m_Params(params), m_FieldRolePenalties(fieldRolePenalties) {}
 
 CAutoconfigurerDetectorPenalties::TPenaltyPtr
-CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification &spec) {
+CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification& spec) {
     return TPenaltyPtr((this->fieldRolePenalty(spec) *
                         CSpanTooSmallForBucketLengthPenalty(m_Params) *
                         CPolledDataPenalty(m_Params) * CLongTailPenalty(m_Params) *
@@ -60,13 +60,13 @@ CAutoconfigurerDetectorPenalties::penaltyFor(const CDetectorSpecification &spec)
                            .clone());
 }
 
-const CPenalty &
-CAutoconfigurerDetectorPenalties::fieldRolePenalty(const CDetectorSpecification &spec) {
+const CPenalty&
+CAutoconfigurerDetectorPenalties::fieldRolePenalty(const CDetectorSpecification& spec) {
     m_DetectorFieldRolePenalties.resize(36);
-    TPenaltyPtr &result = m_DetectorFieldRolePenalties[fieldRolePenaltyIndex(spec)];
+    TPenaltyPtr& result = m_DetectorFieldRolePenalties[fieldRolePenaltyIndex(spec)];
     if (!result) {
         CDetectorFieldRolePenalty penalty(m_Params);
-        const CAutoconfigurerFieldRolePenalties &penalties = m_FieldRolePenalties;
+        const CAutoconfigurerFieldRolePenalties& penalties = m_FieldRolePenalties;
         if (spec.argumentField()) {
             penalty.addPenalty(constants::ARGUMENT_INDEX,
                                config_t::isMetric(spec.function())

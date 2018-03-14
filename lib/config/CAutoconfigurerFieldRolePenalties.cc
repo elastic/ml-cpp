@@ -36,11 +36,11 @@ const std::size_t PARTITION_INDEX = 5u;
 typedef std::size_t (CAutoconfigurerParams::*TCountThreshold)(void) const;
 
 const std::size_t PENALTY_INDICES[] = {BY_INDEX, RARE_BY_INDEX, OVER_INDEX, PARTITION_INDEX};
-const TCountThreshold PENALTY_THRESHOLD[] = {
-    &CAutoconfigurerParams::highNumberByFieldValues,
-    &CAutoconfigurerParams::highNumberRareByFieldValues,
-    &CAutoconfigurerParams::lowNumberOverFieldValues,
-    &CAutoconfigurerParams::highNumberPartitionFieldValues};
+const TCountThreshold PENALTY_THRESHOLD[] =
+    {&CAutoconfigurerParams::highNumberByFieldValues,
+     &CAutoconfigurerParams::highNumberRareByFieldValues,
+     &CAutoconfigurerParams::lowNumberOverFieldValues,
+     &CAutoconfigurerParams::highNumberPartitionFieldValues};
 const TCountThreshold HARD_CUTOFF[] = {&CAutoconfigurerParams::maximumNumberByFieldValues,
                                        &CAutoconfigurerParams::maximumNumberRareByFieldValues,
                                        &CAutoconfigurerParams::minimumNumberOverFieldValues,
@@ -48,41 +48,42 @@ const TCountThreshold HARD_CUTOFF[] = {&CAutoconfigurerParams::maximumNumberByFi
 }
 
 CAutoconfigurerFieldRolePenalties::CAutoconfigurerFieldRolePenalties(
-    const CAutoconfigurerParams &params) {
+    const CAutoconfigurerParams& params) {
     m_Penalties[CATEGORICAL_ARGUMENT_INDEX].reset(
         (CCantBeNumeric(params) * CDontUseUnaryField(params)).clone());
     m_Penalties[METRIC_ARGUMENT_INDEX].reset(new CCantBeCategorical(params));
     for (std::size_t i = 0u; i < boost::size(PENALTY_INDICES); ++i) {
         m_Penalties[PENALTY_INDICES[i]].reset(
             (CCantBeNumeric(params) *
-             CDistinctCountThresholdPenalty(
-                 params, (params.*PENALTY_THRESHOLD[i])(), (params.*HARD_CUTOFF[i])()) *
+             CDistinctCountThresholdPenalty(params,
+                                            (params.*PENALTY_THRESHOLD[i])(),
+                                            (params.*HARD_CUTOFF[i])()) *
              CDontUseUnaryField(params))
                 .clone());
     }
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::categoricalFunctionArgumentPenalty(void) const {
     return *m_Penalties[CATEGORICAL_ARGUMENT_INDEX];
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::metricFunctionArgumentPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::metricFunctionArgumentPenalty(void) const {
     return *m_Penalties[METRIC_ARGUMENT_INDEX];
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::byPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::byPenalty(void) const {
     return *m_Penalties[BY_INDEX];
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::rareByPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::rareByPenalty(void) const {
     return *m_Penalties[RARE_BY_INDEX];
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::overPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::overPenalty(void) const {
     return *m_Penalties[OVER_INDEX];
 }
 
-const CPenalty &CAutoconfigurerFieldRolePenalties::partitionPenalty(void) const {
+const CPenalty& CAutoconfigurerFieldRolePenalties::partitionPenalty(void) const {
     return *m_Penalties[PARTITION_INDEX];
 }
 }

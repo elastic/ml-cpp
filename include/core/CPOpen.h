@@ -35,11 +35,11 @@ namespace core {
 //!
 class CORE_EXPORT CPOpen : private CNonInstantiatable {
 public:
-    static FILE *pOpen(const char *command, const char *mode);
+    static FILE* pOpen(const char* command, const char* mode);
 
-    static int pClose(FILE *stream);
+    static int pClose(FILE* stream);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CPOpen_h
+#endif // INCLUDED_ml_core_CPOpen_h

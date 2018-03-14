@@ -67,7 +67,7 @@ private:
     //! whether the previous line has been rewritten
     bool m_RewrotePreviousLine;
 
-    string_type do_filter(const string_type &line) override;
+    string_type do_filter(const string_type& line) override;
 };
 }
 }

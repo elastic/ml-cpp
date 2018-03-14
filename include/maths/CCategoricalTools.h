@@ -57,10 +57,10 @@ public:
     //! \param[in] ni The category counts.
     //! \param[out] result Filled in with an estimate of the probability
     //! of seeing a less likely sample than category counts \p ni.
-    static bool probabilityOfLessLikelyMultinomialSample(const TDoubleVec &probabilities,
-                                                         const TSizeVec &i,
-                                                         const TSizeVec &ni,
-                                                         double &result);
+    static bool probabilityOfLessLikelyMultinomialSample(const TDoubleVec& probabilities,
+                                                         const TSizeVec& i,
+                                                         const TSizeVec& ni,
+                                                         double& result);
 
     //! Compute the probability of seeing less likely counts than \p ni
     //! independently for each category in \p i whose probabilities are
@@ -73,10 +73,10 @@ public:
     //! \param[out] result Filled in with an estimate of the probability
     //! of seeing a less likely count than nj in \p ni for each category
     //! j in \p i.
-    static bool probabilityOfLessLikelyCategoryCount(TDoubleVec &probabilities,
-                                                     const TSizeVec &i,
-                                                     const TSizeVec &ni,
-                                                     TDoubleVec &result,
+    static bool probabilityOfLessLikelyCategoryCount(TDoubleVec& probabilities,
+                                                     const TSizeVec& i,
+                                                     const TSizeVec& ni,
+                                                     TDoubleVec& result,
                                                      std::size_t trials = 100);
 
     //! Compute the probability that a category will occur in \p n
@@ -114,7 +114,7 @@ public:
     //! \warning It is the callers responsibility to ensure that the
     //! probabilities are normalized.
     static bool
-    expectedDistinctCategories(const TDoubleVec &probabilities, double n, double &result);
+    expectedDistinctCategories(const TDoubleVec& probabilities, double n, double& result);
 
     //! Get the log of the binomial coefficient \f$\binom{n}{m}\f$.
     static double logBinomialCoefficient(std::size_t n, std::size_t m);
@@ -138,7 +138,7 @@ public:
     //! \param[in] m The number of successes.
     //! \param[out] result Filled in with the log probability.
     static maths_t::EFloatingPointErrorStatus
-    logBinomialProbability(std::size_t n, double p, std::size_t m, double &result);
+    logBinomialProbability(std::size_t n, double p, std::size_t m, double& result);
 
     //! Compute the log of the probability of a sample of \p ni counts
     //! of categories from the multinomial with number of trials equal
@@ -155,9 +155,9 @@ public:
     //! \param[in] ni The category counts.
     //! \param[out] result Filled in with the log probability.
     static maths_t::EFloatingPointErrorStatus
-    logMultinomialProbability(const TDoubleVec &probabilities, const TSizeVec &ni, double &result);
+    logMultinomialProbability(const TDoubleVec& probabilities, const TSizeVec& ni, double& result);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CCategoricalTools_h
+#endif // INCLUDED_ml_maths_CCategoricalTools_h

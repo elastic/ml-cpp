@@ -63,7 +63,8 @@ namespace maths {
 //! to choose the number of clusters.
 //!
 //! For more details see http://people.ee.duke.edu/~lcarin/random-projection-for-high.pdf
-template <std::size_t N> class CRandomProjectionClusterer {
+template <std::size_t N>
+class CRandomProjectionClusterer {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -89,10 +90,10 @@ protected:
 
 protected:
     //! Get the random number generator.
-    CPRNG::CXorShift1024Mult &rng(void) const { return m_Rng; }
+    CPRNG::CXorShift1024Mult& rng(void) const { return m_Rng; }
 
     //! Get the projections.
-    const TVectorArrayVec &projections(void) const { return m_Projections; }
+    const TVectorArrayVec& projections(void) const { return m_Projections; }
 
     //! Generate \p b random projections.
     bool generateProjections(std::size_t b) {
@@ -104,7 +105,7 @@ protected:
 
         if (m_Dimension <= N) {
             m_Projections.resize(1);
-            TVectorArray &projection = m_Projections[0];
+            TVectorArray& projection = m_Projections[0];
             for (std::size_t i = 0u; i < N; ++i) {
                 projection[i].extend(m_Dimension, 0.0);
                 if (i < m_Dimension) {
@@ -119,7 +120,7 @@ protected:
         TDoubleVec components;
         CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * m_Dimension, components);
         for (std::size_t i = 0u; i < b; ++i) {
-            TVectorArray &projection = m_Projections[i];
+            TVectorArray& projection = m_Projections[i];
             for (std::size_t j = 0u; j < N; ++j) {
                 projection[j].assign(&components[(i * N + j) * m_Dimension],
                                      &components[(i * N + j + 1) * m_Dimension]);
@@ -142,7 +143,7 @@ protected:
         if (dimension <= m_Dimension) {
             return true;
         } else if (dimension <= N) {
-            TVectorArray &projection = m_Projections[0];
+            TVectorArray& projection = m_Projections[0];
             for (std::size_t i = m_Dimension; i < dimension; ++i) {
                 projection[i](i) = 1.0;
             }
@@ -169,7 +170,7 @@ protected:
 
             for (std::size_t j = 0u; j < N; ++j) {
                 scale(extension[j], beta);
-                TVector &projection = m_Projections[i][j];
+                TVector& projection = m_Projections[i][j];
                 projection *= alpha;
                 projection.reserve(dimension);
                 projection.extend(extension[j].begin(), extension[j].end());
@@ -181,7 +182,7 @@ protected:
 
 private:
     //! Scale the values in the vector \p x by \p scale.
-    void scale(TDoubleVec &x, double scale) {
+    void scale(TDoubleVec& x, double scale) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             x[i] *= scale;
         }
@@ -245,7 +246,7 @@ public:
     }
 
     //! Add projected data for \p x.
-    void add(const TVector &x) {
+    void add(const TVector& x) {
         for (std::size_t i = 0u; i < this->projections().size(); ++i) {
             TVectorNx1 px;
             for (std::size_t j = 0u; j < N; ++j) {
@@ -261,7 +262,8 @@ public:
     //! the projected data points.
     //! \param[in] result Filled in with the final agglomerative
     //! clustering of the different projections.
-    template <typename CLUSTERER> void run(CLUSTERER clusterer, TSizeVecVec &result) const {
+    template <typename CLUSTERER>
+    void run(CLUSTERER clusterer, TSizeVecVec& result) const {
         if (m_ProjectedData.empty()) {
             return;
         }
@@ -297,13 +299,15 @@ public:
 protected:
     //! \brief Hashes a vector.
     struct SHashVector {
-        template <typename VECTOR> std::size_t operator()(const VECTOR &lhs) const {
+        template <typename VECTOR>
+        std::size_t operator()(const VECTOR& lhs) const {
             return static_cast<std::size_t>(boost::unwrap_ref(lhs).checksum());
         }
     };
     //! \brief Checks two vectors for equality.
     struct SVectorsEqual {
-        template <typename VECTOR> bool operator()(const VECTOR &lhs, const VECTOR &rhs) const {
+        template <typename VECTOR>
+        bool operator()(const VECTOR& lhs, const VECTOR& rhs) const {
             return boost::unwrap_ref(lhs) == boost::unwrap_ref(rhs);
         }
     };
@@ -322,10 +326,10 @@ protected:
     //! points.
     template <typename CLUSTERER>
     void clusterProjections(CLUSTERER clusterer,
-                            TDoubleVecVec &W,
-                            TVectorNx1VecVec &M,
-                            TSvdNxNVecVec &C,
-                            TSizeUSet &I) const {
+                            TDoubleVecVec& W,
+                            TVectorNx1VecVec& M,
+                            TSvdNxNVecVec& C,
+                            TSizeUSet& I) const {
         using TVectorNx1CRef = boost::reference_wrapper<const TVectorNx1>;
         using TVectorNx1CRefSizeUMap =
             boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
@@ -362,12 +366,12 @@ protected:
             // Cluster the i'th projection.
             clusterer.setPoints(P);
             clusterer.run();
-            const TClusterVec &clusters = clusterer.clusters();
+            const TClusterVec& clusters = clusterer.clusters();
             double ni = static_cast<double>(clusters.size());
             LOG_TRACE("# clusters = " << ni);
 
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                const TVectorNx1Vec &points = clusters[j].points();
+                const TVectorNx1Vec& points = clusters[j].points();
                 LOG_TRACE("# points = " << points.size());
 
                 // Compute the number of points to sample from this cluster.
@@ -433,7 +437,7 @@ protected:
     //! \param[in] I The indices of distinct sampled points.
     //! \param[out] H Filled in with the neighbourhoods of each
     //! point in \p I, i.e. the indices of the closest points.
-    void neighbourhoods(const TSizeUSet &I, TSizeVecVec &H) const {
+    void neighbourhoods(const TSizeUSet& I, TSizeVecVec& H) const {
         using TVectorSizeUMap = boost::unordered_map<TVector, std::size_t, SHashVector>;
 
         LOG_TRACE("I = " << core::CContainerPrinter::print(I));
@@ -467,7 +471,7 @@ protected:
                     concat(N * j + k) = m_ProjectedData[j][i](k);
                 }
             }
-            const TVector *nn = samples.nearestNeighbour(concat);
+            const TVector* nn = samples.nearestNeighbour(concat);
             if (!nn) {
                 LOG_ERROR("No nearest neighbour of " << concat);
                 continue;
@@ -487,11 +491,11 @@ protected:
     //! i.e. the indices of the closest points.
     //! \param[out] S Filled in with the mean similarities between
     //! neighbourhoods over the different clusterings.
-    void similarities(const TDoubleVecVec &W,
-                      const TVectorNx1VecVec &M,
-                      const TSvdNxNVecVec &C,
-                      const TSizeVecVec &H,
-                      TDoubleVecVec &S) const {
+    void similarities(const TDoubleVecVec& W,
+                      const TVectorNx1VecVec& M,
+                      const TSvdNxNVecVec& C,
+                      const TSizeVecVec& H,
+                      TDoubleVecVec& S) const {
         std::size_t b = m_ProjectedData.size();
         std::size_t h = H.size();
 
@@ -499,10 +503,10 @@ protected:
 
         TVectorVec Pi(h);
         for (std::size_t i = 0u; i < b; ++i) {
-            const TVectorNx1Vec &X = m_ProjectedData[i];
-            const TDoubleVec &Wi = W[i];
-            const TVectorNx1Vec &Mi = M[i];
-            const TSvdNxNVec &Ci = C[i];
+            const TVectorNx1Vec& X = m_ProjectedData[i];
+            const TDoubleVec& Wi = W[i];
+            const TVectorNx1Vec& Mi = M[i];
+            const TSvdNxNVec& Ci = C[i];
             LOG_TRACE("W(i) = " << core::CContainerPrinter::print(Wi));
             LOG_TRACE("M(i) = " << core::CContainerPrinter::print(Mi));
 
@@ -561,7 +565,7 @@ protected:
     //! \param[in] H The neighbourhoods.
     //! \param[out] result Filled in with the clustering of the
     //! underlying points.
-    void clusterNeighbourhoods(TDoubleVecVec &S, const TSizeVecVec &H, TSizeVecVec &result) const {
+    void clusterNeighbourhoods(TDoubleVecVec& S, const TSizeVecVec& H, TSizeVecVec& result) const {
         using TNode = CAgglomerativeClusterer::CNode;
         using TDoubleTuple = CNaturalBreaksClassifier::TDoubleTuple;
         using TDoubleTupleVec = CNaturalBreaksClassifier::TDoubleTupleVec;
@@ -583,17 +587,17 @@ protected:
 
         TSizeVec splits;
         if (CNaturalBreaksClassifier::naturalBreaks(heights,
-                                                    2,// Number splits
-                                                    0,// Minimum cluster size
+                                                    2, // Number splits
+                                                    0, // Minimum cluster size
                                                     CNaturalBreaksClassifier::E_TargetDeviation,
                                                     splits)) {
             double height = CBasicStatistics::mean(heights[splits[0] - 1]);
             LOG_TRACE("split = " << core::CContainerPrinter::print(splits)
                                  << ", height = " << height);
-            const TNode &root = tree.back();
+            const TNode& root = tree.back();
             root.clusteringAt(height, result);
             for (std::size_t i = 0u; i < result.size(); ++i) {
-                TSizeVec &ri = result[i];
+                TSizeVec& ri = result[i];
                 std::size_t n = ri.size();
                 for (std::size_t j = 0u; j < n; ++j) {
                     ri.insert(ri.end(), H[ri[j]].begin(), H[ri[j]].end());
@@ -606,10 +610,10 @@ protected:
     }
 
     //! Get the projected data points.
-    const TVectorNx1VecVec &projectedData(void) const { return m_ProjectedData; }
+    const TVectorNx1VecVec& projectedData(void) const { return m_ProjectedData; }
 
     //! Get the log determinant of the rank full portion of \p m.
-    double logDeterminant(const TSvdNxN &svd) const {
+    double logDeterminant(const TSvdNxN& svd) const {
         double result = 0.0;
         for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i) {
             result += ::log(svd.singularValues()[i]);
@@ -629,7 +633,8 @@ private:
 
 //! \brief Adapts clustering implementations for use by the random
 //! projection clusterer.
-template <typename CLUSTERER> class CRandomProjectionClustererFacade {};
+template <typename CLUSTERER>
+class CRandomProjectionClustererFacade {};
 
 //! \brief Adapts x-means for use by the random projection clusterer.
 template <std::size_t N, typename COST>
@@ -641,7 +646,7 @@ public:
     using TVectorNx1Vec = std::vector<TVectorNx1>;
 
 public:
-    CRandomProjectionClustererFacade(const TClusterer &xmeans,
+    CRandomProjectionClustererFacade(const TClusterer& xmeans,
                                      std::size_t improveParamsKmeansIterations,
                                      std::size_t improveStructureClusterSeeds,
                                      std::size_t improveStructureKmeansIterations)
@@ -651,7 +656,7 @@ public:
           m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {}
 
     //! Set the points to cluster.
-    void setPoints(TVectorNx1Vec &points) { m_Xmeans.setPoints(points); }
+    void setPoints(TVectorNx1Vec& points) { m_Xmeans.setPoints(points); }
 
     //! Cluster the points.
     void run(void) {
@@ -661,7 +666,7 @@ public:
     }
 
     //! Get the clusters (should only be called after run).
-    const TClusterVec &clusters(void) const { return m_Xmeans.clusters(); }
+    const TClusterVec& clusters(void) const { return m_Xmeans.clusters(); }
 
 private:
     //! The x-means implementation.
@@ -680,15 +685,15 @@ private:
 //! Makes an x-means adapter for random projection clustering.
 template <std::size_t N, typename COST>
 CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
-forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST> &xmeans,
+forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST>& xmeans,
                              std::size_t improveParamsKmeansIterations,
                              std::size_t improveStructureClusterSeeds,
                              std::size_t improveStructureKmeansIterations) {
-    return CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>(
-        xmeans,
-        improveParamsKmeansIterations,
-        improveStructureClusterSeeds,
-        improveStructureKmeansIterations);
+    return CRandomProjectionClustererFacade<
+        CXMeans<CVectorNx1<double, N>, COST>>(xmeans,
+                                              improveParamsKmeansIterations,
+                                              improveStructureClusterSeeds,
+                                              improveStructureKmeansIterations);
 }
 
 //! \brief Adapts k-means for use by the random projection clusterer.
@@ -701,13 +706,13 @@ public:
     using TVectorNx1Vec = std::vector<TVectorNx1>;
 
 public:
-    CRandomProjectionClustererFacade(const TClusterer &kmeans,
+    CRandomProjectionClustererFacade(const TClusterer& kmeans,
                                      std::size_t k,
                                      std::size_t maxIterations)
         : m_Kmeans(kmeans), m_K(k), m_MaxIterations(maxIterations) {}
 
     //! Set the points to cluster.
-    void setPoints(TVectorNx1Vec &points) {
+    void setPoints(TVectorNx1Vec& points) {
         m_Kmeans.setPoints(points);
         TVectorNx1Vec centres;
         CKMeansPlusPlusInitialization<TVectorNx1, CPRNG::CXorShift1024Mult> seedCentres(m_Rng);
@@ -719,7 +724,7 @@ public:
     void run(void) { m_Kmeans.run(m_MaxIterations); }
 
     //! Get the clusters (should only be called after run).
-    const TClusterVec &clusters(void) const {
+    const TClusterVec& clusters(void) const {
         m_Kmeans.clusters(m_Clusters);
         return m_Clusters;
     }
@@ -740,13 +745,14 @@ private:
 //! Makes a k-means adapter for random projection clustering.
 template <std::size_t N>
 CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>> &kmeans,
+forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans,
                              std::size_t k,
                              std::size_t maxIterations) {
-    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(
-        kmeans, k, maxIterations);
+    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(kmeans,
+                                                                                k,
+                                                                                maxIterations);
 }
 }
 }
 
-#endif// INCLUDED_ml_maths_CRandomProjectionClusterer_h
+#endif // INCLUDED_ml_maths_CRandomProjectionClusterer_h

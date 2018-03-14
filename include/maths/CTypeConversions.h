@@ -25,31 +25,44 @@ namespace ml {
 namespace maths {
 
 //! \brief Defines the promoted type.
-template <typename T> struct SPromoted { using Type = T; };
+template <typename T>
+struct SPromoted {
+    using Type = T;
+};
 
 //! \brief Defines the promoted type for float.
-template <> struct SPromoted<float> { using Type = double; };
+template <>
+struct SPromoted<float> {
+    using Type = double;
+};
 
 //! \brief Defines the promoted type for CFloatStorage.
-template <> struct SPromoted<CFloatStorage> { using Type = double; };
+template <>
+struct SPromoted<CFloatStorage> {
+    using Type = double;
+};
 
 //! \brief Defines the promoted type for a CVectorNx1.
-template <typename T, std::size_t N> struct SPromoted<CVectorNx1<T, N>> {
+template <typename T, std::size_t N>
+struct SPromoted<CVectorNx1<T, N>> {
     using Type = CVectorNx1<typename SPromoted<T>::Type, N>;
 };
 
 //! \brief Defines the promoted type for a CVector.
-template <typename T> struct SPromoted<CVector<T>> {
+template <typename T>
+struct SPromoted<CVector<T>> {
     using Type = CVector<typename SPromoted<T>::Type>;
 };
 
 //! \brief Defines the promoted type for a CSymmetricMatrixNxN.
-template <typename T, std::size_t N> struct SPromoted<CSymmetricMatrixNxN<T, N>> {
+template <typename T, std::size_t N>
+struct SPromoted<CSymmetricMatrixNxN<T, N>> {
     using Type = CSymmetricMatrixNxN<typename SPromoted<T>::Type, N>;
 };
 
 //! \brief Defines the promoted type for a CSymmetricMatrix.
-template <typename T> struct SPromoted<CSymmetricMatrix<T>> {
+template <typename T>
+struct SPromoted<CSymmetricMatrix<T>> {
     using Type = CSymmetricMatrix<typename SPromoted<T>::Type>;
 };
 
@@ -82,24 +95,33 @@ namespace type_conversion_detail {
 
 //! \brief Chooses between T and U based on the checks for
 //! integral and floating point types.
-template <typename T, typename U, bool FLOATING_POINT> struct SSelector { using Type = U; };
-template <typename T, typename U> struct SSelector<T, U, true> { using Type = T; };
+template <typename T, typename U, bool FLOATING_POINT>
+struct SSelector {
+    using Type = U;
+};
+template <typename T, typename U>
+struct SSelector<T, U, true> {
+    using Type = T;
+};
 
-}// type_conversion_detail::
+} // type_conversion_detail::
 
 //! \brief Defines a suitable floating point type.
-template <typename T, typename U> struct SFloatingPoint {
+template <typename T, typename U>
+struct SFloatingPoint {
     using Type =
         typename type_conversion_detail::SSelector<T, U, boost::is_floating_point<T>::value>::Type;
 };
 
 //! \brief Defines CVectorNx1 on a suitable floating point type.
-template <typename T, std::size_t N, typename U> struct SFloatingPoint<CVectorNx1<T, N>, U> {
+template <typename T, std::size_t N, typename U>
+struct SFloatingPoint<CVectorNx1<T, N>, U> {
     using Type = CVectorNx1<typename SFloatingPoint<T, U>::Type, N>;
 };
 
 //! \brief Defines CVector on a suitable floating point type.
-template <typename T, typename U> struct SFloatingPoint<CVector<T>, U> {
+template <typename T, typename U>
+struct SFloatingPoint<CVector<T>, U> {
     using Type = CVector<typename SFloatingPoint<T, U>::Type>;
 };
 
@@ -110,7 +132,8 @@ struct SFloatingPoint<CSymmetricMatrixNxN<T, N>, U> {
 };
 
 //! \brief Defines CSymmetricMatrix on a suitable floating point type.
-template <typename T, typename U> struct SFloatingPoint<CSymmetricMatrix<T>, U> {
+template <typename T, typename U>
+struct SFloatingPoint<CSymmetricMatrix<T>, U> {
     using Type = CSymmetricMatrix<typename SFloatingPoint<T, U>::Type>;
 };
 
@@ -142,21 +165,34 @@ struct SFloatingPoint<CAnnotatedVector<VECTOR, ANNOTATION>, U> {
 };
 
 //! \brief Extracts the coordinate type for a point.
-template <typename T> struct SCoordinate { using Type = T; };
+template <typename T>
+struct SCoordinate {
+    using Type = T;
+};
 
 //! \brief Extracts the coordinate type for CVectorNx1.
-template <typename T, std::size_t N> struct SCoordinate<CVectorNx1<T, N>> { using Type = T; };
+template <typename T, std::size_t N>
+struct SCoordinate<CVectorNx1<T, N>> {
+    using Type = T;
+};
 
 //! \brief Extracts the coordinate type for CVector.
-template <typename T> struct SCoordinate<CVector<T>> { using Type = T; };
+template <typename T>
+struct SCoordinate<CVector<T>> {
+    using Type = T;
+};
 
 //! \brief Extracts the coordinate type for CSymmetricMatrixNxN.
-template <typename T, std::size_t N> struct SCoordinate<CSymmetricMatrixNxN<T, N>> {
+template <typename T, std::size_t N>
+struct SCoordinate<CSymmetricMatrixNxN<T, N>> {
     using Type = T;
 };
 
 //! \brief Extracts the coordinate type for CSymmetricMatrix.
-template <typename T> struct SCoordinate<CSymmetricMatrix<T>> { using Type = T; };
+template <typename T>
+struct SCoordinate<CSymmetricMatrix<T>> {
+    using Type = T;
+};
 
 //! \brief Extracts the coordinate type for an Eigen sparse matrix.
 template <typename SCALAR, int FLAGS, typename STORAGE_INDEX>
@@ -183,15 +219,22 @@ struct SCoordinate<CAnnotatedVector<VECTOR, ANNOTATION>> {
 };
 
 //! \brief Extracts the conformable matrix type for a point.
-template <typename POINT> struct SConformableMatrix { using Type = POINT; };
+template <typename POINT>
+struct SConformableMatrix {
+    using Type = POINT;
+};
 
 //! \brief Extracts the conformable matrix type for a CVectorNx1.
-template <typename T, std::size_t N> struct SConformableMatrix<CVectorNx1<T, N>> {
+template <typename T, std::size_t N>
+struct SConformableMatrix<CVectorNx1<T, N>> {
     using Type = CSymmetricMatrixNxN<T, N>;
 };
 
 //! \brief Extracts the conformable matrix type for a CVector.
-template <typename T> struct SConformableMatrix<CVector<T>> { using Type = CSymmetricMatrix<T>; };
+template <typename T>
+struct SConformableMatrix<CVector<T>> {
+    using Type = CSymmetricMatrix<T>;
+};
 
 //! \brief Extracts the conformable matrix type for an Eigen sparse vector.
 template <typename SCALAR, int FLAGS, typename STORAGE_INDEX>
@@ -213,7 +256,10 @@ struct SConformableMatrix<CAnnotatedVector<VECTOR, ANNOTATION>> {
 
 //! \brief Defines a type which strips off any annotation from a vector.
 //! This is the raw vector type by default.
-template <typename VECTOR> struct SStripped { using Type = VECTOR; };
+template <typename VECTOR>
+struct SStripped {
+    using Type = VECTOR;
+};
 
 //! \brief Specialisation for annotated vectors. This is the underlying
 //! vector type.
@@ -224,4 +270,4 @@ struct SStripped<CAnnotatedVector<VECTOR, ANNOTATION>> {
 }
 }
 
-#endif// INCLUDED_ml_maths_CTypeConversions_h
+#endif // INCLUDED_ml_maths_CTypeConversions_h

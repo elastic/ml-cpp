@@ -34,7 +34,7 @@ public:
     void testJsonConversion(void);
     void testPersistEmpty(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAnomalyScoreCalculatorTest_h
+#endif // INCLUDED_CAnomalyScoreCalculatorTest_h

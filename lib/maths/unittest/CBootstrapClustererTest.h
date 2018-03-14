@@ -28,7 +28,7 @@ public:
     void testNonConvexClustering(void);
     void testClusteringStability(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CBootstrapClustererTest_h
+#endif // INCLUDED_CBootstrapClustererTest_h

@@ -31,14 +31,14 @@
 
 namespace {
 #ifdef Windows
-const char *TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
-const char *TEST_PIPE_NAME = "testfiles/testpipe";
+const char* TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
-CppUnit::Test *CLoggerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
+CppUnit::Test* CLoggerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogging",
                                                                &CLoggerTest::testLogging));
@@ -48,8 +48,9 @@ CppUnit::Test *CLoggerTest::suite() {
                                                                &CLoggerTest::testSetLevel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogEnvironment",
                                                                &CLoggerTest::testLogEnvironment));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testNonAsciiJsonLogging", &CLoggerTest::testNonAsciiJsonLogging));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testNonAsciiJsonLogging",
+                                             &CLoggerTest::testNonAsciiJsonLogging));
 
     return suiteOfTests;
 }
@@ -75,11 +76,11 @@ void CLoggerTest::testLogging(void) {
         LOG_ABORT("Throwing exception " << 1221U << ' ' << 0.23124);
 
         CPPUNIT_ASSERT(false);
-    } catch (std::runtime_error &) { CPPUNIT_ASSERT(true); }
+    } catch (std::runtime_error&) { CPPUNIT_ASSERT(true); }
 }
 
 void CLoggerTest::testReconfiguration(void) {
-    ml::core::CLogger &logger = ml::core::CLogger::instance();
+    ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger reconfiguration test");
 
@@ -100,7 +101,7 @@ void CLoggerTest::testReconfiguration(void) {
 }
 
 void CLoggerTest::testSetLevel(void) {
-    ml::core::CLogger &logger = ml::core::CLogger::instance();
+    ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG("Starting logger level test");
 
@@ -170,12 +171,12 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
                   std::ostreambuf_iterator<char>(loggedData));
     });
 
-    ml::core::CLogger &logger = ml::core::CLogger::instance();
+    ml::core::CLogger& logger = ml::core::CLogger::instance();
     // logger might got reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
     logger.reconfigure(TEST_PIPE_NAME, "");
 
-    for (const auto &m : messages) {
+    for (const auto& m : messages) {
         LOG_INFO(m);
     }
 
@@ -196,7 +197,7 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
         doc.Parse<rapidjson::kParseDefaultFlags>(line);
         CPPUNIT_ASSERT(!doc.HasParseError());
         CPPUNIT_ASSERT(doc.HasMember("message"));
-        const rapidjson::Value &messageValue = doc["message"];
+        const rapidjson::Value& messageValue = doc["message"];
         std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
 
         // we expect messages to be in order, so we only need to test the current one
@@ -209,4 +210,6 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
     CPPUNIT_ASSERT_EQUAL(messages.size(), foundMessages);
 }
 
-void CLoggerTest::testLogEnvironment(void) { ml::core::CLogger::instance().logEnvironment(); }
+void CLoggerTest::testLogEnvironment(void) {
+    ml::core::CLogger::instance().logEnvironment();
+}

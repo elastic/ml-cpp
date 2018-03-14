@@ -35,7 +35,7 @@ public:
     void testValidateBrokenMessage();
     void testValidateMissingId();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CForecastRunnerTest_h
+#endif // INCLUDED_CForecastRunnerTest_h

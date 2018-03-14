@@ -58,7 +58,7 @@ public:
     //! Get the mode of the marginal likelihood function.
     template <typename T>
     static TDoubleDoublePr
-    marginalLikelihoodSupport(const std::vector<SMultimodalPriorMode<T>> &modes) {
+    marginalLikelihoodSupport(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.size() == 0) {
             return std::make_pair(boost::numeric::bounds<double>::lowest(),
                                   boost::numeric::bounds<double>::highest());
@@ -82,7 +82,7 @@ public:
 
     //! Get the mean of the marginal likelihood function.
     template <typename T>
-    static double marginalLikelihoodMean(const std::vector<SMultimodalPriorMode<T>> &modes) {
+    static double marginalLikelihoodMean(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -97,7 +97,7 @@ public:
 
         TMeanAccumulator result;
         for (std::size_t i = 0u; i < modes.size(); ++i) {
-            const SMultimodalPriorMode<T> &mode = modes[i];
+            const SMultimodalPriorMode<T>& mode = modes[i];
             double w = mode.weight();
             result.add(mode.s_Prior->marginalLikelihoodMean(), w);
         }
@@ -106,9 +106,9 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     template <typename T>
-    static double marginalLikelihoodMode(const std::vector<SMultimodalPriorMode<T>> &modes,
-                                         const maths_t::TWeightStyleVec &weightStyles,
-                                         const TDouble4Vec &weights) {
+    static double marginalLikelihoodMode(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                         const maths_t::TWeightStyleVec& weightStyles,
+                                         const TDouble4Vec& weights) {
         if (modes.size() == 0) {
             return 0.0;
         }
@@ -127,7 +127,7 @@ public:
         try {
             seasonalScale = ::sqrt(maths_t::seasonalVarianceScale(weightStyles, weights));
             countVarianceScale = maths_t::countVarianceScale(weightStyles, weights);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to get variance scale " << e.what());
         }
 
@@ -139,11 +139,13 @@ public:
         TMaxAccumulator maxLikelihood;
         for (std::size_t i = 0u; i < modes.size(); ++i) {
             double w = modes[i].weight();
-            const T &prior = modes[i].s_Prior;
+            const T& prior = modes[i].s_Prior;
             mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight[0]);
             double likelihood;
-            if (prior->jointLogMarginalLikelihood(
-                    TWeights::COUNT_VARIANCE, mode, weight, likelihood) &
+            if (prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
+                                                  mode,
+                                                  weight,
+                                                  likelihood) &
                 (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
                 continue;
             }
@@ -162,9 +164,9 @@ public:
 
     //! Get the variance of the marginal likelihood.
     template <typename T>
-    static double marginalLikelihoodVariance(const std::vector<SMultimodalPriorMode<T>> &modes,
-                                             const maths_t::TWeightStyleVec &weightStyles,
-                                             const TDouble4Vec &weights) {
+    static double marginalLikelihoodVariance(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                             const maths_t::TWeightStyleVec& weightStyles,
+                                             const TDouble4Vec& weights) {
         if (modes.size() == 0) {
             return boost::numeric::bounds<double>::highest();
         }
@@ -181,7 +183,7 @@ public:
         try {
             varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) *
                             maths_t::countVarianceScale(weightStyles, weights);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to get variance scale " << e.what());
         }
 
@@ -189,7 +191,7 @@ public:
 
         TMeanAccumulator result;
         for (std::size_t i = 0u; i < modes.size(); ++i) {
-            const SMultimodalPriorMode<T> &mode = modes[i];
+            const SMultimodalPriorMode<T>& mode = modes[i];
             double w = mode.weight();
             double mm = mode.s_Prior->marginalLikelihoodMean();
             double mv = mode.s_Prior->marginalLikelihoodVariance();
@@ -209,11 +211,11 @@ public:
     //! the percentage of interest \p percentage.
     template <typename PRIOR, typename MODE>
     static TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(const PRIOR &prior,
-                                         const std::vector<MODE> &modes,
+    marginalLikelihoodConfidenceInterval(const PRIOR& prior,
+                                         const std::vector<MODE>& modes,
                                          double percentage,
-                                         const maths_t::TWeightStyleVec &weightStyles,
-                                         const TDouble4Vec &weights) {
+                                         const maths_t::TWeightStyleVec& weightStyles,
+                                         const TDouble4Vec& weights) {
         TDoubleDoublePr support = marginalLikelihoodSupport(modes);
 
         if (isNonInformative(modes)) {
@@ -221,8 +223,9 @@ public:
         }
 
         if (modes.size() == 1) {
-            return modes[0].s_Prior->marginalLikelihoodConfidenceInterval(
-                percentage, weightStyles, weights);
+            return modes[0].s_Prior->marginalLikelihoodConfidenceInterval(percentage,
+                                                                          weightStyles,
+                                                                          weights);
         }
 
         percentage /= 100.0;
@@ -237,8 +240,8 @@ public:
         CLogCdf<PRIOR> fl(CLogCdf<PRIOR>::E_Lower, prior, weightStyles, weights);
         CLogCdf<PRIOR> fu(CLogCdf<PRIOR>::E_Upper, prior, weightStyles, weights);
 
-        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR> &> f1(fl, p1);
-        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR> &> f2(fu, p2);
+        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR>&> f1(fl, p1);
+        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR>&> f2(fu, p2);
 
         static const std::size_t MAX_ITERATIONS = 30u;
         static const double EPS = 1e-3;
@@ -264,10 +267,10 @@ public:
                 LOG_TRACE("(a,b) = (" << a << "," << b << ")"
                                       << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
                 maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(
-                    CToleranceTypes::E_AbsoluteTolerance,
-                    std::min(std::numeric_limits<double>::epsilon() * b,
-                             EPS * p1 / std::max(fa, fb)));
+                CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
+                                                  std::min(std::numeric_limits<double>::epsilon() *
+                                                               b,
+                                                           EPS * p1 / std::max(fa, fb)));
                 CSolvers::solve(a, b, fa, fb, f1, maxIterations, equal, result.first);
                 LOG_TRACE("p1 = " << p1 << ", x = " << result.first
                                   << ", f(x) = " << fl(result.first));
@@ -293,15 +296,15 @@ public:
                                       << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
 
                 maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(
-                    CToleranceTypes::E_AbsoluteTolerance,
-                    std::min(std::numeric_limits<double>::epsilon() * b,
-                             EPS * p2 / std::max(fa, fb)));
+                CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance,
+                                                  std::min(std::numeric_limits<double>::epsilon() *
+                                                               b,
+                                                           EPS * p2 / std::max(fa, fb)));
                 CSolvers::solve(a, b, fa, fb, f2, maxIterations, equal, result.second);
                 LOG_TRACE("p2 = " << p2 << ", x = " << result.second
                                   << ", f(x) = " << fu(result.second));
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Unable to find left percentile: " << e.what() << ", percentiles = [" << p1
                                                          << "," << p2 << "]"
                                                          << ", x0 = " << x0);
@@ -315,11 +318,11 @@ public:
     //! the prior density function.
     template <typename T>
     static maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>> &modes,
-                               const maths_t::TWeightStyleVec &weightStyles,
-                               const TDouble1Vec &samples,
-                               const TDouble4Vec1Vec &weights,
-                               double &result) {
+    jointLogMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
+                               const maths_t::TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) {
         // The likelihood can be computed from the conditional likelihood
         // that a sample is from each mode. In particular, the likelihood
         // of a sample x is:
@@ -379,8 +382,10 @@ public:
                 for (std::size_t j = 0u; j < modes.size(); ++j) {
                     double modeLogLikelihood;
                     maths_t::EFloatingPointErrorStatus status =
-                        modes[j].s_Prior->jointLogMarginalLikelihood(
-                            TWeights::COUNT_VARIANCE, sample, weight, modeLogLikelihood);
+                        modes[j].s_Prior->jointLogMarginalLikelihood(TWeights::COUNT_VARIANCE,
+                                                                     sample,
+                                                                     weight,
+                                                                     modeLogLikelihood);
                     if (status & maths_t::E_FpFailed) {
                         // Logging handled at a lower level.
                         return status;
@@ -427,7 +432,7 @@ public:
 
                 result += sampleLogLikelihood - n * logSeasonalScale;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to compute likelihood: " << e.what());
             return maths_t::E_FpFailed;
         }
@@ -445,9 +450,9 @@ public:
 
     //! Sample the marginal likelihood function.
     template <typename T>
-    static void sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>> &modes,
+    static void sampleMarginalLikelihood(const std::vector<SMultimodalPriorMode<T>>& modes,
                                          std::size_t numberSamples,
-                                         TDouble1Vec &samples) {
+                                         TDouble1Vec& samples) {
         samples.clear();
 
         if (modes.size() == 1) {
@@ -495,14 +500,19 @@ public:
     //! likelihood for a collection of independent samples from the
     //! variable.
     template <typename T>
-    static bool minusLogJointCdf(const std::vector<SMultimodalPriorMode<T>> &modes,
-                                 const maths_t::TWeightStyleVec &weightStyles,
-                                 const TDouble1Vec &samples,
-                                 const TDouble4Vec1Vec &weights,
-                                 double &lowerBound,
-                                 double &upperBound) {
-        return minusLogJointCdf(
-            modes, CMinusLogJointCdf(), weightStyles, samples, weights, lowerBound, upperBound);
+    static bool minusLogJointCdf(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                 const maths_t::TWeightStyleVec& weightStyles,
+                                 const TDouble1Vec& samples,
+                                 const TDouble4Vec1Vec& weights,
+                                 double& lowerBound,
+                                 double& upperBound) {
+        return minusLogJointCdf(modes,
+                                CMinusLogJointCdf(),
+                                weightStyles,
+                                samples,
+                                weights,
+                                lowerBound,
+                                upperBound);
     }
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
@@ -510,12 +520,12 @@ public:
     //! to cancellation errors at one, i.e. the smallest non-zero value
     //! this can return is the minimum double rather than epsilon.
     template <typename T>
-    static bool minusLogJointCdfComplement(const std::vector<SMultimodalPriorMode<T>> &modes,
-                                           const maths_t::TWeightStyleVec &weightStyles,
-                                           const TDouble1Vec &samples,
-                                           const TDouble4Vec1Vec &weights,
-                                           double &lowerBound,
-                                           double &upperBound) {
+    static bool minusLogJointCdfComplement(const std::vector<SMultimodalPriorMode<T>>& modes,
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble1Vec& samples,
+                                           const TDouble4Vec1Vec& weights,
+                                           double& lowerBound,
+                                           double& upperBound) {
         return minusLogJointCdf(modes,
                                 CMinusLogJointCdfComplement(),
                                 weightStyles,
@@ -529,15 +539,15 @@ public:
     //! collection of independent samples from the variable integrating
     //! over the prior density function.
     template <typename PRIOR, typename MODE>
-    static bool probabilityOfLessLikelySamples(const PRIOR &prior,
-                                               const std::vector<MODE> &modes,
+    static bool probabilityOfLessLikelySamples(const PRIOR& prior,
+                                               const std::vector<MODE>& modes,
                                                maths_t::EProbabilityCalculation calculation,
-                                               const maths_t::TWeightStyleVec &weightStyles,
-                                               const TDouble1Vec &samples,
-                                               const TDouble4Vec1Vec &weights,
-                                               double &lowerBound,
-                                               double &upperBound,
-                                               maths_t::ETail &tail) {
+                                               const maths_t::TWeightStyleVec& weightStyles,
+                                               const TDouble1Vec& samples,
+                                               const TDouble4Vec1Vec& weights,
+                                               double& lowerBound,
+                                               double& upperBound,
+                                               maths_t::ETail& tail) {
         lowerBound = upperBound = 1.0;
         tail = maths_t::E_UndeterminedTail;
 
@@ -551,8 +561,13 @@ public:
         }
 
         if (modes.size() == 1) {
-            return modes[0].s_Prior->probabilityOfLessLikelySamples(
-                calculation, weightStyles, samples, weights, lowerBound, upperBound, tail);
+            return modes[0].s_Prior->probabilityOfLessLikelySamples(calculation,
+                                                                    weightStyles,
+                                                                    samples,
+                                                                    weights,
+                                                                    lowerBound,
+                                                                    upperBound,
+                                                                    tail);
         }
 
         // Ideally we'd find the probability of the set of samples whose
@@ -597,8 +612,12 @@ public:
 
         switch (calculation) {
             case maths_t::E_OneSidedBelow:
-                if (!minusLogJointCdf(
-                        modes, weightStyles, samples, weights, upperBound, lowerBound)) {
+                if (!minusLogJointCdf(modes,
+                                      weightStyles,
+                                      samples,
+                                      weights,
+                                      upperBound,
+                                      lowerBound)) {
                     LOG_ERROR("Failed computing probability of less likely samples: "
                               << core::CContainerPrinter::print(samples));
                     return false;
@@ -623,7 +642,7 @@ public:
                 double a = boost::numeric::bounds<double>::highest();
                 double b = boost::numeric::bounds<double>::lowest();
                 double Z = 0.0;
-                for (const auto &mode : modes) {
+                for (const auto& mode : modes) {
                     double mode_ = mode.s_Prior->marginalLikelihoodMode();
                     a = std::min(a, mode_);
                     b = std::max(b, mode_);
@@ -669,9 +688,12 @@ public:
 
                     CPrior::CLogMarginalLikelihood logLikelihood(prior, weightStyles, weight);
 
-                    CTools::CMixtureProbabilityOfLessLikelySample calculator(
-                        modes.size(), x, fx, a, b);
-                    for (const auto &mode : modes) {
+                    CTools::CMixtureProbabilityOfLessLikelySample calculator(modes.size(),
+                                                                             x,
+                                                                             fx,
+                                                                             a,
+                                                                             b);
+                    for (const auto& mode : modes) {
                         double w = mode.weight() / Z;
                         double centre =
                             mode.s_Prior->marginalLikelihoodMode(weightStyles, weight[0]);
@@ -736,8 +758,12 @@ public:
             } break;
 
             case maths_t::E_OneSidedAbove:
-                if (!minusLogJointCdfComplement(
-                        modes, weightStyles, samples, weights, upperBound, lowerBound)) {
+                if (!minusLogJointCdfComplement(modes,
+                                                weightStyles,
+                                                samples,
+                                                weights,
+                                                upperBound,
+                                                lowerBound)) {
                     LOG_ERROR("Failed computing probability of less likely samples: "
                               << core::CContainerPrinter::print(samples));
                     return false;
@@ -753,15 +779,15 @@ public:
 
     //! Check if this is a non-informative prior.
     template <typename T>
-    static bool isNonInformative(const std::vector<SMultimodalPriorMode<T>> &modes) {
+    static bool isNonInformative(const std::vector<SMultimodalPriorMode<T>>& modes) {
         return modes.empty() || (modes.size() == 1 && modes[0].s_Prior->isNonInformative());
     }
 
     //! Get a human readable description of the prior.
     template <typename T>
-    static void print(const std::vector<SMultimodalPriorMode<T>> &modes,
-                      const std::string &indent,
-                      std::string &result) {
+    static void print(const std::vector<SMultimodalPriorMode<T>>& modes,
+                      const std::string& indent,
+                      std::string& result) {
         result += "\n" + indent + "multimodal";
         if (isNonInformative(modes)) {
             result += " non-informative";
@@ -786,12 +812,12 @@ private:
     class CMinusLogJointCdf {
     public:
         template <typename T>
-        bool operator()(const T &prior,
-                        const maths_t::TWeightStyleVec &weightStyles,
-                        const TDouble1Vec &samples,
-                        const TDouble4Vec1Vec &weights,
-                        double &lowerBound,
-                        double &upperBound) const {
+        bool operator()(const T& prior,
+                        const maths_t::TWeightStyleVec& weightStyles,
+                        const TDouble1Vec& samples,
+                        const TDouble4Vec1Vec& weights,
+                        double& lowerBound,
+                        double& upperBound) const {
             return prior->minusLogJointCdf(weightStyles, samples, weights, lowerBound, upperBound);
         }
     };
@@ -800,20 +826,24 @@ private:
     class CMinusLogJointCdfComplement {
     public:
         template <typename T>
-        bool operator()(const T &prior,
-                        const maths_t::TWeightStyleVec &weightStyles,
-                        const TDouble1Vec &samples,
-                        const TDouble4Vec1Vec &weights,
-                        double &lowerBound,
-                        double &upperBound) const {
-            return prior->minusLogJointCdfComplement(
-                weightStyles, samples, weights, lowerBound, upperBound);
+        bool operator()(const T& prior,
+                        const maths_t::TWeightStyleVec& weightStyles,
+                        const TDouble1Vec& samples,
+                        const TDouble4Vec1Vec& weights,
+                        double& lowerBound,
+                        double& upperBound) const {
+            return prior->minusLogJointCdfComplement(weightStyles,
+                                                     samples,
+                                                     weights,
+                                                     lowerBound,
+                                                     upperBound);
         }
     };
 
     //! \brief Wrapper of CMultimodalPrior::minusLogJointCdf function
     //! for use with our solver.
-    template <typename PRIOR> class CLogCdf {
+    template <typename PRIOR>
+    class CLogCdf {
     public:
         typedef double result_type;
 
@@ -821,9 +851,9 @@ private:
 
     public:
         CLogCdf(EStyle style,
-                const PRIOR &prior,
-                const maths_t::TWeightStyleVec &weightStyles,
-                const TDouble4Vec &weights)
+                const PRIOR& prior,
+                const maths_t::TWeightStyleVec& weightStyles,
+                const TDouble4Vec& weights)
             : m_Style(style),
               m_Prior(&prior),
               m_WeightStyles(&weightStyles),
@@ -833,8 +863,8 @@ private:
         double operator()(double x) const {
             m_X[0] = x;
             double lowerBound, upperBound;
-            if (!m_Prior->minusLogJointCdf(
-                    *m_WeightStyles, m_X, m_Weights, lowerBound, upperBound)) {
+            if (!m_Prior
+                     ->minusLogJointCdf(*m_WeightStyles, m_X, m_Weights, lowerBound, upperBound)) {
                 throw std::runtime_error("Unable to compute c.d.f. at " +
                                          core::CStringUtils::typeToString(x));
             }
@@ -851,8 +881,8 @@ private:
 
     private:
         EStyle m_Style;
-        const PRIOR *m_Prior;
-        const maths_t::TWeightStyleVec *m_WeightStyles;
+        const PRIOR* m_Prior;
+        const maths_t::TWeightStyleVec* m_WeightStyles;
         TDouble4Vec1Vec m_Weights;
         //! Avoids creating the vector argument to minusLogJointCdf
         //! more than once.
@@ -863,13 +893,13 @@ private:
     //! Implementation of log of the joint c.d.f. of the marginal
     //! likelihood.
     template <typename T, typename CDF>
-    static bool minusLogJointCdf(const std::vector<SMultimodalPriorMode<T>> &modes,
+    static bool minusLogJointCdf(const std::vector<SMultimodalPriorMode<T>>& modes,
                                  CDF minusLogCdf,
-                                 const maths_t::TWeightStyleVec &weightStyles,
-                                 const TDouble1Vec &samples,
-                                 const TDouble4Vec1Vec &weights,
-                                 double &lowerBound,
-                                 double &upperBound) {
+                                 const maths_t::TWeightStyleVec& weightStyles,
+                                 const TDouble1Vec& samples,
+                                 const TDouble4Vec1Vec& weights,
+                                 double& lowerBound,
+                                 double& upperBound) {
         lowerBound = upperBound = 0.0;
 
         if (samples.empty()) {
@@ -878,8 +908,12 @@ private:
         }
 
         if (modes.size() == 1) {
-            return minusLogCdf(
-                modes[0].s_Prior, weightStyles, samples, weights, lowerBound, upperBound);
+            return minusLogCdf(modes[0].s_Prior,
+                               weightStyles,
+                               samples,
+                               weights,
+                               lowerBound,
+                               upperBound);
         }
 
         typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
@@ -971,7 +1005,7 @@ private:
                                       << ", sample -log(c.d.f.) = [" << sampleLowerBound << ","
                                       << sampleUpperBound << "]");
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate c.d.f.: " << e.what());
             return false;
         }
@@ -984,4 +1018,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CMultimodalPriorUtils_h
+#endif // INCLUDED_ml_maths_CMultimodalPriorUtils_h

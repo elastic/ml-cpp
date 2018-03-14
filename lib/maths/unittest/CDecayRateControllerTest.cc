@@ -119,10 +119,11 @@ void CDecayRateControllerTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
-        CPPUNIT_ASSERT_EQUAL(
-            true,
-            traverser.traverseSubLevel(boost::bind(
-                &maths::CDecayRateController::acceptRestoreTraverser, &restoredController, _1)));
+        CPPUNIT_ASSERT_EQUAL(true,
+                             traverser.traverseSubLevel(
+                                 boost::bind(&maths::CDecayRateController::acceptRestoreTraverser,
+                                             &restoredController,
+                                             _1)));
 
         LOG_DEBUG("orig checksum = " << origController.checksum()
                                      << ", new checksum = " << restoredController.checksum());
@@ -130,16 +131,18 @@ void CDecayRateControllerTest::testPersist() {
     }
 }
 
-CppUnit::Test *CDecayRateControllerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
+CppUnit::Test* CDecayRateControllerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testLowCov", &CDecayRateControllerTest::testLowCov));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testOrderedErrors",
-        &CDecayRateControllerTest::testOrderedErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testPersist", &CDecayRateControllerTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDecayRateControllerTest>("CDecayRateControllerTest::testLowCov",
+                                                          &CDecayRateControllerTest::testLowCov));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CDecayRateControllerTest>("CDecayRateControllerTest::testOrderedErrors",
+                                                    &CDecayRateControllerTest::testOrderedErrors));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDecayRateControllerTest>("CDecayRateControllerTest::testPersist",
+                                                          &CDecayRateControllerTest::testPersist));
 
     return suiteOfTests;
 }

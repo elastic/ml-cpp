@@ -26,7 +26,8 @@ namespace {
 
 //! The implementation of log determinant used for the Gaussian
 //! information criterion.
-template <typename MATRIX> double logDeterminant_(const MATRIX &covariance, double upper) {
+template <typename MATRIX>
+double logDeterminant_(const MATRIX& covariance, double upper) {
     Eigen::JacobiSVD<MATRIX> svd(covariance);
     double result = 0.0;
     double epsilon = svd.threshold() * svd.singularValues()(0);
@@ -45,7 +46,7 @@ double confidence(double df) {
 }
 
 #define LOG_DETERMINANT(N)                                                                         \
-    double logDeterminant(const CSymmetricMatrixNxN<double, N> &c, double upper) {                 \
+    double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper) {                 \
         return logDeterminant_(toDenseMatrix(c), upper);                                           \
     }
 LOG_DETERMINANT(2)
@@ -54,11 +55,11 @@ LOG_DETERMINANT(4)
 LOG_DETERMINANT(5)
 #undef LOG_DETERMINANT
 
-double logDeterminant(const CSymmetricMatrix<double> &c, double upper) {
+double logDeterminant(const CSymmetricMatrix<double>& c, double upper) {
     return logDeterminant_(toDenseMatrix(c), upper);
 }
 
-double logDeterminant(const CDenseMatrix<double> &c, double upper) {
+double logDeterminant(const CDenseMatrix<double>& c, double upper) {
     return logDeterminant_(c, upper);
 }
 }

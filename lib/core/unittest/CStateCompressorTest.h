@@ -24,7 +24,7 @@ public:
     void testChunking(void);
     void testFile(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CStateCompressorTest_h
+#endif // INCLUDED_CStateCompressorTest_h

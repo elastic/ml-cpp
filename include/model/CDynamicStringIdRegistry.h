@@ -67,7 +67,7 @@ public:
     //! \param[in] addNotAllowedStat The statistic to be increased when a new name failed
     //! to register because no more additions are allowed.
     //! \param[in] recycledStat The statistic to be increased when an ID is recycled.
-    CDynamicStringIdRegistry(const std::string &nameType,
+    CDynamicStringIdRegistry(const std::string& nameType,
                              stat_t::EStatTypes addedStat,
                              stat_t::EStatTypes addNotAllowedStat,
                              stat_t::EStatTypes recycledStat);
@@ -77,19 +77,19 @@ public:
     //! copy that's only valid for a single purpose. The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CDynamicStringIdRegistry(bool isForPersistence, const CDynamicStringIdRegistry &other);
+    CDynamicStringIdRegistry(bool isForPersistence, const CDynamicStringIdRegistry& other);
 
     //! Get the name identified by \p id if it exists.
     //!
     //! \param[in] id The unique identifier of the name of interest.
     //! \return The name if \p exists or \p fallback otherwise.
-    const std::string &name(std::size_t id, const std::string &fallback) const;
+    const std::string& name(std::size_t id, const std::string& fallback) const;
 
     //! Get the name identified by \p id if it exists, as a shared pointer
     //!
     //! \param[in] id The unique identifier of the name of interest.
     //! \return The name as a string pointer
-    const core::CStoredStringPtr &namePtr(size_t id) const;
+    const core::CStoredStringPtr& namePtr(size_t id) const;
 
     //! Get the unique identifier of a name if it exists.
     //!
@@ -97,12 +97,12 @@ public:
     //! \param[out] result Filled in with the identifier of \p name
     //! if it exists otherwise max std::size_t.
     //! \return True if the name exists and false otherwise.
-    bool id(const std::string &name, std::size_t &result) const;
+    bool id(const std::string& name, std::size_t& result) const;
 
     //! Get the unique identifier of an arbitrary known name.
     //! \param[out] result Filled in with the identifier of a name
     //! \return True if a name exists and false otherwise.
-    bool anyId(std::size_t &result) const;
+    bool anyId(std::size_t& result) const;
 
     //! Get the number of active names (not pruned).
     std::size_t numberActiveNames(void) const;
@@ -115,10 +115,10 @@ public:
     bool isIdActive(std::size_t id) const;
 
     //! Register a \p name and return its unique identifier.
-    std::size_t addName(const std::string &name,
+    std::size_t addName(const std::string& name,
                         core_t::TTime time,
-                        CResourceMonitor &resourceMonitor,
-                        bool &addedPerson);
+                        CResourceMonitor& resourceMonitor,
+                        bool& addedPerson);
 
     //! Remove all traces of names whose identifiers are greater than
     //! or equal to \p lowestNameToRemove.
@@ -126,10 +126,10 @@ public:
 
     //! Recycle the unique identifiers used by the names
     //! identified by \p namesToRemove.
-    void recycleNames(const TSizeVec &namesToRemove, const std::string &defaultName);
+    void recycleNames(const TSizeVec& namesToRemove, const std::string& defaultName);
 
     //! Get unique identifiers of any names that have been recycled.
-    TSizeVec &recycledIds(void);
+    TSizeVec& recycledIds(void);
 
     //! Check the class invariants.
     bool checkInvariants(void) const;
@@ -146,8 +146,8 @@ public:
     //! Get the memory used by this registry.
     std::size_t memoryUsage(void) const;
 
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! The type of the names expected to be registered.
@@ -183,4 +183,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CDynamicStringIdRegistry_h
+#endif // INCLUDED_ml_model_CDynamicStringIdRegistry_h

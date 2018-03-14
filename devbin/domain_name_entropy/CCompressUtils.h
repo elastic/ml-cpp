@@ -50,17 +50,17 @@ public:
     // --
     //! Add string. If finish==true, the compressed state is
     //! completely calculated and no further state can be added.
-    bool compressString(bool finish, const std::string &buffer);
+    bool compressString(bool finish, const std::string& buffer);
 
     //! Get compressed representation
     //! NOTE: the compressed representation is a u_char array
     //! NOT a string.
     //! If finish==false retrieve partial compressed state
-    bool compressedString(bool finish, std::string &buffer);
+    bool compressedString(bool finish, std::string& buffer);
 
     //! Get compressed string length
     //! If finish==false retrieve partial compressed state
-    bool compressedStringLength(bool finish, size_t &length);
+    bool compressedStringLength(bool finish, size_t& length);
 
 private:
     enum EState { E_Uninitialized, E_Compressing, E_Uncompressing, E_IsFinished };
@@ -76,4 +76,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_domain_name_entropy_CCompressUtils_h
+#endif // INCLUDED_ml_domain_name_entropy_CCompressUtils_h

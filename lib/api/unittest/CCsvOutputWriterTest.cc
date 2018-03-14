@@ -24,19 +24,24 @@
 #include <fstream>
 #include <sstream>
 
-CppUnit::Test *CCsvOutputWriterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCsvOutputWriterTest");
+CppUnit::Test* CCsvOutputWriterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvOutputWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testAdd", &CCsvOutputWriterTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testOverwrite", &CCsvOutputWriterTest::testOverwrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testThroughput", &CCsvOutputWriterTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testExcelQuoting", &CCsvOutputWriterTest::testExcelQuoting));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testNonExcelQuoting", &CCsvOutputWriterTest::testNonExcelQuoting));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvOutputWriterTest>("CCsvOutputWriterTest::testAdd",
+                                                      &CCsvOutputWriterTest::testAdd));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvOutputWriterTest>("CCsvOutputWriterTest::testOverwrite",
+                                                      &CCsvOutputWriterTest::testOverwrite));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvOutputWriterTest>("CCsvOutputWriterTest::testThroughput",
+                                                      &CCsvOutputWriterTest::testThroughput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvOutputWriterTest>("CCsvOutputWriterTest::testExcelQuoting",
+                                                      &CCsvOutputWriterTest::testExcelQuoting));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCsvOutputWriterTest>("CCsvOutputWriterTest::testNonExcelQuoting",
+                                                      &CCsvOutputWriterTest::testNonExcelQuoting));
 
     return suiteOfTests;
 }

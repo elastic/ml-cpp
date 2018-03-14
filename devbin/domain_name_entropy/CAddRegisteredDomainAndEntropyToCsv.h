@@ -38,22 +38,22 @@ class CTopLevelDomainDb;
 //!
 class CAddRegisteredDomainAndEntropyToCsv : private core::CNonCopyable {
 public:
-    CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb &topLevelDomainDb,
-                                        const std::string &csvFileName,
-                                        const std::string &domainNameFieldName,
-                                        const std::string &timeFieldName,
-                                        const std::string &entropyFieldName);
+    CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb& topLevelDomainDb,
+                                        const std::string& csvFileName,
+                                        const std::string& domainNameFieldName,
+                                        const std::string& timeFieldName,
+                                        const std::string& entropyFieldName);
 
     bool init(void);
 
-    void flush(const std::string &time);
+    void flush(const std::string& time);
 
 private:
     //! Read a line from the csv file
-    bool readLine(bool &readHeader, std::string &lastTime, const std::string &line);
+    bool readLine(bool& readHeader, std::string& lastTime, const std::string& line);
 
 private:
-    const CTopLevelDomainDb &m_TopLevelDomainDb;
+    const CTopLevelDomainDb& m_TopLevelDomainDb;
     const std::string m_CsvFileName;
     const std::string m_DomainNameFieldName;
     const std::string m_TimeFieldName;
@@ -74,4 +74,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_domain_name_entropy_CAddRegisteredDomainAndEntropyToCsv_h
+#endif // INCLUDED_ml_domain_name_entropy_CAddRegisteredDomainAndEntropyToCsv_h

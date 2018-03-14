@@ -245,17 +245,17 @@ public:
     //! lengths to be analysed (CSV string of time values)
     static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
                                                      model_t::ESummaryMode summaryMode,
-                                                     const std::string &summaryCountFieldName,
+                                                     const std::string& summaryCountFieldName,
                                                      core_t::TTime latency,
                                                      std::size_t bucketResultsDelay,
                                                      bool multivariateByFields,
-                                                     const std::string &multipleBucketLengths);
+                                                     const std::string& multipleBucketLengths);
 
     //! Overload using defaults.
     static CAnomalyDetectorModelConfig
     defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
                   model_t::ESummaryMode summaryMode = model_t::E_None,
-                  const std::string &summaryCountFieldName = "") {
+                  const std::string& summaryCountFieldName = "") {
         return defaultConfig(bucketLength,
                              summaryMode,
                              summaryCountFieldName,
@@ -276,7 +276,7 @@ public:
     //! Parse and verify the multiple bucket lengths - these should all be
     //! multiples of the standard bucket length.
     static TTimeVec multipleBucketLengths(core_t::TTime bucketLength,
-                                          const std::string &multipleBucketLengths);
+                                          const std::string& multipleBucketLengths);
 
 public:
     CAnomalyDetectorModelConfig(void);
@@ -290,7 +290,7 @@ public:
     //! be performed.
     void multivariateByFields(bool enabled);
     //! Set the model factories.
-    void factories(const TFactoryTypeFactoryPtrMap &factories);
+    void factories(const TFactoryTypeFactoryPtrMap& factories);
     //! Set the style and parameter value for raw score aggregation.
     bool aggregationStyleParams(model_t::EAggregationStyle style,
                                 model_t::EAggregationParam param,
@@ -304,31 +304,31 @@ public:
     bool noiseMultiplier(double multiplier);
     //! Set the normalized score knot points for the piecewise linear curve
     //! between historic raw score percentiles and normalized scores.
-    bool normalizedScoreKnotPoints(const TDoubleDoublePrVec &points);
+    bool normalizedScoreKnotPoints(const TDoubleDoublePrVec& points);
 
     //! Populate the parameters from a configuration file.
-    bool init(const std::string &configFile);
+    bool init(const std::string& configFile);
 
     //! Populate the parameters from a configuration file, also retrieving
     //! the raw property tree created from the config file.  (The raw
     //! property tree is only valid if the method returns true.)
-    bool init(const std::string &configFile, boost::property_tree::ptree &propTree);
+    bool init(const std::string& configFile, boost::property_tree::ptree& propTree);
 
     //! Populate the parameters from a property tree.
-    bool init(const boost::property_tree::ptree &propTree);
+    bool init(const boost::property_tree::ptree& propTree);
 
     //! Configure modelPlotConfig params from file
-    bool configureModelPlot(const std::string &modelPlotConfigFile);
+    bool configureModelPlot(const std::string& modelPlotConfigFile);
 
     //! Configure modelPlotConfig params from a property tree
     //! expected to contain two properties: 'boundsPercentile' and 'terms'
-    bool configureModelPlot(const boost::property_tree::ptree &propTree);
+    bool configureModelPlot(const boost::property_tree::ptree& propTree);
 
     //! Get the factory for new models.
     //!
     //! \param[in] key The key of the detector for which the factory will be
     //! used.
-    TModelFactoryCPtr factory(const CSearchKey &key) const;
+    TModelFactoryCPtr factory(const CSearchKey& key) const;
 
     //! Get the factory for new models.
     //!
@@ -346,11 +346,11 @@ public:
                               function_t::EFunction function,
                               bool useNull = false,
                               model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-                              const std::string &partitionFieldName = std::string(),
-                              const std::string &personFieldName = std::string(),
-                              const std::string &attributeFieldName = std::string(),
-                              const std::string &valueFieldName = std::string(),
-                              const CSearchKey::TStoredStringPtrVec &influenceFieldNames =
+                              const std::string& partitionFieldName = std::string(),
+                              const std::string& personFieldName = std::string(),
+                              const std::string& attributeFieldName = std::string(),
+                              const std::string& valueFieldName = std::string(),
+                              const CSearchKey::TStoredStringPtrVec& influenceFieldNames =
                                   CSearchKey::TStoredStringPtrVec()) const;
 
     //! Set the rate at which the models lose information.
@@ -376,7 +376,7 @@ public:
     std::size_t bucketResultsDelay(void) const;
 
     //! Get the multiple bucket lengths.
-    const TTimeVec &multipleBucketLengths(void) const;
+    const TTimeVec& multipleBucketLengths(void) const;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
     bool multivariateByFields(void) const;
@@ -398,7 +398,7 @@ public:
 
     //! Get the terms (by, over, or partition field values)
     //! used to filter model debug data. Empty when no filtering applies.
-    const TStrSet &modelPlotTerms(void) const;
+    const TStrSet& modelPlotTerms(void) const;
     //@}
 
     //! \name Anomaly Score Calculation
@@ -423,7 +423,7 @@ public:
     double noiseMultiplier(void) const;
 
     //! Get the normalized anomaly score knot points.
-    const TDoubleDoublePrVec &normalizedScoreKnotPoints(void) const;
+    const TDoubleDoublePrVec& normalizedScoreKnotPoints(void) const;
     //@}
 
     //! Check if we should create one normalizer per partition field value.
@@ -442,7 +442,7 @@ public:
     //!
     //! \param[in] propertyTree The properties of the stanza called
     //! \p stanzaName.
-    bool processStanza(const boost::property_tree::ptree &propertyTree);
+    bool processStanza(const boost::property_tree::ptree& propertyTree);
 
     //! Get the factor to normalize all bucket lengths to the default
     //! bucket length.
@@ -516,4 +516,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CAnomalyDetectorModelConfig_h
+#endif // INCLUDED_ml_model_CAnomalyDetectorModelConfig_h

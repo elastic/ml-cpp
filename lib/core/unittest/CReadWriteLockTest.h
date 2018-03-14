@@ -23,7 +23,7 @@ public:
     void testWriteLock(void);
     void testPerformanceVersusMutex(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CReadWriteLockTest_h
+#endif // INCLUDED_CReadWriteLockTest_h

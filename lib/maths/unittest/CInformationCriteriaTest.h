@@ -25,7 +25,7 @@ public:
     void testGaussian(void);
     void testGaussianWithSphericalCluster(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CInformationCriteriaTest_h
+#endif // INCLUDED_CInformationCriteriaTest_h

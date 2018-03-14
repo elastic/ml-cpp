@@ -49,7 +49,7 @@ typedef std::vector<double> TDoubleVec;
 //! Add valid \p probabilities to \p aggregator and return the
 //! number of valid probabilities.
 template <typename AGGREGATOR>
-std::size_t addProbabilities(const TDoubleVec &probabilities, AGGREGATOR &aggregator) {
+std::size_t addProbabilities(const TDoubleVec& probabilities, AGGREGATOR& aggregator) {
     std::size_t n = 0u;
     for (std::size_t i = 0u; i < probabilities.size(); ++i) {
         double p = probabilities[i];
@@ -64,10 +64,14 @@ std::size_t addProbabilities(const TDoubleVec &probabilities, AGGREGATOR &aggreg
 }
 
 //! The function to convert probabilities to *raw* scores.
-double probabilityToScore(double probability) { return maths::CTools::deviation(probability); }
+double probabilityToScore(double probability) {
+    return maths::CTools::deviation(probability);
+}
 
 //! The function to convert *raw* scores to probabilities.
-double scoreToProbability(double score) { return maths::CTools::inverseDeviation(score); }
+double scoreToProbability(double score) {
+    return maths::CTools::inverseDeviation(score);
+}
 
 // We use short field names to reduce the state size
 const std::string HIGH_PERCENTILE_SCORE_TAG("a");
@@ -104,9 +108,9 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
                             std::size_t minExtremeSamples,
                             std::size_t maxExtremeSamples,
                             double maximumAnomalousProbability,
-                            const TDoubleVec &probabilities,
-                            double &overallAnomalyScore,
-                            double &overallProbability) {
+                            const TDoubleVec& probabilities,
+                            double& overallAnomalyScore,
+                            double& overallProbability) {
     overallAnomalyScore = 0.0;
     overallProbability = 1.0;
 
@@ -234,9 +238,9 @@ CAnomalyScore::CComputer::CComputer(double jointProbabilityWeight,
       m_MaxExtremeSamples(maxExtremeSamples),
       m_MaximumAnomalousProbability(maximumAnomalousProbability) {}
 
-bool CAnomalyScore::CComputer::operator()(const TDoubleVec &probabilities,
-                                          double &overallAnomalyScore,
-                                          double &overallProbability) const {
+bool CAnomalyScore::CComputer::operator()(const TDoubleVec& probabilities,
+                                          double& overallAnomalyScore,
+                                          double& overallProbability) const {
     return CAnomalyScore::compute(m_JointProbabilityWeight,
                                   m_ExtremeProbabilityWeight,
                                   m_MinExtremeSamples,
@@ -247,7 +251,7 @@ bool CAnomalyScore::CComputer::operator()(const TDoubleVec &probabilities,
                                   overallProbability);
 }
 
-CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig &config)
+CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig& config)
     : m_NoisePercentile(config.noisePercentile()),
       m_NoiseMultiplier(config.noiseMultiplier()),
       m_NormalizedScoreKnotPoints(config.normalizedScoreKnotPoints()),
@@ -268,7 +272,7 @@ bool CAnomalyScore::CNormalizer::canNormalize(void) const {
     return m_RawScoreQuantileSummary.n() > 0;
 }
 
-bool CAnomalyScore::CNormalizer::normalize(TDoubleVec &scores) const {
+bool CAnomalyScore::CNormalizer::normalize(TDoubleVec& scores) const {
     double origScore(std::accumulate(scores.begin(), scores.end(), 0.0));
     double normalizedScore(origScore);
 
@@ -290,7 +294,7 @@ bool CAnomalyScore::CNormalizer::normalize(TDoubleVec &scores) const {
     return true;
 }
 
-bool CAnomalyScore::CNormalizer::normalize(double &score) const {
+bool CAnomalyScore::CNormalizer::normalize(double& score) const {
     if (score == 0.0) {
         // Nothing to do.
         return true;
@@ -397,8 +401,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const {
                                               m_NormalizedScoreKnotPoints.begin(),
                                           ptrdiff_t(1));
     if (lowerKnotPoint < m_NormalizedScoreKnotPoints.size()) {
-        const TDoubleDoublePr &left = m_NormalizedScoreKnotPoints[lowerKnotPoint - 1];
-        const TDoubleDoublePr &right = m_NormalizedScoreKnotPoints[lowerKnotPoint];
+        const TDoubleDoublePr& left = m_NormalizedScoreKnotPoints[lowerKnotPoint - 1];
+        const TDoubleDoublePr& right = m_NormalizedScoreKnotPoints[lowerKnotPoint];
         // Linearly interpolate between the two knot points.
         normalizedScores[1] = left.second + (right.second - left.second) *
                                                 (lowerPercentile - left.first) /
@@ -407,8 +411,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const {
         normalizedScores[1] = m_MaximumNormalizedScore;
     }
     if (upperKnotPoint < m_NormalizedScoreKnotPoints.size()) {
-        const TDoubleDoublePr &left = m_NormalizedScoreKnotPoints[upperKnotPoint - 1];
-        const TDoubleDoublePr &right = m_NormalizedScoreKnotPoints[upperKnotPoint];
+        const TDoubleDoublePr& left = m_NormalizedScoreKnotPoints[upperKnotPoint - 1];
+        const TDoubleDoublePr& right = m_NormalizedScoreKnotPoints[upperKnotPoint];
         // Linearly interpolate between the two knot points.
         normalizedScores[1] = (normalizedScores[1] + left.second +
                                (right.second - left.second) * (upperPercentile - left.first) /
@@ -451,8 +455,8 @@ bool CAnomalyScore::CNormalizer::normalize(double &score) const {
 
 void CAnomalyScore::CNormalizer::quantile(double score,
                                           double confidence,
-                                          double &lowerBound,
-                                          double &upperBound) const {
+                                          double& lowerBound,
+                                          double& upperBound) const {
     uint32_t discreteScore = this->discreteScore(score);
     double n = static_cast<double>(m_RawScoreQuantileSummary.n());
     double lowerQuantile = (100.0 - confidence) / 200.0;
@@ -498,8 +502,10 @@ void CAnomalyScore::CNormalizer::quantile(double score,
 
     double cutoffCdfLowerBound;
     double cutoffCdfUpperBound;
-    m_RawScoreHighQuantileSummary.cdf(
-        m_HighPercentileScore, 0.0, cutoffCdfLowerBound, cutoffCdfUpperBound);
+    m_RawScoreHighQuantileSummary.cdf(m_HighPercentileScore,
+                                      0.0,
+                                      cutoffCdfLowerBound,
+                                      cutoffCdfUpperBound);
 
     double pdfLowerBound;
     double pdfUpperBound;
@@ -527,7 +533,7 @@ void CAnomalyScore::CNormalizer::quantile(double score,
                          << ", f = " << f);
 }
 
-bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec &scores) {
+bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec& scores) {
     return this->updateQuantiles(std::accumulate(scores.begin(), scores.end(), 0.0));
 }
 
@@ -627,17 +633,20 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
             TUInt32UInt64PrVec H;
             m_RawScoreHighQuantileSummary.summary(H);
 
-            std::size_t i0 = std::min(
-                static_cast<std::size_t>(
-                    std::lower_bound(
-                        L.begin(), L.end(), highPercentileCount, maths::COrderings::SSecondLess()) -
-                    L.begin()),
-                L.size() - 1);
-            std::size_t j = std::min(
-                static_cast<std::size_t>(
-                    std::upper_bound(H.begin(), H.end(), L[i0], maths::COrderings::SFirstLess()) -
-                    H.begin()),
-                H.size() - 1);
+            std::size_t i0 = std::min(static_cast<std::size_t>(
+                                          std::lower_bound(L.begin(),
+                                                           L.end(),
+                                                           highPercentileCount,
+                                                           maths::COrderings::SSecondLess()) -
+                                          L.begin()),
+                                      L.size() - 1);
+            std::size_t j = std::min(static_cast<std::size_t>(
+                                         std::upper_bound(H.begin(),
+                                                          H.end(),
+                                                          L[i0],
+                                                          maths::COrderings::SFirstLess()) -
+                                         H.begin()),
+                                     H.size() - 1);
 
             uint64_t r = L[i0].second;
             for (std::size_t i = i0 + 1;
@@ -715,8 +724,8 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     }
 }
 
-bool CAnomalyScore::CNormalizer::isUpgradable(const std::string &fromVersion,
-                                              const std::string &toVersion) {
+bool CAnomalyScore::CNormalizer::isUpgradable(const std::string& fromVersion,
+                                              const std::string& toVersion) {
     // Any changes to this method need to be reflected in the upgrade() method
     // below to prevent an inconsistency where this method says an upgrade is
     // possible but the upgrade() method can't do it.
@@ -724,8 +733,8 @@ bool CAnomalyScore::CNormalizer::isUpgradable(const std::string &fromVersion,
            (fromVersion == "2" && toVersion == "3");
 }
 
-bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
-                                         const std::string &currentVersion) {
+bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
+                                         const std::string& currentVersion) {
     if (loadedVersion == currentVersion) {
         // No upgrade required.
         return true;
@@ -737,8 +746,9 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string &loadedVersion,
         {1.0 / 0.3, 1.0, 1.0},
         {1.0 / 0.3, 1.0, 1.0},
     };
-    static const double Q_DIGEST_UPGRADE_FACTOR[][3] = {
-        {1.0, 3.0, 30.0}, {1.0 / 3.0, 1.0, 10.0}, {1.0 / 30.0, 1.0 / 10.0, 1.0}};
+    static const double Q_DIGEST_UPGRADE_FACTOR[][3] = {{1.0, 3.0, 30.0},
+                                                        {1.0 / 3.0, 1.0, 10.0},
+                                                        {1.0 / 30.0, 1.0 / 10.0, 1.0}};
 
     std::size_t i, j;
     if (!core::CStringUtils::stringToType(loadedVersion, i) ||
@@ -784,22 +794,24 @@ void CAnomalyScore::CNormalizer::clear(void) {
 }
 
 void CAnomalyScore::CNormalizer::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(HIGH_PERCENTILE_SCORE_TAG, m_HighPercentileScore);
     inserter.insertValue(HIGH_PERCENTILE_COUNT_TAG, m_HighPercentileCount);
     inserter.insertValue(MAX_SCORE_TAG, m_MaxScore.toDelimited());
-    inserter.insertLevel(
-        RAW_SCORE_QUANTILE_SUMMARY,
-        boost::bind(&maths::CQDigest::acceptPersistInserter, &m_RawScoreQuantileSummary, _1));
-    inserter.insertLevel(
-        RAW_SCORE_HIGH_QUANTILE_SUMMARY,
-        boost::bind(&maths::CQDigest::acceptPersistInserter, &m_RawScoreHighQuantileSummary, _1));
+    inserter.insertLevel(RAW_SCORE_QUANTILE_SUMMARY,
+                         boost::bind(&maths::CQDigest::acceptPersistInserter,
+                                     &m_RawScoreQuantileSummary,
+                                     _1));
+    inserter.insertLevel(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
+                         boost::bind(&maths::CQDigest::acceptPersistInserter,
+                                     &m_RawScoreHighQuantileSummary,
+                                     _1));
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
 }
 
-bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
 
         if (name == HIGH_PERCENTILE_SCORE_TAG) {
             // This used to be 64 bit but is now 32 bit, so may need adjusting
@@ -877,7 +889,7 @@ namespace {
 const std::string NORMALIZER_TAG("a");
 }
 
-const std::string &CAnomalyScore::normalizedScoreToSeverity(double normalizedScore) {
+const std::string& CAnomalyScore::normalizedScoreToSeverity(double normalizedScore) {
     if (normalizedScore < 25.0) {
         return WARNING_SEVERITY;
     }
@@ -893,20 +905,20 @@ const std::string &CAnomalyScore::normalizedScoreToSeverity(double normalizedSco
     return CRITICAL_SEVERITY;
 }
 
-bool CAnomalyScore::normalizerFromJson(const std::string &json, CNormalizer &normalizer) {
+bool CAnomalyScore::normalizerFromJson(const std::string& json, CNormalizer& normalizer) {
     std::istringstream iss(json);
     core::CJsonStateRestoreTraverser traverser(iss);
 
     return normalizerFromJson(traverser, normalizer);
 }
 
-bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
-                                       CNormalizer &normalizer) {
+bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser& traverser,
+                                       CNormalizer& normalizer) {
     bool restoredNormalizer(false);
     std::string restoredVersion(MISSING_VERSION_FORMAT_VERSION);
 
     while (traverser.next()) {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
 
         if (name == MLVERSION_ATTRIBUTE) {
             restoredVersion = traverser.value();
@@ -949,12 +961,12 @@ bool CAnomalyScore::normalizerFromJson(core::CStateRestoreTraverser &traverser,
     return restoredNormalizer;
 }
 
-void CAnomalyScore::normalizerToJson(const CNormalizer &normalizer,
-                                     const std::string &searchKey,
-                                     const std::string &cue,
-                                     const std::string &description,
+void CAnomalyScore::normalizerToJson(const CNormalizer& normalizer,
+                                     const std::string& searchKey,
+                                     const std::string& cue,
+                                     const std::string& description,
                                      core_t::TTime time,
-                                     std::string &json) {
+                                     std::string& json) {
     std::ostringstream ss;
 
     // The JSON inserter will only close the object when it is destroyed

@@ -41,9 +41,9 @@ namespace core {
 class CORE_EXPORT CShellArgQuoter : private CNonInstantiatable {
 public:
     //! Returns /tmp on Unix or an expansion of %TEMP% on Windows
-    static std::string quote(const std::string &arg);
+    static std::string quote(const std::string& arg);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CShellArgQuoter_h
+#endif // INCLUDED_ml_core_CShellArgQuoter_h

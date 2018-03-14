@@ -47,10 +47,10 @@ protected:
 
 private:
     //! Prevent copying
-    CNonCopyable(const CNonCopyable &);
-    CNonCopyable &operator=(const CNonCopyable &);
+    CNonCopyable(const CNonCopyable&);
+    CNonCopyable& operator=(const CNonCopyable&);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CNonCopyable_h
+#endif // INCLUDED_ml_core_CNonCopyable_h

@@ -31,7 +31,7 @@ const std::string INITIALISATION_TIME_TAG("c");
 CResultsQueue::CResultsQueue(std::size_t delayBuckets, core_t::TTime bucketLength)
     : m_Results(delayBuckets, bucketLength, 0), m_LastResultsIndex(2) {}
 
-void CResultsQueue::push(const CHierarchicalResults &result, core_t::TTime time) {
+void CResultsQueue::push(const CHierarchicalResults& result, core_t::TTime time) {
     if (m_Results.latestBucketEnd() + 1 - m_Results.bucketLength() == 0) {
         m_Results.reset(time - m_Results.bucketLength());
         LOG_TRACE("Resetting results queue. Queue's latestBucketEnd is "
@@ -40,19 +40,29 @@ void CResultsQueue::push(const CHierarchicalResults &result, core_t::TTime time)
     m_Results.push(result, time);
 }
 
-void CResultsQueue::push(const CHierarchicalResults &result) { m_Results.push(result); }
+void CResultsQueue::push(const CHierarchicalResults& result) {
+    m_Results.push(result);
+}
 
-const CHierarchicalResults &CResultsQueue::get(core_t::TTime time) const {
+const CHierarchicalResults& CResultsQueue::get(core_t::TTime time) const {
     return m_Results.get(time);
 }
 
-CHierarchicalResults &CResultsQueue::get(core_t::TTime time) { return m_Results.get(time); }
+CHierarchicalResults& CResultsQueue::get(core_t::TTime time) {
+    return m_Results.get(time);
+}
 
-CHierarchicalResults &CResultsQueue::latest(void) { return m_Results.latest(); }
+CHierarchicalResults& CResultsQueue::latest(void) {
+    return m_Results.latest();
+}
 
-core_t::TTime CResultsQueue::latestBucketEnd(void) const { return m_Results.latestBucketEnd(); }
+core_t::TTime CResultsQueue::latestBucketEnd(void) const {
+    return m_Results.latestBucketEnd();
+}
 
-std::size_t CResultsQueue::size(void) const { return m_Results.size(); }
+std::size_t CResultsQueue::size(void) const {
+    return m_Results.size();
+}
 
 void CResultsQueue::reset(core_t::TTime time) {
     m_Results.reset(time);
@@ -65,7 +75,7 @@ bool CResultsQueue::hasInterimResults(void) const {
 
 core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
                                               core_t::TTime bucketLength,
-                                              model::CHierarchicalResults &results) {
+                                              model::CHierarchicalResults& results) {
     if (m_Results.size() == 1) {
         return bucketStartTime;
     }
@@ -75,7 +85,7 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
                                            << (bucketStartTime - (bucketLength / 2)));
 
     core_t::TTime resultsTime = 0;
-    const model::CHierarchicalResults::TNode *node =
+    const model::CHierarchicalResults::TNode* node =
         m_Results.get(bucketStartTime - bucketLength).root();
     double r1 = 0.0;
     if (node) {
@@ -114,29 +124,31 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
     return resultsTime;
 }
 
-void CResultsQueue::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CResultsQueue::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core_t::TTime initialisationTime = m_Results.latestBucketEnd() + 1 - m_Results.bucketLength();
     core::CPersistUtils::persist(INITIALISATION_TIME_TAG, initialisationTime, inserter);
     core::CPersistUtils::persist(RESULTS_TAG, m_Results, inserter);
     core::CPersistUtils::persist(LAST_RESULTS_INDEX_TAG, m_LastResultsIndex, inserter);
 }
 
-bool CResultsQueue::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CResultsQueue::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == RESULTS_TAG) {
             if (!core::CPersistUtils::restore(RESULTS_TAG, m_Results, traverser)) {
                 return false;
             }
         } else if (name == LAST_RESULTS_INDEX_TAG) {
-            if (!core::CPersistUtils::restore(
-                    LAST_RESULTS_INDEX_TAG, m_LastResultsIndex, traverser)) {
+            if (!core::CPersistUtils::restore(LAST_RESULTS_INDEX_TAG,
+                                              m_LastResultsIndex,
+                                              traverser)) {
                 return false;
             }
         } else if (name == INITIALISATION_TIME_TAG) {
             core_t::TTime initialisationTime = 0;
-            if (!core::CPersistUtils::restore(
-                    INITIALISATION_TIME_TAG, initialisationTime, traverser)) {
+            if (!core::CPersistUtils::restore(INITIALISATION_TIME_TAG,
+                                              initialisationTime,
+                                              traverser)) {
                 return false;
             }
             m_Results.reset(initialisationTime);
@@ -145,5 +157,5 @@ bool CResultsQueue::acceptRestoreTraverser(core::CStateRestoreTraverser &travers
     return true;
 }
 
-}// model
-}// ml
+} // model
+} // ml

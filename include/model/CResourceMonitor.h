@@ -51,9 +51,9 @@ public:
     };
 
 public:
-    typedef std::pair<CAnomalyDetectorModel *, std::size_t> TModelPtrSizePr;
-    typedef std::map<CAnomalyDetectorModel *, std::size_t> TModelPtrSizeMap;
-    typedef std::function<void(const CResourceMonitor::SResults &)> TMemoryUsageReporterFunc;
+    typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
+    typedef std::map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeMap;
+    typedef std::function<void(const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
     typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
 
     //! The minimum time between prunes
@@ -80,20 +80,20 @@ public:
     //! Tell this resource monitor about a CAnomalyDetector class -
     //! these classes contain all the model memory and are used
     //! to query the current overall usage
-    void registerComponent(CAnomalyDetector &detector);
+    void registerComponent(CAnomalyDetector& detector);
 
     //! Tell this resource monitor that a CAnomalyDetector class is
     //! going to be deleted.
-    void unRegisterComponent(CAnomalyDetector &detector);
+    void unRegisterComponent(CAnomalyDetector& detector);
 
     //! Set a callback used when the memory usage grows
-    void memoryUsageReporter(const TMemoryUsageReporterFunc &reporter);
+    void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
     //! Recalculate the memory usage if there is a memory limit
-    void refresh(CAnomalyDetector &detector);
+    void refresh(CAnomalyDetector& detector);
 
     //! Recalculate the memory usage regardless of whether there is a memory limit
-    void forceRefresh(CAnomalyDetector &detector);
+    void forceRefresh(CAnomalyDetector& detector);
 
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
@@ -142,7 +142,7 @@ private:
     void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
     //! Update the given model and recalculate the total usage
-    void memUsage(CAnomalyDetectorModel *model);
+    void memUsage(CAnomalyDetectorModel* model);
 
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
@@ -220,8 +220,8 @@ private:
     friend class ::CAnomalyJobLimitTest;
 };
 
-}// model
+} // model
 
-}// ml
+} // ml
 
-#endif// INCLUDED_ml_model_CResourceMonitor_h
+#endif // INCLUDED_ml_model_CResourceMonitor_h

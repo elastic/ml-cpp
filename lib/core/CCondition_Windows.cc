@@ -21,7 +21,7 @@
 namespace ml {
 namespace core {
 
-CCondition::CCondition(CMutex &mutex) : m_Mutex(mutex) {
+CCondition::CCondition(CMutex& mutex) : m_Mutex(mutex) {
     InitializeConditionVariable(&m_Condition);
 }
 
@@ -52,8 +52,12 @@ bool CCondition::wait(uint32_t t) {
     return true;
 }
 
-void CCondition::signal(void) { WakeConditionVariable(&m_Condition); }
+void CCondition::signal(void) {
+    WakeConditionVariable(&m_Condition);
+}
 
-void CCondition::broadcast(void) { WakeAllConditionVariable(&m_Condition); }
+void CCondition::broadcast(void) {
+    WakeAllConditionVariable(&m_Condition);
+}
 }
 }

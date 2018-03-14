@@ -24,7 +24,7 @@ public:
     void testOrderedErrors();
     void testPersist();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CDecayRateControllerTest_h
+#endif // INCLUDED_CDecayRateControllerTest_h

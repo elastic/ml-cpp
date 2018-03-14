@@ -57,7 +57,7 @@ CQDigest::CQDigest(uint64_t k, double decayRate)
     m_Root = &m_NodeAllocator.create(CNode(0, 1, 0, 0));
 }
 
-void CQDigest::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CQDigest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(K_TAG, m_K);
     inserter.insertValue(N_TAG, m_N);
 
@@ -65,11 +65,11 @@ void CQDigest::acceptPersistInserter(core::CStatePersistInserter &inserter) cons
     m_Root->persistRecursive(NODE_TAG, inserter);
 }
 
-bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     std::size_t nodeCount = 0u;
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(K_TAG, m_K)
         RESTORE_BUILT_IN(N_TAG, m_N)
         if (name == NODE_TAG) {
@@ -95,7 +95,7 @@ void CQDigest::add(uint32_t value, uint64_t n) {
 
     m_N += n;
 
-    CNode *expanded = m_Root->expand(m_NodeAllocator, value);
+    CNode* expanded = m_Root->expand(m_NodeAllocator, value);
     if (expanded) {
         m_Root = expanded;
     }
@@ -107,7 +107,7 @@ void CQDigest::add(uint32_t value, uint64_t n) {
     // tree. Otherwise, we can get away with just compressing
     // the path from the leaf to the root.
 
-    CNode &leaf = m_Root->insert(m_NodeAllocator, CNode(value, value, n, n));
+    CNode& leaf = m_Root->insert(m_NodeAllocator, CNode(value, value, n, n));
     if (expanded || (m_N / m_K) != ((m_N - n) / m_K)) {
         // Compress the whole tree.
         this->compress();
@@ -120,16 +120,16 @@ void CQDigest::add(uint32_t value, uint64_t n) {
     // this->checkInvariants();
 }
 
-void CQDigest::merge(const CQDigest &digest) {
+void CQDigest::merge(const CQDigest& digest) {
     TNodePtrVec nodes;
     digest.m_Root->postOrder(nodes);
 
-    CNode *expanded = m_Root->expand(m_NodeAllocator, digest.m_Root->max());
+    CNode* expanded = m_Root->expand(m_NodeAllocator, digest.m_Root->max());
     if (expanded) {
         m_Root = expanded;
     }
 
-    for (const auto &node : nodes) {
+    for (const auto& node : nodes) {
         m_N += node->count();
         m_Root->insert(m_NodeAllocator, *node);
     }
@@ -179,7 +179,7 @@ bool CQDigest::scale(double factor) {
     std::sort(nodes.begin(), nodes.end(), SLevelLess());
     TUInt32UInt32UInt64TrVec sketch;
     sketch.reserve(nodes.size());
-    for (const auto &node : nodes) {
+    for (const auto& node : nodes) {
         sketch.emplace_back(node->min(), node->max(), node->count());
     }
 
@@ -189,7 +189,7 @@ bool CQDigest::scale(double factor) {
     // Reinsert the scaled summary values.
     boost::random::mt11213b generator;
     for (std::size_t i = 0u; i < sketch.size(); ++i) {
-        const TUInt32UInt32UInt64Tr &node = sketch[i];
+        const TUInt32UInt32UInt64Tr& node = sketch[i];
 
         uint32_t min = node.get<0>();
         uint32_t max = node.get<1>();
@@ -221,7 +221,7 @@ void CQDigest::clear(void) {
     // Release all current nodes.
     TNodePtrVec nodes;
     m_Root->postOrder(nodes);
-    for (const auto &node : nodes) {
+    for (const auto& node : nodes) {
         m_N -= node->count();
     }
 
@@ -233,7 +233,7 @@ void CQDigest::clear(void) {
     }
 }
 
-bool CQDigest::quantile(double q, uint32_t &result) const {
+bool CQDigest::quantile(double q, uint32_t& result) const {
     result = 0u;
 
     if (m_N == 0) {
@@ -249,7 +249,7 @@ bool CQDigest::quantile(double q, uint32_t &result) const {
     return true;
 }
 
-bool CQDigest::quantileSublevelSetSupremum(double f, uint32_t &result) const {
+bool CQDigest::quantileSublevelSetSupremum(double f, uint32_t& result) const {
     result = 0;
     if (m_N == 0) {
         LOG_ERROR("Can't compute level set for empty set");
@@ -292,14 +292,14 @@ double CQDigest::cdfQuantile(double n, double p, double q) {
         double b = n * (1.0 - p) + ONE_THIRD;
         boost::math::beta_distribution<> beta(a, b);
         return boost::math::quantile(beta, q);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to calculate c.d.f. quantile: " << e.what() << ", n = " << n
                                                           << ", p = " << p << ", q = " << q);
     }
     return p;
 }
 
-bool CQDigest::cdf(uint32_t x, double confidence, double &lowerBound, double &upperBound) const {
+bool CQDigest::cdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const {
     lowerBound = 0.0;
     upperBound = 0.0;
 
@@ -327,7 +327,7 @@ bool CQDigest::cdf(uint32_t x, double confidence, double &lowerBound, double &up
     return true;
 }
 
-void CQDigest::pdf(uint32_t x, double confidence, double &lowerBound, double &upperBound) const {
+void CQDigest::pdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const {
     lowerBound = 0.0;
     upperBound = 0.0;
 
@@ -361,15 +361,15 @@ void CQDigest::pdf(uint32_t x, double confidence, double &lowerBound, double &up
                      << ", pdf = [" << lowerBound << "," << upperBound << "]");
 }
 
-void CQDigest::sublevelSetSupremum(uint32_t x, uint32_t &result) const {
+void CQDigest::sublevelSetSupremum(uint32_t x, uint32_t& result) const {
     m_Root->sublevelSetSupremum(static_cast<int64_t>(x), result);
 }
 
-void CQDigest::superlevelSetInfimum(uint32_t x, uint32_t &result) const {
+void CQDigest::superlevelSetInfimum(uint32_t x, uint32_t& result) const {
     m_Root->superlevelSetInfimum(x, result);
 }
 
-void CQDigest::summary(TUInt32UInt64PrVec &result) const {
+void CQDigest::summary(TUInt32UInt64PrVec& result) const {
     result.clear();
 
     if (m_N == 0) {
@@ -402,9 +402,13 @@ void CQDigest::summary(TUInt32UInt64PrVec &result) const {
     }
 }
 
-uint64_t CQDigest::n(void) const { return m_N; }
+uint64_t CQDigest::n(void) const {
+    return m_N;
+}
 
-uint64_t CQDigest::k(void) const { return m_K; }
+uint64_t CQDigest::k(void) const {
+    return m_K;
+}
 
 uint64_t CQDigest::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_K);
@@ -441,7 +445,7 @@ std::string CQDigest::print(void) const {
     m_Root->postOrder(nodes);
 
     result << m_N << " | " << m_K << " | {";
-    for (const auto &node : nodes) {
+    for (const auto& node : nodes) {
         result << " \"" << node->print() << ',' << node->count() << ',' << node->subtreeCount()
                << '"';
     }
@@ -461,18 +465,18 @@ void CQDigest::compress(void) {
     LOG_ERROR("Failed to compress tree");
 }
 
-bool CQDigest::compress(TNodePtrVec &compress) {
+bool CQDigest::compress(TNodePtrVec& compress) {
     bool compressed = false;
 
     std::make_heap(compress.begin(), compress.end(), SLevelLess());
 
     while (!compress.empty()) {
-        CNode &node = *compress.front();
+        CNode& node = *compress.front();
 
         std::pop_heap(compress.begin(), compress.end(), SLevelLess());
         compress.pop_back();
 
-        if (CNode *parent = node.compress(m_NodeAllocator, m_N / m_K)) {
+        if (CNode* parent = node.compress(m_NodeAllocator, m_N / m_K)) {
             compressed = true;
 
             compress.push_back(parent);
@@ -483,11 +487,11 @@ bool CQDigest::compress(TNodePtrVec &compress) {
     return compressed;
 }
 
-bool CQDigest::SLevelLess::operator()(const CNode *lhs, const CNode *rhs) const {
+bool CQDigest::SLevelLess::operator()(const CNode* lhs, const CNode* rhs) const {
     return lhs->span() > rhs->span() || (lhs->span() == rhs->span() && lhs->max() > rhs->max());
 }
 
-bool CQDigest::SPostLess::operator()(const CNode *lhs, const CNode *rhs) const {
+bool CQDigest::SPostLess::operator()(const CNode* lhs, const CNode* rhs) const {
     return lhs->max() < rhs->max() || (lhs->max() == rhs->max() && lhs->span() < rhs->span());
 }
 
@@ -514,7 +518,7 @@ CQDigest::CNode::CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subt
 std::size_t CQDigest::CNode::size(void) const {
     std::size_t size = 1u;
 
-    for (const auto &descendant : m_Descendants) {
+    for (const auto& descendant : m_Descendants) {
         size += descendant->size();
     }
 
@@ -528,7 +532,7 @@ uint32_t CQDigest::CNode::quantile(uint64_t leftCount, uint64_t n) const {
     // which the left count is greater than n. Terminating when
     // this node doesn't have any descendants.
 
-    for (const auto &descendant : m_Descendants) {
+    for (const auto& descendant : m_Descendants) {
         uint64_t count = descendant->subtreeCount();
         if (leftCount + count >= n) {
             return descendant->quantile(leftCount, n);
@@ -541,7 +545,7 @@ uint32_t CQDigest::CNode::quantile(uint64_t leftCount, uint64_t n) const {
 
 bool CQDigest::CNode::quantileSublevelSetSupremum(uint64_t n,
                                                   uint64_t leftCount,
-                                                  uint32_t &result) const {
+                                                  uint32_t& result) const {
     // We are looking for the right end of the rightmost node
     // whose count together with those nodes to the left is
     // is less than n.
@@ -563,20 +567,20 @@ bool CQDigest::CNode::quantileSublevelSetSupremum(uint64_t n,
     return false;
 }
 
-void CQDigest::CNode::cdfLowerBound(uint32_t x, uint64_t &result) const {
+void CQDigest::CNode::cdfLowerBound(uint32_t x, uint64_t& result) const {
     // The lower bound is the sum of the counts at the nodes
     // for which the maximum value is less than or equal to x.
 
     if (m_Max <= x) {
         result += m_SubtreeCount;
     } else {
-        for (const auto &descendant : m_Descendants) {
+        for (const auto& descendant : m_Descendants) {
             descendant->cdfLowerBound(x, result);
         }
     }
 }
 
-void CQDigest::CNode::cdfUpperBound(uint32_t x, uint64_t &result) const {
+void CQDigest::CNode::cdfUpperBound(uint32_t x, uint64_t& result) const {
     // The upper bound is the sum of the counts at the nodes
     // for which the minimum value is less than or equal to x.
 
@@ -584,13 +588,13 @@ void CQDigest::CNode::cdfUpperBound(uint32_t x, uint64_t &result) const {
         result += m_SubtreeCount;
     } else if (m_Min <= x) {
         result += m_Count;
-        for (const auto &descendant : m_Descendants) {
+        for (const auto& descendant : m_Descendants) {
             descendant->cdfUpperBound(x, result);
         }
     }
 }
 
-void CQDigest::CNode::sublevelSetSupremum(const int64_t x, uint32_t &result) const {
+void CQDigest::CNode::sublevelSetSupremum(const int64_t x, uint32_t& result) const {
     for (auto i = m_Descendants.rbegin(); i != m_Descendants.rend(); ++i) {
         if (static_cast<int64_t>((*i)->max()) > x) {
             result = std::min(result, (*i)->max());
@@ -604,8 +608,8 @@ void CQDigest::CNode::sublevelSetSupremum(const int64_t x, uint32_t &result) con
     }
 }
 
-void CQDigest::CNode::superlevelSetInfimum(uint32_t x, uint32_t &result) const {
-    for (const auto &descendant : m_Descendants) {
+void CQDigest::CNode::superlevelSetInfimum(uint32_t x, uint32_t& result) const {
+    for (const auto& descendant : m_Descendants) {
         if (descendant->max() < x) {
             result = std::max(result, descendant->max());
         } else {
@@ -618,20 +622,20 @@ void CQDigest::CNode::superlevelSetInfimum(uint32_t x, uint32_t &result) const {
     }
 }
 
-void CQDigest::CNode::postOrder(TNodePtrVec &nodes) const {
-    for (const auto &descendant : m_Descendants) {
+void CQDigest::CNode::postOrder(TNodePtrVec& nodes) const {
+    for (const auto& descendant : m_Descendants) {
         descendant->postOrder(nodes);
     }
-    nodes.push_back(const_cast<CNode *>(this));
+    nodes.push_back(const_cast<CNode*>(this));
 }
 
-CQDigest::CNode *CQDigest::CNode::expand(CNodeAllocator &allocator, const uint32_t &value) {
+CQDigest::CNode* CQDigest::CNode::expand(CNodeAllocator& allocator, const uint32_t& value) {
     if (m_Max >= value) {
         // No expansion necessary.
         return 0;
     }
 
-    CNode *result = m_Count == 0 ? this : &allocator.create(CNode(m_Min, m_Max, 0, 0));
+    CNode* result = m_Count == 0 ? this : &allocator.create(CNode(m_Min, m_Max, 0, 0));
     uint32_t levelSpan = result->span();
     do {
         result->m_Max += levelSpan;
@@ -647,7 +651,7 @@ CQDigest::CNode *CQDigest::CNode::expand(CNodeAllocator &allocator, const uint32
     return result;
 }
 
-CQDigest::CNode &CQDigest::CNode::insert(CNodeAllocator &allocator, const CNode &node) {
+CQDigest::CNode& CQDigest::CNode::insert(CNodeAllocator& allocator, const CNode& node) {
     m_SubtreeCount += node.subtreeCount();
 
     if (*this == node) {
@@ -668,7 +672,7 @@ CQDigest::CNode &CQDigest::CNode::insert(CNodeAllocator &allocator, const CNode 
     // This is the lowest ancestor in the q-digest. Insert
     // the node below it in post order and move descendants
     // if necessary.
-    CNode &newNode = allocator.create(node);
+    CNode& newNode = allocator.create(node);
     newNode.m_Ancestor = this;
     m_Descendants.insert(next, &newNode);
     if (!newNode.isLeaf()) {
@@ -678,17 +682,17 @@ CQDigest::CNode &CQDigest::CNode::insert(CNodeAllocator &allocator, const CNode 
     return newNode;
 }
 
-CQDigest::CNode *CQDigest::CNode::compress(CNodeAllocator &allocator, uint64_t compressionFactor) {
+CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t compressionFactor) {
     if (!m_Ancestor) {
         // The node is no longer in the q-digest.
         return 0;
     }
 
     // Warning this function zeros m_Ancestor copy up front.
-    CNode *ancestor = m_Ancestor;
+    CNode* ancestor = m_Ancestor;
 
     // Get the sibling of this node if it exists.
-    CNode *sibling = ancestor->sibling(*this);
+    CNode* sibling = ancestor->sibling(*this);
 
     uint64_t count = (ancestor->isParent(*this) ? ancestor->count() : 0ull) + this->count() +
                      (sibling ? sibling->count() : 0ull);
@@ -722,7 +726,7 @@ CQDigest::CNode *CQDigest::CNode::compress(CNodeAllocator &allocator, uint64_t c
 uint64_t CQDigest::CNode::age(double factor) {
     m_SubtreeCount = 0u;
 
-    for (auto &&descendant : m_Descendants) {
+    for (auto&& descendant : m_Descendants) {
         m_SubtreeCount += descendant->age(factor);
     }
 
@@ -734,35 +738,45 @@ uint64_t CQDigest::CNode::age(double factor) {
     return m_SubtreeCount;
 }
 
-uint32_t CQDigest::CNode::span(void) const { return m_Max - m_Min + 1u; }
+uint32_t CQDigest::CNode::span(void) const {
+    return m_Max - m_Min + 1u;
+}
 
-uint32_t CQDigest::CNode::min(void) const { return m_Min; }
+uint32_t CQDigest::CNode::min(void) const {
+    return m_Min;
+}
 
-uint32_t CQDigest::CNode::max(void) const { return m_Max; }
+uint32_t CQDigest::CNode::max(void) const {
+    return m_Max;
+}
 
-const uint64_t &CQDigest::CNode::count(void) const { return m_Count; }
+const uint64_t& CQDigest::CNode::count(void) const {
+    return m_Count;
+}
 
-const uint64_t &CQDigest::CNode::subtreeCount(void) const { return m_SubtreeCount; }
+const uint64_t& CQDigest::CNode::subtreeCount(void) const {
+    return m_SubtreeCount;
+}
 
-void CQDigest::CNode::persistRecursive(const std::string &nodeTag,
-                                       core::CStatePersistInserter &inserter) const {
+void CQDigest::CNode::persistRecursive(const std::string& nodeTag,
+                                       core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(NODE_TAG, boost::bind(&CNode::acceptPersistInserter, this, _1));
 
     // Note the tree is serialized flat in pre-order.
-    for (const auto &descendant : m_Descendants) {
+    for (const auto& descendant : m_Descendants) {
         descendant->persistRecursive(nodeTag, inserter);
     }
 }
 
-void CQDigest::CNode::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CQDigest::CNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MIN_TAG, m_Min);
     inserter.insertValue(MAX_TAG, m_Max);
     inserter.insertValue(COUNT_TAG, m_Count);
 }
 
-bool CQDigest::CNode::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CQDigest::CNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == MIN_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_Min) == false) {
                 LOG_ERROR("Invalid min in " << traverser.value());
@@ -842,7 +856,7 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
     }
 
     if (!this->isRoot()) {
-        const CNode *sibling = m_Ancestor->sibling(*this);
+        const CNode* sibling = m_Ancestor->sibling(*this);
         uint64_t count = m_Count + (sibling ? sibling->count() : 0ull) +
                          (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
         if (count < compressionFactor) {
@@ -860,11 +874,13 @@ std::string CQDigest::CNode::print(void) const {
     return result.str();
 }
 
-bool CQDigest::CNode::operator==(const CNode &node) const {
+bool CQDigest::CNode::operator==(const CNode& node) const {
     return m_Min == node.m_Min && m_Max == node.m_Max;
 }
 
-std::size_t CQDigest::CNode::numberDescendants(void) const { return m_Descendants.size(); }
+std::size_t CQDigest::CNode::numberDescendants(void) const {
+    return m_Descendants.size();
+}
 
 CQDigest::TNodePtrVecCItr CQDigest::CNode::beginDescendants(void) const {
     return m_Descendants.begin();
@@ -874,7 +890,7 @@ CQDigest::TNodePtrVecCItr CQDigest::CNode::endDescendants(void) const {
     return m_Descendants.end();
 }
 
-CQDigest::CNode *CQDigest::CNode::sibling(const CNode &node) const {
+CQDigest::CNode* CQDigest::CNode::sibling(const CNode& node) const {
     uint32_t min = node.min();
     node.isLeftChild() ? min += node.span() : min -= node.span();
     uint32_t max = node.max();
@@ -890,26 +906,30 @@ CQDigest::CNode *CQDigest::CNode::sibling(const CNode &node) const {
     return 0;
 }
 
-bool CQDigest::CNode::isSibling(const CNode &node) const {
+bool CQDigest::CNode::isSibling(const CNode& node) const {
     // Check if the nodes are on the same level and share a parent.
     return this->span() == node.span() &&
            (this->isLeftChild() ? m_Max + 1u == node.m_Min : m_Min == node.m_Max + 1u);
 }
 
-bool CQDigest::CNode::isParent(const CNode &node) const {
+bool CQDigest::CNode::isParent(const CNode& node) const {
     // Check is ancestor and is in level above.
     return this->isAncestor(node) && this->span() == 2 * node.span();
 }
 
-bool CQDigest::CNode::isAncestor(const CNode &node) const {
+bool CQDigest::CNode::isAncestor(const CNode& node) const {
     // Check for inclusion of node range.
     return (m_Min < node.m_Min && m_Max >= node.m_Max) ||
            (m_Min <= node.m_Min && m_Max > node.m_Max);
 }
 
-bool CQDigest::CNode::isRoot(void) const { return m_Ancestor == 0; }
+bool CQDigest::CNode::isRoot(void) const {
+    return m_Ancestor == 0;
+}
 
-bool CQDigest::CNode::isLeaf(void) const { return this->span() == 1; }
+bool CQDigest::CNode::isLeaf(void) const {
+    return this->span() == 1;
+}
 
 bool CQDigest::CNode::isLeftChild(void) const {
     // The left child nodes are always an even multiple of the
@@ -920,20 +940,20 @@ bool CQDigest::CNode::isLeftChild(void) const {
     return (m_Min / this->span()) % 2 == 0;
 }
 
-void CQDigest::CNode::detach(CNodeAllocator &allocator) {
+void CQDigest::CNode::detach(CNodeAllocator& allocator) {
     m_Ancestor->removeDescendant(*this);
     m_Ancestor->takeDescendants(*this);
     m_Ancestor = 0;
     allocator.release(*this);
 }
 
-void CQDigest::CNode::removeDescendant(CNode &node) {
+void CQDigest::CNode::removeDescendant(CNode& node) {
     // Remove node from the descendants.
     m_Descendants.erase(std::remove(m_Descendants.begin(), m_Descendants.end(), &node),
                         m_Descendants.end());
 }
 
-bool CQDigest::CNode::takeDescendants(CNode &node) {
+bool CQDigest::CNode::takeDescendants(CNode& node) {
     if (node.numberDescendants() == 0) {
         return false;
     }
@@ -1001,7 +1021,7 @@ CQDigest::CNodeAllocator::CNodeAllocator(std::size_t size) {
     m_FreeNodes.push_back(TNodePtrVec());
 }
 
-CQDigest::CNode &CQDigest::CNodeAllocator::create(const CNode &node) {
+CQDigest::CNode& CQDigest::CNodeAllocator::create(const CNode& node) {
     if (m_FreeNodes.front().empty()) {
         // Add a new collection if necessary. This should
         // only happen when merging two q-digests.
@@ -1013,19 +1033,19 @@ CQDigest::CNode &CQDigest::CNodeAllocator::create(const CNode &node) {
             LOG_TRACE("Added new block " << m_Nodes.size());
         }
 
-        TNodeVec &nodes = m_Nodes.back();
+        TNodeVec& nodes = m_Nodes.back();
         nodes.resize(nodes.size() + 1u);
         nodes.back() = node;
         return nodes.back();
     }
 
-    CNode *freeNode = m_FreeNodes.front().back();
+    CNode* freeNode = m_FreeNodes.front().back();
     *freeNode = node;
     m_FreeNodes.front().pop_back();
     return *freeNode;
 }
 
-void CQDigest::CNodeAllocator::release(CNode &node) {
+void CQDigest::CNodeAllocator::release(CNode& node) {
     std::size_t block = this->findBlock(node);
     if (block >= m_FreeNodes.size()) {
         LOG_ABORT("Bad block address = " << block << ", max = " << m_FreeNodes.size() - 1u);
@@ -1046,14 +1066,14 @@ void CQDigest::CNodeAllocator::release(CNode &node) {
     }
 }
 
-std::size_t CQDigest::CNodeAllocator::findBlock(const CNode &node) const {
+std::size_t CQDigest::CNodeAllocator::findBlock(const CNode& node) const {
     std::size_t result = 0u;
 
     if (m_Nodes.size() == 1u) {
         return result;
     }
 
-    const auto le = std::less_equal<const CNode *>();
+    const auto le = std::less_equal<const CNode*>();
 
     for (auto i = m_Nodes.begin(); i != m_Nodes.end(); ++i, ++result) {
         auto first = i->begin();

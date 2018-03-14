@@ -46,9 +46,9 @@ void CProbabilityCalibratorTest::testCalibration(void) {
     // probabilities, i.e. fitting a normal a log-normal and multi-
     // modal distributions.
 
-    maths::CProbabilityCalibrator::EStyle styles[] = {
-        maths::CProbabilityCalibrator::E_PartialCalibration,
-        maths::CProbabilityCalibrator::E_FullCalibration};
+    maths::CProbabilityCalibrator::EStyle styles[] =
+        {maths::CProbabilityCalibrator::E_PartialCalibration,
+         maths::CProbabilityCalibrator::E_FullCalibration};
 
     test::CRandomNumbers rng;
 
@@ -82,8 +82,10 @@ void CProbabilityCalibratorTest::testCalibration(void) {
                 double upperBound;
 
                 double rawProbability = 1.0;
-                if (normal.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
+                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                          sample,
+                                                          lowerBound,
+                                                          upperBound)) {
                     rawProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -91,8 +93,10 @@ void CProbabilityCalibratorTest::testCalibration(void) {
                 double calibratedProbability = calibrator.calibrate(rawProbability);
 
                 double trueProbability = 1.0;
-                if (lognormal.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
+                if (lognormal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                             sample,
+                                                             lowerBound,
+                                                             upperBound)) {
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -147,15 +151,17 @@ void CProbabilityCalibratorTest::testCalibration(void) {
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
-                CNormalMeanPrecConjugate &mode = samples[j] < 10.0 ? normal1 : normal2;
+                CNormalMeanPrecConjugate& mode = samples[j] < 10.0 ? normal1 : normal2;
                 mode.addSamples(sample);
 
                 double lowerBound;
                 double upperBound;
 
                 double rawProbability = 1.0;
-                if (normal.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
+                if (normal.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                          sample,
+                                                          lowerBound,
+                                                          upperBound)) {
                     rawProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -163,8 +169,10 @@ void CProbabilityCalibratorTest::testCalibration(void) {
                 double calibratedProbability = calibrator.calibrate(rawProbability);
 
                 double trueProbability = 1.0;
-                if (mode.probabilityOfLessLikelySamples(
-                        maths_t::E_TwoSided, sample, lowerBound, upperBound)) {
+                if (mode.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                        sample,
+                                                        lowerBound,
+                                                        upperBound)) {
                     trueProbability = (lowerBound + upperBound) / 2.0;
                 }
 
@@ -187,12 +195,13 @@ void CProbabilityCalibratorTest::testCalibration(void) {
     }
 }
 
-CppUnit::Test *CProbabilityCalibratorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
+CppUnit::Test* CProbabilityCalibratorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>(
-        "CProbabilityCalibratorTest::testCalibration",
-        &CProbabilityCalibratorTest::testCalibration));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CProbabilityCalibratorTest>("CProbabilityCalibratorTest::testCalibration",
+                                        &CProbabilityCalibratorTest::testCalibration));
 
     return suiteOfTests;
 }

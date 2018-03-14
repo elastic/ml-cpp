@@ -26,7 +26,7 @@ public:
     void testInteger(void);
     void testReal(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CDataSemanticsTest_h
+#endif // INCLUDED_CDataSemanticsTest_h

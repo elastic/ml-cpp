@@ -24,7 +24,7 @@ public:
     void testCorrectionsGivenMultiValueAndMultiMode(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CInterimBucketCorrectorTest_h
+#endif // INCLUDED_CInterimBucketCorrectorTest_h

@@ -51,10 +51,10 @@ public:
 
 public:
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 protected:
     //! \brief A low memory representation of the value and variance splines.
@@ -73,13 +73,13 @@ protected:
 
         //! Create by traversing a state document.
         bool acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary,
-                                    core::CStateRestoreTraverser &traverser);
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! An efficient swap of the contents of two packed splines.
-        void swap(CPackedSplines &other);
+        void swap(CPackedSplines& other);
 
         //! Check if the splines have been initialized.
         bool initialized(void) const;
@@ -97,12 +97,12 @@ protected:
         TSplineRef spline(ESpline spline);
 
         //! Get the splines' knot points.
-        const TFloatVec &knots(void) const;
+        const TFloatVec& knots(void) const;
 
         //! Interpolate the value and variance functions on \p knots.
-        void interpolate(const TDoubleVec &knots,
-                         const TDoubleVec &values,
-                         const TDoubleVec &variances,
+        void interpolate(const TDoubleVec& knots,
+                         const TDoubleVec& values,
+                         const TDoubleVec& variances,
                          CSplineTypes::EBoundaryCondition boundary);
 
         //! Get a checksum for this object.
@@ -138,7 +138,7 @@ protected:
                             CSplineTypes::EType varianceInterpolationType);
 
     //! An efficient swap of the contents of two components.
-    void swap(CDecompositionComponent &other);
+    void swap(CDecompositionComponent& other);
 
     //! Check if the seasonal component has been estimated.
     bool initialized(void) const;
@@ -152,7 +152,7 @@ protected:
     //! \param[in] values The values at the spline knot points.
     //! \param[in] variances The variances at the spline knot points.
     void
-    interpolate(const TDoubleVec &knots, const TDoubleVec &values, const TDoubleVec &variances);
+    interpolate(const TDoubleVec& knots, const TDoubleVec& values, const TDoubleVec& variances);
 
     //! Shift the component's values by \p shift.
     void shiftLevel(double shift);
@@ -196,7 +196,7 @@ protected:
     TSplineCRef varianceSpline(void) const;
 
     //! Get the underlying splines representation.
-    const CPackedSplines &splines(void) const;
+    const CPackedSplines& splines(void) const;
 
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed) const;
@@ -225,4 +225,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CDecompositionComponent_h
+#endif // INCLUDED_ml_maths_CDecompositionComponent_h

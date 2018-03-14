@@ -33,15 +33,17 @@
 #include <netinet/in.h>
 #endif
 
-CppUnit::Test *CLengthEncodedInputParserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
+CppUnit::Test* CLengthEncodedInputParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCsvEquivalence",
-        &CLengthEncodedInputParserTest::testCsvEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testThroughput",
-        &CLengthEncodedInputParserTest::testThroughput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testCsvEquivalence",
+                                           &CLengthEncodedInputParserTest::testCsvEquivalence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLengthEncodedInputParserTest>("CLengthEncodedInputParserTest::testThroughput",
+                                           &CLengthEncodedInputParserTest::testThroughput));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
         "CLengthEncodedInputParserTest::testCorruptStreamDetection",
         &CLengthEncodedInputParserTest::testCorruptStreamDetection));
@@ -56,19 +58,19 @@ public:
     CSetupVisitor(void) : m_RecordsPerBlock(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         if (m_EncodedFieldNames.empty()) {
             this->appendNumber(dataRowFields.size(), m_EncodedFieldNames);
-            for (const auto &entry : dataRowFields) {
-                const std::string &fieldName = entry.first;
+            for (const auto& entry : dataRowFields) {
+                const std::string& fieldName = entry.first;
                 this->appendNumber(fieldName.length(), m_EncodedFieldNames);
                 m_EncodedFieldNames += fieldName;
             }
         }
 
         this->appendNumber(dataRowFields.size(), m_EncodedDataBlock);
-        for (const auto &entry : dataRowFields) {
-            const std::string &fieldValue = entry.second;
+        for (const auto& entry : dataRowFields) {
+            const std::string& fieldValue = entry.second;
             this->appendNumber(fieldValue.length(), m_EncodedDataBlock);
             m_EncodedDataBlock += fieldValue;
         }
@@ -99,9 +101,10 @@ public:
     size_t recordsPerBlock(void) const { return m_RecordsPerBlock; }
 
 private:
-    template <typename NUM_TYPE> void appendNumber(NUM_TYPE num, std::string &str) {
+    template <typename NUM_TYPE>
+    void appendNumber(NUM_TYPE num, std::string& str) {
         uint32_t netNum(htonl(static_cast<uint32_t>(num)));
-        str.append(reinterpret_cast<char *>(&netNum), sizeof(netNum));
+        str.append(reinterpret_cast<char*>(&netNum), sizeof(netNum));
     }
 
 private:
@@ -114,11 +117,11 @@ class CVisitor {
 public:
     CVisitor(void) : m_Fast(true), m_RecordCount(0) {}
 
-    CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
+    CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
         : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordCount;
 
         // For the throughput test, the assertions below will skew the
@@ -253,7 +256,7 @@ void CLengthEncodedInputParserTest::testThroughput(void) {
 void CLengthEncodedInputParserTest::testCorruptStreamDetection(void) {
     uint32_t numFields(1);
     uint32_t numFieldsNet(htonl(numFields));
-    std::string dodgyInput(reinterpret_cast<char *>(&numFieldsNet), sizeof(uint32_t));
+    std::string dodgyInput(reinterpret_cast<char*>(&numFieldsNet), sizeof(uint32_t));
     // This is going to create a length field consisting of four 'a' characters
     // interpreted as a uint32_t
     dodgyInput.append(1000, 'a');

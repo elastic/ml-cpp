@@ -39,7 +39,7 @@ public:
     void testVarianceScale(void);
     void testNegativeSample(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CGammaRateConjugateTest_h
+#endif // INCLUDED_CGammaRateConjugateTest_h

@@ -23,7 +23,7 @@ public:
         SContent(size_t count);
 
         size_t s_Size;
-        void *s_Ptr;
+        void* s_Ptr;
         double s_Double;
     };
 
@@ -37,11 +37,11 @@ public:
 
     void setUp(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     static const size_t FILL_SIZE;
     static const size_t TEST_SIZE;
 };
 
-#endif// INCLUDED_CContainerThroughputTest_h
+#endif // INCLUDED_CContainerThroughputTest_h

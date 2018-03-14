@@ -32,29 +32,35 @@ using namespace maths;
 namespace {
 
 //! Root at 5.
-double f1(const double &x) { return x - 5.0; }
+double f1(const double& x) {
+    return x - 5.0;
+}
 
 //! Roots at 1 and 2.
-double f2(const double &x) { return x * x - 3.0 * x + 2.0; }
+double f2(const double& x) {
+    return x * x - 3.0 * x + 2.0;
+}
 
 //! Note that this is a contractive map (i.e. df/dx < 1)
 //! so we can find the root by an iterative scheme.
 //! There is a root is in the interval:\n
 //!   [0.739085133215160, 0.739085133215161]
-double f3(const double &x) { return ::cos(x) - x; }
+double f3(const double& x) {
+    return ::cos(x) - x;
+}
 
 //! Root at x = 2/3.
-double f4(const double &x) {
+double f4(const double& x) {
     return x <= 2.0 / 3.0 ? ::pow(::fabs(x - 2.0 / 3.0), 0.2) : -::pow(::fabs(x - 2.0 / 3.0), 0.2);
 }
 
 //! This has local maxima at 4 and 10.
-double f5(const double &x) {
+double f5(const double& x) {
     return 1.1 * ::exp(-(x - 4.0) * (x - 4.0)) + 0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 4.0);
 }
 
 //! This has local maxima at 4, 6 and 10.
-double f6(const double &x) {
+double f6(const double& x) {
     return 1.1 * ::exp(-2.0 * (x - 4.0) * (x - 4.0)) + 0.1 * ::exp(-(x - 6.0) * (x - 6.0)) +
            0.4 * ::exp(-(x - 10.0) * (x - 10.0) / 2.0);
 }
@@ -64,7 +70,7 @@ public:
     typedef double result_type;
 
 public:
-    double operator()(const double &x) const {
+    double operator()(const double& x) const {
         if (x <= 0.0) {
             throw std::range_error("Bad value to log " + core::CStringUtils::typeToString(x));
         }
@@ -122,8 +128,13 @@ void CSolversTest::testBracket(void) {
         std::size_t maxIterations = 10u;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::leftBracket(
-            a, b, fa, fb, f, maxIterations, std::numeric_limits<double>::min()));
+        CPPUNIT_ASSERT(CSolvers::leftBracket(a,
+                                             b,
+                                             fa,
+                                             fb,
+                                             f,
+                                             maxIterations,
+                                             std::numeric_limits<double>::min()));
         LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
                          << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
@@ -422,8 +433,8 @@ void CSolversTest::testSublevelSet(void) {
     }
 }
 
-CppUnit::Test *CSolversTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSolversTest");
+CppUnit::Test* CSolversTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket",
                                                                 &CSolversTest::testBracket));

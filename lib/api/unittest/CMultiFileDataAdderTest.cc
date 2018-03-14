@@ -52,36 +52,42 @@ namespace {
 typedef std::vector<std::string> TStrVec;
 
 void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string &description,
-                           const std::string &snapshotIdIn,
+                           const std::string& description,
+                           const std::string& snapshotIdIn,
                            size_t numDocsIn,
-                           std::string &snapshotIdOut,
-                           size_t &numDocsOut) {
+                           std::string& snapshotIdOut,
+                           size_t& numDocsOut) {
     LOG_DEBUG("Persist complete with description: " << description);
     snapshotIdOut = snapshotIdIn;
     numDocsOut = numDocsIn;
 }
 }
 
-CppUnit::Test *CMultiFileDataAdderTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testSimpleWrite", &CMultiFileDataAdderTest::testSimpleWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistBy",
-        &CMultiFileDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistOver",
-        &CMultiFileDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistPartition",
-        &CMultiFileDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistDc",
-        &CMultiFileDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistCount",
-        &CMultiFileDataAdderTest::testDetectorPersistCount));
+CppUnit::Test* CMultiFileDataAdderTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testSimpleWrite",
+                                                   &CMultiFileDataAdderTest::testSimpleWrite));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistBy",
+                                     &CMultiFileDataAdderTest::testDetectorPersistBy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistOver",
+                                     &CMultiFileDataAdderTest::testDetectorPersistOver));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistPartition",
+                                     &CMultiFileDataAdderTest::testDetectorPersistPartition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistDc",
+                                     &CMultiFileDataAdderTest::testDetectorPersistDc));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultiFileDataAdderTest>("CMultiFileDataAdderTest::testDetectorPersistCount",
+                                     &CMultiFileDataAdderTest::testDetectorPersistCount));
     return suiteOfTests;
 }
 
@@ -146,13 +152,17 @@ void CMultiFileDataAdderTest::testSimpleWrite(void) {
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistBy(void) {
-    this->detectorPersistHelper(
-        "testfiles/new_mlfields.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields.conf",
+                                "testfiles/big_ascending.txt",
+                                0,
+                                "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistOver(void) {
-    this->detectorPersistHelper(
-        "testfiles/new_mlfields_over.conf", "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+    this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
+                                "testfiles/big_ascending.txt",
+                                0,
+                                "%d/%b/%Y:%T %z");
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistPartition(void) {
@@ -163,19 +173,21 @@ void CMultiFileDataAdderTest::testDetectorPersistPartition(void) {
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistDc(void) {
-    this->detectorPersistHelper(
-        "testfiles/new_persist_dc.conf", "testfiles/files_users_programs.csv", 5);
+    this->detectorPersistHelper("testfiles/new_persist_dc.conf",
+                                "testfiles/files_users_programs.csv",
+                                5);
 }
 
 void CMultiFileDataAdderTest::testDetectorPersistCount(void) {
-    this->detectorPersistHelper(
-        "testfiles/new_persist_count.conf", "testfiles/files_users_programs.csv", 5);
+    this->detectorPersistHelper("testfiles/new_persist_count.conf",
+                                "testfiles/files_users_programs.csv",
+                                5);
 }
 
-void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFileName,
-                                                    const std::string &inputFilename,
+void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFileName,
+                                                    const std::string& inputFilename,
                                                     int latencyBuckets,
-                                                    const std::string &timeFormat) {
+                                                    const std::string& timeFormat) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
     static const std::string JOB_ID("job");
@@ -193,8 +205,13 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string &configFil
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false, "");
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE,
+                                                              ml::model_t::E_None,
+                                                              "",
+                                                              BUCKET_SIZE * latencyBuckets,
+                                                              0,
+                                                              false,
+                                                              "");
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);

@@ -35,7 +35,7 @@ public:
     //! Parse the arguments. ONLY return true if configFile and dateTime
     //! are defined.
     static bool
-    parse(int argc, const char *const *argv, std::string &configFile, std::string &syslogLine);
+    parse(int argc, const char* const* argv, std::string& configFile, std::string& syslogLine);
 
 private:
     static const std::string DESCRIPTION;
@@ -43,4 +43,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_date_time_tester_CCmdLineParser_h
+#endif // INCLUDED_ml_date_time_tester_CCmdLineParser_h

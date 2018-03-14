@@ -23,7 +23,7 @@ public:
     void testValid(void);
     void testInvalid(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CLimitsTest_h
+#endif // INCLUDED_CLimitsTest_h

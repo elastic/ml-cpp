@@ -29,16 +29,16 @@ typedef time_t TTime;
 //! static const at the namespace level, so is internal to each file this
 //! header is included in)
 #ifdef Windows
-static const char *LINE_ENDING = "\r\n";
+static const char* LINE_ENDING = "\r\n";
 #else
 #ifdef __GNUC__
 // Tell g++ that it's reasonable that this variable isn't used
-__attribute__((unused)) static const char *LINE_ENDING = "\n";
+__attribute__((unused)) static const char* LINE_ENDING = "\n";
 #else
-static const char *LINE_ENDING = "\n";
+static const char* LINE_ENDING = "\n";
 #endif
 #endif
 }
 }
 
-#endif// INCLUDED_ml_core_t_CoreTypes_h
+#endif // INCLUDED_ml_core_t_CoreTypes_h

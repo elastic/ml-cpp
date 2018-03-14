@@ -19,7 +19,7 @@
 namespace ml {
 namespace core {
 
-CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlParser &parser)
+CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlParser& parser)
     : m_Parser(parser),
       m_CurrentNode(m_Parser.m_Doc.first_node()),
       m_IsNameCacheValid(false),
@@ -32,7 +32,7 @@ CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlPa
 }
 
 bool CRapidXmlStateRestoreTraverser::next(void) {
-    CRapidXmlParser::TCharRapidXmlNode *next(this->nextNodeElement());
+    CRapidXmlParser::TCharRapidXmlNode* next(this->nextNodeElement());
     if (next == 0) {
         return false;
     }
@@ -49,7 +49,7 @@ bool CRapidXmlStateRestoreTraverser::hasSubLevel(void) const {
     return this->firstChildNodeElement() != 0;
 }
 
-const std::string &CRapidXmlStateRestoreTraverser::name(void) const {
+const std::string& CRapidXmlStateRestoreTraverser::name(void) const {
     if (!m_IsNameCacheValid) {
         if (m_CurrentNode != 0) {
             m_CachedName.assign(m_CurrentNode->name(), m_CurrentNode->name_size());
@@ -62,7 +62,7 @@ const std::string &CRapidXmlStateRestoreTraverser::name(void) const {
     return m_CachedName;
 }
 
-const std::string &CRapidXmlStateRestoreTraverser::value(void) const {
+const std::string& CRapidXmlStateRestoreTraverser::value(void) const {
     if (!m_IsValueCacheValid) {
         if (m_CurrentNode != 0) {
             // NB: this doesn't work for CDATA - see implementation decisions in
@@ -77,7 +77,7 @@ const std::string &CRapidXmlStateRestoreTraverser::value(void) const {
 }
 
 bool CRapidXmlStateRestoreTraverser::descend(void) {
-    CRapidXmlParser::TCharRapidXmlNode *child(this->firstChildNodeElement());
+    CRapidXmlParser::TCharRapidXmlNode* child(this->firstChildNodeElement());
     if (child == 0) {
         return false;
     }
@@ -95,7 +95,7 @@ bool CRapidXmlStateRestoreTraverser::ascend(void) {
         return false;
     }
 
-    CRapidXmlParser::TCharRapidXmlNode *parent(m_CurrentNode->parent());
+    CRapidXmlParser::TCharRapidXmlNode* parent(m_CurrentNode->parent());
     if (parent == 0) {
         return false;
     }
@@ -108,12 +108,12 @@ bool CRapidXmlStateRestoreTraverser::ascend(void) {
     return true;
 }
 
-CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElement(void) const {
+CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElement(void) const {
     if (m_CurrentNode == 0) {
         return 0;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode *nextNode = m_CurrentNode->next_sibling();
+    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling();
          nextNode != 0;
          nextNode = nextNode->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
@@ -126,13 +126,13 @@ CRapidXmlParser::TCharRapidXmlNode *CRapidXmlStateRestoreTraverser::nextNodeElem
     return 0;
 }
 
-CRapidXmlParser::TCharRapidXmlNode *
+CRapidXmlParser::TCharRapidXmlNode*
 CRapidXmlStateRestoreTraverser::firstChildNodeElement(void) const {
     if (m_CurrentNode == 0) {
         return 0;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode *child = m_CurrentNode->first_node(); child != 0;
+    for (CRapidXmlParser::TCharRapidXmlNode* child = m_CurrentNode->first_node(); child != 0;
          child = child->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
@@ -144,6 +144,8 @@ CRapidXmlStateRestoreTraverser::firstChildNodeElement(void) const {
     return 0;
 }
 
-bool CRapidXmlStateRestoreTraverser::isEof(void) const { return false; }
+bool CRapidXmlStateRestoreTraverser::isEof(void) const {
+    return false;
+}
 }
 }

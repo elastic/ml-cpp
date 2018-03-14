@@ -40,7 +40,7 @@ const std::string EMPTY_STRING = "";
 struct SCharNotEqualTo {
     SCharNotEqualTo(char c, std::size_t pos) : s_Char(c), s_Pos(pos) {}
 
-    bool operator()(const std::string &str) { return str[s_Pos] != s_Char; }
+    bool operator()(const std::string& str) { return str[s_Pos] != s_Char; }
 
     char s_Char;
     std::size_t s_Pos;
@@ -50,14 +50,16 @@ struct SCharNotEqualTo {
 CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next)
     : s_Char(c), s_Type(type), s_Next(next) {}
 
-bool CFlatPrefixTree::SNode::operator<(char rhs) const { return s_Char < rhs; }
+bool CFlatPrefixTree::SNode::operator<(char rhs) const {
+    return s_Char < rhs;
+}
 
 CFlatPrefixTree::SDistinctChar::SDistinctChar(char c, char type, std::size_t start, std::size_t end)
     : s_Char(c), s_Type(type), s_Start(start), s_End(end) {}
 
 CFlatPrefixTree::CFlatPrefixTree(void) : m_FlatTree() {}
 
-bool CFlatPrefixTree::build(const TStrVec &prefixes) {
+bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     m_FlatTree.clear();
 
     if (boost::algorithm::is_sorted(prefixes) == false) {
@@ -94,7 +96,7 @@ bool CFlatPrefixTree::build(const TStrVec &prefixes) {
     return true;
 }
 
-void CFlatPrefixTree::buildRecursively(const TStrVec &prefixes,
+void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
                                        std::size_t prefixesStart,
                                        std::size_t prefixesEnd,
                                        std::size_t charPos) {
@@ -102,8 +104,11 @@ void CFlatPrefixTree::buildRecursively(const TStrVec &prefixes,
     // record their start/end indices in the prefixes vector.
     TDistinctCharVec distinctCharsWithRange;
     distinctCharsWithRange.reserve(256);
-    this->extractDistinctCharacters(
-        prefixes, prefixesStart, prefixesEnd, charPos, distinctCharsWithRange);
+    this->extractDistinctCharacters(prefixes,
+                                    prefixesStart,
+                                    prefixesEnd,
+                                    charPos,
+                                    distinctCharsWithRange);
 
     // Now, we create the nodes of the current level: the padding node, that contains
     // the number of distinct characters, and a node for each distinct character.
@@ -111,14 +116,14 @@ void CFlatPrefixTree::buildRecursively(const TStrVec &prefixes,
         SNode(PADDING_NODE, PADDING_NODE, static_cast<uint32_t>(distinctCharsWithRange.size())));
     std::size_t treeSizeBeforeNewChars = m_FlatTree.size();
     for (std::size_t i = 0; i < distinctCharsWithRange.size(); ++i) {
-        SDistinctChar &distinctChar = distinctCharsWithRange[i];
+        SDistinctChar& distinctChar = distinctCharsWithRange[i];
         m_FlatTree.push_back(SNode(distinctChar.s_Char, distinctChar.s_Type, NO_CHILD));
     }
 
     // Finally, for the nodes that have children, we set their next child index to the current
     // tree size and we recurse.
     for (std::size_t i = 0; i < distinctCharsWithRange.size(); ++i) {
-        SDistinctChar &distinctChar = distinctCharsWithRange[i];
+        SDistinctChar& distinctChar = distinctCharsWithRange[i];
         if (distinctChar.s_Type != LEAF_NODE) {
             m_FlatTree[treeSizeBeforeNewChars + i].s_Next =
                 static_cast<uint32_t>(m_FlatTree.size());
@@ -127,11 +132,11 @@ void CFlatPrefixTree::buildRecursively(const TStrVec &prefixes,
     }
 }
 
-void CFlatPrefixTree::extractDistinctCharacters(const TStrVec &prefixes,
+void CFlatPrefixTree::extractDistinctCharacters(const TStrVec& prefixes,
                                                 std::size_t prefixesStart,
                                                 std::size_t prefixesEnd,
                                                 std::size_t charPos,
-                                                TDistinctCharVec &distinctChars) {
+                                                TDistinctCharVec& distinctChars) {
     TStrVecCItr pos = prefixes.begin() + prefixesStart;
     TStrVecCItr end = prefixes.begin() + prefixesEnd;
     while (pos != end) {
@@ -150,11 +155,11 @@ void CFlatPrefixTree::extractDistinctCharacters(const TStrVec &prefixes,
     }
 }
 
-bool CFlatPrefixTree::matchesStart(const std::string &key) const {
+bool CFlatPrefixTree::matchesStart(const std::string& key) const {
     return this->matches(key.begin(), key.end(), false);
 }
 
-bool CFlatPrefixTree::matchesFully(const std::string &key) const {
+bool CFlatPrefixTree::matchesFully(const std::string& key) const {
     return this->matches(key.begin(), key.end(), true);
 }
 
@@ -207,7 +212,9 @@ bool CFlatPrefixTree::matches(ITR start, ITR end, bool requireFullMatch) const {
     return false;
 }
 
-void CFlatPrefixTree::clear(void) { m_FlatTree.clear(); }
+void CFlatPrefixTree::clear(void) {
+    m_FlatTree.clear();
+}
 
 std::string CFlatPrefixTree::print(void) const {
     std::string result;

@@ -34,10 +34,10 @@ public:
     void testPersistence(void);
     void testReleaseMemory(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CMetricPopulationDataGathererTest_h
+#endif // INCLUDED_CMetricPopulationDataGathererTest_h

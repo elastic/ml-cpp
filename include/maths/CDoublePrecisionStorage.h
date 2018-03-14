@@ -38,13 +38,13 @@ public:
     operator double(void) const { return m_Value; }
 
     //! Assign from a double.
-    CDoublePrecisionStorage &operator=(double value) {
+    CDoublePrecisionStorage& operator=(double value) {
         m_Value = value;
         return *this;
     }
 
     //! Plus assign from double.
-    CDoublePrecisionStorage &operator+=(double value) {
+    CDoublePrecisionStorage& operator+=(double value) {
         m_Value += value;
         return *this;
     }
@@ -54,7 +54,7 @@ private:
     double m_Value;
 };
 
-}// maths
-}// ml
+} // maths
+} // ml
 
-#endif// INCLUDED_ml_maths_CDoublePrecisionStorage_h
+#endif // INCLUDED_ml_maths_CDoublePrecisionStorage_h

@@ -28,25 +28,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-CppUnit::Test *CStringUtilsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringUtilsTest");
+CppUnit::Test* CStringUtilsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testNumMatches", &CStringUtilsTest::testNumMatches));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testReplace", &CStringUtilsTest::testReplace));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testReplaceFirst", &CStringUtilsTest::testReplaceFirst));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testTypeToString", &CStringUtilsTest::testTypeToString));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testTypeToStringPrecise", &CStringUtilsTest::testTypeToStringPrecise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testTypeToStringPretty", &CStringUtilsTest::testTypeToStringPretty));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testStringToType", &CStringUtilsTest::testStringToType));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testTokeniser", &CStringUtilsTest::testTokeniser));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNumMatches",
+                                                  &CStringUtilsTest::testNumMatches));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplace",
+                                                  &CStringUtilsTest::testReplace));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testReplaceFirst",
+                                                  &CStringUtilsTest::testReplaceFirst));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToString",
+                                                  &CStringUtilsTest::testTypeToString));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPrecise",
+                                                  &CStringUtilsTest::testTypeToStringPrecise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTypeToStringPretty",
+                                                  &CStringUtilsTest::testTypeToStringPretty));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testStringToType",
+                                                  &CStringUtilsTest::testStringToType));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTokeniser",
+                                                  &CStringUtilsTest::testTokeniser));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testTrim",
                                                                     &CStringUtilsTest::testTrim));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testJoin",
@@ -55,24 +63,32 @@ CppUnit::Test *CStringUtilsTest::suite() {
                                                                     &CStringUtilsTest::testLower));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUpper",
                                                                     &CStringUtilsTest::testUpper));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testNarrowWiden", &CStringUtilsTest::testNarrowWiden));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNarrowWiden",
+                                                  &CStringUtilsTest::testNarrowWiden));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testEscape",
                                                                     &CStringUtilsTest::testEscape));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testUnEscape", &CStringUtilsTest::testUnEscape));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testLongestSubstr", &CStringUtilsTest::testLongestSubstr));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testLongestSubseq", &CStringUtilsTest::testLongestSubseq));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testNormaliseWhitespace", &CStringUtilsTest::testNormaliseWhitespace));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testPerformance", &CStringUtilsTest::testPerformance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testUtf8ByteType", &CStringUtilsTest::testUtf8ByteType));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringUtilsTest>(
-        "CStringUtilsTest::testRoundtripMaxDouble", &CStringUtilsTest::testRoundtripMaxDouble));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUnEscape",
+                                                  &CStringUtilsTest::testUnEscape));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubstr",
+                                                  &CStringUtilsTest::testLongestSubstr));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testLongestSubseq",
+                                                  &CStringUtilsTest::testLongestSubseq));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testNormaliseWhitespace",
+                                                  &CStringUtilsTest::testNormaliseWhitespace));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testPerformance",
+                                                  &CStringUtilsTest::testPerformance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testUtf8ByteType",
+                                                  &CStringUtilsTest::testUtf8ByteType));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringUtilsTest>("CStringUtilsTest::testRoundtripMaxDouble",
+                                                  &CStringUtilsTest::testRoundtripMaxDouble));
 
     return suiteOfTests;
 }
@@ -494,7 +510,7 @@ void CStringUtilsTest::testTokeniser(void) {
     this->testTokeniser("f", str);
 }
 
-void CStringUtilsTest::testTokeniser(const std::string &delim, const std::string &str) {
+void CStringUtilsTest::testTokeniser(const std::string& delim, const std::string& str) {
     // Tokenise using ml
     ml::core::CStringUtils::TStrVec tokens;
     std::string remainder;
@@ -508,15 +524,15 @@ void CStringUtilsTest::testTokeniser(const std::string &delim, const std::string
     }
 
     // Tokenise using strtok
-    char *test = ::strdup(str.c_str());
+    char* test = ::strdup(str.c_str());
     CPPUNIT_ASSERT(test);
 
     ml::core::CStringUtils::TStrVec strtokVec;
 
     // Note: strtok, uses ANY ONE character in the delimiter string to split on,
     // so the delimiters for this test have to be one character
-    char *brk = 0;
-    for (char *line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk); line != 0;
+    char* brk = 0;
+    for (char* line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk); line != 0;
          line = ml::core::CStrTokR::strTokR(0, delim.c_str(), &brk)) {
         strtokVec.push_back(line);
         LOG_DEBUG("'" << line << "'");

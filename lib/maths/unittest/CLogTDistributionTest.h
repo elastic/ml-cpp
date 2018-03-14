@@ -25,7 +25,7 @@ public:
     void testCdf(void);
     void testQuantile(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CLogTDistributionTest_h
+#endif // INCLUDED_CLogTDistributionTest_h

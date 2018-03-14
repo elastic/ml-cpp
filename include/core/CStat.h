@@ -58,7 +58,7 @@ private:
     std::atomic_uint_fast64_t m_Value;
 };
 
-}// core
-}// ml
+} // core
+} // ml
 
-#endif// INCLUDED_ml_core_CStat_h
+#endif // INCLUDED_ml_core_CStat_h

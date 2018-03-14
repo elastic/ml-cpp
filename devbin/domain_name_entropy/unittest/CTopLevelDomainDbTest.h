@@ -22,7 +22,7 @@ public:
     void testMozillaTestCases(void);
     void testSimpleTestCases(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTopLevelDomainDbTest_h
+#endif // INCLUDED_CTopLevelDomainDbTest_h

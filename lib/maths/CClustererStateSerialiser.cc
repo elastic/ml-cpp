@@ -23,22 +23,25 @@
 namespace ml {
 namespace maths {
 
-bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams &params,
-                                           TClusterer1dPtr &ptr,
-                                           core::CStateRestoreTraverser &traverser) {
-    return this->operator()(
-        params, CClusterer1d::CDoNothing(), CClusterer1d::CDoNothing(), ptr, traverser);
+bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& params,
+                                           TClusterer1dPtr& ptr,
+                                           core::CStateRestoreTraverser& traverser) {
+    return this->operator()(params,
+                            CClusterer1d::CDoNothing(),
+                            CClusterer1d::CDoNothing(),
+                            ptr,
+                            traverser);
 }
 
-bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams &params,
-                                           const CClusterer1d::TSplitFunc &splitFunc,
-                                           const CClusterer1d::TMergeFunc &mergeFunc,
-                                           TClusterer1dPtr &ptr,
-                                           core::CStateRestoreTraverser &traverser) {
+bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& params,
+                                           const CClusterer1d::TSplitFunc& splitFunc,
+                                           const CClusterer1d::TMergeFunc& mergeFunc,
+                                           TClusterer1dPtr& ptr,
+                                           core::CStateRestoreTraverser& traverser) {
     std::size_t numResults(0);
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == CClustererTypes::X_MEANS_ONLINE_1D_TAG) {
             ptr.reset(new CXMeansOnline1d(params, splitFunc, mergeFunc, traverser));
             ++numResults;
@@ -59,8 +62,8 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams &par
     return true;
 }
 
-void CClustererStateSerialiser::operator()(const CClusterer1d &clusterer,
-                                           core::CStatePersistInserter &inserter) {
+void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
+                                           core::CStatePersistInserter& inserter) {
     inserter.insertLevel(clusterer.persistenceTag(),
                          boost::bind(&CClusterer1d::acceptPersistInserter, &clusterer, _1));
 }

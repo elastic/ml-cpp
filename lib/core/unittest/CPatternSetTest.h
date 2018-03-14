@@ -30,7 +30,7 @@ public:
     void testContains_GivenMixedKeys(void);
     void testClear(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CPatternSetTest_h
+#endif // INCLUDED_CPatternSetTest_h

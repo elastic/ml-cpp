@@ -58,15 +58,16 @@ namespace core {
 //! The maximum queue size is specified as a template
 //! parameter, and hence cannot be changed at runtime.
 //!
-template <typename MESSAGE, typename RECEIVER, size_t QUEUE_CAPACITY> class CBlockingMessageQueue {
+template <typename MESSAGE, typename RECEIVER, size_t QUEUE_CAPACITY>
+class CBlockingMessageQueue {
 public:
     //! Prototype for function to be called on queue shutdown
     using TShutdownFunc = std::function<void()>;
 
 public:
     CBlockingMessageQueue(
-        RECEIVER &receiver,
-        const TShutdownFunc &shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
+        RECEIVER& receiver,
+        const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
         : m_Thread(*this),
           m_ProducerCondition(m_Mutex),
           m_ConsumerCondition(m_Mutex),
@@ -98,14 +99,14 @@ public:
     }
 
     //! Send a message to the message queue thread (from any thread)
-    void dispatchMsg(const MESSAGE &msg) {
+    void dispatchMsg(const MESSAGE& msg) {
         size_t dummy(0);
         this->dispatchMsg(msg, dummy);
     }
 
     //! Send a message to the message queue thread (from any thread),
     //! and get the pending count at the same time
-    void dispatchMsg(const MESSAGE &msg, size_t &pending) {
+    void dispatchMsg(const MESSAGE& msg, size_t& pending) {
         CScopedLock lock(m_Mutex);
 
         if (!m_Thread.isRunning()) {
@@ -153,7 +154,7 @@ private:
 private:
     class CMessageQueueThread : public CThread {
     public:
-        CMessageQueueThread(CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY> &messageQueue)
+        CMessageQueueThread(CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY>& messageQueue)
             : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
@@ -173,7 +174,7 @@ private:
                 m_MessageQueue.m_ConsumerCondition.wait();
 
                 while (!m_MessageQueue.m_Queue.empty()) {
-                    MESSAGE &msg = m_MessageQueue.m_Queue.front();
+                    MESSAGE& msg = m_MessageQueue.m_Queue.front();
 
                     // Don't include the current work item in the backlog
                     size_t backlog(m_MessageQueue.m_Queue.size() - 1);
@@ -220,7 +221,8 @@ private:
         //! so ideally we'll clean up the MESSAGE object as much as
         //! possible outside the lock.  This is the most generic case,
         //! where we can't do anything.
-        template <typename ANYTHING> void destroyMsgDataUnlocked(ANYTHING &) {
+        template <typename ANYTHING>
+        void destroyMsgDataUnlocked(ANYTHING&) {
             // For an arbitrary type we have no idea how to destroy some
             // of its data without calling its destructor
         }
@@ -228,14 +230,15 @@ private:
         //! Specialisation of the above that might delete the referenced
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
-        template <typename POINTEE> void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr) {
+        template <typename POINTEE>
+        void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }
 
         // Other specialisations could potentially be added here
 
     private:
-        CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY> &m_MessageQueue;
+        CBlockingMessageQueue<MESSAGE, RECEIVER, QUEUE_CAPACITY>& m_MessageQueue;
         bool m_ShuttingDown;
         bool m_IsRunning;
     };
@@ -244,7 +247,7 @@ private:
     mutable CMutex m_Mutex;
     CCondition m_ProducerCondition;
     CCondition m_ConsumerCondition;
-    RECEIVER &m_Receiver;
+    RECEIVER& m_Receiver;
 
     //! Using a circular buffer for the queue means that it will not do any
     //! memory allocations after construction (providing the message type
@@ -261,4 +264,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CBlockingMessageQueue_h
+#endif // INCLUDED_ml_core_CBlockingMessageQueue_h

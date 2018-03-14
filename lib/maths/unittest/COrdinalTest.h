@@ -26,7 +26,7 @@ public:
     void testAsDouble(void);
     void testHash(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_COrderingsTest_h
+#endif // INCLUDED_COrderingsTest_h

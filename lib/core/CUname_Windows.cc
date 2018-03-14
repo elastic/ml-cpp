@@ -27,14 +27,14 @@ namespace ml {
 namespace core {
 namespace detail {
 
-bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build) {
+bool queryKernelVersion(uint16_t& major, uint16_t& minor, uint16_t& build) {
     // This used to be done with GetVersionEx(), but that no longer works
     // starting with Windows 8.1/Windows Server 2012r2.  Instead we get the
     // true OS version by looking at the product version for kernel32.dll, and
     // then distinguish client/server versions of Windows using
     // VerifyVersionInfo().
 
-    static const char *KERNEL32_DLL("kernel32.dll");
+    static const char* KERNEL32_DLL("kernel32.dll");
 
     DWORD handle(0);
     DWORD size(GetFileVersionInfoSize(KERNEL32_DLL, &handle));
@@ -53,8 +53,8 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build) {
     }
 
     UINT len(0);
-    VS_FIXEDFILEINFO *fixedFileInfo(0);
-    if (VerQueryValue(buffer.get(), "\\", reinterpret_cast<void **>(&fixedFileInfo), &len) ==
+    VS_FIXEDFILEINFO* fixedFileInfo(0);
+    if (VerQueryValue(buffer.get(), "\\", reinterpret_cast<void**>(&fixedFileInfo), &len) ==
         FALSE) {
         LOG_ERROR("Error querying fixed file info for " << KERNEL32_DLL
                                                         << " - error code : " << CWindowsError());
@@ -75,7 +75,9 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build) {
 }
 }
 
-std::string CUname::sysName(void) { return "Windows"; }
+std::string CUname::sysName(void) {
+    return "Windows";
+}
 
 std::string CUname::nodeName(void) {
     // First ask with a size of zero to find the required size
@@ -148,10 +150,11 @@ std::string CUname::version(void) {
         } else {
             conditionMask = 0;
             versionInfoEx.wProductType = VER_NT_WORKSTATION;
-            if (VerifyVersionInfo(
-                    &versionInfoEx,
-                    VER_PRODUCT_TYPE,
-                    VerSetConditionMask(conditionMask, VER_PRODUCT_TYPE, VER_EQUAL)) != FALSE) {
+            if (VerifyVersionInfo(&versionInfoEx,
+                                  VER_PRODUCT_TYPE,
+                                  VerSetConditionMask(conditionMask,
+                                                      VER_PRODUCT_TYPE,
+                                                      VER_EQUAL)) != FALSE) {
                 strm << " (Workstation)";
             }
         }
@@ -210,7 +213,7 @@ std::string CUname::mlPlatform(void) {
     // Determine the current platform name, in the format used by Kibana
     // downloads.  For Windows this is either "windows-x86" or "windows-x86_64".
 
-    if (sizeof(void *) == 8) {
+    if (sizeof(void*) == 8) {
         return "windows-x86_64";
     }
     return "windows-x86";

@@ -60,10 +60,10 @@ public:
     void age(double factor);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get a checksum for the equalizer.
     uint64_t checksum(void) const;
@@ -73,7 +73,7 @@ public:
 
 private:
     //! Get the sketch for \p detector.
-    maths::CQuantileSketch &sketch(int detector);
+    maths::CQuantileSketch& sketch(int detector);
 
 private:
     //! The style of interpolation to use for the sketch.
@@ -91,4 +91,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CDetectorEqualizer_h
+#endif // INCLUDED_ml_model_CDetectorEqualizer_h

@@ -16,7 +16,8 @@
 #include <iostream>
 #include <vector>
 
-template <typename T> struct STemplated {
+template <typename T>
+struct STemplated {
     void printFirst(void) { std::cout << s_First << std::endl; }
 
     T s_First;
@@ -30,7 +31,7 @@ struct SSimple {
     std::vector<int> s_Second;
 };
 
-int main(int, char **) {
+int main(int, char**) {
     {
         SSimple obj;
         obj.printFirst();

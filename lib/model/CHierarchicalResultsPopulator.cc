@@ -24,11 +24,11 @@
 namespace ml {
 namespace model {
 
-CHierarchicalResultsPopulator::CHierarchicalResultsPopulator(const CLimits &limits)
+CHierarchicalResultsPopulator::CHierarchicalResultsPopulator(const CLimits& limits)
     : m_Limits(limits) {}
 
-void CHierarchicalResultsPopulator::visit(const CHierarchicalResults &results,
-                                          const TNode &node,
+void CHierarchicalResultsPopulator::visit(const CHierarchicalResults& results,
+                                          const TNode& node,
                                           bool pivot) {
     if (!this->isLeaf(node) || !this->shouldWriteResult(m_Limits, results, node, pivot)) {
         return;
@@ -39,7 +39,7 @@ void CHierarchicalResultsPopulator::visit(const CHierarchicalResults &results,
         return;
     }
 
-    const CDataGatherer &gatherer = node.s_Model->dataGatherer();
+    const CDataGatherer& gatherer = node.s_Model->dataGatherer();
 
     std::size_t pid;
     if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
@@ -47,9 +47,9 @@ void CHierarchicalResultsPopulator::visit(const CHierarchicalResults &results,
         return;
     }
 
-    SAnnotatedProbability &probability = node.s_AnnotatedProbability;
+    SAnnotatedProbability& probability = node.s_AnnotatedProbability;
     for (std::size_t i = 0; i < probability.s_AttributeProbabilities.size(); ++i) {
-        const SAttributeProbability &attribute = probability.s_AttributeProbabilities[i];
+        const SAttributeProbability& attribute = probability.s_AttributeProbabilities[i];
         attribute.s_CurrentBucketValue =
             node.s_Model->currentBucketValue(attribute.s_Feature,
                                              pid,

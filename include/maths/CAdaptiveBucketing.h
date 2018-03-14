@@ -84,21 +84,21 @@ public:
 
 public:
     //! Restore by traversing a state document
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
     //! Construct by traversing a state document.
     CAdaptiveBucketing(double decayRate,
                        double minimumBucketLength,
-                       core::CStateRestoreTraverser &traverser);
+                       core::CStateRestoreTraverser& traverser);
     virtual ~CAdaptiveBucketing(void) = default;
 
     //! Efficiently swap the contents of two bucketing objects.
-    void swap(CAdaptiveBucketing &other);
+    void swap(CAdaptiveBucketing& other);
 
     //! Check if the bucketing has been initialized.
     bool initialized(void) const;
@@ -121,7 +121,7 @@ protected:
     //! of [\p start,\p end].
     void initialValues(core_t::TTime startTime,
                        core_t::TTime endTime,
-                       const TFloatMeanAccumulatorVec &values);
+                       const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
     std::size_t size(void) const;
@@ -168,21 +168,21 @@ protected:
     //! and false otherwise.
     bool knots(core_t::TTime time,
                CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec &knots,
-               TDoubleVec &values,
-               TDoubleVec &variances) const;
+               TDoubleVec& knots,
+               TDoubleVec& values,
+               TDoubleVec& variances) const;
 
     //! Get the bucket end points.
-    const TFloatVec &endpoints(void) const;
+    const TFloatVec& endpoints(void) const;
 
     //! Get the bucket end points.
-    TFloatVec &endpoints(void);
+    TFloatVec& endpoints(void);
 
     //! Get the bucket value centres.
-    const TFloatVec &centres(void) const;
+    const TFloatVec& centres(void) const;
 
     //! Get the bucket value centres.
-    TFloatVec &centres(void);
+    TFloatVec& centres(void);
 
     //! Get the total count of in the bucketing.
     double count(void) const;
@@ -194,7 +194,7 @@ protected:
     TDoubleVec variances(void) const;
 
     //! Compute the index of the bucket to which \p time belongs
-    bool bucket(core_t::TTime time, std::size_t &result) const;
+    bool bucket(core_t::TTime time, std::size_t& result) const;
 
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed = 0) const;
@@ -207,7 +207,7 @@ private:
     //! points from \p endpoints. The values are assigned based
     //! on their intersection with each bucket in the previous
     //! bucket configuration.
-    virtual void refresh(const TFloatVec &endpoints) = 0;
+    virtual void refresh(const TFloatVec& endpoints) = 0;
 
     //! Check if \p time is in the this component's window.
     virtual bool inWindow(core_t::TTime time) const = 0;
@@ -251,4 +251,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CAdaptiveBucketing_h
+#endif // INCLUDED_ml_maths_CAdaptiveBucketing_h

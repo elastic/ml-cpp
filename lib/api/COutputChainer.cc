@@ -21,11 +21,13 @@
 namespace ml {
 namespace api {
 
-COutputChainer::COutputChainer(CDataProcessor &dataProcessor) : m_DataProcessor(dataProcessor) {}
+COutputChainer::COutputChainer(CDataProcessor& dataProcessor) : m_DataProcessor(dataProcessor) {}
 
-void COutputChainer::newOutputStream(void) { m_DataProcessor.newOutputStream(); }
+void COutputChainer::newOutputStream(void) {
+    m_DataProcessor.newOutputStream();
+}
 
-bool COutputChainer::fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames) {
+bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) {
     m_FieldNames = fieldNames;
 
     // Only add extra field names if they're not already present
@@ -58,10 +60,12 @@ bool COutputChainer::fieldNames(const TStrVec &fieldNames, const TStrVec &extraF
     return true;
 }
 
-const COutputHandler::TStrVec &COutputChainer::fieldNames(void) const { return m_FieldNames; }
+const COutputHandler::TStrVec& COutputChainer::fieldNames(void) const {
+    return m_FieldNames;
+}
 
-bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
-                              const TStrStrUMap &overrideDataRowFields) {
+bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
+                              const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR("Attempt to output data before field names");
         return false;
@@ -101,21 +105,25 @@ bool COutputChainer::writeRow(const TStrStrUMap &dataRowFields,
     return true;
 }
 
-void COutputChainer::finalise(void) { m_DataProcessor.finalise(); }
+void COutputChainer::finalise(void) {
+    m_DataProcessor.finalise();
+}
 
-bool COutputChainer::restoreState(core::CDataSearcher &restoreSearcher,
-                                  core_t::TTime &completeToTime) {
+bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
+                                  core_t::TTime& completeToTime) {
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 
-bool COutputChainer::persistState(core::CDataAdder &persister) {
+bool COutputChainer::persistState(core::CDataAdder& persister) {
     return m_DataProcessor.persistState(persister);
 }
 
-bool COutputChainer::periodicPersistState(CBackgroundPersister &persister) {
+bool COutputChainer::periodicPersistState(CBackgroundPersister& persister) {
     return m_DataProcessor.periodicPersistState(persister);
 }
 
-bool COutputChainer::consumesControlMessages() { return true; }
+bool COutputChainer::consumesControlMessages() {
+    return true;
+}
 }
 }

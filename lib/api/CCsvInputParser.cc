@@ -30,9 +30,9 @@ const char CCsvInputParser::COMMA(',');
 const char CCsvInputParser::QUOTE('"');
 const char CCsvInputParser::RECORD_END('\n');
 const char CCsvInputParser::STRIP_BEFORE_END('\r');
-const size_t CCsvInputParser::WORK_BUFFER_SIZE(131072);// 128kB
+const size_t CCsvInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
-CCsvInputParser::CCsvInputParser(const std::string &input, char separator)
+CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
     : CInputParser(),
       m_StringInputBuf(input),
       m_StrmIn(m_StringInputBuf),
@@ -42,7 +42,7 @@ CCsvInputParser::CCsvInputParser(const std::string &input, char separator)
       m_NoMoreRecords(false),
       m_LineParser(separator) {}
 
-CCsvInputParser::CCsvInputParser(std::istream &strmIn, char separator)
+CCsvInputParser::CCsvInputParser(std::istream& strmIn, char separator)
     : CInputParser(),
       m_StrmIn(strmIn),
       m_WorkBuffer(0),
@@ -51,13 +51,15 @@ CCsvInputParser::CCsvInputParser(std::istream &strmIn, char separator)
       m_NoMoreRecords(false),
       m_LineParser(separator) {}
 
-const std::string &CCsvInputParser::fieldNameStr(void) const { return m_FieldNameStr; }
+const std::string& CCsvInputParser::fieldNameStr(void) const {
+    return m_FieldNameStr;
+}
 
-bool CCsvInputParser::readStream(const TReaderFunc &readerFunc) {
+bool CCsvInputParser::readStream(const TReaderFunc& readerFunc) {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
-    TStrVec &fieldNames = this->fieldNames();
+    TStrVec& fieldNames = this->fieldNames();
 
     if (!this->gotFieldNames()) {
         if (this->parseCsvRecordFromStream() == false) {
@@ -143,9 +145,9 @@ bool CCsvInputParser::parseCsvRecordFromStream(void) {
             m_WorkBufferEnd = m_WorkBufferPtr + avail;
         }
 
-        const char *delimPtr(
-            reinterpret_cast<const char *>(::memchr(m_WorkBufferPtr, RECORD_END, avail)));
-        const char *endPtr(m_WorkBufferEnd);
+        const char* delimPtr(
+            reinterpret_cast<const char*>(::memchr(m_WorkBufferPtr, RECORD_END, avail)));
+        const char* endPtr(m_WorkBufferEnd);
         if (delimPtr != nullptr) {
             endPtr = delimPtr;
             if (endPtr > m_WorkBufferPtr && *(endPtr - 1) == STRIP_BEFORE_END) {
@@ -192,7 +194,7 @@ bool CCsvInputParser::parseFieldNames(void) {
     LOG_TRACE("Parse field names");
 
     m_FieldNameStr.clear();
-    TStrVec &fieldNames = this->fieldNames();
+    TStrVec& fieldNames = this->fieldNames();
     fieldNames.clear();
 
     m_LineParser.reset(m_CurrentRowStr);
@@ -225,7 +227,7 @@ bool CCsvInputParser::parseFieldNames(void) {
     return true;
 }
 
-bool CCsvInputParser::parseDataRecord(const TStrRefVec &fieldValRefs) {
+bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
     for (TStrRefVecCItr iter = fieldValRefs.begin(); iter != fieldValRefs.end(); ++iter) {
         if (m_LineParser.parseNext(iter->get()) == false) {
             LOG_ERROR("Failed to get next CSV token");
@@ -260,7 +262,7 @@ CCsvInputParser::CCsvLineParser::CCsvLineParser(char separator)
       m_WorkFieldEnd(nullptr),
       m_WorkFieldCapacity(0) {}
 
-void CCsvInputParser::CCsvLineParser::reset(const std::string &line) {
+void CCsvInputParser::CCsvLineParser::reset(const std::string& line) {
     m_SeparatorAfterLastField = false;
 
     m_Line = &line;
@@ -278,7 +280,7 @@ void CCsvInputParser::CCsvLineParser::reset(const std::string &line) {
     m_WorkFieldEnd = m_WorkField.get();
 }
 
-bool CCsvInputParser::CCsvLineParser::parseNext(std::string &value) {
+bool CCsvInputParser::CCsvLineParser::parseNext(std::string& value) {
     if (m_Line == nullptr) {
         return false;
     }
@@ -289,9 +291,11 @@ bool CCsvInputParser::CCsvLineParser::parseNext(std::string &value) {
     return true;
 }
 
-bool CCsvInputParser::CCsvLineParser::atEnd() const { return m_LineCurrent == m_LineEnd; }
+bool CCsvInputParser::CCsvLineParser::atEnd() const {
+    return m_LineCurrent == m_LineEnd;
+}
 
-bool CCsvInputParser::CCsvLineParser::parseNextToken(const char *end, const char *&current) {
+bool CCsvInputParser::CCsvLineParser::parseNextToken(const char* end, const char*& current) {
     m_WorkFieldEnd = m_WorkField.get();
 
     if (current == end) {

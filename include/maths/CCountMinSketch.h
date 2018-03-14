@@ -60,18 +60,18 @@ public:
     CCountMinSketch(std::size_t rows, std::size_t columns);
 
     //! Create by traversing a state document.
-    CCountMinSketch(core::CStateRestoreTraverser &traverser);
+    CCountMinSketch(core::CStateRestoreTraverser& traverser);
 
     //! Efficient swap the contents of two sketches.
-    void swap(CCountMinSketch &sketch);
+    void swap(CCountMinSketch& sketch);
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 public:
     //! Convert to a node tree.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the number of rows.
     std::size_t rows(void) const;
@@ -133,12 +133,12 @@ private:
         SSketch(std::size_t rows, std::size_t columns);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
                                     std::size_t rows,
                                     std::size_t columns);
 
         //! Convert to a node tree.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! The hash functions.
         TUInt32HashVec s_Hashes;
@@ -170,4 +170,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CCountMinSketch_h
+#endif // INCLUDED_ml_maths_CCountMinSketch_h

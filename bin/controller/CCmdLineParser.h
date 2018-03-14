@@ -39,10 +39,10 @@ public:
 public:
     //! Parse the arguments and return options if appropriate.
     static bool parse(int argc,
-                      const char *const *argv,
-                      std::string &jvmPidStr,
-                      std::string &logPipe,
-                      std::string &commandPipe);
+                      const char* const* argv,
+                      std::string& jvmPidStr,
+                      std::string& logPipe,
+                      std::string& commandPipe);
 
 private:
     static const std::string DESCRIPTION;
@@ -50,4 +50,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_controller_CCmdLineParser_h
+#endif // INCLUDED_ml_controller_CCmdLineParser_h

@@ -67,4 +67,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CReadWriteLock_h
+#endif // INCLUDED_ml_core_CReadWriteLock_h

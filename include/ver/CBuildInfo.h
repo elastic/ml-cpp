@@ -48,13 +48,13 @@ namespace ver {
 class CBuildInfo : private core::CNonInstantiatable {
 public:
     //! Get the version number to be printed out
-    static const std::string &versionNumber(void);
+    static const std::string& versionNumber(void);
 
     //! Get the build number to be printed out
-    static const std::string &buildNumber(void);
+    static const std::string& buildNumber(void);
 
     //! Get the copyright message to be printed out
-    static const std::string &copyright(void);
+    static const std::string& copyright(void);
 
     //! Get the full information to be printed out (this includes the name
     //! of the program, plus the version number, build number and copyright)
@@ -68,4 +68,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CBuildInfo_h
+#endif // INCLUDED_ml_core_CBuildInfo_h

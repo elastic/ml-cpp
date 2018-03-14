@@ -33,7 +33,7 @@ public:
     void testPersist(void);
     void testUpgrade(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSeasonalComponentAdaptiveBucketingTest_h
+#endif // INCLUDED_CSeasonalComponentAdaptiveBucketingTest_h

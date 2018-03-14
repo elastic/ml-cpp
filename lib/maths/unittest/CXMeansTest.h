@@ -28,7 +28,7 @@ public:
     void testTwentyClusters(void);
     void testPoorlyConditioned(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CXMeansTest_h
+#endif // INCLUDED_CXMeansTest_h

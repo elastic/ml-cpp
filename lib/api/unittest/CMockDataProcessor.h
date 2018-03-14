@@ -40,30 +40,30 @@ class COutputHandler;
 //!
 class CMockDataProcessor : public ml::api::CDataProcessor {
 public:
-    CMockDataProcessor(ml::api::COutputHandler &outputHandler);
+    CMockDataProcessor(ml::api::COutputHandler& outputHandler);
 
     //! We're going to be writing to a new output stream
     virtual void newOutputStream(void);
 
-    virtual bool handleRecord(const TStrStrUMap &dataRowFields);
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
 
     virtual void finalise(void);
 
     //! Restore previously saved state
-    virtual bool restoreState(ml::core::CDataSearcher &restoreSearcher,
-                              ml::core_t::TTime &completeToTime);
+    virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
+                              ml::core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(ml::core::CDataAdder &persister);
+    virtual bool persistState(ml::core::CDataAdder& persister);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled(void) const;
 
     //! Access the output handler
-    virtual ml::api::COutputHandler &outputHandler(void);
+    virtual ml::api::COutputHandler& outputHandler(void);
 
 private:
-    ml::api::COutputHandler &m_OutputHandler;
+    ml::api::COutputHandler& m_OutputHandler;
 
     //! Empty field overrides
     TStrStrUMap m_FieldOverrides;
@@ -73,4 +73,4 @@ private:
     bool m_WriteFieldNames;
 };
 
-#endif// INCLUDED_ml_api_CMockDataProcessor_h
+#endif // INCLUDED_ml_api_CMockDataProcessor_h

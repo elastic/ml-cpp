@@ -20,8 +20,12 @@
 namespace ml {
 namespace core {
 
-int CSetMode::setMode(int fd, int mode) { return _setmode(fd, mode); }
+int CSetMode::setMode(int fd, int mode) {
+    return _setmode(fd, mode);
+}
 
-int CSetMode::setBinaryMode(int fd) { return _setmode(fd, _O_BINARY); }
+int CSetMode::setBinaryMode(int fd) {
+    return _setmode(fd, _O_BINARY);
+}
 }
 }

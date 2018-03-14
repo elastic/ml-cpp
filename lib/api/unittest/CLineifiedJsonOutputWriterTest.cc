@@ -20,15 +20,17 @@
 
 #include <sstream>
 
-CppUnit::Test *CLineifiedJsonOutputWriterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonOutputWriterTest");
+CppUnit::Test* CLineifiedJsonOutputWriterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonOutputWriterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>(
-        "CLineifiedJsonOutputWriterTest::testStringOutput",
-        &CLineifiedJsonOutputWriterTest::testStringOutput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonOutputWriterTest>(
-        "CLineifiedJsonOutputWriterTest::testNumericOutput",
-        &CLineifiedJsonOutputWriterTest::testNumericOutput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLineifiedJsonOutputWriterTest>("CLineifiedJsonOutputWriterTest::testStringOutput",
+                                            &CLineifiedJsonOutputWriterTest::testStringOutput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLineifiedJsonOutputWriterTest>("CLineifiedJsonOutputWriterTest::testNumericOutput",
+                                            &CLineifiedJsonOutputWriterTest::testNumericOutput));
 
     return suiteOfTests;
 }
@@ -43,7 +45,7 @@ void CLineifiedJsonOutputWriterTest::testStringOutput(void) {
     ml::api::CLineifiedJsonOutputWriter writer;
     CPPUNIT_ASSERT(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string &output = writer.internalString();
+    const std::string& output = writer.internalString();
 
     CPPUNIT_ASSERT_EQUAL(std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"),
                          output);
@@ -59,7 +61,7 @@ void CLineifiedJsonOutputWriterTest::testNumericOutput(void) {
     ml::api::CLineifiedJsonOutputWriter writer({"probability", "normalized_score"});
     CPPUNIT_ASSERT(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string &output = writer.internalString();
+    const std::string& output = writer.internalString();
 
     CPPUNIT_ASSERT_EQUAL(std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
 }

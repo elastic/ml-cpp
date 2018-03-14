@@ -60,8 +60,8 @@ struct SFoo {
     static bool dynamicSizeAlwaysZero(void) { return true; }
 
     explicit SFoo(std::size_t key = 0) : s_Key(key) {}
-    bool operator<(const SFoo &rhs) const { return s_Key < rhs.s_Key; }
-    bool operator==(const SFoo &rhs) const { return s_Key == rhs.s_Key; }
+    bool operator<(const SFoo& rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SFoo& rhs) const { return s_Key == rhs.s_Key; }
 
     std::size_t s_Key;
     double s_State[100];
@@ -69,8 +69,8 @@ struct SFoo {
 
 struct SFooWithMemoryUsage {
     explicit SFooWithMemoryUsage(std::size_t key = 0) : s_Key(key) {}
-    bool operator<(const SFooWithMemoryUsage &rhs) const { return s_Key < rhs.s_Key; }
-    bool operator==(const SFooWithMemoryUsage &rhs) const { return s_Key == rhs.s_Key; }
+    bool operator<(const SFooWithMemoryUsage& rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SFooWithMemoryUsage& rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const { return 0; }
 
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -93,8 +93,8 @@ struct SBar {
     typedef std::vector<SFoo> TFooVec;
 
     explicit SBar(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBar &rhs) const { return s_Key < rhs.s_Key; }
-    bool operator==(const SBar &rhs) const { return s_Key == rhs.s_Key; }
+    bool operator<(const SBar& rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBar& rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const { return sizeof(SFoo) * s_State.capacity(); }
 
     std::size_t s_Key;
@@ -105,8 +105,8 @@ struct SBarDebug {
     typedef std::vector<SFoo> TFooVec;
 
     explicit SBarDebug(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBarDebug &rhs) const { return s_Key < rhs.s_Key; }
-    bool operator==(const SBarDebug &rhs) const { return s_Key == rhs.s_Key; }
+    bool operator<(const SBarDebug& rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBarDebug& rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const { return sizeof(SFoo) * s_State.capacity(); }
 
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -122,8 +122,8 @@ struct SBarVectorDebug {
     typedef std::vector<SFooWithMemoryUsage> TFooVec;
 
     explicit SBarVectorDebug(std::size_t key = 0) : s_Key(key), s_State() {}
-    bool operator<(const SBarVectorDebug &rhs) const { return s_Key < rhs.s_Key; }
-    bool operator==(const SBarVectorDebug &rhs) const { return s_Key == rhs.s_Key; }
+    bool operator<(const SBarVectorDebug& rhs) const { return s_Key < rhs.s_Key; }
+    bool operator==(const SBarVectorDebug& rhs) const { return s_Key == rhs.s_Key; }
     std::size_t memoryUsage(void) const { return core::CMemory::dynamicSize(s_State); }
 
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -136,9 +136,9 @@ struct SBarVectorDebug {
 };
 
 struct SHash {
-    std::size_t operator()(const SFoo &foo) const { return foo.s_Key; }
-    std::size_t operator()(const SFooWithMemoryUsage &foo) const { return foo.s_Key; }
-    std::size_t operator()(const SBar &bar) const { return bar.s_Key; }
+    std::size_t operator()(const SFoo& foo) const { return foo.s_Key; }
+    std::size_t operator()(const SFooWithMemoryUsage& foo) const { return foo.s_Key; }
+    std::size_t operator()(const SBar& bar) const { return bar.s_Key; }
 };
 
 class CBase {
@@ -187,25 +187,30 @@ private:
 };
 
 //! A basic allocator that tracks memory usage
-template <typename T> class CTrackingAllocator {
+template <typename T>
+class CTrackingAllocator {
 public:
     typedef T value_type;
-    typedef value_type *pointer;
-    typedef const value_type *const_pointer;
-    typedef value_type &reference;
-    typedef const value_type &const_reference;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
 public:
     // convert an allocator<T> to allocator<U>
-    template <typename U> struct rebind { typedef CTrackingAllocator<U> other; };
+    template <typename U>
+    struct rebind {
+        typedef CTrackingAllocator<U> other;
+    };
 
 public:
     CTrackingAllocator(void) = default;
-    CTrackingAllocator(const CTrackingAllocator &) = default;
+    CTrackingAllocator(const CTrackingAllocator&) = default;
 
-    template <typename U> inline CTrackingAllocator(const CTrackingAllocator<U> &) {}
+    template <typename U>
+    inline CTrackingAllocator(const CTrackingAllocator<U>&) {}
 
     // address
     inline pointer address(reference r) { return &r; }
@@ -229,19 +234,20 @@ public:
     static std::size_t usage(void) { return ms_Allocated; }
 
     // construction/destruction
-    inline void construct(pointer p, const T &t) { new (p) T(t); }
+    inline void construct(pointer p, const T& t) { new (p) T(t); }
 
     inline void destroy(pointer p) { p->~T(); }
 
-    inline bool operator==(const CTrackingAllocator &) const { return true; }
+    inline bool operator==(const CTrackingAllocator&) const { return true; }
 
-    inline bool operator!=(const CTrackingAllocator &a) const { return !operator==(a); }
+    inline bool operator!=(const CTrackingAllocator& a) const { return !operator==(a); }
 
 private:
     static std::size_t ms_Allocated;
 };
 
-template <typename T> std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
+template <typename T>
+std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
 }
 
 void CMemoryUsageTest::testUsage(void) {
@@ -489,7 +495,7 @@ void CMemoryUsageTest::testUsage(void) {
         TDoubleVec a(10);
         TFooVec b(20);
 
-        TAnyVec variables(1);// Empty any at index 0
+        TAnyVec variables(1); // Empty any at index 0
         variables.push_back(a);
         variables.push_back(b);
 
@@ -497,7 +503,7 @@ void CMemoryUsageTest::testUsage(void) {
         CPPUNIT_ASSERT_EQUAL(variables.capacity() * sizeof(std::size_t),
                              core::CMemory::dynamicSize(variables));
 
-        core::CMemory::CAnyVisitor &visitor = core::CMemory::anyVisitor();
+        core::CMemory::CAnyVisitor& visitor = core::CMemory::anyVisitor();
         visitor.registerCallback<TDoubleVec>();
         visitor.registerCallback<TFooVec>();
 
@@ -510,7 +516,7 @@ void CMemoryUsageTest::testUsage(void) {
                                  core::CMemory::dynamicSize(b),
                              core::CMemory::dynamicSize(variables));
 
-        core::CMemoryDebug::CAnyVisitor &debugVisitor = core::CMemoryDebug::anyVisitor();
+        core::CMemoryDebug::CAnyVisitor& debugVisitor = core::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
         debugVisitor.registerCallback<TFooVec>();
 
@@ -522,8 +528,8 @@ void CMemoryUsageTest::testUsage(void) {
         LOG_DEBUG(ss.str());
     }
     {
-        CBase *base = new CBase(10);
-        CBase *derived = new CDerived(10);
+        CBase* base = new CBase(10);
+        CBase* derived = new CDerived(10);
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", *base, &mem);
@@ -576,18 +582,18 @@ void CMemoryUsageTest::testUsage(void) {
         CBase base(5);
         CPPUNIT_ASSERT_EQUAL(base.memoryUsage(), core::CMemory::dynamicSize(base));
 
-        CBase *basePtr = new CBase(5);
+        CBase* basePtr = new CBase(5);
         CPPUNIT_ASSERT_EQUAL(basePtr->memoryUsage() + sizeof(*basePtr),
                              core::CMemory::dynamicSize(basePtr));
 
         CDerived derived(6);
         CPPUNIT_ASSERT_EQUAL(derived.memoryUsage(), core::CMemory::dynamicSize(derived));
 
-        CDerived *derivedPtr = new CDerived(5);
+        CDerived* derivedPtr = new CDerived(5);
         CPPUNIT_ASSERT_EQUAL(derivedPtr->memoryUsage() + sizeof(*derivedPtr),
                              core::CMemory::dynamicSize(derivedPtr));
 
-        CBase *basederivedPtr = new CDerived(5);
+        CBase* basederivedPtr = new CDerived(5);
         CPPUNIT_ASSERT_EQUAL(basederivedPtr->memoryUsage() + sizeof(CDerived),
                              core::CMemory::dynamicSize(basederivedPtr));
 
@@ -624,10 +630,10 @@ void CMemoryUsageTest::testUsage(void) {
         std::size_t total = core::CMemory::dynamicSize(vec);
         std::size_t calc = vec.capacity() * sizeof(TBasePtr);
         for (std::size_t i = 0; i < 6; ++i) {
-            calc += static_cast<CBase *>(vec[i].get())->memoryUsage();
+            calc += static_cast<CBase*>(vec[i].get())->memoryUsage();
             calc += sizeof(CBase);
         }
-        calc += static_cast<CDerived *>(vec[6].get())->memoryUsage();
+        calc += static_cast<CDerived*>(vec[6].get())->memoryUsage();
         calc += sizeof(CDerived);
         CPPUNIT_ASSERT_EQUAL(calc, total);
     }
@@ -808,7 +814,7 @@ void CMemoryUsageTest::testCompress(void) {
         mem.setName("root", 1);
         mem.addChild()->setName("muffin", 4);
         mem.addChild()->setName("child", 3);
-        core::CMemoryUsage *child = mem.addChild();
+        core::CMemoryUsage* child = mem.addChild();
         child->setName("child", 5);
         child->addChild()->setName("grandchild", 100);
         mem.addChild()->setName("child", 7);
@@ -854,8 +860,8 @@ void CMemoryUsageTest::testStringBehaviour(void) {
     std::string empty2;
 
     LOG_INFO("Two independently constructed empty strings have data at "
-             << static_cast<const void *>(empty1.data()) << " and "
-             << static_cast<const void *>(empty2.data()) << " and capacity " << empty1.capacity());
+             << static_cast<const void*>(empty1.data()) << " and "
+             << static_cast<const void*>(empty2.data()) << " and capacity " << empty1.capacity());
     if (empty1.data() == empty2.data()) {
         LOG_INFO("All strings constructed empty probably share the same "
                  "representation on this platform");
@@ -866,11 +872,11 @@ void CMemoryUsageTest::testStringBehaviour(void) {
     std::string something3;
     something3 = something2;
 
-    LOG_INFO("Non-empty string has data at " << static_cast<const void *>(something1.data())
+    LOG_INFO("Non-empty string has data at " << static_cast<const void*>(something1.data())
                                              << " length " << something1.length()
                                              << " and capacity " << something1.capacity());
 
-    LOG_INFO("Copy constructed string has data at " << static_cast<const void *>(something2.data())
+    LOG_INFO("Copy constructed string has data at " << static_cast<const void*>(something2.data())
                                                     << " length " << something2.length()
                                                     << " and capacity " << something2.capacity());
     if (something2.data() == something1.data()) {
@@ -878,7 +884,7 @@ void CMemoryUsageTest::testStringBehaviour(void) {
                  "implementation on this platform");
     }
 
-    LOG_INFO("Assigned string has data at " << static_cast<const void *>(something3.data())
+    LOG_INFO("Assigned string has data at " << static_cast<const void*>(something3.data())
                                             << " length " << something3.length() << " and capacity "
                                             << something3.capacity());
     if (something3.data() == something2.data()) {
@@ -889,7 +895,7 @@ void CMemoryUsageTest::testStringBehaviour(void) {
     something1.clear();
 
     LOG_INFO("Cleared string that was copied to two others has data at "
-             << static_cast<const void *>(something1.data()) << " length " << something1.length()
+             << static_cast<const void*>(something1.data()) << " length " << something1.length()
              << " and capacity " << something1.capacity());
     if (something1.data() == empty1.data()) {
         LOG_INFO("Cleared strings revert to shared empty representation on "
@@ -900,7 +906,7 @@ void CMemoryUsageTest::testStringBehaviour(void) {
 
     LOG_INFO("String that was copied to another then assigned an empty string "
              "has data at "
-             << static_cast<const void *>(something2.data()) << " length " << something2.length()
+             << static_cast<const void*>(something2.data()) << " length " << something2.length()
              << " and capacity " << something2.capacity());
     if (something2.data() == empty1.data()) {
         LOG_INFO("Strings that have an empty constructed string assigned to "
@@ -910,33 +916,33 @@ void CMemoryUsageTest::testStringBehaviour(void) {
 
     std::string uncopied("uncopied");
 
-    LOG_INFO("Non-empty uncopied string has data at " << static_cast<const void *>(uncopied.data())
+    LOG_INFO("Non-empty uncopied string has data at " << static_cast<const void*>(uncopied.data())
                                                       << " length " << uncopied.length()
                                                       << " and capacity " << uncopied.capacity());
 
     uncopied.clear();
 
-    LOG_INFO("Cleared uncopied string has data at " << static_cast<const void *>(uncopied.data())
+    LOG_INFO("Cleared uncopied string has data at " << static_cast<const void*>(uncopied.data())
                                                     << " length " << uncopied.length()
                                                     << " and capacity " << uncopied.capacity());
 
     std::string startSmall("small");
 
     LOG_INFO("Non-empty small string unchanged since construction has data at "
-             << static_cast<const void *>(startSmall.data()) << " length " << startSmall.length()
+             << static_cast<const void*>(startSmall.data()) << " length " << startSmall.length()
              << " and capacity " << startSmall.capacity());
 
     startSmall.reserve(100);
     size_t capacity100(startSmall.capacity());
 
     LOG_INFO("Small string after reserving 100 bytes has data at "
-             << static_cast<const void *>(startSmall.data()) << " length " << startSmall.length()
+             << static_cast<const void*>(startSmall.data()) << " length " << startSmall.length()
              << " and capacity " << startSmall.capacity());
 
     startSmall.reserve(10);
 
     LOG_INFO("Small string after reserving 10 bytes has data at "
-             << static_cast<const void *>(startSmall.data()) << " length " << startSmall.length()
+             << static_cast<const void*>(startSmall.data()) << " length " << startSmall.length()
              << " and capacity " << startSmall.capacity());
     if (startSmall.capacity() < capacity100) {
         LOG_INFO("On this platform reservations can reduce string capacity");
@@ -948,21 +954,21 @@ void CMemoryUsageTest::testStringBehaviour(void) {
         "this_string_is_longer_than_one_that_will_take_advantage_of_the_small_string_optimisation");
 
     LOG_INFO("Long string after initial construction has data at "
-             << static_cast<const void *>(startLong.data()) << " length " << startLong.length()
+             << static_cast<const void*>(startLong.data()) << " length " << startLong.length()
              << " and capacity " << startLong.capacity());
 
     startLong.reserve(10000);
     size_t capacity10000(startLong.capacity());
 
     LOG_INFO("Long string after reserving 10000 bytes has data at "
-             << static_cast<const void *>(startLong.data()) << " length " << startLong.length()
+             << static_cast<const void*>(startLong.data()) << " length " << startLong.length()
              << " and capacity " << startLong.capacity());
 
     startLong.clear();
 
-    LOG_INFO("Long string after clearing has data at "
-             << static_cast<const void *>(startLong.data()) << " length " << startLong.length()
-             << " and capacity " << startLong.capacity());
+    LOG_INFO("Long string after clearing has data at " << static_cast<const void*>(startLong.data())
+                                                       << " length " << startLong.length()
+                                                       << " and capacity " << startLong.capacity());
     if (startLong.capacity() < capacity10000) {
         LOG_INFO("On this platform clearing can reduce string capacity");
     }
@@ -1116,7 +1122,7 @@ void CMemoryUsageTest::testSharedPointer(void) {
 
 void CMemoryUsageTest::testRawPointer(void) {
     LOG_DEBUG("*** testRawPointer ***");
-    std::string *strPtr = 0;
+    std::string* strPtr = 0;
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
 
     std::string foo = "abcdefghijklmnopqrstuvwxyz";
@@ -1182,8 +1188,8 @@ void CMemoryUsageTest::testSmallVector(void) {
     CPPUNIT_ASSERT(extraMem > 0);
 }
 
-CppUnit::Test *CMemoryUsageTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMemoryUsageTest");
+CppUnit::Test* CMemoryUsageTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testUsage",
                                                                     &CMemoryUsageTest::testUsage));
@@ -1192,20 +1198,27 @@ CppUnit::Test *CMemoryUsageTest::suite(void) {
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testDynamicSizeAlwaysZero",
                                                   &CMemoryUsageTest::testDynamicSizeAlwaysZero));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testCompress", &CMemoryUsageTest::testCompress));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringBehaviour", &CMemoryUsageTest::testStringBehaviour));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringMemory", &CMemoryUsageTest::testStringMemory));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringClear", &CMemoryUsageTest::testStringClear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testSharedPointer", &CMemoryUsageTest::testSharedPointer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testRawPointer", &CMemoryUsageTest::testRawPointer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testSmallVector", &CMemoryUsageTest::testSmallVector));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testCompress",
+                                                  &CMemoryUsageTest::testCompress));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testStringBehaviour",
+                                                  &CMemoryUsageTest::testStringBehaviour));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testStringMemory",
+                                                  &CMemoryUsageTest::testStringMemory));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testStringClear",
+                                                  &CMemoryUsageTest::testStringClear));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testSharedPointer",
+                                                  &CMemoryUsageTest::testSharedPointer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testRawPointer",
+                                                  &CMemoryUsageTest::testRawPointer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMemoryUsageTest>("CMemoryUsageTest::testSmallVector",
+                                                  &CMemoryUsageTest::testSmallVector));
 
     return suiteOfTests;
 }

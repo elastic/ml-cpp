@@ -25,7 +25,7 @@ public:
     void testApply_GivenSingleRegex(void);
     void testApply_GivenMultipleRegex(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRegexFilterTest_h
+#endif // INCLUDED_CRegexFilterTest_h

@@ -53,13 +53,13 @@ public:
     //! Wrapper for 1 timeseries model, its feature and by Field
     struct MODEL_EXPORT SForecastModelWrapper {
         SForecastModelWrapper(model_t::EFeature feature,
-                              TMathsModelPtr &&forecastModel,
-                              const std::string &byFieldValue);
+                              TMathsModelPtr&& forecastModel,
+                              const std::string& byFieldValue);
 
-        SForecastModelWrapper(SForecastModelWrapper &&other);
+        SForecastModelWrapper(SForecastModelWrapper&& other);
 
-        SForecastModelWrapper(const SForecastModelWrapper &that) = delete;
-        SForecastModelWrapper &operator=(const SForecastModelWrapper &) = delete;
+        SForecastModelWrapper(const SForecastModelWrapper& that) = delete;
+        SForecastModelWrapper& operator=(const SForecastModelWrapper&) = delete;
 
         model_t::EFeature s_Feature;
         TMathsModelPtr s_ForecastModel;
@@ -70,10 +70,10 @@ public:
     struct MODEL_EXPORT SForecastResultSeries {
         SForecastResultSeries();
 
-        SForecastResultSeries(SForecastResultSeries &&other);
+        SForecastResultSeries(SForecastResultSeries&& other);
 
-        SForecastResultSeries(const SForecastResultSeries &that) = delete;
-        SForecastResultSeries &operator=(const SForecastResultSeries &) = delete;
+        SForecastResultSeries(const SForecastResultSeries& that) = delete;
+        SForecastResultSeries& operator=(const SForecastResultSeries&) = delete;
 
         int s_DetectorIndex;
         std::vector<SForecastModelWrapper> s_ToForecast;
@@ -121,49 +121,49 @@ private:
 
 public:
     //! Create a DataSink instance
-    CForecastDataSink(const std::string &jobId,
-                      const std::string &forecastId,
-                      const std::string &forecastAlias,
+    CForecastDataSink(const std::string& jobId,
+                      const std::string& forecastId,
+                      const std::string& forecastAlias,
                       core_t::TTime createTime,
                       core_t::TTime startTime,
                       core_t::TTime endTime,
                       core_t::TTime expiryTime,
                       size_t memoryUsage,
-                      core::CJsonOutputStreamWrapper &outStream);
+                      core::CJsonOutputStreamWrapper& outStream);
 
     //! Push a forecast datapoint
     //! Note: No forecasting for models with over field, therefore no over field
     void push(const maths::SErrorBar errorBar,
-              const std::string &feature,
-              const std::string &partitionFieldName,
-              const std::string &partitionFieldValue,
-              const std::string &byFieldName,
-              const std::string &byFieldValue,
+              const std::string& feature,
+              const std::string& partitionFieldName,
+              const std::string& partitionFieldValue,
+              const std::string& byFieldName,
+              const std::string& byFieldValue,
               int detectorIndex);
 
     //! Write Statistics about the forecast, also marks the ending
     void writeStats(const double progress,
                     uint64_t runtime,
-                    const TStrUMap &messages,
+                    const TStrUMap& messages,
                     bool successful = true);
 
     //! Write a scheduled message to signal that validation was successful
     void writeScheduledMessage();
 
     //! Write an error message to signal a problem with forecasting
-    void writeErrorMessage(const std::string &message);
+    void writeErrorMessage(const std::string& message);
 
     //! Write a message to signal that forecasting is complete
     //!
     //! This is used when exiting early but not as a result of an error
-    void writeFinalMessage(const std::string &message);
+    void writeFinalMessage(const std::string& message);
 
     //! get the number of forecast records written
     uint64_t numRecordsWritten(void) const;
 
 private:
-    void writeCommonStatsFields(rapidjson::Value &doc);
-    void push(bool flush, rapidjson::Value &doc);
+    void writeCommonStatsFields(rapidjson::Value& doc);
+    void push(bool flush, rapidjson::Value& doc);
 
 private:
     //! The job ID

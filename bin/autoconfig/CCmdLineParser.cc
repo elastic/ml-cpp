@@ -28,20 +28,20 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: autoconfig [options]\n"
                                                 "Options";
 
 bool CCmdLineParser::parse(int argc,
-                           const char *const *argv,
-                           std::string &logProperties,
-                           std::string &logPipe,
-                           char &delimiter,
-                           bool &lengthEncodedInput,
-                           std::string &timeField,
-                           std::string &timeFormat,
-                           std::string &configFile,
-                           std::string &inputFileName,
-                           bool &isInputFileNamedPipe,
-                           std::string &outputFileName,
-                           bool &isOutputFileNamedPipe,
-                           bool &verbose,
-                           bool &writeDetectorConfigs) {
+                           const char* const* argv,
+                           std::string& logProperties,
+                           std::string& logPipe,
+                           char& delimiter,
+                           bool& lengthEncodedInput,
+                           std::string& timeField,
+                           std::string& timeFormat,
+                           std::string& configFile,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           bool& verbose,
+                           bool& writeDetectorConfigs) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -126,7 +126,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("writeDetectorConfigs") > 0) {
             writeDetectorConfigs = true;
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

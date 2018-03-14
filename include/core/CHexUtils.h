@@ -45,15 +45,15 @@ public:
     //! Construct an object of this class, which can then be output to a
     //! stream - only a shallow copy is done, so the data must exist for
     //! the lifetime of the object
-    CHexUtils(const uint8_t *pkt, size_t pktLen, bool printHeader = true, bool printAscii = true);
-    CHexUtils(const TDataVec &data, bool printHeader = true, bool printAscii = true);
+    CHexUtils(const uint8_t* pkt, size_t pktLen, bool printHeader = true, bool printAscii = true);
+    CHexUtils(const TDataVec& data, bool printHeader = true, bool printAscii = true);
 
     //! Dump a packet of given length to stdout
-    static void dump(const uint8_t *pkt, size_t pktLen);
+    static void dump(const uint8_t* pkt, size_t pktLen);
 
 private:
     //! Pointer to raw data - we don't own this
-    const uint8_t *m_Pkt;
+    const uint8_t* m_Pkt;
 
     //! Packet length
     size_t m_PktLen;
@@ -64,11 +64,11 @@ private:
     //! Should we the raw ASCII (where possible) next to the hex?
     bool m_PrintAscii;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &, const CHexUtils &);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream&, const CHexUtils&);
 };
 
-CORE_EXPORT std::ostream &operator<<(std::ostream &strm, const CHexUtils &hex);
+CORE_EXPORT std::ostream& operator<<(std::ostream& strm, const CHexUtils& hex);
 }
 }
 
-#endif// INCLUDED_ml_core_CHexUtils_h
+#endif // INCLUDED_ml_core_CHexUtils_h

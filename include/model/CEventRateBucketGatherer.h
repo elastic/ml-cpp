@@ -62,19 +62,19 @@ public:
 
 public:
     //! Add a string into the collection
-    void insert(const std::string &value, const TStoredStringPtrVec &influences);
+    void insert(const std::string& value, const TStoredStringPtrVec& influences);
 
     //! Fill in a FeatureData structure with the influence strings and counts
-    void populateDistinctCountFeatureData(SEventRateFeatureData &featureData) const;
+    void populateDistinctCountFeatureData(SEventRateFeatureData& featureData) const;
 
     //! Fill in a FeatureData structure with the influence info_content
-    void populateInfoContentFeatureData(SEventRateFeatureData &featureData) const;
+    void populateInfoContentFeatureData(SEventRateFeatureData& featureData) const;
 
     //! Persist state by passing information \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Initialize state reading from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the checksum of this object.
     uint64_t checksum(void) const;
@@ -134,38 +134,38 @@ public:
     //! compute influences.
     //! \param[in] startTime The start of the time interval for which
     //! to gather data.
-    CEventRateBucketGatherer(CDataGatherer &dataGatherer,
-                             const std::string &summaryCountFieldName,
-                             const std::string &personFieldName,
-                             const std::string &attributeFieldName,
-                             const std::string &valueFieldName,
-                             const TStrVec &influenceFieldNames,
+    CEventRateBucketGatherer(CDataGatherer& dataGatherer,
+                             const std::string& summaryCountFieldName,
+                             const std::string& personFieldName,
+                             const std::string& attributeFieldName,
+                             const std::string& valueFieldName,
+                             const TStrVec& influenceFieldNames,
                              core_t::TTime startTime);
 
     //! Construct from a state document.
-    CEventRateBucketGatherer(CDataGatherer &dataGatherer,
-                             const std::string &summaryCountFieldName,
-                             const std::string &personFieldName,
-                             const std::string &attributeFieldName,
-                             const std::string &valueFieldName,
-                             const TStrVec &influenceFieldNames,
-                             core::CStateRestoreTraverser &traverser);
+    CEventRateBucketGatherer(CDataGatherer& dataGatherer,
+                             const std::string& summaryCountFieldName,
+                             const std::string& personFieldName,
+                             const std::string& attributeFieldName,
+                             const std::string& valueFieldName,
+                             const TStrVec& influenceFieldNames,
+                             core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
-    CEventRateBucketGatherer(bool isForPersistence, const CEventRateBucketGatherer &other);
+    CEventRateBucketGatherer(bool isForPersistence, const CEventRateBucketGatherer& other);
     //@}
 
     //! \name Persistence
     //@{
     //! Fill in the state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not
@@ -173,10 +173,10 @@ public:
     //! other purpose.
     //!
     //! \warning The caller owns the object returned.
-    virtual CBucketGatherer *cloneForPersistence(void) const;
+    virtual CBucketGatherer* cloneForPersistence(void) const;
 
     //! The persistence tag name of this derived class.
-    virtual const std::string &persistenceTag(void) const;
+    virtual const std::string& persistenceTag(void) const;
     //@}
 
     //! \name Fields
@@ -187,14 +187,14 @@ public:
     //! probabilities are aggregated, i.e. the "over" field name for
     //! population searches and the "by" field name for individual
     //! searches.
-    virtual const std::string &personFieldName(void) const;
+    virtual const std::string& personFieldName(void) const;
 
     //! Get the attribute field name if one exists, i.e. the "by" for
     //! population searches, field name and returns empty otherwise.
-    virtual const std::string &attributeFieldName(void) const;
+    virtual const std::string& attributeFieldName(void) const;
 
     //! Returns an empty string.
-    virtual const std::string &valueFieldName(void) const;
+    virtual const std::string& valueFieldName(void) const;
 
     //! Get an iterator at the beginning the influencing field names.
     virtual TStrVecCItr beginInfluencers(void) const;
@@ -210,7 +210,7 @@ public:
     //! attributes which are being analyzed. An empty string acts like
     //! a wild card and matches all records. This is used for analysis
     //! which is attribute independent such as total count.
-    virtual const TStrVec &fieldsOfInterest(void) const;
+    virtual const TStrVec& fieldsOfInterest(void) const;
     //@}
 
     //! Get a description of the search.
@@ -226,15 +226,15 @@ public:
     //! contain two fields. The first field should contain the over clause
     //! field value. The second field should the by clause field value
     //! or a generic name if none was specified.
-    virtual bool processFields(const TStrCPtrVec &fieldValues,
-                               CEventData &result,
-                               CResourceMonitor &resourceMonitor);
+    virtual bool processFields(const TStrCPtrVec& fieldValues,
+                               CEventData& result,
+                               CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Person
     //@{
     //! Stop gathering data on the people identified by \p peopleToRemove.
-    virtual void recyclePeople(const TSizeVec &peopleToRemove);
+    virtual void recyclePeople(const TSizeVec& peopleToRemove);
 
     //! Remove all traces of people whose identifiers are greater than
     //! or equal to \p lowestPersonToRemove.
@@ -244,7 +244,7 @@ public:
     //! \name Attribute
     //@{
     //! Stop gathering data on the attributes identified by \p attributesToRemove.
-    virtual void recycleAttributes(const TSizeVec &attributesToRemove);
+    virtual void recycleAttributes(const TSizeVec& attributesToRemove);
 
     //! Remove all traces of attributes whose identifiers are greater than
     //! or equal to \p lowestAttributeToRemove.
@@ -280,7 +280,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
     virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec &result) const;
+    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
     //@}
 
 private:
@@ -294,7 +294,7 @@ private:
     //! \param[in,out] result Append (person identifier, count) for each
     //! person. The collection is sorted by person.
     void
-    personCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec &result) const;
+    personCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the non-zero counts by person for bucketing interval
     //! containing \p time.
@@ -305,7 +305,7 @@ private:
     //! collection is sorted by person.
     void nonZeroPersonCounts(model_t::EFeature feature,
                              core_t::TTime time,
-                             TFeatureAnyPrVec &result) const;
+                             TFeatureAnyPrVec& result) const;
 
     //! Append an indicator function for people present in the bucketing
     //! interval containing \p time.
@@ -315,7 +315,7 @@ private:
     //! present in the bucketing interval containing \p time. The collection
     //! is sorted by person identifier.
     void
-    personIndicator(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec &result) const;
+    personIndicator(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the mean arrival times for people present in the current
     //! bucketing interval.
@@ -326,7 +326,7 @@ private:
     //! The collection is sorted by person identifier.
     void personArrivalTimes(model_t::EFeature feature,
                             core_t::TTime time,
-                            TFeatureAnyPrVec &result) const;
+                            TFeatureAnyPrVec& result) const;
 
     //! Append the non-zero counts for each attribute by person for the
     //! bucketing interval containing \p time.
@@ -339,14 +339,14 @@ private:
     //! product space of attribute and person so use a sparse encoding.
     void nonZeroAttributeCounts(model_t::EFeature feature,
                                 core_t::TTime time,
-                                TFeatureAnyPrVec &result) const;
+                                TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique people hitting each attribute.
     //!
     //! \param[in,out] result Append the count of people per attribute.
     //! The person identifier is dummied to zero so that the result
     //! type matches other population features.
-    void peoplePerAttribute(model_t::EFeature feature, TFeatureAnyPrVec &result) const;
+    void peoplePerAttribute(model_t::EFeature feature, TFeatureAnyPrVec& result) const;
 
     //! Append an indicator function for (person, attribute) pairs
     //! present in the bucketing interval containing \p time.
@@ -360,7 +360,7 @@ private:
     //! product space of attribute and person so use a sparse encoding.
     void attributeIndicator(model_t::EFeature feature,
                             core_t::TTime time,
-                            TFeatureAnyPrVec &result) const;
+                            TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique values for each person
     //! in the bucketing interval containing \p time.
@@ -370,7 +370,7 @@ private:
     //! by person
     void bucketUniqueValuesPerPerson(model_t::EFeature feature,
                                      core_t::TTime time,
-                                     TFeatureAnyPrVec &result) const;
+                                     TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique values for each person and attribute
     //! in the bucketing interval containing \p time.
@@ -380,7 +380,7 @@ private:
     //! by person and attribute
     void bucketUniqueValuesPerPersonAttribute(model_t::EFeature feature,
                                               core_t::TTime time,
-                                              TFeatureAnyPrVec &result) const;
+                                              TFeatureAnyPrVec& result) const;
 
     //! Append the compressed length of the unique attributes each person
     //! hits in the bucketing interval containing \p time.
@@ -390,7 +390,7 @@ private:
     //! unique values by person and attribute
     void bucketCompressedLengthPerPerson(model_t::EFeature feature,
                                          core_t::TTime time,
-                                         TFeatureAnyPrVec &result) const;
+                                         TFeatureAnyPrVec& result) const;
 
     //! Append the compressed length of the unique attributes each person
     //! hits in the bucketing interval containing \p time.
@@ -400,7 +400,7 @@ private:
     //! unique values by person and attribute
     void bucketCompressedLengthPerPersonAttribute(model_t::EFeature feature,
                                                   core_t::TTime time,
-                                                  TFeatureAnyPrVec &result) const;
+                                                  TFeatureAnyPrVec& result) const;
 
     //! Append the time-of-day/week values for each person in the
     //! bucketing interval \p time.
@@ -410,7 +410,7 @@ private:
     //! by person.
     void bucketMeanTimesPerPerson(model_t::EFeature feature,
                                   core_t::TTime time,
-                                  TFeatureAnyPrVec &result) const;
+                                  TFeatureAnyPrVec& result) const;
 
     //! Append the time-of-day/week values of each attribute and person
     //! in the bucketing interval \p time.
@@ -420,7 +420,7 @@ private:
     //! by attribute and person
     void bucketMeanTimesPerPersonAttribute(model_t::EFeature feature,
                                            core_t::TTime time,
-                                           TFeatureAnyPrVec &result) const;
+                                           TFeatureAnyPrVec& result) const;
 
     //! Resize the necessary data structures so they can accommodate
     //! the person and attribute identified by \p pid and \p cid,
@@ -447,20 +447,20 @@ private:
     virtual void addValue(std::size_t pid,
                           std::size_t cid,
                           core_t::TTime time,
-                          const CEventData::TDouble1VecArray &values,
+                          const CEventData::TDouble1VecArray& values,
                           std::size_t count,
-                          const CEventData::TOptionalStr &stringValue,
-                          const TStoredStringPtrVec &influences);
+                          const CEventData::TOptionalStr& stringValue,
+                          const TStoredStringPtrVec& influences);
 
     //! Start a new bucket.
     virtual void startNewBucket(core_t::TTime time, bool skipUpdates);
 
     //! Initialize the field names collection.
-    void initializeFieldNames(const std::string &personFieldName,
-                              const std::string &attributeFieldName,
-                              const std::string &valueFieldName,
-                              const std::string &summaryCountFieldName,
-                              const TStrVec &influenceFieldNames);
+    void initializeFieldNames(const std::string& personFieldName,
+                              const std::string& attributeFieldName,
+                              const std::string& valueFieldName,
+                              const std::string& summaryCountFieldName,
+                              const TStrVec& influenceFieldNames);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData(void);
@@ -469,13 +469,13 @@ private:
     //!
     //! \warning This assumes that \p result is sorted by person
     //! identifier.
-    void addInfluencerCounts(core_t::TTime time, TSizeFeatureDataPrVec &result) const;
+    void addInfluencerCounts(core_t::TTime time, TSizeFeatureDataPrVec& result) const;
 
     //! Copy the influencer person and attribute counts to \p results.
     //!
     //! \warning This assumes that \p result is sorted by person
     //! and attribute identifier.
-    void addInfluencerCounts(core_t::TTime time, TSizeSizePrFeatureDataPrVec &result) const;
+    void addInfluencerCounts(core_t::TTime time, TSizeSizePrFeatureDataPrVec& result) const;
 
 private:
     //! The name of the field value of interest for keyed functions
@@ -511,19 +511,19 @@ namespace std {
 
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
-inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &rhs) {
+inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr& lhs,
+                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr& rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }
 
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
-inline void swap(ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &rhs) {
+inline void swap(ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr& lhs,
+                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr& rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }
 }
 
-#endif// INCLUDED_ml_model_CEventRateBucketGatherer_h
+#endif // INCLUDED_ml_model_CEventRateBucketGatherer_h

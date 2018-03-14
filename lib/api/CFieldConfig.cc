@@ -146,15 +146,15 @@ const std::string CFieldConfig::CLEAR("clear");
 
 CFieldConfig::CFieldConfig(void) {}
 
-CFieldConfig::CFieldConfig(const std::string &categorizationFieldName)
+CFieldConfig::CFieldConfig(const std::string& categorizationFieldName)
     : m_CategorizationFieldName(categorizationFieldName) {
     this->seenField(categorizationFieldName);
 }
 
-CFieldConfig::CFieldConfig(const std::string &fieldName,
-                           const std::string &byFieldName,
+CFieldConfig::CFieldConfig(const std::string& fieldName,
+                           const std::string& byFieldName,
                            bool useNull,
-                           const std::string &summaryCountFieldName)
+                           const std::string& summaryCountFieldName)
     : m_SummaryCountFieldName(summaryCountFieldName) {
     CFieldOptions options(fieldName, 1, byFieldName, false, useNull);
 
@@ -169,9 +169,9 @@ CFieldConfig::CFieldConfig(const std::string &fieldName,
     this->seenField(byFieldName);
 }
 
-CFieldConfig::CFieldConfig(const std::string &fieldName,
-                           const std::string &byFieldName,
-                           const std::string &partitionFieldName,
+CFieldConfig::CFieldConfig(const std::string& fieldName,
+                           const std::string& byFieldName,
+                           const std::string& partitionFieldName,
                            bool useNull) {
     CFieldOptions options(fieldName, 1, byFieldName, partitionFieldName, false, false, useNull);
 
@@ -187,7 +187,7 @@ CFieldConfig::CFieldConfig(const std::string &fieldName,
     this->seenField(partitionFieldName);
 }
 
-bool CFieldConfig::initFromCmdLine(const std::string &configFile, const TStrVec &tokens) {
+bool CFieldConfig::initFromCmdLine(const std::string& configFile, const TStrVec& tokens) {
     if (tokens.empty() && configFile.empty()) {
         LOG_ERROR("Neither a fieldname clause nor a field config file was specified");
         return false;
@@ -205,7 +205,7 @@ bool CFieldConfig::initFromCmdLine(const std::string &configFile, const TStrVec 
     return this->initFromClause(tokens);
 }
 
-bool CFieldConfig::initFromFile(const std::string &configFile) {
+bool CFieldConfig::initFromFile(const std::string& configFile) {
     LOG_DEBUG("Reading config file " << configFile);
 
     m_FieldOptions.clear();
@@ -226,7 +226,7 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
         model::CLimits::skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error& e) {
         LOG_ERROR("Error reading config file " << configFile << ": " << e.what());
         return false;
     }
@@ -237,8 +237,8 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
     for (boost::property_tree::ptree::iterator level1Iter = propTree.begin();
          level1Iter != propTree.end();
          ++level1Iter) {
-        const std::string &level1Key = level1Iter->first;
-        const std::string &value = level1Iter->second.data();
+        const std::string& level1Key = level1Iter->first;
+        const std::string& value = level1Iter->second.data();
         if (level1Key.length() > DETECTOR_PREFIX.length() &&
             level1Key.compare(0, DETECTOR_PREFIX.length(), DETECTOR_PREFIX) == 0) {
             if (this->processDetector(propTree, level1Key, value, handledConfigs) == false) {
@@ -272,7 +272,7 @@ bool CFieldConfig::initFromFile(const std::string &configFile) {
     return true;
 }
 
-bool CFieldConfig::tokenise(const std::string &clause, TStrVec &copyTokens) {
+bool CFieldConfig::tokenise(const std::string& clause, TStrVec& copyTokens) {
     // Tokenise on spaces or commas. Double quotes are used
     // for quoting, and the escape character is a backslash.
     typedef boost::escaped_list_separator<char> TCharEscapedListSeparator;
@@ -284,7 +284,7 @@ bool CFieldConfig::tokenise(const std::string &clause, TStrVec &copyTokens) {
         for (TCharEscapedListSeparatorTokenizer::iterator iter = tokenizer.begin();
              iter != tokenizer.end();
              ++iter) {
-            const std::string &token = *iter;
+            const std::string& token = *iter;
             if (token.empty()) {
                 // boost::escaped_list_separator creates empty tokens for
                 // multiple adjacent separators, but we don't want these
@@ -294,7 +294,7 @@ bool CFieldConfig::tokenise(const std::string &clause, TStrVec &copyTokens) {
             copyTokens.push_back(token);
             LOG_TRACE(token);
         }
-    } catch (boost::escaped_list_error &e) {
+    } catch (boost::escaped_list_error& e) {
         LOG_ERROR("Cannot parse clause " << clause << ": " << e.what());
         return false;
     }
@@ -302,8 +302,8 @@ bool CFieldConfig::tokenise(const std::string &clause, TStrVec &copyTokens) {
     return true;
 }
 
-void CFieldConfig::retokenise(const TStrVec &tokens, TStrVec &copyTokens) {
-    for (const auto &token : tokens) {
+void CFieldConfig::retokenise(const TStrVec& tokens, TStrVec& copyTokens) {
+    for (const auto& token : tokens) {
         size_t commaPos(token.find(','));
         if (commaPos == std::string::npos) {
             copyTokens.push_back(token);
@@ -326,14 +326,14 @@ void CFieldConfig::retokenise(const TStrVec &tokens, TStrVec &copyTokens) {
         }
     }
 
-    for (const auto &copyToken : copyTokens) {
+    for (const auto& copyToken : copyTokens) {
         LOG_DEBUG(copyToken);
     }
 }
 
-bool CFieldConfig::findLastByOverTokens(const TStrVec &copyTokens,
-                                        std::size_t &lastByTokenIndex,
-                                        std::size_t &lastOverTokenIndex) {
+bool CFieldConfig::findLastByOverTokens(const TStrVec& copyTokens,
+                                        std::size_t& lastByTokenIndex,
+                                        std::size_t& lastOverTokenIndex) {
     for (size_t index = 0; index < copyTokens.size(); ++index) {
         if (copyTokens[index].length() == BY_TOKEN.length() &&
             core::CStrCaseCmp::strCaseCmp(copyTokens[index].c_str(), BY_TOKEN.c_str()) == 0) {
@@ -364,11 +364,11 @@ bool CFieldConfig::findLastByOverTokens(const TStrVec &copyTokens,
     return true;
 }
 
-bool CFieldConfig::validateByOverField(const TStrVec &copyTokens,
+bool CFieldConfig::validateByOverField(const TStrVec& copyTokens,
                                        const std::size_t thisIndex,
                                        const std::size_t otherIndex,
-                                       const TStrVec &clashingNames,
-                                       std::string &fieldName) {
+                                       const TStrVec& clashingNames,
+                                       std::string& fieldName) {
     if (thisIndex != copyTokens.size()) {
         if (thisIndex == 0) {
             LOG_ERROR("Analysis clause begins with a '" << copyTokens[thisIndex] << "' token");
@@ -388,7 +388,7 @@ bool CFieldConfig::validateByOverField(const TStrVec &copyTokens,
         }
 
         fieldName = copyTokens[thisIndex + 1];
-        for (const auto &clashingName : clashingNames) {
+        for (const auto& clashingName : clashingNames) {
             if (fieldName == clashingName) {
                 LOG_ERROR("The '" << copyTokens[thisIndex] << "' field cannot be " << fieldName);
                 return false;
@@ -399,9 +399,9 @@ bool CFieldConfig::validateByOverField(const TStrVec &copyTokens,
     return true;
 }
 
-std::string CFieldConfig::findParameter(const std::string &parameter, TStrVec &copyTokens) {
+std::string CFieldConfig::findParameter(const std::string& parameter, TStrVec& copyTokens) {
     for (TStrVecItr iter = copyTokens.begin(); iter != copyTokens.end(); ++iter) {
-        const std::string &token = *iter;
+        const std::string& token = *iter;
         std::size_t equalPos = token.find('=');
         if (equalPos == parameter.length() &&
             core::CStrCaseCmp::strNCaseCmp(parameter.c_str(), token.c_str(), equalPos) == 0) {
@@ -414,7 +414,7 @@ std::string CFieldConfig::findParameter(const std::string &parameter, TStrVec &c
     return std::string();
 }
 
-bool CFieldConfig::initFromClause(const TStrVec &tokens) {
+bool CFieldConfig::initFromClause(const TStrVec& tokens) {
     m_FieldOptions.clear();
     m_FieldNameSuperset.clear();
     m_CategorizationFilters.clear();
@@ -458,7 +458,7 @@ bool CFieldConfig::initFromClause(const TStrVec &tokens) {
     return true;
 }
 
-bool CFieldConfig::addOptions(const CFieldOptions &options) {
+bool CFieldConfig::addOptions(const CFieldOptions& options) {
     typedef std::pair<TFieldOptionsMIndexItr, bool> TFieldOptionsMIndexItrBoolPr;
     TFieldOptionsMIndexItrBoolPr result(m_FieldOptions.insert(options));
     if (result.second == false) {
@@ -477,11 +477,11 @@ bool CFieldConfig::addOptions(const CFieldOptions &options) {
 
 bool CFieldConfig::parseClause(bool allowMultipleFunctions,
                                int configKey,
-                               const std::string &description,
-                               TStrVec &copyTokens,
-                               TFieldOptionsMIndex &optionsIndex,
-                               std::string &categorizationFieldName,
-                               std::string &summaryCountFieldName) {
+                               const std::string& description,
+                               TStrVec& copyTokens,
+                               TFieldOptionsMIndex& optionsIndex,
+                               std::string& categorizationFieldName,
+                               std::string& summaryCountFieldName) {
     std::string partitionFieldName = this->findParameter(PARTITION_FIELD_OPTION, copyTokens);
 
     // Allow any number of influencerfield arguments
@@ -521,15 +521,21 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     clashingNames.push_back(COUNT_NAME);
     clashingNames.push_back(partitionFieldName);
     std::string byFieldName;
-    if (!this->validateByOverField(
-            copyTokens, lastByTokenIndex, lastOverTokenIndex, clashingNames, byFieldName)) {
+    if (!this->validateByOverField(copyTokens,
+                                   lastByTokenIndex,
+                                   lastOverTokenIndex,
+                                   clashingNames,
+                                   byFieldName)) {
         return false;
     }
 
     std::string overFieldName;
     clashingNames.push_back(byFieldName);
-    if (!this->validateByOverField(
-            copyTokens, lastOverTokenIndex, lastByTokenIndex, clashingNames, overFieldName)) {
+    if (!this->validateByOverField(copyTokens,
+                                   lastOverTokenIndex,
+                                   lastByTokenIndex,
+                                   clashingNames,
+                                   overFieldName)) {
         return false;
     }
 
@@ -603,11 +609,11 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
     return true;
 }
 
-bool CFieldConfig::parseRules(int detectorIndex, const std::string &rules) {
+bool CFieldConfig::parseRules(int detectorIndex, const std::string& rules) {
     return parseRules(m_DetectorRules[detectorIndex], rules);
 }
 
-bool CFieldConfig::parseRules(TDetectionRuleVec &detectionRules, const std::string &rules) {
+bool CFieldConfig::parseRules(TDetectionRuleVec& detectionRules, const std::string& rules) {
     if (rules.empty()) {
         return true;
     }
@@ -616,28 +622,28 @@ bool CFieldConfig::parseRules(TDetectionRuleVec &detectionRules, const std::stri
     return rulesParser.parseRules(rules, detectionRules);
 }
 
-const CFieldConfig::TFieldOptionsMIndex &CFieldConfig::fieldOptions(void) const {
+const CFieldConfig::TFieldOptionsMIndex& CFieldConfig::fieldOptions(void) const {
     return m_FieldOptions;
 }
 
-const std::string &CFieldConfig::categorizationFieldName(void) const {
+const std::string& CFieldConfig::categorizationFieldName(void) const {
     return m_CategorizationFieldName;
 }
 
-const CFieldConfig::TStrPatternSetUMap &CFieldConfig::ruleFilters(void) const {
+const CFieldConfig::TStrPatternSetUMap& CFieldConfig::ruleFilters(void) const {
     return m_RuleFilters;
 }
 
-const CFieldConfig::TStrVec &CFieldConfig::categorizationFilters(void) const {
+const CFieldConfig::TStrVec& CFieldConfig::categorizationFilters(void) const {
     return m_CategorizationFilters;
 }
 
-const std::string &CFieldConfig::summaryCountFieldName(void) const {
+const std::string& CFieldConfig::summaryCountFieldName(void) const {
     return m_SummaryCountFieldName;
 }
 
 bool CFieldConfig::havePartitionFields(void) const {
-    for (const auto &fieldOption : m_FieldOptions) {
+    for (const auto& fieldOption : m_FieldOptions) {
         if (!fieldOption.partitionFieldName().empty()) {
             return true;
         }
@@ -645,14 +651,14 @@ bool CFieldConfig::havePartitionFields(void) const {
     return false;
 }
 
-const CFieldConfig::TStrSet &CFieldConfig::fieldNameSuperset(void) const {
+const CFieldConfig::TStrSet& CFieldConfig::fieldNameSuperset(void) const {
     return m_FieldNameSuperset;
 }
 
-bool CFieldConfig::processDetector(const boost::property_tree::ptree &propTree,
-                                   const std::string &key,
-                                   const std::string &value,
-                                   TIntSet &handledConfigs) {
+bool CFieldConfig::processDetector(const boost::property_tree::ptree& propTree,
+                                   const std::string& key,
+                                   const std::string& value,
+                                   TIntSet& handledConfigs) {
     // Drive the map population off the first setting in the file that is for a
     // particular detector
 
@@ -677,17 +683,22 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree &propTree,
     }
 
     std::string description(
-        propTree.get(boost::property_tree::ptree::path_type(
-                         DETECTOR_PREFIX + configKeyString + DESCRIPTION_SUFFIX, '\t'),
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString +
+                                                                DESCRIPTION_SUFFIX,
+                                                            '\t'),
                      EMPTY_STRING));
 
-    std::string clause(propTree.get(boost::property_tree::ptree::path_type(
-                                        DETECTOR_PREFIX + configKeyString + CLAUSE_SUFFIX, '\t'),
-                                    EMPTY_STRING));
+    std::string clause(
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString +
+                                                                CLAUSE_SUFFIX,
+                                                            '\t'),
+                     EMPTY_STRING));
 
-    std::string rules(propTree.get(boost::property_tree::ptree::path_type(
-                                       DETECTOR_PREFIX + configKeyString + RULES_SUFFIX, '\t'),
-                                   EMPTY_STRING));
+    std::string rules(
+        propTree.get(boost::property_tree::ptree::path_type(DETECTOR_PREFIX + configKeyString +
+                                                                RULES_SUFFIX,
+                                                            '\t'),
+                     EMPTY_STRING));
 
     TStrVec tokens;
     if (this->tokenise(clause, tokens) == false) {
@@ -704,9 +715,9 @@ bool CFieldConfig::processDetector(const boost::property_tree::ptree &propTree,
 }
 
 bool CFieldConfig::addActiveDetector(int configKey,
-                                     const std::string &description,
-                                     const std::string &rules,
-                                     TStrVec &copyTokens) {
+                                     const std::string& description,
+                                     const std::string& rules,
+                                     TStrVec& copyTokens) {
     std::string categorizationFieldName;
     std::string summaryCountFieldName;
 
@@ -728,7 +739,7 @@ bool CFieldConfig::addActiveDetector(int configKey,
         m_SummaryCountFieldName.swap(summaryCountFieldName);
     }
 
-    TDetectionRuleVec &detectionRules = m_DetectorRules[configKey];
+    TDetectionRuleVec& detectionRules = m_DetectorRules[configKey];
     if (this->parseRules(detectionRules, rules) == false) {
         // parseRules() will have logged the error
         return false;
@@ -740,9 +751,9 @@ bool CFieldConfig::addActiveDetector(int configKey,
 bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
                                     bool isPopulation,
                                     bool hasByField,
-                                    const std::string &str,
-                                    model::function_t::EFunction &function,
-                                    std::string &fieldName) {
+                                    const std::string& str,
+                                    model::function_t::EFunction& function,
+                                    std::string& fieldName) {
     // Parse using a regex
     core::CRegex regex;
 
@@ -775,8 +786,8 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
     // Overall string "x(y)" => outerToken is "x" and innerToken is "y"
     // Overall string "x"    => outerToken is "x" and innerToken is empty
     // Overall string "x()"  => outerToken is "x" and innerToken is empty
-    const std::string &outerToken = tokens[0];
-    const std::string &innerToken = tokens[1];
+    const std::string& outerToken = tokens[0];
+    const std::string& innerToken = tokens[1];
 
     // Some functions must take an argument, some mustn't and for the rest it's
     // optional.  Validate this based on the contents of these flags after
@@ -1026,7 +1037,7 @@ bool CFieldConfig::parseFieldString(bool haveSummaryCountField,
     return true;
 }
 
-void CFieldConfig::seenField(const std::string &fieldName) {
+void CFieldConfig::seenField(const std::string& fieldName) {
     if (fieldName.empty()) {
         return;
     }
@@ -1050,17 +1061,17 @@ std::string CFieldConfig::debug(void) const {
     return strm.str();
 }
 
-void CFieldConfig::debug(const TFieldOptionsMIndex &fieldOptions, std::ostream &strm) const {
-    for (const auto &fieldOption : fieldOptions) {
+void CFieldConfig::debug(const TFieldOptionsMIndex& fieldOptions, std::ostream& strm) const {
+    for (const auto& fieldOption : fieldOptions) {
         strm << fieldOption << '|';
     }
 }
 
-bool CFieldConfig::decipherExcludeFrequentSetting(const std::string &excludeFrequentString,
+bool CFieldConfig::decipherExcludeFrequentSetting(const std::string& excludeFrequentString,
                                                   bool hasByField,
                                                   bool isPopulation,
-                                                  bool &byExcludeFrequent,
-                                                  bool &overExcludeFrequent) {
+                                                  bool& byExcludeFrequent,
+                                                  bool& overExcludeFrequent) {
     byExcludeFrequent = false;
     overExcludeFrequent = false;
 
@@ -1095,34 +1106,35 @@ void CFieldConfig::addInfluencerFieldsFromByOverPartitionFields(void) {
 }
 
 void CFieldConfig::addInfluencerFieldsFromByOverPartitionFields(
-    const TFieldOptionsMIndex &fieldOptions) {
-    for (const auto &fieldOption : fieldOptions) {
+    const TFieldOptionsMIndex& fieldOptions) {
+    for (const auto& fieldOption : fieldOptions) {
         this->addInfluencerFieldName(fieldOption.byFieldName(), true);
         this->addInfluencerFieldName(fieldOption.overFieldName(), true);
         this->addInfluencerFieldName(fieldOption.partitionFieldName(), true);
     }
 }
 
-const CFieldConfig::TStrVec &CFieldConfig::influencerFieldNames(void) const {
+const CFieldConfig::TStrVec& CFieldConfig::influencerFieldNames(void) const {
     return m_Influencers;
 }
 
-const CFieldConfig::TIntDetectionRuleVecUMap &CFieldConfig::detectionRules(void) const {
+const CFieldConfig::TIntDetectionRuleVecUMap& CFieldConfig::detectionRules(void) const {
     return m_DetectorRules;
 }
 
-const CFieldConfig::TStrDetectionRulePrVec &CFieldConfig::scheduledEvents(void) const {
+const CFieldConfig::TStrDetectionRulePrVec& CFieldConfig::scheduledEvents(void) const {
     return m_ScheduledEvents;
 }
 
 void CFieldConfig::influencerFieldNames(TStrVec influencers) {
     LOG_DEBUG("Set influencers : " << core::CContainerPrinter::print(influencers));
-    std::for_each(
-        influencers.begin(), influencers.end(), boost::bind(&CFieldConfig::seenField, this, _1));
+    std::for_each(influencers.begin(),
+                  influencers.end(),
+                  boost::bind(&CFieldConfig::seenField, this, _1));
     m_Influencers.swap(influencers);
 }
 
-void CFieldConfig::addInfluencerFieldName(const std::string &influencer, bool quiet) {
+void CFieldConfig::addInfluencerFieldName(const std::string& influencer, bool quiet) {
     if (influencer.empty()) {
         if (!quiet) {
             LOG_WARN("Ignoring blank influencer field");
@@ -1137,9 +1149,11 @@ void CFieldConfig::addInfluencerFieldName(const std::string &influencer, bool qu
     }
 }
 
-void CFieldConfig::sortInfluencers(void) { std::sort(m_Influencers.begin(), m_Influencers.end()); }
+void CFieldConfig::sortInfluencers(void) {
+    std::sort(m_Influencers.begin(), m_Influencers.end());
+}
 
-void CFieldConfig::addCategorizationFilter(const std::string &filter) {
+void CFieldConfig::addCategorizationFilter(const std::string& filter) {
     if (filter.empty()) {
         LOG_WARN("Ignoring blank categorization filter");
         return;
@@ -1157,7 +1171,7 @@ void CFieldConfig::addCategorizationFilter(const std::string &filter) {
     m_CategorizationFilters.push_back(tokens[0]);
 }
 
-bool CFieldConfig::processFilter(const std::string &key, const std::string &value) {
+bool CFieldConfig::processFilter(const std::string& key, const std::string& value) {
     // expected format is filter.<filterId>=[json, array]
     size_t sepPos(key.find(SUFFIX_SEPARATOR));
     if (sepPos == std::string::npos) {
@@ -1165,14 +1179,14 @@ bool CFieldConfig::processFilter(const std::string &key, const std::string &valu
         return false;
     }
     std::string filterId = key.substr(sepPos + 1);
-    core::CPatternSet &filter = m_RuleFilters[filterId];
+    core::CPatternSet& filter = m_RuleFilters[filterId];
     return filter.initFromJson(value);
 }
 
-bool CFieldConfig::updateFilters(const boost::property_tree::ptree &propTree) {
-    for (const auto &filterEntry : propTree) {
-        const std::string &key = filterEntry.first;
-        const std::string &value = filterEntry.second.data();
+bool CFieldConfig::updateFilters(const boost::property_tree::ptree& propTree) {
+    for (const auto& filterEntry : propTree) {
+        const std::string& key = filterEntry.first;
+        const std::string& value = filterEntry.second.data();
         if (this->processFilter(key, value) == false) {
             return false;
         }
@@ -1180,10 +1194,10 @@ bool CFieldConfig::updateFilters(const boost::property_tree::ptree &propTree) {
     return true;
 }
 
-bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &propTree,
-                                         const std::string &key,
-                                         const std::string &value,
-                                         TIntSet &handledScheduledEvents) {
+bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree& propTree,
+                                         const std::string& key,
+                                         const std::string& value,
+                                         TIntSet& handledScheduledEvents) {
     // Here we pull out the "1" in "scheduledevent.1.description"
     // description may contain a '.'
     size_t sepPos(key.find(SUFFIX_SEPARATOR, SCHEDULED_EVENT_PREFIX.length() + 1));
@@ -1192,8 +1206,9 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &prop
         return false;
     }
 
-    std::string indexString(
-        key, SCHEDULED_EVENT_PREFIX.length(), sepPos - SCHEDULED_EVENT_PREFIX.length());
+    std::string indexString(key,
+                            SCHEDULED_EVENT_PREFIX.length(),
+                            sepPos - SCHEDULED_EVENT_PREFIX.length());
     int indexKey;
     if (core::CStringUtils::stringToType(indexString, indexKey) == false) {
         LOG_ERROR("Cannot convert config key to integer: " << indexString);
@@ -1207,13 +1222,16 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &prop
     }
 
     std::string description(
-        propTree.get(boost::property_tree::ptree::path_type(
-                         SCHEDULED_EVENT_PREFIX + indexString + DESCRIPTION_SUFFIX, '\t'),
+        propTree.get(boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString +
+                                                                DESCRIPTION_SUFFIX,
+                                                            '\t'),
                      EMPTY_STRING));
 
-    std::string rules(propTree.get(boost::property_tree::ptree::path_type(
-                                       SCHEDULED_EVENT_PREFIX + indexString + RULES_SUFFIX, '\t'),
-                                   EMPTY_STRING));
+    std::string rules(
+        propTree.get(boost::property_tree::ptree::path_type(SCHEDULED_EVENT_PREFIX + indexString +
+                                                                RULES_SUFFIX,
+                                                            '\t'),
+                     EMPTY_STRING));
 
     TDetectionRuleVec detectionRules;
     if (this->parseRules(detectionRules, rules) == false) {
@@ -1231,7 +1249,7 @@ bool CFieldConfig::processScheduledEvent(const boost::property_tree::ptree &prop
     return true;
 }
 
-bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree &propTree) {
+bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree& propTree) {
     m_ScheduledEvents.clear();
 
     bool isClear = propTree.get(CLEAR, false);
@@ -1241,9 +1259,9 @@ bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree &prop
 
     TIntSet handledScheduledEvents;
 
-    for (const auto &scheduledEventEntry : propTree) {
-        const std::string &key = scheduledEventEntry.first;
-        const std::string &value = scheduledEventEntry.second.data();
+    for (const auto& scheduledEventEntry : propTree) {
+        const std::string& key = scheduledEventEntry.first;
+        const std::string& value = scheduledEventEntry.second.data();
         if (this->processScheduledEvent(propTree, key, value, handledScheduledEvents) == false) {
             return false;
         }
@@ -1251,7 +1269,7 @@ bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree &prop
     return true;
 }
 
-CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName, int configKey)
+CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName, int configKey)
     : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
                                          : model::function_t::E_IndividualMetric),
       m_FieldName(fieldName),
@@ -1260,9 +1278,9 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName, int con
       m_OverHasExcludeFrequent(false),
       m_UseNull(true) {}
 
-CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
+CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
                                            int configKey,
-                                           const std::string &byFieldName,
+                                           const std::string& byFieldName,
                                            bool byHasExcludeFrequent,
                                            bool useNull)
     // For historical reasons, the only function name we interpret in this
@@ -1277,10 +1295,10 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_OverHasExcludeFrequent(false),
       m_UseNull(useNull) {}
 
-CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
+CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
                                            int configKey,
-                                           const std::string &byFieldName,
-                                           const std::string &partitionFieldName,
+                                           const std::string& byFieldName,
+                                           const std::string& partitionFieldName,
                                            bool byHasExcludeFrequent,
                                            bool overHasExcludeFrequent,
                                            bool useNull)
@@ -1298,11 +1316,11 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_UseNull(useNull) {}
 
 CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function,
-                                           const std::string &fieldName,
+                                           const std::string& fieldName,
                                            int configKey,
-                                           const std::string &byFieldName,
-                                           const std::string &overFieldName,
-                                           const std::string &partitionFieldName,
+                                           const std::string& byFieldName,
+                                           const std::string& overFieldName,
+                                           const std::string& partitionFieldName,
                                            bool byHasExcludeFrequent,
                                            bool overHasExcludeFrequent,
                                            bool useNull)
@@ -1320,27 +1338,37 @@ void CFieldConfig::CFieldOptions::description(std::string description) {
     m_Description.swap(description);
 }
 
-const std::string &CFieldConfig::CFieldOptions::description(void) const { return m_Description; }
+const std::string& CFieldConfig::CFieldOptions::description(void) const {
+    return m_Description;
+}
 
 model::function_t::EFunction CFieldConfig::CFieldOptions::function(void) const {
     return m_Function;
 }
 
-const std::string &CFieldConfig::CFieldOptions::fieldName(void) const { return m_FieldName; }
+const std::string& CFieldConfig::CFieldOptions::fieldName(void) const {
+    return m_FieldName;
+}
 
-int CFieldConfig::CFieldOptions::configKey(void) const { return m_ConfigKey; }
+int CFieldConfig::CFieldOptions::configKey(void) const {
+    return m_ConfigKey;
+}
 
-const std::string &CFieldConfig::CFieldOptions::byFieldName(void) const { return m_ByFieldName; }
+const std::string& CFieldConfig::CFieldOptions::byFieldName(void) const {
+    return m_ByFieldName;
+}
 
-const std::string &CFieldConfig::CFieldOptions::overFieldName(void) const {
+const std::string& CFieldConfig::CFieldOptions::overFieldName(void) const {
     return m_OverFieldName;
 }
 
-const std::string &CFieldConfig::CFieldOptions::partitionFieldName(void) const {
+const std::string& CFieldConfig::CFieldOptions::partitionFieldName(void) const {
     return m_PartitionFieldName;
 }
 
-bool CFieldConfig::CFieldOptions::useNull(void) const { return m_UseNull; }
+bool CFieldConfig::CFieldOptions::useNull(void) const {
+    return m_UseNull;
+}
 
 model_t::EExcludeFrequent CFieldConfig::CFieldOptions::excludeFrequent(void) const {
     if (m_OverHasExcludeFrequent) {
@@ -1357,7 +1385,7 @@ model_t::EExcludeFrequent CFieldConfig::CFieldOptions::excludeFrequent(void) con
     return model_t::E_XF_None;
 }
 
-const std::string &CFieldConfig::CFieldOptions::terseFunctionName(void) const {
+const std::string& CFieldConfig::CFieldOptions::terseFunctionName(void) const {
     switch (m_Function) {
         case model::function_t::E_IndividualCount:
             // For backwards compatibility the "count" function name maps to
@@ -1541,7 +1569,7 @@ const std::string &CFieldConfig::CFieldOptions::terseFunctionName(void) const {
     return EMPTY_STRING;
 }
 
-const std::string &CFieldConfig::CFieldOptions::verboseFunctionName(void) const {
+const std::string& CFieldConfig::CFieldOptions::verboseFunctionName(void) const {
     switch (m_Function) {
         case model::function_t::E_IndividualCount:
             // For backwards compatibility the "count" function name maps to
@@ -1725,7 +1753,7 @@ const std::string &CFieldConfig::CFieldOptions::verboseFunctionName(void) const 
     return EMPTY_STRING;
 }
 
-std::ostream &CFieldConfig::CFieldOptions::debugPrintClause(std::ostream &strm) const {
+std::ostream& CFieldConfig::CFieldOptions::debugPrintClause(std::ostream& strm) const {
     strm << this->verboseFunctionName();
     if (!m_FieldName.empty()) {
         strm << '(' << m_FieldName << ')';
@@ -1760,7 +1788,7 @@ std::ostream &CFieldConfig::CFieldOptions::debugPrintClause(std::ostream &strm) 
     return strm;
 }
 
-void CFieldConfig::CFieldOptions::swap(CFieldOptions &other) {
+void CFieldConfig::CFieldOptions::swap(CFieldOptions& other) {
     m_Description.swap(other.m_Description);
     std::swap(m_Function, other.m_Function);
     m_FieldName.swap(other.m_FieldName);
@@ -1773,9 +1801,11 @@ void CFieldConfig::CFieldOptions::swap(CFieldOptions &other) {
     std::swap(m_UseNull, other.m_UseNull);
 }
 
-void swap(CFieldConfig::CFieldOptions &lhs, CFieldConfig::CFieldOptions &rhs) { lhs.swap(rhs); }
+void swap(CFieldConfig::CFieldOptions& lhs, CFieldConfig::CFieldOptions& rhs) {
+    lhs.swap(rhs);
+}
 
-std::ostream &operator<<(std::ostream &strm, const CFieldConfig::CFieldOptions &options) {
+std::ostream& operator<<(std::ostream& strm, const CFieldConfig::CFieldOptions& options) {
     options.debugPrintClause(strm);
     strm << " (config key: " << options.m_ConfigKey << " description: " << options.m_Description
          << ')';

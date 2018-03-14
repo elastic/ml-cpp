@@ -42,15 +42,15 @@ class CDetectorSpecification;
 class CONFIG_EXPORT CDetectorRecord {
 public:
     typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
-    typedef boost::array<const std::string *, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
+    typedef boost::array<const std::string*, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
     typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
 
 public:
     CDetectorRecord(core_t::TTime time,
                     config_t::EFunctionCategory function,
-                    const TStrCPtrAry &fieldNames,
-                    const TStrCPtrAry &fieldValues,
-                    const TSizeAry &hashedFieldValues);
+                    const TStrCPtrAry& fieldNames,
+                    const TStrCPtrAry& fieldValues,
+                    const TSizeAry& hashedFieldValues);
 
     //! Get the record time.
     core_t::TTime time(void) const;
@@ -59,28 +59,28 @@ public:
     config_t::EFunctionCategory function(void) const;
 
     //! Get the name of the argument field.
-    const std::string *argumentFieldName(void) const;
+    const std::string* argumentFieldName(void) const;
 
     //! Get the name of the by field.
-    const std::string *byFieldName(void) const;
+    const std::string* byFieldName(void) const;
 
     //! Get the name of the over field.
-    const std::string *overFieldName(void) const;
+    const std::string* overFieldName(void) const;
 
     //! Get the name of the partition field.
-    const std::string *partitionFieldName(void) const;
+    const std::string* partitionFieldName(void) const;
 
     //! Get the argument field value if there is one or null.
-    const std::string *argumentFieldValue(void) const;
+    const std::string* argumentFieldValue(void) const;
 
     //! Get the by field value if there is one or null.
-    const std::string *byFieldValue(void) const;
+    const std::string* byFieldValue(void) const;
 
     //! Get the over field value if there is one or null.
-    const std::string *overFieldValue(void) const;
+    const std::string* overFieldValue(void) const;
 
     //! Get the partition field value if there is one or null.
-    const std::string *partitionFieldValue(void) const;
+    const std::string* partitionFieldValue(void) const;
 
     //! Get the argument field value hash.
     std::size_t argumentFieldValueHash(void) const;
@@ -131,13 +131,13 @@ public:
 
 public:
     //! Build the table from \p specs.
-    void build(const TDetectorSpecificationVec &specs);
+    void build(const TDetectorSpecificationVec& specs);
 
     //! Get the unique records from \p time and \p fieldValues for \p specs.
     void detectorRecords(core_t::TTime time,
-                         const TStrStrUMap &fieldValues,
-                         const TDetectorSpecificationVec &specs,
-                         TDetectorRecordVec &result);
+                         const TStrStrUMap& fieldValues,
+                         const TDetectorSpecificationVec& specs,
+                         TDetectorRecordVec& result);
 
 private:
     //! Clear the state (as a precursor to build).
@@ -149,7 +149,7 @@ private:
     typedef std::vector<TStrSizePr> TStrSizePrVec;
     typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
     typedef std::vector<TSizeAry> TSizeAryVec;
-    typedef std::vector<const std::string *> TStrCPtrVec;
+    typedef std::vector<const std::string*> TStrCPtrVec;
 
 private:
     //! A map from field to its value entry in the field value table.
@@ -168,4 +168,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CDetectorRecord_h
+#endif // INCLUDED_ml_config_CDetectorRecord_h

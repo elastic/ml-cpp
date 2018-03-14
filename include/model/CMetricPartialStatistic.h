@@ -53,7 +53,8 @@ namespace model {
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
-template <class STATISTIC> class CMetricPartialStatistic {
+template <class STATISTIC>
+class CMetricPartialStatistic {
 public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
     typedef maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator
@@ -68,15 +69,15 @@ public:
         : m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
     //! Persist to a state document.
-    void persist(core::CStatePersistInserter &inserter) const {
+    void persist(core::CStatePersistInserter& inserter) const {
         CMetricStatisticWrappers::persist(m_Value, VALUE_TAG, inserter);
         inserter.insertValue(TIME_TAG, m_Time.toDelimited());
     }
 
     //! Restore from the supplied state document traverser.
-    bool restore(core::CStateRestoreTraverser &traverser) {
+    bool restore(core::CStateRestoreTraverser& traverser) {
         do {
-            const std::string &name = traverser.name();
+            const std::string& name = traverser.name();
             if (name == VALUE_TAG) {
                 if (CMetricStatisticWrappers::restore(traverser, m_Value) == false) {
                     LOG_ERROR("Invalid statistic in " << traverser.value());
@@ -97,7 +98,7 @@ public:
     //! \param[in] value The value of the statistic.
     //! \param[in] time The time of the statistic.
     //! \param[in] count The number of measurements in the statistic.
-    inline void add(const TDouble1Vec &value, core_t::TTime time, unsigned int count) {
+    inline void add(const TDouble1Vec& value, core_t::TTime time, unsigned int count) {
         CMetricStatisticWrappers::add(value, count, m_Value);
         m_Time.add(static_cast<double>(time), count);
     }
@@ -114,7 +115,7 @@ public:
     }
 
     //! Combine two partial statistics.
-    inline const CMetricPartialStatistic &operator+=(const CMetricPartialStatistic &rhs) {
+    inline const CMetricPartialStatistic& operator+=(const CMetricPartialStatistic& rhs) {
         m_Value += rhs.m_Value;
         m_Time += rhs.m_Time;
         return *this;
@@ -151,9 +152,11 @@ private:
     TMeanAccumulator m_Time;
 };
 
-template <class STATISTIC> const std::string CMetricPartialStatistic<STATISTIC>::VALUE_TAG("a");
-template <class STATISTIC> const std::string CMetricPartialStatistic<STATISTIC>::TIME_TAG("b");
+template <class STATISTIC>
+const std::string CMetricPartialStatistic<STATISTIC>::VALUE_TAG("a");
+template <class STATISTIC>
+const std::string CMetricPartialStatistic<STATISTIC>::TIME_TAG("b");
 }
 }
 
-#endif// INCLUDED_ml_model_CMetricPartialStatistic_h
+#endif // INCLUDED_ml_model_CMetricPartialStatistic_h

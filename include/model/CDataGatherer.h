@@ -113,7 +113,7 @@ public:
     typedef std::vector<std::size_t> TSizeVec;
     typedef std::vector<std::string> TStrVec;
     typedef TStrVec::const_iterator TStrVecCItr;
-    typedef std::vector<const std::string *> TStrCPtrVec;
+    typedef std::vector<const std::string*> TStrCPtrVec;
     typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
     typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
     typedef model_t::TFeatureVec TFeatureVec;
@@ -139,7 +139,7 @@ public:
     typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>
         TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
     typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
-    typedef std::vector<CBucketGatherer *> TBucketGathererPVec;
+    typedef std::vector<CBucketGatherer*> TBucketGathererPVec;
     typedef TBucketGathererPVec::iterator TBucketGathererPVecItr;
     typedef TBucketGathererPVec::const_iterator TBucketGathererPVecCItr;
     typedef std::pair<model_t::EFeature, boost::any> TFeatureAnyPr;
@@ -195,41 +195,41 @@ public:
     //! an appropriate value for the bucket length and data rate.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
-                  const SModelParams &modelParams,
-                  const std::string &summaryCountFieldName,
-                  const std::string &partitionFieldName,
-                  const std::string &partitionFieldValue,
-                  const std::string &personFieldName,
-                  const std::string &attributeFieldName,
-                  const std::string &valueFieldName,
-                  const TStrVec &influenceFieldNames,
+                  const SModelParams& modelParams,
+                  const std::string& summaryCountFieldName,
+                  const std::string& partitionFieldName,
+                  const std::string& partitionFieldValue,
+                  const std::string& personFieldName,
+                  const std::string& attributeFieldName,
+                  const std::string& valueFieldName,
+                  const TStrVec& influenceFieldNames,
                   bool useNull,
-                  const CSearchKey &key,
-                  const TFeatureVec &features,
+                  const CSearchKey& key,
+                  const TFeatureVec& features,
                   core_t::TTime startTime,
                   int sampleCountOverride);
 
     //! Construct from a state document.
     CDataGatherer(model_t::EAnalysisCategory gathererType,
                   model_t::ESummaryMode summaryMode,
-                  const SModelParams &modelParams,
-                  const std::string &summaryCountFieldName,
-                  const std::string &partitionFieldName,
-                  const std::string &partitionFieldValue,
-                  const std::string &personFieldName,
-                  const std::string &attributeFieldName,
-                  const std::string &valueFieldName,
-                  const TStrVec &influenceFieldNames,
+                  const SModelParams& modelParams,
+                  const std::string& summaryCountFieldName,
+                  const std::string& partitionFieldName,
+                  const std::string& partitionFieldValue,
+                  const std::string& personFieldName,
+                  const std::string& attributeFieldName,
+                  const std::string& valueFieldName,
+                  const TStrVec& influenceFieldNames,
                   bool useNull,
-                  const CSearchKey &key,
-                  core::CStateRestoreTraverser &traverser);
+                  const CSearchKey& key,
+                  core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CDataGatherer(bool isForPersistence, const CDataGatherer &other);
+    CDataGatherer(bool isForPersistence, const CDataGatherer& other);
 
     ~CDataGatherer(void);
     //@}
@@ -237,7 +237,7 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not
@@ -245,7 +245,7 @@ public:
     //! other purpose.
     //!
     //! \warning The caller owns the object returned.
-    CDataGatherer *cloneForPersistence(void) const;
+    CDataGatherer* cloneForPersistence(void) const;
     //@}
 
     //! Check if the data being gathered are already summarized by an
@@ -269,24 +269,24 @@ public:
     //! Get the partition field name.
     //!
     //! The name of the partitioning field.
-    const std::string &partitionFieldName(void) const;
+    const std::string& partitionFieldName(void) const;
 
     //! Get the partition field value.
     //!
     //! The value of the partitioning field.
-    const std::string &partitionFieldValue(void) const;
+    const std::string& partitionFieldValue(void) const;
 
     //! This is the common field in all searches "along" which the
     //! probabilities are aggregated, i.e. the "by" field name for
     //! individual models and the "over" field name for population
     //! models.
-    const std::string &personFieldName(void) const;
+    const std::string& personFieldName(void) const;
 
     //! Get the attribute field name if one exists.
-    const std::string &attributeFieldName(void) const;
+    const std::string& attributeFieldName(void) const;
 
     //! Get the name of the field containing the metric value.
-    const std::string &valueFieldName(void) const;
+    const std::string& valueFieldName(void) const;
 
     //! Get an iterator at the beginning the influencing field names.
     TStrVecCItr beginInfluencers(void) const;
@@ -295,7 +295,7 @@ public:
     TStrVecCItr endInfluencers(void) const;
 
     //! Return the search key for which this is gathering data.
-    const CSearchKey &searchKey(void) const;
+    const CSearchKey& searchKey(void) const;
 
     //! Get the fields for which to gather data.
     //!
@@ -303,7 +303,7 @@ public:
     //! the fields which define the categories whose counts are being
     //! analyzed, the fields containing metric series names and values
     //! and the fields defining a population.
-    const TStrVec &fieldsOfInterest(void) const;
+    const TStrVec& fieldsOfInterest(void) const;
 
     //! Get the number of by field values.  For a population model this will
     //! be equal to numberActiveAttributes(); for an individual model
@@ -324,13 +324,13 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    bool processFields(const TStrCPtrVec &fieldValues,
-                       CEventData &result,
-                       CResourceMonitor &resourceMonitor);
+    bool processFields(const TStrCPtrVec& fieldValues,
+                       CEventData& result,
+                       CResourceMonitor& resourceMonitor);
 
     //! Record the arrival of \p data at \p time.
     bool
-    addArrival(const TStrCPtrVec &fieldValues, CEventData &data, CResourceMonitor &resourceMonitor);
+    addArrival(const TStrCPtrVec& fieldValues, CEventData& data, CResourceMonitor& resourceMonitor);
 
     //! Roll time to the end of the bucket that is latency after the sampled bucket.
     void sampleNow(core_t::TTime sampleBucketStart);
@@ -355,7 +355,7 @@ public:
     model_t::EFeature feature(std::size_t i) const;
 
     //! Get the collection of features for which data is being gathered.
-    const TFeatureVec &features(void) const;
+    const TFeatureVec& features(void) const;
 
     //! Get the data for all features for the bucketing time interval
     //! containing \p time.
@@ -366,7 +366,7 @@ public:
     template <typename T>
     bool featureData(core_t::TTime time,
                      core_t::TTime bucketLength,
-                     std::vector<std::pair<model_t::EFeature, T>> &result) const {
+                     std::vector<std::pair<model_t::EFeature, T>>& result) const {
         TFeatureAnyPrVec rawFeatureData;
         this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
 
@@ -375,7 +375,7 @@ public:
         result.clear();
         result.reserve(rawFeatureData.size());
         for (std::size_t i = 0u; i < rawFeatureData.size(); ++i) {
-            TFeatureAnyPr &feature = rawFeatureData[i];
+            TFeatureAnyPr& feature = rawFeatureData[i];
 
             // Check the typeid before attempting the cast so we
             // don't use throw to handle failure, which is slow.
@@ -395,7 +395,7 @@ public:
             // default constructible.
             using std::swap;
             result.push_back(std::pair<model_t::EFeature, T>(feature.first, T()));
-            T &tmp = boost::any_cast<T &>(feature.second);
+            T& tmp = boost::any_cast<T&>(feature.second);
             swap(result.back().second, tmp);
         }
 
@@ -418,31 +418,31 @@ public:
     //! \param[out] result Filled in with the identifier of \p person
     //! if they exist otherwise max std::size_t.
     //! \return True if the person exists and false otherwise.
-    bool personId(const std::string &person, std::size_t &result) const;
+    bool personId(const std::string& person, std::size_t& result) const;
 
     //! Get the unique identifier of an arbitrary known person.
     //! \param[out] result Filled in with the identifier of a person
     //! \return True if a person exists and false otherwise.
-    bool anyPersonId(std::size_t &result) const;
+    bool anyPersonId(std::size_t& result) const;
 
     //! Get the name of the person identified by \p pid if they exist.
     //!
     //! \param[in] pid The unique identifier of the person of interest.
     //! \return The person name if they exist and a fallback otherwise.
-    const std::string &personName(std::size_t pid) const;
+    const std::string& personName(std::size_t pid) const;
 
     //! Get the name of the person identified by \p pid if they exist.
     //!
     //! \param[in] pid The unique identifier of the person of interest.
     //! \return The person name if they exist and a fallback otherwise.
-    const core::CStoredStringPtr &personNamePtr(std::size_t pid) const;
+    const core::CStoredStringPtr& personNamePtr(std::size_t pid) const;
 
     //! Get the name of the person identified by \p pid if they exist.
     //!
     //! \param[in] pid The unique identifier of the person of interest.
     //! \param[in] fallback The fall back name.
     //! \return The person name if they exist and \p fallback otherwise.
-    const std::string &personName(std::size_t pid, const std::string &fallback) const;
+    const std::string& personName(std::size_t pid, const std::string& fallback) const;
 
     //! Get the non-zero counts by person for the bucketing interval
     //! containing \p time.
@@ -459,24 +459,24 @@ public:
     //! where,\n
     //!   \f$pid\f$ is the person identifier,\n
     //!   \f$c\f$ is the count for the person.
-    void personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec &result) const;
+    void personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& result) const;
 
     //! Stop gathering data on the people identified by \p peopleToRemove.
-    void recyclePeople(const TSizeVec &peopleToRemove);
+    void recyclePeople(const TSizeVec& peopleToRemove);
 
     //! Remove all traces of people whose identifiers are greater than
     //! or equal to \p lowestPersonToRemove.
     void removePeople(std::size_t lowestPersonToRemove);
 
     //! Get unique identifiers of any people that have been recycled.
-    TSizeVec &recycledPersonIds(void);
+    TSizeVec& recycledPersonIds(void);
 
     //! Check that the person is no longer being modeled.
     bool isPersonActive(std::size_t pid) const;
 
     //! Record a person called \p person.
     std::size_t
-    addPerson(const std::string &person, CResourceMonitor &resourceMonitor, bool &addedPerson);
+    addPerson(const std::string& person, CResourceMonitor& resourceMonitor, bool& addedPerson);
     //@}
 
     //! \name Attribute
@@ -494,36 +494,36 @@ public:
     //! \param[out] result Filled in with the identifier of \p attribute
     //! if they exist otherwise max std::size_t.
     //! \return True if the attribute exists and false otherwise.
-    bool attributeId(const std::string &attribute, std::size_t &result) const;
+    bool attributeId(const std::string& attribute, std::size_t& result) const;
 
     //! Get the name of the attribute identified by \p cid if they exist.
     //!
     //! \param[in] cid The unique identifier of the attribute of interest.
     //! \return The attribute name if it exists anda fallback otherwise.
-    const std::string &attributeName(std::size_t cid) const;
+    const std::string& attributeName(std::size_t cid) const;
 
     //! Get the name of the attribute identified by \p pid if they exist.
     //!
     //! \param[in] cid The unique identifier of the attribute of interest.
     //! \return The attribute name if they exist and a fallback otherwise.
-    const core::CStoredStringPtr &attributeNamePtr(std::size_t cid) const;
+    const core::CStoredStringPtr& attributeNamePtr(std::size_t cid) const;
 
     //! Get the name of the attribute identified by \p cid if they exist.
     //!
     //! \param[in] cid The unique identifier of the attribute of interest.
     //! \param[in] fallback The fall back name.
     //! \return The attribute name if it exists and \p fallback otherwise.
-    const std::string &attributeName(std::size_t cid, const std::string &fallback) const;
+    const std::string& attributeName(std::size_t cid, const std::string& fallback) const;
 
     //! Stop gathering data on the attributes identified by \p attributesToRemove.
-    void recycleAttributes(const TSizeVec &attributesToRemove);
+    void recycleAttributes(const TSizeVec& attributesToRemove);
 
     //! Remove all traces of attributes whose identifiers are greater than
     //! or equal to \p lowestAttributeToRemove.
     void removeAttributes(std::size_t lowestAttributeToRemove);
 
     //! Get unique identifiers of any attributes that have been recycled.
-    TSizeVec &recycledAttributeIds(void);
+    TSizeVec& recycledAttributeIds(void);
 
     //! Check that the person is no longer being modeled.
     bool isAttributeActive(std::size_t cid) const;
@@ -580,7 +580,7 @@ public:
     //!
     //! \param[in,out] startTime The start of the interval to sample.
     //! \param[in] endTime The end of the interval to sample.
-    bool validateSampleTimes(core_t::TTime &startTime, core_t::TTime endTime) const;
+    bool validateSampleTimes(core_t::TTime& startTime, core_t::TTime endTime) const;
 
     //! Roll time forwards to \p time. Note this method is only supported
     //! for testing purposes and should not normally be called.
@@ -590,20 +590,20 @@ public:
     std::string printCurrentBucket(core_t::TTime time) const;
 
     //! Record a attribute called \p attribute.
-    std::size_t addAttribute(const std::string &attribute,
-                             CResourceMonitor &resourceMonitor,
-                             bool &addedAttribute);
+    std::size_t addAttribute(const std::string& attribute,
+                             CResourceMonitor& resourceMonitor,
+                             bool& addedAttribute);
     //@}
 
     //! \name Counts
     //@{
     //! Get the non-zero (person, attribute) pair counts in the
     //! bucketing interval corresponding to the given time.
-    const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
+    const TSizeSizePrUInt64UMap& bucketCounts(core_t::TTime time) const;
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -629,75 +629,77 @@ public:
     void releaseMemory(core_t::TTime samplingCutoffTime);
 
     //! Get the global configuration parameters.
-    const SModelParams &params(void) const;
+    const SModelParams& params(void) const;
 
     // \name Tuple
     //@{
     //! Extract the person identifier from a tuple.
     template <typename T>
-    static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T> &tuple) {
+    static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.first;
     }
     //! Extract the person identifier from a tuple.
     template <typename T>
-    static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T> &tuple) {
+    static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.first.first;
     }
     //! Extract the person identifier from a tuple.
-    static inline std::size_t extractPersonId(const TSizeSizePr &tuple) { return tuple.first; }
+    static inline std::size_t extractPersonId(const TSizeSizePr& tuple) { return tuple.first; }
     //! Extracts the person identifier from a tuple.
     struct SExtractPersonId {
-        template <typename TUPLE> std::size_t operator()(const TUPLE &t) const {
+        template <typename TUPLE>
+        std::size_t operator()(const TUPLE& t) const {
             return CDataGatherer::extractPersonId(t);
         }
     };
 
     //! Extract the attribute identifier from a tuple.
     template <typename T>
-    static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T> &tuple) {
+    static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.
     template <typename T>
-    static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T> &tuple) {
+    static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.
-    static inline std::size_t extractAttributeId(const TSizeSizePr &tuple) { return tuple.second; }
+    static inline std::size_t extractAttributeId(const TSizeSizePr& tuple) { return tuple.second; }
     //! Extracts the attribute identifier from a tuple.
     struct SExtractAttributeId {
-        template <typename TUPLE> std::size_t operator()(const TUPLE &t) const {
+        template <typename TUPLE>
+        std::size_t operator()(const TUPLE& t) const {
             return CDataGatherer::extractAttributeId(t);
         }
     };
 
     //! Extract the data from a tuple.
     template <typename T>
-    static inline const T &extractData(const std::pair<const TSizeSizePr, T> &tuple) {
+    static inline const T& extractData(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.second;
     }
     //! Extract the data from a tuple.
     template <typename T>
-    static inline const T &extractData(const std::pair<TSizeSizePr, T> &tuple) {
+    static inline const T& extractData(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.second;
     }
     //@}
 
     //! In the case of manually named summarized statistics, map the first
     //! feature to a metric category.
-    bool determineMetricCategory(TMetricCategoryVec &fieldMetricCategories) const;
+    bool determineMetricCategory(TMetricCategoryVec& fieldMetricCategories) const;
 
     //! Helper to avoid code duplication when getting a count from a
     //! field.  Logs different errors for missing value and invalid value.
-    bool extractCountFromField(const std::string &fieldName,
-                               const std::string *fieldValue,
-                               std::size_t &count) const;
+    bool extractCountFromField(const std::string& fieldName,
+                               const std::string* fieldValue,
+                               std::size_t& count) const;
 
     //! Helper to avoid code duplication when getting a metric value from a
     //! field.  Logs different errors for missing value and invalid value.
-    bool extractMetricFromField(const std::string &fieldName,
+    bool extractMetricFromField(const std::string& fieldName,
                                 std::string fieldValue,
-                                TDouble1Vec &metricValue) const;
+                                TDouble1Vec& metricValue) const;
 
     //! Returns the startTime of the earliest bucket for which data are still
     //! accepted.
@@ -717,39 +719,39 @@ private:
 private:
     //! Select the correct bucket gatherer based on the time: if we have
     //! out-of-phase buckets, select either in-phase or out-of-phase.
-    const CBucketGatherer &chooseBucketGatherer(core_t::TTime time) const;
+    const CBucketGatherer& chooseBucketGatherer(core_t::TTime time) const;
 
     //! Select the correct bucket gatherer based on the time: if we have
     //! out-of-phase buckets, select either in-phase or out-of-phase.
-    CBucketGatherer &chooseBucketGatherer(core_t::TTime time);
+    CBucketGatherer& chooseBucketGatherer(core_t::TTime time);
 
     //! Restore state from supplied traverser.
-    bool acceptRestoreTraverser(const std::string &summaryCountFieldName,
-                                const std::string &personFieldName,
-                                const std::string &attributeFieldName,
-                                const std::string &valueFieldName,
-                                const TStrVec &influenceFieldNames,
-                                core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(const std::string& summaryCountFieldName,
+                                const std::string& personFieldName,
+                                const std::string& attributeFieldName,
+                                const std::string& valueFieldName,
+                                const TStrVec& influenceFieldNames,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Restore a bucket gatherer from the supplied traverser.
-    bool restoreBucketGatherer(const std::string &summaryCountFieldName,
-                               const std::string &personFieldName,
-                               const std::string &attributeFieldName,
-                               const std::string &valueFieldName,
-                               const TStrVec &influenceFieldNames,
-                               core::CStateRestoreTraverser &traverser);
+    bool restoreBucketGatherer(const std::string& summaryCountFieldName,
+                               const std::string& personFieldName,
+                               const std::string& attributeFieldName,
+                               const std::string& valueFieldName,
+                               const TStrVec& influenceFieldNames,
+                               core::CStateRestoreTraverser& traverser);
 
     //! Persist a bucket gatherer by passing information to the supplied
     //! inserter.
-    void persistBucketGatherers(core::CStatePersistInserter &inserter) const;
+    void persistBucketGatherers(core::CStatePersistInserter& inserter) const;
 
     //! Create the bucket specific data gatherer.
     void createBucketGatherer(model_t::EAnalysisCategory gathererType,
-                              const std::string &summaryCountFieldName,
-                              const std::string &personFieldName,
-                              const std::string &attributeFieldName,
-                              const std::string &valueFieldName,
-                              const TStrVec &influenceFieldNames,
+                              const std::string& summaryCountFieldName,
+                              const std::string& personFieldName,
+                              const std::string& attributeFieldName,
+                              const std::string& valueFieldName,
+                              const TStrVec& influenceFieldNames,
                               core_t::TTime startTime,
                               unsigned int sampleCountOverride);
 
@@ -798,4 +800,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CDataGatherer_h
+#endif // INCLUDED_ml_model_CDataGatherer_h

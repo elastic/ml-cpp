@@ -34,9 +34,9 @@ namespace core {
 //!
 class CORE_EXPORT CSetEnv : private CNonInstantiatable {
 public:
-    static int setEnv(const char *name, const char *value, int overwrite);
+    static int setEnv(const char* name, const char* value, int overwrite);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CSetEnv_h
+#endif // INCLUDED_ml_core_CSetEnv_h

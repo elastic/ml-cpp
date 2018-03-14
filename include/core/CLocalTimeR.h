@@ -36,9 +36,9 @@ namespace core {
 //!
 class CORE_EXPORT CLocalTimeR : private CNonInstantiatable {
 public:
-    static struct tm *localTimeR(const time_t *clock, struct tm *result);
+    static struct tm* localTimeR(const time_t* clock, struct tm* result);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CLocalTimeR_h
+#endif // INCLUDED_ml_core_CLocalTimeR_h

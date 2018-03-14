@@ -24,7 +24,7 @@ namespace ml {
 namespace core {
 
 std::string CProgName::progName(void) {
-    const char *progName(::getprogname());
+    const char* progName(::getprogname());
     if (progName == 0) {
         return std::string();
     }

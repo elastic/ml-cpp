@@ -102,11 +102,12 @@ void CEntropySketchTest::testAll(void) {
     }
 }
 
-CppUnit::Test *CEntropySketchTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
+CppUnit::Test* CEntropySketchTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEntropySketchTest>(
-        "CEntropySketchTest::testAll", &CEntropySketchTest::testAll));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CEntropySketchTest>("CEntropySketchTest::testAll",
+                                                    &CEntropySketchTest::testAll));
 
     return suiteOfTests;
 }

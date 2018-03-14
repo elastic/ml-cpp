@@ -114,11 +114,11 @@ public:
 
 public:
     typedef std::function<void(core_t::TTime,
-                               const std::string &,
-                               const std::string &,
+                               const std::string&,
+                               const std::string&,
                                size_t,
-                               const model::CResourceMonitor::SResults &,
-                               const std::string &,
+                               const model::CResourceMonitor::SResults&,
+                               const std::string&,
                                core_t::TTime,
                                core_t::TTime)>
         TPersistCompleteFunc;
@@ -145,11 +145,11 @@ public:
     };
 
     struct SBackgroundPersistArgs {
-        SBackgroundPersistArgs(const model::CResultsQueue &resultsQueue,
-                               const TModelPlotDataVecQueue &modelPlotQueue,
+        SBackgroundPersistArgs(const model::CResultsQueue& resultsQueue,
+                               const TModelPlotDataVecQueue& modelPlotQueue,
                                core_t::TTime time,
-                               const model::CResourceMonitor::SResults &modelSizeStats,
-                               const model::CHierarchicalResultsAggregator &aggregator,
+                               const model::CResourceMonitor::SResults& modelSizeStats,
+                               const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
                                core_t::TTime lastResultsTime);
 
@@ -167,16 +167,16 @@ public:
     typedef boost::shared_ptr<SBackgroundPersistArgs> TBackgroundPersistArgsPtr;
 
 public:
-    CAnomalyJob(const std::string &jobId,
-                model::CLimits &limits,
-                CFieldConfig &fieldConfig,
-                model::CAnomalyDetectorModelConfig &modelConfig,
-                core::CJsonOutputStreamWrapper &outputBuffer,
-                const TPersistCompleteFunc &persistCompleteFunc = TPersistCompleteFunc(),
-                CBackgroundPersister *periodicPersister = nullptr,
+    CAnomalyJob(const std::string& jobId,
+                model::CLimits& limits,
+                CFieldConfig& fieldConfig,
+                model::CAnomalyDetectorModelConfig& modelConfig,
+                core::CJsonOutputStreamWrapper& outputBuffer,
+                const TPersistCompleteFunc& persistCompleteFunc = TPersistCompleteFunc(),
+                CBackgroundPersister* periodicPersister = nullptr,
                 core_t::TTime maxQuantileInterval = -1,
-                const std::string &timeFieldName = DEFAULT_TIME_FIELD_NAME,
-                const std::string &timeFieldFormat = EMPTY_STRING,
+                const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
+                const std::string& timeFieldFormat = EMPTY_STRING,
                 size_t maxAnomalyRecords = 0u);
 
     virtual ~CAnomalyJob(void);
@@ -185,23 +185,23 @@ public:
     virtual void newOutputStream(void);
 
     //! Access the output handler
-    virtual COutputHandler &outputHandler(void);
+    virtual COutputHandler& outputHandler(void);
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap &dataRowFields);
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise(void);
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher, core_t::TTime &completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder &persister);
+    virtual bool persistState(core::CDataAdder& persister);
 
     //! Initialise normalizer from quantiles state
-    virtual bool initNormalizer(const std::string &quantilesStateFile);
+    virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled(void) const;
@@ -217,7 +217,7 @@ public:
     //! or the stored state version is wrong the restoreState function will
     //! still return true. If interested in these kinds of errors check them
     //! here.
-    const SRestoredStateDetail &restoreStateStatus() const;
+    const SRestoredStateDetail& restoreStateStatus() const;
 
 private:
     //! NULL pointer that we can take a long-lived const reference to
@@ -231,7 +231,7 @@ private:
     //! 'f' => Echo a flush ID so that the attached process knows that data
     //!        sent previously has all been processed
     //! 'i' => Generate interim results
-    bool handleControlMessage(const std::string &controlMessage);
+    bool handleControlMessage(const std::string& controlMessage);
 
     //! Write out the results for the bucket starting at \p bucketStartTime.
     void outputResults(core_t::TTime bucketStartTime);
@@ -244,66 +244,66 @@ private:
     //! \p sumPastProcessingTime is the total time previously spent processing
     //! but resulted in no bucket being outputted.
     void writeOutResults(bool interim,
-                         model::CHierarchicalResults &results,
+                         model::CHierarchicalResults& results,
                          core_t::TTime bucketTime,
                          uint64_t processingTime,
                          uint64_t sumPastProcessingTime);
 
     //! Reset buckets in the range specified by the control message.
-    void resetBuckets(const std::string &controlMessage);
+    void resetBuckets(const std::string& controlMessage);
 
     //! Attempt to restore the detectors
-    bool restoreState(core::CStateRestoreTraverser &traverser,
-                      core_t::TTime &completeToTime,
-                      std::size_t &numDetectors);
+    bool restoreState(core::CStateRestoreTraverser& traverser,
+                      core_t::TTime& completeToTime,
+                      std::size_t& numDetectors);
 
     //! Attempt to restore one detector from an already-created traverser.
-    bool restoreSingleDetector(core::CStateRestoreTraverser &traverser);
+    bool restoreSingleDetector(core::CStateRestoreTraverser& traverser);
 
     //! Restore the detector identified by \p key and \p partitionFieldValue
     //! from \p traverser.
-    bool restoreDetectorState(const model::CSearchKey &key,
-                              const std::string &partitionFieldValue,
-                              core::CStateRestoreTraverser &traverser);
+    bool restoreDetectorState(const model::CSearchKey& key,
+                              const std::string& partitionFieldValue,
+                              core::CStateRestoreTraverser& traverser);
 
     //! Persist current state in the background
-    bool backgroundPersistState(CBackgroundPersister &backgroundPersister);
+    bool backgroundPersistState(CBackgroundPersister& backgroundPersister);
 
     //! This is the function that is called in a different thread to the
     //! main processing when background persistence is triggered.
-    bool runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder &persister);
+    bool runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder& persister);
 
     //! Persist the detectors to a stream.
-    bool persistState(const std::string &descriptionPrefix,
-                      const model::CResultsQueue &resultsQueue,
-                      const TModelPlotDataVecQueue &modelPlotQueue,
+    bool persistState(const std::string& descriptionPrefix,
+                      const model::CResultsQueue& resultsQueue,
+                      const TModelPlotDataVecQueue& modelPlotQueue,
                       core_t::TTime time,
-                      const TKeyCRefAnomalyDetectorPtrPrVec &detectors,
-                      const model::CResourceMonitor::SResults &modelSizeStats,
-                      const model::CHierarchicalResultsAggregator &aggregator,
-                      const std::string &normalizerState,
+                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                      const model::CResourceMonitor::SResults& modelSizeStats,
+                      const model::CHierarchicalResultsAggregator& aggregator,
+                      const std::string& normalizerState,
                       core_t::TTime latestRecordTime,
                       core_t::TTime lastResultsTime,
-                      core::CDataAdder &persister);
+                      core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister &persister);
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! Acknowledge a flush request
-    void acknowledgeFlush(const std::string &flushId);
+    void acknowledgeFlush(const std::string& flushId);
 
     //! Advance time until \p time, if it can be parsed.
     //!
     //! This also calls outputBucketResultsUntil, so may generate results if
     //! a bucket boundary is crossed and updates time in *all* the detector
     //! models.
-    void advanceTime(const std::string &time);
+    void advanceTime(const std::string& time);
 
     //! Output any results new results which are available at \p time.
     void outputBucketResultsUntil(core_t::TTime time);
 
     //! Skip time to the bucket end of \p time, if it can be parsed.
-    void skipTime(const std::string &time);
+    void skipTime(const std::string& time);
 
     //! Rolls time to \p endTime while skipping sampling the models for buckets
     //! within the gap.
@@ -322,22 +322,22 @@ private:
     core_t::TTime effectiveBucketLength(void) const;
 
     //! Update configuration
-    void updateConfig(const std::string &config);
+    void updateConfig(const std::string& config);
 
     //! Generate interim results.
-    void generateInterimResults(const std::string &controlMessage);
+    void generateInterimResults(const std::string& controlMessage);
 
     //! Parses the time range in a control message assuming the time range follows after a
     //! single character code (e.g. starts with 'i10 20').
-    bool parseTimeRangeInControlMessage(const std::string &controlMessage,
-                                        core_t::TTime &start,
-                                        core_t::TTime &end);
+    bool parseTimeRangeInControlMessage(const std::string& controlMessage,
+                                        core_t::TTime& start,
+                                        core_t::TTime& end);
 
     //! Update equalizers if not interim and aggregate.
-    void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults &results);
+    void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results);
 
     //! Update quantiles if not interim and normalize.
-    void updateQuantilesAndNormalize(bool isInterim, model::CHierarchicalResults &results);
+    void updateQuantilesAndNormalize(bool isInterim, model::CHierarchicalResults& results);
 
     //! Outputs results for the buckets that are within the specified range.
     //! The range includes the start but does not include the end.
@@ -347,7 +347,7 @@ private:
     //! specified time range.
     void generateModelPlot(core_t::TTime startTime,
                            core_t::TTime endTime,
-                           const model::CAnomalyDetector &detector);
+                           const model::CAnomalyDetector& detector);
 
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
@@ -355,59 +355,59 @@ private:
 
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
-    void writeOutModelPlot(core_t::TTime, CModelPlotDataJsonWriter &writer);
+    void writeOutModelPlot(core_t::TTime, CModelPlotDataJsonWriter& writer);
 
     //! Persist one detector to a stream.
     //! This method is static so that there is no danger of it accessing
     //! the member variables of an object.  This makes it safer to call
     //! from within a persistence thread that's working off a cloned
     //! anomaly detector.
-    static void persistIndividualDetector(const model::CAnomalyDetector &detector,
-                                          core::CStatePersistInserter &inserter);
+    static void persistIndividualDetector(const model::CAnomalyDetector& detector,
+                                          core::CStatePersistInserter& inserter);
 
     //! Iterate over the models, refresh their memory status, and send a report
     //! to the API
     void refreshMemoryAndReport(void);
 
     //! Update configuration
-    void doForecast(const std::string &controlMessage);
+    void doForecast(const std::string& controlMessage);
 
     model::CAnomalyDetector::TAnomalyDetectorPtr
     makeDetector(int identifier,
-                 const model::CAnomalyDetectorModelConfig &modelConfig,
-                 model::CLimits &limits,
-                 const std::string &partitionFieldValue,
+                 const model::CAnomalyDetectorModelConfig& modelConfig,
+                 model::CLimits& limits,
+                 const std::string& partitionFieldValue,
                  core_t::TTime firstTime,
-                 const model::CAnomalyDetector::TModelFactoryCPtr &modelFactory);
+                 const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
     //! Populate detector keys from the field config.
-    void populateDetectorKeys(const CFieldConfig &fieldConfig, TKeyVec &keys);
+    void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
-    const std::string *fieldValue(const std::string &fieldName, const TStrStrUMap &dataRowFields);
+    const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
 
     //! Extract the required fields from \p dataRowFields
     //! and add the new record to \p detector
     void addRecord(const TAnomalyDetectorPtr detector,
                    core_t::TTime time,
-                   const TStrStrUMap &dataRowFields);
+                   const TStrStrUMap& dataRowFields);
 
 protected:
     //! Get all the detectors.
-    void detectors(TAnomalyDetectorPtrVec &detectors) const;
+    void detectors(TAnomalyDetectorPtrVec& detectors) const;
 
     //! Get the detectors by parition
-    const TKeyAnomalyDetectorPtrUMap &detectorPartitionMap() const;
+    const TKeyAnomalyDetectorPtrUMap& detectorPartitionMap() const;
 
     //! Get all sorted references to the detectors.
-    void sortedDetectors(TKeyCRefAnomalyDetectorPtrPrVec &detectors) const;
+    void sortedDetectors(TKeyCRefAnomalyDetectorPtrPrVec& detectors) const;
 
     //! Get a reference to the detector for a given key
-    const TAnomalyDetectorPtr &detectorForKey(bool isRestoring,
+    const TAnomalyDetectorPtr& detectorForKey(bool isRestoring,
                                               core_t::TTime time,
-                                              const model::CSearchKey &key,
-                                              const std::string &partitionFieldValue,
-                                              model::CResourceMonitor &resourceMonitor);
+                                              const model::CSearchKey& key,
+                                              const std::string& partitionFieldValue,
+                                              model::CResourceMonitor& resourceMonitor);
 
     //! Prune all the models
     void pruneAllModels(void);
@@ -417,10 +417,10 @@ private:
     std::string m_JobId;
 
     //! Configurable limits
-    model::CLimits &m_Limits;
+    model::CLimits& m_Limits;
 
     //! Stream used by the output writer
-    core::CJsonOutputStreamWrapper &m_OutputStream;
+    core::CJsonOutputStreamWrapper& m_OutputStream;
 
     //! Responsible for performing forecasts
     CForecastRunner m_ForecastRunner;
@@ -429,10 +429,10 @@ private:
     CJsonOutputWriter m_JsonOutputWriter;
 
     //! Field names to use for the analysis
-    CFieldConfig &m_FieldConfig;
+    CFieldConfig& m_FieldConfig;
 
     //! The model configuration
-    model::CAnomalyDetectorModelConfig &m_ModelConfig;
+    model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Keep count of how many records we've handled
     uint64_t m_NumRecordsHandled;
@@ -463,7 +463,7 @@ private:
     //! Pointer to periodic persister that works in the background.  May be
     //! nullptr if this object is not responsible for starting periodic
     //! persistence.
-    CBackgroundPersister *m_PeriodicPersister;
+    CBackgroundPersister* m_PeriodicPersister;
 
     //! If we haven't output quantiles for this long due to a big anomaly
     //! we'll output them to reflect decay.  Non-positive values mean never.
@@ -506,4 +506,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CAnomalyJob_h
+#endif // INCLUDED_ml_api_CAnomalyJob_h

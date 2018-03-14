@@ -75,13 +75,13 @@ private:
     static inline double bisect(const double a, const double b) { return (a + b) / 2.0; }
 
     //! Shift the values such that a = b and b = c.
-    static inline void shift(double &a, double &b, const double c) {
+    static inline void shift(double& a, double& b, const double c) {
         a = b;
         b = c;
     }
 
     //! Shift the values such that a = b, b = c and c = d.
-    static inline void shift(double &a, double &b, double &c, const double d) {
+    static inline void shift(double& a, double& b, double& c, const double d) {
         a = b;
         b = c;
         c = d;
@@ -89,9 +89,10 @@ private:
     //@}
 
     //! Function wrapper which checks for NaN argument.
-    template <typename F> class CTrapNaNArgument {
+    template <typename F>
+    class CTrapNaNArgument {
     public:
-        CTrapNaNArgument(const F &f) : m_F(f) {}
+        CTrapNaNArgument(const F& f) : m_F(f) {}
 
         inline double operator()(const double x) const {
             if (CMathsFuncs::isNan(x)) {
@@ -112,12 +113,12 @@ private:
                          double b,
                          double fa,
                          double fb,
-                         const F &f,
+                         const F& f,
                          double tolerance,
-                         std::size_t &maxIterations,
+                         std::size_t& maxIterations,
                          double lb,
-                         double &x,
-                         double &fx) {
+                         double& x,
+                         double& fx) {
         tolerance = std::max(tolerance, ::sqrt(std::numeric_limits<double>::epsilon()));
         const double golden = 0.3819660;
 
@@ -208,13 +209,13 @@ private:
     //! Attempt to bracket a root of \p f using [\p a, \p b]
     //! as a starting point.
     template <typename F>
-    static bool bracket(double &a,
-                        double &b,
-                        double &fa,
-                        double &fb,
-                        const F &f,
+    static bool bracket(double& a,
+                        double& b,
+                        double& fa,
+                        double& fb,
+                        const F& f,
                         const double direction,
-                        std::size_t &maxIterations,
+                        std::size_t& maxIterations,
                         const double min,
                         const double max) {
         if (a > b) {
@@ -295,12 +296,12 @@ public:
     //! \param[in] min The minimum value in the function domain.
     //! \param[in] max The maximum value in the function domain.
     template <typename F>
-    static inline bool leftBracket(double &a,
-                                   double &b,
-                                   double &fa,
-                                   double &fb,
-                                   const F &f,
-                                   std::size_t &maxIterations,
+    static inline bool leftBracket(double& a,
+                                   double& b,
+                                   double& fa,
+                                   double& fb,
+                                   const F& f,
+                                   std::size_t& maxIterations,
                                    double min = -std::numeric_limits<double>::max(),
                                    double max = std::numeric_limits<double>::max()) {
         return bracket(a, b, fa, fb, f, -1.0, maxIterations, min, max);
@@ -332,12 +333,12 @@ public:
     //! \param[in] min The minimum value in the function domain.
     //! \param[in] max The maximum value in the function domain.
     template <typename F>
-    static inline bool rightBracket(double &a,
-                                    double &b,
-                                    double &fa,
-                                    double &fb,
-                                    const F &f,
-                                    std::size_t &maxIterations,
+    static inline bool rightBracket(double& a,
+                                    double& b,
+                                    double& fa,
+                                    double& fb,
+                                    const F& f,
+                                    std::size_t& maxIterations,
                                     double min = -std::numeric_limits<double>::max(),
                                     double max = std::numeric_limits<double>::max()) {
         return bracket(a, b, fa, fb, f, +1.0, maxIterations, min, max);
@@ -367,12 +368,12 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     template <typename F, typename EQUAL>
-    static inline void solve(double &a,
-                             double &b,
-                             const F &f,
-                             std::size_t &maxIterations,
-                             const EQUAL &equal,
-                             double &bestGuess) {
+    static inline void solve(double& a,
+                             double& b,
+                             const F& f,
+                             std::size_t& maxIterations,
+                             const EQUAL& equal,
+                             double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -410,14 +411,14 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     template <typename F, typename EQUAL>
-    static void solve(double &a,
-                      double &b,
+    static void solve(double& a,
+                      double& b,
                       double fa,
                       double fb,
-                      const F &f,
-                      std::size_t &maxIterations,
-                      const EQUAL &equal,
-                      double &bestGuess) {
+                      const F& f,
+                      std::size_t& maxIterations,
+                      const EQUAL& equal,
+                      double& bestGuess) {
         if (equal(a, b)) {
             // There is a bug in boost's solver for the case that
             // a == b so trap and return early.
@@ -431,14 +432,19 @@ public:
             // size_t.
             boost::uintmax_t n = std::max(maxIterations, std::size_t(1));
             TDoubleDoublePr bracket =
-                boost::math::tools::toms748_solve<const CTrapNaNArgument<F> &>(
-                    fSafe, a, b, fa, fb, equal, n);
+                boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe,
+                                                                              a,
+                                                                              b,
+                                                                              fa,
+                                                                              fb,
+                                                                              equal,
+                                                                              n);
             a = bracket.first;
             b = bracket.second;
             bestGuess = bisect(a, b);
             maxIterations = static_cast<std::size_t>(n);
             return;
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_TRACE("Falling back to Brent's solver: " << e.what());
             // Avoid compiler warning in the case of LOG_TRACE being compiled out
             static_cast<void>(&e);
@@ -469,12 +475,12 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root.
     template <typename F, typename EQUAL>
-    static bool brent(double &a,
-                      double &b,
-                      const F &f,
-                      std::size_t &maxIterations,
-                      const EQUAL &equal,
-                      double &bestGuess) {
+    static bool brent(double& a,
+                      double& b,
+                      const F& f,
+                      std::size_t& maxIterations,
+                      const EQUAL& equal,
+                      double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -513,14 +519,14 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root.
     template <typename F, typename EQUAL>
-    static bool brent(double &a,
-                      double &b,
+    static bool brent(double& a,
+                      double& b,
                       double fa,
                       double fb,
-                      const F &f,
-                      std::size_t &maxIterations,
-                      const EQUAL &equal,
-                      double &bestGuess) {
+                      const F& f,
+                      std::size_t& maxIterations,
+                      const EQUAL& equal,
+                      double& bestGuess) {
         std::size_t n = maxIterations;
 
         if (fa == 0.0) {
@@ -626,12 +632,12 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template <typename F, typename EQUAL>
-    static bool bisection(double &a,
-                          double &b,
-                          const F &f,
-                          std::size_t &maxIterations,
-                          const EQUAL &equal,
-                          double &bestGuess) {
+    static bool bisection(double& a,
+                          double& b,
+                          const F& f,
+                          std::size_t& maxIterations,
+                          const EQUAL& equal,
+                          double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -672,14 +678,14 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template <typename F, typename EQUAL>
-    static bool bisection(double &a,
-                          double &b,
+    static bool bisection(double& a,
+                          double& b,
                           double fa,
                           double fb,
-                          const F &f,
-                          std::size_t &maxIterations,
-                          const EQUAL &equal,
-                          double &bestGuess) {
+                          const F& f,
+                          std::size_t& maxIterations,
+                          const EQUAL& equal,
+                          double& bestGuess) {
         std::size_t n = maxIterations;
         if (fa == 0.0) {
             // Root at left bracket.
@@ -757,13 +763,21 @@ public:
                                 double b,
                                 double fa,
                                 double fb,
-                                const F &f,
+                                const F& f,
                                 double tolerance,
-                                std::size_t &maxIterations,
-                                double &x,
-                                double &fx) {
-        minimize(
-            a, b, fa, fb, f, tolerance, maxIterations, -std::numeric_limits<double>::max(), x, fx);
+                                std::size_t& maxIterations,
+                                double& x,
+                                double& fx) {
+        minimize(a,
+                 b,
+                 fa,
+                 fb,
+                 f,
+                 tolerance,
+                 maxIterations,
+                 -std::numeric_limits<double>::max(),
+                 x,
+                 fx);
     }
 
     //! Maximize the function \p f on the interval [\p a, \p b]
@@ -796,11 +810,11 @@ public:
                                 double b,
                                 double fa,
                                 double fb,
-                                const F &f,
+                                const F& f,
                                 double tolerance,
-                                std::size_t &maxIterations,
-                                double &x,
-                                double &fx) {
+                                std::size_t& maxIterations,
+                                double& x,
+                                double& fx) {
         CCompositeFunctions::CMinus<F> f_(f);
         minimize(a, b, -fa, -fb, f_, tolerance, maxIterations, x, fx);
         fx = -fx;
@@ -818,7 +832,7 @@ public:
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
     template <typename T, typename F>
-    static bool globalMinimize(const T &p, const F &f, double &x, double &fx) {
+    static bool globalMinimize(const T& p, const F& f, double& x, double& fx) {
         typedef std::pair<double, std::size_t> TDoubleSizePr;
         typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
 
@@ -870,7 +884,7 @@ public:
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
     template <typename T, typename F>
-    static bool globalMaximize(const T &p, const F &f, double &x, double &fx) {
+    static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
         CCompositeFunctions::CMinus<F> f_(f);
         bool result = globalMinimize(p, f_, x, fx);
         fx = -fx;
@@ -912,10 +926,10 @@ public:
                             double b,
                             double fa,
                             double fb,
-                            const F &f,
+                            const F& f,
                             const double fc,
                             std::size_t maxIterations,
-                            TDoubleDoublePr &result) {
+                            TDoubleDoublePr& result) {
         if (a > b) {
             std::swap(a, b);
             std::swap(fa, fb);
@@ -947,7 +961,7 @@ public:
             std::size_t n = maxIterations;
             solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
             LOG_TRACE("iterations = " << n);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to find left end point: " << e.what());
             return false;
         }
@@ -956,7 +970,7 @@ public:
             std::size_t n = maxIterations;
             solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
             LOG_TRACE("iterations = " << n);
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             LOG_ERROR("Failed to find right end point: " << e.what());
             return false;
         }
@@ -967,4 +981,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CSolvers_h
+#endif // INCLUDED_ml_maths_CSolvers_h

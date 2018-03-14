@@ -17,19 +17,20 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
-CppUnit::Test *CRapidXmlStateRestoreTraverserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRapidXmlStateRestoreTraverserTest");
+CppUnit::Test* CRapidXmlStateRestoreTraverserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStateRestoreTraverserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStateRestoreTraverserTest>(
-        "CRapidXmlStateRestoreTraverserTest::testRestore",
-        &CRapidXmlStateRestoreTraverserTest::testRestore));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRapidXmlStateRestoreTraverserTest>("CRapidXmlStateRestoreTraverserTest::testRestore",
+                                                &CRapidXmlStateRestoreTraverserTest::testRestore));
 
     return suiteOfTests;
 }
 
 namespace {
 
-bool traverse2ndLevel(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse2ndLevel(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level2A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("3.14"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -42,7 +43,7 @@ bool traverse2ndLevel(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse1stLevel(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse1stLevel(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level1A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());

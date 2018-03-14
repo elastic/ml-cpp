@@ -36,10 +36,10 @@ namespace core {
 //!
 class CORE_EXPORT CStrCaseCmp : private CNonInstantiatable {
 public:
-    static int strCaseCmp(const char *s1, const char *s2);
-    static int strNCaseCmp(const char *s1, const char *s2, size_t n);
+    static int strCaseCmp(const char* s1, const char* s2);
+    static int strNCaseCmp(const char* s1, const char* s2, size_t n);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CStrCaseCmp_h
+#endif // INCLUDED_ml_core_CStrCaseCmp_h

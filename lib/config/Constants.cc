@@ -29,7 +29,9 @@ const std::string FIELD_NAME[] = {std::string("argument"),
 const std::size_t CFieldIndices::PARTITIONING[] = {BY_INDEX, OVER_INDEX, PARTITION_INDEX};
 const std::size_t CFieldIndices::ALL[] = {ARGUMENT_INDEX, BY_INDEX, OVER_INDEX, PARTITION_INDEX};
 
-const std::string &name(std::size_t index) { return FIELD_NAME[index]; }
+const std::string& name(std::size_t index) {
+    return FIELD_NAME[index];
+}
 }
 }
 }

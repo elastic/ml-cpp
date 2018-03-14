@@ -27,7 +27,7 @@ public:
     void testModifiers(void);
     void testComparisons(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CTrendTestsTest_h
+#endif // INCLUDED_CTrendTestsTest_h

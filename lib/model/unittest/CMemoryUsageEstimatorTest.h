@@ -24,7 +24,7 @@ public:
     void testEstimateNonlinear(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMemoryUsageEstimatorTest_h
+#endif // INCLUDED_CMemoryUsageEstimatorTest_h

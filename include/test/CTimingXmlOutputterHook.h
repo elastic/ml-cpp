@@ -41,21 +41,21 @@ class CTestTimer;
 //!
 class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook {
 public:
-    CTimingXmlOutputterHook(const CTestTimer &testTimer,
-                            const std::string &topPath,
-                            const std::string &testPath);
+    CTimingXmlOutputterHook(const CTestTimer& testTimer,
+                            const std::string& topPath,
+                            const std::string& testPath);
 
-    virtual void failTestAdded(CppUnit::XmlDocument *document,
-                               CppUnit::XmlElement *testElement,
-                               CppUnit::Test *test,
-                               CppUnit::TestFailure *failure);
+    virtual void failTestAdded(CppUnit::XmlDocument* document,
+                               CppUnit::XmlElement* testElement,
+                               CppUnit::Test* test,
+                               CppUnit::TestFailure* failure);
 
-    virtual void successfulTestAdded(CppUnit::XmlDocument *document,
-                                     CppUnit::XmlElement *testElement,
-                                     CppUnit::Test *test);
+    virtual void successfulTestAdded(CppUnit::XmlDocument* document,
+                                     CppUnit::XmlElement* testElement,
+                                     CppUnit::Test* test);
 
-    virtual void statisticsAdded(CppUnit::XmlDocument *document,
-                                 CppUnit::XmlElement *statisticsElement);
+    virtual void statisticsAdded(CppUnit::XmlDocument* document,
+                                 CppUnit::XmlElement* statisticsElement);
 
 private:
     //! Convert a time in ms to a time in seconds in string form
@@ -63,15 +63,15 @@ private:
 
 private:
     //! Reference to test timer that we can query
-    const CTestTimer &m_TestTimer;
+    const CTestTimer& m_TestTimer;
 
     //! "bin" or "lib", to make the Jenkins output nicer
-    const std::string &m_TopPath;
+    const std::string& m_TopPath;
 
     //! Name of the directory above the "unittest" directory being tested
-    const std::string &m_TestPath;
+    const std::string& m_TestPath;
 };
 }
 }
 
-#endif// INCLUDED_ml_test_CTimingXmlOutputterHook_h
+#endif // INCLUDED_ml_test_CTimingXmlOutputterHook_h

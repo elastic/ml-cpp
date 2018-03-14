@@ -90,20 +90,20 @@ public:
     static const std::string PARAMETER_LABELS[NUMBER_PARAMETERS];
 
 public:
-    explicit CReportWriter(std::ostream &writeStream);
+    explicit CReportWriter(std::ostream& writeStream);
 
     //! No-op.
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Return an empty string vector.
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope.
     using api::COutputHandler::fieldNames;
 
     //! No-op.
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope.
     using api::COutputHandler::writeRow;
@@ -115,22 +115,22 @@ public:
     void addInvalidRecords(uint64_t n);
 
     //! Add the summary for \p field.
-    void addFieldStatistics(const std::string &field,
+    void addFieldStatistics(const std::string& field,
                             config_t::EDataType type,
-                            const CDataSummaryStatistics &summary);
+                            const CDataSummaryStatistics& summary);
 
     //! Add the summary for the categorical field \p field.
-    void addFieldStatistics(const std::string &field,
+    void addFieldStatistics(const std::string& field,
                             config_t::EDataType type,
-                            const CCategoricalDataSummaryStatistics &summary);
+                            const CCategoricalDataSummaryStatistics& summary);
 
     //! Add the summary for the numeric field \p field.
-    void addFieldStatistics(const std::string &field,
+    void addFieldStatistics(const std::string& field,
                             config_t::EDataType type,
-                            const CNumericDataSummaryStatistics &summary);
+                            const CNumericDataSummaryStatistics& summary);
 
     //! Add a summary of the detector \p detector.
-    void addDetector(const CDetectorSpecification &spec);
+    void addDetector(const CDetectorSpecification& spec);
 
     //! Write the report.
     // virtual void write(void) const = 0;
@@ -151,7 +151,7 @@ protected:
 
 private:
     //! The stream to which to write the report.
-    std::ostream &m_WriteStream;
+    std::ostream& m_WriteStream;
 
     //! The total number of records processed.
     std::string m_TotalRecords;
@@ -174,4 +174,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CReportWriter_h
+#endif // INCLUDED_ml_config_CReportWriter_h

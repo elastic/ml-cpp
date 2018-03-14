@@ -50,21 +50,22 @@ public:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    static bool basis(TDoubleVecVec &x);
+    static bool basis(TDoubleVecVec& x);
 
     //! Compute an orthonormal basis for the vectors in \p x.
     //!
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    static bool basis(TVectorVec &x);
+    static bool basis(TVectorVec& x);
 
     //! Compute an orthonormal basis for the vectors in \p x.
     //!
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N> static bool basis(boost::array<TDoubleVec, N> &x) {
+    template <std::size_t N>
+    static bool basis(boost::array<TDoubleVec, N>& x) {
         return basisImpl(x);
     }
 
@@ -73,14 +74,18 @@ public:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N> static bool basis(boost::array<TVector, N> &x) { return basisImpl(x); }
+    template <std::size_t N>
+    static bool basis(boost::array<TVector, N>& x) {
+        return basisImpl(x);
+    }
 
     //! Compute an orthonormal basis for the vectors in \p x.
     //!
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N> static bool basis(std::vector<CVectorNx1<double, N>> &x) {
+    template <std::size_t N>
+    static bool basis(std::vector<CVectorNx1<double, N>>& x) {
         return basisImpl(x);
     }
 
@@ -90,7 +95,8 @@ private:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <typename VECTORS> static bool basisImpl(VECTORS &x) {
+    template <typename VECTORS>
+    static bool basisImpl(VECTORS& x) {
         std::size_t i = 0u;
         std::size_t current = 0u;
 
@@ -136,7 +142,7 @@ private:
             if (current != x.size()) {
                 erase(x, x.begin() + current, x.end());
             }
-        } catch (const std::runtime_error &e) {
+        } catch (const std::runtime_error& e) {
             LOG_ERROR("Failed to construct basis: " << e.what());
             return false;
         }
@@ -144,74 +150,76 @@ private:
     }
 
     //! Efficiently swap \p x and \p y.
-    static void swap(TDoubleVec &x, TDoubleVec &y);
+    static void swap(TDoubleVec& x, TDoubleVec& y);
 
     //! Efficiently swap \p x and \p y.
-    static void swap(TVector &x, TVector &y);
+    static void swap(TVector& x, TVector& y);
 
     //! Efficiently swap \p x and \p y.
-    template <std::size_t N> static void swap(CVectorNx1<double, N> &x, CVectorNx1<double, N> &y) {
+    template <std::size_t N>
+    static void swap(CVectorNx1<double, N>& x, CVectorNx1<double, N>& y) {
         std::swap(x, y);
     }
 
     //! Subtract the projection of \p x onto \p e from \p x.
-    static const TDoubleVec &minusProjection(TDoubleVec &x, const TDoubleVec &e);
+    static const TDoubleVec& minusProjection(TDoubleVec& x, const TDoubleVec& e);
 
     //! Subtract the projection of \p x onto \p e from \p x.
-    static const TVector &minusProjection(TVector &x, const TVector &e);
+    static const TVector& minusProjection(TVector& x, const TVector& e);
 
     //! Subtract the projection of \p x onto \p e from \p x.
     template <std::size_t N>
-    static const CVectorNx1<double, N> &minusProjection(CVectorNx1<double, N> &x,
-                                                        const CVectorNx1<double, N> &e) {
+    static const CVectorNx1<double, N>& minusProjection(CVectorNx1<double, N>& x,
+                                                        const CVectorNx1<double, N>& e) {
         double n = e.inner(x);
         return x -= n * e;
     }
 
     //! Divide the vector \p x by the scalar \p s.
-    static const TDoubleVec &divide(TDoubleVec &x, double s);
+    static const TDoubleVec& divide(TDoubleVec& x, double s);
 
     //! Divide the vector \p x by the scalar \p s.
-    static const TVector &divide(TVector &x, double s);
+    static const TVector& divide(TVector& x, double s);
 
     //! Divide the vector \p x by the scalar \p s.
     template <std::size_t N>
-    static const CVectorNx1<double, N> &divide(CVectorNx1<double, N> &x, double s) {
+    static const CVectorNx1<double, N>& divide(CVectorNx1<double, N>& x, double s) {
         return x /= s;
     }
 
     //! Compute the norm of the vector \p x.
-    static double norm(const TDoubleVec &x);
+    static double norm(const TDoubleVec& x);
 
     //! Compute the norm of the vector \p x.
-    static double norm(const TVector &x);
+    static double norm(const TVector& x);
 
     //! Compute the norm of the vector \p x.
-    template <std::size_t N> static double norm(const CVectorNx1<double, N> &x) {
+    template <std::size_t N>
+    static double norm(const CVectorNx1<double, N>& x) {
         return x.euclidean();
     }
 
     //! Compute the inner product of \p x and \p y.
-    static double inner(const TDoubleVec &x, const TDoubleVec &y);
+    static double inner(const TDoubleVec& x, const TDoubleVec& y);
 
     //! Compute the inner product of \p x and \p y.
-    static double inner(const TVector &x, const TVector &y);
+    static double inner(const TVector& x, const TVector& y);
 
     //! Compute the inner product of \p x and \p y.
     template <std::size_t N>
-    static double inner(const CVectorNx1<double, N> &x, const CVectorNx1<double, N> &y) {
+    static double inner(const CVectorNx1<double, N>& x, const CVectorNx1<double, N>& y) {
         return x.inner(y);
     }
 
     //! Check if \p x and \p y have the same dimension.
-    static void sameDimension(const TDoubleVec &x, const TDoubleVec &y);
+    static void sameDimension(const TDoubleVec& x, const TDoubleVec& y);
 
     //! Check if \p x and \p y have the same dimension.
-    static void sameDimension(const TVector &x, const TVector &y);
+    static void sameDimension(const TVector& x, const TVector& y);
 
     //! Remove [\p begin, \p end) from \p x.
     template <typename VECTOR>
-    static void erase(std::vector<VECTOR> &x,
+    static void erase(std::vector<VECTOR>& x,
                       typename std::vector<VECTOR>::iterator begin,
                       typename std::vector<VECTOR>::iterator end) {
         x.erase(begin, end);
@@ -219,7 +227,7 @@ private:
 
     //! Remove [\p begin, \p end) from \p x.
     template <typename VECTOR, std::size_t N>
-    static void erase(boost::array<VECTOR, N> & /*x*/,
+    static void erase(boost::array<VECTOR, N>& /*x*/,
                       typename boost::array<VECTOR, N>::iterator begin,
                       typename boost::array<VECTOR, N>::iterator end) {
         for (/**/; begin != end; ++begin) {
@@ -228,26 +236,28 @@ private:
     }
 
     //! Zero the components of \p x.
-    static void zero(TDoubleVec &x);
+    static void zero(TDoubleVec& x);
 
     //! Zero the components of \p x.
-    static void zero(TVector &x);
+    static void zero(TVector& x);
 
     //! Zero the components of \p x.
-    template <std::size_t N> static void zero(CVectorNx1<double, N> &x) {
+    template <std::size_t N>
+    static void zero(CVectorNx1<double, N>& x) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             x(i) = 0.0;
         }
     }
 
     //! Print \p x for debug.
-    static std::string print(const TDoubleVec &x);
+    static std::string print(const TDoubleVec& x);
 
     //! Print \p x for debug.
-    static std::string print(const TVector &x);
+    static std::string print(const TVector& x);
 
     //! Print \p x for debug.
-    template <std::size_t N> static std::string print(const CVectorNx1<double, N> &x) {
+    template <std::size_t N>
+    static std::string print(const CVectorNx1<double, N>& x) {
         std::ostringstream result;
         result << x;
         return result.str();
@@ -256,4 +266,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CGramSchmidt_h
+#endif // INCLUDED_ml_maths_CGramSchmidt_h

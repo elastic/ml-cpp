@@ -25,7 +25,7 @@ public:
     void testBrent(void);
     void testSublevelSet(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSolversTest_h
+#endif // INCLUDED_CSolversTest_h

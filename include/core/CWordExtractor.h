@@ -46,19 +46,19 @@ class CORE_EXPORT CWordExtractor {
 public:
     //! Extract words from a message, and return them in a space separated
     //! string
-    static void extractWordsFromMessage(const std::string &message, std::string &messageWords);
+    static void extractWordsFromMessage(const std::string& message, std::string& messageWords);
 
     //! Extract words from a message, and return them in a space separated
     //! string BUT only include words that occur in groups of a specified
     //! size
     static void extractWordsFromMessage(size_t minConsecutive,
-                                        const std::string &message,
-                                        std::string &messageWords);
+                                        const std::string& message,
+                                        std::string& messageWords);
 
 private:
     //! Don't allow objects to be instantiated
     CWordExtractor(void);
-    CWordExtractor(const CWordExtractor &);
+    CWordExtractor(const CWordExtractor&);
 
 private:
     //! The ::ispunct() function's definition of punctuation is too
@@ -69,4 +69,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CWordExtractor_h
+#endif // INCLUDED_ml_core_CWordExtractor_h

@@ -30,13 +30,17 @@
 using namespace ml;
 using namespace model;
 
-CppUnit::Test *CDynamicStringIdRegistryTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
+CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-        "CDynamicStringIdRegistryTest::testAddName", &CDynamicStringIdRegistryTest::testAddName));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
-        "CDynamicStringIdRegistryTest::testPersist", &CDynamicStringIdRegistryTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testAddName",
+                                          &CDynamicStringIdRegistryTest::testAddName));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testPersist",
+                                          &CDynamicStringIdRegistryTest::testPersist));
 
     return suiteOfTests;
 }

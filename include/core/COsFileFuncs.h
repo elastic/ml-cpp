@@ -79,7 +79,7 @@ public:
     static const int EXECUTABLE;
 
     //! The name of the magic file that discards everything written to it
-    static const char *NULL_FILENAME;
+    static const char* NULL_FILENAME;
 
 public:
     //! Signed size type (to be used instead of ssize_t)
@@ -135,25 +135,25 @@ public:
 #endif
 
 public:
-    static int open(const char *path, int oflag);
-    static int open(const char *path, int oflag, TMode pmode);
+    static int open(const char* path, int oflag);
+    static int open(const char* path, int oflag, TMode pmode);
     static int dup(int fildes);
     static int dup2(int fildes, int fildes2);
     static TOffset lseek(int fildes, TOffset offset, int whence);
-    static TSignedSize read(int fildes, void *buf, size_t nbyte);
-    static TSignedSize write(int fildes, const void *buf, size_t nbyte);
+    static TSignedSize read(int fildes, void* buf, size_t nbyte);
+    static TSignedSize write(int fildes, const void* buf, size_t nbyte);
     static int close(int fildes);
 
-    static int fstat(int fildes, TStat *buf);
-    static int stat(const char *path, TStat *buf);
-    static int lstat(const char *path, TStat *buf);
-    static int access(const char *path, int amode);
+    static int fstat(int fildes, TStat* buf);
+    static int stat(const char* path, TStat* buf);
+    static int lstat(const char* path, TStat* buf);
+    static int access(const char* path, int amode);
 
-    static char *getcwd(char *buf, size_t size);
-    static int chdir(const char *path);
-    static int mkdir(const char *path);
+    static char* getcwd(char* buf, size_t size);
+    static int chdir(const char* path);
+    static int mkdir(const char* path);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_COsFileFuncs_h
+#endif // INCLUDED_ml_core_COsFileFuncs_h

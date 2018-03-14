@@ -34,7 +34,7 @@ const std::string FREE_NAMES_TAG("b");
 const std::string RECYCLED_NAMES_TAG("c");
 }
 
-CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string &nameType,
+CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string& nameType,
                                                    stat_t::EStatTypes addedStat,
                                                    stat_t::EStatTypes addNotAllowedStat,
                                                    stat_t::EStatTypes recycledStat)
@@ -45,7 +45,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string &nameType,
       m_Uids(1) {}
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
-                                                   const CDynamicStringIdRegistry &other)
+                                                   const CDynamicStringIdRegistry& other)
     : m_NameType(other.m_NameType),
       m_AddedStat(other.m_AddedStat),
       m_AddNotAllowedStat(other.m_AddNotAllowedStat),
@@ -60,16 +60,16 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
     }
 }
 
-const std::string &CDynamicStringIdRegistry::name(std::size_t id,
-                                                  const std::string &fallback) const {
+const std::string& CDynamicStringIdRegistry::name(std::size_t id,
+                                                  const std::string& fallback) const {
     return id >= m_Names.size() ? fallback : *m_Names[id];
 }
 
-const core::CStoredStringPtr &CDynamicStringIdRegistry::namePtr(std::size_t id) const {
+const core::CStoredStringPtr& CDynamicStringIdRegistry::namePtr(std::size_t id) const {
     return m_Names[id];
 }
 
-bool CDynamicStringIdRegistry::id(const std::string &name, std::size_t &result) const {
+bool CDynamicStringIdRegistry::id(const std::string& name, std::size_t& result) const {
     TWordSizeUMapCItr itr = m_Uids.find(m_Dictionary.word(name));
     if (itr == m_Uids.end()) {
         result = INVALID_ID;
@@ -79,7 +79,7 @@ bool CDynamicStringIdRegistry::id(const std::string &name, std::size_t &result) 
     return true;
 }
 
-bool CDynamicStringIdRegistry::anyId(std::size_t &result) const {
+bool CDynamicStringIdRegistry::anyId(std::size_t& result) const {
     TWordSizeUMapCItr itr = m_Uids.begin();
     if (itr == m_Uids.end()) {
         result = INVALID_ID;
@@ -89,20 +89,25 @@ bool CDynamicStringIdRegistry::anyId(std::size_t &result) const {
     return true;
 }
 
-std::size_t CDynamicStringIdRegistry::numberActiveNames(void) const { return m_Uids.size(); }
-
-std::size_t CDynamicStringIdRegistry::numberNames(void) const { return m_Names.size(); }
-
-bool CDynamicStringIdRegistry::isIdActive(std::size_t id) const {
-    return id < m_Names.size() &&
-           !std::binary_search(
-               m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>());
+std::size_t CDynamicStringIdRegistry::numberActiveNames(void) const {
+    return m_Uids.size();
 }
 
-std::size_t CDynamicStringIdRegistry::addName(const std::string &name,
+std::size_t CDynamicStringIdRegistry::numberNames(void) const {
+    return m_Names.size();
+}
+
+bool CDynamicStringIdRegistry::isIdActive(std::size_t id) const {
+    return id < m_Names.size() && !std::binary_search(m_FreeUids.begin(),
+                                                      m_FreeUids.end(),
+                                                      id,
+                                                      std::greater<std::size_t>());
+}
+
+std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
                                               core_t::TTime time,
-                                              CResourceMonitor &resourceMonitor,
-                                              bool &addedPerson) {
+                                              CResourceMonitor& resourceMonitor,
+                                              bool& addedPerson) {
     // Get the identifier or create one if this is the
     // first time we've seen them. (Use emplace to avoid copying
     // the string if it is already in the collection.)
@@ -157,8 +162,8 @@ void CDynamicStringIdRegistry::removeNames(std::size_t lowestNameToRemove) {
     m_Names.erase(m_Names.begin() + lowestNameToRemove, m_Names.end());
 }
 
-void CDynamicStringIdRegistry::recycleNames(const TSizeVec &namesToRemove,
-                                            const std::string &defaultName) {
+void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove,
+                                            const std::string& defaultName) {
     for (std::size_t i = 0u; i < namesToRemove.size(); ++i) {
         std::size_t id = namesToRemove[i];
         if (id >= m_Names.size()) {
@@ -174,7 +179,7 @@ void CDynamicStringIdRegistry::recycleNames(const TSizeVec &namesToRemove,
     m_FreeUids.erase(std::unique(m_FreeUids.begin(), m_FreeUids.end()), m_FreeUids.end());
 }
 
-CDynamicStringIdRegistry::TSizeVec &CDynamicStringIdRegistry::recycledIds(void) {
+CDynamicStringIdRegistry::TSizeVec& CDynamicStringIdRegistry::recycledIds(void) {
     return m_RecycledUids;
 }
 
@@ -245,7 +250,7 @@ std::size_t CDynamicStringIdRegistry::memoryUsage(void) const {
     return mem;
 }
 
-void CDynamicStringIdRegistry::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CDynamicStringIdRegistry::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Explicity save all shared strings, on the understanding that any other
     // owners will also save their copies
     for (std::size_t i = 0; i < m_Names.size(); i++) {
@@ -255,9 +260,9 @@ void CDynamicStringIdRegistry::acceptPersistInserter(core::CStatePersistInserter
     core::CPersistUtils::persist(RECYCLED_NAMES_TAG, m_RecycledUids, inserter);
 }
 
-bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == NAMES_TAG) {
             m_Names.push_back(CStringStore::names().get(traverser.value()));
         } else if (name == FREE_NAMES_TAG) {
@@ -275,8 +280,10 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     // reuse. We mustn't add these to the ID maps.
 
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
-        if (std::binary_search(
-                m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>())) {
+        if (std::binary_search(m_FreeUids.begin(),
+                               m_FreeUids.end(),
+                               id,
+                               std::greater<std::size_t>())) {
             LOG_TRACE("Restore ignoring free " << m_NameType << " name " << *m_Names[id] << " = id "
                                                << id);
         } else {

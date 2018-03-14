@@ -24,7 +24,7 @@ public:
 
     void threadRunner(int i);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CStatisticsTest_h
+#endif // INCLUDED_CStatisticsTest_h

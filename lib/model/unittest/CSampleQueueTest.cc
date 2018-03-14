@@ -981,8 +981,11 @@ void CSampleQueueTest::testPersistence(void) {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    TTestSampleQueue restoredQueue(
-        1, sampleCountFactor, latencyBuckets, growthFactor, bucketLength);
+    TTestSampleQueue restoredQueue(1,
+                                   sampleCountFactor,
+                                   latencyBuckets,
+                                   growthFactor,
+                                   bucketLength);
     traverser.traverseSubLevel(
         boost::bind(&TTestSampleQueue::acceptRestoreTraverser, &restoredQueue, _1));
 
@@ -1180,20 +1183,24 @@ void CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder
     CPPUNIT_ASSERT(varianceMax[0] <= 1.0);
 }
 
-CppUnit::Test *CSampleQueueTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSampleQueueTest");
+CppUnit::Test* CSampleQueueTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSampleQueueTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSampleToString", &CSampleQueueTest::testSampleToString));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSampleFromString", &CSampleQueueTest::testSampleFromString));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleToString",
+                                                  &CSampleQueueTest::testSampleToString));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testSampleFromString",
+                                                  &CSampleQueueTest::testSampleFromString));
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample",
-        &CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testAddGivenQueueIsFullShouldResize",
-        &CSampleQueueTest::testAddGivenQueueIsFullShouldResize));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample",
+                              &CSampleQueueTest::testAddGivenQueueIsEmptyShouldCreateNewSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testAddGivenQueueIsFullShouldResize",
+                              &CSampleQueueTest::testAddGivenQueueIsFullShouldResize));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample",
         &CSampleQueueTest::testAddGivenTimeIsInOrderAndCloseToNonFullLatestSubSample));
@@ -1208,9 +1215,10 @@ CppUnit::Test *CSampleQueueTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample",
         &CSampleQueueTest::testAddGivenTimeIsInOrderAndFarFromLatestSubSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample",
-        &CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample",
+                              &CSampleQueueTest::testAddGivenTimeIsWithinFullLatestSubSample));
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFarBeforeEarliestSubSample",
@@ -1262,15 +1270,18 @@ CppUnit::Test *CSampleQueueTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap",
         &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInBigEnoughGap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap",
-        &CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testAddGivenTimeIsHistoricalAndFallsInTooSmallGap",
+                              &CSampleQueueTest::
+                                  testAddGivenTimeIsHistoricalAndFallsInTooSmallGap));
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testCanSampleGivenEmptyQueue",
                                                   &CSampleQueueTest::testCanSampleGivenEmptyQueue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testCanSample", &CSampleQueueTest::testCanSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testCanSample",
+                                                  &CSampleQueueTest::testCanSample));
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testSampleGivenExactlyOneSampleOfExactCountToBeCreated",
@@ -1278,54 +1289,66 @@ CppUnit::Test *CSampleQueueTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated",
         &CSampleQueueTest::testSampleGivenExactlyOneSampleOfOverCountToBeCreated));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder",
-        &CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder",
-        &CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSampleGivenNoSampleToBeCreated",
-        &CSampleQueueTest::testSampleGivenNoSampleToBeCreated));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder",
+                              &CSampleQueueTest::testSampleGivenOneSampleToBeCreatedAndRemainder));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder",
+                              &CSampleQueueTest::testSampleGivenTwoSamplesToBeCreatedAndRemainder));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CSampleQueueTest>("CSampleQueueTest::testSampleGivenNoSampleToBeCreated",
+                                            &CSampleQueueTest::testSampleGivenNoSampleToBeCreated));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess",
         &CSampleQueueTest::testSampleGivenUsingSubSamplesUpToCountExceedItMoreThanUsingOneLess));
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenEmptyQueue",
-        &CSampleQueueTest::testResetBucketGivenEmptyQueue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample",
-        &CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample",
-        &CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenEmptyQueue",
+                                            &CSampleQueueTest::testResetBucketGivenEmptyQueue));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketBeforeEarliestSubSample",
+                              &CSampleQueueTest::
+                                  testResetBucketGivenBucketBeforeEarliestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample",
+                              &CSampleQueueTest::testResetBucketGivenBucketAtEarliestSubSample));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples",
         &CSampleQueueTest::testResetBucketGivenBucketInBetweenWithoutAnySubSamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample",
-        &CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample",
-        &CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample",
-        &CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample",
+                              &CSampleQueueTest::testResetBucketGivenBucketAtInBetweenSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample",
+                              &CSampleQueueTest::testResetBucketGivenBucketAtLatestSubSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample",
+                              &CSampleQueueTest::testResetBucketGivenBucketAfterLatestSubSample));
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets",
-        &CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets",
+                              &CSampleQueueTest::testSubSamplesNeverSpanOverDifferentBuckets));
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testPersistence", &CSampleQueueTest::testPersistence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSampleQueueTest>("CSampleQueueTest::testPersistence",
+                                                  &CSampleQueueTest::testPersistence));
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testQualityOfSamplesGivenConstantRate",
-        &CSampleQueueTest::testQualityOfSamplesGivenConstantRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
-        "CSampleQueueTest::testQualityOfSamplesGivenVariableRate",
-        &CSampleQueueTest::testQualityOfSamplesGivenVariableRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testQualityOfSamplesGivenConstantRate",
+                              &CSampleQueueTest::testQualityOfSamplesGivenConstantRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CSampleQueueTest>("CSampleQueueTest::testQualityOfSamplesGivenVariableRate",
+                              &CSampleQueueTest::testQualityOfSamplesGivenVariableRate));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSampleQueueTest>(
         "CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder",
         &CSampleQueueTest::testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder));

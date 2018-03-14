@@ -26,16 +26,20 @@ namespace maths {
 CGradientDescent::CGradientDescent(double learnRate, double momentum)
     : m_LearnRate(learnRate), m_Momentum(momentum) {}
 
-void CGradientDescent::learnRate(double learnRate) { m_LearnRate = learnRate; }
+void CGradientDescent::learnRate(double learnRate) {
+    m_LearnRate = learnRate;
+}
 
-void CGradientDescent::momentum(double momentum) { m_Momentum = momentum; }
+void CGradientDescent::momentum(double momentum) {
+    m_Momentum = momentum;
+}
 
 bool CGradientDescent::run(std::size_t n,
-                           const TVector &x0,
-                           const CFunction &f,
-                           const CGradient &gf,
-                           TVector &xBest,
-                           TDoubleVec &fi) {
+                           const TVector& x0,
+                           const CFunction& f,
+                           const CGradient& gf,
+                           TVector& xBest,
+                           TDoubleVec& fi) {
     fi.clear();
     fi.reserve(n);
 
@@ -81,12 +85,12 @@ CGradientDescent::CFunction::~CFunction(void) {}
 
 CGradientDescent::CGradient::~CGradient(void) {}
 
-CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction &f,
+CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f,
                                                                        double eps)
     : m_Eps(eps), m_F(f) {}
 
-bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector &x,
-                                                             TVector &result) const {
+bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
+                                                             TVector& result) const {
     if (x.dimension() != result.dimension()) {
         LOG_ERROR("Dimension mismatch");
         return false;

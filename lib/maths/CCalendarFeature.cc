@@ -70,8 +70,13 @@ CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time)
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time,
+                                               dayOfWeek,
+                                               dayOfMonth,
+                                               dayOfYear,
+                                               month,
+                                               year,
+                                               secondsSinceMidnight)) {
         dayOfMonth -= 1;
         this->initialize(feature, dayOfWeek, dayOfMonth, month, year);
     } else {
@@ -87,8 +92,13 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time,
+                                               dayOfWeek,
+                                               dayOfMonth,
+                                               dayOfYear,
+                                               month,
+                                               year,
+                                               secondsSinceMidnight)) {
         dayOfMonth -= 1;
         auto i = result.begin();
         for (uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES; ++feature, ++i) {
@@ -129,7 +139,7 @@ void CCalendarFeature::initialize(uint16_t feature,
     }
 }
 
-bool CCalendarFeature::fromDelimited(const std::string &value) {
+bool CCalendarFeature::fromDelimited(const std::string& value) {
     int state[2];
     if (core::CPersistUtils::fromString(value, boost::begin(state), boost::end(state))) {
         m_Feature = static_cast<uint16_t>(state[0]);
@@ -141,8 +151,8 @@ bool CCalendarFeature::fromDelimited(const std::string &value) {
 
 std::string CCalendarFeature::toDelimited(void) const {
     int state[2] = {static_cast<int>(m_Feature), static_cast<int>(m_Value)};
-    const int *begin = boost::begin(state);
-    const int *end = boost::end(state);
+    const int* begin = boost::begin(state);
+    const int* end = boost::end(state);
     return core::CPersistUtils::toString(begin, end);
 }
 
@@ -161,8 +171,13 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
     int month{};
     int year{};
     int secondsSinceMidnight{};
-    if (core::CTimezone::instance().dateFields(
-            time, dayOfWeek, dayOfMonth, dayOfYear, month, year, secondsSinceMidnight)) {
+    if (core::CTimezone::instance().dateFields(time,
+                                               dayOfWeek,
+                                               dayOfMonth,
+                                               dayOfYear,
+                                               month,
+                                               year,
+                                               secondsSinceMidnight)) {
         dayOfMonth -= 1;
         switch (m_Feature) {
             case DAYS_SINCE_START_OF_MONTH:
@@ -202,7 +217,9 @@ bool CCalendarFeature::inWindow(core_t::TTime time) const {
     return offset >= 0 && offset < this->window();
 }
 
-core_t::TTime CCalendarFeature::window(void) const { return core::constants::DAY; }
+core_t::TTime CCalendarFeature::window(void) const {
+    return core::constants::DAY;
+}
 
 uint64_t CCalendarFeature::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Feature);

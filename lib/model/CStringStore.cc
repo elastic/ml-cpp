@@ -30,7 +30,7 @@ namespace {
 
 //! \brief Helper class to hash a std::string.
 struct SStrHash {
-    std::size_t operator()(const std::string &key) const {
+    std::size_t operator()(const std::string& key) const {
         boost::hash<std::string> hasher;
         return hasher(key);
     }
@@ -38,7 +38,7 @@ struct SStrHash {
 
 //! \brief Helper class to compare a std::string and a CStoredStringPtr.
 struct SStrStoredStringPtrEqual {
-    bool operator()(const std::string &lhs, const core::CStoredStringPtr &rhs) const {
+    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const {
         return lhs == *rhs;
     }
 } STR_EQUAL;
@@ -47,8 +47,8 @@ struct SStrStoredStringPtrEqual {
 // require them call instance() during the static initialisation phase
 // of the program.  Of course, the instance may already be constructed
 // before this if another static object has used it.
-const CStringStore &DO_NOT_USE_THIS_VARIABLE = CStringStore::names();
-const CStringStore &DO_NOT_USE_THIS_VARIABLE_EITHER = CStringStore::influencers();
+const CStringStore& DO_NOT_USE_THIS_VARIABLE = CStringStore::names();
+const CStringStore& DO_NOT_USE_THIS_VARIABLE_EITHER = CStringStore::influencers();
 }
 
 void CStringStore::tidyUpNotThreadSafe(void) {
@@ -56,19 +56,21 @@ void CStringStore::tidyUpNotThreadSafe(void) {
     influencers().pruneNotThreadSafe();
 }
 
-CStringStore &CStringStore::names(void) {
+CStringStore& CStringStore::names(void) {
     static CStringStore namesInstance;
     return namesInstance;
 }
 
-CStringStore &CStringStore::influencers(void) {
+CStringStore& CStringStore::influencers(void) {
     static CStringStore influencersInstance;
     return influencersInstance;
 }
 
-const core::CStoredStringPtr &CStringStore::getEmpty(void) const { return m_EmptyString; }
+const core::CStoredStringPtr& CStringStore::getEmpty(void) const {
+    return m_EmptyString;
+}
 
-core::CStoredStringPtr CStringStore::get(const std::string &value) {
+core::CStoredStringPtr CStringStore::get(const std::string& value) {
     // This section is expected to be performed frequently.
     //
     // We ensure either:
@@ -127,14 +129,14 @@ core::CStoredStringPtr CStringStore::get(const std::string &value) {
     return result;
 }
 
-void CStringStore::remove(const std::string &value) {
+void CStringStore::remove(const std::string& value) {
     core::CScopedFastLock lock(m_Mutex);
     m_Removed.push_back(value);
 }
 
 void CStringStore::pruneRemovedNotThreadSafe(void) {
     core::CScopedFastLock lock(m_Mutex);
-    for (const auto &removed : m_Removed) {
+    for (const auto& removed : m_Removed) {
         auto i = m_Strings.find(removed, STR_HASH, STR_EQUAL);
         if (i != m_Strings.end() && i->isUnique()) {
             m_StoredStringsMemUse -= i->actualMemoryUsage();
@@ -201,5 +203,5 @@ void CStringStore::clearEverythingTestOnly(void) {
     m_StoredStringsMemUse = 0;
 }
 
-}// model
-}// ml
+} // model
+} // ml

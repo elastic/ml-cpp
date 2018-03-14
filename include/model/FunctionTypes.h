@@ -238,15 +238,15 @@ bool isForecastSupported(EFunction function);
 
 //! Get the mapping from function to data features.
 MODEL_EXPORT
-const model_t::TFeatureVec &features(EFunction function);
+const model_t::TFeatureVec& features(EFunction function);
 
 //! The inverse mapping from features to function.
 MODEL_EXPORT
-EFunction function(const model_t::TFeatureVec &features);
+EFunction function(const model_t::TFeatureVec& features);
 
 //! Get the name of \p function.
 MODEL_EXPORT
-const std::string &name(EFunction function);
+const std::string& name(EFunction function);
 
 //! Get a string description of \p function.
 MODEL_EXPORT
@@ -254,9 +254,9 @@ std::string print(EFunction function);
 
 //! Overload std stream << operator.
 MODEL_EXPORT
-std::ostream &operator<<(std::ostream &o, EFunction function);
+std::ostream& operator<<(std::ostream& o, EFunction function);
 }
 }
 }
 
-#endif// INCLUDED_ml_model_function_t_FunctionTypes_h
+#endif // INCLUDED_ml_model_function_t_FunctionTypes_h

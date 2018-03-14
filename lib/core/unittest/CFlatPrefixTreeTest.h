@@ -28,7 +28,7 @@ public:
     void testMatchesFullyGivenStringThatIsSubstringOfPrefix(void);
     void testRandom(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CFlatPrefixTreeTest_h
+#endif // INCLUDED_CFlatPrefixTreeTest_h

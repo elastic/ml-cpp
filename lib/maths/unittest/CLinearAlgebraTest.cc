@@ -548,11 +548,11 @@ void CLinearAlgebraTest::testNorms(void) {
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedEuclidean[i], v_.euclidean(), 5e-6);
     }
 
-    double m[][15] = {
-        {1.0, 2.1, 3.2, 1.7, 0.1, 4.2, 0.3, 2.8, 4.1, 0.1, 0.4, 1.2, 5.2, 0.2, 6.3},
-        {0.0, -2.1, 1.2, 1.9, 4.1, 4.5, -3.1, 0.0, 1.3, 7.5, 0.2, 1.0, 4.5, 8.1, 0.3},
-        {-1.0, 7.1, 5.2, 1.7, -0.1, 3.2, 1.8, -3.2, 4.2, 9.1, 0.2, 0.4, 4.1, 7.2, 1.3},
-        {-3.0, 1.1, -3.3, 1.8, 6.1, -1.3, 1.3, 4.2, 3.1, 1.9, -2.3, 3.1, 2.4, 2.3, 1.0}};
+    double m[][15] =
+        {{1.0, 2.1, 3.2, 1.7, 0.1, 4.2, 0.3, 2.8, 4.1, 0.1, 0.4, 1.2, 5.2, 0.2, 6.3},
+         {0.0, -2.1, 1.2, 1.9, 4.1, 4.5, -3.1, 0.0, 1.3, 7.5, 0.2, 1.0, 4.5, 8.1, 0.3},
+         {-1.0, 7.1, 5.2, 1.7, -0.1, 3.2, 1.8, -3.2, 4.2, 9.1, 0.2, 0.4, 4.1, 7.2, 1.3},
+         {-3.0, 1.1, -3.3, 1.8, 6.1, -1.3, 1.3, 4.2, 3.1, 1.9, -2.3, 3.1, 2.4, 2.3, 1.0}};
     double expectedFrobenius[] = {13.78550, 18.00250, 20.72052, 14.80844};
 
     for (std::size_t i = 0u; i < boost::size(m); ++i) {
@@ -906,8 +906,9 @@ void CLinearAlgebraTest::testSampleGaussian(void) {
         LOG_DEBUG("|error| / |covariance| = " << covarianceError.frobenius() /
                                                      covariance.frobenius());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            0.0, covarianceError.frobenius() / covariance.frobenius(), 0.01);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0,
+                                     covarianceError.frobenius() / covariance.frobenius(),
+                                     0.01);
     }
 
     // Construct a matrix whose eigenvalues and vectors are known.
@@ -960,8 +961,9 @@ void CLinearAlgebraTest::testSampleGaussian(void) {
         LOG_DEBUG("|error| / |covariance| = " << covarianceError.frobenius() /
                                                      covariance.frobenius());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            0.0, covarianceError.frobenius() / covariance.frobenius(), 0.02);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0,
+                                     covarianceError.frobenius() / covariance.frobenius(),
+                                     0.02);
     }
 }
 
@@ -1034,7 +1036,8 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
 
 namespace {
 
-template <typename MATRIX> std::string print(const MATRIX &m) {
+template <typename MATRIX>
+std::string print(const MATRIX& m) {
     std::ostringstream result;
     result << m;
     return result.str();
@@ -1102,8 +1105,10 @@ void CLinearAlgebraTest::testPersist(void) {
     // Check conversion to and from delimited is idempotent.
 
     {
-        double matrix_[][4] = {
-            {1.0, 2.1, 1.5, 0.1}, {2.1, 2.2, 3.7, 0.6}, {1.5, 3.7, 0.4, 8.1}, {0.1, 0.6, 8.1, 4.3}};
+        double matrix_[][4] = {{1.0, 2.1, 1.5, 0.1},
+                               {2.1, 2.2, 3.7, 0.6},
+                               {1.5, 3.7, 0.4, 8.1},
+                               {0.1, 0.6, 8.1, 4.3}};
 
         maths::CSymmetricMatrixNxN<double, 4> matrix(matrix_);
 
@@ -1152,32 +1157,42 @@ void CLinearAlgebraTest::testPersist(void) {
     }
 }
 
-CppUnit::Test *CLinearAlgebraTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
+CppUnit::Test* CLinearAlgebraTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSymmetricMatrixNxN", &CLinearAlgebraTest::testSymmetricMatrixNxN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testVectorNx1", &CLinearAlgebraTest::testVectorNx1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSymmetricMatrix", &CLinearAlgebraTest::testSymmetricMatrix));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testVector", &CLinearAlgebraTest::testVector));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testNorms", &CLinearAlgebraTest::testNorms));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testUtils", &CLinearAlgebraTest::testUtils));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testGaussianLogLikelihood",
-        &CLinearAlgebraTest::testGaussianLogLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSampleGaussian", &CLinearAlgebraTest::testSampleGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testLogDeterminant", &CLinearAlgebraTest::testLogDeterminant));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testProjected", &CLinearAlgebraTest::testProjected));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testPersist", &CLinearAlgebraTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrixNxN",
+                                                    &CLinearAlgebraTest::testSymmetricMatrixNxN));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVectorNx1",
+                                                    &CLinearAlgebraTest::testVectorNx1));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSymmetricMatrix",
+                                                    &CLinearAlgebraTest::testSymmetricMatrix));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testVector",
+                                                    &CLinearAlgebraTest::testVector));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testNorms",
+                                                    &CLinearAlgebraTest::testNorms));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testUtils",
+                                                    &CLinearAlgebraTest::testUtils));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CLinearAlgebraTest>("CLinearAlgebraTest::testGaussianLogLikelihood",
+                                              &CLinearAlgebraTest::testGaussianLogLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testSampleGaussian",
+                                                    &CLinearAlgebraTest::testSampleGaussian));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testLogDeterminant",
+                                                    &CLinearAlgebraTest::testLogDeterminant));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testProjected",
+                                                    &CLinearAlgebraTest::testProjected));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLinearAlgebraTest>("CLinearAlgebraTest::testPersist",
+                                                    &CLinearAlgebraTest::testPersist));
 
     return suiteOfTests;
 }

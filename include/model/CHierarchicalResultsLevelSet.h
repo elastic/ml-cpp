@@ -47,10 +47,11 @@ namespace model {
 //! a make function return T by value and taking the strings identifying
 //! the level. T must have a clear function and propagateForwardByTime
 //! functions.
-template <typename T> class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
+template <typename T>
+class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 protected:
     typedef T Type;
-    typedef std::vector<Type *> TTypePtrVec;
+    typedef std::vector<Type*> TTypePtrVec;
     typedef core::CCompressedDictionary<1> TDictionary;
     typedef TDictionary::CWord TWord;
     typedef std::pair<TWord, T> TWordTypePr;
@@ -59,40 +60,40 @@ protected:
     typedef typename TWordTypePrVec::const_iterator TWordTypePrVecCItr;
 
 protected:
-    explicit CHierarchicalResultsLevelSet(const T &bucketElement)
+    explicit CHierarchicalResultsLevelSet(const T& bucketElement)
         : m_BucketElement(bucketElement) {}
 
     //! Get the root unique element.
-    const T &bucketElement(void) const { return m_BucketElement; }
+    const T& bucketElement(void) const { return m_BucketElement; }
     //! Get a writable root unique element.
-    T &bucketElement(void) { return m_BucketElement; }
+    T& bucketElement(void) { return m_BucketElement; }
 
     //! Get an influencer bucket element for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T *influencerBucketElement(const std::string &influencerFieldName) const {
+    const T* influencerBucketElement(const std::string& influencerFieldName) const {
         return element(m_InfluencerBucketSet, influencerFieldName);
     }
 
     //! Get an influencer element for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T *influencerElement(const std::string &influencerFieldName) const {
+    const T* influencerElement(const std::string& influencerFieldName) const {
         return element(m_InfluencerSet, influencerFieldName);
     }
 
     //! Get a partition element for \p partitionFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T *partitionElement(const std::string &partitionFieldName) const {
+    const T* partitionElement(const std::string& partitionFieldName) const {
         return element(m_PartitionSet, partitionFieldName);
     }
 
     //! Get a person element.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T *personElement(const std::string &partitionFieldName,
-                           const std::string &personFieldName) const {
+    const T* personElement(const std::string& partitionFieldName,
+                           const std::string& personFieldName) const {
         TWord word = ms_Dictionary.word(partitionFieldName, personFieldName);
         TWordTypePrVecCItr i = element(m_PersonSet, word);
         return (i != m_PersonSet.end() && i->first == word) ? &i->second : 0;
@@ -101,10 +102,10 @@ protected:
     //! Get a leaf element.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T *leafElement(const std::string &partitionFieldName,
-                         const std::string &personFieldName,
-                         const std::string &functionName,
-                         const std::string &valueFieldName) const {
+    const T* leafElement(const std::string& partitionFieldName,
+                         const std::string& personFieldName,
+                         const std::string& functionName,
+                         const std::string& valueFieldName) const {
         TWord word =
             ms_Dictionary.word(partitionFieldName, personFieldName, functionName, valueFieldName);
         TWordTypePrVecCItr i = element(m_LeafSet, word);
@@ -112,29 +113,29 @@ protected:
     }
 
     //! Get the influencer bucket set.
-    const TWordTypePrVec &influencerBucketSet(void) const { return m_InfluencerBucketSet; }
+    const TWordTypePrVec& influencerBucketSet(void) const { return m_InfluencerBucketSet; }
     //! Get a writable influencer bucket set.
-    TWordTypePrVec &influencerBucketSet(void) { return m_InfluencerBucketSet; }
+    TWordTypePrVec& influencerBucketSet(void) { return m_InfluencerBucketSet; }
 
     //! Get the influencer set.
-    const TWordTypePrVec &influencerSet(void) const { return m_InfluencerSet; }
+    const TWordTypePrVec& influencerSet(void) const { return m_InfluencerSet; }
     //! Get a writable influencer set.
-    TWordTypePrVec &influencerSet(void) { return m_InfluencerSet; }
+    TWordTypePrVec& influencerSet(void) { return m_InfluencerSet; }
 
     //! Get the partition set.
-    const TWordTypePrVec &partitionSet(void) const { return m_PartitionSet; }
+    const TWordTypePrVec& partitionSet(void) const { return m_PartitionSet; }
     //! Get a writable partition set.
-    TWordTypePrVec &partitionSet(void) { return m_PartitionSet; }
+    TWordTypePrVec& partitionSet(void) { return m_PartitionSet; }
 
     //! Get the person set.
-    const TWordTypePrVec &personSet(void) const { return m_PersonSet; }
+    const TWordTypePrVec& personSet(void) const { return m_PersonSet; }
     //! Get a writable person set.
-    TWordTypePrVec &personSet(void) { return m_PersonSet; }
+    TWordTypePrVec& personSet(void) { return m_PersonSet; }
 
     //! Get the leaf set.
-    const TWordTypePrVec &leafSet(void) const { return m_LeafSet; }
+    const TWordTypePrVec& leafSet(void) const { return m_LeafSet; }
     //! Get a writable leaf set.
-    TWordTypePrVec &leafSet(void) { return m_LeafSet; }
+    TWordTypePrVec& leafSet(void) { return m_LeafSet; }
 
     //! Clear all the sets.
     void clear(void) {
@@ -156,7 +157,8 @@ protected:
     }
 
     //! Age the level set elements.
-    template <typename F> void age(F doAge) {
+    template <typename F>
+    void age(F doAge) {
         doAge(m_BucketElement);
         age(m_InfluencerBucketSet, doAge);
         age(m_InfluencerSet, doAge);
@@ -167,10 +169,10 @@ protected:
 
     //! Get and possibly add a normalizer for \p node.
     template <typename FACTORY>
-    void elements(const TNode &node,
+    void elements(const TNode& node,
                   bool pivot,
-                  const FACTORY &factory,
-                  TTypePtrVec &result,
+                  const FACTORY& factory,
+                  TTypePtrVec& result,
                   bool distinctLeavesPerPartition = false) {
         result.clear();
         if (this->isSimpleCount(node)) {
@@ -181,8 +183,8 @@ protected:
             TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_InfluencerBucketSet, word);
             if (i == m_InfluencerBucketSet.end() || i->first != word) {
-                i = m_InfluencerBucketSet.insert(
-                    i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
+                i = m_InfluencerBucketSet
+                        .insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
             return;
@@ -191,8 +193,8 @@ protected:
             TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_InfluencerSet, word);
             if (i == m_InfluencerSet.end() || i->first != word) {
-                i = m_InfluencerSet.insert(
-                    i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
+                i = m_InfluencerSet
+                        .insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
             return;
@@ -223,9 +225,10 @@ protected:
             TWord word = ms_Dictionary.word(partitionKey, *node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_PersonSet, word);
             if (i == m_PersonSet.end() || i->first != word) {
-                i = m_PersonSet.insert(
-                    i,
-                    TWordTypePr(word, factory.make(partitionKey, *node.s_Spec.s_PersonFieldName)));
+                i = m_PersonSet.insert(i,
+                                       TWordTypePr(word,
+                                                   factory.make(partitionKey,
+                                                                *node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
         }
@@ -255,7 +258,7 @@ protected:
 
 private:
     //! Get an element of \p set by name.
-    static const T *element(const TWordTypePrVec &set, const std::string &name) {
+    static const T* element(const TWordTypePrVec& set, const std::string& name) {
         TWord word = ms_Dictionary.word(name);
         TWordTypePrVecCItr i = element(set, word);
         return (i != set.end() && i->first == word) ? &i->second : 0;
@@ -263,23 +266,24 @@ private:
 
     //! Get the element corresponding to \p word if it exists
     //! and return the end iterator otherwise.
-    static TWordTypePrVecCItr element(const TWordTypePrVec &set, const TWord &word) {
-        return element(const_cast<TWordTypePrVec &>(set), word);
+    static TWordTypePrVecCItr element(const TWordTypePrVec& set, const TWord& word) {
+        return element(const_cast<TWordTypePrVec&>(set), word);
     }
 
     //! Get the element corresponding to \p word if it exists
     //! and return the end iterator otherwise.
-    static TWordTypePrVecItr element(TWordTypePrVec &set, const TWord &word) {
+    static TWordTypePrVecItr element(TWordTypePrVec& set, const TWord& word) {
         return std::lower_bound(set.begin(), set.end(), word, maths::COrderings::SFirstLess());
     }
 
     //! Sort \p set on its key.
-    static void sort(TWordTypePrVec &set) {
+    static void sort(TWordTypePrVec& set) {
         std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess());
     }
 
     //! Propagate the set elements forwards by \p time.
-    template <typename F> static void age(TWordTypePrVec &set, F doAge) {
+    template <typename F>
+    static void age(TWordTypePrVec& set, F doAge) {
         for (std::size_t i = 0u; i < set.size(); ++i) {
             doAge(set[i].second);
         }
@@ -318,4 +322,4 @@ typename CHierarchicalResultsLevelSet<T>::TDictionary
 }
 }
 
-#endif// INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
+#endif // INCLUDED_ml_model_CHierarchicalResultsLevelSet_h

@@ -27,7 +27,7 @@ public:
     void testPersist(void);
     void testTruncation(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCategoryExamplesCollectorTest_h
+#endif // INCLUDED_CCategoryExamplesCollectorTest_h

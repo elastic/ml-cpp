@@ -17,8 +17,8 @@
 #include <core/CLogger.h>
 #include <core/CUname.h>
 
-CppUnit::Test *CUnameTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CUnameTest");
+CppUnit::Test* CUnameTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CUnameTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CUnameTest>("CUnameTest::testUname", &CUnameTest::testUname));

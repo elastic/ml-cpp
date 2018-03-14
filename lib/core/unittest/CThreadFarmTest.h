@@ -22,7 +22,7 @@ public:
     void testNumCpus(void);
     void testSendReceive(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CThreadFarmTest_h
+#endif // INCLUDED_CThreadFarmTest_h

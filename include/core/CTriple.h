@@ -52,14 +52,14 @@ public:
 
 public:
     CTriple(void) : first(), second(), third() {}
-    CTriple(const T1 &first_, const T2 &second_, const T3 &third_)
+    CTriple(const T1& first_, const T2& second_, const T3& third_)
         : first(first_), second(second_), third(third_) {}
 
-    bool operator==(const CTriple &other) const {
+    bool operator==(const CTriple& other) const {
         return first == other.first && second == other.second && third == other.third;
     }
 
-    bool operator<(const CTriple &other) const {
+    bool operator<(const CTriple& other) const {
         if (first == other.first) {
             if (second == other.second) {
                 return third < other.third;
@@ -99,20 +99,20 @@ public:
 };
 
 template <typename T1, typename T2, typename T3>
-CTriple<T1, T2, T3> make_triple(const T1 &first, const T2 &second, const T3 &third) {
+CTriple<T1, T2, T3> make_triple(const T1& first, const T2& second, const T3& third) {
     return CTriple<T1, T2, T3>(first, second, third);
 }
 
 template <typename T1, typename T2, typename T3>
-std::size_t hash_value(const CTriple<T1, T2, T3> &triple) {
+std::size_t hash_value(const CTriple<T1, T2, T3>& triple) {
     return triple.hash();
 }
 
 template <typename T1, typename T2, typename T3>
-std::ostream &operator<<(std::ostream &o, const CTriple<T1, T2, T3> &triple) {
+std::ostream& operator<<(std::ostream& o, const CTriple<T1, T2, T3>& triple) {
     return o << '(' << triple.first << ',' << triple.second << ',' << triple.third << ')';
 }
 }
 }
 
-#endif// INCLUDED_ml_core_CTriple_h
+#endif // INCLUDED_ml_core_CTriple_h

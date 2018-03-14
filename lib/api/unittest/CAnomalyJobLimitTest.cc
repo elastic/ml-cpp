@@ -39,7 +39,7 @@
 
 using namespace ml;
 
-std::set<std::string> getUniqueValues(const std::string &key, const std::string &output) {
+std::set<std::string> getUniqueValues(const std::string& key, const std::string& output) {
     std::set<std::string> values;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
@@ -49,17 +49,17 @@ std::set<std::string> getUniqueValues(const std::string &key, const std::string 
     size_t i = 0;
 
     while (true) {
-        rapidjson::Value *p1 = rapidjson::Pointer("/" + std::to_string(i)).Get(doc);
+        rapidjson::Value* p1 = rapidjson::Pointer("/" + std::to_string(i)).Get(doc);
         if (p1 != nullptr) {
             size_t j = 0;
             while (true) {
-                rapidjson::Value *p2 =
+                rapidjson::Value* p2 =
                     rapidjson::Pointer("/" + std::to_string(i) + "/records/" + std::to_string(j))
                         .Get(doc);
                 if (p2 != nullptr) {
                     size_t k = 0;
                     while (true) {
-                        rapidjson::Value *p3 =
+                        rapidjson::Value* p3 =
                             rapidjson::Pointer("/" + std::to_string(i) + "/records/" +
                                                std::to_string(j) + "/causes/" + std::to_string(k) +
                                                "/" + key)
@@ -86,13 +86,15 @@ std::set<std::string> getUniqueValues(const std::string &key, const std::string 
     return values;
 }
 
-CppUnit::Test *CAnomalyJobLimitTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyJobLimitTest");
+CppUnit::Test* CAnomalyJobLimitTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnomalyJobLimitTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
-        "CAnomalyJobLimitTest::testLimit", &CAnomalyJobLimitTest::testLimit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnomalyJobLimitTest>(
-        "CAnomalyJobLimitTest::testAccuracy", &CAnomalyJobLimitTest::testAccuracy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyJobLimitTest>("CAnomalyJobLimitTest::testLimit",
+                                                      &CAnomalyJobLimitTest::testLimit));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CAnomalyJobLimitTest>("CAnomalyJobLimitTest::testAccuracy",
+                                                      &CAnomalyJobLimitTest::testAccuracy));
     return suiteOfTests;
 }
 

@@ -86,7 +86,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(F, x);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2
                                                     << ", x = " << x);
     }
@@ -103,7 +103,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
     try {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2
                                                     << ", x = " << x);
     }
@@ -151,15 +151,15 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
     m_F.reserve(size);
 }
 
-CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser &traverser) {
+CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
     traverser.traverseSubLevel(
         boost::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser, this, _1));
 }
 
 bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(
-    core::CStateRestoreTraverser &traverser) {
+    core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(SIZE_TAG,
                                /*no-op*/,
                                core::CStringUtils::stringToType(traverser.value(), m_Size),
@@ -175,7 +175,7 @@ bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(
 }
 
 void CStatisticalTests::CCramerVonMises::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(SIZE_TAG, m_Size);
     inserter.insertValue(T_TAG, m_T.toDelimited());
     for (std::size_t i = 0u; i < m_F.size(); ++i) {
@@ -236,8 +236,9 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
         return 1.0;
     }
 
-    ptrdiff_t col = CTools::truncate(
-        std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt, ptrdiff_t(1), ptrdiff_t(15));
+    ptrdiff_t col = CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt,
+                                     ptrdiff_t(1),
+                                     ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];
@@ -274,7 +275,9 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
     return p;
 }
 
-void CStatisticalTests::CCramerVonMises::age(double factor) { m_T.age(factor); }
+void CStatisticalTests::CCramerVonMises::age(double factor) {
+    m_T.age(factor);
+}
 
 uint64_t CStatisticalTests::CCramerVonMises::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Size);

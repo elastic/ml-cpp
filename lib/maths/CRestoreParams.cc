@@ -40,9 +40,9 @@ SDistributionRestoreParams::SDistributionRestoreParams(maths_t::EDataType dataTy
       s_MinimumCategoryCount{minimumCategoryCount} {}
 
 SModelRestoreParams::SModelRestoreParams(
-    const CModelParams &params,
-    const STimeSeriesDecompositionRestoreParams &decompositionParams,
-    const SDistributionRestoreParams &distributionParams)
+    const CModelParams& params,
+    const STimeSeriesDecompositionRestoreParams& decompositionParams,
+    const SDistributionRestoreParams& distributionParams)
     : s_Params{params},
       s_DecompositionParams{decompositionParams},
       s_DistributionParams{distributionParams} {}

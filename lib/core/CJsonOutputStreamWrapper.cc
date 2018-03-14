@@ -24,7 +24,7 @@ const char CJsonOutputStreamWrapper::JSON_ARRAY_START('[');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_END(']');
 const char CJsonOutputStreamWrapper::JSON_ARRAY_DELIMITER(',');
 
-CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream &outStream)
+CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream& outStream)
     : m_ConcurrentOutputStream(outStream), m_FirstObject(true) {
     // initialize the bufferpool
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
@@ -32,26 +32,26 @@ CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream &outStream)
         m_StringBufferQueue.push(&m_StringBuffers[i]);
     }
 
-    m_ConcurrentOutputStream([](std::ostream &o) { o.put(JSON_ARRAY_START); });
+    m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_START); });
 }
 
 CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
-    m_ConcurrentOutputStream([](std::ostream &o) { o.put(JSON_ARRAY_END); });
+    m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_END); });
 }
 
-void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter &writer,
-                                             rapidjson::StringBuffer *&buffer) {
+void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
+                                             rapidjson::StringBuffer*& buffer) {
     buffer = m_StringBufferQueue.pop();
     writer.Reset(*buffer);
 }
 
-void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter &writer,
-                                             rapidjson::StringBuffer *buffer) {
+void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
+                                             rapidjson::StringBuffer* buffer) {
     writer.Flush();
 
     // check for data that has to be written
     if (buffer->GetLength() > 0) {
-        m_ConcurrentOutputStream([this, buffer](std::ostream &o) {
+        m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
             if (m_FirstObject) {
                 m_FirstObject = false;
             } else {
@@ -67,11 +67,11 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter &writer,
     }
 }
 
-void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter &writer,
-                                           rapidjson::StringBuffer *&buffer) {
+void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
+                                           rapidjson::StringBuffer*& buffer) {
     writer.Flush();
 
-    m_ConcurrentOutputStream([this, buffer](std::ostream &o) {
+    m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
         if (m_FirstObject) {
             m_FirstObject = false;
         } else {
@@ -84,7 +84,7 @@ void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter &writer,
     acquireBuffer(writer, buffer);
 }
 
-void CJsonOutputStreamWrapper::returnAndCheckBuffer(rapidjson::StringBuffer *buffer) {
+void CJsonOutputStreamWrapper::returnAndCheckBuffer(rapidjson::StringBuffer* buffer) {
     buffer->Clear();
 
     if (buffer->stack_.GetCapacity() > BUFFER_REALLOC_TRIGGER_SIZE) {
@@ -97,7 +97,7 @@ void CJsonOutputStreamWrapper::returnAndCheckBuffer(rapidjson::StringBuffer *buf
 }
 
 void CJsonOutputStreamWrapper::flush() {
-    m_ConcurrentOutputStream([](std::ostream &o) { o.flush(); });
+    m_ConcurrentOutputStream([](std::ostream& o) { o.flush(); });
 }
 
 void CJsonOutputStreamWrapper::syncFlush() {
@@ -105,7 +105,7 @@ void CJsonOutputStreamWrapper::syncFlush() {
     std::condition_variable c;
     std::unique_lock<std::mutex> lock(m);
 
-    m_ConcurrentOutputStream([&m, &c](std::ostream &o) {
+    m_ConcurrentOutputStream([&m, &c](std::ostream& o) {
         o.flush();
         std::unique_lock<std::mutex> waitLock(m);
         c.notify_all();
@@ -126,7 +126,7 @@ void CJsonOutputStreamWrapper::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr me
 
     // we can not use dynamic size methods as it would stumble upon the pointers
     // basically estimating the size of the circular buffer
-    std::size_t queueSize = BUFFER_POOL_SIZE * sizeof(rapidjson::StringBuffer *);
+    std::size_t queueSize = BUFFER_POOL_SIZE * sizeof(rapidjson::StringBuffer*);
 
     mem->addItem("m_StringBufferQueue", queueSize);
 
@@ -143,7 +143,7 @@ std::size_t CJsonOutputStreamWrapper::memoryUsage() const {
 
     // we can not use dynamic size methods as it would stumble upon the pointers
     // basically estimating the size of the circular buffer
-    memoryUsage += BUFFER_POOL_SIZE * sizeof(rapidjson::StringBuffer *);
+    memoryUsage += BUFFER_POOL_SIZE * sizeof(rapidjson::StringBuffer*);
 
     memoryUsage += m_ConcurrentOutputStream.memoryUsage();
     return memoryUsage;

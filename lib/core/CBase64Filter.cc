@@ -26,5 +26,5 @@ CBase64Decoder::CBase64Decoder() : m_BufferIn(4096), m_BufferOut(4096), m_Eos(fa
 
 CBase64Decoder::~CBase64Decoder() {}
 
-}// core
-}// ml
+} // core
+} // ml

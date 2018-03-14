@@ -19,9 +19,11 @@
 namespace ml {
 namespace core {
 
-int CStrCaseCmp::strCaseCmp(const char *s1, const char *s2) { return ::_stricmp(s1, s2); }
+int CStrCaseCmp::strCaseCmp(const char* s1, const char* s2) {
+    return ::_stricmp(s1, s2);
+}
 
-int CStrCaseCmp::strNCaseCmp(const char *s1, const char *s2, size_t n) {
+int CStrCaseCmp::strNCaseCmp(const char* s1, const char* s2, size_t n) {
     return ::_strnicmp(s1, s2, n);
 }
 }

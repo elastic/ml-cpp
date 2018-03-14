@@ -51,7 +51,7 @@ public:
     CAvailableModeDistributions(int value);
 
     //! Add the available distributions from \p rhs.
-    const CAvailableModeDistributions &operator+(const CAvailableModeDistributions &rhs);
+    const CAvailableModeDistributions& operator+(const CAvailableModeDistributions& rhs);
 
     //! Get the number of parameters used to model a mode.
     double parameters(void) const;
@@ -66,7 +66,7 @@ public:
     //! Conversion to a string.
     std::string toString(void) const;
     //! Set from a string.
-    bool fromString(const std::string &value);
+    bool fromString(const std::string& value);
 
 private:
     //! The encoding.
@@ -126,14 +126,14 @@ public:
     //! \brief Represents a cluster.
     class MATHS_EXPORT CCluster {
     public:
-        explicit CCluster(const CXMeansOnline1d &clusterer);
+        explicit CCluster(const CXMeansOnline1d& clusterer);
 
         //! Construct by traversing a state document
-        bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                    core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                    core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Set the type of data in the cluster.
         void dataType(maths_t::EDataType dataType);
@@ -172,7 +172,7 @@ public:
         void sample(std::size_t numberSamples,
                     double smallest,
                     double largest,
-                    TDoubleVec &samples) const;
+                    TDoubleVec& samples) const;
 
         //! Try and find a split by a full search of the binary tree
         //! of possible optimal 2-splits of the data.
@@ -188,8 +188,8 @@ public:
         TOptionalClusterClusterPr split(CAvailableModeDistributions distributions,
                                         double minimumCount,
                                         double smallest,
-                                        const TDoubleDoublePr &interval,
-                                        CIndexGenerator &indexGenerator);
+                                        const TDoubleDoublePr& interval,
+                                        CIndexGenerator& indexGenerator);
 
         //! Check if this and \p other cluster should merge.
         //!
@@ -198,16 +198,16 @@ public:
         //! model the clusters.
         //! \param[in] smallest The smallest sample added to date.
         //! \param[in] interval The Winsorisation interval.
-        bool shouldMerge(CCluster &other,
+        bool shouldMerge(CCluster& other,
                          CAvailableModeDistributions distributions,
                          double smallest,
-                         const TDoubleDoublePr &interval);
+                         const TDoubleDoublePr& interval);
 
         //! Merge this and \p other cluster.
-        CCluster merge(CCluster &other, CIndexGenerator &indexGenerator);
+        CCluster merge(CCluster& other, CIndexGenerator& indexGenerator);
 
         //! Get the prior describing this object.
-        const CNormalMeanPrecConjugate &prior(void) const;
+        const CNormalMeanPrecConjugate& prior(void) const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed) const;
@@ -220,8 +220,8 @@ public:
 
     private:
         CCluster(std::size_t index,
-                 const CNormalMeanPrecConjugate &prior,
-                 const CNaturalBreaksClassifier &structure);
+                 const CNormalMeanPrecConjugate& prior,
+                 const CNaturalBreaksClassifier& structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -270,27 +270,27 @@ public:
                     double minimumClusterCount = MINIMUM_CLUSTER_SPLIT_COUNT,
                     double minimumCategoryCount = MINIMUM_CATEGORY_COUNT,
                     double winsorisationConfidenceInterval = WINSORISATION_CONFIDENCE_INTERVAL,
-                    const TSplitFunc &splitFunc = CDoNothing(),
-                    const TMergeFunc &mergeFunc = CDoNothing());
+                    const TSplitFunc& splitFunc = CDoNothing(),
+                    const TMergeFunc& mergeFunc = CDoNothing());
 
     //! Construct by traversing a state document.
-    CXMeansOnline1d(const SDistributionRestoreParams &params,
-                    core::CStateRestoreTraverser &traverser);
+    CXMeansOnline1d(const SDistributionRestoreParams& params,
+                    core::CStateRestoreTraverser& traverser);
 
     //! Construct by traversing a state document.
-    CXMeansOnline1d(const SDistributionRestoreParams &params,
-                    const TSplitFunc &splitFunc,
-                    const TMergeFunc &mergeFunc,
-                    core::CStateRestoreTraverser &traverser);
+    CXMeansOnline1d(const SDistributionRestoreParams& params,
+                    const TSplitFunc& splitFunc,
+                    const TMergeFunc& mergeFunc,
+                    core::CStateRestoreTraverser& traverser);
 
     //! The x-means clusterer has value semantics.
     //@{
-    CXMeansOnline1d(const CXMeansOnline1d &other);
-    CXMeansOnline1d &operator=(const CXMeansOnline1d &other);
+    CXMeansOnline1d(const CXMeansOnline1d& other);
+    CXMeansOnline1d& operator=(const CXMeansOnline1d& other);
     //@}
 
     //! Efficiently swap the contents of two x-means objects.
-    void swap(CXMeansOnline1d &other);
+    void swap(CXMeansOnline1d& other);
 
     //! \name Clusterer Contract
     //@{
@@ -298,12 +298,12 @@ public:
     virtual std::string persistenceTag(void) const;
 
     //! Persist state by passing information to the supplied inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Creates a copy of the clusterer.
     //!
     //! \warning Caller owns returned object.
-    virtual CXMeansOnline1d *clone(void) const;
+    virtual CXMeansOnline1d* clone(void) const;
 
     //! Clear the current clusterer state.
     virtual void clear(void);
@@ -321,21 +321,21 @@ public:
     virtual bool hasCluster(std::size_t index) const;
 
     //! Get the centre of the cluster identified by \p index.
-    virtual bool clusterCentre(std::size_t index, double &result) const;
+    virtual bool clusterCentre(std::size_t index, double& result) const;
 
     //! Get the spread of the cluster identified by \p index.
-    virtual bool clusterSpread(std::size_t index, double &result) const;
+    virtual bool clusterSpread(std::size_t index, double& result) const;
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void cluster(const double &point, TSizeDoublePr2Vec &result, double count = 1.0) const;
+    virtual void cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
-    virtual void add(const double &point, TSizeDoublePr2Vec &clusters, double count = 1.0);
+    virtual void add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
 
     //! Update the clustering with \p points.
-    virtual void add(const TDoubleDoublePrVec &points);
+    virtual void add(const TDoubleDoublePrVec& points);
 
     //! Propagate the clustering forwards by \p time.
     //!
@@ -353,7 +353,7 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec &samples) const;
+    virtual bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
 
     //! Get the probability of the cluster with index \p index.
     //!
@@ -378,13 +378,13 @@ public:
     double count(void) const;
 
     //! Get the clusters.
-    const TClusterVec &clusters(void) const;
+    const TClusterVec& clusters(void) const;
 
     //! Print a representation of the clusters that can be plotted in octave.
     std::string printClusters(void) const;
 
     //! Get the index generator.
-    CIndexGenerator &indexGenerator(void);
+    CIndexGenerator& indexGenerator(void);
 
 private:
     typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
@@ -413,11 +413,11 @@ private:
 
 private:
     //! Restore by traversing a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Get the cluster with the index \p index.
-    const CCluster *cluster(std::size_t index) const;
+    const CCluster* cluster(std::size_t index) const;
 
     //! Compute the minimum split count.
     double minimumSplitCount(void) const;
@@ -482,4 +482,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CXMeansOnline1d_h
+#endif // INCLUDED_ml_maths_CXMeansOnline1d_h

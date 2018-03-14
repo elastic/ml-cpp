@@ -28,7 +28,7 @@
 namespace ml {
 namespace model {
 
-std::string CSample::SToString::operator()(const CSample &sample) const {
+std::string CSample::SToString::operator()(const CSample& sample) const {
     std::string result =
         core::CStringUtils::typeToString(sample.m_Time) + core::CPersistUtils::PAIR_DELIMITER +
         core::CStringUtils::typeToStringPrecise(sample.m_VarianceScale,
@@ -43,11 +43,13 @@ std::string CSample::SToString::operator()(const CSample &sample) const {
     return result;
 }
 
-bool CSample::SFromString::operator()(const std::string &token, CSample &value) const {
+bool CSample::SFromString::operator()(const std::string& token, CSample& value) const {
     core::CStringUtils::TStrVec tokens;
     std::string remainder;
-    core::CStringUtils::tokenise(
-        std::string(1, core::CPersistUtils::PAIR_DELIMITER), token, tokens, remainder);
+    core::CStringUtils::tokenise(std::string(1, core::CPersistUtils::PAIR_DELIMITER),
+                                 token,
+                                 tokens,
+                                 remainder);
     if (!remainder.empty()) {
         tokens.push_back(remainder);
     }
@@ -71,14 +73,14 @@ bool CSample::SFromString::operator()(const std::string &token, CSample &value) 
 
 CSample::CSample(void) : m_Time(0), m_Value(), m_VarianceScale(0.0), m_Count(0) {}
 
-CSample::CSample(core_t::TTime time, const TDouble1Vec &value, double varianceScale, double count)
+CSample::CSample(core_t::TTime time, const TDouble1Vec& value, double varianceScale, double count)
     : m_Time(time), m_Value(value), m_VarianceScale(varianceScale), m_Count(count) {}
 
 CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     typedef std::vector<std::size_t> TSizeVec;
 
     TDouble1Vec result;
-    const TSizeVec &indices = CFeatureDataIndexing::valueIndices(dimension);
+    const TSizeVec& indices = CFeatureDataIndexing::valueIndices(dimension);
     result.reserve(indices.size());
     for (std::size_t i = 0u; i < indices.size(); ++i) {
         result.push_back(m_Value[indices[i]]);
@@ -105,6 +107,8 @@ void CSample::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
 }
 
-std::size_t CSample::memoryUsage(void) const { return core::CMemory::dynamicSize(m_Value); }
+std::size_t CSample::memoryUsage(void) const {
+    return core::CMemory::dynamicSize(m_Value);
+}
 }
 }

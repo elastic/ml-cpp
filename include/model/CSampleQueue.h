@@ -58,7 +58,8 @@ namespace model {
 //!
 //! The template STATISTIC has to comply with the requirements of
 //! the CMetricPartialStatistic template.
-template <typename STATISTIC> class CSampleQueue {
+template <typename STATISTIC>
+class CSampleQueue {
 private:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
     typedef CMetricPartialStatistic<STATISTIC> TMetricPartialStatistic;
@@ -75,7 +76,7 @@ private:
         SSubSample(std::size_t dimension, core_t::TTime time)
             : s_Statistic(dimension), s_Start(time), s_End(time) {}
 
-        void add(const TDouble1Vec &measurement, core_t::TTime time, unsigned int count) {
+        void add(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
             s_Statistic.add(measurement, time, count);
             // Using explicit tests instead of std::min and std::max to work
             // around g++ 4.1 optimiser bug
@@ -107,7 +108,7 @@ private:
         }
 
         //! Combine the statistic and construct the union interval.
-        const SSubSample &operator+=(const SSubSample &rhs) {
+        const SSubSample& operator+=(const SSubSample& rhs) {
             s_Statistic += rhs.s_Statistic;
             s_Start = std::min(s_Start, rhs.s_Start);
             s_End = std::max(s_End, rhs.s_End);
@@ -115,7 +116,7 @@ private:
         }
 
         //! Persist to a state document.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertLevel(SAMPLE_TAG,
                                  boost::bind(&TMetricPartialStatistic::persist, &s_Statistic, _1));
             inserter.insertValue(SAMPLE_START_TAG, s_Start);
@@ -123,12 +124,13 @@ private:
         }
 
         //! Restore from a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
             do {
-                const std::string &name = traverser.name();
+                const std::string& name = traverser.name();
                 if (name == SAMPLE_TAG) {
-                    if (traverser.traverseSubLevel(boost::bind(
-                            &TMetricPartialStatistic::restore, &s_Statistic, _1)) == false) {
+                    if (traverser.traverseSubLevel(
+                            boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) ==
+                        false) {
                         LOG_ERROR("Invalid sample value");
                         return false;
                     }
@@ -216,7 +218,7 @@ public:
     //! \param[in] count The count of the measurement.
     //! \param[in] sampleCount The target sample count.
     void add(core_t::TTime time,
-             const TDouble1Vec &measurement,
+             const TDouble1Vec& measurement,
              unsigned int count,
              unsigned int sampleCount) {
         if (m_Queue.empty()) {
@@ -243,7 +245,7 @@ public:
     void sample(core_t::TTime bucketStart,
                 unsigned int sampleCount,
                 model_t::EFeature feature,
-                TSampleVec &samples) {
+                TSampleVec& samples) {
         core_t::TTime latencyCutoff = bucketStart + m_BucketLength - 1;
         TOptionalSubSample combinedSubSample;
 
@@ -284,14 +286,16 @@ public:
             std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart, timeLater);
 
         // This is equivalent to lower_bound(., ., bucketStart + m_BucketLength - 1, .);
-        iterator latestWithinBucket = std::upper_bound(
-            m_Queue.begin(), m_Queue.end(), bucketStart + m_BucketLength, timeLater);
+        iterator latestWithinBucket = std::upper_bound(m_Queue.begin(),
+                                                       m_Queue.end(),
+                                                       bucketStart + m_BucketLength,
+                                                       timeLater);
 
         m_Queue.erase(latestWithinBucket, firstEarlierThanBucket);
     }
 
     //! Returns the item in the queue at position \p index.
-    const SSubSample &operator[](std::size_t index) const { return m_Queue[index]; }
+    const SSubSample& operator[](std::size_t index) const { return m_Queue[index]; }
 
     //! Returns the size of the queue.
     std::size_t size(void) const { return m_Queue.size(); }
@@ -307,7 +311,7 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (const_reverse_iterator itr = m_Queue.rbegin(); itr != m_Queue.rend(); ++itr) {
             inserter.insertLevel(SUB_SAMPLE_TAG,
                                  boost::bind(&SSubSample::acceptPersistInserter, *itr, _1));
@@ -315,13 +319,14 @@ public:
     }
 
     //! Restore by getting information from the state document traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         do {
-            const std::string &name = traverser.name();
+            const std::string& name = traverser.name();
             if (name == SUB_SAMPLE_TAG) {
                 SSubSample subSample(m_Dimension, 0);
-                if (traverser.traverseSubLevel(boost::bind(
-                        &SSubSample::acceptRestoreTraverser, &subSample, _1)) == false) {
+                if (traverser.traverseSubLevel(
+                        boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) ==
+                    false) {
                     LOG_ERROR("Invalid sub-sample in " << traverser.value());
                     return false;
                 }
@@ -353,7 +358,7 @@ public:
 
 private:
     void
-    pushFrontNewSubSample(const TDouble1Vec &measurement, core_t::TTime time, unsigned int count) {
+    pushFrontNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
         this->resizeIfFull();
         SSubSample newSubSample(m_Dimension, time);
         newSubSample.s_Statistic.add(measurement, time, count);
@@ -361,7 +366,7 @@ private:
     }
 
     void
-    pushBackNewSubSample(const TDouble1Vec &measurement, core_t::TTime time, unsigned int count) {
+    pushBackNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
         this->resizeIfFull();
         SSubSample newSubSample(m_Dimension, time);
         newSubSample.s_Statistic.add(measurement, time, count);
@@ -369,7 +374,7 @@ private:
     }
 
     void insertNewSubSample(iterator pos,
-                            const TDouble1Vec &measurement,
+                            const TDouble1Vec& measurement,
                             core_t::TTime time,
                             unsigned int count) {
         this->resizeIfFull();
@@ -387,7 +392,7 @@ private:
         }
     }
 
-    void addAfterLatestStartTime(const TDouble1Vec &measurement,
+    void addAfterLatestStartTime(const TDouble1Vec& measurement,
                                  core_t::TTime time,
                                  unsigned int count,
                                  unsigned int sampleCount) {
@@ -425,7 +430,7 @@ private:
         return static_cast<std::size_t>(sampleCount) / m_SampleCountFactor;
     }
 
-    void addHistorical(const TDouble1Vec &measurement,
+    void addHistorical(const TDouble1Vec& measurement,
                        core_t::TTime time,
                        unsigned int count,
                        unsigned int sampleCount) {
@@ -449,8 +454,8 @@ private:
             return;
         }
 
-        SSubSample &left = *(upperBound - 1);
-        SSubSample &right = *upperBound;
+        SSubSample& left = *(upperBound - 1);
+        SSubSample& right = *upperBound;
         if (time <= left.s_End) {
             left.add(measurement, time, count);
             return;
@@ -462,7 +467,7 @@ private:
         bool rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
         core_t::TTime leftDistance = time - left.s_End;
         core_t::TTime rightDistance = right.s_Start - time;
-        SSubSample &candidate =
+        SSubSample& candidate =
             maths::COrderings::lexicographical_compare(-static_cast<int>(sameBucketWithLeft),
                                                        -static_cast<int>(leftHasSpace),
                                                        leftDistance,
@@ -481,11 +486,11 @@ private:
         this->insertNewSubSample(upperBound.base(), measurement, time, count);
     }
 
-    static bool timeEarlier(core_t::TTime time, const SSubSample &subSample) {
+    static bool timeEarlier(core_t::TTime time, const SSubSample& subSample) {
         return time < subSample.s_Start;
     }
 
-    static bool timeLater(core_t::TTime time, const SSubSample &subSample) {
+    static bool timeLater(core_t::TTime time, const SSubSample& subSample) {
         return time > subSample.s_Start;
     }
 
@@ -504,8 +509,9 @@ template <typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SSubSample::SAMPLE_END_TAG("b");
 template <typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SSubSample::SAMPLE_TAG("c");
-template <typename STATISTIC> const std::string CSampleQueue<STATISTIC>::SUB_SAMPLE_TAG("a");
+template <typename STATISTIC>
+const std::string CSampleQueue<STATISTIC>::SUB_SAMPLE_TAG("a");
 }
 }
 
-#endif// INCLUDED_ml_model_CSampleQueue_h
+#endif // INCLUDED_ml_model_CSampleQueue_h

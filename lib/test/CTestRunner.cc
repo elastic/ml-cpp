@@ -62,11 +62,13 @@ namespace test {
 const std::string CTestRunner::SKIP_FILE_NAME("unit_test_skip_dirs.csv");
 const std::string CTestRunner::XML_RESULT_FILE_NAME("cppunit_results.xml");
 
-CTestRunner::CTestRunner(int argc, const char **argv) { this->processCmdLine(argc, argv); }
+CTestRunner::CTestRunner(int argc, const char** argv) {
+    this->processCmdLine(argc, argv);
+}
 
 CTestRunner::~CTestRunner(void) {}
 
-void CTestRunner::processCmdLine(int argc, const char **argv) {
+void CTestRunner::processCmdLine(int argc, const char** argv) {
     std::string exeName(argv[0]);
 
     size_t pos(exeName.rfind('/'));
@@ -86,7 +88,7 @@ void CTestRunner::processCmdLine(int argc, const char **argv) {
         int lastHdrIndex(0);
         for (int i = 1; i < argc; ++i) {
             m_TestCases.push_back(argv[i]);
-            std::string &testName = m_TestCases.back();
+            std::string& testName = m_TestCases.back();
             if (testName.length() > SRC_EXT.length() &&
                 testName.rfind(SRC_EXT) == testName.length() - SRC_EXT.length()) {
                 testName.erase(testName.length() - SRC_EXT.length());
@@ -128,7 +130,7 @@ bool CTestRunner::runTests(void) {
     boost::filesystem::path cwd;
     try {
         cwd = boost::filesystem::current_path();
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Unable to determine current directory: " << e.what());
         return false;
     }
@@ -171,7 +173,7 @@ bool CTestRunner::runTests(void) {
     return passed;
 }
 
-bool CTestRunner::timeTests(const std::string &topPath, const std::string &testPath) {
+bool CTestRunner::timeTests(const std::string& topPath, const std::string& testPath) {
     bool allPassed(true);
 
     CTestTimer testTimer;
@@ -191,7 +193,7 @@ bool CTestRunner::timeTests(const std::string &topPath, const std::string &testP
         for (TStrVecItr itr = m_TestCases.begin(); itr != m_TestCases.end() && allPassed; ++itr) {
             try {
                 allPassed = this->run(*itr);
-            } catch (std::invalid_argument &) {
+            } catch (std::invalid_argument&) {
                 LOG_ERROR("No Test called " << *itr << " in testsuite");
             }
         }
@@ -214,7 +216,7 @@ bool CTestRunner::timeTests(const std::string &topPath, const std::string &testP
     return allPassed;
 }
 
-bool CTestRunner::checkSkipFile(const std::string &cwd, bool &passed) const {
+bool CTestRunner::checkSkipFile(const std::string& cwd, bool& passed) const {
     std::string fullPath(core::CResourceLocator::cppRootDir() + '/' + SKIP_FILE_NAME);
     std::ifstream strm(fullPath.c_str());
 
@@ -230,13 +232,14 @@ bool CTestRunner::checkSkipFile(const std::string &cwd, bool &passed) const {
     return false;
 }
 
-bool CTestRunner::updateSkipFile(const std::string &cwd, bool passed) const {
+bool CTestRunner::updateSkipFile(const std::string& cwd, bool passed) const {
     std::string fullPath(core::CResourceLocator::cppRootDir() + '/' + SKIP_FILE_NAME);
 
     // Don't create the file if it doesn't already exist, and don't write to it
     // if it's not writable
-    if (core::COsFileFuncs::access(
-            fullPath.c_str(), core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) == -1) {
+    if (core::COsFileFuncs::access(fullPath.c_str(),
+                                   core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) ==
+        -1) {
         LOG_TRACE("Will not update skip file " << fullPath << " : " << ::strerror(errno));
         return false;
     }

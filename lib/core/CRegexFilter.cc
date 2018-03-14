@@ -21,7 +21,7 @@ namespace core {
 
 CRegexFilter::CRegexFilter(void) : m_Regex() {}
 
-bool CRegexFilter::configure(const TStrVec &regularExpressions) {
+bool CRegexFilter::configure(const TStrVec& regularExpressions) {
     m_Regex.clear();
     m_Regex.resize(regularExpressions.size());
     for (std::size_t i = 0; i < regularExpressions.size(); ++i) {
@@ -35,7 +35,7 @@ bool CRegexFilter::configure(const TStrVec &regularExpressions) {
     return true;
 }
 
-std::string CRegexFilter::apply(const std::string &target) const {
+std::string CRegexFilter::apply(const std::string& target) const {
     if (m_Regex.empty()) {
         return target;
     }
@@ -44,7 +44,7 @@ std::string CRegexFilter::apply(const std::string &target) const {
     std::size_t position = 0;
     std::size_t length = 0;
     for (std::size_t i = 0; i < m_Regex.size(); ++i) {
-        const CRegex &currentRegex = m_Regex[i];
+        const CRegex& currentRegex = m_Regex[i];
         while (currentRegex.search(result, position, length)) {
             result.erase(position, length);
         }
@@ -52,6 +52,8 @@ std::string CRegexFilter::apply(const std::string &target) const {
     return result;
 }
 
-bool CRegexFilter::empty(void) const { return m_Regex.empty(); }
+bool CRegexFilter::empty(void) const {
+    return m_Regex.empty();
+}
 }
 }

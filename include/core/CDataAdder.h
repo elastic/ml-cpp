@@ -48,7 +48,7 @@ public:
     typedef boost::shared_ptr<std::ostream> TOStreamP;
     typedef boost::shared_ptr<CDataAdder> TDataAdderP;
 
-    typedef std::function<bool(CDataAdder &)> TPersistFunc;
+    typedef std::function<bool(CDataAdder&)> TPersistFunc;
 
 public:
     virtual ~CDataAdder(void);
@@ -58,14 +58,14 @@ public:
     //! returns it is not possible to detect all error conditions
     //! immediately.  If the stream goes bad whilst being written to then
     //! this also indicates failure.
-    virtual TOStreamP addStreamed(const std::string &index, const std::string &id) = 0;
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id) = 0;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
     //! They should set force to true when the very last stream is
     //! complete, in case the persister needs to close off some
     //! sort of cached data structure.
-    virtual bool streamComplete(TOStreamP &strm, bool force) = 0;
+    virtual bool streamComplete(TOStreamP& strm, bool force) = 0;
 
     //! The max number of documents that can go in a single
     //! batch save
@@ -79,9 +79,9 @@ public:
     //! document number.  The ID is of the form baseId#currentDocNum if
     //! baseId is not empty, and simply currentDocNum converted to a string
     //! if baseId is empty.
-    static std::string makeCurrentDocId(const std::string &baseId, size_t currentDocNum);
+    static std::string makeCurrentDocId(const std::string& baseId, size_t currentDocNum);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CDataAdder_h
+#endif // INCLUDED_ml_core_CDataAdder_h

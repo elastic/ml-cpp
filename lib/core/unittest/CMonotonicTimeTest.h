@@ -22,7 +22,7 @@ public:
     void testMilliseconds(void);
     void testNanoseconds(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CMonotonicTimeTest_h
+#endif // INCLUDED_CMonotonicTimeTest_h

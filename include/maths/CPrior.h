@@ -81,7 +81,7 @@ public:
         CModelFilter(void);
 
         //! Mark a model to be removed.
-        CModelFilter &remove(EPrior model);
+        CModelFilter& remove(EPrior model);
 
         //! Check of \p model should be removed.
         bool operator()(EPrior model) const;
@@ -101,17 +101,17 @@ public:
         using result_type = double;
 
     public:
-        CLogMarginalLikelihood(const CPrior &prior,
-                               const TWeightStyleVec &weightStyles = CConstantWeights::COUNT,
-                               const TDouble4Vec1Vec &weights = CConstantWeights::SINGLE_UNIT);
+        CLogMarginalLikelihood(const CPrior& prior,
+                               const TWeightStyleVec& weightStyles = CConstantWeights::COUNT,
+                               const TDouble4Vec1Vec& weights = CConstantWeights::SINGLE_UNIT);
 
         double operator()(double x) const;
-        bool operator()(double x, double &result) const;
+        bool operator()(double x, double& result) const;
 
     private:
-        const CPrior *m_Prior;
-        const TWeightStyleVec *m_WeightStyles;
-        const TDouble4Vec1Vec *m_Weights;
+        const CPrior* m_Prior;
+        const TWeightStyleVec* m_WeightStyles;
+        const TDouble4Vec1Vec* m_Weights;
         //! Avoids creating the vector argument to jointLogMarginalLikelihood
         //! more than once.
         mutable TDouble1Vec m_X;
@@ -139,7 +139,7 @@ public:
     virtual ~CPrior(void) = default;
 
     //! Swap the contents of this prior and \p other.
-    void swap(CPrior &other);
+    void swap(CPrior& other);
     //@}
 
     //! Check if the prior is being used to model discrete data.
@@ -162,7 +162,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CPrior *clone(void) const = 0;
+    virtual CPrior* clone(void) const = 0;
 
     //! Set the data type.
     virtual void dataType(maths_t::EDataType value);
@@ -174,7 +174,7 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0) = 0;
 
     //! Remove models marked by \p filter.
-    virtual void removeModels(CModelFilter &filter);
+    virtual void removeModels(CModelFilter& filter);
 
     //! Get the margin between the smallest value and the support left
     //! end. Priors with non-negative support, automatically adjust the
@@ -193,9 +193,9 @@ public:
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec &weightStyles,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &weights) = 0;
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights) = 0;
 
     //! Get the current sample offset.
     virtual double offset(void) const = 0;
@@ -208,9 +208,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec &weightStyles,
-                            const TDouble1Vec &samples,
-                            const TDouble4Vec1Vec &weights) = 0;
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -227,13 +227,13 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     virtual double
-    marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec &weights = TWeights::UNIT) const = 0;
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
     virtual TDouble1Vec
-    marginalLikelihoodModes(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                            const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                            const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -250,13 +250,13 @@ public:
     //! \note \p percentage should be in the range [0.0, 100.0).
     virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
-        const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec &weights = TWeights::UNIT) const = 0;
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec &weights = TWeights::UNIT) const = 0;
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Calculate the log marginal likelihood function integrating over the
     //! prior density function.
@@ -268,10 +268,10 @@ public:
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble1Vec &samples,
-                               const TDouble4Vec1Vec &weights,
-                               double &result) const = 0;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const = 0;
 
     //! Sample the marginal likelihood function.
     //!
@@ -291,7 +291,7 @@ public:
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble1Vec &samples) const = 0;
+                                          TDouble1Vec& samples) const = 0;
 
     //! Calculate minus the log of the joint c.d.f. of the marginal likelihood
     //! for a collection of independent samples from the variable.
@@ -314,11 +314,11 @@ public:
     //! \warning The variance scales must be in the range \f$(0,\infty)\f$,
     //! i.e. a value of zero is not well defined and a value of infinity
     //! is not well handled. (Very large values are handled though.)
-    virtual bool minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                  const TDouble1Vec &samples,
-                                  const TDouble4Vec1Vec &weights,
-                                  double &lowerBound,
-                                  double &upperBound) const = 0;
+    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                  const TDouble1Vec& samples,
+                                  const TDouble4Vec1Vec& weights,
+                                  double& lowerBound,
+                                  double& upperBound) const = 0;
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
     //! marginal likelihood at \p samples without losing precision due to
@@ -326,11 +326,11 @@ public:
     //! can return is the minimum double rather than epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                            const TDouble1Vec &samples,
-                                            const TDouble4Vec1Vec &weights,
-                                            double &lowerBound,
-                                            double &upperBound) const = 0;
+    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                            const TDouble1Vec& samples,
+                                            const TDouble4Vec1Vec& weights,
+                                            double& lowerBound,
+                                            double& upperBound) const = 0;
 
     //! Calculate the joint probability of seeing a lower likelihood collection
     //! of independent samples from the variable integrating over the prior
@@ -359,12 +359,12 @@ public:
     //! i.e. a value of zero is not well defined and a value of infinity
     //! is not well handled. (Very large values are handled though.)
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec &weightStyles,
-                                                const TDouble1Vec &samples,
-                                                const TDouble4Vec1Vec &weights,
-                                                double &lowerBound,
-                                                double &upperBound,
-                                                maths_t::ETail &tail) const = 0;
+                                                const TWeightStyleVec& weightStyles,
+                                                const TDouble1Vec& samples,
+                                                const TDouble4Vec1Vec& weights,
+                                                double& lowerBound,
+                                                double& upperBound,
+                                                maths_t::ETail& tail) const = 0;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const = 0;
@@ -376,7 +376,7 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &indent, std::string &result) const = 0;
+    virtual void print(const std::string& indent, std::string& result) const = 0;
 
     //! Print the marginal likelihood function.
     //!
@@ -427,7 +427,7 @@ public:
     virtual std::size_t staticSize(void) const = 0;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
     //@}
 
     //! Compute the expectation of the specified function w.r.t. to the marginal
@@ -446,11 +446,11 @@ public:
     //! \tparam T The return type of the function F which must conform to the type
     //! expected by CIntegration::gaussLegendre.
     template <typename F, typename T>
-    bool expectation(const F &f,
+    bool expectation(const F& f,
                      const std::size_t numberIntervals,
-                     T &result,
-                     const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                     const TDouble4Vec &weights = TWeights::UNIT) const;
+                     T& result,
+                     const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                     const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the number of samples received to date.
     double numberSamples(void) const;
@@ -473,38 +473,38 @@ public:
 
     //! Get a set of sample for the prior to use in adjust offset.
     void adjustOffsetResamples(double minimumSample,
-                               TDouble1Vec &resamples,
-                               TDouble4Vec1Vec &resamplesWeights) const;
+                               TDouble1Vec& resamples,
+                               TDouble4Vec1Vec& resamplesWeights) const;
 
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
     //! of those priors with non-negative support.
     class MATHS_EXPORT COffsetParameters {
     public:
-        COffsetParameters(CPrior &prior);
+        COffsetParameters(CPrior& prior);
         virtual ~COffsetParameters(void) = default;
 
         //! Add a collection of samples.
-        void samples(const maths_t::TWeightStyleVec &weightStyles,
-                     const TDouble1Vec &samples,
-                     const TDouble4Vec1Vec &weights);
+        void samples(const maths_t::TWeightStyleVec& weightStyles,
+                     const TDouble1Vec& samples,
+                     const TDouble4Vec1Vec& weights);
 
         //! Capture a collection of re-samples from the prior.
         virtual void resample(double minimumSample);
 
     protected:
-        CPrior &prior(void) const;
-        const maths_t::TWeightStyleVec &weightStyles(void) const;
-        const TDouble1Vec &samples(void) const;
-        const TDouble4Vec1Vec &weights(void) const;
-        const TDouble1Vec &resamples(void) const;
-        const TDouble4Vec1Vec &resamplesWeights(void) const;
+        CPrior& prior(void) const;
+        const maths_t::TWeightStyleVec& weightStyles(void) const;
+        const TDouble1Vec& samples(void) const;
+        const TDouble4Vec1Vec& weights(void) const;
+        const TDouble1Vec& resamples(void) const;
+        const TDouble4Vec1Vec& resamplesWeights(void) const;
 
     private:
-        CPrior *m_Prior;
-        const maths_t::TWeightStyleVec *m_WeightStyles;
-        const TDouble1Vec *m_Samples;
-        const TDouble4Vec1Vec *m_Weights;
+        CPrior* m_Prior;
+        const maths_t::TWeightStyleVec* m_WeightStyles;
+        const TDouble1Vec* m_Samples;
+        const TDouble4Vec1Vec* m_Weights;
         TDouble1Vec m_Resamples;
         TDouble4Vec1Vec m_ResamplesWeights;
     };
@@ -519,7 +519,7 @@ protected:
         using result_type = double;
 
     public:
-        COffsetCost(CPrior &prior);
+        COffsetCost(CPrior& prior);
 
         //! Compute the cost.
         double operator()(double offset) const;
@@ -532,7 +532,7 @@ protected:
     //! \brief Apply a specified offset to a prior.
     class MATHS_EXPORT CApplyOffset : public COffsetParameters {
     public:
-        CApplyOffset(CPrior &prior);
+        CApplyOffset(CPrior& prior);
 
         //! Apply the offset.
         virtual void operator()(double offset) const;
@@ -548,11 +548,11 @@ protected:
     //! specified reward.
     //!
     //! \return The penalty to apply to the model in selection.
-    double adjustOffsetWithCost(const TWeightStyleVec &weightStyles,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &weights,
-                                COffsetCost &cost,
-                                CApplyOffset &apply);
+    double adjustOffsetWithCost(const TWeightStyleVec& weightStyles,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights,
+                                COffsetCost& cost,
+                                CApplyOffset& apply);
 
     //! Update the number of samples received to date by adding \p n.
     void addSamples(double n);
@@ -575,4 +575,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CPrior_h
+#endif // INCLUDED_ml_maths_CPrior_h

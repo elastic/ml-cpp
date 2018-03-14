@@ -36,7 +36,7 @@ typedef boost::shared_ptr<CAnomalyScore::CNormalizer> TNormalizerPtr;
 
 //! \brief A normalizer instance and a descriptive string.
 struct MODEL_EXPORT SNormalizer {
-    SNormalizer(const std::string &description, const TNormalizerPtr &normalizer);
+    SNormalizer(const std::string& description, const TNormalizerPtr& normalizer);
 
     //! Clear the normalizer.
     void clear(void);
@@ -104,7 +104,7 @@ public:
     enum ERestoreOutcome { E_Ok = 0, E_Corrupt = 1, E_Incomplete = 2 };
 
 public:
-    CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig &modelConfig);
+    CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig);
 
     //! Add a job for the subsequent invocations of the normalizer.
     void setJob(EJob job);
@@ -116,7 +116,7 @@ public:
     void resetBigChange(void);
 
     //! Update the normalizer with the node's anomaly score.
-    virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
 
     //! Age the maximum scores and quantile summaries.
     void propagateForwardByTime(double time);
@@ -128,72 +128,72 @@ public:
     //! Convert each normalizer to a JSON document and store these as an
     //! array to the string provided.
     void
-    toJson(core_t::TTime time, const std::string &key, std::string &json, bool makeArray) const;
+    toJson(core_t::TTime time, const std::string& key, std::string& json, bool makeArray) const;
 
     //! Replace the state of this object with normalizers restored from
     //! the JSON documents in the stream.
-    ERestoreOutcome fromJsonStream(std::istream &inputStream);
+    ERestoreOutcome fromJsonStream(std::istream& inputStream);
 
     //! Access to the root normalizer.
-    const CAnomalyScore::CNormalizer &bucketNormalizer(void) const;
+    const CAnomalyScore::CNormalizer& bucketNormalizer(void) const;
 
     //! Get the influencer bucket normalizer for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer *
-    influencerBucketNormalizer(const std::string &influencerFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    influencerBucketNormalizer(const std::string& influencerFieldName) const;
 
     //! Get the influencer normalizer for \p influencerFieldName.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer *
-    influencerNormalizer(const std::string &influencerFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    influencerNormalizer(const std::string& influencerFieldName) const;
 
     //! Get a partition normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer *
-    partitionNormalizer(const std::string &partitionFieldName) const;
+    const CAnomalyScore::CNormalizer*
+    partitionNormalizer(const std::string& partitionFieldName) const;
 
     //! Get a person normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer *personNormalizer(const std::string &partitionFieldName,
-                                                       const std::string &personFieldName) const;
+    const CAnomalyScore::CNormalizer* personNormalizer(const std::string& partitionFieldName,
+                                                       const std::string& personFieldName) const;
 
     //! Get a leaf normalizer.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const CAnomalyScore::CNormalizer *leafNormalizer(const std::string &partitionFieldName,
-                                                     const std::string &personFieldName,
-                                                     const std::string &functionName,
-                                                     const std::string &valueFieldName) const;
+    const CAnomalyScore::CNormalizer* leafNormalizer(const std::string& partitionFieldName,
+                                                     const std::string& personFieldName,
+                                                     const std::string& functionName,
+                                                     const std::string& valueFieldName) const;
 
 private:
     //! Get the normalizer corresponding to \p cue if they exist
     //! and return NULL if it doesn't have an appropriate prefix.
     //! Also, extract the hash value.
-    bool parseCue(const std::string &cue,
-                  TWordNormalizerPrVec *&normalizers,
-                  TDictionary::TUInt64Array &hashArray);
+    bool parseCue(const std::string& cue,
+                  TWordNormalizerPrVec*& normalizers,
+                  TDictionary::TUInt64Array& hashArray);
 
     //! Get the persistence cue for the root normalizer.
-    static const std::string &bucketCue(void);
+    static const std::string& bucketCue(void);
 
     //! Get the persistence cue for a influencer bucket normalizer.
-    static std::string influencerBucketCue(const TWord &word);
+    static std::string influencerBucketCue(const TWord& word);
 
     //! Get the persistence cue for an influencer normalizer.
-    static std::string influencerCue(const TWord &word);
+    static std::string influencerCue(const TWord& word);
 
     //! Get the persistence cue for a partition normalizer.
-    static std::string partitionCue(const TWord &word);
+    static std::string partitionCue(const TWord& word);
 
     //! Get the persistence cue for a person normalizer.
-    static std::string personCue(const TWord &word);
+    static std::string personCue(const TWord& word);
 
     //! Get the persistence cue for a leaf normalizer.
-    static std::string leafCue(const TWord &word);
+    static std::string leafCue(const TWord& word);
 
 private:
     //! The jobs that the normalizer will perform when invoked
@@ -201,7 +201,7 @@ private:
     EJob m_Job;
 
     //! The model configuration file.
-    const CAnomalyDetectorModelConfig &m_ModelConfig;
+    const CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Whether the last update of the quantiles has caused a big change.
     bool m_HasLastUpdateCausedBigChange;
@@ -209,4 +209,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CHierarchicalResultsNormalizer_h
+#endif // INCLUDED_ml_model_CHierarchicalResultsNormalizer_h

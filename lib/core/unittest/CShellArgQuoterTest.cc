@@ -17,11 +17,12 @@
 #include <core/CLogger.h>
 #include <core/CShellArgQuoter.h>
 
-CppUnit::Test *CShellArgQuoterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CShellArgQuoterTest");
+CppUnit::Test* CShellArgQuoterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CShellArgQuoterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CShellArgQuoterTest>(
-        "CShellArgQuoterTest::testQuote", &CShellArgQuoterTest::testQuote));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CShellArgQuoterTest>("CShellArgQuoterTest::testQuote",
+                                                     &CShellArgQuoterTest::testQuote));
 
     return suiteOfTests;
 }

@@ -65,11 +65,11 @@ public:
 
     public:
         //! Constructor
-        CDechunkFilter(CDataSearcher &searcher);
+        CDechunkFilter(CDataSearcher& searcher);
 
         //! Interface method: read up to n bytes from the downstream
         //! datastore, decompress them and put them into s
-        std::streamsize read(char *s, std::streamsize n);
+        std::streamsize read(char* s, std::streamsize n);
 
         //! Interface method: close the downstream stream
         void close(void);
@@ -80,10 +80,10 @@ public:
         bool readHeader(void);
 
         //! Manage the reading of bytes from the stream
-        void handleRead(char *s, std::streamsize n, std::streamsize &bytesDone);
+        void handleRead(char* s, std::streamsize n, std::streamsize& bytesDone);
 
         //! Write a footer at the end of the document or stream
-        std::streamsize endOfStream(char *s, std::streamsize n, std::streamsize bytesDone);
+        std::streamsize endOfStream(char* s, std::streamsize n, std::streamsize bytesDone);
 
         //! Parse the next json object
         bool parseNext();
@@ -94,9 +94,9 @@ public:
         //! Note: using the base handler, so we only need to implement what is needed
         struct SRapidJsonHandler final : public rapidjson::BaseReaderHandler<> {
             bool Bool(bool b);
-            bool String(const char *str, rapidjson::SizeType length, bool);
+            bool String(const char* str, rapidjson::SizeType length, bool);
             bool StartObject();
-            bool Key(const char *str, rapidjson::SizeType length, bool);
+            bool Key(const char* str, rapidjson::SizeType length, bool);
             bool EndObject(rapidjson::SizeType);
             bool StartArray();
             bool EndArray(rapidjson::SizeType);
@@ -115,7 +115,7 @@ public:
             ETokenType s_Type;
 
             //! the last string (c string) as pointer (only valid till next call)
-            const char *s_CompressedChunk;
+            const char* s_CompressedChunk;
 
             //! the last string length (only valid till next call)
             rapidjson::SizeType s_CompressedChunkLength;
@@ -128,7 +128,7 @@ public:
         bool m_SentData;
 
         //! The downstream data store to read from
-        CDataSearcher &m_Searcher;
+        CDataSearcher& m_Searcher;
 
         //! The stream given to clients to read from
         CDataSearcher::TIStreamP m_IStream;
@@ -159,20 +159,20 @@ public:
 
 public:
     //! Constructor - take a CDataSearcher for the downstream data store
-    CStateDecompressor(CDataSearcher &compressedSearcher);
+    CStateDecompressor(CDataSearcher& compressedSearcher);
 
     //! CDataSearcher interface method - transparently read compressed
     //! data and return it in an uncompressed stream
     virtual TIStreamP search(size_t currentDocNum, size_t limit);
 
-    virtual void setStateRestoreSearch(const std::string &index);
+    virtual void setStateRestoreSearch(const std::string& index);
 
     //! CDataSearcher interface method - specify the search strings to use
-    virtual void setStateRestoreSearch(const std::string &index, const std::string &id);
+    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
 
 private:
     //! Reference to the downstream data store
-    CDataSearcher &m_Searcher;
+    CDataSearcher& m_Searcher;
 
     //! The dechunker object
     CDechunkFilter m_FilterSource;
@@ -183,4 +183,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CStateDecompressor_h
+#endif // INCLUDED_ml_core_CStateDecompressor_h

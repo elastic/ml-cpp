@@ -28,7 +28,7 @@ public:
     void testSlope(void);
     void testSplineReference(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSpline_h
+#endif // INCLUDED_CSpline_h

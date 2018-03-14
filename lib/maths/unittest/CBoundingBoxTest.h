@@ -23,7 +23,7 @@ public:
     void testAdd(void);
     void testCloserTo(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CBoundingBostTest_h
+#endif // INCLUDED_CBoundingBostTest_h

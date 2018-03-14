@@ -152,13 +152,13 @@ public:
         //! the implementation if this is a bottleneck in practice.
         class CORE_EXPORT CUInt32VecHash {
         public:
-            CUInt32VecHash(uint32_t m, const TUInt32Vec &a, uint32_t b);
+            CUInt32VecHash(uint32_t m, const TUInt32Vec& a, uint32_t b);
 
             //! Get the range.
             uint32_t m(void) const;
 
             //! Get the multipliers.
-            const TUInt32Vec &a(void) const;
+            const TUInt32Vec& a(void) const;
 
             //! Get the offset.
             uint32_t b(void) const;
@@ -183,7 +183,7 @@ public:
             //! \note This is implemented inline in contravention to
             //! the coding standards because we definitely don't want
             //! the cost of a function call here.
-            uint32_t operator()(const TUInt32Vec &x) const {
+            uint32_t operator()(const TUInt32Vec& x) const {
                 // Note we variously use that:
                 //   a(1) * x(1)
                 //     < h mod p + a(i) * x(i)
@@ -214,8 +214,8 @@ public:
         public:
             CToString(const char delimiter);
 
-            std::string operator()(const CUInt32UnrestrictedHash &hash) const;
-            std::string operator()(const CUInt32Hash &hash) const;
+            std::string operator()(const CUInt32UnrestrictedHash& hash) const;
+            std::string operator()(const CUInt32Hash& hash) const;
 
         private:
             char m_Delimiter;
@@ -226,8 +226,8 @@ public:
         public:
             CFromString(const char delimiter);
 
-            bool operator()(const std::string &token, CUInt32UnrestrictedHash &hash) const;
-            bool operator()(const std::string &token, CUInt32Hash &hash) const;
+            bool operator()(const std::string& token, CUInt32UnrestrictedHash& hash) const;
+            bool operator()(const std::string& token, CUInt32Hash& hash) const;
 
         private:
             char m_Delimiter;
@@ -270,7 +270,7 @@ public:
         //! \param k The number of hash functions.
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
-        static void generateHashes(std::size_t k, uint32_t m, TUInt32HashVec &result);
+        static void generateHashes(std::size_t k, uint32_t m, TUInt32HashVec& result);
 
         //! Generate k independent samples of the 32 bit integer universal
         //! hash functions:
@@ -280,7 +280,7 @@ public:
         //!
         //! \param k The number of hash functions.
         //! \param result Filled in with the sampled hash functions.
-        static void generateHashes(std::size_t k, TUInt32UnrestrictedHashVec &result);
+        static void generateHashes(std::size_t k, TUInt32UnrestrictedHashVec& result);
 
         //! Generate k independent samples of the 32 bit integer vector
         //! universal hash functions:
@@ -293,7 +293,7 @@ public:
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
         static void
-        generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec &result);
+        generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
 
     private:
         //! Our random number generator for sampling hash function.
@@ -323,7 +323,7 @@ public:
     //! they will be different on machines with different endian
     //! conventions. If you aren't sure that you can safely use this
     //! version then use safeMurmurHash32.
-    static uint32_t murmurHash32(const void *key, int length, uint32_t seed);
+    static uint32_t murmurHash32(const void* key, int length, uint32_t seed);
 
     //! MurmurHash2: safe 32-bit hash.
     //!
@@ -334,7 +334,7 @@ public:
     //! don't want the result of hashing to depend on the address of
     //! the object which it would if we tried to mix the two approaches
     //! and check alignment.
-    static uint32_t safeMurmurHash32(const void *key, int length, uint32_t seed);
+    static uint32_t safeMurmurHash32(const void* key, int length, uint32_t seed);
 
     //! MurmurHash2: fast 64-bit hash.
     //!
@@ -355,7 +355,7 @@ public:
     //! they will be different on machines with different endian
     //! conventions. If you aren't sure that you can safely use this
     //! version then use safeMurmurHash64.
-    static uint64_t murmurHash64(const void *key, int length, uint64_t seed);
+    static uint64_t murmurHash64(const void* key, int length, uint64_t seed);
 
     //! MurmurHash2: safe 64-bit hash.
     //!
@@ -366,13 +366,14 @@ public:
     //! don't want the result of hashing to depend on the address of
     //! the object, which it would if we tried to mix the two approaches
     //! and check alignment.
-    static uint64_t safeMurmurHash64(const void *key, int length, uint64_t seed);
+    static uint64_t safeMurmurHash64(const void* key, int length, uint64_t seed);
 
     //! Wrapper for murmur hash to use with basic types.
     //!
     //! \warning This is slower than boost::hash for the types I tested
     //! std::size_t, int, uint64_t, but does have better distributions.
-    template <typename T> class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
+    template <typename T>
+    class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero(void) { return true; }
@@ -380,7 +381,7 @@ public:
     public:
         CMurmurHash2BT(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
-        std::size_t operator()(const T &key) const;
+        std::size_t operator()(const T& key) const;
 
     private:
         std::size_t m_Seed;
@@ -399,9 +400,9 @@ public:
     public:
         CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
-        std::size_t operator()(const std::string &key) const;
+        std::size_t operator()(const std::string& key) const;
         std::size_t operator()(TStrCRef key) const { return this->operator()(key.get()); }
-        std::size_t operator()(const CStoredStringPtr &key) const {
+        std::size_t operator()(const CStoredStringPtr& key) const {
             if (key) {
                 return this->operator()(*key);
             }
@@ -426,9 +427,9 @@ public:
     public:
         CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
-        uint64_t operator()(const std::string &key) const;
+        uint64_t operator()(const std::string& key) const;
         std::size_t operator()(TStrCRef key) const { return this->operator()(key.get()); }
-        std::size_t operator()(const CStoredStringPtr &key) const {
+        std::size_t operator()(const CStoredStringPtr& key) const {
             if (key) {
                 return this->operator()(*key);
             }
@@ -449,8 +450,9 @@ public:
 namespace hash_detail {
 
 //! Selects MurmurHash2 32-bit implementation by default.
-template <std::size_t> struct SMurmurHashForArchitecture {
-    static std::size_t hash(const void *key, int length, std::size_t seed) {
+template <std::size_t>
+struct SMurmurHashForArchitecture {
+    static std::size_t hash(const void* key, int length, std::size_t seed) {
         return static_cast<std::size_t>(
             CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
     }
@@ -459,28 +461,33 @@ template <std::size_t> struct SMurmurHashForArchitecture {
 //! Selects MurmurHash2 64-bit implementation if we are on a 64-bit platform.
 //!
 //! If we are on 64-bit platforms the 64-bit implementation is faster.
-template <> struct SMurmurHashForArchitecture<8> {
-    static std::size_t hash(const void *key, int length, std::size_t seed) {
+template <>
+struct SMurmurHashForArchitecture<8> {
+    static std::size_t hash(const void* key, int length, std::size_t seed) {
         return static_cast<std::size_t>(CHashing::murmurHash64(key, length, seed));
     }
 };
 }
 
 template <typename T>
-inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T &key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-        &key, static_cast<int>(sizeof(key)), m_Seed);
+inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(&key,
+                                                                              static_cast<int>(
+                                                                                  sizeof(key)),
+                                                                              m_Seed);
 }
 
-inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string &key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
-        key.data(), static_cast<int>(key.size()), m_Seed);
+inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) const {
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(key.data(),
+                                                                              static_cast<int>(
+                                                                                  key.size()),
+                                                                              m_Seed);
 }
 
-inline uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string &key) const {
+inline uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string& key) const {
     return CHashing::safeMurmurHash64(key.data(), static_cast<int>(key.size()), m_Seed);
 }
 }
 }
 
-#endif// INCLUDED_ml_core_CHashing_h
+#endif // INCLUDED_ml_core_CHashing_h

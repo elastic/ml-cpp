@@ -40,10 +40,10 @@ const std::string VALUES_PER_OVERFIELD_TAG("d");
 CModelPlotData::CModelPlotData(void) : m_Time(0) {}
 
 CModelPlotData::CModelPlotData(core_t::TTime time,
-                               const std::string &partitionFieldName,
-                               const std::string &partitionFieldValue,
-                               const std::string &overFieldName,
-                               const std::string &byFieldName,
+                               const std::string& partitionFieldName,
+                               const std::string& partitionFieldValue,
+                               const std::string& overFieldName,
+                               const std::string& byFieldName,
                                core_t::TTime bucketSpan,
                                int detectorIndex)
     : m_Time(time),
@@ -64,16 +64,16 @@ CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound,
       s_ValuesPerOverField() {}
 
 void CModelPlotData::SByFieldData::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(LOWER_BOUND_TAG, s_LowerBound, inserter);
     core::CPersistUtils::persist(UPPER_BOUND_TAG, s_UpperBound, inserter);
     core::CPersistUtils::persist(MEDIAN_TAG, s_Median, inserter);
     core::CPersistUtils::persist(VALUES_PER_OVERFIELD_TAG, s_ValuesPerOverField, inserter);
 }
 
-bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == LOWER_BOUND_TAG) {
             if (!core::CPersistUtils::restore(LOWER_BOUND_TAG, s_LowerBound, traverser)) {
                 return false;
@@ -87,8 +87,9 @@ bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTra
                 return false;
             }
         } else if (name == VALUES_PER_OVERFIELD_TAG) {
-            if (!core::CPersistUtils::restore(
-                    VALUES_PER_OVERFIELD_TAG, s_ValuesPerOverField, traverser)) {
+            if (!core::CPersistUtils::restore(VALUES_PER_OVERFIELD_TAG,
+                                              s_ValuesPerOverField,
+                                              traverser)) {
                 return false;
             }
         }
@@ -97,7 +98,7 @@ bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTra
     return true;
 }
 
-void CModelPlotData::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CModelPlotData::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     TIntStrByFieldDataUMapUMap data(m_DataPerFeature.begin(), m_DataPerFeature.end());
     core::CPersistUtils::persist(DATA_PER_FEATURE_TAG, data, inserter);
     core::CPersistUtils::persist(TIME_TAG, m_Time, inserter);
@@ -107,9 +108,9 @@ void CModelPlotData::acceptPersistInserter(core::CStatePersistInserter &inserter
     core::CPersistUtils::persist(BY_FIELD_NAME_TAG, m_ByFieldName, inserter);
 }
 
-bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == DATA_PER_FEATURE_TAG) {
             TIntStrByFieldDataUMapUMap data;
             if (!core::CPersistUtils::restore(DATA_PER_FEATURE_TAG, data, traverser)) {
@@ -127,13 +128,15 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
                 return false;
             }
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            if (!core::CPersistUtils::restore(
-                    PARTITION_FIELD_NAME_TAG, m_PartitionFieldName, traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_NAME_TAG,
+                                              m_PartitionFieldName,
+                                              traverser)) {
                 return false;
             }
         } else if (name == PARTITION_FIELD_VALUE_TAG) {
-            if (!core::CPersistUtils::restore(
-                    PARTITION_FIELD_VALUE_TAG, m_PartitionFieldValue, traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG,
+                                              m_PartitionFieldValue,
+                                              traverser)) {
                 return false;
             }
         } else if (name == OVER_FIELD_NAME_TAG) {
@@ -150,21 +153,35 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
     return true;
 }
 
-const std::string &CModelPlotData::partitionFieldName(void) const { return m_PartitionFieldName; }
+const std::string& CModelPlotData::partitionFieldName(void) const {
+    return m_PartitionFieldName;
+}
 
-const std::string &CModelPlotData::partitionFieldValue(void) const { return m_PartitionFieldValue; }
+const std::string& CModelPlotData::partitionFieldValue(void) const {
+    return m_PartitionFieldValue;
+}
 
-const std::string &CModelPlotData::overFieldName(void) const { return m_OverFieldName; }
+const std::string& CModelPlotData::overFieldName(void) const {
+    return m_OverFieldName;
+}
 
-const std::string &CModelPlotData::byFieldName(void) const { return m_ByFieldName; }
+const std::string& CModelPlotData::byFieldName(void) const {
+    return m_ByFieldName;
+}
 
-core_t::TTime CModelPlotData::time(void) const { return m_Time; }
+core_t::TTime CModelPlotData::time(void) const {
+    return m_Time;
+}
 
-core_t::TTime CModelPlotData::bucketSpan(void) const { return m_BucketSpan; }
+core_t::TTime CModelPlotData::bucketSpan(void) const {
+    return m_BucketSpan;
+}
 
-int CModelPlotData::detectorIndex(void) const { return m_DetectorIndex; }
+int CModelPlotData::detectorIndex(void) const {
+    return m_DetectorIndex;
+}
 
-void CModelPlotData::SByFieldData::addValue(const std::string &personName, double value) {
+void CModelPlotData::SByFieldData::addValue(const std::string& personName, double value) {
     s_ValuesPerOverField.emplace_back(personName, value);
 }
 
@@ -176,13 +193,15 @@ CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end(void) con
     return m_DataPerFeature.end();
 }
 
-CModelPlotData::SByFieldData &CModelPlotData::get(const model_t::EFeature &feature,
-                                                  const std::string &byFieldValue) {
+CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature,
+                                                  const std::string& byFieldValue) {
     // note: This creates/inserts! elements and returns a reference for writing
     // data insert happens here
     return m_DataPerFeature[feature][byFieldValue];
 }
 
-std::string CModelPlotData::print(void) const { return "nothing"; }
+std::string CModelPlotData::print(void) const {
+    return "nothing";
+}
 }
 }

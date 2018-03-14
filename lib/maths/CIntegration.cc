@@ -22,7 +22,7 @@
 namespace ml {
 namespace maths {
 
-const double *CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
+const double* CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
     switch (order) {
         case OrderOne:
             return WEIGHTS1;
@@ -49,7 +49,7 @@ const double *CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
     LOG_ABORT("Unexpected enumeration value " << order);
 }
 
-const double *CIntegration::CGaussLegendreQuadrature::abscissas(EOrder order) {
+const double* CIntegration::CGaussLegendreQuadrature::abscissas(EOrder order) {
     switch (order) {
         case OrderOne:
             return ABSCISSAS1;

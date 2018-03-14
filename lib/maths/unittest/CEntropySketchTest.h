@@ -22,7 +22,7 @@ class CEntropySketchTest : public CppUnit::TestFixture {
 public:
     void testAll(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CEntropySketchTest_h
+#endif // INCLUDED_CEntropySketchTest_h

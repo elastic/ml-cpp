@@ -174,4 +174,4 @@ struct MODEL_EXPORT SModelParams {
 }
 }
 
-#endif// INCLUDED_ml_model_CModelParams_h
+#endif // INCLUDED_ml_model_CModelParams_h

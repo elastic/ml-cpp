@@ -255,31 +255,31 @@ public:
     public:
         //! Construct with no "by" field nor "partition" field, deducing
         //! the function from the fieldName
-        CFieldOptions(const std::string &fieldName, int configKey);
+        CFieldOptions(const std::string& fieldName, int configKey);
 
         //! Deduce the function from the fieldName
-        CFieldOptions(const std::string &fieldName,
+        CFieldOptions(const std::string& fieldName,
                       int configKey,
-                      const std::string &byFieldName,
+                      const std::string& byFieldName,
                       bool byHasExcludeFrequent,
                       bool useNull);
 
         //! Deduce the function from the fieldName
-        CFieldOptions(const std::string &fieldName,
+        CFieldOptions(const std::string& fieldName,
                       int configKey,
-                      const std::string &byFieldName,
-                      const std::string &partitionFieldName,
+                      const std::string& byFieldName,
+                      const std::string& partitionFieldName,
                       bool byHasExcludeFrequent,
                       bool overHasExcludeFrequent,
                       bool useNull);
 
         //! Specify everything
         CFieldOptions(model::function_t::EFunction function,
-                      const std::string &fieldName,
+                      const std::string& fieldName,
                       int configKey,
-                      const std::string &byFieldName,
-                      const std::string &overFieldName,
-                      const std::string &partitionFieldName,
+                      const std::string& byFieldName,
+                      const std::string& overFieldName,
+                      const std::string& partitionFieldName,
                       bool byHasExcludeFrequent,
                       bool overHasExcludeFrequent,
                       bool useNull);
@@ -288,32 +288,32 @@ public:
         void description(std::string description);
 
         //! Accessors
-        const std::string &description(void) const;
+        const std::string& description(void) const;
         model::function_t::EFunction function(void) const;
-        const std::string &fieldName(void) const;
+        const std::string& fieldName(void) const;
         int configKey(void) const;
-        const std::string &byFieldName(void) const;
-        const std::string &overFieldName(void) const;
-        const std::string &partitionFieldName(void) const;
+        const std::string& byFieldName(void) const;
+        const std::string& overFieldName(void) const;
+        const std::string& partitionFieldName(void) const;
         bool useNull(void) const;
         ml::model_t::EExcludeFrequent excludeFrequent(void) const;
 
         //! Map back from the function enum to the shortest possible
         //! function name that could be used to specify the function
-        const std::string &terseFunctionName(void) const;
+        const std::string& terseFunctionName(void) const;
 
         //! Map back from the function enum to the longest possible
         //! function name that could be used to specify the function
-        const std::string &verboseFunctionName(void) const;
+        const std::string& verboseFunctionName(void) const;
 
         //! Write the detector-specific parts of the configuration
         //! clause.  Note that this cannot include summarycountfield,
         //! influencerfield or categorizationfield as these are not
         //! detector-specific.
-        std::ostream &debugPrintClause(std::ostream &strm) const;
+        std::ostream& debugPrintClause(std::ostream& strm) const;
 
         //! Efficient swap
-        void swap(CFieldOptions &other);
+        void swap(CFieldOptions& other);
 
     private:
         std::string m_Description;
@@ -327,7 +327,7 @@ public:
         bool m_OverHasExcludeFrequent;
         bool m_UseNull;
 
-        friend std::ostream &operator<<(std::ostream &, const CFieldOptions &);
+        friend std::ostream& operator<<(std::ostream&, const CFieldOptions&);
     };
 
 public:
@@ -394,35 +394,35 @@ public:
 
     //! Construct with just a categorization field.  (In the case of a
     //! categorization job, this is all that is needed for this config.)
-    CFieldConfig(const std::string &categorizationFieldName);
+    CFieldConfig(const std::string& categorizationFieldName);
 
     //! Construct with a single field.  (This constructor is largely for
     //! unit testing and backwards compatibility.)
-    CFieldConfig(const std::string &fieldName,
-                 const std::string &byFieldName,
+    CFieldConfig(const std::string& fieldName,
+                 const std::string& byFieldName,
                  bool useNull = false,
-                 const std::string &summaryCountFieldName = EMPTY_STRING);
+                 const std::string& summaryCountFieldName = EMPTY_STRING);
 
     //! Construct with a single field and a partition field.  (This
     //! constructor is only used for unit testing.)
-    CFieldConfig(const std::string &fieldName,
-                 const std::string &byFieldName,
-                 const std::string &partitionFieldName,
+    CFieldConfig(const std::string& fieldName,
+                 const std::string& byFieldName,
+                 const std::string& partitionFieldName,
                  bool useNull);
 
     //! Initialise from command line options.  This method expects that only
     //! one of the config file and the tokens will have been specified.  If
     //! neither or both have been specified, this is reported as an error.
-    bool initFromCmdLine(const std::string &configFile, const TStrVec &tokens);
+    bool initFromCmdLine(const std::string& configFile, const TStrVec& tokens);
 
     //! Initialise from a config file.
-    bool initFromFile(const std::string &configFile);
+    bool initFromFile(const std::string& configFile);
 
     //! Initialise from a command line clause that has been tokenised by the
     //! command line parser (i.e. using whitespace).  The clause may have at
     //! most one "by" token.  If there is a "by" token, there must be
     //! exactly one token following it, and one or more tokens before it.
-    bool initFromClause(const TStrVec &tokens);
+    bool initFromClause(const TStrVec& tokens);
 
     //! Add an extra set of field config options to the configuration.  It
     //! is not expected that this will be done once analysis has started.
@@ -430,21 +430,21 @@ public:
     //! consistent but it is likely to cause problems for other classes that
     //! do not expect this.  The likely use case for this function is for
     //! building config migration programs.
-    bool addOptions(const CFieldOptions &options);
+    bool addOptions(const CFieldOptions& options);
 
     //! Get the list of categorization filters
-    const TStrVec &categorizationFilters(void) const;
+    const TStrVec& categorizationFilters(void) const;
 
     //! Get the field to use for summary counts.  If the returned string is
     //! empty then this implies that input has not been manually summarised.
-    const std::string &summaryCountFieldName(void) const;
+    const std::string& summaryCountFieldName(void) const;
 
     //! Does any config have a non-empty partition field configured?
     //! (This is used by licensing.)
     bool havePartitionFields(void) const;
 
     //! Access the superset of all field names that are used by any detector.
-    const TStrSet &fieldNameSuperset(void) const;
+    const TStrSet& fieldNameSuperset(void) const;
 
     //! Debug dump of fields
     std::string debug(void) const;
@@ -454,35 +454,35 @@ public:
     void addInfluencerFieldsFromByOverPartitionFields(void);
 
     //! Get the list of field names for pivoting the anomaly results
-    const TStrVec &influencerFieldNames(void) const;
+    const TStrVec& influencerFieldNames(void) const;
 
     //! Get the detector key to detection rules map
-    const TIntDetectionRuleVecUMap &detectionRules(void) const;
+    const TIntDetectionRuleVecUMap& detectionRules(void) const;
 
     //! Get the scheduled events
-    const TStrDetectionRulePrVec &scheduledEvents(void) const;
+    const TStrDetectionRulePrVec& scheduledEvents(void) const;
 
     //! Attempt to parse a detector's rules.
-    bool parseRules(int detectorIndex, const std::string &rules);
+    bool parseRules(int detectorIndex, const std::string& rules);
 
     //! Process and store a rule filter
-    bool processFilter(const std::string &key, const std::string &value);
+    bool processFilter(const std::string& key, const std::string& value);
 
     // //! Replaces filters with the ones in the given property tree
-    bool updateFilters(const boost::property_tree::ptree &propTree);
+    bool updateFilters(const boost::property_tree::ptree& propTree);
 
     //! Replaces scheduled events with the ones in the given property tree
-    bool updateScheduledEvents(const boost::property_tree::ptree &propTree);
+    bool updateScheduledEvents(const boost::property_tree::ptree& propTree);
 
-    const TFieldOptionsMIndex &fieldOptions(void) const;
+    const TFieldOptionsMIndex& fieldOptions(void) const;
 
-    const std::string &categorizationFieldName(void) const;
+    const std::string& categorizationFieldName(void) const;
 
-    const TStrPatternSetUMap &ruleFilters(void) const;
+    const TStrPatternSetUMap& ruleFilters(void) const;
 
 private:
     //! Parse detection rules into detectionRules
-    bool parseRules(TDetectionRuleVec &detectionRules, const std::string &rules);
+    bool parseRules(TDetectionRuleVec& detectionRules, const std::string& rules);
 
     //! Attempt to parse a single analysis clause.  This could have come
     //! from either the command line of a custom command or from one entry
@@ -490,11 +490,11 @@ private:
     //! split using both whitespace and commas.
     bool parseClause(bool allowMultipleFunctions,
                      int configKey,
-                     const std::string &description,
-                     TStrVec &copyTokens,
-                     TFieldOptionsMIndex &optionsIndex,
-                     std::string &categorizationFieldName,
-                     std::string &summaryCountFieldName);
+                     const std::string& description,
+                     TStrVec& copyTokens,
+                     TFieldOptionsMIndex& optionsIndex,
+                     std::string& categorizationFieldName,
+                     std::string& summaryCountFieldName);
 
     //! Helper method for initFromFile().  Because multiple config
     //! file settings are required to specify a single configuration, the
@@ -502,83 +502,83 @@ private:
     //! to find the unique config keys, then search for all the settings
     //! that correspond to each particular config key.  Doing this
     //! simplifies the error reporting.
-    bool processDetector(const boost::property_tree::ptree &propTree,
-                         const std::string &key,
-                         const std::string &value,
-                         TIntSet &handledConfigs);
+    bool processDetector(const boost::property_tree::ptree& propTree,
+                         const std::string& key,
+                         const std::string& value,
+                         TIntSet& handledConfigs);
 
     //! Add data structures relating to an active detector.
     bool addActiveDetector(int configKey,
-                           const std::string &description,
-                           const std::string &rules,
-                           TStrVec &copyTokens);
+                           const std::string& description,
+                           const std::string& rules,
+                           TStrVec& copyTokens);
 
     //! Get a function name and field name from a field string
     static bool parseFieldString(bool haveSummaryCountField,
                                  bool isPopulation,
                                  bool hasByField,
-                                 const std::string &str,
-                                 model::function_t::EFunction &function,
-                                 std::string &fieldName);
+                                 const std::string& str,
+                                 model::function_t::EFunction& function,
+                                 std::string& fieldName);
 
     //! Used to keep the field superset up-to-date
-    void seenField(const std::string &fieldName);
+    void seenField(const std::string& fieldName);
 
     //! Split a config clause on whitespace and commas.
-    bool tokenise(const std::string &clause, TStrVec &copyTokens);
+    bool tokenise(const std::string& clause, TStrVec& copyTokens);
 
     //! Split a config clause that has already been tokenised by a
     //! command-line processor to additionally be split at commas
-    void retokenise(const TStrVec &tokens, TStrVec &copyTokens);
+    void retokenise(const TStrVec& tokens, TStrVec& copyTokens);
 
     //! Check that we have at most one "by" and one "over" token
     //! and report their positions in the token list
-    bool findLastByOverTokens(const TStrVec &copyTokens,
-                              std::size_t &lastByTokenIndex,
-                              std::size_t &lastOverTokenIndex);
+    bool findLastByOverTokens(const TStrVec& copyTokens,
+                              std::size_t& lastByTokenIndex,
+                              std::size_t& lastOverTokenIndex);
 
     //! Check that the "by" or "over" field is valid
-    bool validateByOverField(const TStrVec &copyTokens,
+    bool validateByOverField(const TStrVec& copyTokens,
                              const std::size_t thisIndex,
                              const std::size_t otherIndex,
-                             const TStrVec &clashingNames,
-                             std::string &fieldName);
+                             const TStrVec& clashingNames,
+                             std::string& fieldName);
 
-    std::string findParameter(const std::string &parameter, TStrVec &copyTokens);
+    std::string findParameter(const std::string& parameter, TStrVec& copyTokens);
 
     //! How does a setting for excludefrequent map to the underlying boolean
     //! flags?
-    static bool decipherExcludeFrequentSetting(const std::string &excludeFrequentString,
+    static bool decipherExcludeFrequentSetting(const std::string& excludeFrequentString,
                                                bool hasByField,
                                                bool isPopulation,
-                                               bool &byExcludeFrequent,
-                                               bool &overExcludeFrequent);
+                                               bool& byExcludeFrequent,
+                                               bool& overExcludeFrequent);
 
     //! Store the list of influencer field names, if any
     void influencerFieldNames(TStrVec influencers);
 
     //! Add influencer fields for all the by/over/partition fields of all
     //! detectors.
-    void addInfluencerFieldsFromByOverPartitionFields(const TFieldOptionsMIndex &fieldOptions);
+    void addInfluencerFieldsFromByOverPartitionFields(const TFieldOptionsMIndex& fieldOptions);
 
     //! Store one influencer field name
-    void addInfluencerFieldName(const std::string &influencer, bool quiet = false);
+    void addInfluencerFieldName(const std::string& influencer, bool quiet = false);
 
     //! Sort the influencers (so that downstream code doesn't have to worry
     //! about ordering changes when the overall set is unchanged)
     void sortInfluencers(void);
 
     //! Store one categorization filter
-    void addCategorizationFilter(const std::string &filter);
+    void addCategorizationFilter(const std::string& filter);
 
     //! Process and store a scheduled event
-    bool processScheduledEvent(const boost::property_tree::ptree &propTree,
-                               const std::string &key,
-                               const std::string &value,
-                               TIntSet &handledScheduledEvents);
+    bool processScheduledEvent(const boost::property_tree::ptree& propTree,
+                               const std::string& key,
+                               const std::string& value,
+                               TIntSet& handledScheduledEvents);
 
     //! Debug dump of field options
-    void debug(const TFieldOptionsMIndex &fieldOptions, std::ostream &strm) const;
+    void debug(const TFieldOptionsMIndex& fieldOptions, std::ostream& strm) const;
 
 private:
     //! The fields options.
@@ -615,11 +615,11 @@ private:
 };
 
 //! Efficient swap for field options
-void swap(CFieldConfig::CFieldOptions &lhs, CFieldConfig::CFieldOptions &rhs);
+void swap(CFieldConfig::CFieldOptions& lhs, CFieldConfig::CFieldOptions& rhs);
 
 //! Print field options
-std::ostream &operator<<(std::ostream &strm, const CFieldConfig::CFieldOptions &options);
+std::ostream& operator<<(std::ostream& strm, const CFieldConfig::CFieldOptions& options);
 }
 }
 
-#endif// INCLUDED_ml_api_CFieldConfig_h
+#endif // INCLUDED_ml_api_CFieldConfig_h

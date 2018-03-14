@@ -84,7 +84,7 @@ public:
     private:
         using TDouble2VecVec = std::vector<TDouble2Vec>;
         struct MODEL_EXPORT SDuplicateValueHash {
-            std::size_t operator()(const TTimeDouble2VecPr &value) const;
+            std::size_t operator()(const TTimeDouble2VecPr& value) const;
         };
         using TTimeDouble2VecPrSizeUMap =
             boost::unordered_map<TTimeDouble2VecPr, std::size_t, SDuplicateValueHash>;
@@ -114,7 +114,7 @@ public:
 
     //! \brief Hashes a string pointer pair.
     struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrHash {
-        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr &target) const {
+        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& target) const {
             return static_cast<std::size_t>(
                 core::CHashing::hashCombine(static_cast<uint64_t>(s_Hasher(*target.first)),
                                             static_cast<uint64_t>(s_Hasher(*target.second))));
@@ -124,8 +124,8 @@ public:
 
     //! \brief Compares two string pointer pairs.
     struct MODEL_EXPORT SStoredStringPtrStoredStringPtrPrEqual {
-        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr &lhs,
-                               const TStoredStringPtrStoredStringPtrPr &rhs) const {
+        std::size_t operator()(const TStoredStringPtrStoredStringPtrPr& lhs,
+                               const TStoredStringPtrStoredStringPtrPr& rhs) const {
             return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
         }
     };
@@ -154,13 +154,13 @@ public:
         bool empty(void) const;
 
         //! Add an aggregation style \p aggregator with weight \p weight.
-        void add(const TAggregator &aggregator, double weight = 1.0);
+        void add(const TAggregator& aggregator, double weight = 1.0);
 
         //! Add \p probability.
         void add(double probability, double weight = 1.0);
 
         //! Calculate the probability if possible.
-        bool calculate(double &result) const;
+        bool calculate(double& result) const;
 
     private:
         //! The style of aggregation to use.
@@ -190,11 +190,11 @@ public:
     class MODEL_EXPORT CCategoryProbabilityCache {
     public:
         CCategoryProbabilityCache(void);
-        CCategoryProbabilityCache(const maths::CMultinomialConjugate &prior);
+        CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior);
 
         //! Calculate the probability of less likely categories than
         //! \p attribute.
-        bool lookup(std::size_t category, double &result) const;
+        bool lookup(std::size_t category, double& result) const;
 
         //! Get the memory usage of the component
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -204,7 +204,7 @@ public:
 
     private:
         //! The prior.
-        const maths::CMultinomialConjugate *m_Prior;
+        const maths::CMultinomialConjugate* m_Prior;
         //! The cached probabilities.
         mutable TDoubleVec m_Cache;
         //! The smallest possible category probability.
@@ -234,7 +234,7 @@ public:
         void clear(void);
 
         //! Maybe add the modes of \p model.
-        void addModes(model_t::EFeature feature, std::size_t id, const maths::CModel &model);
+        void addModes(model_t::EFeature feature, std::size_t id, const maths::CModel& model);
 
         //! Add a new ("value", "probability") result.
         //!
@@ -249,11 +249,11 @@ public:
         //! anomalous correlate (or empty if there isn't one).
         void addProbability(model_t::EFeature feature,
                             std::size_t id,
-                            const TDouble2Vec1Vec &value,
+                            const TDouble2Vec1Vec& value,
                             double probability,
-                            const TTail2Vec &tail,
+                            const TTail2Vec& tail,
                             bool conditional,
-                            const TSize1Vec &mostAnomalousCorrelate);
+                            const TSize1Vec& mostAnomalousCorrelate);
 
         //! Try to lookup the probability of \p value in cache.
         //!
@@ -270,11 +270,11 @@ public:
         //! acceptable error and false otherwise.
         bool lookup(model_t::EFeature feature,
                     std::size_t id,
-                    const TDouble2Vec1Vec &value,
-                    double &probability,
-                    TTail2Vec &tail,
-                    bool &conditional,
-                    TSize1Vec &mostAnomalousCorrelate) const;
+                    const TDouble2Vec1Vec& value,
+                    double& probability,
+                    TTail2Vec& tail,
+                    bool& conditional,
+                    TSize1Vec& mostAnomalousCorrelate) const;
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -319,4 +319,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_model_CModelTools_h
+#endif // INCLUDED_ml_model_CModelTools_h

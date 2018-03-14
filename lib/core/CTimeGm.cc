@@ -17,6 +17,8 @@
 namespace ml {
 namespace core {
 
-time_t CTimeGm::timeGm(struct tm *ts) { return ::timegm(ts); }
+time_t CTimeGm::timeGm(struct tm* ts) {
+    return ::timegm(ts);
+}
 }
 }

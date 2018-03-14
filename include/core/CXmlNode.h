@@ -54,45 +54,47 @@ public:
 private:
     class CFirstElementEquals {
     public:
-        CFirstElementEquals(const std::string &str) : m_Str(str) {}
+        CFirstElementEquals(const std::string& str) : m_Str(str) {}
 
-        template <typename PAIR> bool operator()(const PAIR &pr) {
-            const std::string &prFirst = pr.first;
+        template <typename PAIR>
+        bool operator()(const PAIR& pr) {
+            const std::string& prFirst = pr.first;
             return prFirst == m_Str;
         }
 
     private:
-        const std::string &m_Str;
+        const std::string& m_Str;
     };
 
 public:
     CXmlNode(void);
 
-    CXmlNode(const std::string &name);
+    CXmlNode(const std::string& name);
 
-    CXmlNode(const std::string &name, const std::string &value);
+    CXmlNode(const std::string& name, const std::string& value);
 
-    CXmlNode(const std::string &name, const std::string &value, const TStrStrMap &attributes);
+    CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes);
 
     virtual ~CXmlNode(void);
 
     //! Accessors
-    const std::string &name(void) const;
-    const std::string &value(void) const;
-    const TStrStrPrVec &attributes(void) const;
+    const std::string& name(void) const;
+    const std::string& value(void) const;
+    const TStrStrPrVec& attributes(void) const;
 
     //! Set name
-    void name(const std::string &name);
+    void name(const std::string& name);
 
     //! Set value
-    void value(const std::string &value);
+    void value(const std::string& value);
 
     //! Debug dump of all
     virtual std::string dump(void) const;
 
     //! Retrieve an attribute (if exists), and convert it to the supplied
     //! type
-    template <typename TYPE> bool attribute(const std::string &name, TYPE &value) const {
+    template <typename TYPE>
+    bool attribute(const std::string& name, TYPE& value) const {
         TStrStrPrVecCItr iter =
             std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
         if (iter == m_Attributes.end()) {
@@ -111,7 +113,7 @@ public:
     //! existing attribute of the same name or not.  The value must be
     //! convertible to a string using CStringUtils.
     template <typename TYPE>
-    bool attribute(const std::string &name, const TYPE &value, bool overwrite) {
+    bool attribute(const std::string& name, const TYPE& value, bool overwrite) {
         TStrStrPrVecItr iter =
             std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
         if (iter == m_Attributes.end()) {
@@ -140,4 +142,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CXmlNode_h
+#endif // INCLUDED_ml_core_CXmlNode_h

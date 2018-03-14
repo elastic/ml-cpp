@@ -27,7 +27,7 @@ CXmlParserIntf::CXmlParserIntf(void) {}
 
 CXmlParserIntf::~CXmlParserIntf(void) {}
 
-std::string CXmlParserIntf::makeValidName(const std::string &str) {
+std::string CXmlParserIntf::makeValidName(const std::string& str) {
     std::string result(str);
 
     if (!result.empty()) {
@@ -48,7 +48,7 @@ std::string CXmlParserIntf::makeValidName(const std::string &str) {
     return result;
 }
 
-std::string CXmlParserIntf::toOneLine(const std::string &xml) {
+std::string CXmlParserIntf::toOneLine(const std::string& xml) {
     std::string oneLine(xml);
 
     CStringUtils::replace(XML_HEADER, "", oneLine);

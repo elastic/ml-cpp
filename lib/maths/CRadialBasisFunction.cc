@@ -30,7 +30,9 @@ namespace maths {
 namespace {
 
 //! Checks of the interval [\p a, \p b] contains the point \p x.
-inline bool contains(double a, double b, double x) { return x >= a && x <= b; }
+inline bool contains(double a, double b, double x) {
+    return x >= a && x <= b;
+}
 
 //! The indefinite integral
 //! <pre class="fragment">
@@ -103,7 +105,7 @@ inverseQuadraticProduct(double x, double centre1, double centre2, double scale1,
 
 CRadialBasisFunction::~CRadialBasisFunction(void) {}
 
-CGaussianBasisFunction *CGaussianBasisFunction::clone(void) const {
+CGaussianBasisFunction* CGaussianBasisFunction::clone(void) const {
     return new CGaussianBasisFunction();
 }
 
@@ -119,7 +121,7 @@ double CGaussianBasisFunction::derivative(double x, double centre, double scale)
     return -2.0 * scale * y * ::exp(-y * y);
 }
 
-bool CGaussianBasisFunction::scale(double distance, double value, double &result) const {
+bool CGaussianBasisFunction::scale(double distance, double value, double& result) const {
     if (value <= 0.0 || value >= 1.0) {
         return false;
     }
@@ -150,11 +152,11 @@ double CGaussianBasisFunction::mean(double a, double b, double centre, double sc
         return (fmax + fmin) / 2.0;
     }
 
-    return std::max(
-        boost::math::double_constants::root_pi / 2.0 / scale *
-            (boost::math::erf(scale * (b - centre)) - boost::math::erf(scale * (a - centre))) /
-            (b - a),
-        0.0);
+    return std::max(boost::math::double_constants::root_pi / 2.0 / scale *
+                        (boost::math::erf(scale * (b - centre)) -
+                         boost::math::erf(scale * (a - centre))) /
+                        (b - a),
+                    0.0);
 }
 
 double CGaussianBasisFunction::meanSquareDerivative(double a,
@@ -193,10 +195,10 @@ double CGaussianBasisFunction::meanSquareDerivative(double a,
         return (smin + smax) / 2.0;
     }
 
-    return std::max(
-        (gaussianSquareDerivative(b, centre, scale) - gaussianSquareDerivative(a, centre, scale)) /
-            (b - a),
-        0.0);
+    return std::max((gaussianSquareDerivative(b, centre, scale) -
+                     gaussianSquareDerivative(a, centre, scale)) /
+                        (b - a),
+                    0.0);
 }
 
 double CGaussianBasisFunction::product(double a,
@@ -239,7 +241,7 @@ double CGaussianBasisFunction::product(double a,
                     0.0);
 }
 
-CInverseQuadraticBasisFunction *CInverseQuadraticBasisFunction::clone(void) const {
+CInverseQuadraticBasisFunction* CInverseQuadraticBasisFunction::clone(void) const {
     return new CInverseQuadraticBasisFunction();
 }
 
@@ -325,7 +327,7 @@ double CInverseQuadraticBasisFunction::meanSquareDerivative(double a,
                     0.0);
 }
 
-bool CInverseQuadraticBasisFunction::scale(double distance, double value, double &result) const {
+bool CInverseQuadraticBasisFunction::scale(double distance, double value, double& result) const {
     if (value <= 0.0 || value >= 1.0) {
         return false;
     }

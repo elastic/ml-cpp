@@ -24,7 +24,7 @@ public:
     void testPerformanceNoPool(void);
     void testPerformanceWithPool(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CXmlNodeWithChildrenTest_h
+#endif // INCLUDED_CXmlNodeWithChildrenTest_h

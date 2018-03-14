@@ -48,4 +48,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CCrashHandler_h
+#endif // INCLUDED_ml_core_CCrashHandler_h

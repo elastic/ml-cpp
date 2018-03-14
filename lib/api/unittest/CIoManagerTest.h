@@ -25,14 +25,14 @@ public:
     void testNamedPipeIoGood(void);
     void testNamedPipeIoBad(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void testCommon(const std::string &inputFileName,
+    void testCommon(const std::string& inputFileName,
                     bool isInputFileNamedPipe,
-                    const std::string &outputFileName,
+                    const std::string& outputFileName,
                     bool isOutputFileNamedPipe,
                     bool isGood);
 };
 
-#endif// INCLUDED_CIoManagerTest_h
+#endif // INCLUDED_CIoManagerTest_h

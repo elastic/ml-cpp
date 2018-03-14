@@ -88,4 +88,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CFastMutex_h
+#endif // INCLUDED_ml_core_CFastMutex_h

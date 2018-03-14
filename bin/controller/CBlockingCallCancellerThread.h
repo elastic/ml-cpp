@@ -46,7 +46,7 @@ namespace controller {
 class CBlockingCallCancellerThread : public core::CThread {
 public:
     CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
-                                 std::istream &monitorStream);
+                                 std::istream& monitorStream);
 
 protected:
     //! Called when the thread is started.
@@ -61,7 +61,7 @@ private:
     core::CThread::TThreadId m_PotentiallyBlockedThreadId;
 
     //! Stream to monitor for end-of-file.
-    std::istream &m_MonitorStream;
+    std::istream& m_MonitorStream;
 
     //! Flag to indicate the thread should shut down
     volatile bool m_Shutdown;
@@ -69,4 +69,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_controller_CBlockingCallCancellerThread_h
+#endif // INCLUDED_ml_controller_CBlockingCallCancellerThread_h

@@ -58,9 +58,9 @@ typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
 typedef std::vector<TTimeDoublePrVec> TTimeDoublePrVecVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
-std::size_t addPerson(const std::string &p,
-                      CDataGatherer &gatherer,
-                      CResourceMonitor &resourceMonitor,
+std::size_t addPerson(const std::string& p,
+                      CDataGatherer& gatherer,
+                      CResourceMonitor& resourceMonitor,
                       std::size_t numInfluencers = 0) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
@@ -74,10 +74,10 @@ std::size_t addPerson(const std::string &p,
     return *result.personId();
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
+                const std::string& person,
                 double value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
@@ -91,13 +91,13 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
+                const std::string& person,
                 double lat,
                 double lng,
-                const std::string &delimiter) {
+                const std::string& delimiter) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     std::string latlngAsString;
@@ -114,13 +114,13 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
+                const std::string& person,
                 double value,
-                const std::string &influencer1,
-                const std::string &influencer2) {
+                const std::string& influencer1,
+                const std::string& influencer2) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     fieldValues.push_back(influencer1.empty() ? 0 : &influencer1);
@@ -142,18 +142,18 @@ double doubleToStringToDouble(double value) {
     return result;
 }
 
-void addArrivals(CDataGatherer &gatherer,
-                 CResourceMonitor &resourceMonitor,
+void addArrivals(CDataGatherer& gatherer,
+                 CResourceMonitor& resourceMonitor,
                  core_t::TTime time,
                  core_t::TTime increment,
-                 const std::string &person,
-                 const TDoubleVec &values) {
+                 const std::string& person,
+                 const TDoubleVec& values) {
     for (std::size_t i = 0; i < values.size(); ++i) {
         addArrival(gatherer, resourceMonitor, time + (i * increment), person, values[i]);
     }
 }
 
-double variance(const TDoubleVec &values, double &mean) {
+double variance(const TDoubleVec& values, double& mean) {
     double total = 0.0;
     for (std::size_t i = 0; i < values.size(); ++i) {
         total += values[i];
@@ -187,14 +187,16 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
                                TTimeDoublePr(190, 1.5),
                                TTimeDoublePr(400, 1.5),
                                TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket2[] = {
-        TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2), TTimeDoublePr(1199, 1.8)};
+    TTimeDoublePr bucket2[] = {TTimeDoublePr(600, 2.0),
+                               TTimeDoublePr(799, 2.2),
+                               TTimeDoublePr(1199, 1.8)};
     TTimeDoublePr bucket3[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
     TTimeDoublePr bucket4[] = {
         TTimeDoublePr(1900, 3.5),
     };
-    TTimeDoublePr bucket5[] = {
-        TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2), TTimeDoublePr(2490, 3.8)};
+    TTimeDoublePr bucket5[] = {TTimeDoublePr(2420, 3.5),
+                               TTimeDoublePr(2480, 3.2),
+                               TTimeDoublePr(2490, 3.8)};
     {
         TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanByPerson);
@@ -256,8 +258,9 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime);
-            gatherer.featureData(
-                core_t::TTime(startTime + bucketLength - 1), bucketLength, featureData);
+            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
+                                 bucketLength,
+                                 featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT(!featureData.empty());
             CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -268,18 +271,18 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
             CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [1] 1 2), (185 [0.9] 1 2), (475 [1.5] 1 2)]"),
-                core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [2.1] 1 2), (185 [1.5] 1 2), (475 [2] 1 2)]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(0 [9] 1 6)]"),
-                core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1] 1 2), (185 [0.9] 1 2), (475 [1.5] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[1].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [2.1] 1 2), (185 [1.5] 1 2), (475 [2] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[2].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[3].second[0].second.s_Samples));
 
             // Test persistence. (We check for idempotency.)
             std::string origXml;
@@ -335,18 +338,18 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
             CPPUNIT_ASSERT_EQUAL(2.2, featureData[2].second[0].second.s_BucketValue->value()[0]);
             CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(700 [2.1] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(700 [2] 1 2)]"),
-                core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(700 [2.2] 1 2)]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(600 [6] 1 3)]"),
-                core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.1] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[1].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.2] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[2].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(600 [6] 1 3)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[3].second[0].second.s_Samples));
 
             // Test persistence. (We check for idempotency.)
             std::string origXml;
@@ -424,7 +427,7 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         for (std::size_t i = 0u; i < buckets.size(); ++i) {
             LOG_DEBUG("Processing bucket " << i);
             gatherer.timeNow(startTime + i * bucketLength);
-            const TTimeDoublePrVec &bucket = buckets[i];
+            const TTimeDoublePrVec& bucket = buckets[i];
             for (std::size_t j = 0u; j < bucket.size(); ++j) {
                 addArrival(gatherer, m_ResourceMonitor, bucket[j].first, "p", bucket[j].second);
             }
@@ -436,8 +439,9 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
         CPPUNIT_ASSERT(!featureData.empty());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(3.5,
+                                     featureData[0].second[0].second.s_BucketValue->value()[0],
+                                     1e-10);
         CPPUNIT_ASSERT_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
         CPPUNIT_ASSERT_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
         CPPUNIT_ASSERT_EQUAL(10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
@@ -446,18 +450,18 @@ void CMetricDataGathererTest::singleSeriesTests(void) {
         CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
         CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(2323 [3.5] 1 4)]"),
-            core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(2323 [3.2] 1 4)]"),
-            core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(2323 [3.8] 1 4)]"),
-            core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(2400 [10.5] 1 3)]"),
-            core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(2323 [3.5] 1 4)]"),
+                             core::CContainerPrinter::print(
+                                 featureData[0].second[0].second.s_Samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(2323 [3.2] 1 4)]"),
+                             core::CContainerPrinter::print(
+                                 featureData[1].second[0].second.s_Samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(2323 [3.8] 1 4)]"),
+                             core::CContainerPrinter::print(
+                                 featureData[2].second[0].second.s_Samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(2400 [10.5] 1 3)]"),
+                             core::CContainerPrinter::print(
+                                 featureData[3].second[0].second.s_Samples));
     }
 }
 
@@ -500,14 +504,16 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
                                 TTimeDoublePr(190, 1.5),
                                 TTimeDoublePr(400, 1.5),
                                 TTimeDoublePr(550, 2.0)};
-    TTimeDoublePr bucket12[] = {
-        TTimeDoublePr(600, 2.0), TTimeDoublePr(799, 2.2), TTimeDoublePr(1199, 1.8)};
+    TTimeDoublePr bucket12[] = {TTimeDoublePr(600, 2.0),
+                                TTimeDoublePr(799, 2.2),
+                                TTimeDoublePr(1199, 1.8)};
     TTimeDoublePr bucket13[] = {TTimeDoublePr(1200, 2.1), TTimeDoublePr(1250, 2.5)};
     TTimeDoublePr bucket14[] = {
         TTimeDoublePr(1900, 3.5),
     };
-    TTimeDoublePr bucket15[] = {
-        TTimeDoublePr(2420, 3.5), TTimeDoublePr(2480, 3.2), TTimeDoublePr(2490, 3.8)};
+    TTimeDoublePr bucket15[] = {TTimeDoublePr(2420, 3.5),
+                                TTimeDoublePr(2480, 3.2),
+                                TTimeDoublePr(2490, 3.8)};
     TTimeDoublePrVecVec buckets1;
     buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket11), boost::end(bucket11)));
     buckets1.push_back(TTimeDoublePrVec(boost::begin(bucket12), boost::end(bucket12)));
@@ -552,12 +558,12 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
         LOG_DEBUG("Processing bucket " << i);
         gatherer.timeNow(startTime + i * bucketLength);
 
-        const TTimeDoublePrVec &bucket1 = buckets1[i];
+        const TTimeDoublePrVec& bucket1 = buckets1[i];
         for (std::size_t j = 0u; j < bucket1.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[j].first, "p1", bucket1[j].second);
         }
 
-        const TTimeDoublePrVec &bucket2 = buckets2[i];
+        const TTimeDoublePrVec& bucket2 = buckets2[i];
         TMeanAccumulator a;
         for (std::size_t j = 0u; j < bucket2.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket2[j].first, "p2", bucket2[j].second);
@@ -584,8 +590,9 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[2].second.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[3].second.size());
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(3.5,
+                                 featureData[0].second[0].second.s_BucketValue->value()[0],
+                                 1e-10);
     CPPUNIT_ASSERT_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
@@ -603,8 +610,9 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
     CPPUNIT_ASSERT_EQUAL(std::string("[(2400 [10.5] 1 3)]"),
                          core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        3.6, featureData[0].second[1].second.s_BucketValue->value()[0], 1e-10);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,
+                                 featureData[0].second[1].second.s_BucketValue->value()[0],
+                                 1e-10);
     CPPUNIT_ASSERT_EQUAL(2.9, featureData[1].second[1].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(4.1, featureData[2].second[1].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(21.6, featureData[3].second[1].second.s_BucketValue->value()[0]);
@@ -690,8 +698,9 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[1].second.size());
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[2].second.size());
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        3.6, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,
+                                 featureData[0].second[0].second.s_BucketValue->value()[0],
+                                 1e-10);
     CPPUNIT_ASSERT_EQUAL(2.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(4.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
     CPPUNIT_ASSERT_EQUAL(21.6, featureData[3].second[0].second.s_BucketValue->value()[0]);
@@ -1070,13 +1079,14 @@ void CMetricDataGathererTest::testSum(void) {
             sum.featureData(bucketStart, bucketLength, data);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), data.size());
             for (std::size_t j = 0u; j < data.size(); ++j) {
-                const TSizeFeatureDataPrVec &featureData = data[j].second;
+                const TSizeFeatureDataPrVec& featureData = data[j].second;
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
                 CPPUNIT_ASSERT_EQUAL(expected, featureData[j].second.s_BucketValue->value()[0]);
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                      boost::unwrap_ref(featureData[j].second.s_Samples).size());
-                CPPUNIT_ASSERT_EQUAL(
-                    expected, boost::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                CPPUNIT_ASSERT_EQUAL(expected,
+                                     boost::unwrap_ref(featureData[j].second.s_Samples)[0]
+                                         .value()[0]);
             }
         }
         {
@@ -1084,7 +1094,7 @@ void CMetricDataGathererTest::testSum(void) {
             nonZeroSum.featureData(bucketStart, bucketLength, data);
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), data.size());
             for (std::size_t j = 0u; j < data.size(); ++j) {
-                const TSizeFeatureDataPrVec &featureData = data[j].second;
+                const TSizeFeatureDataPrVec& featureData = data[j].second;
                 if (count == 0) {
                     CPPUNIT_ASSERT_EQUAL(std::size_t(0), featureData.size());
                 } else {
@@ -1092,8 +1102,9 @@ void CMetricDataGathererTest::testSum(void) {
                     CPPUNIT_ASSERT_EQUAL(expected, featureData[j].second.s_BucketValue->value()[0]);
                     CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                          boost::unwrap_ref(featureData[j].second.s_Samples).size());
-                    CPPUNIT_ASSERT_EQUAL(
-                        expected, boost::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
+                    CPPUNIT_ASSERT_EQUAL(expected,
+                                         boost::unwrap_ref(featureData[j].second.s_Samples)[0]
+                                             .value()[0]);
                 }
             }
         }
@@ -1184,8 +1195,9 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void) {
         }
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
-            gatherer.featureData(
-                core_t::TTime(startTime + bucketLength - 1), bucketLength, featureData);
+            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
+                                 bucketLength,
+                                 featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT(!featureData.empty());
             CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1196,18 +1208,18 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void) {
             CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
             CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[]"),
-                core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(0 [7.5] 1 5)]"),
-                core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[1].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[2].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [7.5] 1 5)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[3].second[0].second.s_Samples));
 
             // Test persistence. (We check for idempotency.)
             std::string origXml;
@@ -1263,18 +1275,18 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests(void) {
             CPPUNIT_ASSERT_EQUAL(2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
             CPPUNIT_ASSERT_EQUAL(9.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
             CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [1.55] 1 2), (257 [1.3] 0.666667 3)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
-                core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
-                core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(0 [9] 1 6)]"),
-                core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1.55] 1 2), (257 [1.3] 0.666667 3)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[1].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[2].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[3].second[0].second.s_Samples));
 
             // Test persistence. (We check for idempotency.)
             std::string origXml;
@@ -1329,12 +1341,12 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries(void) {
     params.s_SampleQueueGrowthFactor = 0.1;
 
     TTimeDoublePr data[] = {
-        TTimeDoublePr(1, 1.0),// Bucket 1
+        TTimeDoublePr(1, 1.0), // Bucket 1
         TTimeDoublePr(550, 2.0),
-        TTimeDoublePr(600, 3.0),// Bucket 2
+        TTimeDoublePr(600, 3.0), // Bucket 2
         TTimeDoublePr(700, 4.0),
         TTimeDoublePr(1000, 5.0),
-        TTimeDoublePr(1200, 6.0)// Bucket 3
+        TTimeDoublePr(1200, 6.0) // Bucket 3
     };
 
     TFeatureVec features;
@@ -1448,12 +1460,12 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries(void) {
     params.s_SampleQueueGrowthFactor = 0.1;
 
     TTimeDoublePr data[] = {
-        TTimeDoublePr(1, 1.0),// Bucket 1
+        TTimeDoublePr(1, 1.0), // Bucket 1
         TTimeDoublePr(550, 2.0),
-        TTimeDoublePr(600, 3.0),// Bucket 2
+        TTimeDoublePr(600, 3.0), // Bucket 2
         TTimeDoublePr(700, 4.0),
         TTimeDoublePr(1000, 5.0),
-        TTimeDoublePr(1200, 6.0)// Bucket 3
+        TTimeDoublePr(1200, 6.0) // Bucket 3
     };
 
     TFeatureVec features;
@@ -1679,61 +1691,64 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
     std::string influencerValues[][3] = {{"i11", "i12", "i13"}, {"i21", "i22", "i23"}};
 
     TTimeDoubleStrStrTuple data[] = {
-        TTimeDoubleStrStrTuple(1, 1.0, influencerValues[0][0], influencerValues[1][0]),// Bucket 1
+        TTimeDoubleStrStrTuple(1, 1.0, influencerValues[0][0], influencerValues[1][0]), // Bucket 1
         TTimeDoubleStrStrTuple(150, 5.0, influencerValues[0][1], influencerValues[1][1]),
         TTimeDoubleStrStrTuple(150, 3.0, influencerValues[0][2], influencerValues[1][2]),
         TTimeDoubleStrStrTuple(550, 2.0, influencerValues[0][0], influencerValues[1][0]),
         TTimeDoubleStrStrTuple(551, 2.1, influencerValues[0][1], influencerValues[1][1]),
         TTimeDoubleStrStrTuple(552, 4.0, influencerValues[0][2], influencerValues[1][2]),
         TTimeDoubleStrStrTuple(554, 2.3, influencerValues[0][2], influencerValues[1][2]),
-        TTimeDoubleStrStrTuple(600, 3.0, influencerValues[0][1], influencerValues[1][0]),// Bucket 2
+        TTimeDoubleStrStrTuple(600,
+                               3.0,
+                               influencerValues[0][1],
+                               influencerValues[1][0]), // Bucket 2
         TTimeDoubleStrStrTuple(660, 3.0, influencerValues[0][0], influencerValues[1][2]),
         TTimeDoubleStrStrTuple(690, 7.1, influencerValues[0][1], ""),
         TTimeDoubleStrStrTuple(700, 4.0, influencerValues[0][0], influencerValues[1][2]),
         TTimeDoubleStrStrTuple(800, 2.1, influencerValues[0][2], influencerValues[1][0]),
         TTimeDoubleStrStrTuple(900, 2.5, influencerValues[0][1], influencerValues[1][0]),
         TTimeDoubleStrStrTuple(1000, 5.0, influencerValues[0][1], influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(1200, 6.4, "", influencerValues[1][2]),// Bucket 3
+        TTimeDoubleStrStrTuple(1200, 6.4, "", influencerValues[1][2]), // Bucket 3
         TTimeDoubleStrStrTuple(1210, 6.0, "", influencerValues[1][2]),
         TTimeDoubleStrStrTuple(1240, 7.0, "", influencerValues[1][1]),
         TTimeDoubleStrStrTuple(1600, 11.0, "", influencerValues[1][0]),
-        TTimeDoubleStrStrTuple(1800, 11.0, "", "")// Sentinel
+        TTimeDoubleStrStrTuple(1800, 11.0, "", "") // Sentinel
     };
 
-    std::string expectedStatistics[] = {
-        "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), "
-        "(i23, (3.1, 3))]",
-        "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), "
-        "(i23, (3.1, 3))]",
-        "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, "
-        "(2.3, 1))]",
-        "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, "
-        "(2.3, 1))]",
-        "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, "
-        "1))]",
-        "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, "
-        "1))]",
-        "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, "
-        "(9.3, 1))]",
-        "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, "
-        "(9.3, 1))]",
-        "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
-        "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
-        "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
-        "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
-        "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
-        "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
-        "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
-        "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]",
-        "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]"};
-    const std::string *expected = expectedStatistics;
+    std::string expectedStatistics[] =
+        {"[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), "
+         "(i23, (3.1, 3))]",
+         "[(i11, (1.5, 2)), (i12, (3.55, 2)), (i13, (3.1, 3)), (i21, (1.5, 2)), (i22, (3.55, 2)), "
+         "(i23, (3.1, 3))]",
+         "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, "
+         "(2.3, 1))]",
+         "[(i11, (1, 1)), (i12, (2.1, 1)), (i13, (2.3, 1)), (i21, (1, 1)), (i22, (2.1, 1)), (i23, "
+         "(2.3, 1))]",
+         "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, "
+         "1))]",
+         "[(i11, (2, 1)), (i12, (5, 1)), (i13, (4, 1)), (i21, (2, 1)), (i22, (5, 1)), (i23, (4, "
+         "1))]",
+         "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, "
+         "(9.3, 1))]",
+         "[(i11, (3, 1)), (i12, (7.1, 1)), (i13, (9.3, 1)), (i21, (3, 1)), (i22, (7.1, 1)), (i23, "
+         "(9.3, 1))]",
+         "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
+         "[(i11, (3.5, 2)), (i12, (4.4, 4)), (i13, (2.1, 1)), (i21, (3.15, 4)), (i23, (3.5, 2))]",
+         "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
+         "[(i11, (3, 1)), (i12, (2.5, 1)), (i13, (2.1, 1)), (i21, (2.1, 1)), (i23, (3, 1))]",
+         "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
+         "[(i11, (4, 1)), (i12, (7.1, 1)), (i13, (2.1, 1)), (i21, (5, 1)), (i23, (4, 1))]",
+         "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
+         "[(i11, (7, 1)), (i12, (17.6, 1)), (i13, (2.1, 1)), (i21, (12.6, 1)), (i23, (7, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.2, 2))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (6.4, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]",
+         "[(i21, (11, 1)), (i22, (7, 1)), (i23, (12.4, 1))]"};
+    const std::string* expected = expectedStatistics;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -1770,21 +1785,27 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG("feature = " << model_t::print(feature));
 
-                const TSizeFeatureDataPrVec &data_ = featureData[j].second;
+                const TSizeFeatureDataPrVec& data_ = featureData[j].second;
                 for (std::size_t k = 0u; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
                     for (std::size_t m = 0u; m < data_[k].second.s_InfluenceValues.size(); ++m) {
                         for (std::size_t n = 0u; n < data_[k].second.s_InfluenceValues[m].size();
                              ++n) {
-                            statistics.push_back(TStrDoubleDoublePrPr(
-                                data_[k].second.s_InfluenceValues[m][n].first,
-                                TDoubleDoublePr(
-                                    data_[k].second.s_InfluenceValues[m][n].second.first[0],
-                                    data_[k].second.s_InfluenceValues[m][n].second.second)));
+                            statistics.push_back(
+                                TStrDoubleDoublePrPr(data_[k].second.s_InfluenceValues[m][n].first,
+                                                     TDoubleDoublePr(data_[k]
+                                                                         .second
+                                                                         .s_InfluenceValues[m][n]
+                                                                         .second.first[0],
+                                                                     data_[k]
+                                                                         .second
+                                                                         .s_InfluenceValues[m][n]
+                                                                         .second.second)));
                         }
                     }
-                    std::sort(
-                        statistics.begin(), statistics.end(), maths::COrderings::SFirstLess());
+                    std::sort(statistics.begin(),
+                              statistics.end(),
+                              maths::COrderings::SFirstLess());
 
                     LOG_DEBUG("statistics = " << core::CContainerPrinter::print(statistics));
                     LOG_DEBUG("expected   = " << *expected);
@@ -1899,14 +1920,17 @@ void CMetricDataGathererTest::testMultivariate(void) {
         {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime);
-            gatherer.featureData(
-                core_t::TTime(startTime + bucketLength - 1), bucketLength, featureData);
+            gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
+                                 bucketLength,
+                                 featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                1.4, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,
+                                         featureData[0].second[0].second.s_BucketValue->value()[0],
+                                         1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.4,
+                                         featureData[0].second[0].second.s_BucketValue->value()[1],
+                                         1e-10);
             CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
             LOG_DEBUG(core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
             CPPUNIT_ASSERT_EQUAL(
@@ -1969,13 +1993,15 @@ void CMetricDataGathererTest::testMultivariate(void) {
             gatherer.featureData(startTime + bucketLength, bucketLength, featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                1.8, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(700 [2.1, 1.9] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0,
+                                         featureData[0].second[0].second.s_BucketValue->value()[0],
+                                         1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.8,
+                                         featureData[0].second[0].second.s_BucketValue->value()[1],
+                                         1e-10);
+            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
 
             // Test persistence. (We check for idempotency.)
             std::string origXml;
@@ -2033,13 +2059,15 @@ void CMetricDataGathererTest::testMultivariate(void) {
             gatherer.featureData(startTime + 2 * bucketLength, bucketLength, featureData);
             LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
             CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                2.3, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                2.2, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("[(1200 [1.95, 1.8] 1 2)]"),
-                core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(2.3,
+                                         featureData[0].second[0].second.s_BucketValue->value()[0],
+                                         1e-10);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(2.2,
+                                         featureData[0].second[0].second.s_BucketValue->value()[1],
+                                         1e-10);
+            CPPUNIT_ASSERT_EQUAL(std::string("[(1200 [1.95, 1.8] 1 2)]"),
+                                 core::CContainerPrinter::print(
+                                     featureData[0].second[0].second.s_Samples));
         }
     }
 
@@ -2074,7 +2102,7 @@ void CMetricDataGathererTest::testMultivariate(void) {
         for (std::size_t i = 0u; i < buckets.size(); ++i) {
             LOG_DEBUG("Processing bucket " << i);
             gatherer.timeNow(startTime + i * bucketLength);
-            const TTimeDoubleDoubleTupleVec &bucket = buckets[i];
+            const TTimeDoubleDoubleTupleVec& bucket = buckets[i];
             for (std::size_t j = 0u; j < bucket.size(); ++j) {
                 addArrival(gatherer,
                            m_ResourceMonitor,
@@ -2092,13 +2120,14 @@ void CMetricDataGathererTest::testMultivariate(void) {
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
         CPPUNIT_ASSERT(!featureData.empty());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(3.5,
+                                     featureData[0].second[0].second.s_BucketValue->value()[0],
+                                     1e-10);
         CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
         LOG_DEBUG("featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(2323 [3.5, 3.3] 1 4)]"),
-            core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(2323 [3.5, 3.3] 1 4)]"),
+                             core::CContainerPrinter::print(
+                                 featureData[0].second[0].second.s_Samples));
     }
 }
 
@@ -2256,9 +2285,11 @@ void CMetricDataGathererTest::testVarp(void) {
                                startTime,
                                2u);
         CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(
-            std::size_t(0),
-            addPerson(person, gatherer, m_ResourceMonitor, influencerFieldNames.size()));
+        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+                             addPerson(person,
+                                       gatherer,
+                                       m_ResourceMonitor,
+                                       influencerFieldNames.size()));
 
         TStrVec testInf(gatherer.beginInfluencers(), gatherer.endInfluencers());
 
@@ -2330,7 +2361,7 @@ void CMetricDataGathererTest::testVarp(void) {
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), ivs[0].size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs[1].size());
 
-            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr &ivs1 = ivs[0][0];
+            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs1 = ivs[0][0];
             CPPUNIT_ASSERT_EQUAL(inf1, ivs1.first.get());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, ivs1.second.second, 0.0001);
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs1.second.first.size());
@@ -2338,14 +2369,14 @@ void CMetricDataGathererTest::testVarp(void) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs1.second.first[1], i1ExpectedMean, 0.0001);
 
             // The order of ivs2 and ivs3 seems to be backwards...
-            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr &ivs2 = ivs[1][1];
+            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs2 = ivs[1][1];
             CPPUNIT_ASSERT_EQUAL(inf2, ivs2.first.get());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, ivs2.second.second, 0.0001);
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs2.second.first.size());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs2.second.first[0], i2ExpectedVariance, 0.0001);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs2.second.first[1], i2ExpectedMean, 0.0001);
 
-            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr &ivs3 = ivs[1][0];
+            const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs3 = ivs[1][0];
             CPPUNIT_ASSERT_EQUAL(inf3, ivs3.first.get());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ivs3.second.second, 0.0001);
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs3.second.first.size());
@@ -2355,38 +2386,49 @@ void CMetricDataGathererTest::testVarp(void) {
     }
 }
 
-CppUnit::Test *CMetricDataGathererTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
+CppUnit::Test* CMetricDataGathererTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::singleSeriesTests", &CMetricDataGathererTest::singleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::multipleSeriesTests",
-        &CMetricDataGathererTest::multipleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testSampleCount", &CMetricDataGathererTest::testSampleCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testRemovePeople", &CMetricDataGathererTest::testRemovePeople));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testSum", &CMetricDataGathererTest::testSum));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::singleSeriesOutOfOrderTests",
-        &CMetricDataGathererTest::singleSeriesOutOfOrderTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testResetBucketGivenSingleSeries",
-        &CMetricDataGathererTest::testResetBucketGivenSingleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testResetBucketGivenMultipleSeries",
-        &CMetricDataGathererTest::testResetBucketGivenMultipleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testInfluenceStatistics",
-        &CMetricDataGathererTest::testInfluenceStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testMultivariate", &CMetricDataGathererTest::testMultivariate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testStatisticsPersist",
-        &CMetricDataGathererTest::testStatisticsPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testVarp", &CMetricDataGathererTest::testVarp));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricDataGathererTest>("CMetricDataGathererTest::singleSeriesTests",
+                                                   &CMetricDataGathererTest::singleSeriesTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricDataGathererTest>("CMetricDataGathererTest::multipleSeriesTests",
+                                                   &CMetricDataGathererTest::multipleSeriesTests));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricDataGathererTest>("CMetricDataGathererTest::testSampleCount",
+                                                   &CMetricDataGathererTest::testSampleCount));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricDataGathererTest>("CMetricDataGathererTest::testRemovePeople",
+                                                   &CMetricDataGathererTest::testRemovePeople));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMetricDataGathererTest>("CMetricDataGathererTest::testSum",
+                                                         &CMetricDataGathererTest::testSum));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricDataGathererTest>("CMetricDataGathererTest::singleSeriesOutOfOrderTests",
+                                     &CMetricDataGathererTest::singleSeriesOutOfOrderTests));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricDataGathererTest>("CMetricDataGathererTest::testResetBucketGivenSingleSeries",
+                                     &CMetricDataGathererTest::testResetBucketGivenSingleSeries));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricDataGathererTest>("CMetricDataGathererTest::testResetBucketGivenMultipleSeries",
+                                     &CMetricDataGathererTest::testResetBucketGivenMultipleSeries));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricDataGathererTest>("CMetricDataGathererTest::testInfluenceStatistics",
+                                     &CMetricDataGathererTest::testInfluenceStatistics));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricDataGathererTest>("CMetricDataGathererTest::testMultivariate",
+                                                   &CMetricDataGathererTest::testMultivariate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricDataGathererTest>("CMetricDataGathererTest::testStatisticsPersist",
+                                     &CMetricDataGathererTest::testStatisticsPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMetricDataGathererTest>("CMetricDataGathererTest::testVarp",
+                                                         &CMetricDataGathererTest::testVarp));
     return suiteOfTests;
 }

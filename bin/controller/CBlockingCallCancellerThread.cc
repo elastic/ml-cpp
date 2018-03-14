@@ -23,7 +23,7 @@ namespace controller {
 
 CBlockingCallCancellerThread::CBlockingCallCancellerThread(
     core::CThread::TThreadId potentiallyBlockedThreadId,
-    std::istream &monitorStream)
+    std::istream& monitorStream)
     : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
       m_MonitorStream(monitorStream),
       m_Shutdown(false) {}

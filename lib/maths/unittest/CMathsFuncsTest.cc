@@ -25,7 +25,9 @@
 using namespace ml;
 
 namespace {
-double zero(void) { return 0.0; }
+double zero(void) {
+    return 0.0;
+}
 }
 
 void CMathsFuncsTest::testIsNan(void) {
@@ -103,8 +105,8 @@ void CMathsFuncsTest::testFpStatus(void) {
     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpFailed, maths::CMathsFuncs::fpStatus(zero() / zero()));
 }
 
-CppUnit::Test *CMathsFuncsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
+CppUnit::Test* CMathsFuncsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsFuncsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CMathsFuncsTest>("CMathsFuncsTest::testIsNan",
                                                                    &CMathsFuncsTest::testIsNan));

@@ -40,7 +40,7 @@ namespace core {
 // at the appropriate point in the buffer.
 //
 // (Interestingly, strptime() works fine on Mac OS X.)
-char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
+char* CStrPTime::strPTime(const char* buf, const char* format, struct tm* tm) {
     // If any of the inputs are NULL then do nothing
     if (buf == 0 || format == 0 || tm == 0) {
         return 0;
@@ -52,7 +52,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
     size_t tznamePos(adjFormat.find("%Z"));
     if (tznamePos != std::string::npos) {
         // Find the corresponding place in the buffer
-        char *excess(CStrPTime::strPTime(buf, adjFormat.substr(0, tznamePos).c_str(), tm));
+        char* excess(CStrPTime::strPTime(buf, adjFormat.substr(0, tznamePos).c_str(), tm));
         if (excess == 0) {
             return 0;
         }
@@ -89,7 +89,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
         adjFormat.erase(zPos);
     }
 
-    char *excess(::strptime(buf, adjFormat.c_str(), tm));
+    char* excess(::strptime(buf, adjFormat.c_str(), tm));
 
     // We only have more work to do if %z was in the string, and
     // the basic strptime() call worked

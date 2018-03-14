@@ -46,10 +46,10 @@ CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
       m_StartTime(boost::numeric::bounds<core_t::TTime>::lowest()),
       m_BucketValues(size % 2 == 0 ? size : size + 1) {}
 
-bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_BucketValues.clear();
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex)
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
         RESTORE(BUCKET_VALUES_TAG,
@@ -58,13 +58,15 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser &trav
     return true;
 }
 
-void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex);
     inserter.insertValue(START_TIME_TAG, m_StartTime);
     core::CPersistUtils::persist(BUCKET_VALUES_TAG, m_BucketValues, inserter);
 }
 
-core_t::TTime CExpandingWindow::startTime() const { return m_StartTime; }
+core_t::TTime CExpandingWindow::startTime() const {
+    return m_StartTime;
+}
 
 core_t::TTime CExpandingWindow::endTime() const {
     return m_StartTime + (static_cast<core_t::TTime>(m_BucketValues.size()) *
@@ -75,12 +77,12 @@ core_t::TTime CExpandingWindow::bucketLength() const {
     return m_BucketLengths[m_BucketLengthIndex];
 }
 
-const CExpandingWindow::TFloatMeanAccumulatorVec &CExpandingWindow::values() const {
+const CExpandingWindow::TFloatMeanAccumulatorVec& CExpandingWindow::values() const {
     return m_BucketValues;
 }
 
 CExpandingWindow::TFloatMeanAccumulatorVec
-CExpandingWindow::valuesMinusPrediction(const TPredictor &predictor) const {
+CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
     core_t::TTime start{CIntegerTools::floor(this->startTime(), m_BucketLength)};
     core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_BucketLength)};
     core_t::TTime size{static_cast<core_t::TTime>(m_BucketValues.size())};
@@ -113,7 +115,7 @@ void CExpandingWindow::propagateForwardsByTime(double time) {
         LOG_ERROR("Bad propagation time " << time);
     }
     double factor = std::exp(-m_DecayRate * time);
-    for (auto &value : m_BucketValues) {
+    for (auto& value : m_BucketValues) {
         value.age(factor);
     }
 }
@@ -146,7 +148,9 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
     }
 }
 
-bool CExpandingWindow::needToCompress(core_t::TTime time) const { return time >= this->endTime(); }
+bool CExpandingWindow::needToCompress(core_t::TTime time) const {
+    return time >= this->endTime();
+}
 
 uint64_t CExpandingWindow::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_BucketLengthIndex);

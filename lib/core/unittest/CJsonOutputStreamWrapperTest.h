@@ -22,7 +22,7 @@ public:
     void testConcurrentWrites();
     void testShrink();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CJsonOutputStreamWrapperTest_h
+#endif // INCLUDED_CJsonOutputStreamWrapperTest_h

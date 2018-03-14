@@ -28,28 +28,31 @@
 using namespace ml;
 using namespace api;
 
-CppUnit::Test *CConfigUpdaterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
-        &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
-        &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
-        &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenDetectorRules",
-        &CConfigUpdaterTest::testUpdateGivenDetectorRules));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
-        &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenFilters", &CConfigUpdaterTest::testUpdateGivenFilters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenScheduledEvents",
-        &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
+CppUnit::Test* CConfigUpdaterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
+                                &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
+                                              &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
+                                              &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenDetectorRules",
+                                              &CConfigUpdaterTest::testUpdateGivenDetectorRules));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
+                                &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenFilters",
+                                                    &CConfigUpdaterTest::testUpdateGivenFilters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenScheduledEvents",
+                                              &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
     return suiteOfTests;
 }
 
@@ -224,7 +227,7 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
                      validRule2);
         fieldConfig.updateScheduledEvents(propTree);
 
-        const auto &events = fieldConfig.scheduledEvents();
+        const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
         CPPUNIT_ASSERT_EQUAL(
@@ -254,7 +257,7 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
 
         CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
 
-        const auto &events = fieldConfig.scheduledEvents();
+        const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
         CPPUNIT_ASSERT_EQUAL(
@@ -276,7 +279,7 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
 
         CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
 
-        const auto &events = fieldConfig.scheduledEvents();
+        const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT(events.empty());
     }
 }

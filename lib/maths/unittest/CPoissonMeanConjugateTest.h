@@ -34,7 +34,7 @@ public:
     void testPersist(void);
     void testNegativeSample(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CPoissonMeanConjugateTest_h
+#endif // INCLUDED_CPoissonMeanConjugateTest_h

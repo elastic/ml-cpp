@@ -46,7 +46,7 @@
 
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     // Read command line options
     std::string logProperties;
     std::string logPipe;
@@ -81,8 +81,10 @@ int main(int argc, char **argv) {
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(
-        inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName,
+                              isInputFileNamedPipe,
+                              outputFileName,
+                              isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
@@ -120,8 +122,8 @@ int main(int argc, char **argv) {
     ml::config::CAutoconfigurer configurer(params, writer);
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(0,// no restoration at present
-                                   0,// no persistence at present
+    ml::api::CCmdSkeleton skeleton(0, // no restoration at present
+                                   0, // no persistence at present
                                    *inputParser,
                                    configurer);
     if (skeleton.ioLoop() == false) {

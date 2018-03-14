@@ -51,8 +51,11 @@ void CSetToolsTest::testInplaceSetDifference(void) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
-            std::set_difference(
-                A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
+            std::set_difference(A.begin(),
+                                A.end(),
+                                left.begin(),
+                                left.end(),
+                                std::back_inserter(expected));
             TDoubleVec test = A;
             maths::CSetTools::inplace_set_difference(test, left.begin(), left.end());
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A)
@@ -66,8 +69,11 @@ void CSetToolsTest::testInplaceSetDifference(void) {
                 right.push_back(a[j]);
             }
             expected.clear();
-            std::set_difference(
-                A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
+            std::set_difference(A.begin(),
+                                A.end(),
+                                right.begin(),
+                                right.end(),
+                                std::back_inserter(expected));
             test = A;
             maths::CSetTools::inplace_set_difference(test, right.begin(), right.end());
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A)
@@ -132,8 +138,11 @@ void CSetToolsTest::testSetSizes(void) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
-            std::set_intersection(
-                A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
+            std::set_intersection(A.begin(),
+                                  A.end(),
+                                  left.begin(),
+                                  left.end(),
+                                  std::back_inserter(expected));
             std::size_t test =
                 maths::CSetTools::setIntersectSize(A.begin(), A.end(), left.begin(), left.end());
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = "
@@ -145,8 +154,11 @@ void CSetToolsTest::testSetSizes(void) {
                 right.push_back(a[j]);
             }
             expected.clear();
-            std::set_intersection(
-                A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
+            std::set_intersection(A.begin(),
+                                  A.end(),
+                                  right.begin(),
+                                  right.end(),
+                                  std::back_inserter(expected));
             test =
                 maths::CSetTools::setIntersectSize(A.begin(), A.end(), right.begin(), right.end());
             LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = "
@@ -154,10 +166,15 @@ void CSetToolsTest::testSetSizes(void) {
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             expected.clear();
-            std::set_union(
-                left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(expected));
-            test = maths::CSetTools::setUnionSize(
-                left.begin(), left.end(), right.begin(), right.end());
+            std::set_union(left.begin(),
+                           left.end(),
+                           right.begin(),
+                           right.end(),
+                           std::back_inserter(expected));
+            test = maths::CSetTools::setUnionSize(left.begin(),
+                                                  left.end(),
+                                                  right.begin(),
+                                                  right.end());
             LOG_DEBUG("A = " << core::CContainerPrinter::print(left) << ", B = "
                              << core::CContainerPrinter::print(right) << ", |A U B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
@@ -248,8 +265,11 @@ void CSetToolsTest::testJaccard(void) {
         B.erase(std::unique(B.begin(), B.end()), B.end());
 
         TSizeVec AIntersectB;
-        std::set_intersection(
-            A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AIntersectB));
+        std::set_intersection(A.begin(),
+                              A.end(),
+                              B.begin(),
+                              B.end(),
+                              std::back_inserter(AIntersectB));
 
         TSizeVec AUnionB;
         std::set_union(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AUnionB));
@@ -302,8 +322,11 @@ void CSetToolsTest::testOverlap(void) {
         B.erase(std::unique(B.begin(), B.end()), B.end());
 
         TSizeVec AIntersectB;
-        std::set_intersection(
-            A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AIntersectB));
+        std::set_intersection(A.begin(),
+                              A.end(),
+                              B.begin(),
+                              B.end(),
+                              std::back_inserter(AIntersectB));
 
         std::size_t min = std::min(A.size(), B.size());
 
@@ -318,11 +341,12 @@ void CSetToolsTest::testOverlap(void) {
     }
 }
 
-CppUnit::Test *CSetToolsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
+CppUnit::Test* CSetToolsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>(
-        "CSetToolsTest::testInplaceSetDifference", &CSetToolsTest::testInplaceSetDifference));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testInplaceSetDifference",
+                                               &CSetToolsTest::testInplaceSetDifference));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testSetSizes",
                                                                  &CSetToolsTest::testSetSizes));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testJaccard",

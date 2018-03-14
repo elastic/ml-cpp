@@ -19,25 +19,35 @@ namespace core {
 
 CXmlNode::CXmlNode(void) {}
 
-CXmlNode::CXmlNode(const std::string &name) : m_Name(name) {}
+CXmlNode::CXmlNode(const std::string& name) : m_Name(name) {}
 
-CXmlNode::CXmlNode(const std::string &name, const std::string &value)
+CXmlNode::CXmlNode(const std::string& name, const std::string& value)
     : m_Name(name), m_Value(value) {}
 
-CXmlNode::CXmlNode(const std::string &name, const std::string &value, const TStrStrMap &attributes)
+CXmlNode::CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes)
     : m_Name(name), m_Value(value), m_Attributes(attributes.begin(), attributes.end()) {}
 
 CXmlNode::~CXmlNode(void) {}
 
-const std::string &CXmlNode::name(void) const { return m_Name; }
+const std::string& CXmlNode::name(void) const {
+    return m_Name;
+}
 
-const std::string &CXmlNode::value(void) const { return m_Value; }
+const std::string& CXmlNode::value(void) const {
+    return m_Value;
+}
 
-const CXmlNode::TStrStrPrVec &CXmlNode::attributes(void) const { return m_Attributes; }
+const CXmlNode::TStrStrPrVec& CXmlNode::attributes(void) const {
+    return m_Attributes;
+}
 
-void CXmlNode::name(const std::string &name) { m_Name = name; }
+void CXmlNode::name(const std::string& name) {
+    m_Name = name;
+}
 
-void CXmlNode::value(const std::string &value) { m_Value = value; }
+void CXmlNode::value(const std::string& value) {
+    m_Value = value;
+}
 
 std::string CXmlNode::dump(void) const {
     std::string strRep("name=");

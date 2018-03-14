@@ -20,19 +20,24 @@
 #include <algorithm>
 #include <sstream>
 
-CppUnit::Test *CDelimiterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDelimiterTest");
+CppUnit::Test* CDelimiterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDelimiterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>(
-        "CDelimiterTest::testSimpleTokenise", &CDelimiterTest::testSimpleTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>(
-        "CDelimiterTest::testRegexTokenise", &CDelimiterTest::testRegexTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>(
-        "CDelimiterTest::testQuotedTokenise", &CDelimiterTest::testQuotedTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>(
-        "CDelimiterTest::testQuotedEscapedTokenise", &CDelimiterTest::testQuotedEscapedTokenise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDelimiterTest>(
-        "CDelimiterTest::testInvalidQuotedTokenise", &CDelimiterTest::testInvalidQuotedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testSimpleTokenise",
+                                                &CDelimiterTest::testSimpleTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testRegexTokenise",
+                                                &CDelimiterTest::testRegexTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedTokenise",
+                                                &CDelimiterTest::testQuotedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuotedEscapedTokenise",
+                                                &CDelimiterTest::testQuotedEscapedTokenise));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testInvalidQuotedTokenise",
+                                                &CDelimiterTest::testInvalidQuotedTokenise));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CDelimiterTest>("CDelimiterTest::testQuoteEqualsEscapeTokenise",
                                                 &CDelimiterTest::testQuoteEqualsEscapeTokenise));
@@ -101,8 +106,9 @@ void CDelimiterTest::testRegexTokenise(void) {
     LOG_DEBUG("Input data:\n" << testData << '\n');
 
     // Regex matches line terminator for either Windows or Unix text
-    ml::core::CDelimiter delimiter(
-        "\r?\n", "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+", true);
+    ml::core::CDelimiter delimiter("\r?\n",
+                                   "\\w+\\s+\\d+,\\s+\\d+\\s+\\d+:\\d+:\\d+\\s+\\w+",
+                                   true);
 
     ml::core::CStringUtils::TStrVec delimited;
     std::string remainder;
@@ -208,8 +214,9 @@ void CDelimiterTest::testInvalidQuotedTokenise(void) {
     delimiter.tokenise(testData, false, delimited, remainder);
 
     CPPUNIT_ASSERT_EQUAL(size_t(3), delimited.size());
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV"), remainder);
+    CPPUNIT_ASSERT_EQUAL(std::string(
+                             "/some_action.do?param1=foo&param2=Sljahfej+kfejhafef/3931nfV"),
+                         remainder);
 }
 
 void CDelimiterTest::testQuoteEqualsEscapeTokenise(void) {

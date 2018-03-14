@@ -61,10 +61,10 @@ public:
                      double decayRate = 0.0);
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the start time of the sketch.
     core_t::TTime startTime() const;
@@ -76,10 +76,10 @@ public:
     core_t::TTime bucketLength() const;
 
     //! Get the bucket values.
-    const TFloatMeanAccumulatorVec &values() const;
+    const TFloatMeanAccumulatorVec& values() const;
 
     //! Get the bucket values minus the values from \p trend.
-    TFloatMeanAccumulatorVec valuesMinusPrediction(const TPredictor &predictor) const;
+    TFloatMeanAccumulatorVec valuesMinusPrediction(const TPredictor& predictor) const;
 
     //! Set the start time to \p time.
     void initialize(core_t::TTime time);
@@ -127,4 +127,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CExpandingWindow_h
+#endif // INCLUDED_ml_maths_CExpandingWindow_h

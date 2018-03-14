@@ -40,10 +40,10 @@ class CByOverAndPartitionDataCountStatistics;
 //! on the difference between the by field count and the minimum count.
 class CONFIG_EXPORT CLongTailPenalty : public CPenalty {
 public:
-    CLongTailPenalty(const CAutoconfigurerParams &params);
+    CLongTailPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CLongTailPenalty *clone(void) const;
+    virtual CLongTailPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
@@ -53,25 +53,25 @@ private:
 
 private:
     //! Compute a penalty for rare detectors.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by field and optionally a partition.
-    void penaltyFor(const CByAndPartitionDataCountStatistics &stats,
-                    CDetectorSpecification &spec) const;
+    void penaltyFor(const CByAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Compute the penalty for a by, over and optionally a partition field.
-    void penaltyFor(const CByOverAndPartitionDataCountStatistics &stats,
-                    CDetectorSpecification &spec) const;
+    void penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
+                    CDetectorSpecification& spec) const;
 
     //! Extract the tail and total counts from \p counts.
     template <typename STATS, typename MAP>
-    void extractTailCounts(const MAP &counts, TSizeUInt64UMap &totals, TSizeUInt64UMap &tail) const;
+    void extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const;
 
     //! Compute the penalty for the rare counts and total counts \p rares
     //! and \p totals, respectively.
-    double penaltyFor(TSizeUInt64UMap &rares, TSizeUInt64UMap &totals) const;
+    double penaltyFor(TSizeUInt64UMap& rares, TSizeUInt64UMap& totals) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CLongTailPenalty_h
+#endif // INCLUDED_ml_config_CLongTailPenalty_h

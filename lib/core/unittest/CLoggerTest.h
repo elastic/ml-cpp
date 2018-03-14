@@ -25,7 +25,7 @@ public:
     void testLogEnvironment(void);
     void testNonAsciiJsonLogging(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CLoggerTest_h
+#endif // INCLUDED_CLoggerTest_h

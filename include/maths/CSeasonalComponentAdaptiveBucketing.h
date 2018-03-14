@@ -48,24 +48,24 @@ public:
 
 public:
     CSeasonalComponentAdaptiveBucketing(void);
-    explicit CSeasonalComponentAdaptiveBucketing(const CSeasonalTime &time,
+    explicit CSeasonalComponentAdaptiveBucketing(const CSeasonalTime& time,
                                                  double decayRate = 0.0,
                                                  double minimumBucketLength = 0.0);
-    CSeasonalComponentAdaptiveBucketing(const CSeasonalComponentAdaptiveBucketing &other);
+    CSeasonalComponentAdaptiveBucketing(const CSeasonalComponentAdaptiveBucketing& other);
     //! Construct by traversing a state document.
     CSeasonalComponentAdaptiveBucketing(double decayRate,
                                         double minimumBucketLength,
-                                        core::CStateRestoreTraverser &traverser);
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Copy from \p rhs.
-    const CSeasonalComponentAdaptiveBucketing &
-    operator=(const CSeasonalComponentAdaptiveBucketing &rhs);
+    const CSeasonalComponentAdaptiveBucketing&
+    operator=(const CSeasonalComponentAdaptiveBucketing& rhs);
 
     //! Persist by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two bucketing objects.
-    void swap(CSeasonalComponentAdaptiveBucketing &other);
+    void swap(CSeasonalComponentAdaptiveBucketing& other);
 
     //! Check if the bucketing has been initialized.
     bool initialized(void) const;
@@ -85,7 +85,7 @@ public:
     //! value moments.
     void initialValues(core_t::TTime startTime,
                        core_t::TTime endTime,
-                       const TFloatMeanAccumulatorVec &values);
+                       const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
     std::size_t size(void) const;
@@ -113,7 +113,7 @@ public:
     void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
     //! Get the time provider.
-    const CSeasonalTime &time(void) const;
+    const CSeasonalTime& time(void) const;
 
     //! Set the rate at which the bucketing loses information.
     void decayRate(double value);
@@ -137,7 +137,7 @@ public:
     double count(core_t::TTime time) const;
 
     //! Get the regression to use at \p time.
-    const TRegression *regression(core_t::TTime time) const;
+    const TRegression* regression(core_t::TTime time) const;
 
     //! Get a set of knot points and knot point values to use for
     //! interpolating the bucket values.
@@ -151,9 +151,9 @@ public:
     //! and false otherwise.
     bool knots(core_t::TTime time,
                CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec &knots,
-               TDoubleVec &values,
-               TDoubleVec &variances) const;
+               TDoubleVec& knots,
+               TDoubleVec& values,
+               TDoubleVec& variances) const;
 
     //! Get the common slope of the bucket regression models.
     double slope(void) const;
@@ -173,7 +173,7 @@ public:
     //! \name Test Functions
     //@{
     //! Get the bucket end points.
-    const TFloatVec &endpoints(void) const;
+    const TFloatVec& endpoints(void) const;
 
     //! Get the total count of in the bucketing.
     double count(void) const;
@@ -191,13 +191,13 @@ private:
     //! \brief The state maintained for each bucket.
     struct SBucket {
         SBucket(void);
-        SBucket(const TRegression &regression,
+        SBucket(const TRegression& regression,
                 double variance,
                 core_t::TTime firstUpdate,
                 core_t::TTime lastUpdate);
 
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         uint64_t checksum(uint64_t seed) const;
 
@@ -210,7 +210,7 @@ private:
 
 private:
     //! Restore by traversing a state document
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Compute the values corresponding to the change in end
     //! points from \p endpoints. The values are assigned based
@@ -218,7 +218,7 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec &endpoints);
+    void refresh(const TFloatVec& endpoints);
 
     //! Check if \p time is in the this component's window.
     virtual bool inWindow(core_t::TTime time) const;
@@ -250,11 +250,11 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CSeasonalComponentAdaptiveBucketing &lhs,
-                 CSeasonalComponentAdaptiveBucketing &rhs) {
+inline void swap(CSeasonalComponentAdaptiveBucketing& lhs,
+                 CSeasonalComponentAdaptiveBucketing& rhs) {
     lhs.swap(rhs);
 }
 }
 }
 
-#endif// INCLUDED_ml_maths_CSeasonalComponentAdaptiveBucketing_h
+#endif // INCLUDED_ml_maths_CSeasonalComponentAdaptiveBucketing_h

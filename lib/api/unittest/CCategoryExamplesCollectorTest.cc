@@ -152,8 +152,8 @@ void CCategoryExamplesCollectorTest::testTruncation(void) {
     }
 }
 
-CppUnit::Test *CCategoryExamplesCollectorTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
+CppUnit::Test* CCategoryExamplesCollectorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCategoryExamplesCollectorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testAddGivenMaxExamplesIsZero",
@@ -167,15 +167,18 @@ CppUnit::Test *CCategoryExamplesCollectorTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
         "CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent",
         &CCategoryExamplesCollectorTest::testAddGivenCategoryAddedIsNotSubsequent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::testExamples",
-        &CCategoryExamplesCollectorTest::testExamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::testPersist",
-        &CCategoryExamplesCollectorTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCategoryExamplesCollectorTest>(
-        "CCategoryExamplesCollectorTest::testTruncation",
-        &CCategoryExamplesCollectorTest::testTruncation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testExamples",
+                                            &CCategoryExamplesCollectorTest::testExamples));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testPersist",
+                                            &CCategoryExamplesCollectorTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CCategoryExamplesCollectorTest>("CCategoryExamplesCollectorTest::testTruncation",
+                                            &CCategoryExamplesCollectorTest::testTruncation));
 
     return suiteOfTests;
 }

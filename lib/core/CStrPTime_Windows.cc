@@ -23,7 +23,7 @@
 #include <string.h>
 
 // We don't have a header for this on Windows, so declare it here
-extern "C" char *strptime(const char *buf, const char *fmt, struct tm *tm);
+extern "C" char* strptime(const char* buf, const char* fmt, struct tm* tm);
 
 namespace ml {
 namespace core {
@@ -41,7 +41,7 @@ namespace core {
 // Also, since strptime() uses the C runtime globals _tzname[0] and _tzname[1],
 // whereas we might want to use a different timezone, we replace %Z in the
 // format string with a string obtained from the CTimezone singleton.
-char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
+char* CStrPTime::strPTime(const char* buf, const char* format, struct tm* tm) {
     // If any of the inputs are NULL then do nothing
     if (buf == 0 || format == 0 || tm == 0) {
         return 0;
@@ -53,7 +53,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
     size_t tznamePos(adjFormat.find("%Z"));
     if (tznamePos != std::string::npos) {
         // Find the corresponding place in the buffer
-        char *excess(CStrPTime::strPTime(buf, adjFormat.substr(0, tznamePos).c_str(), tm));
+        char* excess(CStrPTime::strPTime(buf, adjFormat.substr(0, tznamePos).c_str(), tm));
         if (excess == 0) {
             return 0;
         }
@@ -69,7 +69,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
         if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
         } else {
-            CTimezone &tz = CTimezone::instance();
+            CTimezone& tz = CTimezone::instance();
             std::string stdAbbrev(tz.stdAbbrev());
             if (possTzName.find(stdAbbrev) == 0) {
                 adjFormat.replace(tznamePos, 2, stdAbbrev);
@@ -97,7 +97,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
         adjFormat.erase(zPos);
     }
 
-    char *excess(::strptime(buf, adjFormat.c_str(), tm));
+    char* excess(::strptime(buf, adjFormat.c_str(), tm));
 
     // We only have more work to do if %z was in the string, and
     // the basic strptime() call worked
@@ -162,7 +162,7 @@ char *CStrPTime::strPTime(const char *buf, const char *format, struct tm *tm) {
         utcTime -= sign * minute * 60;
         utcTime -= sign * hour * 60 * 60;
 
-        CTimezone &tz = CTimezone::instance();
+        CTimezone& tz = CTimezone::instance();
         if (tz.utcToLocal(utcTime, *tm) == false) {
             return 0;
         }

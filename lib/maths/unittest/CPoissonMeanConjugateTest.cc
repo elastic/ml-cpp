@@ -95,11 +95,13 @@ void CPoissonMeanConjugateTest::testMultipleUpdate(void) {
 
         maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
         for (std::size_t j = 0u; j < samples.size(); ++j) {
-            filter1.addSamples(
-                weightStyle, TDouble1Vec(1, samples[j]), TDouble4Vec1Vec(1, TDouble4Vec(1, 2.0)));
+            filter1.addSamples(weightStyle,
+                               TDouble1Vec(1, samples[j]),
+                               TDouble4Vec1Vec(1, TDouble4Vec(1, 2.0)));
         }
-        filter2.addSamples(
-            weightStyle, samples, TDouble4Vec1Vec(samples.size(), TDouble4Vec(1, 2.0)));
+        filter2.addSamples(weightStyle,
+                           samples,
+                           TDouble4Vec1Vec(samples.size(), TDouble4Vec(1, 2.0)));
 
         LOG_DEBUG(filter1.print());
         LOG_DEBUG("vs");
@@ -300,10 +302,12 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood(void) {
                 double cdf = 0.0;
                 for (unsigned int x = 0; x <= sample; ++x) {
                     double logLikelihood = 0.0;
-                    CPPUNIT_ASSERT_EQUAL(
-                        maths_t::E_FpNoErrors,
-                        filter.jointLogMarginalLikelihood(TDouble1Vec(1, static_cast<double>(x)),
-                                                          logLikelihood));
+                    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
+                                         filter.jointLogMarginalLikelihood(TDouble1Vec(1,
+                                                                                       static_cast<
+                                                                                           double>(
+                                                                                           x)),
+                                                                           logLikelihood));
                     cdf += ::exp(logLikelihood);
                     cdf = std::min(cdf, 1.0);
                 }
@@ -370,8 +374,8 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode(void) {
     // with variances variance scales.
 
     const double rates[] = {0.1, 5.0, 100.0};
-    const double varianceScales[] = {
-        0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const double varianceScales[] =
+        {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
     test::CRandomNumbers rng;
 
@@ -397,8 +401,9 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode(void) {
             LOG_DEBUG("marginalLikelihoodMode = "
                       << filter.marginalLikelihoodMode(weightStyle, weight)
                       << ", expectedMode = " << expectedMode);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedMode, filter.marginalLikelihoodMode(weightStyle, weight), 1.0);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
+                                         filter.marginalLikelihoodMode(weightStyle, weight),
+                                         1.0);
         }
     }
 }
@@ -437,8 +442,9 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance(void) {
             }
 
             // The error is at the precision of the numerical integration.
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedVariance, filter.marginalLikelihoodVariance(), 0.3 * expectedVariance);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance,
+                                         filter.marginalLikelihoodVariance(),
+                                         0.3 * expectedVariance);
 
             relativeError.add(::fabs(expectedVariance - filter.marginalLikelihoodVariance()) /
                               expectedVariance);
@@ -795,12 +801,11 @@ void CPoissonMeanConjugateTest::testAnomalyScore(void) {
 
             TUIntVec candidateAnomalies;
             for (unsigned int time = 0; time < samples.size(); ++time) {
-                double sample =
-                    samples[time] +
-                    (anomalies[std::find(
-                                   boost::begin(anomalyTimes), boost::end(anomalyTimes), time) -
-                               boost::begin(anomalyTimes)] *
-                     boost::math::standard_deviation(poisson));
+                double sample = samples[time] + (anomalies[std::find(boost::begin(anomalyTimes),
+                                                                     boost::end(anomalyTimes),
+                                                                     time) -
+                                                           boost::begin(anomalyTimes)] *
+                                                 boost::math::standard_deviation(poisson));
 
                 TDouble1Vec sampleVec(1, sample);
                 filter.addSamples(sampleVec);
@@ -1027,44 +1032,55 @@ void CPoissonMeanConjugateTest::testNegativeSample(void) {
     CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
 }
 
-CppUnit::Test *CPoissonMeanConjugateTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPoissonMeanConjugateTest");
+CppUnit::Test* CPoissonMeanConjugateTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPoissonMeanConjugateTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMultipleUpdate",
-        &CPoissonMeanConjugateTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testPropagation", &CPoissonMeanConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMeanEstimation",
-        &CPoissonMeanConjugateTest::testMeanEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihood",
-        &CPoissonMeanConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihoodMode",
-        &CPoissonMeanConjugateTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihoodVariance",
-        &CPoissonMeanConjugateTest::testMarginalLikelihoodVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testSampleMarginalLikelihood",
-        &CPoissonMeanConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testCdf", &CPoissonMeanConjugateTest::testCdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testMultipleUpdate",
+                                       &CPoissonMeanConjugateTest::testMultipleUpdate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testPropagation",
+                                                     &CPoissonMeanConjugateTest::testPropagation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testMeanEstimation",
+                                       &CPoissonMeanConjugateTest::testMeanEstimation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testMarginalLikelihood",
+                                       &CPoissonMeanConjugateTest::testMarginalLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testMarginalLikelihoodMode",
+                                       &CPoissonMeanConjugateTest::testMarginalLikelihoodMode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testMarginalLikelihoodVariance",
+                                       &CPoissonMeanConjugateTest::testMarginalLikelihoodVariance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testSampleMarginalLikelihood",
+                                       &CPoissonMeanConjugateTest::testSampleMarginalLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testCdf",
+                                                           &CPoissonMeanConjugateTest::testCdf));
     suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
         "CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples",
         &CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testAnomalyScore",
-        &CPoissonMeanConjugateTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testOffset", &CPoissonMeanConjugateTest::testOffset));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testPersist", &CPoissonMeanConjugateTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testNegativeSample",
-        &CPoissonMeanConjugateTest::testNegativeSample));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testAnomalyScore",
+                                                     &CPoissonMeanConjugateTest::testAnomalyScore));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testOffset",
+                                                           &CPoissonMeanConjugateTest::testOffset));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testPersist",
+                                                     &CPoissonMeanConjugateTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPoissonMeanConjugateTest>("CPoissonMeanConjugateTest::testNegativeSample",
+                                       &CPoissonMeanConjugateTest::testNegativeSample));
 
     return suiteOfTests;
 }

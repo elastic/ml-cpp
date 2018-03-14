@@ -81,10 +81,10 @@ struct MODEL_EXPORT SResultSpec {
     SResultSpec(void);
 
     //! Persist the result specification by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the result specification reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Print of the specification for debugging.
     std::string print(void) const;
@@ -142,13 +142,13 @@ struct MODEL_EXPORT SResultSpec {
 //! \see buildHierarchicalResults for more details.
 struct MODEL_EXPORT SNode {
     typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-    typedef const SNode *TNodeCPtr;
+    typedef const SNode* TNodeCPtr;
     typedef std::vector<TNodeCPtr> TNodeCPtrVec;
     typedef boost::unordered_map<TNodeCPtr, std::size_t> TNodePtrSizeUMap;
     typedef boost::unordered_map<std::size_t, TNodeCPtr> TSizeNodePtrUMap;
 
     SNode(void);
-    SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
+    SNode(const SResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability);
 
     //! Returns the aggregate probability for the node
     double probability(void) const;
@@ -160,21 +160,21 @@ struct MODEL_EXPORT SNode {
     std::string print(void) const;
 
     //! Efficient swap
-    void swap(SNode &other);
+    void swap(SNode& other);
 
     //! Persist the node state by passing information to \p inserter.
-    void acceptPersistInserter1(core::CStatePersistInserter &inserter,
-                                TNodePtrSizeUMap &nodePointers) const;
+    void acceptPersistInserter1(core::CStatePersistInserter& inserter,
+                                TNodePtrSizeUMap& nodePointers) const;
     //! Persist the node connectivity by passing information to \p inserter.
-    void acceptPersistInserter2(core::CStatePersistInserter &inserter,
-                                const TNodePtrSizeUMap &nodePointers) const;
+    void acceptPersistInserter2(core::CStatePersistInserter& inserter,
+                                const TNodePtrSizeUMap& nodePointers) const;
 
     //! Restore the node state reading state from \p traverser.
-    bool acceptRestoreTraverser1(core::CStateRestoreTraverser &traverser,
-                                 TSizeNodePtrUMap &nodePointers);
+    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
+                                 TSizeNodePtrUMap& nodePointers);
     //! Restore the node connectivity reading state from \p traverser.
-    bool acceptRestoreTraverser2(core::CStateRestoreTraverser &traverser,
-                                 const TSizeNodePtrUMap &nodePointers);
+    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
+                                 const TSizeNodePtrUMap& nodePointers);
 
     //! \name Connectivity
     //@{
@@ -213,7 +213,7 @@ struct MODEL_EXPORT SNode {
     //! \name Extra State for Results Output
     //@{
     //! The model which generated the result.
-    const CAnomalyDetectorModel *s_Model;
+    const CAnomalyDetectorModel* s_Model;
 
     //! The start time of the bucket generating the anomaly.
     core_t::TTime s_BucketStartTime;
@@ -225,9 +225,9 @@ struct MODEL_EXPORT SNode {
 
 //! Non-member node swap to work with standard algorithms
 MODEL_EXPORT
-void swap(SNode &node1, SNode &node2);
+void swap(SNode& node1, SNode& node2);
 
-}// hierarchical_results_detail::
+} // hierarchical_results_detail::
 
 class CHierarchicalResultsVisitor;
 
@@ -282,8 +282,8 @@ public:
     CHierarchicalResults(void);
 
     //! Add a dummy result for a simple count detector.
-    void addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
-                              const CAnomalyDetectorModel *model = 0,
+    void addSimpleCountResult(SAnnotatedProbability& annotatedProbability,
+                              const CAnomalyDetectorModel* model = 0,
                               core_t::TTime bucketStartTime = 0);
 
     //! Add a simple search result.
@@ -323,19 +323,19 @@ public:
     //! in to place.
     void addModelResult(int detector,
                         bool isPopulation,
-                        const std::string &functionName,
+                        const std::string& functionName,
                         function_t::EFunction function,
-                        const std::string &partitionFieldName,
-                        const std::string &partitionFieldValue,
-                        const std::string &personFieldName,
-                        const std::string &personFieldValue,
-                        const std::string &valueFieldName,
-                        SAnnotatedProbability &annotatedProbability,
-                        const CAnomalyDetectorModel *model = 0,
+                        const std::string& partitionFieldName,
+                        const std::string& partitionFieldValue,
+                        const std::string& personFieldName,
+                        const std::string& personFieldValue,
+                        const std::string& valueFieldName,
+                        SAnnotatedProbability& annotatedProbability,
+                        const CAnomalyDetectorModel* model = 0,
                         core_t::TTime bucketStartTime = 0);
 
     //! Add the influencer called \p name.
-    void addInfluencer(const std::string &name);
+    void addInfluencer(const std::string& name);
 
     //! Build a hierarchy from the current flat node list using the
     //! default aggregation rules.
@@ -353,27 +353,27 @@ public:
     void createPivots(void);
 
     //! Get the root node of the hierarchy.
-    const TNode *root(void) const;
+    const TNode* root(void) const;
 
     //! Get the influencer identified by \p influencerName and
     //! \p influencerValue if one exists.
-    const TNode *influencer(const TStoredStringPtr &influencerName,
-                            const TStoredStringPtr &influencerValue) const;
+    const TNode* influencer(const TStoredStringPtr& influencerName,
+                            const TStoredStringPtr& influencerValue) const;
 
     //! Bottom up first visit the tree.
-    void bottomUpBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    void bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
     //! Top down first visit the tree.
-    void topDownBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    void topDownBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
     //! Post-order depth first visit the tree.
-    void postorderDepthFirst(CHierarchicalResultsVisitor &visitor) const;
+    void postorderDepthFirst(CHierarchicalResultsVisitor& visitor) const;
 
     //! Visit all the pivot nodes bottom up first.
-    void pivotsBottomUpBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    void pivotsBottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
     //! Visit all the pivot nodes top down first.
-    void pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor &visitor) const;
+    void pivotsTopDownBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
 
     //! Check if there are no results at all including the simple
     //! count result.
@@ -390,29 +390,29 @@ public:
     model_t::CResultType resultType(void) const;
 
     //! Persist the results by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the results reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Print the results for debug.
     std::string print(void) const;
 
 private:
     //! Create a new node.
-    TNode &newNode(void);
+    TNode& newNode(void);
 
     //! Create a new leaf node for the simple search \p simpleSearch.
-    TNode &newLeaf(const TResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability);
+    TNode& newLeaf(const TResultSpec& simpleSearch, SAnnotatedProbability& annotatedProbability);
 
     //! Create or retrieve a pivot node for the \p key.
-    TNode &newPivot(TStoredStringPtrStoredStringPtrPr key);
+    TNode& newPivot(TStoredStringPtrStoredStringPtrPr key);
 
     //! Create or retrieve a pivot root node for the \p key.
-    TNode &newPivotRoot(const TStoredStringPtr &key);
+    TNode& newPivotRoot(const TStoredStringPtr& key);
 
     //! Post-order depth first visit the tree.
-    void postorderDepthFirst(const TNode *node, CHierarchicalResultsVisitor &visitor) const;
+    void postorderDepthFirst(const TNode* node, CHierarchicalResultsVisitor& visitor) const;
 
 private:
     //! Storage for the nodes.
@@ -439,44 +439,44 @@ public:
     virtual ~CHierarchicalResultsVisitor(void);
 
     //! Visit a node.
-    virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot) = 0;
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;
 
 protected:
     //! Check if this node is the root node.
-    static bool isRoot(const TNode &node);
+    static bool isRoot(const TNode& node);
 
     //! Check if the node is a leaf.
-    static bool isLeaf(const TNode &node);
+    static bool isLeaf(const TNode& node);
 
     //! Check if the node is partition, i.e. if its children are
     //! one or more partitions.
-    static bool isPartitioned(const TNode &node);
+    static bool isPartitioned(const TNode& node);
 
     //! Check if this is a named partition.
-    static bool isPartition(const TNode &node);
+    static bool isPartition(const TNode& node);
 
     //! Check if the node is a named person.
-    static bool isPerson(const TNode &node);
+    static bool isPerson(const TNode& node);
 
     //! Check if the node is an attribute of a person.
-    static bool isAttribute(const TNode &node);
+    static bool isAttribute(const TNode& node);
 
     //! Check if the node is simple counting result.
-    static bool isSimpleCount(const TNode &node);
+    static bool isSimpleCount(const TNode& node);
 
     //! Check if the node is a population result.
-    static bool isPopulation(const TNode &node);
+    static bool isPopulation(const TNode& node);
 
     //! Check if we can ever write a result for the node.
-    static bool isTypeForWhichWeWriteResults(const TNode &node, bool pivot);
+    static bool isTypeForWhichWeWriteResults(const TNode& node, bool pivot);
 
     //! Get the nearest ancestor of the node for which we write results.
-    static const TNode *nearestAncestorForWhichWeWriteResults(const TNode &node);
+    static const TNode* nearestAncestorForWhichWeWriteResults(const TNode& node);
 
     //! Check if we'll write a result for the node.
-    static bool shouldWriteResult(const CLimits &limits,
-                                  const CHierarchicalResults &results,
-                                  const TNode &node,
+    static bool shouldWriteResult(const CLimits& limits,
+                                  const CHierarchicalResults& results,
+                                  const TNode& node,
                                   bool pivot);
 
     friend class ::CHierarchicalResultsTest;
@@ -484,4 +484,4 @@ protected:
 }
 }
 
-#endif// INCLUDED_ml_model_CHierarchicalResults_h
+#endif // INCLUDED_ml_model_CHierarchicalResults_h

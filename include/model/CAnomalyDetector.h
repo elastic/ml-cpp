@@ -78,7 +78,7 @@ class CSearchKey;
 class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
 public:
     typedef std::vector<std::string> TStrVec;
-    typedef std::vector<const std::string *> TStrCPtrVec;
+    typedef std::vector<const std::string*> TStrCPtrVec;
     typedef std::vector<CModelPlotData> TModelPlotDataVec;
 
     typedef boost::shared_ptr<CDataGatherer> TDataGathererPtr;
@@ -88,11 +88,11 @@ public:
     //! A shared pointer to an instance of this class
     typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
 
-    typedef std::function<void(const std::string &,
-                               const std::string &,
-                               const std::string &,
-                               const std::string &,
-                               const CModelPlotData &)>
+    typedef std::function<void(const std::string&,
+                               const std::string&,
+                               const std::string&,
+                               const std::string&,
+                               const CModelPlotData&)>
         TOutputModelPlotDataFunc;
     typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
@@ -132,18 +132,18 @@ public:
 
 public:
     CAnomalyDetector(int detectorIndex,
-                     CLimits &limits,
-                     const CAnomalyDetectorModelConfig &modelConfig,
-                     const std::string &partitionFieldValue,
+                     CLimits& limits,
+                     const CAnomalyDetectorModelConfig& modelConfig,
+                     const std::string& partitionFieldValue,
                      core_t::TTime firstTime,
-                     const TModelFactoryCPtr &modelFactory);
+                     const TModelFactoryCPtr& modelFactory);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CAnomalyDetector(bool isForPersistence, const CAnomalyDetector &other);
+    CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other);
 
     virtual ~CAnomalyDetector(void);
 
@@ -164,48 +164,48 @@ public:
     void zeroModelsToTime(core_t::TTime time);
 
     //! Populate the object from a state document
-    bool acceptRestoreTraverser(const std::string &partitionFieldValue,
-                                core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(const std::string& partitionFieldValue,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Restore state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
-    bool staticsAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Find the partition field value given part of an state document.
     //!
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need this value before to restoring the
     //! detector.
-    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
-                                                     std::string &partitionFieldValue);
+    static bool partitionFieldAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
+                                                     std::string& partitionFieldValue);
 
     //! Find the detector keys given part of an state document.
     //!
     //! \note This is static so it can be called before the state is fully
     //! deserialised, because we need these before to restoring the detector.
-    static bool keyAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser, CSearchKey &key);
+    static bool keyAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser, CSearchKey& key);
 
     //! Persist the detector keys separately to the rest of the state.
     //! This must be done for a 100% streaming state restoration because
     //! the key must be known before a detector object is created into
     //! which other state can be restored.
-    void keyAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void keyAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Persist the partition field separately to the rest of the state.
     //! This must be done for a 100% streaming state restoration because
     //! the partition field must be known before a detector object is
     //! created into which other state can be restored.
-    void partitionFieldAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Persist state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
-    void staticsAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Persist state by passing information to the supplied inserter
     //!
     //! \note Some information is duplicated in keyAcceptPersistInserter()
     //! and partitionFieldAcceptPersistInserter() due to historical reasons.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the cue for this detector.  This consists of the search key cue
     //! with the partition field value appended.
@@ -220,28 +220,28 @@ public:
     virtual bool isSimpleCount(void) const;
 
     //! Get the fields to extract from a record for processing by this detector.
-    const TStrVec &fieldsOfInterest(void) const;
+    const TStrVec& fieldsOfInterest(void) const;
 
     //! Extract and add the necessary details of an event record.
-    void addRecord(core_t::TTime time, const TStrCPtrVec &fieldValues);
+    void addRecord(core_t::TTime time, const TStrCPtrVec& fieldValues);
 
     //! Update the results with this detector model's results.
     void buildResults(core_t::TTime bucketStartTime,
                       core_t::TTime bucketEndTime,
-                      CHierarchicalResults &results);
+                      CHierarchicalResults& results);
 
     //! Update the results with this detector model's results.
     void buildInterimResults(core_t::TTime bucketStartTime,
                              core_t::TTime bucketEndTime,
-                             CHierarchicalResults &results);
+                             CHierarchicalResults& results);
 
     //! Generate the model plot data for the time series identified
     //! by \p terms.
     void generateModelPlot(core_t::TTime bucketStartTime,
                            core_t::TTime bucketEndTime,
                            double boundsPercentile,
-                           const TStrSet &terms,
-                           TModelPlotDataVec &modelPlots) const;
+                           const TStrSet& terms,
+                           TModelPlotDataVec& modelPlots) const;
 
     //! Generate ForecastPrerequistes, e.g. memory requirements
     CForecastDataSink::SForecastModelPrerequisites getForecastPrerequisites() const;
@@ -262,7 +262,7 @@ public:
     void releaseMemory(core_t::TTime samplingCutoffTime);
 
     //! Print the detector memory usage to the given stream
-    void showMemoryUsage(std::ostream &stream) const;
+    void showMemoryUsage(std::ostream& stream) const;
 
     //! Get the memory used by this detector
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -271,10 +271,10 @@ public:
     std::size_t memoryUsage(void) const;
 
     //! Get end of the last complete bucket we've observed.
-    const core_t::TTime &lastBucketEndTime(void) const;
+    const core_t::TTime& lastBucketEndTime(void) const;
 
     //! Get writable end of the last complete bucket we've observed.
-    core_t::TTime &lastBucketEndTime(void);
+    core_t::TTime& lastBucketEndTime(void);
 
     //! Access to the bucket length being used in the current models.  This
     //! can be used to detect discrepancies between the model config and
@@ -291,13 +291,13 @@ public:
     //! \param[in] endTime The end of the time interval to skip sampling.
     void skipSampling(core_t::TTime endTime);
 
-    const TModelPtr &model(void) const;
-    TModelPtr &model(void);
+    const TModelPtr& model(void) const;
+    TModelPtr& model(void);
 
 protected:
     //! This function is called before adding a record allowing
     //! for varied preprocessing.
-    virtual const TStrCPtrVec &preprocessFieldValues(const TStrCPtrVec &fieldValues);
+    virtual const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues);
 
     //! Initializes simple counting by adding a person called "count".
     void initSimpleCounting(void);
@@ -309,7 +309,7 @@ private:
                             core_t::TTime bucketEndTime,
                             SAMPLE_FUNC sampleFunc,
                             LAST_SAMPLED_BUCKET_UPDATE_FUNC lastSampledBucketUpdateFunc,
-                            CHierarchicalResults &results);
+                            CHierarchicalResults& results);
 
     //! Updates the last sampled bucket
     void updateLastSampledBucket(core_t::TTime bucketEndTime);
@@ -319,42 +319,42 @@ private:
     void noUpdateLastSampledBucket(core_t::TTime bucketEndTime) const;
 
     //! Sample the model in the interval [\p startTime, \p endTime].
-    void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor);
+    void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Sample bucket statistics and any other state needed to compute
     //! probabilities in the interval [\p startTime, \p endTime], but
     //! does not update the model.
     void sampleBucketStatistics(core_t::TTime startTime,
                                 core_t::TTime endTime,
-                                CResourceMonitor &resourceMonitor);
+                                CResourceMonitor& resourceMonitor);
 
     //! Restores the state that was formerly part of the model ensemble class.
     //! This includes the data gatherer and the model.
-    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string &partitionFieldValue,
-                                                   core::CStateRestoreTraverser &traverser);
+    bool legacyModelEnsembleAcceptRestoreTraverser(const std::string& partitionFieldValue,
+                                                   core::CStateRestoreTraverser& traverser);
 
     //! Restores the state that was formerly part of the live models
     //! in the model ensemble class.
-    bool legacyModelsAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool legacyModelsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persists the state that was formerly part of the model ensemble class.
     //! This includes the data gatherer and the model.
-    void legacyModelEnsembleAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void legacyModelEnsembleAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Persists the state that was formerly part of the live models
     //! in the model ensemble class.
-    void legacyModelsAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 protected:
     //! Configurable limits
-    CLimits &m_Limits;
+    CLimits& m_Limits;
 
 private:
     //! An identifier for the search for which this is detecting anomalies.
     int m_DetectorIndex;
 
     //! Configurable behaviour
-    const CAnomalyDetectorModelConfig &m_ModelConfig;
+    const CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! The end of the last complete bucket we've observed.  This is an OPEN
     //! endpoint, i.e. this time is the lowest time NOT in the last bucket.
@@ -373,12 +373,12 @@ private:
     //! necessary to create a valid persisted state?
     bool m_IsForPersistence;
 
-    friend MODEL_EXPORT std::ostream &operator<<(std::ostream &, const CAnomalyDetector &);
+    friend MODEL_EXPORT std::ostream& operator<<(std::ostream&, const CAnomalyDetector&);
 };
 
 MODEL_EXPORT
-std::ostream &operator<<(std::ostream &strm, const CAnomalyDetector &detector);
+std::ostream& operator<<(std::ostream& strm, const CAnomalyDetector& detector);
 }
 }
 
-#endif// INCLUDED_ml_model_CAnomalyDetector_h
+#endif // INCLUDED_ml_model_CAnomalyDetector_h

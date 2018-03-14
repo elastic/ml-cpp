@@ -22,7 +22,7 @@ public:
     void testSendReceive(void);
     void testTiming(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CMessageQueueTest_h
+#endif // INCLUDED_CMessageQueueTest_h

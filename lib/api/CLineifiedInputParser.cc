@@ -25,9 +25,9 @@ namespace api {
 
 // Initialise statics
 const char CLineifiedInputParser::LINE_END('\n');
-const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072);// 128kB
+const size_t CLineifiedInputParser::WORK_BUFFER_SIZE(131072); // 128kB
 
-CLineifiedInputParser::CLineifiedInputParser(std::istream &strmIn)
+CLineifiedInputParser::CLineifiedInputParser(std::istream& strmIn)
     : CInputParser(),
       m_StrmIn(strmIn),
       m_WorkBuffer(0),
@@ -53,7 +53,7 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine(void) {
     for (;;) {
         size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
         if (avail > 0) {
-            char *delimPtr(reinterpret_cast<char *>(::memchr(m_WorkBufferPtr, LINE_END, avail)));
+            char* delimPtr(reinterpret_cast<char*>(::memchr(m_WorkBufferPtr, LINE_END, avail)));
             if (delimPtr != 0) {
                 *delimPtr = '\0';
                 TCharPSizePr result(m_WorkBufferPtr, delimPtr - m_WorkBufferPtr);
@@ -95,9 +95,11 @@ CLineifiedInputParser::TCharPSizePr CLineifiedInputParser::parseLine(void) {
         m_WorkBufferEnd += bytesRead;
     }
 
-    return TCharPSizePr(static_cast<char *>(0), 0);
+    return TCharPSizePr(static_cast<char*>(0), 0);
 }
 
-void CLineifiedInputParser::resetBuffer(void) { m_WorkBufferEnd = m_WorkBufferPtr; }
+void CLineifiedInputParser::resetBuffer(void) {
+    m_WorkBufferEnd = m_WorkBufferPtr;
+}
 }
 }

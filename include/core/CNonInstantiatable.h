@@ -36,9 +36,9 @@ class CORE_EXPORT CNonInstantiatable {
 private:
     //! Prevent instantiation
     CNonInstantiatable(void);
-    CNonInstantiatable(const CNonInstantiatable &);
+    CNonInstantiatable(const CNonInstantiatable&);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CNonInstantiatable_h
+#endif // INCLUDED_ml_core_CNonInstantiatable_h

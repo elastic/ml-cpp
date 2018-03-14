@@ -45,7 +45,7 @@ public:
     //!
     //! The object has to wrapped once and only once, pass the reference around in your code.
     //! This starts a background thread.
-    CConcurrentWrapper(T &resource) : m_Resource(resource), m_Done(false) {
+    CConcurrentWrapper(T& resource) : m_Resource(resource), m_Done(false) {
         m_Worker = std::thread([this] {
             while (!m_Done) {
                 m_Queue.pop()();
@@ -61,7 +61,8 @@ public:
 
     //! Push something into the queue of the wrapped object
     //! The code inside of this lambda is guaranteed to be executed in an atomic fashion.
-    template <typename F> void operator()(F f) const {
+    template <typename F>
+    void operator()(F f) const {
         m_Queue.push([=] { f(m_Resource); });
     }
 
@@ -79,7 +80,7 @@ private:
     mutable CConcurrentQueue<std::function<void()>, QUEUE_CAPACITY, NOTIFY_CAPACITY> m_Queue;
 
     //! The wrapped resource
-    T &m_Resource;
+    T& m_Resource;
 
     //! thread for the worker
     std::thread m_Worker;

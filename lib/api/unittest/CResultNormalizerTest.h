@@ -21,7 +21,7 @@ class CResultNormalizerTest : public CppUnit::TestFixture {
 public:
     void testInitNormalizer(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CResultNormalizerTest_h
+#endif // INCLUDED_CResultNormalizerTest_h

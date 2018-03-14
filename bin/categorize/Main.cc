@@ -57,7 +57,7 @@
 
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     // Read command line options
     std::string limitConfigFile;
     std::string jobId;
@@ -194,8 +194,12 @@ int main(int argc, char **argv) {
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(
-        jobId, fieldConfig, limits, nullOutput, outputWriter, periodicPersister.get());
+    ml::api::CFieldDataTyper typer(jobId,
+                                   fieldConfig,
+                                   limits,
+                                   nullOutput,
+                                   outputWriter,
+                                   periodicPersister.get());
 
     if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorPeriodicPersistFunc(

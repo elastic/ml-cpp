@@ -28,7 +28,7 @@ namespace api {
 
 CBenchMarker::CBenchMarker(void) : m_TotalMessages(0), m_ScoredMessages(0) {}
 
-bool CBenchMarker::init(const std::string &regexFilename) {
+bool CBenchMarker::init(const std::string& regexFilename) {
     // Reset in case of reinitialisation
     m_TotalMessages = 0;
     m_ScoredMessages = 0;
@@ -56,15 +56,15 @@ bool CBenchMarker::init(const std::string &regexFilename) {
     return (m_Measures.size() > 0);
 }
 
-void CBenchMarker::addResult(const std::string &message, int type) {
+void CBenchMarker::addResult(const std::string& message, int type) {
     bool scored(false);
     size_t position(0);
     for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end();
          ++measureVecIter) {
-        const core::CRegex &regex = measureVecIter->first;
+        const core::CRegex& regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
-            TIntSizeStrPrMap &counts = measureVecIter->second;
+            TIntSizeStrPrMap& counts = measureVecIter->second;
             TIntSizeStrPrMapItr mapIter = counts.find(type);
             if (mapIter == counts.end()) {
                 counts.insert(TIntSizeStrPrMap::value_type(type, TSizeStrPr(1, message)));
@@ -98,7 +98,7 @@ void CBenchMarker::dumpResults(void) const {
     for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end();
          ++measureVecIter) {
-        const TIntSizeStrPrMap &counts = measureVecIter->second;
+        const TIntSizeStrPrMap& counts = measureVecIter->second;
 
         size_t total(0);
         for (TIntSizeStrPrMapCItr mapIter = counts.begin(); mapIter != counts.end(); ++mapIter) {
@@ -135,11 +135,11 @@ void CBenchMarker::dumpResults(void) const {
 
         TRegexIntSizeStrPrMapPrVecCItr measureVecIter = sortedVecIter->second;
 
-        const core::CRegex &regex = measureVecIter->first;
+        const core::CRegex& regex = measureVecIter->first;
         strm << "Manual category defined by regex " << regex.str() << core_t::LINE_ENDING
              << "\tNumber of messages in manual category " << total << core_t::LINE_ENDING;
 
-        const TIntSizeStrPrMap &counts = measureVecIter->second;
+        const TIntSizeStrPrMap& counts = measureVecIter->second;
         strm << "\tNumber of Ml categories that include this manual category " << counts.size()
              << core_t::LINE_ENDING;
 
@@ -166,7 +166,7 @@ void CBenchMarker::dumpResults(void) const {
                 int type(mapIter->first);
 
                 size_t count(mapIter->second.first);
-                const std::string &example = mapIter->second.second;
+                const std::string& example = mapIter->second.second;
                 strm << "\t\t" << count;
                 if (usedTypes.find(type) != usedTypes.end()) {
                     strm << "\t(CATEGORY ALREADY USED)";

@@ -184,17 +184,21 @@ void CLogTDistributionTest::testQuantile(void) {
     }
 }
 
-CppUnit::Test *CLogTDistributionTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLogTDistributionTest");
+CppUnit::Test* CLogTDistributionTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLogTDistributionTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLogTDistributionTest>(
-        "CLogTDistributionTest::testMode", &CLogTDistributionTest::testMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLogTDistributionTest>(
-        "CLogTDistributionTest::testPdf", &CLogTDistributionTest::testPdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLogTDistributionTest>(
-        "CLogTDistributionTest::testCdf", &CLogTDistributionTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLogTDistributionTest>(
-        "CLogTDistributionTest::testQuantile", &CLogTDistributionTest::testQuantile));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLogTDistributionTest>("CLogTDistributionTest::testMode",
+                                                       &CLogTDistributionTest::testMode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLogTDistributionTest>("CLogTDistributionTest::testPdf",
+                                                       &CLogTDistributionTest::testPdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLogTDistributionTest>("CLogTDistributionTest::testCdf",
+                                                       &CLogTDistributionTest::testCdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLogTDistributionTest>("CLogTDistributionTest::testQuantile",
+                                                       &CLogTDistributionTest::testQuantile));
 
     return suiteOfTests;
 }

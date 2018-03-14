@@ -35,14 +35,14 @@ const size_t MAX_ATTEMPTS = 100;
 const size_t TEST_SIZE = 10000;
 const char TEST_CHAR = 'a';
 #ifdef Windows
-const char *TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
-const char *TEST_PIPE_NAME = "testfiles/testpipe";
+const char* TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 
 class CThreadDataWriter : public ml::core::CThread {
 public:
-    CThreadDataWriter(const std::string &fileName, size_t size)
+    CThreadDataWriter(const std::string& fileName, size_t size)
         : m_FileName(fileName), m_Size(size) {}
 
 protected:
@@ -65,9 +65,9 @@ private:
 
 class CThreadDataReader : public ml::core::CThread {
 public:
-    CThreadDataReader(const std::string &fileName) : m_FileName(fileName) {}
+    CThreadDataReader(const std::string& fileName) : m_FileName(fileName) {}
 
-    const std::string &data(void) const { return m_Data; }
+    const std::string& data(void) const { return m_Data; }
 
 protected:
     virtual void run(void) {
@@ -92,7 +92,7 @@ protected:
             if (strm.gcount() > 0) {
                 // This code deals with the test character we write to
                 // detect the short-lived connection problem on Windows
-                const char *copyFrom = buffer;
+                const char* copyFrom = buffer;
                 size_t copyLen = static_cast<size_t>(strm.gcount());
                 if (m_Data.empty() && *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                     ++copyFrom;
@@ -132,26 +132,30 @@ private:
 };
 }
 
-CppUnit::Test *CNamedPipeFactoryTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CNamedPipeFactoryTest");
+CppUnit::Test* CNamedPipeFactoryTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNamedPipeFactoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCppReader",
-        &CNamedPipeFactoryTest::testServerIsCppReader));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCReader", &CNamedPipeFactoryTest::testServerIsCReader));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCppWriter",
-        &CNamedPipeFactoryTest::testServerIsCppWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testServerIsCWriter", &CNamedPipeFactoryTest::testServerIsCWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testCancelBlock", &CNamedPipeFactoryTest::testCancelBlock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testErrorIfRegularFile",
-        &CNamedPipeFactoryTest::testErrorIfRegularFile));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
-        "CNamedPipeFactoryTest::testErrorIfSymlink", &CNamedPipeFactoryTest::testErrorIfSymlink));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppReader",
+                                                 &CNamedPipeFactoryTest::testServerIsCppReader));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCReader",
+                                                 &CNamedPipeFactoryTest::testServerIsCReader));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppWriter",
+                                                 &CNamedPipeFactoryTest::testServerIsCppWriter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCWriter",
+                                                 &CNamedPipeFactoryTest::testServerIsCWriter));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testCancelBlock",
+                                                       &CNamedPipeFactoryTest::testCancelBlock));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfRegularFile",
+                                                 &CNamedPipeFactoryTest::testErrorIfRegularFile));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfSymlink",
+                                                       &CNamedPipeFactoryTest::testErrorIfSymlink));
 
     return suiteOfTests;
 }
@@ -287,7 +291,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink(void) {
     // the file system
     LOG_DEBUG("symlink test not relevant to Windows");
 #else
-    static const char *TEST_SYMLINK_NAME = "test_symlink";
+    static const char* TEST_SYMLINK_NAME = "test_symlink";
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail

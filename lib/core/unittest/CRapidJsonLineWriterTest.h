@@ -23,7 +23,7 @@ public:
     void testDoublePrecissionDtoa();
     void microBenchmark();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif /* INCLUDED_CRapidJsonLineWriterTest_h */

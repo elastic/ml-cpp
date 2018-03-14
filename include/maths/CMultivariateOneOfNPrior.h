@@ -69,7 +69,7 @@ public:
     typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
     typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
     typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
-    typedef core::CSmallVector<const CMultivariatePrior *, 3> TPriorCPtr3Vec;
+    typedef core::CSmallVector<const CMultivariatePrior*, 3> TPriorCPtr3Vec;
     typedef CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
     typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
 
@@ -101,7 +101,7 @@ public:
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
     CMultivariateOneOfNPrior(std::size_t dimension,
-                             const TPriorPtrVec &models,
+                             const TPriorPtrVec& models,
                              maths_t::EDataType dataType,
                              double decayRate = 0.0);
 
@@ -115,17 +115,17 @@ public:
     //! \param[in] decayRate The rate at which we revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
     CMultivariateOneOfNPrior(std::size_t dimension,
-                             const TDoublePriorPtrPrVec &models,
+                             const TDoublePriorPtrPrVec& models,
                              maths_t::EDataType dataType,
                              double decayRate = 0.0);
 
     //! Construct from part of a state document.
     CMultivariateOneOfNPrior(std::size_t dimension,
-                             const SDistributionRestoreParams &params,
-                             core::CStateRestoreTraverser &traverser);
+                             const SDistributionRestoreParams& params,
+                             core::CStateRestoreTraverser& traverser);
 
     //! Implements value semantics for copy construction.
-    CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior &other);
+    CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior& other);
 
     //! Implements value semantics for assignment.
     //!
@@ -133,10 +133,10 @@ public:
     //! \return The newly updated model.
     //! \note That this class has value semantics: this overwrites the current
     //! collection of models.
-    CMultivariateOneOfNPrior &operator=(const CMultivariateOneOfNPrior &rhs);
+    CMultivariateOneOfNPrior& operator=(const CMultivariateOneOfNPrior& rhs);
 
     //! Efficient swap of the contents of this prior and \p other.
-    void swap(CMultivariateOneOfNPrior &other);
+    void swap(CMultivariateOneOfNPrior& other);
     //@}
 
     //! \name Prior Contract
@@ -145,7 +145,7 @@ public:
     //!
     //! \return A pointer to a newly allocated clone of this model.
     //! \warning The caller owns the object returned.
-    virtual CMultivariateOneOfNPrior *clone(void) const;
+    virtual CMultivariateOneOfNPrior* clone(void) const;
 
     //! Get the dimension of the prior.
     std::size_t dimension(void) const;
@@ -160,9 +160,9 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Forward the offset to the model priors.
-    virtual void adjustOffset(const TWeightStyleVec &weightStyles,
-                              const TDouble10Vec1Vec &samples,
-                              const TDouble10Vec4Vec1Vec &weights);
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec1Vec& samples,
+                              const TDouble10Vec4Vec1Vec& weights);
 
     //! Update the model weights using the marginal likelihoods for
     //! the data. The component prior parameters are then updated.
@@ -172,9 +172,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec &weightStyles,
-                            const TDouble10Vec1Vec &samples,
-                            const TDouble10Vec4Vec1Vec &weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec1Vec& samples,
+                            const TDouble10Vec4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -199,8 +199,8 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec &marginalize,
-                                                   const TSizeDoublePr10Vec &condition) const;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
+                                                   const TSizeDoublePr10Vec& condition) const;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -214,8 +214,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec &marginalize,
-                                        const TSizeDoublePr10Vec &condition) const;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const;
@@ -224,7 +224,7 @@ public:
     virtual TDouble10Vec marginalLikelihoodMean(void) const;
 
     //! Get the weighted mean of the model nearest marginal likelihood means.
-    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec &value) const;
+    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const;
@@ -233,8 +233,8 @@ public:
     virtual TDouble10Vec marginalLikelihoodVariances(void) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                const TDouble10Vec4Vec &weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weights) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.
@@ -248,10 +248,10 @@ public:
     //! \note The samples are assumed to be independent and identically
     //! distributed.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble10Vec1Vec &samples,
-                               const TDouble10Vec4Vec1Vec &weights,
-                               double &result) const;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights,
+                               double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -264,7 +264,7 @@ public:
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec &samples) const;
+                                          TDouble10Vec1Vec& samples) const;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const;
@@ -273,7 +273,7 @@ public:
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &separator, std::string &result) const;
+    virtual void print(const std::string& separator, std::string& result) const;
 
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -291,7 +291,7 @@ public:
     virtual std::string persistenceTag(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! \name Test Functions
@@ -323,4 +323,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CMultivariateOneOfNPrior_h
+#endif // INCLUDED_ml_maths_CMultivariateOneOfNPrior_h

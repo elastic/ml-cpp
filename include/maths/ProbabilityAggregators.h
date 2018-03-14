@@ -59,8 +59,8 @@ public:
 
     //! Functor wrapper of CJointProbabilityOfLessLikelySamples::add.
     struct SAddProbability {
-        CJointProbabilityOfLessLikelySamples &
-        operator()(CJointProbabilityOfLessLikelySamples &jointProbability,
+        CJointProbabilityOfLessLikelySamples&
+        operator()(CJointProbabilityOfLessLikelySamples& jointProbability,
                    double probability,
                    double weight = 1.0) const;
     };
@@ -69,25 +69,25 @@ public:
     CJointProbabilityOfLessLikelySamples(void);
 
     //! Initialize from \p value if possible.
-    bool fromDelimited(const std::string &value);
+    bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
     std::string toDelimited(void) const;
 
     //! Combine two joint probability calculators.
-    const CJointProbabilityOfLessLikelySamples &
-    operator+=(const CJointProbabilityOfLessLikelySamples &other);
+    const CJointProbabilityOfLessLikelySamples&
+    operator+=(const CJointProbabilityOfLessLikelySamples& other);
 
     //! Add \p probability.
     void add(double probability, double weight = 1.0);
 
     //! Calculate the joint probability of less likely samples
     //! than those added so far.
-    bool calculate(double &result) const;
+    bool calculate(double& result) const;
 
     //! Compute the average probability of less likely samples
     //! added so far.
-    bool averageProbability(double &result) const;
+    bool averageProbability(double& result) const;
 
     //! Get the first probability.
     TOptionalDouble onlyProbability(void) const;
@@ -102,7 +102,7 @@ public:
     uint64_t checksum(uint64_t seed) const;
 
     //! Print the joint probability for debugging.
-    std::ostream &print(std::ostream &o) const;
+    std::ostream& print(std::ostream& o) const;
 
 private:
     TOptionalDouble m_OnlyProbability;
@@ -111,7 +111,7 @@ private:
 };
 
 MATHS_EXPORT
-std::ostream &operator<<(std::ostream &o, const CJointProbabilityOfLessLikelySamples &probability);
+std::ostream& operator<<(std::ostream& o, const CJointProbabilityOfLessLikelySamples& probability);
 
 //! \brief Computes log of the joint probability of seeing a more
 //! extreme collection of samples.
@@ -146,19 +146,19 @@ public:
     CLogJointProbabilityOfLessLikelySamples(void);
 
     //! Combine two log joint probability calculators.
-    const CLogJointProbabilityOfLessLikelySamples &
-    operator+=(const CLogJointProbabilityOfLessLikelySamples &other);
+    const CLogJointProbabilityOfLessLikelySamples&
+    operator+=(const CLogJointProbabilityOfLessLikelySamples& other);
 
     //! Add \p probability.
     void add(double probability, double weight = 1.0);
 
     //! Calculate a lower bound for the log of the joint probability
     //! of less likely samples than those added so far.
-    bool calculateLowerBound(double &result) const;
+    bool calculateLowerBound(double& result) const;
 
     //! Calculate an upper bound for the log of the joint probability
     //! of less likely samples than those added so far.
-    bool calculateUpperBound(double &result) const;
+    bool calculateUpperBound(double& result) const;
 };
 
 //! \brief Computes probability of seeing the most extreme sample
@@ -204,26 +204,26 @@ public:
     CProbabilityOfExtremeSample(void);
 
     //! Initialize from \p value if possible.
-    bool fromDelimited(const std::string &value);
+    bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
     std::string toDelimited(void) const;
 
     //! Combine two extreme probability calculators.
-    const CProbabilityOfExtremeSample &operator+=(const CProbabilityOfExtremeSample &other);
+    const CProbabilityOfExtremeSample& operator+=(const CProbabilityOfExtremeSample& other);
 
     //! Add \p probability.
     bool add(double probability, double weight = 1.0);
 
     //! Calculate the probability of seeing the most extreme
     //! sample added so far.
-    bool calculate(double &result) const;
+    bool calculate(double& result) const;
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;
 
     //! Print the extreme probability for debugging.
-    std::ostream &print(std::ostream &o) const;
+    std::ostream& print(std::ostream& o) const;
 
 private:
     typedef CBasicStatistics::COrderStatisticsStack<double, 1u> TMinValueAccumulator;
@@ -234,7 +234,7 @@ private:
 };
 
 MATHS_EXPORT
-std::ostream &operator<<(std::ostream &o, const CProbabilityOfExtremeSample &probability);
+std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& probability);
 
 //! \brief Computes the probability of seeing the M most extreme
 //! samples in a collection of N samples.
@@ -288,25 +288,25 @@ public:
     CLogProbabilityOfMFromNExtremeSamples(std::size_t m);
 
     //! Initialize from \p value if possible.
-    bool fromDelimited(const std::string &value);
+    bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
     std::string toDelimited(void) const;
 
     //! Combine two extreme probability calculators.
-    const CLogProbabilityOfMFromNExtremeSamples &
-    operator+=(const CLogProbabilityOfMFromNExtremeSamples &other);
+    const CLogProbabilityOfMFromNExtremeSamples&
+    operator+=(const CLogProbabilityOfMFromNExtremeSamples& other);
 
     //! Add \p probability.
     void add(double probability);
 
     //! Calculate the probability of seeing the "M" most extreme
     //! samples added so far.
-    bool calculate(double &result);
+    bool calculate(double& result);
 
     //! Calculate the calibrated probability of seeing the "M" most
     //! extreme samples added so far.
-    bool calibrated(double &result);
+    bool calibrated(double& result);
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;
@@ -321,4 +321,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_ProbabilityAggregators_h
+#endif // INCLUDED_ml_maths_ProbabilityAggregators_h

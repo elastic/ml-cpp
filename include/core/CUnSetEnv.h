@@ -35,9 +35,9 @@ namespace core {
 //!
 class CORE_EXPORT CUnSetEnv : private CNonInstantiatable {
 public:
-    static int unSetEnv(const char *name);
+    static int unSetEnv(const char* name);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CUnSetEnv_h
+#endif // INCLUDED_ml_core_CUnSetEnv_h

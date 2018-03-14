@@ -87,16 +87,16 @@ public:
     //! \param[in] dataGatherer The object that gathers time series data.
     //! \param[in] influenceCalculators The influence calculators to use
     //! for each feature.
-    CPopulationModel(const SModelParams &params,
-                     const TDataGathererPtr &dataGatherer,
-                     const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
+    CPopulationModel(const SModelParams& params,
+                     const TDataGathererPtr& dataGatherer,
+                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
-    CPopulationModel(bool isForPersistence, const CPopulationModel &other);
+    CPopulationModel(bool isForPersistence, const CPopulationModel& other);
     //@}
 
     //! Returns true.
@@ -116,21 +116,22 @@ protected:
     //! \p pid in the vector \p data. This relies on the fact that \p data
     //! is sort lexicographically by person then attribute identifier.
     //! This will return an empty range if the person is not present.
-    template <typename T> static TSizeSizePr personRange(const T &data, std::size_t pid);
+    template <typename T>
+    static TSizeSizePr personRange(const T& data, std::size_t pid);
 
     //! Find the person attribute pair identified by \p pid and \p cid,
     //! respectively, in \p data if it exists. Returns the end of the
     //! vector if it doesn't.
     template <typename T>
-    static typename T::const_iterator find(const T &data, std::size_t pid, std::size_t cid);
+    static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
     static inline TDouble1Vec
     extractValue(model_t::EFeature /*feature*/,
-                 const std::pair<TSizeSizePr, SEventRateFeatureData> &data);
+                 const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
     //! Extract the bucket value for metric feature data.
     static inline TDouble1Vec extractValue(model_t::EFeature feature,
-                                           const std::pair<TSizeSizePr, SMetricFeatureData> &data);
+                                           const std::pair<TSizeSizePr, SMetricFeatureData>& data);
     //@}
 
 public:
@@ -142,7 +143,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the person identifiers
     //! in the bucketing time interval of interest.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const;
+    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
     //@}
 
     //! \name Update
@@ -155,11 +156,11 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleOutOfPhase(core_t::TTime startTime,
                                   core_t::TTime endTime,
-                                  CResourceMonitor &resourceMonitor);
+                                  CResourceMonitor& resourceMonitor);
 
     //! Update the rates for \p feature and \p people.
     virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor) = 0;
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -196,7 +197,7 @@ protected:
                        std::size_t pid,
                        std::size_t cid,
                        std::size_t correlated = 0);
-        bool operator==(const CCorrectionKey &rhs) const;
+        bool operator==(const CCorrectionKey& rhs) const;
         std::size_t hash(void) const;
 
     private:
@@ -208,26 +209,26 @@ protected:
 
     //! \brief A hasher for the partial bucket corrections map key.
     struct MODEL_EXPORT CHashCorrectionKey {
-        std::size_t operator()(const CCorrectionKey &key) const { return key.hash(); }
+        std::size_t operator()(const CCorrectionKey& key) const { return key.hash(); }
     };
     using TCorrectionKeyDouble1VecUMap =
         boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
 
 protected:
     //! Persist state by passing information to the supplied inserter.
-    void doAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the model reading state from the supplied traverser.
-    bool doAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the current bucket person counts.
-    virtual const TSizeUInt64PrVec &personCounts(void) const = 0;
+    virtual const TSizeUInt64PrVec& personCounts(void) const = 0;
 
     //! Check if bucket statistics are available for the specified time.
     virtual bool bucketStatsAvailable(core_t::TTime time) const = 0;
 
     //! Monitor the resource usage while creating new models
-    void createUpdateNewModels(core_t::TTime time, CResourceMonitor &resourceMonitor);
+    void createUpdateNewModels(core_t::TTime time, CResourceMonitor& resourceMonitor);
 
     //! Initialize the time series models for "n" newly observed people
     //! and "m" newly observed attributes.
@@ -239,19 +240,19 @@ protected:
 
     //! Update the correlation models.
     virtual void refreshCorrelationModels(std::size_t resourceLimit,
-                                          CResourceMonitor &resourceMonitor) = 0;
+                                          CResourceMonitor& resourceMonitor) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned.
-    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,
                                    std::size_t pid,
                                    std::size_t cid,
                                    model_t::CResultType type,
-                                   const TSizeDoublePr1Vec &correlated,
-                                   const TCorrectionKeyDouble1VecUMap &corrections,
-                                   TDouble1Vec &baseline) const;
+                                   const TSizeDoublePr1Vec& correlated,
+                                   const TCorrectionKeyDouble1VecUMap& corrections,
+                                   TDouble1Vec& baseline) const;
 
     //! Get the time by which to propagate the priors on a sample.
     double propagationTime(std::size_t cid, core_t::TTime) const;
@@ -260,23 +261,23 @@ protected:
     //! data if necessary.
     template <typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
     void applyFilters(bool updateStatistics,
-                      const PERSON_FILTER &personFilter,
-                      const ATTRIBUTE_FILTER &attributeFilter,
-                      T &data) const;
+                      const PERSON_FILTER& personFilter,
+                      const ATTRIBUTE_FILTER& attributeFilter,
+                      T& data) const;
 
     //! Get the first time each attribute was seen.
-    const TTimeVec &attributeFirstBucketTimes(void) const;
+    const TTimeVec& attributeFirstBucketTimes(void) const;
     //! Get the last time each attribute was seen.
-    const TTimeVec &attributeLastBucketTimes(void) const;
+    const TTimeVec& attributeLastBucketTimes(void) const;
 
     //! Get the people and attributes to remove if any.
     void peopleAndAttributesToRemove(core_t::TTime time,
                                      std::size_t maximumAge,
-                                     TSizeVec &peopleToRemove,
-                                     TSizeVec &attributesToRemove) const;
+                                     TSizeVec& peopleToRemove,
+                                     TSizeVec& attributesToRemove) const;
 
     //! Remove the \p people.
-    void removePeople(const TSizeVec &peopleToRemove);
+    void removePeople(const TSizeVec& peopleToRemove);
 
     //! Skip sampling the interval \p endTime - \p startTime.
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
@@ -310,4 +311,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CPopulationModel_h
+#endif // INCLUDED_ml_model_CPopulationModel_h

@@ -22,14 +22,15 @@ namespace maths {
 
 namespace {
 
-template <std::size_t N> class CFactory {
+template <std::size_t N>
+class CFactory {
 public:
-    static CMultivariateNormalConjugate<N> *make(const SDistributionRestoreParams &params,
-                                                 core::CStateRestoreTraverser &traverser) {
+    static CMultivariateNormalConjugate<N>* make(const SDistributionRestoreParams& params,
+                                                 core::CStateRestoreTraverser& traverser) {
         return new CMultivariateNormalConjugate<N>(params, traverser);
     }
 
-    static CMultivariateNormalConjugate<N> *make(maths_t::EDataType dataType, double decayRate) {
+    static CMultivariateNormalConjugate<N>* make(maths_t::EDataType dataType, double decayRate) {
         return CMultivariateNormalConjugate<N>::nonInformativePrior(dataType, decayRate).clone();
     }
 };
@@ -66,9 +67,9 @@ CMultivariateNormalConjugateFactory::nonInformative(std::size_t dimension,
 }
 
 bool CMultivariateNormalConjugateFactory::restore(std::size_t dimension,
-                                                  const SDistributionRestoreParams &params,
-                                                  TPriorPtr &ptr,
-                                                  core::CStateRestoreTraverser &traverser) {
+                                                  const SDistributionRestoreParams& params,
+                                                  TPriorPtr& ptr,
+                                                  core::CStateRestoreTraverser& traverser) {
     ptr.reset();
 #define FACTORY_ARGS params, traverser
     CREATE_PRIOR(dimension);

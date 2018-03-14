@@ -25,7 +25,7 @@ public:
     void testIsFinite(void);
     void testFpStatus(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMathsFuncsTest_h
+#endif // INCLUDED_CMathsFuncsTest_h

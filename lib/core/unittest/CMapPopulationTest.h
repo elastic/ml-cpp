@@ -40,7 +40,7 @@ public:
     void testUMapOpSqBracStr(void);
     void testUMapOpSqBracCharP(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
     void setUp(void);
 
@@ -48,15 +48,15 @@ private:
     class CTestData {
     public:
         typedef std::vector<std::string> TStrVec;
-        typedef std::vector<const char *> TCharPVec;
+        typedef std::vector<const char*> TCharPVec;
 
     public:
         CTestData(size_t fillSize);
 
-        const TStrVec &stringKeys(void) const;
-        const TStrVec &stringVals(void) const;
-        const TCharPVec &charPtrKeys(void) const;
-        const TCharPVec &charPtrVals(void) const;
+        const TStrVec& stringKeys(void) const;
+        const TStrVec& stringVals(void) const;
+        const TCharPVec& charPtrKeys(void) const;
+        const TCharPVec& charPtrVals(void) const;
 
     private:
         TStrVec m_StringKeys;
@@ -73,20 +73,20 @@ private:
     typedef std::vector<TStrStrUMap> TStrStrUMapVec;
 
     template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
-    void addInsert(const INPUT_CONTAINER &keys,
-                   const INPUT_CONTAINER &values,
-                   MAP_CONTAINER &maps) const;
+    void addInsert(const INPUT_CONTAINER& keys,
+                   const INPUT_CONTAINER& values,
+                   MAP_CONTAINER& maps) const;
 
     template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
-    void addOpSqBrac(const INPUT_CONTAINER &keys,
-                     const INPUT_CONTAINER &values,
-                     MAP_CONTAINER &maps) const;
+    void addOpSqBrac(const INPUT_CONTAINER& keys,
+                     const INPUT_CONTAINER& values,
+                     MAP_CONTAINER& maps) const;
 
 private:
     static const size_t FILL_SIZE;
     static const size_t TEST_SIZE;
 
-    const CTestData *m_TestData;
+    const CTestData* m_TestData;
 };
 
-#endif// INCLUDED_CMapPopulationTest_h
+#endif // INCLUDED_CMapPopulationTest_h

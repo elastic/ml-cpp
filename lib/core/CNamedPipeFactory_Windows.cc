@@ -27,7 +27,7 @@ namespace {
 
 //! fclose() doesn't check for NULL pointers, so wrap it for use as a shared_ptr
 //! deleter
-void safeFClose(FILE *file) {
+void safeFClose(FILE* file) {
     if (file != 0) {
         ::fclose(file);
     }
@@ -43,7 +43,7 @@ namespace core {
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string &fileName) {
+CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (handle == INVALID_HANDLE_VALUE) {
         return TIStreamP();
@@ -54,7 +54,7 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
         boost::iostreams::file_descriptor_source(handle, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string &fileName) {
+CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (handle == INVALID_HANDLE_VALUE) {
         return TOStreamP();
@@ -65,7 +65,7 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
         boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string &fileName) {
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
@@ -74,7 +74,7 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string 
                   safeFClose);
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string &fileName) {
+CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
     TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP();
@@ -83,14 +83,16 @@ CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string
                   safeFClose);
 }
 
-bool CNamedPipeFactory::isNamedPipe(const std::string &fileName) {
+bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
     return fileName.length() > PIPE_PREFIX.length() &&
            fileName.compare(0, PIPE_PREFIX.length(), PIPE_PREFIX) == 0;
 }
 
-std::string CNamedPipeFactory::defaultPath(void) { return PIPE_PREFIX; }
+std::string CNamedPipeFactory::defaultPath(void) {
+    return PIPE_PREFIX;
+}
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string &fileName,
+CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName,
                                                                  bool forWrite) {
     // Size of named pipe buffer
     static const DWORD BUFFER_SIZE(4096);

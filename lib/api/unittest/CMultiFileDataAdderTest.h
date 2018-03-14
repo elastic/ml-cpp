@@ -26,13 +26,13 @@ public:
     void testDetectorPersistDc(void);
     void testDetectorPersistCount(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void detectorPersistHelper(const std::string &configFileName,
-                               const std::string &inputFilename,
+    void detectorPersistHelper(const std::string& configFileName,
+                               const std::string& inputFilename,
                                int latencyBuckets,
-                               const std::string &timeFormat = std::string());
+                               const std::string& timeFormat = std::string());
 };
 
-#endif// INCLUDED_CMultiFileDataAdderTest_h
+#endif // INCLUDED_CMultiFileDataAdderTest_h

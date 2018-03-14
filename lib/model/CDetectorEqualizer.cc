@@ -34,11 +34,11 @@ const std::string SKETCH_TAG("b");
 const std::string EMPTY_TAG("c");
 }
 
-void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     if (m_Sketches.empty()) {
         inserter.insertValue(EMPTY_TAG, " ");
     }
-    for (const auto &sketch : m_Sketches) {
+    for (const auto& sketch : m_Sketches) {
         inserter.insertValue(DETECTOR_TAG, sketch.first);
         inserter.insertLevel(SKETCH_TAG,
                              boost::bind(&maths::CQuantileSketch::acceptPersistInserter,
@@ -47,10 +47,10 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter &inse
     }
 }
 
-bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     boost::optional<int> detector;
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(DETECTOR_TAG,
                                detector.reset(0),
                                core::CStringUtils::stringToType(traverser.value(), *detector),
@@ -88,9 +88,9 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         return probability;
     }
 
-    const maths::CQuantileSketch &sketch = this->sketch(detector);
+    const maths::CQuantileSketch& sketch = this->sketch(detector);
 
-    for (const auto &sketch_ : m_Sketches) {
+    for (const auto& sketch_ : m_Sketches) {
         if (sketch_.second.count() < MINIMUM_COUNT_FOR_CORRECTION) {
             return probability;
         }
@@ -108,7 +108,7 @@ double CDetectorEqualizer::correct(int detector, double probability) {
 
         std::vector<double> logps;
         logps.reserve(m_Sketches.size());
-        for (const auto &sketch_ : m_Sketches) {
+        for (const auto& sketch_ : m_Sketches) {
             double logpi;
             if (sketch_.second.quantile(percentage, logpi)) {
                 logps.push_back(logpi);
@@ -128,10 +128,12 @@ double CDetectorEqualizer::correct(int detector, double probability) {
     return probability;
 }
 
-void CDetectorEqualizer::clear(void) { m_Sketches.clear(); }
+void CDetectorEqualizer::clear(void) {
+    m_Sketches.clear();
+}
 
 void CDetectorEqualizer::age(double factor) {
-    for (auto &&sketch : m_Sketches) {
+    for (auto&& sketch : m_Sketches) {
         sketch.second.age(factor);
     }
 }
@@ -144,12 +146,15 @@ double CDetectorEqualizer::largestProbabilityToCorrect(void) {
     return maths::LARGEST_SIGNIFICANT_PROBABILITY;
 }
 
-maths::CQuantileSketch &CDetectorEqualizer::sketch(int detector) {
-    auto i = std::lower_bound(
-        m_Sketches.begin(), m_Sketches.end(), detector, maths::COrderings::SFirstLess());
+maths::CQuantileSketch& CDetectorEqualizer::sketch(int detector) {
+    auto i = std::lower_bound(m_Sketches.begin(),
+                              m_Sketches.end(),
+                              detector,
+                              maths::COrderings::SFirstLess());
     if (i == m_Sketches.end() || i->first != detector) {
-        i = m_Sketches.insert(
-            i, {detector, maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE)});
+        i = m_Sketches.insert(i,
+                              {detector,
+                               maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE)});
     }
     return i->second;
 }

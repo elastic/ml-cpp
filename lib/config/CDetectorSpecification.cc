@@ -41,12 +41,12 @@ typedef std::vector<double> TDoubleVec;
 //! \brief Checks if the name of some statistics matches a specified value.
 class CNameEquals {
 public:
-    CNameEquals(const std::string &value) : m_Value(&value) {}
+    CNameEquals(const std::string& value) : m_Value(&value) {}
 
-    bool operator()(const CFieldStatistics &stats) const { return stats.name() == *m_Value; }
+    bool operator()(const CFieldStatistics& stats) const { return stats.name() == *m_Value; }
 
 private:
-    const std::string *m_Value;
+    const std::string* m_Value;
 };
 
 //! Extract the full function name from the configuration.
@@ -85,7 +85,7 @@ std::string fullFunctionName(config_t::ESide side,
 }
 
 //! Get the maximum penalty indexed by \p indices.
-double maxPenalty(const TSizeVec &indices, const TDoubleVec &penalties) {
+double maxPenalty(const TSizeVec& indices, const TDoubleVec& penalties) {
     double result = 0.0;
     for (std::size_t i = 0u; i < indices.size(); ++i) {
         result = std::max(result, penalties[indices[i]]);
@@ -94,7 +94,7 @@ double maxPenalty(const TSizeVec &indices, const TDoubleVec &penalties) {
 }
 
 //! Set the penalties indexed by \p indices to \p value.
-void fill(const TSizeVec &indices, double value, TDoubleVec &penalties) {
+void fill(const TSizeVec& indices, double value, TDoubleVec& penalties) {
     for (std::size_t i = 0u; i < indices.size(); ++i) {
         penalties[indices[i]] = value;
     }
@@ -110,7 +110,7 @@ std::size_t ignoreEmptyId(bool ignoreEmpty) {
 }
 }
 
-CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams &params,
+CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& params,
                                                config_t::EFunctionCategory function,
                                                std::size_t id)
     : m_Params(params),
@@ -129,12 +129,12 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams &para
     }
     std::fill_n(m_FieldStatistics,
                 constants::NUMBER_FIELD_INDICES,
-                static_cast<const CFieldStatistics *>(0));
+                static_cast<const CFieldStatistics*>(0));
 }
 
-CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams &params,
+CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams& params,
                                                config_t::EFunctionCategory function,
-                                               const std::string &argument,
+                                               const std::string& argument,
                                                std::size_t id)
     : m_Params(params),
       m_Function(function),
@@ -153,10 +153,10 @@ CDetectorSpecification::CDetectorSpecification(const CAutoconfigurerParams &para
     }
     std::fill_n(m_FieldStatistics,
                 constants::NUMBER_FIELD_INDICES,
-                static_cast<const CFieldStatistics *>(0));
+                static_cast<const CFieldStatistics*>(0));
 }
 
-void CDetectorSpecification::swap(CDetectorSpecification &other) {
+void CDetectorSpecification::swap(CDetectorSpecification& other) {
     std::swap(m_Params, other.m_Params);
     std::swap(m_Function, other.m_Function);
     std::swap(m_Side, other.m_Side);
@@ -174,13 +174,15 @@ void CDetectorSpecification::swap(CDetectorSpecification &other) {
     std::swap(m_CountStatistics, other.m_CountStatistics);
 }
 
-void CDetectorSpecification::side(config_t::ESide side) { m_Side = side; }
+void CDetectorSpecification::side(config_t::ESide side) {
+    m_Side = side;
+}
 
 void CDetectorSpecification::ignoreEmpty(bool ignoreEmpty) {
     m_IgnoreEmpty = ignoreEmpty ? E_True : E_False;
 }
 
-bool CDetectorSpecification::canAddPartitioning(std::size_t index, const std::string &value) const {
+bool CDetectorSpecification::canAddPartitioning(std::size_t index, const std::string& value) const {
     // Rules:
     //   1) We can only add a field to a detector whose index is greater
     //      than any field currently set.
@@ -191,14 +193,14 @@ bool CDetectorSpecification::canAddPartitioning(std::size_t index, const std::st
                boost::end(m_FunctionFields);
 }
 
-void CDetectorSpecification::addPartitioning(std::size_t index, const std::string &value) {
+void CDetectorSpecification::addPartitioning(std::size_t index, const std::string& value) {
     m_FunctionFields[index] = value;
     if (index == constants::OVER_INDEX) {
         m_IgnoreEmpty = E_True;
     }
 }
 
-void CDetectorSpecification::addInfluencer(const std::string &influencer) {
+void CDetectorSpecification::addInfluencer(const std::string& influencer) {
     std::size_t n = m_Influencers.size();
     m_Influencers.push_back(influencer);
     if (n > 0) {
@@ -210,20 +212,22 @@ void CDetectorSpecification::bucketLength(core_t::TTime bucketLength) {
     m_BucketLength = bucketLength;
 }
 
-void CDetectorSpecification::addFieldStatistics(const TFieldStatisticsVec &stats) {
+void CDetectorSpecification::addFieldStatistics(const TFieldStatisticsVec& stats) {
     for (std::size_t i = 0u; i < boost::size(constants::CFieldIndices::ALL); ++i) {
-        if (const TOptionalStr &field = m_FunctionFields[constants::CFieldIndices::ALL[i]]) {
+        if (const TOptionalStr& field = m_FunctionFields[constants::CFieldIndices::ALL[i]]) {
             m_FieldStatistics[constants::CFieldIndices::ALL[i]] =
                 &(*std::find_if(stats.begin(), stats.end(), CNameEquals(*field)));
         }
     }
 }
 
-void CDetectorSpecification::setCountStatistics(const CDataCountStatistics &stats) {
+void CDetectorSpecification::setCountStatistics(const CDataCountStatistics& stats) {
     m_CountStatistics = &stats;
 }
 
-void CDetectorSpecification::setPenalty(const TPenaltyPtr &penalty) { m_Penalty = penalty; }
+void CDetectorSpecification::setPenalty(const TPenaltyPtr& penalty) {
+    m_Penalty = penalty;
+}
 
 double CDetectorSpecification::score(void) const {
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
@@ -234,24 +238,25 @@ double CDetectorSpecification::score(void) const {
     return CPenalty::score(penalty);
 }
 
-void CDetectorSpecification::scores(TParamScoresVec &result) const {
+void CDetectorSpecification::scores(TParamScoresVec& result) const {
     result.reserve(m_Penalties.size());
-    const TTimeVec &candidates = this->params().candidateBucketLengths();
+    const TTimeVec& candidates = this->params().candidateBucketLengths();
     for (std::size_t iid = 0u; iid < boost::size(IGNORE_EMPTY); ++iid) {
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
             std::size_t pid = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
             double score = CPenalty::score(m_Penalties[pid]);
-            const TStrVec &descriptions = m_PenaltyDescriptions[pid];
+            const TStrVec& descriptions = m_PenaltyDescriptions[pid];
             if (score > this->params().minimumDetectorScore()) {
-                const std::string &name = config_t::ignoreEmptyVersionName(
-                    m_Function, IGNORE_EMPTY[iid], this->isPopulation());
+                const std::string& name = config_t::ignoreEmptyVersionName(m_Function,
+                                                                           IGNORE_EMPTY[iid],
+                                                                           this->isPopulation());
                 result.push_back(SParamScores(candidates[bid], name, score, descriptions));
             }
         }
     }
 }
 
-void CDetectorSpecification::applyPenalty(double penalty, const std::string &description) {
+void CDetectorSpecification::applyPenalty(double penalty, const std::string& description) {
     LOG_TRACE("penalty = " << penalty);
     if (penalty == 1.0) {
         return;
@@ -264,9 +269,9 @@ void CDetectorSpecification::applyPenalty(double penalty, const std::string &des
     }
 }
 
-void CDetectorSpecification::applyPenalties(const TSizeVec &indices,
-                                            const TDoubleVec &penalties,
-                                            const TStrVec &descriptions) {
+void CDetectorSpecification::applyPenalties(const TSizeVec& indices,
+                                            const TDoubleVec& penalties,
+                                            const TStrVec& descriptions) {
     LOG_TRACE("penalties = " << core::CContainerPrinter::print(penalties));
     for (std::size_t i = 0u; i < indices.size(); ++i) {
         if (penalties[i] == 1.0) {
@@ -287,30 +292,32 @@ void CDetectorSpecification::refreshScores(void) {
     this->refreshIgnoreEmpty();
 }
 
-config_t::EFunctionCategory CDetectorSpecification::function(void) const { return m_Function; }
+config_t::EFunctionCategory CDetectorSpecification::function(void) const {
+    return m_Function;
+}
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::argumentField(void) const {
+const CDetectorSpecification::TOptionalStr& CDetectorSpecification::argumentField(void) const {
     return m_FunctionFields[constants::ARGUMENT_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::byField(void) const {
+const CDetectorSpecification::TOptionalStr& CDetectorSpecification::byField(void) const {
     return m_FunctionFields[constants::BY_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::overField(void) const {
+const CDetectorSpecification::TOptionalStr& CDetectorSpecification::overField(void) const {
     return m_FunctionFields[constants::OVER_INDEX];
 }
 
-const CDetectorSpecification::TOptionalStr &CDetectorSpecification::partitionField(void) const {
+const CDetectorSpecification::TOptionalStr& CDetectorSpecification::partitionField(void) const {
     return m_FunctionFields[constants::PARTITION_INDEX];
 }
 
-const CDetectorSpecification::TStrVec &CDetectorSpecification::influences(void) const {
+const CDetectorSpecification::TStrVec& CDetectorSpecification::influences(void) const {
     return m_Influencers;
 }
 
-void CDetectorSpecification::candidateBucketLengths(TTimeVec &result) const {
-    const TTimeVec &candidates = this->params().candidateBucketLengths();
+void CDetectorSpecification::candidateBucketLengths(TTimeVec& result) const {
+    const TTimeVec& candidates = this->params().candidateBucketLengths();
     result.reserve(candidates.size());
     for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
         if (CPenalty::score(maxPenalty(this->params().penaltyIndicesFor(bid), m_Penalties)) > 0.0) {
@@ -323,7 +330,7 @@ bool CDetectorSpecification::isPopulation(void) const {
     return static_cast<bool>(this->overField());
 }
 
-bool CDetectorSpecification::operator<(const CDetectorSpecification &rhs) const {
+bool CDetectorSpecification::operator<(const CDetectorSpecification& rhs) const {
 #define LESS(lhs, rhs)                                                                             \
     if (lhs < rhs)                                                                                 \
         return true;                                                                               \
@@ -360,7 +367,7 @@ bool CDetectorSpecification::operator<(const CDetectorSpecification &rhs) const 
     return m_Influencers < rhs.m_Influencers;
 }
 
-bool CDetectorSpecification::operator==(const CDetectorSpecification &rhs) const {
+bool CDetectorSpecification::operator==(const CDetectorSpecification& rhs) const {
     return m_Function == rhs.m_Function && m_Side == rhs.m_Side &&
            m_IgnoreEmpty == rhs.m_IgnoreEmpty && m_BucketLength == rhs.m_BucketLength &&
            std::equal(boost::begin(m_FunctionFields),
@@ -369,27 +376,31 @@ bool CDetectorSpecification::operator==(const CDetectorSpecification &rhs) const
            m_Influencers == rhs.m_Influencers;
 }
 
-std::size_t CDetectorSpecification::id(void) const { return m_Id; }
+std::size_t CDetectorSpecification::id(void) const {
+    return m_Id;
+}
 
-void CDetectorSpecification::id(std::size_t id) { m_Id = id; }
+void CDetectorSpecification::id(std::size_t id) {
+    m_Id = id;
+}
 
-const CFieldStatistics *CDetectorSpecification::argumentFieldStatistics(void) const {
+const CFieldStatistics* CDetectorSpecification::argumentFieldStatistics(void) const {
     return m_FieldStatistics[constants::ARGUMENT_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::byFieldStatistics(void) const {
+const CFieldStatistics* CDetectorSpecification::byFieldStatistics(void) const {
     return m_FieldStatistics[constants::BY_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::overFieldStatistics(void) const {
+const CFieldStatistics* CDetectorSpecification::overFieldStatistics(void) const {
     return m_FieldStatistics[constants::OVER_INDEX];
 }
 
-const CFieldStatistics *CDetectorSpecification::partitionFieldStatistics(void) const {
+const CFieldStatistics* CDetectorSpecification::partitionFieldStatistics(void) const {
     return m_FieldStatistics[constants::PARTITION_INDEX];
 }
 
-const CDataCountStatistics *CDetectorSpecification::countStatistics(void) const {
+const CDataCountStatistics* CDetectorSpecification::countStatistics(void) const {
     return m_CountStatistics;
 }
 
@@ -403,11 +414,11 @@ std::string CDetectorSpecification::detectorConfig(void) const {
         COrderStatisticsStack<TDoubleTimePr, 1, maths::COrderings::SFirstGreater>
             TMaxAccumulator;
 
-    const TTimeVec &candidates = this->params().candidateBucketLengths();
+    const TTimeVec& candidates = this->params().candidateBucketLengths();
 
     TMaxAccumulator best;
     for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
-        const TSizeVec &indices = this->params().penaltyIndicesFor(bid);
+        const TSizeVec& indices = this->params().penaltyIndicesFor(bid);
         for (std::size_t i = 0u; i < indices.size(); ++i) {
             best.add(std::make_pair(m_Penalties[indices[i]], candidates[bid]));
         }
@@ -415,21 +426,21 @@ std::string CDetectorSpecification::detectorConfig(void) const {
 
     std::ostringstream result;
     if (CPenalty::score(best[0].first) > this->params().minimumDetectorScore()) {
-        const std::string &newLine = this->params().detectorConfigLineEnding();
+        const std::string& newLine = this->params().detectorConfigLineEnding();
         result << "{" << newLine << "  \"analysisConfig\": {" << newLine
                << "    \"bucketSpan\": " << best[0].second << newLine << "  }," << newLine
                << "  \"detectors\": [" << newLine << "    {" << newLine << "      \"function\":\""
                << config_t::print(m_Function) << "\"";
-        if (const CDetectorSpecification::TOptionalStr &argument = this->argumentField()) {
+        if (const CDetectorSpecification::TOptionalStr& argument = this->argumentField()) {
             result << "," << newLine << "      \"fieldName\": \"" << *argument << "\"";
         }
-        if (const CDetectorSpecification::TOptionalStr &by = this->byField()) {
+        if (const CDetectorSpecification::TOptionalStr& by = this->byField()) {
             result << "," << newLine << "      \"byFieldName\": \"" << *by << "\"";
         }
-        if (const CDetectorSpecification::TOptionalStr &over = this->overField()) {
+        if (const CDetectorSpecification::TOptionalStr& over = this->overField()) {
             result << "," << newLine << "      \"overFieldName\": \"" << *over << "\"";
         }
-        if (const CDetectorSpecification::TOptionalStr &partition = this->partitionField()) {
+        if (const CDetectorSpecification::TOptionalStr& partition = this->partitionField()) {
             result << "," << newLine << "      \"partitionFieldName\": \"" << *partition << "\"";
         }
         result << newLine << "    }" << newLine << "  ]" << newLine << "}";
@@ -450,7 +461,9 @@ std::string CDetectorSpecification::description(void) const {
     return result.str();
 }
 
-const CAutoconfigurerParams &CDetectorSpecification::params(void) const { return m_Params; }
+const CAutoconfigurerParams& CDetectorSpecification::params(void) const {
+    return m_Params;
+}
 
 int CDetectorSpecification::highestFieldIndex(void) const {
     int result = -1;
@@ -505,9 +518,9 @@ void CDetectorSpecification::refreshIgnoreEmpty(void) {
 }
 
 CDetectorSpecification::SParamScores::SParamScores(core_t::TTime bucketLength,
-                                                   const std::string &ignoreEmpty,
+                                                   const std::string& ignoreEmpty,
                                                    double score,
-                                                   const TStrVec &descriptions)
+                                                   const TStrVec& descriptions)
     : s_BucketLength(bucketLength),
       s_IgnoreEmpty(ignoreEmpty),
       s_Score(score),

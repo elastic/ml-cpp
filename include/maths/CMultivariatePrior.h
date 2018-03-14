@@ -92,7 +92,7 @@ public:
     virtual ~CMultivariatePrior(void) = default;
 
     //! Swap the contents of this prior and \p other.
-    void swap(CMultivariatePrior &other);
+    void swap(CMultivariatePrior& other);
     //@}
 
     //! Mark the prior as being used for forecasting.
@@ -121,7 +121,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariatePrior *clone(void) const = 0;
+    virtual CMultivariatePrior* clone(void) const = 0;
 
     //! Get the dimension of the prior.
     virtual std::size_t dimension(void) const = 0;
@@ -143,9 +143,9 @@ public:
     //! for more details.
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void adjustOffset(const TWeightStyleVec &weightStyles,
-                              const TDouble10Vec1Vec &samples,
-                              const TDouble10Vec4Vec1Vec &weights) = 0;
+    virtual void adjustOffset(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec1Vec& samples,
+                              const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior with a collection of independent samples from the
     //! process.
@@ -155,9 +155,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec &weightStyles,
-                            const TDouble10Vec1Vec &samples,
-                            const TDouble10Vec4Vec1Vec &weights) = 0;
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec1Vec& samples,
+                            const TDouble10Vec4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -174,8 +174,8 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec &marginalize,
-                                                   const TSizeDoublePr10Vec &condition) const = 0;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
+                                                   const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -189,8 +189,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec &marginalize,
-                                        const TSizeDoublePr10Vec &condition) const = 0;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const = 0;
@@ -200,15 +200,15 @@ public:
 
     //! Get the nearest mean of the multimodal prior marginal likelihood,
     //! otherwise the marginal likelihood mean.
-    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec &value) const;
+    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                const TDouble10Vec4Vec &weights) const = 0;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weights) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec &weightStyles,
-                                                     const TDouble10Vec4Vec &weights) const;
+    virtual TDouble10Vec1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                                     const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix for the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const = 0;
@@ -226,10 +226,10 @@ public:
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble10Vec1Vec &samples,
-                               const TDouble10Vec4Vec1Vec &weights,
-                               double &result) const = 0;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights,
+                               double& result) const = 0;
 
     //! Sample the marginal likelihood function.
     //!
@@ -252,7 +252,7 @@ public:
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec &samples) const = 0;
+                                          TDouble10Vec1Vec& samples) const = 0;
 
     //! Calculate the joint probability of seeing a lower marginal likelihood
     //! collection of independent samples for each coordinate.
@@ -276,13 +276,13 @@ public:
     //! a value of zero is not well defined and a value of infinity is not well
     //! handled. (Very large values are handled though.)
     bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                        const TWeightStyleVec &weightStyles,
-                                        const TDouble10Vec1Vec &samples,
-                                        const TDouble10Vec4Vec1Vec &weights,
-                                        const TSize10Vec &coordinates,
-                                        TDouble10Vec2Vec &lowerBounds,
-                                        TDouble10Vec2Vec &upperBounds,
-                                        TTail10Vec &tail) const;
+                                        const TWeightStyleVec& weightStyles,
+                                        const TDouble10Vec1Vec& samples,
+                                        const TDouble10Vec4Vec1Vec& weights,
+                                        const TSize10Vec& coordinates,
+                                        TDouble10Vec2Vec& lowerBounds,
+                                        TDouble10Vec2Vec& upperBounds,
+                                        TTail10Vec& tail) const;
 
     //! Calculate the joint probability of seeing a lower likelihood collection
     //! of independent samples from the distribution integrating over the prior
@@ -308,12 +308,12 @@ public:
     //! a value of zero is not well defined and a value of infinity is not well
     //! handled. (Very large values are handled though.)
     bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                        const TWeightStyleVec &weightStyles,
-                                        const TDouble10Vec1Vec &samples,
-                                        const TDouble10Vec4Vec1Vec &weights,
-                                        double &lowerBound,
-                                        double &upperBound,
-                                        TTail10Vec &tail) const;
+                                        const TWeightStyleVec& weightStyles,
+                                        const TDouble10Vec1Vec& samples,
+                                        const TDouble10Vec4Vec1Vec& weights,
+                                        double& lowerBound,
+                                        double& upperBound,
+                                        TTail10Vec& tail) const;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const = 0;
@@ -325,7 +325,7 @@ public:
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &separator, std::string &result) const = 0;
+    virtual void print(const std::string& separator, std::string& result) const = 0;
 
     //! Print a projection of the marginal likelihood function onto the specified
     //! coordinates.
@@ -363,7 +363,7 @@ public:
     virtual std::string persistenceTag(void) const = 0;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
     //@}
 
     //! Get the margin between the smallest value and the support left
@@ -401,19 +401,19 @@ protected:
     void addSamples(double n);
 
     //! Check that the samples and weights are consistent.
-    bool check(const TDouble10Vec1Vec &samples, const TDouble10Vec4Vec1Vec &weights) const;
+    bool check(const TDouble10Vec1Vec& samples, const TDouble10Vec4Vec1Vec& weights) const;
 
     //! Check that the variables to marginalize out and condition on
     //! are consistent.
-    bool check(const TSize10Vec &marginalize, const TSizeDoublePr10Vec &condition) const;
+    bool check(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the remaining variables.
-    void remainingVariables(const TSize10Vec &marginalize,
-                            const TSizeDoublePr10Vec &condition,
-                            TSize10Vec &results) const;
+    void remainingVariables(const TSize10Vec& marginalize,
+                            const TSizeDoublePr10Vec& condition,
+                            TSize10Vec& results) const;
 
     //! Get the smallest component of \p x.
-    double smallest(const TDouble10Vec &x) const;
+    double smallest(const TDouble10Vec& x) const;
 
 private:
     //! Set to true if this model is being used for forecasting. Note
@@ -435,4 +435,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CMultivariatePrior_h
+#endif // INCLUDED_ml_maths_CMultivariatePrior_h

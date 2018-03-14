@@ -36,24 +36,24 @@ const CHierarchicalResultsWriter::TStr1Vec EMPTY_STRING_LIST;
 CHierarchicalResultsWriter::SResults::SResults(
     bool isAllTimeResult,
     bool isOverallResult,
-    const std::string &partitionFieldName,
-    const std::string &partitionFieldValue,
-    const std::string &overFieldName,
-    const std::string &overFieldValue,
-    const std::string &byFieldName,
-    const std::string &byFieldValue,
-    const std::string &correlatedByFieldValue,
+    const std::string& partitionFieldName,
+    const std::string& partitionFieldValue,
+    const std::string& overFieldName,
+    const std::string& overFieldValue,
+    const std::string& byFieldName,
+    const std::string& byFieldValue,
+    const std::string& correlatedByFieldValue,
     core_t::TTime bucketStartTime,
-    const std::string &functionName,
-    const std::string &functionDescription,
-    const TDouble1Vec &functionValue,
-    const TDouble1Vec &populationAverage,
+    const std::string& functionName,
+    const std::string& functionDescription,
+    const TDouble1Vec& functionValue,
+    const TDouble1Vec& populationAverage,
     double rawAnomalyScore,
     double normalizedAnomalyScore,
     double probability,
-    const TOptionalUInt64 &currentRate,
-    const std::string &metricValueField,
-    const TStoredStringPtrStoredStringPtrPrDoublePrVec &influences,
+    const TOptionalUInt64& currentRate,
+    const std::string& metricValueField,
+    const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
     bool useNull,
     bool metric,
     int identifier,
@@ -89,23 +89,23 @@ CHierarchicalResultsWriter::SResults::SResults(
 
 CHierarchicalResultsWriter::SResults::SResults(
     EResultType resultType,
-    const std::string &partitionFieldName,
-    const std::string &partitionFieldValue,
-    const std::string &byFieldName,
-    const std::string &byFieldValue,
-    const std::string &correlatedByFieldValue,
+    const std::string& partitionFieldName,
+    const std::string& partitionFieldValue,
+    const std::string& byFieldName,
+    const std::string& byFieldValue,
+    const std::string& correlatedByFieldValue,
     core_t::TTime bucketStartTime,
-    const std::string &functionName,
-    const std::string &functionDescription,
-    const TOptionalDouble &baselineRate,
-    const TOptionalUInt64 &currentRate,
-    const TDouble1Vec &baselineMean,
-    const TDouble1Vec &currentMean,
+    const std::string& functionName,
+    const std::string& functionDescription,
+    const TOptionalDouble& baselineRate,
+    const TOptionalUInt64& currentRate,
+    const TDouble1Vec& baselineMean,
+    const TDouble1Vec& currentMean,
     double rawAnomalyScore,
     double normalizedAnomalyScore,
     double probability,
-    const std::string &metricValueField,
-    const TStoredStringPtrStoredStringPtrPrDoublePrVec &influences,
+    const std::string& metricValueField,
+    const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
     bool useNull,
     bool metric,
     int identifier,
@@ -145,18 +145,18 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_ScheduledEventDescriptions(scheduledEventDescriptions) {}
 
 CHierarchicalResultsWriter::CHierarchicalResultsWriter(
-    const model::CLimits &limits,
-    const model::CAnomalyDetectorModelConfig &modelConfig,
-    const TResultWriterFunc &resultWriterFunc,
-    const TPivotWriterFunc &pivotWriterFunc)
+    const model::CLimits& limits,
+    const model::CAnomalyDetectorModelConfig& modelConfig,
+    const TResultWriterFunc& resultWriterFunc,
+    const TPivotWriterFunc& pivotWriterFunc)
     : m_Limits(limits),
       m_ModelConfig(modelConfig),
       m_ResultWriterFunc(resultWriterFunc),
       m_PivotWriterFunc(pivotWriterFunc),
       m_BucketTime(0) {}
 
-void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults &results,
-                                       const TNode &node,
+void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults& results,
+                                       const TNode& node,
                                        bool pivot) {
     if (pivot) {
         this->writePivotResult(results, node);
@@ -168,8 +168,8 @@ void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults &result
     }
 }
 
-void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchicalResults &results,
-                                                       const TNode &node) {
+void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchicalResults& results,
+                                                       const TNode& node) {
     if (this->isSimpleCount(node) || !this->isLeaf(node) || !this->isPopulation(node) ||
         !this->shouldWriteResult(m_Limits, results, node, false)) {
         return;
@@ -181,7 +181,7 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
     // The attribute probabilities are returned in sorted order. This
     // is used to set the human readable description of the anomaly in
     // the GUI.
-    const std::string &functionDescription =
+    const std::string& functionDescription =
         node.s_AnnotatedProbability.s_AttributeProbabilities.empty()
             ? EMPTY_STRING
             : model_t::outputFunctionName(
@@ -189,7 +189,7 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
 
     TOptionalDouble null;
     for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
-        const model::SAttributeProbability &attributeProbability =
+        const model::SAttributeProbability& attributeProbability =
             node.s_AnnotatedProbability.s_AttributeProbabilities[i];
 
         // TODO - At present the display code can only cope with all the
@@ -209,27 +209,27 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
             continue;
         }
 
-        const std::string &attribute = *attributeProbability.s_Attribute;
-        const TDouble1Vec &personAttributeValue = attributeProbability.s_CurrentBucketValue;
+        const std::string& attribute = *attributeProbability.s_Attribute;
+        const TDouble1Vec& personAttributeValue = attributeProbability.s_CurrentBucketValue;
         if (personAttributeValue.empty()) {
             LOG_ERROR("Failed to get current bucket value for " << attribute);
             continue;
         }
 
-        const TDouble1Vec &attributeMean = attributeProbability.s_BaselineBucketMean;
+        const TDouble1Vec& attributeMean = attributeProbability.s_BaselineBucketMean;
         if (attributeMean.empty()) {
             LOG_ERROR("Failed to get population mean for " << attribute);
             continue;
         }
 
         m_ResultWriterFunc(TResults(false,
-                                    false,// not an overall result
+                                    false, // not an overall result
                                     *node.s_Spec.s_PartitionFieldName,
                                     *node.s_Spec.s_PartitionFieldValue,
                                     *node.s_Spec.s_PersonFieldName,
                                     *node.s_Spec.s_PersonFieldValue,
                                     *node.s_Spec.s_ByFieldName,
-                                    attribute,// attribute field value
+                                    attribute, // attribute field value
                                     attributeProbability.s_CorrelatedAttributes.empty()
                                         ? EMPTY_STRING
                                         : *attributeProbability.s_CorrelatedAttributes[0],
@@ -252,7 +252,7 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
 
     // Overall result for this person
     m_ResultWriterFunc(TResults(false,
-                                true,// this is an overall result
+                                true, // this is an overall result
                                 *node.s_Spec.s_PartitionFieldName,
                                 *node.s_Spec.s_PartitionFieldValue,
                                 *node.s_Spec.s_PersonFieldName,
@@ -263,8 +263,8 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
                                 node.s_BucketStartTime,
                                 *node.s_Spec.s_FunctionName,
                                 functionDescription,
-                                TDouble1Vec(1, 0.0),// no function value in overall result
-                                TDouble1Vec(1, 0.0),// no population average in overall result
+                                TDouble1Vec(1, 0.0), // no function value in overall result
+                                TDouble1Vec(1, 0.0), // no population average in overall result
                                 node.s_RawAnomalyScore,
                                 node.s_NormalizedAnomalyScore,
                                 node.probability(),
@@ -283,8 +283,8 @@ void CHierarchicalResultsWriter::writePopulationResult(const model::CHierarchica
     // results)
 }
 
-void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchicalResults &results,
-                                                       const TNode &node) {
+void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchicalResults& results,
+                                                       const TNode& node) {
     if (this->isSimpleCount(node) || !this->isLeaf(node) || this->isPopulation(node) ||
         !this->shouldWriteResult(m_Limits, results, node, false)) {
         return;
@@ -295,7 +295,7 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
             ? model_t::E_IndividualCountByBucketAndPerson
             : node.s_AnnotatedProbability.s_AttributeProbabilities[0].s_Feature;
 
-    const model::SAttributeProbability &attributeProbability =
+    const model::SAttributeProbability& attributeProbability =
         node.s_AnnotatedProbability.s_AttributeProbabilities[0];
 
     m_ResultWriterFunc(TResults(E_Result,
@@ -325,8 +325,8 @@ void CHierarchicalResultsWriter::writeIndividualResult(const model::CHierarchica
                                 EMPTY_STRING_LIST));
 }
 
-void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchicalResults &results,
-                                                      const TNode &node) {
+void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchicalResults& results,
+                                                      const TNode& node) {
     if (!m_ModelConfig.perPartitionNormalization() || this->isSimpleCount(node) ||
         this->isPopulation(node) || !this->isPartition(node) ||
         !this->shouldWriteResult(m_Limits, results, node, false)) {
@@ -365,8 +365,8 @@ void CHierarchicalResultsWriter::writePartitionResult(const model::CHierarchical
                                 EMPTY_STRING_LIST));
 }
 
-void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResults &results,
-                                                  const TNode &node) {
+void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResults& results,
+                                                  const TNode& node) {
     if (this->isSimpleCount(node) || !this->shouldWriteResult(m_Limits, results, node, true)) {
         return;
     }
@@ -378,7 +378,7 @@ void CHierarchicalResultsWriter::writePivotResult(const model::CHierarchicalResu
     }
 }
 
-void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode &node) {
+void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode& node) {
     if (!this->isSimpleCount(node)) {
         return;
     }
@@ -414,9 +414,9 @@ void CHierarchicalResultsWriter::writeSimpleCountResult(const TNode &node) {
                  node.s_Spec.s_ScheduledEventDescriptions));
 }
 
-void CHierarchicalResultsWriter::findParentProbabilities(const TNode &node,
-                                                         double &personProbability,
-                                                         double &partitionProbability) {
+void CHierarchicalResultsWriter::findParentProbabilities(const TNode& node,
+                                                         double& personProbability,
+                                                         double& partitionProbability) {
     // The idea is that if person doesn't exist then the person probability is
     // set to the leaf probability, and if partition doesn't exist then the
     // partition probability is set to the person probability (or if person
@@ -425,7 +425,7 @@ void CHierarchicalResultsWriter::findParentProbabilities(const TNode &node,
     personProbability = node.probability();
     partitionProbability = node.probability();
 
-    for (const TNode *parent = node.s_Parent; parent != 0; parent = parent->s_Parent) {
+    for (const TNode* parent = node.s_Parent; parent != 0; parent = parent->s_Parent) {
         if (CHierarchicalResultsWriter::isPartition(*parent)) {
             partitionProbability = parent->probability();
             // This makes the assumption that partition will be higher than

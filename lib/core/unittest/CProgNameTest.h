@@ -22,7 +22,7 @@ public:
     void testProgName(void);
     void testProgDir(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CProgNameTest_h
+#endif // INCLUDED_CProgNameTest_h

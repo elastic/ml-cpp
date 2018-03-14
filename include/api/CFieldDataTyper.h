@@ -70,26 +70,26 @@ public:
 public:
     // A type of token list data typer that DOESN'T exclude fields from its
     // analysis
-    typedef CTokenListDataTyper<true, // Warping
-                                true, // Underscores
-                                true, // Dots
-                                true, // Dashes
-                                true, // Ignore leading digit
-                                true, // Ignore hex
-                                true, // Ignore date words
-                                false,// Ignore field names
-                                2,    // Min dictionary word length
+    typedef CTokenListDataTyper<true,  // Warping
+                                true,  // Underscores
+                                true,  // Dots
+                                true,  // Dashes
+                                true,  // Ignore leading digit
+                                true,  // Ignore hex
+                                true,  // Ignore date words
+                                false, // Ignore field names
+                                2,     // Min dictionary word length
                                 core::CWordDictionary::TWeightVerbs5Other2>
         TTokenListDataTyperKeepsFields;
 
 public:
     //! Construct without persistence capability
-    CFieldDataTyper(const std::string &jobId,
-                    const CFieldConfig &config,
-                    const model::CLimits &limits,
-                    COutputHandler &outputHandler,
-                    CJsonOutputWriter &jsonOutputWriter,
-                    CBackgroundPersister *periodicPersister = nullptr);
+    CFieldDataTyper(const std::string& jobId,
+                    const CFieldConfig& config,
+                    const model::CLimits& limits,
+                    COutputHandler& outputHandler,
+                    CJsonOutputWriter& jsonOutputWriter,
+                    CBackgroundPersister* periodicPersister = nullptr);
 
     virtual ~CFieldDataTyper(void);
 
@@ -98,43 +98,43 @@ public:
 
     //! Receive a single record to be typed, and output that record to
     //! STDOUT with its type field added
-    virtual bool handleRecord(const TStrStrUMap &dataRowFields);
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise(void);
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher, core_t::TTime &completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder &persister);
+    virtual bool persistState(core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister &persister);
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled(void) const;
 
     //! Access the output handler
-    virtual COutputHandler &outputHandler(void);
+    virtual COutputHandler& outputHandler(void);
 
 private:
     //! Create the typer to operate on the categorization field
-    void createTyper(const std::string &fieldName);
+    void createTyper(const std::string& fieldName);
 
     //! Compute the type for a given record.
-    int computeType(const TStrStrUMap &dataRowFields);
+    int computeType(const TStrStrUMap& dataRowFields);
 
     //! Create the reverse search and return true if it has changed or false otherwise
     bool createReverseSearch(int type);
 
-    bool doPersistState(const CDataTyper::TPersistFunc &dataTyperPersistFunc,
-                        const CCategoryExamplesCollector &examplesCollector,
-                        core::CDataAdder &persister);
-    void acceptPersistInserter(const CDataTyper::TPersistFunc &dataTyperPersistFunc,
-                               const CCategoryExamplesCollector &examplesCollector,
-                               core::CStatePersistInserter &inserter) const;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool doPersistState(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
+                        const CCategoryExamplesCollector& examplesCollector,
+                        core::CDataAdder& persister);
+    void acceptPersistInserter(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
+                               const CCategoryExamplesCollector& examplesCollector,
+                               core::CStatePersistInserter& inserter) const;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Respond to an attempt to restore corrupt categorizer state by
     //! resetting the categorizer and re-categorizing from scratch.
@@ -146,10 +146,10 @@ private:
     //!        buffers
     //! 'f' => Echo a flush ID so that the attached process knows that data
     //!        sent previously has all been processed
-    bool handleControlMessage(const std::string &controlMessage);
+    bool handleControlMessage(const std::string& controlMessage);
 
     //! Acknowledge a flush request
-    void acknowledgeFlush(const std::string &flushId);
+    void acknowledgeFlush(const std::string& flushId);
 
 private:
     typedef CCategoryExamplesCollector::TStrSet TStrSet;
@@ -159,7 +159,7 @@ private:
     std::string m_JobId;
 
     //! Object to which the output is passed
-    COutputHandler &m_OutputHandler;
+    COutputHandler& m_OutputHandler;
 
     //! Cache extra field names to be added
     TStrVec m_ExtraFieldNames;
@@ -175,7 +175,7 @@ private:
 
     //! References to specific entries in the overrides map to save
     //! repeatedly searching for them
-    std::string &m_OutputFieldCategory;
+    std::string& m_OutputFieldCategory;
 
     //! Space separated list of search terms for the current category
     std::string m_SearchTerms;
@@ -190,7 +190,7 @@ private:
     CDataTyper::TDataTyperP m_DataTyper;
 
     //! Reference to the json output writer so that examples can be written
-    CJsonOutputWriter &m_JsonOutputWriter;
+    CJsonOutputWriter& m_JsonOutputWriter;
 
     //! Collects up to a configurable number of examples per category
     CCategoryExamplesCollector m_ExamplesCollector;
@@ -204,9 +204,9 @@ private:
     //! Pointer to periodic persister that works in the background.  May be
     //! nullptr if this object is not responsible for starting periodic
     //! persistence.
-    CBackgroundPersister *m_PeriodicPersister;
+    CBackgroundPersister* m_PeriodicPersister;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CFieldDataTyper_h
+#endif // INCLUDED_ml_api_CFieldDataTyper_h

@@ -20,8 +20,8 @@
 
 #include <stdint.h>
 
-CppUnit::Test *CStopWatchTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
+CppUnit::Test* CStopWatchTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>("CStopWatchTest::testStopWatch",
                                                                   &CStopWatchTest::testStopWatch));

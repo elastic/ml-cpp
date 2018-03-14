@@ -31,7 +31,7 @@ public:
     void testRawPointer(void);
     void testSmallVector(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMemoryUsageTest_h
+#endif // INCLUDED_CMemoryUsageTest_h

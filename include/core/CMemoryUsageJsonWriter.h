@@ -43,7 +43,7 @@ namespace core {
 class CORE_EXPORT CMemoryUsageJsonWriter {
 public:
     //! Constructor
-    CMemoryUsageJsonWriter(std::ostream &outStream);
+    CMemoryUsageJsonWriter(std::ostream& outStream);
 
     //! Destructor
     ~CMemoryUsageJsonWriter();
@@ -58,13 +58,13 @@ public:
     void endObject();
 
     //! Calls underlying JSON writer startArray, with a string name
-    void startArray(const std::string &description);
+    void startArray(const std::string& description);
 
     //! Calls underlying JSON writer endArray
     void endArray();
 
     //! Add a memory description item to the writer
-    void addItem(const CMemoryUsage::SMemoryUsage &item);
+    void addItem(const CMemoryUsage::SMemoryUsage& item);
 
 private:
     //! JSON writer ostream wrapper
@@ -79,7 +79,7 @@ private:
     bool m_Finalised;
 };
 
-}// core
-}// ml
+} // core
+} // ml
 
-#endif// INCLUDED_ml_core_CMemoryUsageJsonWriter_h
+#endif // INCLUDED_ml_core_CMemoryUsageJsonWriter_h

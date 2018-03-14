@@ -39,10 +39,10 @@ public:
 
 public:
     //! Compute the conjugate of \p f.
-    static void conj(TComplexVec &f);
+    static void conj(TComplexVec& f);
 
     //! Compute the Hadamard product of \p fx and \p fy.
-    static void hadamard(const TComplexVec &fx, TComplexVec &fy);
+    static void hadamard(const TComplexVec& fx, TComplexVec& fy);
 
     //! Cooley-Tukey fast DFT transform implementation.
     //!
@@ -50,11 +50,11 @@ public:
     //! idea to handle the case that the length of \p fx is not a power of 2. As
     //! such it is definitely not a highly optimized FFT implementation. It should
     //! be sufficiently fast for our needs.
-    static void fft(TComplexVec &f);
+    static void fft(TComplexVec& f);
 
     //! This uses conjugate of the conjugate of the series is the inverse DFT trick
     //! to compute this using fft.
-    static void ifft(TComplexVec &f);
+    static void ifft(TComplexVec& f);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
@@ -66,7 +66,7 @@ public:
     //!
     //! \param[in] offset The offset as a distance in \p values.
     //! \param[in] values The values for which to compute the autocorrelation.
-    static double autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec &values);
+    static double autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec& values);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
@@ -79,9 +79,9 @@ public:
     //! \param[in] values The values for which to compute autocorrelation.
     //! \param[in] result Filled in with the autocorrelations of \p values for
     //! offsets 1, 2, ..., length \p values - 1.
-    static void autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVec &result);
+    static void autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CSignal_h
+#endif // INCLUDED_ml_maths_CSignal_h

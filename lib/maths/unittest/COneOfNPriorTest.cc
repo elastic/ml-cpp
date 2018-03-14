@@ -67,8 +67,8 @@ typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPre
 typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
 typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate> CPoissonMeanConjugate;
 
-COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec &models,
-                                 const TOptionalDouble &decayRate = TOptionalDouble()) {
+COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec& models,
+                                 const TOptionalDouble& decayRate = TOptionalDouble()) {
     COneOfNPrior::TPriorPtrVec result;
     result.reserve(models.size());
     for (std::size_t i = 0u; i < models.size(); ++i) {
@@ -80,13 +80,15 @@ COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec &models,
     return result;
 }
 
-void truncateUpTo(const double &value, TDoubleVec &samples) {
+void truncateUpTo(const double& value, TDoubleVec& samples) {
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         samples[i] = std::max(samples[i], value);
     }
 }
 
-double sum(const TDoubleVec &values) { return std::accumulate(values.begin(), values.end(), 0.0); }
+double sum(const TDoubleVec& values) {
+    return std::accumulate(values.begin(), values.end(), 0.0);
+}
 
 using maths_t::E_ContinuousData;
 using maths_t::E_IntegerData;
@@ -194,17 +196,17 @@ void COneOfNPriorTest::testMultipleUpdate(void) {
     COneOfNPrior::TPriorCPtrVec models2 = filter2.models();
     CPPUNIT_ASSERT(models1.size() == models2.size());
 
-    const maths::CPoissonMeanConjugate *poisson1 =
-        dynamic_cast<const maths::CPoissonMeanConjugate *>(models1[0]);
-    const maths::CPoissonMeanConjugate *poisson2 =
-        dynamic_cast<const maths::CPoissonMeanConjugate *>(models2[0]);
+    const maths::CPoissonMeanConjugate* poisson1 =
+        dynamic_cast<const maths::CPoissonMeanConjugate*>(models1[0]);
+    const maths::CPoissonMeanConjugate* poisson2 =
+        dynamic_cast<const maths::CPoissonMeanConjugate*>(models2[0]);
     CPPUNIT_ASSERT(poisson1 && poisson2);
     CPPUNIT_ASSERT(poisson1->equalTolerance(*poisson2, equal));
 
-    const maths::CNormalMeanPrecConjugate *normal1 =
-        dynamic_cast<const maths::CNormalMeanPrecConjugate *>(models1[1]);
-    const maths::CNormalMeanPrecConjugate *normal2 =
-        dynamic_cast<const maths::CNormalMeanPrecConjugate *>(models2[1]);
+    const maths::CNormalMeanPrecConjugate* normal1 =
+        dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models1[1]);
+    const maths::CNormalMeanPrecConjugate* normal2 =
+        dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models2[1]);
     CPPUNIT_ASSERT(normal1 && normal2);
     CPPUNIT_ASSERT(normal1->equalTolerance(*normal2, equal));
 
@@ -242,8 +244,9 @@ void COneOfNPriorTest::testWeights(void) {
 
         for (std::size_t rate = 0; rate < boost::size(decayRates); ++rate) {
             // Test that the filter weights stay normalized.
-            COneOfNPrior filter(maths::COneOfNPrior(
-                clone(models, decayRates[rate]), E_ContinuousData, decayRates[rate]));
+            COneOfNPrior filter(maths::COneOfNPrior(clone(models, decayRates[rate]),
+                                                    E_ContinuousData,
+                                                    decayRates[rate]));
 
             const double mean = 20.0;
             const double variance = 3.0;
@@ -277,8 +280,9 @@ void COneOfNPriorTest::testWeights(void) {
             models.push_back(TPriorPtr(CPoissonMeanConjugate::nonInformativePrior().clone()));
             models.push_back(
                 TPriorPtr(CNormalMeanPrecConjugate::nonInformativePrior(E_IntegerData).clone()));
-            COneOfNPrior filter(maths::COneOfNPrior(
-                clone(models, decayRates[decayRate]), E_IntegerData, decayRates[decayRate]));
+            COneOfNPrior filter(maths::COneOfNPrior(clone(models, decayRates[decayRate]),
+                                                    E_IntegerData,
+                                                    decayRates[decayRate]));
 
             TUIntVec samples;
             rng.generatePoissonSamples(rate, 10000, samples);
@@ -337,10 +341,10 @@ void COneOfNPriorTest::testModels(void) {
         }
 
         COneOfNPrior::TPriorCPtrVec posteriorModels = filter.models();
-        const maths::CPoissonMeanConjugate *poissonModel =
-            dynamic_cast<const maths::CPoissonMeanConjugate *>(posteriorModels[0]);
-        const maths::CNormalMeanPrecConjugate *normalModel =
-            dynamic_cast<const maths::CNormalMeanPrecConjugate *>(posteriorModels[1]);
+        const maths::CPoissonMeanConjugate* poissonModel =
+            dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
+        const maths::CNormalMeanPrecConjugate* normalModel =
+            dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
         CPPUNIT_ASSERT(poissonModel && normalModel);
 
         LOG_DEBUG("Poisson mean = " << poissonModel->priorMean() << ", expectedMean = " << rate);
@@ -375,10 +379,10 @@ void COneOfNPriorTest::testModels(void) {
         }
 
         COneOfNPrior::TPriorCPtrVec posteriorModels = filter.models();
-        const maths::CPoissonMeanConjugate *poissonModel =
-            dynamic_cast<const maths::CPoissonMeanConjugate *>(posteriorModels[0]);
-        const maths::CNormalMeanPrecConjugate *normalModel =
-            dynamic_cast<const maths::CNormalMeanPrecConjugate *>(posteriorModels[1]);
+        const maths::CPoissonMeanConjugate* poissonModel =
+            dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
+        const maths::CNormalMeanPrecConjugate* normalModel =
+            dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
         CPPUNIT_ASSERT(poissonModel && normalModel);
 
         LOG_DEBUG("Poisson mean = " << poissonModel->priorMean() << ", expectedMean = " << rate);
@@ -702,8 +706,9 @@ void COneOfNPriorTest::testMarginalLikelihoodMean(void) {
                     }
 
                     // The error is at the precision of the numerical integration.
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedMean, filter.marginalLikelihoodMean(), 0.01 * expectedMean);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
+                                                 filter.marginalLikelihoodMean(),
+                                                 0.01 * expectedMean);
                 }
             }
         }
@@ -749,8 +754,9 @@ void COneOfNPriorTest::testMarginalLikelihoodMean(void) {
                                                               << expectedMean);
                     }
 
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedMean, filter.marginalLikelihoodMean(), 0.2 * expectedMean);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
+                                                 filter.marginalLikelihoodMean(),
+                                                 0.2 * expectedMean);
 
                     relativeError.add(::fabs(filter.marginalLikelihoodMean() - expectedMean) /
                                       expectedMean);
@@ -805,8 +811,15 @@ void COneOfNPriorTest::testMarginalLikelihoodMode(void) {
                     filter);
                 double a = means[i] - 2.0 * ::sqrt(variances[j]);
                 double b = means[i] + 2.0 * ::sqrt(variances[j]);
-                maths::CSolvers::maximize(
-                    a, b, likelihood(a), likelihood(b), likelihood, 0.0, iterations, mode, fmode);
+                maths::CSolvers::maximize(a,
+                                          b,
+                                          likelihood(a),
+                                          likelihood(b),
+                                          likelihood,
+                                          0.0,
+                                          iterations,
+                                          mode,
+                                          fmode);
 
                 LOG_DEBUG("marginalLikelihoodMode = " << filter.marginalLikelihoodMode()
                                                       << ", expectedMode = " << mode);
@@ -852,8 +865,15 @@ void COneOfNPriorTest::testMarginalLikelihoodMode(void) {
                 double a = 0.01;
                 double b =
                     boost::math::mode(logNormal) + 1.0 * boost::math::standard_deviation(logNormal);
-                maths::CSolvers::maximize(
-                    a, b, likelihood(a), likelihood(b), likelihood, 0.0, iterations, mode, fmode);
+                maths::CSolvers::maximize(a,
+                                          b,
+                                          likelihood(a),
+                                          likelihood(b),
+                                          likelihood,
+                                          0.0,
+                                          iterations,
+                                          mode,
+                                          fmode);
 
                 LOG_DEBUG("marginalLikelihoodMode = " << filter.marginalLikelihoodMode()
                                                       << ", expectedMode = " << mode);
@@ -1166,8 +1186,9 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples(void) {
         LOG_DEBUG("weights = " << core::CContainerPrinter::print(weights)
                                << ", expectedProbability = " << expectedProbability
                                << ", probability = " << probability);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            expectedProbability, probability, 1e-3 * std::max(expectedProbability, probability));
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability,
+                                     probability,
+                                     1e-3 * std::max(expectedProbability, probability));
 
         maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleCountVarianceScaleWeight);
 
@@ -1318,21 +1339,25 @@ void COneOfNPriorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *COneOfNPriorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COneOfNPriorTest");
+CppUnit::Test* COneOfNPriorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COneOfNPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testFilter",
                                                                     &COneOfNPriorTest::testFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMultipleUpdate", &COneOfNPriorTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testWeights", &COneOfNPriorTest::testWeights));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testMultipleUpdate",
+                                                  &COneOfNPriorTest::testMultipleUpdate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testWeights",
+                                                  &COneOfNPriorTest::testWeights));
     suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testModels",
                                                                     &COneOfNPriorTest::testModels));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testModelSelection", &COneOfNPriorTest::testModelSelection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihood", &COneOfNPriorTest::testMarginalLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testModelSelection",
+                                                  &COneOfNPriorTest::testModelSelection));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testMarginalLikelihood",
+                                                  &COneOfNPriorTest::testMarginalLikelihood));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testSampleMarginalLikelihood",
                                                   &COneOfNPriorTest::testSampleMarginalLikelihood));
@@ -1342,16 +1367,17 @@ CppUnit::Test *COneOfNPriorTest::suite(void) {
     suiteOfTests->addTest(
         new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testMarginalLikelihoodMode",
                                                   &COneOfNPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihoodVariance",
-        &COneOfNPriorTest::testMarginalLikelihoodVariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          COneOfNPriorTest>("COneOfNPriorTest::testMarginalLikelihoodVariance",
+                                            &COneOfNPriorTest::testMarginalLikelihoodVariance));
     suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testCdf",
                                                                     &COneOfNPriorTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testProbabilityOfLessLikelySamples",
-        &COneOfNPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testPersist", &COneOfNPriorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          COneOfNPriorTest>("COneOfNPriorTest::testProbabilityOfLessLikelySamples",
+                                            &COneOfNPriorTest::testProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COneOfNPriorTest>("COneOfNPriorTest::testPersist",
+                                                  &COneOfNPriorTest::testPersist));
 
     return suiteOfTests;
 }

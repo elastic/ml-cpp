@@ -114,7 +114,7 @@ public:
     //! need to change the signature of every factory function each
     //! time we need extra data to initialize a model.
     struct MODEL_EXPORT SModelInitializationData {
-        explicit SModelInitializationData(const TDataGathererPtr &dataGatherer);
+        explicit SModelInitializationData(const TDataGathererPtr& dataGatherer);
 
         TDataGathererPtr s_DataGatherer;
     };
@@ -127,14 +127,14 @@ public:
     //! time we need extra data to initialize a data gatherer.
     struct MODEL_EXPORT SGathererInitializationData {
         SGathererInitializationData(core_t::TTime startTime,
-                                    const std::string &partitionFieldValue,
+                                    const std::string& partitionFieldValue,
                                     unsigned int sampleOverrideCount = 0u);
 
         //! This constructor is meant to simplify unit tests
         SGathererInitializationData(const core_t::TTime startTime);
 
         core_t::TTime s_StartTime;
-        const std::string &s_PartitionFieldValue;
+        const std::string& s_PartitionFieldValue;
         unsigned int s_SampleOverrideCount;
     };
 
@@ -142,11 +142,11 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CModelFactory(const SModelParams &params);
+    CModelFactory(const SModelParams& params);
     virtual ~CModelFactory(void) = default;
 
     //! Create a copy of the factory owned by the calling code.
-    virtual CModelFactory *clone(void) const = 0;
+    virtual CModelFactory* clone(void) const = 0;
 
     //! \name Factory Methods
     //@{
@@ -154,7 +154,7 @@ public:
     //!
     //! \param[in] initData The parameters needed to initialize the model.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData) const = 0;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData) const = 0;
 
     //! Make a new model from part of a state document.
     //!
@@ -162,29 +162,29 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel *makeModel(const SModelInitializationData &initData,
-                                             core::CStateRestoreTraverser &traverser) const = 0;
+    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
+                                             core::CStateRestoreTraverser& traverser) const = 0;
 
     //! Make a new data gatherer.
     //!
     //! \param[in] initData The parameters needed to initialize the
     //! data gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const SGathererInitializationData &initData) const = 0;
+    virtual CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const = 0;
 
     //! Make a new data gatherer from part of a state document.
     //!
     //! \param[in,out] traverser A state document traverser.
     //! \param[in] partitionFieldValue The partition field value.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer *makeDataGatherer(const std::string &partitionFieldValue,
-                                            core::CStateRestoreTraverser &traverser) const = 0;
+    virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
+                                            core::CStateRestoreTraverser& traverser) const = 0;
     //@}
 
     //! \name Defaults
     //@{
     //! Get the default models to use for \p features and \p bucketLength.
-    const TFeatureMathsModelPtrPrVec &defaultFeatureModels(const TFeatureVec &features,
+    const TFeatureMathsModelPtrPrVec& defaultFeatureModels(const TFeatureVec& features,
                                                            core_t::TTime bucketLength,
                                                            double minimumSeasonalVarianceScale,
                                                            bool modelAnomalies) const;
@@ -197,11 +197,11 @@ public:
 
     //! Get the default correlate priors to use for correlated pairs of time
     //! series of \p features.
-    const TFeatureMultivariatePriorPtrPrVec &
-    defaultCorrelatePriors(const TFeatureVec &features) const;
+    const TFeatureMultivariatePriorPtrPrVec&
+    defaultCorrelatePriors(const TFeatureVec& features) const;
 
     //! Get the default models for correlations of \p features.
-    const TFeatureCorrelationsPtrPrVec &defaultCorrelates(const TFeatureVec &features) const;
+    const TFeatureCorrelationsPtrPrVec& defaultCorrelates(const TFeatureVec& features) const;
 
     //! Get the default prior to use for \p feature.
     TPriorPtr defaultPrior(model_t::EFeature feature) const;
@@ -217,14 +217,14 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams &params) const = 0;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const = 0;
 
     //! Get the default prior for multivariate \p feature.
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams &params) const = 0;
+                                                           const SModelParams& params) const = 0;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature.
@@ -232,7 +232,7 @@ public:
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorPtr defaultCorrelatePrior(model_t::EFeature feature,
-                                                        const SModelParams &params) const = 0;
+                                                        const SModelParams& params) const = 0;
 
     //! Get the default prior to use for categorical data.
     maths::CMultinomialConjugate defaultCategoricalPrior(void) const;
@@ -245,13 +245,13 @@ public:
                                             core_t::TTime bucketLength) const;
 
     //! Get the influence calculators to use for each feature in \p features.
-    const TFeatureInfluenceCalculatorCPtrPrVec &
-    defaultInfluenceCalculators(const std::string &influencerName,
-                                const TFeatureVec &features) const;
+    const TFeatureInfluenceCalculatorCPtrPrVec&
+    defaultInfluenceCalculators(const std::string& influencerName,
+                                const TFeatureVec& features) const;
     //@}
 
     //! Get the search key corresponding to this factory.
-    virtual const CSearchKey &searchKey(void) const = 0;
+    virtual const CSearchKey& searchKey(void) const = 0;
 
     //! Check if this makes the model used for a simple counting search.
     virtual bool isSimpleCount(void) const = 0;
@@ -268,17 +268,17 @@ public:
     virtual void identifier(int identifier) = 0;
 
     //! Set the record field names which will be modeled.
-    virtual void fieldNames(const std::string &partitionFieldName,
-                            const std::string &overFieldName,
-                            const std::string &byFieldName,
-                            const std::string &valueFieldName,
-                            const TStrVec &influenceFieldNames) = 0;
+    virtual void fieldNames(const std::string& partitionFieldName,
+                            const std::string& overFieldName,
+                            const std::string& byFieldName,
+                            const std::string& valueFieldName,
+                            const TStrVec& influenceFieldNames) = 0;
 
     //! Set whether the model should process missing field values.
     virtual void useNull(bool useNull) = 0;
 
     //! Set the features which will be modeled.
-    virtual void features(const TFeatureVec &features) = 0;
+    virtual void features(const TFeatureVec& features) = 0;
 
     //! Set the amount by which metric sample count is reduced for
     //! fine-grained sampling when there is latency.
@@ -344,7 +344,7 @@ public:
     void updateBucketLength(core_t::TTime length);
 
     //! Get global model configuration parameters.
-    const SModelParams &modelParams(void) const;
+    const SModelParams& modelParams(void) const;
 
     //! Get the minimum mode fraction used for initializing the models.
     double minimumModeFraction(void) const;
@@ -364,7 +364,7 @@ protected:
     //! Efficiently swap the contents of this and other.
     //!
     //! \note This only swaps the state held on this base class.
-    void swap(CModelFactory &other);
+    void swap(CModelFactory& other);
 
     //! Get a multivariate normal prior with dimension \p dimension.
     //!
@@ -372,7 +372,7 @@ protected:
     //! \param[in] params The model parameters.
     //! \warning Up to ten dimensions are supported.
     TMultivariatePriorPtr multivariateNormalPrior(std::size_t dimension,
-                                                  const SModelParams &params) const;
+                                                  const SModelParams& params) const;
 
     //! Get a multivariate multimodal prior with dimension \p dimension.
     //!
@@ -381,8 +381,8 @@ protected:
     //! \warning Up to ten dimensions are supported.
     TMultivariatePriorPtr
     multivariateMultimodalPrior(std::size_t dimension,
-                                const SModelParams &params,
-                                const maths::CMultivariatePrior &modePrior) const;
+                                const SModelParams& params,
+                                const maths::CMultivariatePrior& modePrior) const;
 
     //! Get a multivariate 1-of-n prior with dimension \p dimension.
     //!
@@ -390,22 +390,22 @@ protected:
     //! \param[in] params The model parameters.
     //! \param[in] models The component models to select between.
     TMultivariatePriorPtr multivariateOneOfNPrior(std::size_t dimension,
-                                                  const SModelParams &params,
-                                                  const TMultivariatePriorPtrVec &models) const;
+                                                  const SModelParams& params,
+                                                  const TMultivariatePriorPtrVec& models) const;
 
     //! Get the default prior for time-of-day and time-of-week modeling.
     //! This is just a mixture of normals which allows more modes than
     //! we typically do.
     //!
     //! \param[in] params The model parameters.
-    TPriorPtr timeOfDayPrior(const SModelParams &params) const;
+    TPriorPtr timeOfDayPrior(const SModelParams& params) const;
 
     //! Get the default prior for latitude and longitude modeling.
     //! This is just a mixture of correlate normals which allows more
     //! modes than we typically do.
     //!
     //! \param[in] params The model parameters.
-    TMultivariatePriorPtr latLongPrior(const SModelParams &params) const;
+    TMultivariatePriorPtr latLongPrior(const SModelParams& params) const;
 
 private:
     using TFeatureVecMathsModelMap = std::map<TFeatureVec, TFeatureMathsModelPtrPrVec>;
@@ -439,4 +439,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CModelFactory_h
+#endif // INCLUDED_ml_model_CModelFactory_h

@@ -91,12 +91,14 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
                 rng.generateUniformSamples(3, 20, 1, repeats);
 
                 maths::CPeriodicityHypothesisTests hypotheses;
-                hypotheses.initialize(
-                    bucketLength, window, window / static_cast<core_t::TTime>(repeats[0]));
+                hypotheses.initialize(bucketLength,
+                                      window,
+                                      window / static_cast<core_t::TTime>(repeats[0]));
 
                 for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
-                    hypotheses.add(
-                        time, generators[index[0]](time) + noise[(time - 10000) / bucketLength]);
+                    hypotheses.add(time,
+                                   generators[index[0]](time) +
+                                       noise[(time - 10000) / bucketLength]);
                 }
 
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
@@ -165,8 +167,9 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
                     rng.generateUniformSamples(3, 20, 1, repeats);
 
                     maths::CPeriodicityHypothesisTests hypotheses;
-                    hypotheses.initialize(
-                        bucketLength, window, window / static_cast<core_t::TTime>(repeats[0]));
+                    hypotheses.initialize(bucketLength,
+                                          window,
+                                          window / static_cast<core_t::TTime>(repeats[0]));
 
                     for (core_t::TTime time = 10000; time < 10000 + window; time += bucketLength) {
                         hypotheses.add(time,
@@ -379,16 +382,21 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
 
             for (std::size_t j = 0u; j < bucketLengths.size(); ++j) {
                 core_t::TTime bucketLength{bucketLengths[j]};
-                core_t::TTime period{maths::CIntegerTools::floor(
-                    static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
+                core_t::TTime period{
+                    maths::CIntegerTools::floor(static_cast<core_t::TTime>(
+                                                    static_cast<double>(DAY) / scaling),
+                                                bucketLength)};
                 scaling = static_cast<double>(DAY) / static_cast<double>(period);
                 if (scaling == 1.0 || window < 3 * period) {
                     continue;
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(
-                    core::CStringUtils::typeToString(period), false, 0, period, {0, period});
+                expected.add(core::CStringUtils::typeToString(period),
+                             false,
+                             0,
+                             period,
+                             {0, period});
 
                 switch (test % 3) {
                     case 0:
@@ -584,16 +592,21 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
 
             for (std::size_t j = 0u; j < bucketLengths.size(); ++j) {
                 core_t::TTime bucketLength{bucketLengths[j]};
-                core_t::TTime period{maths::CIntegerTools::floor(
-                    static_cast<core_t::TTime>(static_cast<double>(DAY) / scaling), bucketLength)};
+                core_t::TTime period{
+                    maths::CIntegerTools::floor(static_cast<core_t::TTime>(
+                                                    static_cast<double>(DAY) / scaling),
+                                                bucketLength)};
                 scaling = static_cast<double>(DAY) / static_cast<double>(period);
                 if (scaling == 1.0 || window < 3 * period) {
                     continue;
                 }
 
                 maths::CPeriodicityHypothesisTestsResult expected;
-                expected.add(
-                    core::CStringUtils::typeToString(period), false, 0, period, {0, period});
+                expected.add(core::CStringUtils::typeToString(period),
+                             false,
+                             0,
+                             period,
+                             {0, period});
 
                 switch (test % 3) {
                     case 0:
@@ -654,24 +667,29 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
     CPPUNIT_ASSERT(TP[2] / (TP[2] + FN[2]) > 0.99);
 }
 
-CppUnit::Test *CPeriodicityHypothesisTestsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
+CppUnit::Test* CPeriodicityHypothesisTestsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPeriodicityHypothesisTestsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
-        "CPeriodicityHypothesisTestsTest::testNonPeriodic",
-        &CPeriodicityHypothesisTestsTest::testNonPeriodic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
-        "CPeriodicityHypothesisTestsTest::testDiurnal",
-        &CPeriodicityHypothesisTestsTest::testDiurnal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
-        "CPeriodicityHypothesisTestsTest::testNonDiurnal",
-        &CPeriodicityHypothesisTestsTest::testNonDiurnal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
-        "CPeriodicityHypothesisTestsTest::testWithSparseData",
-        &CPeriodicityHypothesisTestsTest::testWithSparseData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPeriodicityHypothesisTestsTest>(
-        "CPeriodicityHypothesisTestsTest::testTestForPeriods",
-        &CPeriodicityHypothesisTestsTest::testTestForPeriods));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testNonPeriodic",
+                                             &CPeriodicityHypothesisTestsTest::testNonPeriodic));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testDiurnal",
+                                             &CPeriodicityHypothesisTestsTest::testDiurnal));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testNonDiurnal",
+                                             &CPeriodicityHypothesisTestsTest::testNonDiurnal));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testWithSparseData",
+                                             &CPeriodicityHypothesisTestsTest::testWithSparseData));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CPeriodicityHypothesisTestsTest>("CPeriodicityHypothesisTestsTest::testTestForPeriods",
+                                             &CPeriodicityHypothesisTestsTest::testTestForPeriods));
 
     return suiteOfTests;
 }

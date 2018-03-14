@@ -30,13 +30,13 @@ namespace config {
 class CONFIG_EXPORT CTools {
 public:
     //! Get a 32 bit integer category corresponding to \p value.
-    static uint32_t category32(const std::string &value);
+    static uint32_t category32(const std::string& value);
 
     //! Get a 32 bit integer category corresponding to \p category64.
     static uint32_t category32(std::size_t category64);
 
     //! Get a 64 bit integer identifier corresponding to \p value.
-    static std::size_t category64(const std::string &value);
+    static std::size_t category64(const std::string& value);
 
     //! Linearly interpolate the penalties (a, p(a)) and (b, p(b))
     //! at x.
@@ -59,4 +59,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_config_CTools_h
+#endif // INCLUDED_ml_config_CTools_h

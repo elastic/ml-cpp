@@ -25,7 +25,7 @@ public:
     void testForecast();
     void testPersist();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTrendComponentTest_h
+#endif // INCLUDED_CTrendComponentTest_h

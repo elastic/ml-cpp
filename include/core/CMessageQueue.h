@@ -64,14 +64,15 @@ namespace core {
 //! that timing code can be completely compiled out when
 //! not required.
 //!
-template <typename MESSAGE, typename RECEIVER, size_t NUM_TO_TIME = 0> class CMessageQueue {
+template <typename MESSAGE, typename RECEIVER, size_t NUM_TO_TIME = 0>
+class CMessageQueue {
 public:
     //! Prototype for function to be called on queue shutdown
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CMessageQueue(RECEIVER &receiver,
-                  const TShutdownFunc &shutdownFunc = &CMessageQueue::defaultShutdownFunc)
+    CMessageQueue(RECEIVER& receiver,
+                  const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
         : m_Thread(*this),
           m_Condition(m_Mutex),
           m_Receiver(receiver),
@@ -105,14 +106,14 @@ public:
     }
 
     //! Send a message to the message queue thread (from any thread)
-    void dispatchMsg(const MESSAGE &msg) {
+    void dispatchMsg(const MESSAGE& msg) {
         size_t dummy(0);
         this->dispatchMsg(msg, dummy);
     }
 
     //! Send a message to the message queue thread (from any thread),
     //! and get the pending count at the same time
-    void dispatchMsg(const MESSAGE &msg, size_t &pending) {
+    void dispatchMsg(const MESSAGE& msg, size_t& pending) {
         CScopedLock lock(m_Mutex);
 
         if (!m_Thread.isRunning()) {
@@ -177,7 +178,7 @@ private:
 private:
     class CMessageQueueThread : public CThread {
     public:
-        CMessageQueueThread(CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME> &messageQueue)
+        CMessageQueueThread(CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME>& messageQueue)
             : m_MessageQueue(messageQueue), m_ShuttingDown(false), m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
@@ -203,7 +204,7 @@ private:
                         m_MessageQueue.m_StopWatch.start();
                     }
 
-                    MESSAGE &msg = m_MessageQueue.m_Queue.front();
+                    MESSAGE& msg = m_MessageQueue.m_Queue.front();
 
                     // Don't include the current work item in the backlog
                     size_t backlog(m_MessageQueue.m_Queue.size() - 1);
@@ -253,7 +254,8 @@ private:
         //! so ideally we'll clean up the MESSAGE object as much as
         //! possible outside the lock.  This is the most generic case,
         //! where we can't do anything.
-        template <typename ANYTHING> void destroyMsgDataUnlocked(ANYTHING &) {
+        template <typename ANYTHING>
+        void destroyMsgDataUnlocked(ANYTHING&) {
             // For an arbitrary type we have no idea how to destroy some
             // of its data without calling its destructor
         }
@@ -261,14 +263,15 @@ private:
         //! Specialisation of the above that might delete the referenced
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
-        template <typename POINTEE> void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE> &ptr) {
+        template <typename POINTEE>
+        void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }
 
         // Other specialisations could potentially be added here
 
     private:
-        CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME> &m_MessageQueue;
+        CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME>& m_MessageQueue;
         bool m_ShuttingDown;
         bool m_IsRunning;
     };
@@ -276,7 +279,7 @@ private:
     CMessageQueueThread m_Thread;
     mutable CMutex m_Mutex;
     CCondition m_Condition;
-    RECEIVER &m_Receiver;
+    RECEIVER& m_Receiver;
 
     typedef std::queue<MESSAGE> TMessageQueue;
 
@@ -298,4 +301,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CMessageQueue_h
+#endif // INCLUDED_ml_core_CMessageQueue_h

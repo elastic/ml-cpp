@@ -19,7 +19,7 @@
 namespace ml {
 namespace api {
 
-CSingleStreamSearcher::CSingleStreamSearcher(const TIStreamP &stream) : m_Stream(stream) {}
+CSingleStreamSearcher::CSingleStreamSearcher(const TIStreamP& stream) : m_Stream(stream) {}
 
 CSingleStreamSearcher::TIStreamP CSingleStreamSearcher::search(size_t /*currentDocNum*/,
                                                                size_t /*limit*/) {

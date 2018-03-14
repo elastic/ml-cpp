@@ -71,7 +71,7 @@ public:
     CEventData(void);
 
     //! Efficiently swap the contents with \p other.
-    void swap(CEventData &other);
+    void swap(CEventData& other);
 
     //! Reset to uninitialized state.
     void clear(void);
@@ -88,19 +88,19 @@ public:
     void addAttribute(TOptionalSize cid = TOptionalSize());
 
     //! Add a function argument metric statistic value.
-    void addValue(const TDouble1Vec &value = TDouble1Vec());
+    void addValue(const TDouble1Vec& value = TDouble1Vec());
 
     //! Set the function argument string value.
-    void stringValue(const std::string &value);
+    void stringValue(const std::string& value);
 
     //! Add an influencing field value.
-    void addInfluence(const TOptionalStr &influence);
+    void addInfluence(const TOptionalStr& influence);
 
     //! Add a count only statistic.
     void addCountStatistic(size_t count);
 
     //! Add metric statistics.
-    void addStatistics(const TDouble1VecArraySizePr &statistics);
+    void addStatistics(const TDouble1VecArraySizePr& statistics);
 
     //! Get the event time.
     core_t::TTime time(void) const;
@@ -112,13 +112,13 @@ public:
     TOptionalSize attributeId(void) const;
 
     //! Get the function argument metric statistic value(s).
-    const TDouble1VecArray &values(void) const;
+    const TDouble1VecArray& values(void) const;
 
     //! Get the function argument string value.
-    const TOptionalStr &stringValue(void) const;
+    const TOptionalStr& stringValue(void) const;
 
     //! Get the influencing field values.
-    const TOptionalStrVec &influences(void) const;
+    const TOptionalStrVec& influences(void) const;
 
     //! Sets the data to be explicit null
     void setExplicitNull(void);
@@ -137,7 +137,7 @@ private:
     TOptionalSize attributeId(std::size_t i) const;
 
     //! Read the \p i'th statistic value(s).
-    const TDouble1VecArray &values(std::size_t i) const;
+    const TDouble1VecArray& values(std::size_t i) const;
 
     //! Read the \p i'th statistic count.
     TOptionalSize count(std::size_t i) const;
@@ -161,4 +161,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CEventData_h
+#endif // INCLUDED_ml_model_CEventData_h

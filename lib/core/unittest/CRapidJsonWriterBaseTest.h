@@ -22,7 +22,7 @@ public:
     void testAddFields(void);
     void testRemoveMemberIfPresent(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRapidJsonWriterBaseTest_h
+#endif // INCLUDED_CRapidJsonWriterBaseTest_h

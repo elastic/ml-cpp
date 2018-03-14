@@ -69,14 +69,14 @@ const std::string EMPTY_STRING;
 //! \brief Checks that we visit the nodes in decreasing depth order.
 class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
 public:
-    typedef std::set<const TNode *> TNodeCPtrSet;
+    typedef std::set<const TNode*> TNodeCPtrSet;
     typedef std::vector<TNodeCPtrSet> TNodeCPtrSetVec;
 
 public:
     CBreadthFirstCheck(void) : m_Layer(0), m_Layers(1, TNodeCPtrSet()) {}
 
     virtual void
-    visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool /*pivot*/) {
+    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         LOG_DEBUG("Visiting " << node.print());
 
         if (node.s_Children.empty()) {
@@ -127,7 +127,7 @@ public:
 
 private:
     //! Get a node's layer.
-    std::size_t layer(const TNode *node) const {
+    std::size_t layer(const TNode* node) const {
         for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
             if (m_Layers[i].count(node) > 0) {
                 return i;
@@ -149,11 +149,11 @@ private:
 //! before visiting it.
 class CDepthFirstCheck : public model::CHierarchicalResultsVisitor {
 public:
-    typedef std::vector<const TNode *> TNodeCPtrVec;
+    typedef std::vector<const TNode*> TNodeCPtrVec;
 
 public:
     virtual void
-    visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool /*pivot*/) {
+    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         LOG_DEBUG("Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
             CPPUNIT_ASSERT(!m_Children.empty());
@@ -175,7 +175,7 @@ public:
     CPrinter(bool shouldOnlyPrintWrittenNodes)
         : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
-    virtual void visit(const model::CHierarchicalResults &results, const TNode &node, bool pivot) {
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
         if (m_ShouldPrintWrittenNodesOnly == false ||
             shouldWriteResult(m_Limits, results, node, pivot)) {
             m_Result = std::string(2 * depth(&node), ' ') + node.print() + (pivot ? " pivot" : "") +
@@ -183,10 +183,10 @@ public:
         }
     }
 
-    const std::string &result(void) const { return m_Result; }
+    const std::string& result(void) const { return m_Result; }
 
 private:
-    std::size_t depth(const TNode *node) const {
+    std::size_t depth(const TNode* node) const {
         std::size_t result = 0u;
         for (/**/; node->s_Parent; node = node->s_Parent) {
             ++result;
@@ -203,11 +203,11 @@ private:
 //! \brief Gets the various types of nodes.
 class CNodeExtractor : public model::CHierarchicalResultsVisitor {
 public:
-    typedef std::vector<const TNode *> TNodeCPtrVec;
+    typedef std::vector<const TNode*> TNodeCPtrVec;
 
 public:
     virtual void
-    visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool /*pivot*/) {
+    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         if (this->isPartitioned(node)) {
             m_PartitionedNodes.push_back(&node);
         }
@@ -222,10 +222,10 @@ public:
         }
     }
 
-    const TNodeCPtrVec &partitionedNodes(void) const { return m_PartitionedNodes; }
-    const TNodeCPtrVec &partitionNodes(void) const { return m_PartitionNodes; }
-    const TNodeCPtrVec &personNodes(void) const { return m_PersonNodes; }
-    const TNodeCPtrVec &leafNodes(void) const { return m_LeafNodes; }
+    const TNodeCPtrVec& partitionedNodes(void) const { return m_PartitionedNodes; }
+    const TNodeCPtrVec& partitionNodes(void) const { return m_PartitionNodes; }
+    const TNodeCPtrVec& personNodes(void) const { return m_PersonNodes; }
+    const TNodeCPtrVec& leafNodes(void) const { return m_LeafNodes; }
 
 private:
     TNodeCPtrVec m_PartitionedNodes;
@@ -238,12 +238,13 @@ private:
 class CCheckScores : public model::CHierarchicalResultsVisitor {
 public:
     virtual void
-    visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool /*pivot*/) {
+    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
         LOG_DEBUG(node.s_Spec.print()
                   << " score = " << node.s_RawAnomalyScore
                   << ", expected score = " << maths::CTools::deviation(node.probability()));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            maths::CTools::deviation(node.probability()), node.s_RawAnomalyScore, 1e-10);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::deviation(node.probability()),
+                                     node.s_RawAnomalyScore,
+                                     1e-10);
     }
 };
 
@@ -252,9 +253,9 @@ public:
 //! there are any children).
 class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
 public:
-    CWriteConsistencyChecker(const model::CLimits &limits) : m_Limits(limits) {}
+    CWriteConsistencyChecker(const model::CLimits& limits) : m_Limits(limits) {}
 
-    virtual void visit(const model::CHierarchicalResults &results, const TNode &node, bool pivot) {
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
         if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
             return;
         }
@@ -280,7 +281,7 @@ public:
     }
 
 private:
-    const model::CLimits &m_Limits;
+    const model::CLimits& m_Limits;
 };
 
 typedef std::map<int, TDoubleVec> TIntDoubleVecMap;
@@ -288,7 +289,7 @@ typedef TIntDoubleVecMap::const_iterator TIntDoubleVecMapCItr;
 
 //! \brief Node probability container.
 struct SNodeProbabilities {
-    SNodeProbabilities(const std::string &name) : s_Name(name) {}
+    SNodeProbabilities(const std::string& name) : s_Name(name) {}
 
     std::string s_Name;
     TIntDoubleVecMap s_Probabilities;
@@ -302,25 +303,25 @@ public:
 
     class CFactory {
     public:
-        SNodeProbabilities make(const std::string &name1,
-                                const std::string &name2,
-                                const std::string &name3,
-                                const std::string &name4) const {
+        SNodeProbabilities make(const std::string& name1,
+                                const std::string& name2,
+                                const std::string& name3,
+                                const std::string& name4) const {
             return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
         }
 
-        SNodeProbabilities make(const std::string &name1, const std::string &name2) const {
+        SNodeProbabilities make(const std::string& name1, const std::string& name2) const {
             return make(name1 + ' ' + name2);
         }
 
-        SNodeProbabilities make(const std::string &name) const { return SNodeProbabilities(name); }
+        SNodeProbabilities make(const std::string& name) const { return SNodeProbabilities(name); }
     };
 
 public:
     CProbabilityGatherer(void) : TBase(SNodeProbabilities("bucket")) {}
 
     virtual void
-    visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool pivot) {
+    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool pivot) {
         if (isLeaf(node)) {
             CFactory factory;
             TNodeProbabilitiesPtrVec probabilities;
@@ -339,7 +340,7 @@ public:
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanSignificance;
 
         for (std::size_t i = 0u; i < this->leafSet().size(); ++i) {
-            const SNodeProbabilities &probabilities = this->leafSet()[i].second;
+            const SNodeProbabilities& probabilities = this->leafSet()[i].second;
             LOG_DEBUG("leaf = " << probabilities.s_Name);
 
             std::vector<int> detectors;
@@ -351,9 +352,9 @@ public:
 
             for (std::size_t j = 1u; j < detectors.size(); ++j) {
                 for (std::size_t k = 0u; k < j; ++k) {
-                    double significance = maths::CStatisticalTests::twoSampleKS(
-                        probabilities.s_Probabilities.find(detectors[j])->second,
-                        probabilities.s_Probabilities.find(detectors[k])->second);
+                    double significance = maths::CStatisticalTests::
+                        twoSampleKS(probabilities.s_Probabilities.find(detectors[j])->second,
+                                    probabilities.s_Probabilities.find(detectors[k])->second);
                     LOG_DEBUG(detectors[j] << " vs " << detectors[k]
                                            << ": significance = " << significance);
                     CPPUNIT_ASSERT(significance > minimumSignificance);
@@ -370,7 +371,7 @@ public:
 class CWriterFunc {
 public:
     bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode &node,
+                    const ml::model::CHierarchicalResults::TNode& node,
                     bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability()
@@ -386,8 +387,8 @@ void addAggregateValues(double w1,
                         std::size_t n,
                         ITR begin,
                         ITR end,
-                        TDoubleVec &scores,
-                        TDoubleVec &probabilities) {
+                        TDoubleVec& scores,
+                        TDoubleVec& probabilities) {
     double score, probability;
     TDoubleVec probs(begin, end);
     model::CAnomalyScore::compute(w1, w2, 1, n, 0.05, probs, score, probability);
@@ -397,15 +398,15 @@ void addAggregateValues(double w1,
 
 void addResult(int detector,
                bool isPopulation,
-               const std::string &functionName,
+               const std::string& functionName,
                ml::model::function_t::EFunction function,
-               const std::string &partitionFieldName,
-               const std::string &partitionFieldValue,
-               const std::string &personFieldName,
-               const std::string &personFieldValue,
-               const std::string &valueFieldName,
+               const std::string& partitionFieldName,
+               const std::string& partitionFieldValue,
+               const std::string& personFieldName,
+               const std::string& personFieldValue,
+               const std::string& valueFieldName,
                double p,
-               ml::model::CHierarchicalResults &results) {
+               ml::model::CHierarchicalResults& results) {
     ml::model::SAnnotatedProbability annotatedProbability(p);
     results.addModelResult(detector,
                            isPopulation,
@@ -421,16 +422,16 @@ void addResult(int detector,
 
 void addResult(int detector,
                bool isPopulation,
-               const std::string &functionName,
+               const std::string& functionName,
                ml::model::function_t::EFunction function,
-               const std::string &partitionFieldName,
-               const std::string &partitionFieldValue,
-               const std::string &personFieldName,
-               const std::string &personFieldValue,
-               const std::string &valueFieldName,
+               const std::string& partitionFieldName,
+               const std::string& partitionFieldValue,
+               const std::string& personFieldName,
+               const std::string& personFieldValue,
+               const std::string& valueFieldName,
                double p,
-               const ml::model::CAnomalyDetectorModel *model,
-               ml::model::CHierarchicalResults &results) {
+               const ml::model::CAnomalyDetectorModel* model,
+               ml::model::CHierarchicalResults& results) {
     ml::model::SAnnotatedProbability annotatedProbability(p);
     results.addModelResult(detector,
                            isPopulation,
@@ -445,7 +446,7 @@ void addResult(int detector,
                            model);
 }
 
-}// unnamed::
+} // unnamed::
 
 void CHierarchicalResultsTest::testBreadthFirstVisit(void) {
     LOG_DEBUG("*** testBreadthFirstVisit ***");
@@ -618,7 +619,7 @@ const std::string p33("p33");
 const std::string p34("p34");
 const std::string p35("p35");
 
-}// unnamed::
+} // unnamed::
 
 void CHierarchicalResultsTest::testBuildHierarchy(void) {
     LOG_DEBUG("*** testBuildHierarchy ***");
@@ -1283,11 +1284,29 @@ void CHierarchicalResultsTest::testBasicVisitor(void) {
                   EMPTY_STRING,
                   1.0,
                   results);
-        addResult(
-            4, true, FUNC, function, PNF1, EMPTY_STRING, PF1, p11, EMPTY_STRING, 0.2, results);
+        addResult(4,
+                  true,
+                  FUNC,
+                  function,
+                  PNF1,
+                  EMPTY_STRING,
+                  PF1,
+                  p11,
+                  EMPTY_STRING,
+                  0.2,
+                  results);
         addResult(4, true, FUNC, function, PNF1, pn11, PF1, p11, EMPTY_STRING, 0.3, results);
-        addResult(
-            5, true, FUNC, function, PNF1, pn12, PF2, EMPTY_STRING, EMPTY_STRING, 0.01, results);
+        addResult(5,
+                  true,
+                  FUNC,
+                  function,
+                  PNF1,
+                  pn12,
+                  PF2,
+                  EMPTY_STRING,
+                  EMPTY_STRING,
+                  0.01,
+                  results);
         addResult(6,
                   true,
                   FUNC,
@@ -1354,12 +1373,21 @@ void CHierarchicalResultsTest::testAggregator(void) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
-    model::CAnomalyScore::CComputer attributeComputer(
-        0.5, 0.5, 1, 5, modelConfig.maximumAnomalousProbability());
-    model::CAnomalyScore::CComputer personComputer(
-        0.0, 1.0, 1, 1, modelConfig.maximumAnomalousProbability());
-    model::CAnomalyScore::CComputer partitionComputer(
-        0.0, 1.0, 1, 1, modelConfig.maximumAnomalousProbability());
+    model::CAnomalyScore::CComputer attributeComputer(0.5,
+                                                      0.5,
+                                                      1,
+                                                      5,
+                                                      modelConfig.maximumAnomalousProbability());
+    model::CAnomalyScore::CComputer personComputer(0.0,
+                                                   1.0,
+                                                   1,
+                                                   1,
+                                                   modelConfig.maximumAnomalousProbability());
+    model::CAnomalyScore::CComputer partitionComputer(0.0,
+                                                      1.0,
+                                                      1,
+                                                      1,
+                                                      modelConfig.maximumAnomalousProbability());
     double score = 0.0;
     double probability = 1.0;
     static const std::string FUNC("max");
@@ -1595,12 +1623,27 @@ void CHierarchicalResultsTest::testAggregator(void) {
         maths::COrderings::simultaneousSort(probabilities, scores);
         TDoubleVec expectedScores;
         TDoubleVec expectedProbabilities;
-        addAggregateValues(
-            0.5, 0.5, 5, boost::begin(rp1), boost::end(rp1), expectedScores, expectedProbabilities);
-        addAggregateValues(
-            0.5, 0.5, 5, boost::begin(rp2), boost::end(rp2), expectedScores, expectedProbabilities);
-        addAggregateValues(
-            0.5, 0.5, 5, boost::begin(rp3), boost::end(rp3), expectedScores, expectedProbabilities);
+        addAggregateValues(0.5,
+                           0.5,
+                           5,
+                           boost::begin(rp1),
+                           boost::end(rp1),
+                           expectedScores,
+                           expectedProbabilities);
+        addAggregateValues(0.5,
+                           0.5,
+                           5,
+                           boost::begin(rp2),
+                           boost::end(rp2),
+                           expectedScores,
+                           expectedProbabilities);
+        addAggregateValues(0.5,
+                           0.5,
+                           5,
+                           boost::begin(rp3),
+                           boost::end(rp3),
+                           expectedScores,
+                           expectedProbabilities);
         maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
         LOG_DEBUG("expectedScores = " << core::CContainerPrinter::print(expectedScores));
         LOG_DEBUG("scores         = " << core::CContainerPrinter::print(scores));
@@ -1681,16 +1724,20 @@ void CHierarchicalResultsTest::testInfluence(void) {
     // Test by.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i2),
+                                                      1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      1.0));
 
         model::CHierarchicalResults results;
         results.addModelResult(1,
@@ -1746,36 +1793,83 @@ void CHierarchicalResultsTest::testInfluence(void) {
     // Test complex.
     {
         model::SAnnotatedProbability annotatedProbability1(0.22);
-        annotatedProbability1.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
+        annotatedProbability1.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.6));
         model::SAnnotatedProbability annotatedProbability2(0.003);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.9));
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.9));
+        annotatedProbability2.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i2),
+                                                      1.0));
         model::SAnnotatedProbability annotatedProbability3(0.01);
-        annotatedProbability3.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability3.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      1.0));
         model::SAnnotatedProbability annotatedProbability4(0.03);
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.6));
-        annotatedProbability4.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 0.8));
+        annotatedProbability4.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.6));
+        annotatedProbability4.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i2),
+                                                      0.8));
         model::SAnnotatedProbability annotatedProbability5(0.56);
-        annotatedProbability5.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 0.8));
+        annotatedProbability5.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      0.8));
 
         model::CHierarchicalResults results;
-        results.addModelResult(
-            1, true, FUNC, function, PNF1, pn11, PF1, p11, EMPTY_STRING, annotatedProbability1);
-        results.addModelResult(
-            1, true, FUNC, function, PNF1, pn12, PF1, p12, EMPTY_STRING, annotatedProbability2);
-        results.addModelResult(
-            2, false, FUNC, function, PNF2, pn21, PF1, p13, EMPTY_STRING, annotatedProbability3);
-        results.addModelResult(
-            2, false, FUNC, function, PNF2, pn22, PF1, p12, EMPTY_STRING, annotatedProbability4);
-        results.addModelResult(
-            2, false, FUNC, function, PNF2, pn23, PF1, p12, EMPTY_STRING, annotatedProbability5);
+        results.addModelResult(1,
+                               true,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p11,
+                               EMPTY_STRING,
+                               annotatedProbability1);
+        results.addModelResult(1,
+                               true,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn12,
+                               PF1,
+                               p12,
+                               EMPTY_STRING,
+                               annotatedProbability2);
+        results.addModelResult(2,
+                               false,
+                               FUNC,
+                               function,
+                               PNF2,
+                               pn21,
+                               PF1,
+                               p13,
+                               EMPTY_STRING,
+                               annotatedProbability3);
+        results.addModelResult(2,
+                               false,
+                               FUNC,
+                               function,
+                               PNF2,
+                               pn22,
+                               PF1,
+                               p12,
+                               EMPTY_STRING,
+                               annotatedProbability4);
+        results.addModelResult(2,
+                               false,
+                               FUNC,
+                               function,
+                               PNF2,
+                               pn23,
+                               PF1,
+                               p12,
+                               EMPTY_STRING,
+                               annotatedProbability5);
         results.buildHierarchy();
         results.bottomUpBreadthFirst(aggregator);
         results.createPivots();
@@ -1805,8 +1899,9 @@ void CHierarchicalResultsTest::testInfluence(void) {
     // Test high probability records are written due to low probability influencer
     {
         model::SAnnotatedProbability annotatedProbability1Low(0.06);
-        annotatedProbability1Low.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i1), 1.0));
+        annotatedProbability1Low.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i1),
+                                                      1.0));
         model::SAnnotatedProbability annotatedProbability1High(0.8);
         model::SAnnotatedProbability annotatedProbability11 = annotatedProbability1Low;
         model::SAnnotatedProbability annotatedProbability12 = annotatedProbability1High;
@@ -1815,23 +1910,72 @@ void CHierarchicalResultsTest::testInfluence(void) {
         model::SAnnotatedProbability annotatedProbability15 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability16 = annotatedProbability1High;
         model::SAnnotatedProbability annotatedProbability2(0.001);
-        annotatedProbability2.s_Influences.push_back(TStoredStringPtrStoredStringPtrPrDoublePr(
-            TStoredStringPtrStoredStringPtrPr(I, i2), 1.0));
+        annotatedProbability2.s_Influences.push_back(
+            TStoredStringPtrStoredStringPtrPrDoublePr(TStoredStringPtrStoredStringPtrPr(I, i2),
+                                                      1.0));
 
         model::CHierarchicalResults results;
         results.addInfluencer(*I);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p11, EMPTY_STRING, annotatedProbability11);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p12, EMPTY_STRING, annotatedProbability12);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p13, EMPTY_STRING, annotatedProbability13);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p14, EMPTY_STRING, annotatedProbability14);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p15, EMPTY_STRING, annotatedProbability15);
-        results.addModelResult(
-            1, false, FUNC, function, PNF1, pn11, PF1, p16, EMPTY_STRING, annotatedProbability16);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p11,
+                               EMPTY_STRING,
+                               annotatedProbability11);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p12,
+                               EMPTY_STRING,
+                               annotatedProbability12);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p13,
+                               EMPTY_STRING,
+                               annotatedProbability13);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p14,
+                               EMPTY_STRING,
+                               annotatedProbability14);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p15,
+                               EMPTY_STRING,
+                               annotatedProbability15);
+        results.addModelResult(1,
+                               false,
+                               FUNC,
+                               function,
+                               PNF1,
+                               pn11,
+                               PF1,
+                               p16,
+                               EMPTY_STRING,
+                               annotatedProbability16);
         results.addModelResult(1,
                                false,
                                FUNC,
@@ -2212,22 +2356,23 @@ void CHierarchicalResultsTest::testWriter(void) {
         typedef model::CDataGatherer::TStrCPtrVec TStrCPtrVec;
         model::SModelParams params(modelConfig.bucketLength());
         model::CSearchKey key;
-        model::CAnomalyDetectorModel::TDataGathererPtr dataGatherer(new model::CDataGatherer(
-            model_t::E_EventRate,
-            model_t::E_None,
-            params,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            TStrVec(),
-            false,
-            key,
-            model_t::TFeatureVec(1, model_t::E_IndividualCountByBucketAndPerson),
-            modelConfig.bucketLength(),
-            0));
+        model::CAnomalyDetectorModel::TDataGathererPtr dataGatherer(
+            new model::
+                CDataGatherer(model_t::E_EventRate,
+                              model_t::E_None,
+                              params,
+                              EMPTY_STRING,
+                              EMPTY_STRING,
+                              EMPTY_STRING,
+                              EMPTY_STRING,
+                              EMPTY_STRING,
+                              EMPTY_STRING,
+                              TStrVec(),
+                              false,
+                              key,
+                              model_t::TFeatureVec(1, model_t::E_IndividualCountByBucketAndPerson),
+                              modelConfig.bucketLength(),
+                              0));
         model::CEventData dummy;
         dataGatherer->addArrival(TStrCPtrVec(1, &EMPTY_STRING), dummy, resourceMonitor);
         dummy.clear();
@@ -2338,20 +2483,90 @@ void CHierarchicalResultsTest::testWriter(void) {
                   0.005,
                   &model,
                   results);
-        addResult(
-            5, true, FUNC, function, PNF2, pn21, PF1, p11, EMPTY_STRING, 0.008, &model, results);
-        addResult(
-            5, true, FUNC, function, PNF2, pn22, PF1, p11, EMPTY_STRING, 0.009, &model, results);
-        addResult(
-            5, true, FUNC, function, PNF2, pn22, PF1, p12, EMPTY_STRING, 0.01, &model, results);
-        addResult(
-            6, true, FUNC, function, PNF2, pn22, PF2, p21, EMPTY_STRING, 0.007, &model, results);
-        addResult(
-            7, false, FUNC, function, PNF2, pn22, PF2, p21, EMPTY_STRING, 0.006, &model, results);
-        addResult(
-            6, true, FUNC, function, PNF2, pn22, PF2, p23, EMPTY_STRING, 0.004, &model, results);
-        addResult(
-            7, false, FUNC, function, PNF2, pn22, PF2, p23, EMPTY_STRING, 0.003, &model, results);
+        addResult(5,
+                  true,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn21,
+                  PF1,
+                  p11,
+                  EMPTY_STRING,
+                  0.008,
+                  &model,
+                  results);
+        addResult(5,
+                  true,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF1,
+                  p11,
+                  EMPTY_STRING,
+                  0.009,
+                  &model,
+                  results);
+        addResult(5,
+                  true,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF1,
+                  p12,
+                  EMPTY_STRING,
+                  0.01,
+                  &model,
+                  results);
+        addResult(6,
+                  true,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF2,
+                  p21,
+                  EMPTY_STRING,
+                  0.007,
+                  &model,
+                  results);
+        addResult(7,
+                  false,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF2,
+                  p21,
+                  EMPTY_STRING,
+                  0.006,
+                  &model,
+                  results);
+        addResult(6,
+                  true,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF2,
+                  p23,
+                  EMPTY_STRING,
+                  0.004,
+                  &model,
+                  results);
+        addResult(7,
+                  false,
+                  FUNC,
+                  function,
+                  PNF2,
+                  pn22,
+                  PF2,
+                  p23,
+                  EMPTY_STRING,
+                  0.003,
+                  &model,
+                  results);
         results.buildHierarchy();
         results.bottomUpBreadthFirst(aggregator);
         CPrinter printer;
@@ -2367,7 +2582,7 @@ void CHierarchicalResultsTest::testNormalizer(void) {
     typedef boost::shared_ptr<model::CAnomalyScore::CNormalizer> TNormalizerPtr;
     typedef std::map<std::string, TNormalizerPtr> TStrNormalizerPtrMap;
     typedef TStrNormalizerPtrMap::iterator TStrNormalizerPtrMapItr;
-    typedef std::set<const model::CHierarchicalResultsVisitor::TNode *> TNodeCPtrSet;
+    typedef std::set<const model::CHierarchicalResultsVisitor::TNode*> TNodeCPtrSet;
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -2393,8 +2608,10 @@ void CHierarchicalResultsTest::testNormalizer(void) {
                                      {"4", FALSE_STR, PNF2, pn22, PF1, p12, EMPTY_STRING},
                                      {"4", FALSE_STR, PNF2, pn23, PF1, p13, EMPTY_STRING}};
     TStrNormalizerPtrMap expectedNormalizers;
-    expectedNormalizers.insert(TStrNormalizerPtrMap::value_type(
-        std::string("r"), TNormalizerPtr(new model::CAnomalyScore::CNormalizer(modelConfig))));
+    expectedNormalizers.insert(
+        TStrNormalizerPtrMap::value_type(std::string("r"),
+                                         TNormalizerPtr(
+                                             new model::CAnomalyScore::CNormalizer(modelConfig))));
     test::CRandomNumbers rng;
 
     for (std::size_t i = 0u; i < 300; ++i) {
@@ -2437,11 +2654,13 @@ void CHierarchicalResultsTest::testNormalizer(void) {
                               *extract.leafNodes()[j]->s_Spec.s_PersonFieldName;
             TStrNormalizerPtrMapItr itr = expectedNormalizers.find(key);
             if (itr == expectedNormalizers.end()) {
-                itr = expectedNormalizers
-                          .insert(TStrNormalizerPtrMap::value_type(
-                              key,
-                              TNormalizerPtr(new model::CAnomalyScore::CNormalizer(modelConfig))))
-                          .first;
+                itr =
+                    expectedNormalizers
+                        .insert(TStrNormalizerPtrMap::
+                                    value_type(key,
+                                               TNormalizerPtr(new model::CAnomalyScore::CNormalizer(
+                                                   modelConfig))))
+                        .first;
             }
             double probability = extract.leafNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in
@@ -2480,11 +2699,13 @@ void CHierarchicalResultsTest::testNormalizer(void) {
                               *extract.personNodes()[j]->s_Spec.s_PersonFieldName;
             TStrNormalizerPtrMapItr itr = expectedNormalizers.find(key);
             if (itr == expectedNormalizers.end()) {
-                itr = expectedNormalizers
-                          .insert(TStrNormalizerPtrMap::value_type(
-                              key,
-                              TNormalizerPtr(new model::CAnomalyScore::CNormalizer(modelConfig))))
-                          .first;
+                itr =
+                    expectedNormalizers
+                        .insert(TStrNormalizerPtrMap::
+                                    value_type(key,
+                                               TNormalizerPtr(new model::CAnomalyScore::CNormalizer(
+                                                   modelConfig))))
+                        .first;
             }
             double probability = extract.personNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in
@@ -2522,11 +2743,13 @@ void CHierarchicalResultsTest::testNormalizer(void) {
             std::string key = 'n' + *extract.partitionNodes()[j]->s_Spec.s_PartitionFieldName;
             TStrNormalizerPtrMapItr itr = expectedNormalizers.find(key);
             if (itr == expectedNormalizers.end()) {
-                itr = expectedNormalizers
-                          .insert(TStrNormalizerPtrMap::value_type(
-                              key,
-                              TNormalizerPtr(new model::CAnomalyScore::CNormalizer(modelConfig))))
-                          .first;
+                itr =
+                    expectedNormalizers
+                        .insert(TStrNormalizerPtrMap::
+                                    value_type(key,
+                                               TNormalizerPtr(new model::CAnomalyScore::CNormalizer(
+                                                   modelConfig))))
+                        .first;
             }
             double probability = extract.partitionNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in
@@ -2799,7 +3022,7 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     results.postorderDepthFirst(printer);
     LOG_DEBUG("\nhierarchy:\n" << printer.result());
 
-    const ml::model::CHierarchicalResults::TNode *root = results.root();
+    const ml::model::CHierarchicalResults::TNode* root = results.root();
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), root->s_Children.size());
 
     CNodeExtractor extract;
@@ -2822,45 +3045,61 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     results.bottomUpBreadthFirst(aggregator);
 
     model::CLimits limits;
-    CPPUNIT_ASSERT(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
-        limits, results, *extract.partitionNodes()[0], false));
-    CPPUNIT_ASSERT(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
-        limits, results, *extract.partitionNodes()[1], false));
+    CPPUNIT_ASSERT(
+        ml::model::CHierarchicalResultsVisitor::shouldWriteResult(limits,
+                                                                  results,
+                                                                  *extract.partitionNodes()[0],
+                                                                  false));
+    CPPUNIT_ASSERT(
+        ml::model::CHierarchicalResultsVisitor::shouldWriteResult(limits,
+                                                                  results,
+                                                                  *extract.partitionNodes()[1],
+                                                                  false));
 }
 
-CppUnit::Test *CHierarchicalResultsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsTest");
+CppUnit::Test* CHierarchicalResultsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBreadthFirstVisit",
-        &CHierarchicalResultsTest::testBreadthFirstVisit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testpostorderDepthFirstVisit",
-        &CHierarchicalResultsTest::testDepthFirstVisit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBuildHierarchy",
-        &CHierarchicalResultsTest::testBuildHierarchy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CHierarchicalResultsTest>("CHierarchicalResultsTest::testBreadthFirstVisit",
+                                      &CHierarchicalResultsTest::testBreadthFirstVisit));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CHierarchicalResultsTest>("CHierarchicalResultsTest::testpostorderDepthFirstVisit",
+                                      &CHierarchicalResultsTest::testDepthFirstVisit));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CHierarchicalResultsTest>("CHierarchicalResultsTest::testBuildHierarchy",
+                                                    &CHierarchicalResultsTest::testBuildHierarchy));
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
         "CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue",
         &CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBasicVisitor", &CHierarchicalResultsTest::testBasicVisitor));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testAggregator", &CHierarchicalResultsTest::testAggregator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testInfluence", &CHierarchicalResultsTest::testInfluence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testScores", &CHierarchicalResultsTest::testScores));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testWriter", &CHierarchicalResultsTest::testWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testNormalizer", &CHierarchicalResultsTest::testNormalizer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testDetectorEqualizing",
-        &CHierarchicalResultsTest::testDetectorEqualizing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testShouldWritePartition",
-        &CHierarchicalResultsTest::testShouldWritePartition));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CHierarchicalResultsTest>("CHierarchicalResultsTest::testBasicVisitor",
+                                                    &CHierarchicalResultsTest::testBasicVisitor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CHierarchicalResultsTest>("CHierarchicalResultsTest::testAggregator",
+                                                    &CHierarchicalResultsTest::testAggregator));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CHierarchicalResultsTest>("CHierarchicalResultsTest::testInfluence",
+                                                    &CHierarchicalResultsTest::testInfluence));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CHierarchicalResultsTest>("CHierarchicalResultsTest::testScores",
+                                                          &CHierarchicalResultsTest::testScores));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CHierarchicalResultsTest>("CHierarchicalResultsTest::testWriter",
+                                                          &CHierarchicalResultsTest::testWriter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CHierarchicalResultsTest>("CHierarchicalResultsTest::testNormalizer",
+                                                    &CHierarchicalResultsTest::testNormalizer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CHierarchicalResultsTest>("CHierarchicalResultsTest::testDetectorEqualizing",
+                                      &CHierarchicalResultsTest::testDetectorEqualizing));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CHierarchicalResultsTest>("CHierarchicalResultsTest::testShouldWritePartition",
+                                      &CHierarchicalResultsTest::testShouldWritePartition));
 
     return suiteOfTests;
 }

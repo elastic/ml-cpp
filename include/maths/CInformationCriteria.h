@@ -33,10 +33,12 @@ namespace maths {
 namespace information_criteria_detail {
 
 //! \brief Defines the sample covariance accumulator.
-template <typename T> struct SSampleCovariances {};
+template <typename T>
+struct SSampleCovariances {};
 
 //! \brief Defines the sample covariance accumulator for a CVectorNx1.
-template <typename T, std::size_t N> struct SSampleCovariances<CVectorNx1<T, N>> {
+template <typename T, std::size_t N>
+struct SSampleCovariances<CVectorNx1<T, N>> {
     typedef CBasicStatistics::SSampleCovariances<T, N> Type;
 };
 
@@ -49,7 +51,7 @@ double confidence(double df);
 
 #define LOG_DETERMINANT(N)                                                                         \
     MATHS_EXPORT                                                                                   \
-    double logDeterminant(const CSymmetricMatrixNxN<double, N> &c, double upper)
+    double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper)
 LOG_DETERMINANT(2);
 LOG_DETERMINANT(3);
 LOG_DETERMINANT(4);
@@ -57,12 +59,12 @@ LOG_DETERMINANT(5);
 #undef LOG_DETERMINANT
 
 //! The log determinant of our internal heap symmetric matrix.
-double logDeterminant(const CSymmetricMatrix<double> &c, double upper);
+double logDeterminant(const CSymmetricMatrix<double>& c, double upper);
 
 //! The log determinant of an Eigen matrix.
-double logDeterminant(const CDenseMatrix<double> &c, double upper);
+double logDeterminant(const CDenseMatrix<double>& c, double upper);
 
-}// information_criteria_detail::
+} // information_criteria_detail::
 
 //! Enumeration of different types of information criterion supported.
 enum EInfoCriterionType { E_AICc, E_BIC };
@@ -103,7 +105,8 @@ enum EInfoCriterionType { E_AICc, E_BIC };
 //!
 //! See also http://en.wikipedia.org/wiki/Bayesian_information_criterion
 //! and http://en.wikipedia.org/wiki/Akaike_information_criterion.
-template <typename POINT, EInfoCriterionType TYPE> class CSphericalGaussianInfoCriterion {
+template <typename POINT, EInfoCriterionType TYPE>
+class CSphericalGaussianInfoCriterion {
 public:
     typedef std::vector<POINT> TPointVec;
     typedef std::vector<TPointVec> TPointVecVec;
@@ -115,24 +118,24 @@ public:
 
 public:
     CSphericalGaussianInfoCriterion(void) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CSphericalGaussianInfoCriterion(const TPointVecVec &x)
+    explicit CSphericalGaussianInfoCriterion(const TPointVecVec& x)
         : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
-    explicit CSphericalGaussianInfoCriterion(const TPointVec &x)
+    explicit CSphericalGaussianInfoCriterion(const TPointVec& x)
         : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TPointVecVec &x) {
+    void add(const TPointVecVec& x) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             this->add(x[i]);
         }
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TPointVec &x) {
+    void add(const TPointVec& x) {
         if (x.empty()) {
             return;
         }
@@ -143,10 +146,10 @@ public:
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TMeanVarAccumulator &moments) {
+    void add(const TMeanVarAccumulator& moments) {
         double ni = CBasicStatistics::count(moments);
-        const TBarePointPrecise &m = CBasicStatistics::mean(moments);
-        const TBarePointPrecise &c = CBasicStatistics::maximumLikelihoodVariance(moments);
+        const TBarePointPrecise& m = CBasicStatistics::mean(moments);
+        const TBarePointPrecise& c = CBasicStatistics::maximumLikelihoodVariance(moments);
         std::size_t d = c.dimension();
         double vi = 0.0;
         for (std::size_t i = 0u; i < d; ++i) {
@@ -206,7 +209,8 @@ private:
 //! This places no restriction on the covariance matrix in particular
 //! it is assumed to have \f$frac{D(D+1)}{2}\f$ parameters. For more
 //! details on the information criteria see CSphericalGaussianInfoCriterion.
-template <typename POINT, EInfoCriterionType TYPE> class CGaussianInfoCriterion {
+template <typename POINT, EInfoCriterionType TYPE>
+class CGaussianInfoCriterion {
 public:
     typedef std::vector<POINT> TPointVec;
     typedef std::vector<TPointVec> TPointVecVec;
@@ -219,24 +223,24 @@ public:
 
 public:
     CGaussianInfoCriterion(void) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CGaussianInfoCriterion(const TPointVecVec &x)
+    explicit CGaussianInfoCriterion(const TPointVecVec& x)
         : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
-    explicit CGaussianInfoCriterion(const TPointVec &x)
+    explicit CGaussianInfoCriterion(const TPointVec& x)
         : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TPointVecVec &x) {
+    void add(const TPointVecVec& x) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             this->add(x[i]);
         }
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TPointVec &x) {
+    void add(const TPointVec& x) {
         if (x.empty()) {
             return;
         }
@@ -247,7 +251,7 @@ public:
     }
 
     //! Update the sufficient statistics for computing info content.
-    void add(const TCovariances &covariance) {
+    void add(const TCovariances& covariance) {
         double ni = CBasicStatistics::count(covariance);
         m_D = static_cast<double>(CBasicStatistics::mean(covariance).dimension());
         m_K += 1.0;
@@ -278,9 +282,9 @@ public:
 
 private:
     //! Compute the log of the determinant of \p covariance.
-    double logDeterminant(const TCovariances &covariance) const {
+    double logDeterminant(const TCovariances& covariance) const {
         double n = CBasicStatistics::count(covariance);
-        const TMatrix &c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
+        const TMatrix& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
         double upper = information_criteria_detail::confidence(n - m_D - 1.0);
         return information_criteria_detail::logDeterminant(c, upper);
     }
@@ -298,4 +302,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CInformationCriteria_h
+#endif // INCLUDED_ml_maths_CInformationCriteria_h

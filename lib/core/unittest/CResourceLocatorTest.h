@@ -23,7 +23,7 @@ public:
     void testLogDir(void);
     void testSrcRootDir(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CResourceLocatorTest_h
+#endif // INCLUDED_CResourceLocatorTest_h

@@ -27,13 +27,13 @@ const std::string MULTIVARIATE_TIME_SERIES_TAG{"b"};
 const std::string MODEL_STUB_TAG{"c"};
 }
 
-bool CModelStateSerialiser::operator()(const SModelRestoreParams &params,
-                                       TModelPtr &result,
-                                       core::CStateRestoreTraverser &traverser) const {
+bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
+                                       TModelPtr& result,
+                                       core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == UNIVARIATE_TIME_SERIES_TAG) {
             result.reset(new CUnivariateTimeSeriesModel(params, traverser));
             ++numResults;
@@ -58,15 +58,15 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams &params,
     return true;
 }
 
-void CModelStateSerialiser::operator()(const CModel &model,
-                                       core::CStatePersistInserter &inserter) const {
-    if (dynamic_cast<const CUnivariateTimeSeriesModel *>(&model) != 0) {
+void CModelStateSerialiser::operator()(const CModel& model,
+                                       core::CStatePersistInserter& inserter) const {
+    if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != 0) {
         inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
                              boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CMultivariateTimeSeriesModel *>(&model) != 0) {
+    } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != 0) {
         inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG,
                              boost::bind(&CModel::acceptPersistInserter, &model, _1));
-    } else if (dynamic_cast<const CModelStub *>(&model) != 0) {
+    } else if (dynamic_cast<const CModelStub*>(&model) != 0) {
         inserter.insertValue(MODEL_STUB_TAG, "");
     } else {
         LOG_ERROR("Model with type '" << typeid(model).name() << "' has no defined name");

@@ -39,7 +39,7 @@ public:
     void testVarianceScale(void);
     void testNegativeSample(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CLogNormalMeanVarConjugateTest_h
+#endif // INCLUDED_CLogNormalMeanVarConjugateTest_h

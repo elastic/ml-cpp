@@ -21,12 +21,12 @@
 namespace ml {
 namespace api {
 
-const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024);// 16MB
+const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
-CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP &stream) : m_Stream(stream) {}
+CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP& stream) : m_Stream(stream) {}
 
-CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string & /*index*/,
-                                                                      const std::string &id) {
+CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& /*index*/,
+                                                                      const std::string& id) {
     if (m_Stream != 0 && !m_Stream->bad()) {
         // Start with metadata, leaving the index for the receiving code to set
         (*m_Stream) << "{\"index\":{\"_id\":\"" << id << "\"}}\n";
@@ -35,7 +35,7 @@ CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std:
     return m_Stream;
 }
 
-bool CSingleStreamDataAdder::streamComplete(TOStreamP &stream, bool force) {
+bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
     if (stream != m_Stream) {
         LOG_ERROR("Attempt to use the single stream data adder with multiple streams");
         return false;
@@ -57,6 +57,8 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP &stream, bool force) {
     return stream != 0 && !stream->bad();
 }
 
-std::size_t CSingleStreamDataAdder::maxDocumentSize(void) const { return MAX_DOCUMENT_SIZE; }
+std::size_t CSingleStreamDataAdder::maxDocumentSize(void) const {
+    return MAX_DOCUMENT_SIZE;
+}
 }
 }

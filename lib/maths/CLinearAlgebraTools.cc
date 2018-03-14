@@ -26,13 +26,14 @@ namespace linear_algebra_tools_detail {
 namespace {
 
 //! \brief Shared implementation of the inverse quadratic product.
-template <typename EIGENMATRIX, typename EIGENVECTOR> class CInverseQuadraticProduct {
+template <typename EIGENMATRIX, typename EIGENVECTOR>
+class CInverseQuadraticProduct {
 public:
     template <typename MATRIX, typename VECTOR>
     static maths_t::EFloatingPointErrorStatus compute(std::size_t d,
-                                                      const MATRIX &covariance_,
-                                                      const VECTOR &residual,
-                                                      double &result,
+                                                      const MATRIX& covariance_,
+                                                      const VECTOR& residual,
+                                                      double& result,
                                                       bool ignoreSingularSubspace) {
         if (residual.isZero()) {
             result = 0.0;
@@ -75,13 +76,14 @@ public:
 };
 
 //! \brief Shared implementation of the log-likelihood function.
-template <typename EIGENMATRIX, typename EIGENVECTOR> class CGaussianLogLikelihood {
+template <typename EIGENMATRIX, typename EIGENVECTOR>
+class CGaussianLogLikelihood {
 public:
     template <typename MATRIX, typename VECTOR>
     static maths_t::EFloatingPointErrorStatus compute(std::size_t d,
-                                                      const MATRIX &covariance_,
-                                                      const VECTOR &residual,
-                                                      double &result,
+                                                      const MATRIX& covariance_,
+                                                      const VECTOR& residual,
+                                                      double& result,
                                                       bool ignoreSingularSubspace) {
         result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
@@ -127,13 +129,14 @@ public:
 };
 
 //! \brief Shared implementation of Gaussian sampling.
-template <typename EIGENMATRIX> class CSampleGaussian {
+template <typename EIGENMATRIX>
+class CSampleGaussian {
 public:
     template <typename MATRIX, typename VECTOR, typename VECTOR_PRECISE>
     static void generate(std::size_t n,
-                         const VECTOR &mean_,
-                         const MATRIX &covariance_,
-                         std::vector<VECTOR_PRECISE> &result) {
+                         const VECTOR& mean_,
+                         const MATRIX& covariance_,
+                         std::vector<VECTOR_PRECISE>& result) {
         result.clear();
         if (n == 0) {
             return;
@@ -187,7 +190,7 @@ public:
                         -scale * static_cast<double>(numberIntervals) * lastPartialExpectation;
                     LOG_TRACE("dx = " << dx);
                     result.push_back(mean + dx * u);
-                } catch (const std::exception &e) {
+                } catch (const std::exception& e) {
                     LOG_ERROR("Failed to sample eigenvector " << u << ": " << e.what());
                 }
             }
@@ -196,11 +199,12 @@ public:
 };
 
 //! \brief Shared implementation of the log-determinant function.
-template <typename EIGENMATRIX> class CLogDeterminant {
+template <typename EIGENMATRIX>
+class CLogDeterminant {
 public:
     template <typename MATRIX>
     static maths_t::EFloatingPointErrorStatus
-    compute(std::size_t d, const MATRIX &m_, double &result, bool ignoreSingularSubspace) {
+    compute(std::size_t d, const MATRIX& m_, double& result, bool ignoreSingularSubspace) {
         result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
         switch (d) {
@@ -235,12 +239,12 @@ public:
 }
 
 #define INVERSE_QUADRATIC_PRODUCT(T, N)                                                            \
-    maths_t::EFloatingPointErrorStatus inverseQuadraticProduct(                                    \
-        std::size_t d,                                                                             \
-        const CSymmetricMatrixNxN<T, N> &covariance,                                               \
-        const CVectorNx1<T, N> &residual,                                                          \
-        double &result,                                                                            \
-        bool ignoreSingularSubspace) {                                                             \
+    maths_t::EFloatingPointErrorStatus                                                             \
+    inverseQuadraticProduct(std::size_t d,                                                         \
+                            const CSymmetricMatrixNxN<T, N>& covariance,                           \
+                            const CVectorNx1<T, N>& residual,                                      \
+                            double& result,                                                        \
+                            bool ignoreSingularSubspace) {                                         \
         return CInverseQuadraticProduct<SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type,             \
                                         SDenseVector<CVectorNx1<T, N>>::Type>::                    \
             compute(d, covariance, residual, result, ignoreSingularSubspace);                      \
@@ -256,9 +260,9 @@ INVERSE_QUADRATIC_PRODUCT(double, 5)
 #undef INVERSE_QUADRATIC_PRODUCT
 maths_t::EFloatingPointErrorStatus
 inverseQuadraticProduct(std::size_t d,
-                        const CSymmetricMatrix<CFloatStorage> &covariance,
-                        const CVector<CFloatStorage> &residual,
-                        double &result,
+                        const CSymmetricMatrix<CFloatStorage>& covariance,
+                        const CVector<CFloatStorage>& residual,
+                        double& result,
                         bool ignoreSingularSubspace) {
     return CInverseQuadraticProduct<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type,
                                     SDenseVector<CVector<CFloatStorage>>::Type>::
@@ -266,9 +270,9 @@ inverseQuadraticProduct(std::size_t d,
 }
 maths_t::EFloatingPointErrorStatus
 inverseQuadraticProduct(std::size_t d,
-                        const CSymmetricMatrix<double> &covariance,
-                        const CVector<double> &residual,
-                        double &result,
+                        const CSymmetricMatrix<double>& covariance,
+                        const CVector<double>& residual,
+                        double& result,
                         bool ignoreSingularSubspace) {
     return CInverseQuadraticProduct<SDenseMatrix<CSymmetricMatrix<double>>::Type,
                                     SDenseVector<CVector<double>>::Type>::
@@ -276,12 +280,12 @@ inverseQuadraticProduct(std::size_t d,
 }
 
 #define GAUSSIAN_LOG_LIKELIHOOD(T, N)                                                              \
-    maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(                                      \
-        std::size_t d,                                                                             \
-        const CSymmetricMatrixNxN<T, N> &covariance,                                               \
-        const CVectorNx1<T, N> &residual,                                                          \
-        double &result,                                                                            \
-        bool ignoreSingularSubspace) {                                                             \
+    maths_t::EFloatingPointErrorStatus                                                             \
+    gaussianLogLikelihood(std::size_t d,                                                           \
+                          const CSymmetricMatrixNxN<T, N>& covariance,                             \
+                          const CVectorNx1<T, N>& residual,                                        \
+                          double& result,                                                          \
+                          bool ignoreSingularSubspace) {                                           \
         return CGaussianLogLikelihood<SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type,               \
                                       SDenseVector<CVector<CFloatStorage>>::Type>::                \
             compute(d, covariance, residual, result, ignoreSingularSubspace);                      \
@@ -297,18 +301,18 @@ GAUSSIAN_LOG_LIKELIHOOD(double, 5)
 #undef GAUSSIAN_LOG_LIKELIHOOD
 maths_t::EFloatingPointErrorStatus
 gaussianLogLikelihood(std::size_t d,
-                      const CSymmetricMatrix<CFloatStorage> &covariance,
-                      const CVector<CFloatStorage> &residual,
-                      double &result,
+                      const CSymmetricMatrix<CFloatStorage>& covariance,
+                      const CVector<CFloatStorage>& residual,
+                      double& result,
                       bool ignoreSingularSubspace) {
     return CGaussianLogLikelihood<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type,
                                   SDenseVector<CVector<CFloatStorage>>::Type>::
         compute(d, covariance, residual, result, ignoreSingularSubspace);
 }
 maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(std::size_t d,
-                                                         const CSymmetricMatrix<double> &covariance,
-                                                         const CVector<double> &residual,
-                                                         double &result,
+                                                         const CSymmetricMatrix<double>& covariance,
+                                                         const CVector<double>& residual,
+                                                         double& result,
                                                          bool ignoreSingularSubspace) {
     return CGaussianLogLikelihood<SDenseMatrix<CSymmetricMatrix<double>>::Type,
                                   SDenseVector<CVector<double>>::Type>::
@@ -317,11 +321,13 @@ maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(std::size_t d,
 
 #define SAMPLE_GAUSSIAN(T, N)                                                                      \
     void sampleGaussian(std::size_t d,                                                             \
-                        const CVectorNx1<T, N> &mean,                                              \
-                        const CSymmetricMatrixNxN<T, N> &covariance,                               \
-                        std::vector<CVectorNx1<double, N>> &result) {                              \
-        CSampleGaussian<SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type>::generate(                  \
-            d, mean, covariance, result);                                                          \
+                        const CVectorNx1<T, N>& mean,                                              \
+                        const CSymmetricMatrixNxN<T, N>& covariance,                               \
+                        std::vector<CVectorNx1<double, N>>& result) {                              \
+        CSampleGaussian<SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type>::generate(d,                \
+                                                                                 mean,             \
+                                                                                 covariance,       \
+                                                                                 result);          \
     }
 SAMPLE_GAUSSIAN(CFloatStorage, 2)
 SAMPLE_GAUSSIAN(CFloatStorage, 3)
@@ -333,27 +339,32 @@ SAMPLE_GAUSSIAN(double, 4)
 SAMPLE_GAUSSIAN(double, 5)
 #undef SAMPLE_GAUSSIAN
 void sampleGaussian(std::size_t d,
-                    const CVector<CFloatStorage> &mean,
-                    const CSymmetricMatrix<CFloatStorage> &covariance,
-                    std::vector<CVector<double>> &result) {
-    return CSampleGaussian<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::generate(
-        d, mean, covariance, result);
+                    const CVector<CFloatStorage>& mean,
+                    const CSymmetricMatrix<CFloatStorage>& covariance,
+                    std::vector<CVector<double>>& result) {
+    return CSampleGaussian<
+        SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::generate(d, mean, covariance, result);
 }
 void sampleGaussian(std::size_t d,
-                    const CVector<double> &mean,
-                    const CSymmetricMatrix<double> &covariance,
-                    std::vector<CVector<double>> &result) {
-    return CSampleGaussian<SDenseMatrix<CSymmetricMatrix<double>>::Type>::generate(
-        d, mean, covariance, result);
+                    const CVector<double>& mean,
+                    const CSymmetricMatrix<double>& covariance,
+                    std::vector<CVector<double>>& result) {
+    return CSampleGaussian<SDenseMatrix<CSymmetricMatrix<double>>::Type>::generate(d,
+                                                                                   mean,
+                                                                                   covariance,
+                                                                                   result);
 }
 
 #define LOG_DETERMINANT(T, N)                                                                      \
     maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,                               \
-                                                      const CSymmetricMatrixNxN<T, N> &matrix,     \
-                                                      double &result,                              \
+                                                      const CSymmetricMatrixNxN<T, N>& matrix,     \
+                                                      double& result,                              \
                                                       bool ignoreSingularSubspace) {               \
-        return CLogDeterminant<SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type>::compute(            \
-            d, matrix, result, ignoreSingularSubspace);                                            \
+        return CLogDeterminant<                                                                    \
+            SDenseMatrix<CSymmetricMatrixNxN<T, N>>::Type>::compute(d,                             \
+                                                                    matrix,                        \
+                                                                    result,                        \
+                                                                    ignoreSingularSubspace);       \
     }
 LOG_DETERMINANT(CFloatStorage, 2)
 LOG_DETERMINANT(CFloatStorage, 3)
@@ -365,18 +376,24 @@ LOG_DETERMINANT(double, 4)
 LOG_DETERMINANT(double, 5)
 #undef LOG_DETERMINANT
 maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
-                                                  const CSymmetricMatrix<CFloatStorage> &matrix,
-                                                  double &result,
+                                                  const CSymmetricMatrix<CFloatStorage>& matrix,
+                                                  double& result,
                                                   bool ignoreSingularSubspace) {
-    return CLogDeterminant<SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::compute(
-        d, matrix, result, ignoreSingularSubspace);
+    return CLogDeterminant<
+        SDenseMatrix<CSymmetricMatrix<CFloatStorage>>::Type>::compute(d,
+                                                                      matrix,
+                                                                      result,
+                                                                      ignoreSingularSubspace);
 }
 maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
-                                                  const CSymmetricMatrix<double> &matrix,
-                                                  double &result,
+                                                  const CSymmetricMatrix<double>& matrix,
+                                                  double& result,
                                                   bool ignoreSingularSubspace) {
-    return CLogDeterminant<SDenseMatrix<CSymmetricMatrix<double>>::Type>::compute(
-        d, matrix, result, ignoreSingularSubspace);
+    return CLogDeterminant<
+        SDenseMatrix<CSymmetricMatrix<double>>::Type>::compute(d,
+                                                               matrix,
+                                                               result,
+                                                               ignoreSingularSubspace);
 }
 }
 }

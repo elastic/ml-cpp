@@ -44,50 +44,50 @@ const std::string CTimeSeriesTestData::CSV_ISO8601_BIVALUED_REGEX(
     "[\"]*([-]*[\\d\\.]+)[\"]*");
 const std::string CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT("%Y-%m-%dT%H:%M:%S");
 
-bool CTimeSeriesTestData::parse(const std::string &fileName,
-                                TTimeDoublePrVec &results,
-                                const std::string &regex,
-                                const std::string &dateFormat) {
+bool CTimeSeriesTestData::parse(const std::string& fileName,
+                                TTimeDoublePrVec& results,
+                                const std::string& regex,
+                                const std::string& dateFormat) {
     core_t::TTime unused(0);
 
     return CTimeSeriesTestData::parse(fileName, results, unused, unused, regex, dateFormat);
 }
 
-bool CTimeSeriesTestData::parse(const std::string &fileName,
-                                TTimeDoublePrVec &results,
-                                core_t::TTime &minTime,
-                                core_t::TTime &maxTime,
-                                const std::string &regex,
-                                const std::string &dateFormat) {
+bool CTimeSeriesTestData::parse(const std::string& fileName,
+                                TTimeDoublePrVec& results,
+                                core_t::TTime& minTime,
+                                core_t::TTime& maxTime,
+                                const std::string& regex,
+                                const std::string& dateFormat) {
     return CTimeSeriesTestData::parse(fileName, regex, dateFormat, results, minTime, maxTime);
 }
 
-bool CTimeSeriesTestData::parse(const std::string &fileName,
-                                TTimeDoubleVecPrVec &results,
-                                const std::string &regex,
-                                const std::string &dateFormat) {
+bool CTimeSeriesTestData::parse(const std::string& fileName,
+                                TTimeDoubleVecPrVec& results,
+                                const std::string& regex,
+                                const std::string& dateFormat) {
     core_t::TTime unused(0);
 
     return CTimeSeriesTestData::parse(fileName, results, unused, unused, regex, dateFormat);
 }
 
-bool CTimeSeriesTestData::parse(const std::string &fileName,
-                                TTimeDoubleVecPrVec &results,
-                                core_t::TTime &minTime,
-                                core_t::TTime &maxTime,
-                                const std::string &regex,
-                                const std::string &dateFormat) {
+bool CTimeSeriesTestData::parse(const std::string& fileName,
+                                TTimeDoubleVecPrVec& results,
+                                core_t::TTime& minTime,
+                                core_t::TTime& maxTime,
+                                const std::string& regex,
+                                const std::string& dateFormat) {
     return CTimeSeriesTestData::parse(fileName, regex, dateFormat, results, minTime, maxTime);
 }
 
-bool CTimeSeriesTestData::parseCounter(const std::string &fileName, TTimeDoublePrVec &results) {
+bool CTimeSeriesTestData::parseCounter(const std::string& fileName, TTimeDoublePrVec& results) {
     if (CTimeSeriesTestData::parse(fileName, results) == false) {
         return false;
     }
 
     double last(0);
     bool started(false);
-    for (auto &&result : results) {
+    for (auto&& result : results) {
         double value = result.second;
         if (started == false) {
             result.second = 0;
@@ -106,15 +106,15 @@ bool CTimeSeriesTestData::parseCounter(const std::string &fileName, TTimeDoubleP
     return true;
 }
 
-void CTimeSeriesTestData::transform(const TTimeDoublePrVec &data, TDoubleVec &results) {
+void CTimeSeriesTestData::transform(const TTimeDoublePrVec& data, TDoubleVec& results) {
     results.clear();
     results.reserve(data.size());
-    for (const auto &datum : data) {
+    for (const auto& datum : data) {
         results.push_back(datum.second);
     }
 }
 
-void CTimeSeriesTestData::derive(const TTimeDoublePrVec &data, TTimeDoublePrVec &results) {
+void CTimeSeriesTestData::derive(const TTimeDoublePrVec& data, TTimeDoublePrVec& results) {
     results.clear();
     if (data.size() <= 1) {
         return;
@@ -124,7 +124,7 @@ void CTimeSeriesTestData::derive(const TTimeDoublePrVec &data, TTimeDoublePrVec 
     bool hasStarted(false);
     double lastValue(0.0);
 
-    for (const auto &datum : data) {
+    for (const auto& datum : data) {
         if (hasStarted) {
             double v = datum.second - lastValue;
 
@@ -137,10 +137,10 @@ void CTimeSeriesTestData::derive(const TTimeDoublePrVec &data, TTimeDoublePrVec 
     }
 }
 
-bool CTimeSeriesTestData::pad(const TTimeDoublePrVec &data,
+bool CTimeSeriesTestData::pad(const TTimeDoublePrVec& data,
                               core_t::TTime minTime,
                               core_t::TTime maxTime,
-                              TTimeDoublePrVec &results) {
+                              TTimeDoublePrVec& results) {
     results.clear();
 
     if (minTime > maxTime) {
@@ -155,7 +155,7 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec &data,
 
     TTimeDoubleMap dataMap;
 
-    for (const auto &datum : data) {
+    for (const auto& datum : data) {
         if (dataMap.insert({datum.first, datum.second}).second == false) {
             LOG_ERROR("Duplicate values " << datum.first);
             return false;
@@ -176,18 +176,22 @@ bool CTimeSeriesTestData::pad(const TTimeDoublePrVec &data,
 
 namespace {
 
-void add(double value, double &target) { target = value; }
+void add(double value, double& target) {
+    target = value;
+}
 
-void add(double value, std::vector<double> &target) { target.push_back(value); }
+void add(double value, std::vector<double>& target) {
+    target.push_back(value);
+}
 }
 
 template <typename T>
-bool CTimeSeriesTestData::parse(const std::string &fileName,
-                                const std::string &regex,
-                                const std::string &dateFormat,
-                                std::vector<std::pair<core_t::TTime, T>> &results,
-                                core_t::TTime &minTime,
-                                core_t::TTime &maxTime) {
+bool CTimeSeriesTestData::parse(const std::string& fileName,
+                                const std::string& regex,
+                                const std::string& dateFormat,
+                                std::vector<std::pair<core_t::TTime, T>>& results,
+                                core_t::TTime& minTime,
+                                core_t::TTime& maxTime) {
     // reset data
     results.clear();
 
@@ -225,10 +229,10 @@ bool CTimeSeriesTestData::parse(const std::string &fileName,
 }
 
 template <typename T>
-bool CTimeSeriesTestData::parseLine(const core::CRegex &tokenRegex,
-                                    const std::string &dateFormat,
-                                    const std::string &line,
-                                    std::vector<std::pair<core_t::TTime, T>> &results) {
+bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
+                                    const std::string& dateFormat,
+                                    const std::string& line,
+                                    std::vector<std::pair<core_t::TTime, T>>& results) {
     if (line.empty() ||
         line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
         LOG_DEBUG("Ignoring blank line");

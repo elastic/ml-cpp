@@ -28,7 +28,7 @@ public:
     void testScale(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CQDigestTest_h
+#endif // INCLUDED_CQDigestTest_h

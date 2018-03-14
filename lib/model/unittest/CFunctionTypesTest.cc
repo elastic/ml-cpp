@@ -265,11 +265,12 @@ void CFunctionTypesTest::testFeaturesToFunction(void) {
     }
 }
 
-CppUnit::Test *CFunctionTypesTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
+CppUnit::Test* CFunctionTypesTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionTypesTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionTypesTest>(
-        "CFunctionTypesTest::testFeaturesToFunction", &CFunctionTypesTest::testFeaturesToFunction));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CFunctionTypesTest>("CFunctionTypesTest::testFeaturesToFunction",
+                                                    &CFunctionTypesTest::testFeaturesToFunction));
 
     return suiteOfTests;
 }

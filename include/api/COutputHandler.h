@@ -73,37 +73,37 @@ public:
     virtual void newOutputStream(void);
 
     //! Set field names - this must only be called once per output file
-    bool fieldNames(const TStrVec &fieldNames);
+    bool fieldNames(const TStrVec& fieldNames);
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames) = 0;
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
     //! Get field names
-    virtual const TStrVec &fieldNames(void) const = 0;
+    virtual const TStrVec& fieldNames(void) const = 0;
 
     //! Write a row to the stream.  The supplied map must contain every
     //! field value.
-    bool writeRow(const TStrStrUMap &dataRowFields);
+    bool writeRow(const TStrStrUMap& dataRowFields);
 
     //! Write a row to the stream, optionally overriding some of the
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields) = 0;
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise(void);
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher, core_t::TTime &completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder &persister);
+    virtual bool persistState(core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister &persister);
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! Does this handler deal with control messages?
     virtual bool consumesControlMessages();
@@ -118,7 +118,7 @@ protected:
 
         //! Return the hash regardless of what string is passed.  Use
         //! with care!
-        size_t operator()(const std::string &) const;
+        size_t operator()(const std::string&) const;
 
     private:
         size_t m_Hash;
@@ -138,4 +138,4 @@ protected:
 }
 }
 
-#endif// INCLUDED_ml_api_COutputHandler_h
+#endif // INCLUDED_ml_api_COutputHandler_h

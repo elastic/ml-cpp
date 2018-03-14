@@ -21,7 +21,7 @@ class CAllocationStrategyTest : public CppUnit::TestFixture {
 public:
     void test(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CAllocationStrategyTest_h
+#endif // INCLUDED_CAllocationStrategyTest_h

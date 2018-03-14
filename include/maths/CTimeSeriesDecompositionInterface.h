@@ -55,16 +55,16 @@ public:
         E_Trend = 0x4,
         E_Calendar = 0x8,
         E_All = 0xf,
-        E_TrendForced = 0x10//!< Force get the trend component (if
-                            //!< it's not being used for prediction).
-                            //!< This needs to be bigger than E_All.
+        E_TrendForced = 0x10 //!< Force get the trend component (if
+                             //!< it's not being used for prediction).
+                             //!< This needs to be bigger than E_All.
     };
 
 public:
     virtual ~CTimeSeriesDecompositionInterface(void) = default;
 
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionInterface *clone(void) const = 0;
+    virtual CTimeSeriesDecompositionInterface* clone(void) const = 0;
 
     //! Set the decay rate.
     virtual void decayRate(double decayRate) = 0;
@@ -89,8 +89,8 @@ public:
     //! and false otherwise.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec &weights = TWeights::UNIT) = 0;
+                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
+                          const maths_t::TDouble4Vec& weights = TWeights::UNIT) = 0;
 
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;
@@ -123,7 +123,7 @@ public:
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
-                          TDouble3VecVec &result) = 0;
+                          TDouble3VecVec& result) = 0;
 
     //! Detrend \p value from the time series being modeled by removing
     //! any periodic component at \p time.
@@ -159,7 +159,7 @@ public:
     virtual std::size_t staticSize(void) const = 0;
 
     //! Get the seasonal components.
-    virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const = 0;
+    virtual const maths_t::TSeasonalComponentVec& seasonalComponents(void) const = 0;
 
     //! This is the latest time of any point added to this object or the time skipped to.
     virtual core_t::TTime lastValueTime(void) const = 0;
@@ -167,4 +167,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTimeSeriesDecompositionInterface_h
+#endif // INCLUDED_ml_maths_CTimeSeriesDecompositionInterface_h

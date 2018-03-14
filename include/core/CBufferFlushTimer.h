@@ -56,4 +56,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CBufferFlushTimer_h
+#endif // INCLUDED_ml_core_CBufferFlushTimer_h

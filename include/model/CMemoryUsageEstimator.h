@@ -63,11 +63,11 @@ public:
     //! This can fail, for example if too many estimations have taken
     //! place, in which case a TOptionalSize() will be returned, indicating
     //! that the caller must add a real value.
-    TOptionalSize estimate(const TSizeArray &predictors);
+    TOptionalSize estimate(const TSizeArray& predictors);
 
     //! Add an actual memory calculation value, along with the values of
     //! the predictors.
-    void addValue(const TSizeArray &predictors, std::size_t memory);
+    void addValue(const TSizeArray& predictors, std::size_t memory);
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -76,10 +76,10 @@ public:
     std::size_t memoryUsage(void) const;
 
     //! Persist this component.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore this component.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     typedef std::pair<TSizeArray, std::size_t> TSizeArraySizePr;
@@ -99,7 +99,7 @@ private:
     std::size_t m_NumEstimatesSinceValue;
 };
 
-}// model
-}// ml
+} // model
+} // ml
 
-#endif// INCLUDED_ml_core_CMemoryUsageEstimator_h
+#endif // INCLUDED_ml_core_CMemoryUsageEstimator_h

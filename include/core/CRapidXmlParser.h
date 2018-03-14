@@ -77,23 +77,23 @@ public:
     virtual ~CRapidXmlParser(void);
 
     //! Parse XML stored in a string
-    virtual bool parseString(const std::string &xml);
+    virtual bool parseString(const std::string& xml);
 
     //! Parse XML stored in a char buffer
-    virtual bool parseBuffer(const char *begin, size_t length);
+    virtual bool parseBuffer(const char* begin, size_t length);
 
     //! Parse XML stored in a char buffer that may be modified by the
     //! parsing and will outlive this object
-    virtual bool parseBufferInSitu(char *begin, size_t length);
+    virtual bool parseBufferInSitu(char* begin, size_t length);
 
     //! Parse a string ignoring CDATA elements
-    bool parseStringIgnoreCdata(const std::string &xml);
+    bool parseStringIgnoreCdata(const std::string& xml);
 
     //! Return the root element name (empty string if not parsed yet)
     virtual std::string rootElementName(void) const;
 
     //! Get the root element attributes (returns false if not parsed yet)
-    bool rootElementAttributes(TStrStrMap &rootAttributes) const;
+    bool rootElementAttributes(TStrStrMap& rootAttributes) const;
 
     //! Dump the document to string
     virtual std::string dumpToString(void) const;
@@ -102,21 +102,21 @@ public:
     //! This is much more efficient than making repeated calls to
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
-    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache &cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const;
+    virtual bool toNodeHierarchy(CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                                 CStringCache &cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
@@ -124,16 +124,16 @@ public:
     virtual bool navigateFirstChild(void);
     virtual bool navigateNext(void);
     virtual bool navigateParent(void);
-    virtual bool currentNodeName(std::string &name);
-    virtual bool currentNodeValue(std::string &value);
+    virtual bool currentNodeName(std::string& name);
+    virtual bool currentNodeValue(std::string& value);
 
     //! Convert a node hierarchy to XML.
     //! (This will escape the text correctly.)
-    static void convert(const CXmlNodeWithChildren &root, std::string &result);
+    static void convert(const CXmlNodeWithChildren& root, std::string& result);
 
     //! Convert a node hierarchy to XML, optionally without indenting.
     //! (This will escape the text correctly.)
-    static void convert(bool indent, const CXmlNodeWithChildren &root, std::string &result);
+    static void convert(bool indent, const CXmlNodeWithChildren& root, std::string& result);
 
 private:
     typedef rapidxml::xml_document<char> TCharRapidXmlDocument;
@@ -141,24 +141,26 @@ private:
     typedef rapidxml::xml_attribute<char> TCharRapidXmlAttribute;
 
     //! Called recursively by the public toNodeHierarchy() method
-    bool toNodeHierarchy(const TCharRapidXmlNode &parentNode,
-                         CXmlNodeWithChildrenPool &pool,
-                         CStringCache *cache,
-                         CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr) const;
+    bool toNodeHierarchy(const TCharRapidXmlNode& parentNode,
+                         CXmlNodeWithChildrenPool& pool,
+                         CStringCache* cache,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) const;
 
     //! Called recursively by the convert() method
-    static void convertChildren(const CXmlNodeWithChildren &current,
-                                TCharRapidXmlDocument &doc,
-                                TCharRapidXmlNode &xmlNode,
-                                size_t &approxLen);
+    static void convertChildren(const CXmlNodeWithChildren& current,
+                                TCharRapidXmlDocument& doc,
+                                TCharRapidXmlNode& xmlNode,
+                                size_t& approxLen);
 
     //! Parse a buffer with some specified RapidXml flags set
     //! without modifying the contents of the buffer
-    template <int FLAGS> bool parseBufferNonDestructive(const char *begin, size_t length);
+    template <int FLAGS>
+    bool parseBufferNonDestructive(const char* begin, size_t length);
 
     //! Parse a string with some specified RapidXml flags set
     //! and modifying the contents of the buffer
-    template <int FLAGS> bool parseBufferDestructive(char *begin, size_t length);
+    template <int FLAGS>
+    bool parseBufferDestructive(char* begin, size_t length);
 
 private:
     //! RapidXml modifies the input data, so store it in an array rather
@@ -177,11 +179,11 @@ private:
     TCharRapidXmlDocument m_Doc;
 
     //! Pointer to the current node accessed via the navigation API
-    TCharRapidXmlNode *m_NavigatedNode;
+    TCharRapidXmlNode* m_NavigatedNode;
 
     friend class CRapidXmlStateRestoreTraverser;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CRapidXmlParser_h
+#endif // INCLUDED_ml_core_CRapidXmlParser_h

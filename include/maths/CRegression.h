@@ -41,12 +41,19 @@ namespace regression_detail {
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
-template <typename T> struct CMaxCondition { static const double VALUE; };
-template <typename T> const double CMaxCondition<T>::VALUE = 1e15;
+template <typename T>
+struct CMaxCondition {
+    static const double VALUE;
+};
+template <typename T>
+const double CMaxCondition<T>::VALUE = 1e15;
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
-template <> struct MATHS_EXPORT CMaxCondition<CFloatStorage> { static const double VALUE; };
+template <>
+struct MATHS_EXPORT CMaxCondition<CFloatStorage> {
+    static const double VALUE;
+};
 }
 
 //! \brief A collection of various types of regression.
@@ -113,13 +120,13 @@ public:
     public:
         CLeastSquaresOnline() : m_S() {}
         template <typename U>
-        CLeastSquaresOnline(const CLeastSquaresOnline<N_, U> &other) : m_S(other.statistic()) {}
+        CLeastSquaresOnline(const CLeastSquaresOnline<N_, U>& other) : m_S(other.statistic()) {}
 
         //! Restore by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Add in the point \f$(x, y(x))\f$ with weight \p weight.
         //!
@@ -141,7 +148,7 @@ public:
 
         //! Set the statistics from \p rhs.
         template <typename U>
-        const CLeastSquaresOnline operator=(const CLeastSquaresOnline<N_, U> &rhs) {
+        const CLeastSquaresOnline operator=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S = rhs.statistic();
             return *this;
         }
@@ -156,7 +163,7 @@ public:
         //! origin and the values added to \p rhs are a subset of the
         //! values add to this.
         template <typename U>
-        const CLeastSquaresOnline &operator-=(const CLeastSquaresOnline<N_, U> &rhs) {
+        const CLeastSquaresOnline& operator-=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S -= rhs.statistic();
             return *this;
         }
@@ -170,7 +177,7 @@ public:
         //! \note This is only meaningful if they have the same time
         //! origin.
         template <typename U>
-        const CLeastSquaresOnline &operator+=(const CLeastSquaresOnline<N_, U> &rhs) {
+        const CLeastSquaresOnline& operator+=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S += rhs.statistic();
             return *this;
         }
@@ -196,7 +203,7 @@ public:
         //! the ordinates.
         void shiftOrdinate(double dy) {
             if (CBasicStatistics::count(m_S) > 0.0) {
-                const TVector &s = CBasicStatistics::mean(m_S);
+                const TVector& s = CBasicStatistics::mean(m_S);
                 for (std::size_t i = 0u; i < N; ++i) {
                     CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i) * dy;
                 }
@@ -209,7 +216,7 @@ public:
         //! the derivative of the regression w.r.t. the abscissa.
         void shiftGradient(double dydx) {
             if (CBasicStatistics::count(m_S) > 0.0) {
-                const TVector &s = CBasicStatistics::mean(m_S);
+                const TVector& s = CBasicStatistics::mean(m_S);
                 for (std::size_t i = 0u; i < N; ++i) {
                     CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i + 1) * dydx;
                 }
@@ -223,7 +230,7 @@ public:
         }
 
         //! Scale the statistics' count by \p scale.
-        const CLeastSquaresOnline &scale(double scale) {
+        const CLeastSquaresOnline& scale(double scale) {
             CBasicStatistics::count(m_S) *= scale;
             return *this;
         }
@@ -240,7 +247,7 @@ public:
         //! the Gramian this will consider solving. If the condition
         //! is worse than this it'll fit a lower order polynomial.
         //! \param[out] result Filled in with the regression parameters.
-        bool parameters(TArray &result,
+        bool parameters(TArray& result,
                         double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
         //! Get the predicted value of the regression parameters at \p x.
@@ -284,7 +291,7 @@ public:
         //! is worse than this it'll fit a lower order polynomial.
         //! \param[out] result Filled in with the covariance matrix.
         bool covariances(double variance,
-                         TMatrix &result,
+                         TMatrix& result,
                          double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
         //! Get the safe prediction horizon based on the spread
@@ -304,7 +311,7 @@ public:
         //! Age out the old points.
         void age(double factor, bool meanRevert = false) {
             if (meanRevert) {
-                TVector &s = CBasicStatistics::moment<0>(m_S);
+                TVector& s = CBasicStatistics::moment<0>(m_S);
                 for (std::size_t i = 1u; i < N; ++i) {
                     s(i + 2 * N - 1) =
                         factor * s(i + 2 * N - 1) + (1.0 - factor) * s(i) * s(2 * N - 1);
@@ -349,7 +356,7 @@ public:
         }
 
         //! Get the vector statistic.
-        const TVectorMeanAccumulator &statistic() const { return m_S; }
+        const TVectorMeanAccumulator& statistic() const { return m_S; }
 
         //! Get a checksum for this object.
         std::uint64_t checksum() const { return m_S.checksum(); }
@@ -361,18 +368,19 @@ public:
         //! Get the first \p n regression parameters.
         template <typename MATRIX, typename VECTOR>
         bool
-        parameters(std::size_t n, MATRIX &x, VECTOR &y, double maxCondition, TArray &result) const;
+        parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
 
         //! Compute the covariance matrix of the regression parameters.
         template <typename MATRIX>
         bool covariances(std::size_t n,
-                         MATRIX &x,
+                         MATRIX& x,
                          double variance,
                          double maxCondition,
-                         TMatrix &result) const;
+                         TMatrix& result) const;
 
         //! Get the gramian of the design matrix.
-        template <typename MATRIX> void gramian(std::size_t n, MATRIX &x) const {
+        template <typename MATRIX>
+        void gramian(std::size_t n, MATRIX& x) const {
             for (std::size_t i = 0u; i < n; ++i) {
                 x(i, i) = CBasicStatistics::mean(m_S)(i + i);
                 for (std::size_t j = i + 1; j < n; ++j) {
@@ -390,7 +398,7 @@ public:
 
     //! Get the predicted value of \p r at \p x.
     template <std::size_t N>
-    static double predict(const boost::array<double, N> &params, double x) {
+    static double predict(const boost::array<double, N>& params, double x) {
         double result = params[0];
         double xi = x;
         for (std::size_t i = 1u; i < params.size(); ++i, xi *= x) {
@@ -401,7 +409,8 @@ public:
 
     //! \brief A Wiener process model of the evolution of the parameters
     //! of our online least squares regression model.
-    template <std::size_t N, typename T> class CLeastSquaresOnlineParameterProcess {
+    template <std::size_t N, typename T>
+    class CLeastSquaresOnlineParameterProcess {
     public:
         using TVector = CVectorNx1<T, N>;
         using TMatrix = CSymmetricMatrixNxN<T, N>;
@@ -411,14 +420,14 @@ public:
 
     public:
         //! Restore by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Add a new sample of the regression parameters drift over
         //! \p time.
-        void add(double time, const TVector &sample, const TVector &weight = TVector(1)) {
+        void add(double time, const TVector& sample, const TVector& weight = TVector(1)) {
             // For the Wiener process:
             //
             //   P(t(i+1)) - P(t(i)) ~ N(0, (t(i+1) - t(i)) * C)
@@ -496,4 +505,4 @@ const std::string
 }
 }
 
-#endif// INCLUDED_ml_maths_CRegression_h
+#endif // INCLUDED_ml_maths_CRegression_h

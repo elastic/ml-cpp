@@ -34,7 +34,7 @@ public:
     void testLargeValues(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMultimodalPriorTest_h
+#endif // INCLUDED_CMultimodalPriorTest_h

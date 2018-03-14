@@ -19,7 +19,7 @@
 namespace ml {
 namespace core {
 
-char *CStrTokR::strTokR(char *str, const char *sep, char **lasts) {
+char* CStrTokR::strTokR(char* str, const char* sep, char** lasts) {
     return ::strtok_s(str, sep, lasts);
 }
 }

@@ -28,17 +28,21 @@
 #include <stdint.h>
 #include <string.h>
 
-CppUnit::Test *CDualThreadStreamBufTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
+CppUnit::Test* CDualThreadStreamBufTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testThroughput", &CDualThreadStreamBufTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testSlowConsumer", &CDualThreadStreamBufTest::testSlowConsumer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testPutback", &CDualThreadStreamBufTest::testPutback));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testFatal", &CDualThreadStreamBufTest::testFatal));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testThroughput",
+                                                    &CDualThreadStreamBufTest::testThroughput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testSlowConsumer",
+                                                    &CDualThreadStreamBufTest::testSlowConsumer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testPutback",
+                                                          &CDualThreadStreamBufTest::testPutback));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDualThreadStreamBufTest>("CDualThreadStreamBufTest::testFatal",
+                                                          &CDualThreadStreamBufTest::testFatal));
 
     return suiteOfTests;
 }
@@ -47,7 +51,7 @@ namespace {
 
 class CInputThread : public ml::core::CThread {
 public:
-    CInputThread(ml::core::CDualThreadStreamBuf &buffer, uint32_t delay = 0, size_t fatalAfter = 0)
+    CInputThread(ml::core::CDualThreadStreamBuf& buffer, uint32_t delay = 0, size_t fatalAfter = 0)
         : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter), m_TotalData(0) {}
 
     size_t totalData(void) const { return m_TotalData; }
@@ -60,7 +64,7 @@ protected:
         while (std::getline(strm, line)) {
             ++count;
             m_TotalData += line.length();
-            ++m_TotalData;// For the delimiter
+            ++m_TotalData; // For the delimiter
             CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
             ml::core::CSleep::sleep(m_Delay);
             if (count == m_FatalAfter) {
@@ -72,13 +76,13 @@ protected:
     virtual void shutdown(void) { m_Buffer.signalFatalError(); }
 
 private:
-    ml::core::CDualThreadStreamBuf &m_Buffer;
+    ml::core::CDualThreadStreamBuf& m_Buffer;
     uint32_t m_Delay;
     size_t m_FatalAfter;
     size_t m_TotalData;
 };
 
-const char *DATA("According to the most recent Wikipedia definition \"Predictive "
+const char* DATA("According to the most recent Wikipedia definition \"Predictive "
                  "analytics encompasses a variety of statistical techniques from "
                  "modeling, machine learning, data mining and game theory that ... "
                  "exploit patterns found in historical and transactional data to "
@@ -108,7 +112,7 @@ void CDualThreadStreamBufTest::testThroughput(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *ptr(DATA);
+        const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -151,7 +155,7 @@ void CDualThreadStreamBufTest::testSlowConsumer(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *ptr(DATA);
+        const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -188,7 +192,7 @@ void CDualThreadStreamBufTest::testPutback(void) {
     ml::core::CDualThreadStreamBuf buf;
 
     std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-    const char *ptr(DATA);
+    const char* ptr(DATA);
     while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
         CPPUNIT_ASSERT(written > 0);
@@ -198,17 +202,17 @@ void CDualThreadStreamBufTest::testPutback(void) {
 
     buf.signalEndOfFile();
 
-    static const char *PUTBACK_CHARS("put this back");
+    static const char* PUTBACK_CHARS("put this back");
     std::istream strm(&buf);
     char c('\0');
     CPPUNIT_ASSERT(strm.get(c).good());
     CPPUNIT_ASSERT_EQUAL(*DATA, c);
     CPPUNIT_ASSERT(strm.putback(c).good());
-    for (const char *putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
+    for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
         CPPUNIT_ASSERT(strm.putback(*putbackChar).good());
     }
     std::string actual;
-    for (const char *putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
+    for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
         CPPUNIT_ASSERT(strm.get(c).good());
         actual.insert(actual.begin(), c);
     }
@@ -239,7 +243,7 @@ void CDualThreadStreamBufTest::testFatal(void) {
     size_t totalDataWritten(0);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *ptr(DATA);
+        const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             if (written == 0) {

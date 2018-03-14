@@ -52,10 +52,10 @@ public:
     //! \name Serialization
     //@{
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Create from an XML node tree.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     //@}
 
     //! Add \p probability.
@@ -82,4 +82,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CProbabilityCalibrator_h
+#endif // INCLUDED_ml_model_CProbabilityCalibrator_h

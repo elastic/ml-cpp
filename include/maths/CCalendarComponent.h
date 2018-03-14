@@ -59,7 +59,7 @@ public:
     //! \param[in] varianceInterpolationType The style of interpolation to use for
     //! computing variances.
     CCalendarComponent(
-        const CCalendarFeature &feature,
+        const CCalendarFeature& feature,
         std::size_t maxSize,
         double decayRate = 0.0,
         double minimumBucketLength = 0.0,
@@ -70,15 +70,15 @@ public:
     //! Construct by traversing part of an state document.
     CCalendarComponent(double decayRate,
                        double minimumBucketLength,
-                       core::CStateRestoreTraverser &traverser,
+                       core::CStateRestoreTraverser& traverser,
                        CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
                        CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
 
     //! An efficient swap of the contents of two components.
-    void swap(CCalendarComponent &other);
+    void swap(CCalendarComponent& other);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Check if the component has been estimated.
     bool initialized(void) const;
@@ -155,7 +155,7 @@ private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(double decayRate,
                                 double minimumBucketLength,
-                                core::CStateRestoreTraverser &traverser);
+                                core::CStateRestoreTraverser& traverser);
 
 private:
     //! The mean and variance in collection of buckets covering the period.
@@ -163,8 +163,10 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CCalendarComponent &lhs, CCalendarComponent &rhs) { lhs.swap(rhs); }
+inline void swap(CCalendarComponent& lhs, CCalendarComponent& rhs) {
+    lhs.swap(rhs);
+}
 }
 }
 
-#endif// INCLUDED_ml_maths_CCalendarComponent_h
+#endif // INCLUDED_ml_maths_CCalendarComponent_h

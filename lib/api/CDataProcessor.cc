@@ -30,7 +30,7 @@ CDataProcessor::~CDataProcessor(void) {
     // empty definition to the header file!
 }
 
-std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields) {
+std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
     if (dataRowFields.empty()) {
         return "<EMPTY RECORD>";
     }
@@ -57,7 +57,7 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap &dataRowFields) {
     return result.str();
 }
 
-bool CDataProcessor::periodicPersistState(CBackgroundPersister & /*persister*/) {
+bool CDataProcessor::periodicPersistState(CBackgroundPersister& /*persister*/) {
     // No-op
     return true;
 }

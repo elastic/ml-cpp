@@ -23,9 +23,9 @@ const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::
 
 CStringSimilarityTester::CStringSimilarityTester(void) : m_Compressor(true) {}
 
-bool CStringSimilarityTester::similarity(const std::string &first,
-                                         const std::string &second,
-                                         double &result) const {
+bool CStringSimilarityTester::similarity(const std::string& first,
+                                         const std::string& second,
+                                         double& result) const {
     size_t firstCompLength(0);
     size_t secondCompLength(0);
 
@@ -41,11 +41,11 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     return this->similarity(first, firstCompLength, second, secondCompLength, result);
 }
 
-bool CStringSimilarityTester::similarity(const std::string &first,
+bool CStringSimilarityTester::similarity(const std::string& first,
                                          size_t firstCompLength,
-                                         const std::string &second,
+                                         const std::string& second,
                                          size_t secondCompLength,
-                                         double &result) const {
+                                         double& result) const {
     if (first.empty() && second.empty()) {
         // Special case that will cause a divide by zero error if
         // we're not careful
@@ -78,13 +78,13 @@ bool CStringSimilarityTester::similarity(const std::string &first,
     return true;
 }
 
-bool CStringSimilarityTester::compressedLengthOf(const std::string &str, size_t &length) const {
+bool CStringSimilarityTester::compressedLengthOf(const std::string& str, size_t& length) const {
     return m_Compressor.addString(str) && m_Compressor.compressedLength(true, length);
 }
 
-int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
-                                                       TScopedIntArray &dataArray,
-                                                       TScopedIntPArray &matrixArray) {
+int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
+                                                       TScopedIntArray& dataArray,
+                                                       TScopedIntPArray& matrixArray) {
     // Ensure that we don't suffer memory corruption due to an incorrect input
     if (maxDist <= 0) {
         LOG_ERROR("Programmatic error - maxDist too small " << maxDist);
@@ -102,11 +102,11 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
 
     // Allocate a block of pointers that we can use to make the matrix appear
     // two dimensional
-    matrixArray.reset(new int *[rows]);
+    matrixArray.reset(new int*[rows]);
 
     // The column indexes go from -1 to maxDist inclusive, so add 1 to the
     // pointer such that row[-1] points to the beginning of the row memory
-    int *rowZero(dataArray.get() + 1);
+    int* rowZero(dataArray.get() + 1);
     for (int row = 0; row < rows; ++row) {
         matrixArray[row] = rowZero;
         rowZero += columns;
@@ -116,7 +116,7 @@ int **CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     // the pointer such that matrix[-maxDist] points to the first row memory.
     // (Then matrix[-maxDist][-1] will point to the very beginning of the
     // memory.)
-    int **matrix;
+    int** matrix;
     matrix = matrixArray.get() + maxDist;
 
     // Initialise the matrix.  This is an optimised version of the pseudo-code

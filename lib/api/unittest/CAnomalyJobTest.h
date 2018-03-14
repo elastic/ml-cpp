@@ -32,7 +32,7 @@ public:
     void testInterimResultEdgeCases(void);
     void testRestoreFailsWithEmptyStream(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAnomalyJobTest_h
+#endif // INCLUDED_CAnomalyJobTest_h

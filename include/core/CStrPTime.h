@@ -46,9 +46,9 @@ namespace core {
 //!
 class CORE_EXPORT CStrPTime : private CNonInstantiatable {
 public:
-    static char *strPTime(const char *buf, const char *format, struct tm *tm);
+    static char* strPTime(const char* buf, const char* format, struct tm* tm);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CStrPTime_h
+#endif // INCLUDED_ml_core_CStrPTime_h

@@ -38,7 +38,7 @@ namespace {
 
 typedef std::vector<double> TDoubleVec;
 
-std::size_t addPerson(const std::string &p, const CModelFactory::TDataGathererPtr &gatherer) {
+std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     person.resize(gatherer->fieldsOfInterest().size(), 0);
@@ -48,7 +48,7 @@ std::size_t addPerson(const std::string &p, const CModelFactory::TDataGathererPt
     return *result.personId();
 }
 
-void addArrival(CDataGatherer &gatherer, core_t::TTime time, const std::string &person) {
+void addArrival(CDataGatherer& gatherer, core_t::TTime time, const std::string& person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     CEventData eventData;
@@ -57,9 +57,9 @@ void addArrival(CDataGatherer &gatherer, core_t::TTime time, const std::string &
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
+void addArrival(CDataGatherer& gatherer,
                 core_t::TTime time,
-                const std::string &person,
+                const std::string& person,
                 double value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
@@ -97,7 +97,7 @@ void CModelMemoryTest::testOnlineEventRateModel(void) {
     CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
-    CEventRateModel &model = static_cast<CEventRateModel &>(*modelPtr.get());
+    CEventRateModel& model = static_cast<CEventRateModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
@@ -150,7 +150,7 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     CAnomalyDetectorModel::TModelPtr modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
-    CMetricModel &model = static_cast<CMetricModel &>(*modelPtr.get());
+    CMetricModel& model = static_cast<CMetricModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
@@ -183,13 +183,15 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-CppUnit::Test *CModelMemoryTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
+CppUnit::Test* CModelMemoryTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
-        "CModelMemoryTest::testOnlineEventRateModel", &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
-        "CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
+                                                  &CModelMemoryTest::testOnlineEventRateModel));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel",
+                                                  &CModelMemoryTest::testOnlineMetricModel));
 
     return suiteOfTests;
 }

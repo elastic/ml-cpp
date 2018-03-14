@@ -50,4 +50,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CProgName_h
+#endif // INCLUDED_ml_core_CProgName_h

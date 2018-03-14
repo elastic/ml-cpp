@@ -85,9 +85,9 @@ public:
                   double maximumAnomalousProbability);
 
         //! Compute the overall anomaly score and aggregate probability.
-        bool operator()(const TDoubleVec &probabilities,
-                        double &overallAnomalyScore,
-                        double &overallProbability) const;
+        bool operator()(const TDoubleVec& probabilities,
+                        double& overallAnomalyScore,
+                        double& overallProbability) const;
 
     private:
         //! The weight to assign the joint probability.
@@ -108,7 +108,7 @@ public:
     //! based on historic values percentiles.
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
-        explicit CNormalizer(const CAnomalyDetectorModelConfig &config);
+        explicit CNormalizer(const CAnomalyDetectorModelConfig& config);
 
         //! Does this normalizer have enough information to normalize
         //! anomaly scores?
@@ -121,11 +121,11 @@ public:
         //!
         //! \param[in,out] scores The raw scores to normalize.
         //! Filled in with the normalized scores.
-        bool normalize(TDoubleVec &scores) const;
+        bool normalize(TDoubleVec& scores) const;
 
         //! As above but taking a single pre-aggregated \p score instead
         //! of a vector of scores to be aggregated.
-        bool normalize(double &score) const;
+        bool normalize(double& score) const;
 
         //! Estimate the quantile range including the \p score.
         //!
@@ -134,12 +134,12 @@ public:
         //! \param[out] lowerBound The quantile lower bound of \p score.
         //! \param[out] upperBound The quantile upper bound of \p score.
         void
-        quantile(double score, double confidence, double &lowerBound, double &upperBound) const;
+        quantile(double score, double confidence, double& lowerBound, double& upperBound) const;
 
         //! Updates the quantile summaries with the total of
         //! \p scores.
         //! \return true if a big change occurred, otherwise false
-        bool updateQuantiles(const TDoubleVec &scores);
+        bool updateQuantiles(const TDoubleVec& scores);
 
         //! Updates the quantile summaries with \p score.
         //! \return true if a big change occurred, otherwise false
@@ -150,12 +150,12 @@ public:
 
         //! Report whether it would be possible to upgrade one version
         //! of the quantiles to another.
-        static bool isUpgradable(const std::string &fromVersion, const std::string &toVersion);
+        static bool isUpgradable(const std::string& fromVersion, const std::string& toVersion);
 
         //! Scale the maximum score and quantile summary.  To be used
         //! after upgrades if different versions of the product produce
         //! different raw anomaly scores.
-        bool upgrade(const std::string &loadedVersion, const std::string &currentVersion);
+        bool upgrade(const std::string& loadedVersion, const std::string& currentVersion);
 
         //! Set the normalizer back to how it was immediately after
         //! construction
@@ -164,10 +164,10 @@ public:
         //! \name Serialization
         //@{
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Create from a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         //@}
 
     public:
@@ -276,30 +276,30 @@ public:
                         std::size_t minExtremeSamples,
                         std::size_t maxExtremeSamples,
                         double maximumAnomalousProbability,
-                        const TDoubleVec &probabilities,
-                        double &overallAnomalyScore,
-                        double &overallProbability);
+                        const TDoubleVec& probabilities,
+                        double& overallAnomalyScore,
+                        double& overallProbability);
 
     //! Given a normalized score, find the most appropriate severity string
-    static const std::string &normalizedScoreToSeverity(double normalizedScore);
+    static const std::string& normalizedScoreToSeverity(double normalizedScore);
 
     //! Populate \p normalizer from its JSON representation
-    static bool normalizerFromJson(const std::string &json, CNormalizer &normalizer);
+    static bool normalizerFromJson(const std::string& json, CNormalizer& normalizer);
 
     //! Populate \p normalizer from the restore traverser
-    static bool normalizerFromJson(core::CStateRestoreTraverser &traverser,
-                                   CNormalizer &normalizer);
+    static bool normalizerFromJson(core::CStateRestoreTraverser& traverser,
+                                   CNormalizer& normalizer);
 
     //! Convert \p normalizer to its JSON representation with a restoration
     //! cue and description specified by the caller
-    static void normalizerToJson(const CNormalizer &normalizer,
-                                 const std::string &searchKey,
-                                 const std::string &cue,
-                                 const std::string &description,
+    static void normalizerToJson(const CNormalizer& normalizer,
+                                 const std::string& searchKey,
+                                 const std::string& cue,
+                                 const std::string& description,
                                  core_t::TTime time,
-                                 std::string &json);
+                                 std::string& json);
 };
 }
 }
 
-#endif// INCLUDED_ml_model_CAnomalyScore_h
+#endif // INCLUDED_ml_model_CAnomalyScore_h

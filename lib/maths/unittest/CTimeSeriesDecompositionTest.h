@@ -41,7 +41,7 @@ public:
     void testPersist(void);
     void testUpgrade(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CTimeSeriesDecompositionTest_h
+#endif // INCLUDED_CTimeSeriesDecompositionTest_h

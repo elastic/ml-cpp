@@ -42,22 +42,22 @@ public:
     bool hasInterimResults(void) const;
 
     //! Push to the underlying queue
-    void push(const CHierarchicalResults &item, core_t::TTime time);
+    void push(const CHierarchicalResults& item, core_t::TTime time);
 
     //! Push to the underlying queue
-    void push(const CHierarchicalResults &item);
+    void push(const CHierarchicalResults& item);
 
     //! Get a result from the queue
-    const CHierarchicalResults &get(core_t::TTime time) const;
+    const CHierarchicalResults& get(core_t::TTime time) const;
 
     //! Get a result from the queue
-    CHierarchicalResults &get(core_t::TTime time);
+    CHierarchicalResults& get(core_t::TTime time);
 
     //! Returns the size of the queue.
     std::size_t size(void) const;
 
     //! Get the latest result from the queue
-    CHierarchicalResults &latest(void);
+    CHierarchicalResults& latest(void);
 
     //! Returns the latest bucket end time, as tracked by the queue
     core_t::TTime latestBucketEnd(void) const;
@@ -66,13 +66,13 @@ public:
     //! and which have been output most recently
     core_t::TTime chooseResultTime(core_t::TTime bucketStartTime,
                                    core_t::TTime bucketLength,
-                                   model::CHierarchicalResults &results);
+                                   model::CHierarchicalResults& results);
 
     //! Standard persistence
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Standard restoration
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! The collection of results objects
@@ -82,7 +82,7 @@ private:
     size_t m_LastResultsIndex;
 };
 
-}// model
-}// ml
+} // model
+} // ml
 
-#endif// INCLUDED_ml_model_CResultsQueue_h
+#endif // INCLUDED_ml_model_CResultsQueue_h

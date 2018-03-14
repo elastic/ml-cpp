@@ -24,7 +24,7 @@ public:
     void testWeightingFunctors(void);
     void testPerformance(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CWordDictionaryTest_h
+#endif // INCLUDED_CWordDictionaryTest_h

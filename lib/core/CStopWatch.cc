@@ -59,7 +59,9 @@ uint64_t CStopWatch::lap(void) {
     return m_AccumulatedTime + this->calcDuration();
 }
 
-bool CStopWatch::isRunning(void) const { return m_IsRunning; }
+bool CStopWatch::isRunning(void) const {
+    return m_IsRunning;
+}
 
 void CStopWatch::reset(bool startRunning) {
     m_AccumulatedTime = 0;

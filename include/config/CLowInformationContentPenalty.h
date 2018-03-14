@@ -35,19 +35,19 @@ namespace config {
 //!      their distinct count (which bounds the entropy).
 class CONFIG_EXPORT CLowInformationContentPenalty : public CPenalty {
 public:
-    CLowInformationContentPenalty(const CAutoconfigurerParams &params);
+    CLowInformationContentPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CLowInformationContentPenalty *clone(void) const;
+    virtual CLowInformationContentPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
 
 private:
     //! Compute a penalty for rare detectors.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CLowInformationContentPenalty_h
+#endif // INCLUDED_ml_config_CLowInformationContentPenalty_h

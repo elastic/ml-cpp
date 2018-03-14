@@ -41,7 +41,7 @@ CMemoryUsageEstimator::CMemoryUsageEstimator(void)
       // Initialise this so that the first estimate triggers a calculation
       m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1) {}
 
-CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSizeArray &predictors) {
+CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSizeArray& predictors) {
     typedef boost::array<double, E_NumberPredictors> TDoubleArray;
 
     if (m_Values.size() < E_NumberPredictors) {
@@ -98,7 +98,7 @@ CMemoryUsageEstimator::TOptionalSize CMemoryUsageEstimator::estimate(const TSize
     return TOptionalSize(mem);
 }
 
-void CMemoryUsageEstimator::addValue(const TSizeArray &predictors, std::size_t memory) {
+void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t memory) {
     LOG_TRACE("Add Value for " << core::CContainerPrinter::print(predictors) << ": " << memory);
 
     m_NumEstimatesSinceValue = 0;
@@ -133,13 +133,13 @@ std::size_t CMemoryUsageEstimator::memoryUsage(void) const {
     return core::CMemory::dynamicSize(m_Values);
 }
 
-void CMemoryUsageEstimator::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CMemoryUsageEstimator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(VALUES_TAG, m_Values, inserter);
 }
 
-bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CMemoryUsageEstimator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == VALUES_TAG) {
             if (!core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser)) {
                 LOG_ERROR("Failed to restore values");
@@ -161,5 +161,5 @@ std::size_t CMemoryUsageEstimator::maximumExtrapolation(EComponent component) co
     return 2 * (max - min);
 }
 
-}// model
-}// ml
+} // model
+} // ml

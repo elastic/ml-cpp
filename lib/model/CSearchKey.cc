@@ -69,7 +69,7 @@ CSearchKey::CSearchKey(int identifier,
                        std::string byFieldName,
                        std::string overFieldName,
                        std::string partitionFieldName,
-                       const TStrVec &influenceFieldNames)
+                       const TStrVec& influenceFieldNames)
     : m_Identifier(identifier),
       m_Function(function),
       m_UseNull(useNull),
@@ -85,7 +85,7 @@ CSearchKey::CSearchKey(int identifier,
     }
 }
 
-CSearchKey::CSearchKey(core::CStateRestoreTraverser &traverser, bool &successful)
+CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
     : m_Identifier(0),
       m_Function(function_t::E_IndividualCount),
       m_UseNull(false),
@@ -95,9 +95,9 @@ CSearchKey::CSearchKey(core::CStateRestoreTraverser &traverser, bool &successful
         traverser.traverseSubLevel(boost::bind(&CSearchKey::acceptRestoreTraverser, this, _1));
 }
 
-bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == IDENTIFIER_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_Identifier) == false) {
                 LOG_ERROR("Invalid identifier in " << traverser.value());
@@ -142,7 +142,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser)
     return true;
 }
 
-void CSearchKey::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(IDENTIFIER_TAG, m_Identifier);
     inserter.insertValue(FUNCTION_NAME_TAG, static_cast<int>(m_Function));
     inserter.insertValue(USE_NULL_TAG, static_cast<int>(m_UseNull));
@@ -156,7 +156,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter &inserter) co
     }
 }
 
-void CSearchKey::swap(CSearchKey &other) {
+void CSearchKey::swap(CSearchKey& other) {
     std::swap(m_Identifier, other.m_Identifier);
     std::swap(m_Function, other.m_Function);
     std::swap(m_UseNull, other.m_UseNull);
@@ -169,7 +169,7 @@ void CSearchKey::swap(CSearchKey &other) {
     std::swap(m_Hash, other.m_Hash);
 }
 
-bool CSearchKey::operator==(const CSearchKey &rhs) const {
+bool CSearchKey::operator==(const CSearchKey& rhs) const {
     typedef std::equal_to<std::string> TStrEqualTo;
 
     return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier &&
@@ -187,7 +187,7 @@ bool CSearchKey::operator==(const CSearchKey &rhs) const {
                          core::CFunctional::SDereference<TStrEqualTo>());
 }
 
-bool CSearchKey::operator<(const CSearchKey &rhs) const {
+bool CSearchKey::operator<(const CSearchKey& rhs) const {
     if (this->hash() == rhs.hash()) {
         if (m_Identifier == rhs.m_Identifier) {
             if (m_Function == rhs.m_Function) {
@@ -244,7 +244,7 @@ namespace {
 
 // This is keyed on a 'by' field name of 'count', which isn't allowed
 // in a real field config, as it doesn't make sense.
-const CSearchKey SIMPLE_COUNT_KEY(0,// identifier
+const CSearchKey SIMPLE_COUNT_KEY(0, // identifier
                                   function_t::E_IndividualCount,
                                   true,
                                   model_t::E_XF_None,
@@ -252,21 +252,29 @@ const CSearchKey SIMPLE_COUNT_KEY(0,// identifier
                                   CSearchKey::COUNT_NAME);
 }
 
-const CSearchKey &CSearchKey::simpleCountKey(void) { return SIMPLE_COUNT_KEY; }
+const CSearchKey& CSearchKey::simpleCountKey(void) {
+    return SIMPLE_COUNT_KEY;
+}
 
-bool CSearchKey::isSimpleCount(void) const { return isSimpleCount(m_Function, *m_ByFieldName); }
+bool CSearchKey::isSimpleCount(void) const {
+    return isSimpleCount(m_Function, *m_ByFieldName);
+}
 
-bool CSearchKey::isSimpleCount(function_t::EFunction function, const std::string &byFieldName) {
+bool CSearchKey::isSimpleCount(function_t::EFunction function, const std::string& byFieldName) {
     return function == function_t::E_IndividualCount && byFieldName == COUNT_NAME;
 }
 
-bool CSearchKey::isMetric(void) const { return function_t::isMetric(m_Function); }
+bool CSearchKey::isMetric(void) const {
+    return function_t::isMetric(m_Function);
+}
 
-bool CSearchKey::isPopulation(void) const { return function_t::isPopulation(m_Function); }
+bool CSearchKey::isPopulation(void) const {
+    return function_t::isPopulation(m_Function);
+}
 
 std::string CSearchKey::toCue(void) const {
     std::string cue;
-    cue.reserve(64 +// hopefully covers function description and slashes
+    cue.reserve(64 + // hopefully covers function description and slashes
                 m_FieldName->length() + m_ByFieldName->length() + m_OverFieldName->length() +
                 m_PartitionFieldName->length());
     cue += function_t::print(m_Function);
@@ -295,28 +303,44 @@ std::string CSearchKey::debug(void) const {
     return strm.str();
 }
 
-int CSearchKey::identifier(void) const { return m_Identifier; }
+int CSearchKey::identifier(void) const {
+    return m_Identifier;
+}
 
-function_t::EFunction CSearchKey::function(void) const { return m_Function; }
+function_t::EFunction CSearchKey::function(void) const {
+    return m_Function;
+}
 
-bool CSearchKey::useNull(void) const { return m_UseNull; }
+bool CSearchKey::useNull(void) const {
+    return m_UseNull;
+}
 
-model_t::EExcludeFrequent CSearchKey::excludeFrequent(void) const { return m_ExcludeFrequent; }
+model_t::EExcludeFrequent CSearchKey::excludeFrequent(void) const {
+    return m_ExcludeFrequent;
+}
 
-bool CSearchKey::hasField(const std::string &name) const {
+bool CSearchKey::hasField(const std::string& name) const {
     return *m_PartitionFieldName == name || *m_OverFieldName == name || *m_ByFieldName == name ||
            *m_FieldName == name;
 }
 
-const std::string &CSearchKey::fieldName(void) const { return *m_FieldName; }
+const std::string& CSearchKey::fieldName(void) const {
+    return *m_FieldName;
+}
 
-const std::string &CSearchKey::byFieldName(void) const { return *m_ByFieldName; }
+const std::string& CSearchKey::byFieldName(void) const {
+    return *m_ByFieldName;
+}
 
-const std::string &CSearchKey::overFieldName(void) const { return *m_OverFieldName; }
+const std::string& CSearchKey::overFieldName(void) const {
+    return *m_OverFieldName;
+}
 
-const std::string &CSearchKey::partitionFieldName(void) const { return *m_PartitionFieldName; }
+const std::string& CSearchKey::partitionFieldName(void) const {
+    return *m_PartitionFieldName;
+}
 
-const CSearchKey::TStoredStringPtrVec &CSearchKey::influenceFieldNames(void) const {
+const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames(void) const {
     return m_InfluenceFieldNames;
 }
 
@@ -337,7 +361,7 @@ uint64_t CSearchKey::hash(void) const {
     return m_Hash;
 }
 
-std::ostream &operator<<(std::ostream &strm, const CSearchKey &key) {
+std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
     // The format for this is very similar to the format used by toCue() at the
     // time of writing.  However, do NOT combine the code because the intention
     // is to simplify toCue() in the future.

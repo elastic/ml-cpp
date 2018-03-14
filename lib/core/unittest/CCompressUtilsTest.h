@@ -24,7 +24,7 @@ public:
     void testManyAdds(void);
     void testLengthOnly(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCompressUtilsTest_h
+#endif // INCLUDED_CCompressUtilsTest_h

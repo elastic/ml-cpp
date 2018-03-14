@@ -26,7 +26,7 @@ public:
     void testCdf(void);
     void testQuantile(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMixtureDistributionTest_h
+#endif // INCLUDED_CMixtureDistributionTest_h

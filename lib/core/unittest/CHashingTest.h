@@ -25,7 +25,7 @@ public:
     void testHashCombine(void);
     void testConstructors(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CHashingTest_h
+#endif // INCLUDED_CHashingTest_h

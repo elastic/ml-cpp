@@ -25,7 +25,7 @@ public:
     void testKillDisallowed(void);
     void testInvalidVerb(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCommandProcessorTest_h
+#endif // INCLUDED_CCommandProcessorTest_h

@@ -44,11 +44,11 @@ public:
 
     //! Create reading state from its state document representation.
     static bool restore(std::size_t dimenion,
-                        const SDistributionRestoreParams &params,
-                        TPriorPtr &ptr,
-                        core::CStateRestoreTraverser &traverser);
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CPriorStateSerialiserMultivariateNormal_h
+#endif // INCLUDED_ml_maths_CPriorStateSerialiserMultivariateNormal_h

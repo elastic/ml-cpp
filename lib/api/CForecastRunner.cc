@@ -81,7 +81,7 @@ CForecastRunner::SForecast::SForecast()
       s_MemoryUsage(0),
       s_Messages() {}
 
-CForecastRunner::SForecast::SForecast(SForecast &&other)
+CForecastRunner::SForecast::SForecast(SForecast&& other)
     : s_ForecastId(std::move(other.s_ForecastId)),
       s_ForecastAlias(std::move(other.s_ForecastAlias)),
       s_ForecastSeries(std::move(other.s_ForecastSeries)),
@@ -95,7 +95,7 @@ CForecastRunner::SForecast::SForecast(SForecast &&other)
       s_MemoryUsage(other.s_MemoryUsage),
       s_Messages(other.s_Messages) {}
 
-CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&other) {
+CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) {
     s_ForecastId = std::move(other.s_ForecastId);
     s_ForecastAlias = std::move(other.s_ForecastAlias);
     s_ForecastSeries = std::move(other.s_ForecastSeries);
@@ -112,9 +112,9 @@ CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&ot
     return *this;
 }
 
-CForecastRunner::CForecastRunner(const std::string &jobId,
-                                 core::CJsonOutputStreamWrapper &strmOut,
-                                 model::CResourceMonitor &resourceMonitor)
+CForecastRunner::CForecastRunner(const std::string& jobId,
+                                 core::CJsonOutputStreamWrapper& strmOut,
+                                 model::CResourceMonitor& resourceMonitor)
     : m_JobId(jobId),
       m_ConcurrentOutputStream(strmOut),
       m_ResourceMonitor(resourceMonitor),
@@ -177,10 +177,10 @@ void CForecastRunner::forecastWorker() {
             // while loops allow us to free up memory for every model right after each forecast is
             // done
             while (!forecastJob.s_ForecastSeries.empty()) {
-                TForecastResultSeries &series = forecastJob.s_ForecastSeries.back();
+                TForecastResultSeries& series = forecastJob.s_ForecastSeries.back();
 
                 while (!series.s_ToForecast.empty()) {
-                    const TForecastModelWrapper &model = series.s_ToForecast.back();
+                    const TForecastModelWrapper& model = series.s_ToForecast.back();
                     model_t::TDouble1VecDouble1VecPr support = model_t::support(model.s_Feature);
                     bool success =
                         model.s_ForecastModel->forecast(forecastJob.s_StartTime,
@@ -250,7 +250,7 @@ void CForecastRunner::deleteAllForecastJobs() {
     m_WorkAvailableCondition.notify_all();
 }
 
-bool CForecastRunner::tryGetJob(SForecast &forecastJob) {
+bool CForecastRunner::tryGetJob(SForecast& forecastJob) {
     std::unique_lock<std::mutex> lock(m_Mutex);
 
     if (!m_ForecastJobs.empty()) {
@@ -268,15 +268,17 @@ bool CForecastRunner::tryGetJob(SForecast &forecastJob) {
     return false;
 }
 
-bool CForecastRunner::pushForecastJob(const std::string &controlMessage,
-                                      const TAnomalyDetectorPtrVec &detectors,
+bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
+                                      const TAnomalyDetectorPtrVec& detectors,
                                       const core_t::TTime lastResultsTime) {
     SForecast forecastJob;
-    if (parseAndValidateForecastRequest(
-            controlMessage,
-            forecastJob,
-            lastResultsTime,
-            boost::bind(&CForecastRunner::sendErrorMessage, this, _1, _2)) == false) {
+    if (parseAndValidateForecastRequest(controlMessage,
+                                        forecastJob,
+                                        lastResultsTime,
+                                        boost::bind(&CForecastRunner::sendErrorMessage,
+                                                    this,
+                                                    _1,
+                                                    _2)) == false) {
         return false;
     }
 
@@ -292,7 +294,7 @@ bool CForecastRunner::pushForecastJob(const std::string &controlMessage,
     size_t totalMemoryUsage = 0;
 
     // 1st loop over the detectors to check prerequisites
-    for (const auto &detector : detectors) {
+    for (const auto& detector : detectors) {
         if (detector.get() == nullptr) {
             LOG_ERROR("Unexpected empty detector found");
             continue;
@@ -341,7 +343,7 @@ bool CForecastRunner::pushForecastJob(const std::string &controlMessage,
     // 2nd loop over the detectors to clone models for forecasting
     TForecastResultSeriesVec s;
 
-    for (const auto &detector : detectors) {
+    for (const auto& detector : detectors) {
         if (detector.get() == nullptr) {
             LOG_ERROR("Unexpected empty detector found");
             continue;
@@ -353,7 +355,7 @@ bool CForecastRunner::pushForecastJob(const std::string &controlMessage,
     return this->push(forecastJob);
 }
 
-bool CForecastRunner::push(SForecast &forecastJob) {
+bool CForecastRunner::push(SForecast& forecastJob) {
     std::unique_lock<std::mutex> lock(m_Mutex);
 
     if (m_ForecastJobs.size() == MAX_FORECAST_JOBS_IN_QUEUE) {
@@ -373,10 +375,10 @@ bool CForecastRunner::push(SForecast &forecastJob) {
     return true;
 }
 
-bool CForecastRunner::parseAndValidateForecastRequest(const std::string &controlMessage,
-                                                      SForecast &forecastJob,
+bool CForecastRunner::parseAndValidateForecastRequest(const std::string& controlMessage,
+                                                      SForecast& forecastJob,
                                                       const core_t::TTime lastResultsTime,
-                                                      const TErrorFunc &errorFunction) {
+                                                      const TErrorFunc& errorFunction) {
     std::istringstream stringStream(controlMessage.substr(1));
     forecastJob.s_StartTime = lastResultsTime;
 
@@ -395,7 +397,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
 
         // note: this is not exposed on x-pack side
         forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR(ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;
     }
@@ -449,7 +451,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string &control
     return true;
 }
 
-void CForecastRunner::sendScheduledMessage(const SForecast &forecastJob) const {
+void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
     LOG_DEBUG("job passed forecast validation, scheduled for forecasting");
     model::CForecastDataSink sink(m_JobId,
                                   forecastJob.s_ForecastId,
@@ -463,21 +465,21 @@ void CForecastRunner::sendScheduledMessage(const SForecast &forecastJob) const {
     sink.writeScheduledMessage();
 }
 
-void CForecastRunner::sendErrorMessage(const SForecast &forecastJob,
-                                       const std::string &message) const {
+void CForecastRunner::sendErrorMessage(const SForecast& forecastJob,
+                                       const std::string& message) const {
     LOG_ERROR(message);
     this->sendMessage(&model::CForecastDataSink::writeErrorMessage, forecastJob, message);
 }
 
-void CForecastRunner::sendFinalMessage(const SForecast &forecastJob,
-                                       const std::string &message) const {
+void CForecastRunner::sendFinalMessage(const SForecast& forecastJob,
+                                       const std::string& message) const {
     this->sendMessage(&model::CForecastDataSink::writeFinalMessage, forecastJob, message);
 }
 
 template <typename WRITE>
 void CForecastRunner::sendMessage(WRITE write,
-                                  const SForecast &forecastJob,
-                                  const std::string &message) const {
+                                  const SForecast& forecastJob,
+                                  const std::string& message) const {
     model::CForecastDataSink sink(m_JobId,
                                   forecastJob.s_ForecastId,
                                   forecastJob.s_ForecastAlias,
@@ -496,6 +498,8 @@ void CForecastRunner::SForecast::reset() {
     s_ForecastSeries.clear();
 }
 
-core_t::TTime CForecastRunner::SForecast::forecastEnd() const { return s_StartTime + s_Duration; }
+core_t::TTime CForecastRunner::SForecast::forecastEnd() const {
+    return s_StartTime + s_Duration;
+}
 }
 }

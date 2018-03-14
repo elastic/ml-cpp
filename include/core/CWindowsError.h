@@ -60,12 +60,12 @@ private:
     //! The error code
     uint32_t m_ErrorCode;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &, const CWindowsError &);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream&, const CWindowsError&);
 };
 
 //! Stream output prints textual representation of the error
-CORE_EXPORT std::ostream &operator<<(std::ostream &os, const CWindowsError &windowsError);
+CORE_EXPORT std::ostream& operator<<(std::ostream& os, const CWindowsError& windowsError);
 }
 }
 
-#endif// INCLUDED_ml_core_CWindowsError_h
+#endif // INCLUDED_ml_core_CWindowsError_h

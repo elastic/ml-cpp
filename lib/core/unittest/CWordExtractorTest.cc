@@ -17,13 +17,15 @@
 #include <core/CLogger.h>
 #include <core/CWordExtractor.h>
 
-CppUnit::Test *CWordExtractorTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
+CppUnit::Test* CWordExtractorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordExtractorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>(
-        "CWordExtractorTest::testWordExtract", &CWordExtractorTest::testWordExtract));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordExtractorTest>(
-        "CWordExtractorTest::testMinConsecutive", &CWordExtractorTest::testMinConsecutive));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testWordExtract",
+                                                    &CWordExtractorTest::testWordExtract));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CWordExtractorTest>("CWordExtractorTest::testMinConsecutive",
+                                                    &CWordExtractorTest::testMinConsecutive));
 
     return suiteOfTests;
 }
@@ -66,8 +68,9 @@ void CWordExtractorTest::testWordExtract(void) {
         LOG_DEBUG("Message: " << message);
         LOG_DEBUG("Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("which is more than the configured time of seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "which is more than the configured time of seconds Stack trace"),
+                             words);
     }
 }
 
@@ -113,8 +116,9 @@ void CWordExtractorTest::testMinConsecutive(void) {
         LOG_DEBUG("Message: " << message);
         LOG_DEBUG("Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("which is more than the configured time seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "which is more than the configured time seconds Stack trace"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -122,8 +126,9 @@ void CWordExtractorTest::testMinConsecutive(void) {
         LOG_DEBUG("Message: " << message);
         LOG_DEBUG("Words: " << words);
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("which is more than the configured time seconds Stack trace"), words);
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "which is more than the configured time seconds Stack trace"),
+                             words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 

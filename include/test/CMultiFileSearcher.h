@@ -67,4 +67,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_test_CMultiFileSearcher_h
+#endif // INCLUDED_ml_test_CMultiFileSearcher_h

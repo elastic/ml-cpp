@@ -77,22 +77,22 @@ public:
     CTimeSeriesDecomposition(double decayRate,
                              core_t::TTime bucketLength,
                              std::size_t seasonalComponentSize,
-                             core::CStateRestoreTraverser &traverser);
+                             core::CStateRestoreTraverser& traverser);
 
     //! Deep copy.
-    CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other);
+    CTimeSeriesDecomposition(const CTimeSeriesDecomposition& other);
 
     //! An efficient swap of the state of this and \p other.
-    void swap(CTimeSeriesDecomposition &other);
+    void swap(CTimeSeriesDecomposition& other);
 
     //! Assign this object (using deep copy).
-    CTimeSeriesDecomposition &operator=(const CTimeSeriesDecomposition &other);
+    CTimeSeriesDecomposition& operator=(const CTimeSeriesDecomposition& other);
 
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Clone this decomposition.
-    virtual CTimeSeriesDecomposition *clone(void) const;
+    virtual CTimeSeriesDecomposition* clone(void) const;
 
     //! Set the decay rate.
     virtual void decayRate(double decayRate);
@@ -117,8 +117,8 @@ public:
     //! and false otherwise.
     virtual bool addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
-                          const maths_t::TDouble4Vec &weights = TWeights::UNIT);
+                          const maths_t::TWeightStyleVec& weightStyles = TWeights::COUNT,
+                          const maths_t::TDouble4Vec& weights = TWeights::UNIT);
 
     //! Propagate the decomposition forwards to \p time.
     void propagateForwardsTo(core_t::TTime time);
@@ -151,7 +151,7 @@ public:
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
-                          TDouble3VecVec &result);
+                          TDouble3VecVec& result);
 
     //! Detrend \p value from the time series being modeled by removing
     //! any trend and periodic component at \p time.
@@ -186,7 +186,7 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Get the seasonal components.
-    virtual const maths_t::TSeasonalComponentVec &seasonalComponents(void) const;
+    virtual const maths_t::TSeasonalComponentVec& seasonalComponents(void) const;
 
     //! This is the latest time of any point added to this object or the time skipped to.
     virtual core_t::TTime lastValueTime(void) const;
@@ -199,18 +199,18 @@ private:
     void initializeMediator(void);
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! The correction to produce a smooth join between periodic
     //! repeats and partitions.
     template <typename F>
-    maths_t::TDoubleDoublePr smooth(const F &f, core_t::TTime time, int components) const;
+    maths_t::TDoubleDoublePr smooth(const F& f, core_t::TTime time, int components) const;
 
     //! Check if \p component has been selected.
-    bool selected(core_t::TTime time, int components, const CSeasonalComponent &component) const;
+    bool selected(core_t::TTime time, int components, const CSeasonalComponent& component) const;
 
     //! Check if \p components match \p component.
-    bool matches(int components, const CSeasonalComponent &component) const;
+    bool matches(int components, const CSeasonalComponent& component) const;
 
 private:
     //! The time over which discontinuities between weekdays
@@ -240,4 +240,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTimeSeriesDecomposition_h
+#endif // INCLUDED_ml_maths_CTimeSeriesDecomposition_h

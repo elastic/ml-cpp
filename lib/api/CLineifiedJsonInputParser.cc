@@ -22,12 +22,12 @@
 namespace ml {
 namespace api {
 
-CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream &strmIn,
+CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream& strmIn,
                                                      bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {}
 
-bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
-    TStrVec &fieldNames = this->fieldNames();
+bool CLineifiedJsonInputParser::readStream(const TReaderFunc& readerFunc) {
+    TStrVec& fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -36,7 +36,7 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
     // We reuse the same field map for every record
     TStrStrUMap recordFields;
 
-    char *begin(this->parseLine().first);
+    char* begin(this->parseLine().first);
     while (begin != 0) {
         rapidjson::Document document;
         if (this->parseDocument(begin, document) == false) {
@@ -45,8 +45,10 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(
-                    document, fieldNames, fieldValRefs, recordFields) == false) {
+            if (this->decodeDocumentWithCommonFields(document,
+                                                     fieldNames,
+                                                     fieldValRefs,
+                                                     recordFields) == false) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
@@ -69,7 +71,7 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc &readerFunc) {
     return true;
 }
 
-bool CLineifiedJsonInputParser::parseDocument(char *begin, rapidjson::Document &document) {
+bool CLineifiedJsonInputParser::parseDocument(char* begin, rapidjson::Document& document) {
     // Parse JSON string using Rapidjson
     if (document.ParseInsitu<rapidjson::kParseStopWhenDoneFlag>(begin).HasParseError()) {
         LOG_ERROR("JSON parse error: " << document.GetParseError());
@@ -84,10 +86,10 @@ bool CLineifiedJsonInputParser::parseDocument(char *begin, rapidjson::Document &
     return true;
 }
 
-bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Document &document,
-                                                               TStrVec &fieldNames,
-                                                               TStrRefVec &fieldValRefs,
-                                                               TStrStrUMap &recordFields) {
+bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Document& document,
+                                                               TStrVec& fieldNames,
+                                                               TStrRefVec& fieldValRefs,
+                                                               TStrStrUMap& recordFields) {
     if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         if (this->decodeDocumentWithArbitraryFields(document, fieldNames, recordFields) == false) {
@@ -141,9 +143,9 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
 }
 
 bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(
-    const rapidjson::Document &document,
-    TStrVec &fieldNames,
-    TStrStrUMap &recordFields) {
+    const rapidjson::Document& document,
+    TStrVec& fieldNames,
+    TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();

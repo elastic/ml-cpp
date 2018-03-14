@@ -75,11 +75,11 @@ public:
     bool haveCopyOnWriteStrings(void) const;
 
     //! Look up a char pointer when the length is not known
-    const std::string &stringFor(const char *str);
+    const std::string& stringFor(const char* str);
 
     //! If the length is already known the hash calculation can be more
     //! efficient
-    const std::string &stringFor(const char *str, size_t length);
+    const std::string& stringFor(const char* str, size_t length);
 
 private:
     //! String hash that uses the same formula as CCharPHash below.
@@ -88,20 +88,20 @@ private:
     //! hence using a hand coded hash functor.
     class CStrHash : public std::unary_function<std::string, size_t> {
     public:
-        size_t operator()(const std::string &str) const;
+        size_t operator()(const std::string& str) const;
     };
 
     //! Class to hash a range of characters on construction to save
     //! calculating the length in operator().  Does NOT construct a
     //! temporary string object to create the hash.
-    class CCharPHash : public std::unary_function<const char *, size_t> {
+    class CCharPHash : public std::unary_function<const char*, size_t> {
     public:
         //! Store the given hash
-        CCharPHash(const char *str, const char *end);
+        CCharPHash(const char* str, const char* end);
 
         //! Return the hash computed in the constructor regardless of
         //! what argument is passed.
-        size_t operator()(const char *) const;
+        size_t operator()(const char*) const;
 
     private:
         size_t m_Hash;
@@ -109,12 +109,12 @@ private:
 
     //! Check for equality between a char pointer and a string without
     //! constructing a temporary string
-    class CCharPStrEqual : public std::binary_function<const char *, std::string, bool> {
+    class CCharPStrEqual : public std::binary_function<const char*, std::string, bool> {
     public:
         //! Cache the char pointer length to speed comparisons
         CCharPStrEqual(size_t length);
 
-        bool operator()(const char *lhs, const std::string &rhs) const;
+        bool operator()(const char* lhs, const std::string& rhs) const;
 
     private:
         size_t m_Length;
@@ -137,4 +137,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CStringCache_h
+#endif // INCLUDED_ml_core_CStringCache_h

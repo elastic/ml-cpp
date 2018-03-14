@@ -40,7 +40,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble3Vec = core::CSmallVector<double, 3>;
 using TDouble3VecVec = std::vector<TDouble3Vec>;
-using TGenerator = TDoubleVec (*)(test::CRandomNumbers &,
+using TGenerator = TDoubleVec (*)(test::CRandomNumbers&,
                                   core_t::TTime,
                                   core_t::TTime,
                                   core_t::TTime);
@@ -48,7 +48,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TRegression = maths::CRegression::CLeastSquaresOnline<2, double>;
 
-TDoubleVec multiscaleRandomWalk(test::CRandomNumbers &rng,
+TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng,
                                 core_t::TTime bucketLength,
                                 core_t::TTime start,
                                 core_t::TTime end) {
@@ -80,7 +80,7 @@ TDoubleVec multiscaleRandomWalk(test::CRandomNumbers &rng,
     return result;
 }
 
-TDoubleVec piecewiseLinear(test::CRandomNumbers &rng,
+TDoubleVec piecewiseLinear(test::CRandomNumbers& rng,
                            core_t::TTime bucketLength,
                            core_t::TTime start,
                            core_t::TTime end) {
@@ -113,7 +113,7 @@ TDoubleVec piecewiseLinear(test::CRandomNumbers &rng,
     return result;
 }
 
-TDoubleVec staircase(test::CRandomNumbers &rng,
+TDoubleVec staircase(test::CRandomNumbers& rng,
                      core_t::TTime bucketLength,
                      core_t::TTime start,
                      core_t::TTime end) {
@@ -146,7 +146,7 @@ TDoubleVec staircase(test::CRandomNumbers &rng,
     return result;
 }
 
-TDoubleVec switching(test::CRandomNumbers &rng,
+TDoubleVec switching(test::CRandomNumbers& rng,
                      core_t::TTime bucketLength,
                      core_t::TTime start,
                      core_t::TTime end) {
@@ -198,10 +198,10 @@ void CTrendComponentTest::testValueAndVariance() {
     TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
 
     maths::CTrendComponent component{0.012};
-    maths::CDecayRateController controller(
-        maths::CDecayRateController::E_PredictionBias |
-            maths::CDecayRateController::E_PredictionErrorIncrease,
-        1);
+    maths::CDecayRateController
+        controller(maths::CDecayRateController::E_PredictionBias |
+                       maths::CDecayRateController::E_PredictionErrorIncrease,
+                   1);
 
     TMeanVarAccumulator normalisedResiduals;
     for (core_t::TTime time = start; time < end; time += bucketLength) {
@@ -251,10 +251,10 @@ void CTrendComponentTest::testDecayRate() {
 
     maths::CTrendComponent component{0.012};
     TRegression regression;
-    maths::CDecayRateController controller(
-        maths::CDecayRateController::E_PredictionBias |
-            maths::CDecayRateController::E_PredictionErrorIncrease,
-        1);
+    maths::CDecayRateController
+        controller(maths::CDecayRateController::E_PredictionBias |
+                       maths::CDecayRateController::E_PredictionErrorIncrease,
+                   1);
 
     TMeanAccumulator error;
     TMeanAccumulator level;
@@ -311,10 +311,10 @@ void CTrendComponentTest::testForecast() {
         TDoubleVec values(generate(rng, bucketLength, start, end + 1000 * bucketLength));
 
         maths::CTrendComponent component{0.012};
-        maths::CDecayRateController controller(
-            maths::CDecayRateController::E_PredictionBias |
-                maths::CDecayRateController::E_PredictionErrorIncrease,
-            1);
+        maths::CDecayRateController
+            controller(maths::CDecayRateController::E_PredictionBias |
+                           maths::CDecayRateController::E_PredictionErrorIncrease,
+                       1);
 
         core_t::TTime time{0};
         for (/**/; time < end; time += bucketLength) {
@@ -338,7 +338,7 @@ void CTrendComponentTest::testForecast() {
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanErrorAt95;
-        for (auto &&errorbar : forecast) {
+        for (auto&& errorbar : forecast) {
             core_t::TTime bucket{(time - start) / bucketLength};
             meanError.add(std::fabs((values[bucket] - errorbar[1]) / std::fabs(values[bucket])));
             meanErrorAt95.add(
@@ -448,17 +448,21 @@ void CTrendComponentTest::testPersist() {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CTrendComponentTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTrendComponentTest");
+CppUnit::Test* CTrendComponentTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendComponentTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testValueAndVariance", &CTrendComponentTest::testValueAndVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testDecayRate", &CTrendComponentTest::testDecayRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testValueAndVariance",
+                                                     &CTrendComponentTest::testValueAndVariance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testDecayRate",
+                                                     &CTrendComponentTest::testDecayRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testForecast",
+                                                     &CTrendComponentTest::testForecast));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTrendComponentTest>("CTrendComponentTest::testPersist",
+                                                     &CTrendComponentTest::testPersist));
 
     return suiteOfTests;
 }

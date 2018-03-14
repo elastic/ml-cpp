@@ -44,7 +44,7 @@ const double MAXIMUM_COST = boost::numeric::bounds<double>::highest();
 //! \param[in] costs The matrix of costs.
 //! \param[in] i The row index.
 //! \param[in] j The column index.
-inline double cost(const TDoubleVecVec &costs, std::size_t i, std::size_t j) {
+inline double cost(const TDoubleVecVec& costs, std::size_t i, std::size_t j) {
     return (i < costs.size() ? (j < costs[i].size() ? costs[i][j] : 0.0) : 0.0);
 }
 
@@ -61,9 +61,9 @@ inline double cost(const TDoubleVecVec &costs, std::size_t i, std::size_t j) {
 //! \param[in] columnPotential The column potential function.
 //! \param[in] i The row index.
 //! \param[in] j The column index.
-inline double adjustedCost(const TDoubleVecVec &costs,
-                           const TDoubleVec &rowPotential,
-                           const TDoubleVec &columnPotential,
+inline double adjustedCost(const TDoubleVecVec& costs,
+                           const TDoubleVec& rowPotential,
+                           const TDoubleVec& columnPotential,
                            std::size_t i,
                            std::size_t j) {
     // The bracketing is important in this expression since
@@ -78,7 +78,7 @@ inline double adjustedCost(const TDoubleVecVec &costs,
 //! \param[out] matchColumnByRow The columns matching each row.
 //! \param[out] matchRowByColumn The rows matching each column.
 inline void
-match(std::size_t i, std::size_t j, TSizeVec &matchColumnByRow, TSizeVec &matchRowByColumn) {
+match(std::size_t i, std::size_t j, TSizeVec& matchColumnByRow, TSizeVec& matchRowByColumn) {
     matchColumnByRow[i] = j;
     matchRowByColumn[j] = i;
 }
@@ -101,17 +101,17 @@ match(std::size_t i, std::size_t j, TSizeVec &matchColumnByRow, TSizeVec &matchR
 //! \param[out] minSlackColumn The column of the minimum slack
 //! edge.
 //! \param[out] minSlackValue The minimum slack.
-void grow(const TDoubleVecVec &costs,
-          const TDoubleVec &rowPotential,
-          const TDoubleVec &columnPotential,
-          const TSizeVec &parentRowByCommittedColumn,
+void grow(const TDoubleVecVec& costs,
+          const TDoubleVec& rowPotential,
+          const TDoubleVec& columnPotential,
+          const TSizeVec& parentRowByCommittedColumn,
           std::size_t pivot,
-          TBoolVec &committedRows,
-          TSizeVec &minSlackRowByColumn,
-          TDoubleVec &minSlackValueByColumn,
-          std::size_t &minSlackRow,
-          std::size_t &minSlackColumn,
-          double &minSlackValue) {
+          TBoolVec& committedRows,
+          TSizeVec& minSlackRowByColumn,
+          TDoubleVec& minSlackValueByColumn,
+          std::size_t& minSlackRow,
+          std::size_t& minSlackColumn,
+          double& minSlackValue) {
     minSlackRow = UNMATCHED;
     minSlackColumn = UNMATCHED;
     minSlackValue = MAXIMUM_COST;
@@ -133,7 +133,7 @@ void grow(const TDoubleVecVec &costs,
 }
 }
 
-bool CAssignment::kuhnMunkres(const TDoubleVecVec &costs, TSizeSizePrVec &matching) {
+bool CAssignment::kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
     matching.clear();
 
     if (costs.empty()) {

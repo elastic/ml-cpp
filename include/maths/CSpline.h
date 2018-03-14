@@ -48,10 +48,10 @@ typedef std::vector<CFloatStorage> TFloatVec;
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solveTridiagonal(const TDoubleVec &a,
-                                   const TDoubleVec &b,
-                                   TDoubleVec &c,
-                                   TDoubleVec &x);
+bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
+                                   const TDoubleVec& b,
+                                   TDoubleVec& c,
+                                   TDoubleVec& x);
 
 //! Solves:
 //! <pre class="fragment">
@@ -68,12 +68,12 @@ bool MATHS_EXPORT solveTridiagonal(const TDoubleVec &a,
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec &a,
-                                           const TDoubleVec &b,
-                                           TDoubleVec &c,
-                                           TDoubleVec &u,
-                                           const TDoubleVec &v,
-                                           TDoubleVec &x);
+bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec& a,
+                                           const TDoubleVec& b,
+                                           TDoubleVec& c,
+                                           TDoubleVec& u,
+                                           const TDoubleVec& v,
+                                           TDoubleVec& x);
 }
 
 //! \brief Defines types used by the spline implementation.
@@ -145,11 +145,11 @@ public:
 public:
     CSpline(EType type) : m_Type(type) {}
 
-    CSpline(EType type, const KNOTS &knots, const VALUES &values, const CURVATURES &curvatures)
+    CSpline(EType type, const KNOTS& knots, const VALUES& values, const CURVATURES& curvatures)
         : m_Type(type), m_Knots(knots), m_Values(values), m_Curvatures(curvatures) {}
 
     //! Efficiently swap the contents of two spline objects.
-    void swap(CSpline &other) {
+    void swap(CSpline& other) {
         using std::swap;
         swap(m_Type, other.m_Type);
         swap(m_Knots, other.m_Knots);
@@ -181,11 +181,12 @@ public:
             return 0.0;
         }
 
-        std::size_t k = CTools::truncate(
-            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) -
-                        this->knots().begin()),
-            std::size_t(1),
-            this->knots().size() - 1);
+        std::size_t k =
+            CTools::truncate(std::size_t(
+                                 std::lower_bound(this->knots().begin(), this->knots().end(), x) -
+                                 this->knots().begin()),
+                             std::size_t(1),
+                             this->knots().size() - 1);
 
         if (x == this->knots()[k]) {
             return this->values()[k];
@@ -260,11 +261,12 @@ public:
             return 0.0;
         }
 
-        std::size_t k = CTools::truncate(
-            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) -
-                        this->knots().begin()),
-            std::size_t(1),
-            this->knots().size() - 1);
+        std::size_t k =
+            CTools::truncate(std::size_t(
+                                 std::lower_bound(this->knots().begin(), this->knots().end(), x) -
+                                 this->knots().begin()),
+                             std::size_t(1),
+                             this->knots().size() - 1);
 
         switch (m_Type) {
             case E_Linear: {
@@ -341,7 +343,7 @@ public:
     //! \param[out] d Filled in with the constant.
     //! \note Null pointers are ignored.
     void
-    coefficients(TDoubleVec *a = 0, TDoubleVec *b = 0, TDoubleVec *c = 0, TDoubleVec *d = 0) const {
+    coefficients(TDoubleVec* a = 0, TDoubleVec* b = 0, TDoubleVec* c = 0, TDoubleVec* d = 0) const {
         if (a)
             a->reserve(this->values().size());
         if (b)
@@ -401,7 +403,7 @@ public:
     //! sets the function value to the mean of function values
     //! over the duplicates.
     bool
-    interpolate(const TDoubleVec &knots, const TDoubleVec &values, EBoundaryCondition boundary) {
+    interpolate(const TDoubleVec& knots, const TDoubleVec& values, EBoundaryCondition boundary) {
         if (knots.size() < 2) {
             LOG_ERROR("Insufficient knot points supplied");
             return false;
@@ -547,8 +549,12 @@ public:
                         this->curvaturesRef().push_back(
                             6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
                                    (this->values()[n - 1] - this->values()[n - 2]) / h_));
-                        if (!spline_detail::solvePeturbedTridiagonal(
-                                a, b, c, u, v, this->curvaturesRef())) {
+                        if (!spline_detail::solvePeturbedTridiagonal(a,
+                                                                     b,
+                                                                     c,
+                                                                     u,
+                                                                     v,
+                                                                     this->curvaturesRef())) {
                             LOG_ERROR("Failed to calculate curvatures");
                             return false;
                         }
@@ -565,7 +571,7 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    void describe(const std::string &indent, std::string &result) const {
+    void describe(const std::string& indent, std::string& result) const {
         result += "\n" + indent + "cubic spline";
         if (!this->initialized()) {
             result += " zero everywhere";
@@ -632,25 +638,25 @@ public:
     }
 
     //! Get the knot points of the spline.
-    inline const TNonConstKnots &knots(void) const { return boost::unwrap_ref(m_Knots); }
+    inline const TNonConstKnots& knots(void) const { return boost::unwrap_ref(m_Knots); }
 
     //! Get the values at the knot points of the spline.
-    inline const TNonConstValues &values(void) const { return boost::unwrap_ref(m_Values); }
+    inline const TNonConstValues& values(void) const { return boost::unwrap_ref(m_Values); }
 
     //! Get the curvatures at the knot points of the spline.
-    inline const TNonConstCurvatures &curvatures(void) const {
+    inline const TNonConstCurvatures& curvatures(void) const {
         return boost::unwrap_ref(m_Curvatures);
     }
 
 private:
     //! Get the knot points of the spline.
-    inline TKnots &knotsRef(void) { return boost::unwrap_ref(m_Knots); }
+    inline TKnots& knotsRef(void) { return boost::unwrap_ref(m_Knots); }
 
     //! Get the values at the knot points of the spline.
-    inline TNonConstValues &valuesRef(void) { return boost::unwrap_ref(m_Values); }
+    inline TNonConstValues& valuesRef(void) { return boost::unwrap_ref(m_Values); }
 
     //! Get the curvatures at the knot points of the spline.
-    inline TCurvatures &curvaturesRef(void) { return boost::unwrap_ref(m_Curvatures); }
+    inline TCurvatures& curvaturesRef(void) { return boost::unwrap_ref(m_Curvatures); }
 
 private:
     //! The type of spline.
@@ -665,4 +671,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CSpline_h
+#endif // INCLUDED_ml_maths_CSpline_h

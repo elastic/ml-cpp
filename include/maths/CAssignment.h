@@ -54,8 +54,8 @@ public:
     //! every row.
     //! \note This implementation is O(m * n^2) where m is the
     //! minimum of the # rows and columns and n is the maximum.
-    static bool kuhnMunkres(const TDoubleVecVec &costs, TSizeSizePrVec &matching);
+    static bool kuhnMunkres(const TDoubleVecVec& costs, TSizeSizePrVec& matching);
 };
 }
 }
-#endif// INCLUDED_ml_maths_CAssignment_h
+#endif // INCLUDED_ml_maths_CAssignment_h

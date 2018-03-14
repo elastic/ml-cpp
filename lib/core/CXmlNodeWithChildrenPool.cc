@@ -51,13 +51,13 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(st
 }
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP
-CXmlNodeWithChildrenPool::newNode(const std::string &name,
+CXmlNodeWithChildrenPool::newNode(const std::string& name,
                                   double value,
                                   CIEEE754::EPrecision precision) {
     return this->newNode(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
-void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr) {
+void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) {
     if (nodePtr == 0) {
         LOG_ERROR("Unexpected NULL pointer");
         return;

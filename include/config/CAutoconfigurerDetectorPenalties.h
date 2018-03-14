@@ -45,11 +45,11 @@ public:
     typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
 
 public:
-    CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams &params,
-                                     const CAutoconfigurerFieldRolePenalties &fieldRolePenalties);
+    CAutoconfigurerDetectorPenalties(const CAutoconfigurerParams& params,
+                                     const CAutoconfigurerFieldRolePenalties& fieldRolePenalties);
 
     //! Get the penalty for the detector \p spec.
-    TPenaltyPtr penaltyFor(const CDetectorSpecification &spec);
+    TPenaltyPtr penaltyFor(const CDetectorSpecification& spec);
 
 private:
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
@@ -59,7 +59,7 @@ private:
 
 private:
     //! Get the penalty for the detector \p spec based on its field roles.
-    const CPenalty &fieldRolePenalty(const CDetectorSpecification &spec);
+    const CPenalty& fieldRolePenalty(const CDetectorSpecification& spec);
 
 private:
     //! The parameters.
@@ -80,4 +80,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CAutoconfigurerDetectorPenalties_h
+#endif // INCLUDED_ml_config_CAutoconfigurerDetectorPenalties_h

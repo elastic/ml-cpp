@@ -42,7 +42,7 @@ namespace core {
 //!
 class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser {
 public:
-    CRapidXmlStateRestoreTraverser(const CRapidXmlParser &parser);
+    CRapidXmlStateRestoreTraverser(const CRapidXmlParser& parser);
 
     //! Navigate to the next element at the current level, or return false
     //! if there isn't one
@@ -53,12 +53,12 @@ public:
 
     //! Get the name of the current element - the returned reference is only
     //! valid for as long as the traverser is pointing at the same element
-    virtual const std::string &name(void) const;
+    virtual const std::string& name(void) const;
 
     //! Get the value of the current element - the returned reference is
     //! only valid for as long as the traverser is pointing at the same
     //! element
-    virtual const std::string &value(void) const;
+    virtual const std::string& value(void) const;
 
     //! Has the end of the underlying document been reached?
     virtual bool isEof(void) const;
@@ -75,18 +75,18 @@ protected:
 private:
     //! Get a pointer to the next node element sibling of the current node,
     //! or return NULL if there isn't one
-    CRapidXmlParser::TCharRapidXmlNode *nextNodeElement(void) const;
+    CRapidXmlParser::TCharRapidXmlNode* nextNodeElement(void) const;
 
     //! Get a pointer to the first child node element of the current node,
     //! or return NULL if there isn't one
-    CRapidXmlParser::TCharRapidXmlNode *firstChildNodeElement(void) const;
+    CRapidXmlParser::TCharRapidXmlNode* firstChildNodeElement(void) const;
 
 private:
     //! The parser that has been used to parse the document to be traversed
-    const CRapidXmlParser &m_Parser;
+    const CRapidXmlParser& m_Parser;
 
     //! Pointer to current node within the document
-    CRapidXmlParser::TCharRapidXmlNode *m_CurrentNode;
+    CRapidXmlParser::TCharRapidXmlNode* m_CurrentNode;
 
     //! RapidXml stores strings as const char *s, which we don't want to
     //! use widely throughout our codebase.  These strings store copies of
@@ -102,4 +102,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CRapidXmlStateRestoreTraverser_h
+#endif // INCLUDED_ml_core_CRapidXmlStateRestoreTraverser_h

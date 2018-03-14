@@ -30,11 +30,11 @@ namespace ml {
 namespace domain_name_entropy {
 
 CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(
-    const CTopLevelDomainDb &topLevelDomainDb,
-    const std::string &csvFileName,
-    const std::string &domainNameFieldName,
-    const std::string &timeFieldName,
-    const std::string &entropyFieldName)
+    const CTopLevelDomainDb& topLevelDomainDb,
+    const std::string& csvFileName,
+    const std::string& domainNameFieldName,
+    const std::string& timeFieldName,
+    const std::string& entropyFieldName)
     : m_TopLevelDomainDb(topLevelDomainDb),
       m_CsvFileName(csvFileName),
       m_DomainNameFieldName(domainNameFieldName),
@@ -70,9 +70,9 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     return true;
 }
 
-bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
-                                                   std::string &lastTime,
-                                                   const std::string &line) {
+bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
+                                                   std::string& lastTime,
+                                                   const std::string& line) {
     static int count(0);
 
     ++count;
@@ -122,7 +122,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
     }
 
     std::string hostName = tokens.at(m_DomainNameFieldIndex);
-    const std::string &time = tokens.at(m_TimeFieldIndex);
+    const std::string& time = tokens.at(m_TimeFieldIndex);
 
     if (time != lastTime) {
         this->flush(lastTime);
@@ -158,7 +158,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
     return true;
 }
 
-void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string &time) {
+void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string& time) {
     // Finish all strings and dump
     for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin();
          itr != m_RegisteredDomainEntropy.end();

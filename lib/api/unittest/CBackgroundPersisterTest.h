@@ -26,11 +26,11 @@ public:
     void testDetectorPersistPartition(void);
     void testCategorizationOnlyPersist(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     void
-    foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string &configFileName);
+    foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName);
 };
 
-#endif// INCLUDED_CBackgroundPersisterTest_h
+#endif // INCLUDED_CBackgroundPersisterTest_h

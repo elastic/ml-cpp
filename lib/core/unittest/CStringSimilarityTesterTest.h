@@ -27,7 +27,7 @@ public:
     void testLevensteinDistanceAlgorithmEquivalence(void);
     void testWeightedEditDistance(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CStringSimilarityTesterTest_h
+#endif // INCLUDED_CStringSimilarityTesterTest_h

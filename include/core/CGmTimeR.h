@@ -36,9 +36,9 @@ namespace core {
 //!
 class CORE_EXPORT CGmTimeR : private CNonInstantiatable {
 public:
-    static struct tm *gmTimeR(const time_t *clock, struct tm *result);
+    static struct tm* gmTimeR(const time_t* clock, struct tm* result);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CGmTimeR_h
+#endif // INCLUDED_ml_core_CGmTimeR_h

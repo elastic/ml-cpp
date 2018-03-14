@@ -34,15 +34,15 @@ class CMutex;
 class CORE_EXPORT CScopedLock : private CNonCopyable {
 public:
     //! Lock specified mutex
-    CScopedLock(CMutex &mutex);
+    CScopedLock(CMutex& mutex);
 
     //! Unlock specified mutex
     ~CScopedLock(void);
 
 private:
-    CMutex &m_Mutex;
+    CMutex& m_Mutex;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CScopedLock_h
+#endif // INCLUDED_ml_core_CScopedLock_h

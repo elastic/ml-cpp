@@ -21,7 +21,7 @@ class CRapidXmlStateRestoreTraverserTest : public CppUnit::TestFixture {
 public:
     void testRestore(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRapidXmlStateRestoreTraverserTest_h
+#endif // INCLUDED_CRapidXmlStateRestoreTraverserTest_h

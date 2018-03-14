@@ -86,10 +86,10 @@ public:
         CCsvLineParser(char separator = COMMA);
 
         //! Supply a new CSV string to be parsed.
-        void reset(const std::string &line);
+        void reset(const std::string& line);
 
         //! Parse the next token from the current line.
-        bool parseNext(std::string &value);
+        bool parseNext(std::string& value);
 
         //! Are we at the end of the current line?
         bool atEnd() const;
@@ -97,7 +97,7 @@ public:
     private:
         //! Attempt to parse the next token from the working record
         //! into the working field.
-        bool parseNextToken(const char *end, const char *&current);
+        bool parseNextToken(const char* end, const char*& current);
 
     private:
         //! Input field separator by default this is ',' but can be
@@ -110,12 +110,12 @@ public:
 
         //! The line to be parsed.  Held as a pointer that must outlive
         //! use of this class to avoid copying.
-        const std::string *m_Line;
+        const std::string* m_Line;
 
         //! Pointers to the current position and end of the line being
         //! parsed.
-        const char *m_LineCurrent;
-        const char *m_LineEnd;
+        const char* m_LineCurrent;
+        const char* m_LineEnd;
 
         //! The working field is a raw character array rather than a
         //! string because it is built up one character at a time, and
@@ -130,30 +130,30 @@ public:
         //! if the current row has just one field, the working field
         //! array will be big enough to hold it.
         TScopedCharArray m_WorkField;
-        char *m_WorkFieldEnd;
+        char* m_WorkFieldEnd;
         size_t m_WorkFieldCapacity;
     };
 
 public:
     //! Construct with a string to be parsed
-    CCsvInputParser(const std::string &input, char separator = COMMA);
+    CCsvInputParser(const std::string& input, char separator = COMMA);
 
     //! Construct with an input stream to be parsed.  Once a stream is
     //! passed to this constructor, no other object should read from it.
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CCsvInputParser(std::istream &strmIn, char separator = COMMA);
+    CCsvInputParser(std::istream& strmIn, char separator = COMMA);
 
     //! Get field name row exactly as it was in the input
-    const std::string &fieldNameStr(void) const;
+    const std::string& fieldNameStr(void) const;
 
     //! Read records from the stream. The supplied reader function is called
     //! once per record.  If the supplied reader function returns false,
     //! reading will stop.  This method keeps reading until it reaches the
     //! end of the stream or an error occurs.  If it successfully reaches
     //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc &readerFunc);
+    virtual bool readStream(const TReaderFunc& readerFunc);
 
 private:
     //! Attempt to parse a single CSV record from the stream into the
@@ -164,13 +164,13 @@ private:
     bool parseFieldNames(void);
 
     //! Attempt to parse the current working record into data fields.
-    bool parseDataRecord(const TStrRefVec &fieldValRefs);
+    bool parseDataRecord(const TStrRefVec& fieldValRefs);
 
     //! Wrapper around std::getline() that removes carriage returns
     //! preceding the linefeed that breaks the line.  This means that we
     //! never get confused by carriage returns in field values, whether
     //! we're running on Unix or Windows.
-    std::istream &getline(std::string &str);
+    std::istream& getline(std::string& str);
 
 private:
     //! Allocate this much memory for the working buffer
@@ -181,7 +181,7 @@ private:
     std::istringstream m_StringInputBuf;
 
     //! Reference to the stream we're going to read from
-    std::istream &m_StrmIn;
+    std::istream& m_StrmIn;
 
     //! Hold this as a member, so that its capacity adjusts to a reasonable
     //! size for the input rather than repeatedly having to allocate new
@@ -202,8 +202,8 @@ private:
     //! characters is NOT zero terminated, which is something to be aware of
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
-    const char *m_WorkBufferPtr;
-    const char *m_WorkBufferEnd;
+    const char* m_WorkBufferPtr;
+    const char* m_WorkBufferEnd;
     bool m_NoMoreRecords;
 
     //! Field name row exactly as it appears in the input
@@ -215,4 +215,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CCsvInputParser_h
+#endif // INCLUDED_ml_api_CCsvInputParser_h

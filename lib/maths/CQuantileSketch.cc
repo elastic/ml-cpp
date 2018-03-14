@@ -44,7 +44,7 @@ typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
 //! \brief Orders two indices of a value vector by increasing value.
 class CIndexingGreater {
 public:
-    CIndexingGreater(const TDoubleDoublePrVec &values) : m_Values(&values) {}
+    CIndexingGreater(const TDoubleDoublePrVec& values) : m_Values(&values) {}
 
     bool operator()(std::size_t lhs, std::size_t rhs) const {
         return COrderings::lexicographical_compare(-(*m_Values)[lhs].first,
@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    const TDoubleDoublePrVec *m_Values;
+    const TDoubleDoublePrVec* m_Values;
 };
 
 //! \brief An iterator over just the unique knot values.
@@ -65,36 +65,36 @@ class CUniqueIterator
                                                    ptrdiff_t,
                                                    boost::equality_comparable<CUniqueIterator>>> {
 public:
-    CUniqueIterator(TFloatFloatPrVec &knots, std::size_t i) : m_Knots(&knots), m_I(i) {}
+    CUniqueIterator(TFloatFloatPrVec& knots, std::size_t i) : m_Knots(&knots), m_I(i) {}
 
-    bool operator==(const CUniqueIterator &rhs) const {
+    bool operator==(const CUniqueIterator& rhs) const {
         return m_I == rhs.m_I && m_Knots == rhs.m_Knots;
     }
 
-    TFloatFloatPr &operator*() const { return (*m_Knots)[m_I]; }
-    TFloatFloatPr *operator->() const { return &(*m_Knots)[m_I]; }
+    TFloatFloatPr& operator*() const { return (*m_Knots)[m_I]; }
+    TFloatFloatPr* operator->() const { return &(*m_Knots)[m_I]; }
 
-    const CUniqueIterator &operator++(void) {
+    const CUniqueIterator& operator++(void) {
         double x = (*m_Knots)[m_I].first;
         ptrdiff_t n = m_Knots->size();
         while (++m_I < n && (*m_Knots)[m_I].first == x) {}
         return *this;
     }
 
-    const CUniqueIterator &operator--(void) {
+    const CUniqueIterator& operator--(void) {
         double x = (*m_Knots)[m_I].first;
         while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {}
         return *this;
     }
 
-    const CUniqueIterator &operator+=(ptrdiff_t i) {
+    const CUniqueIterator& operator+=(ptrdiff_t i) {
         while (--i >= 0) {
             this->operator++();
         }
         return *this;
     }
 
-    const CUniqueIterator &operator-=(ptrdiff_t i) {
+    const CUniqueIterator& operator-=(ptrdiff_t i) {
         while (--i >= 0) {
             this->operator--();
         }
@@ -104,7 +104,7 @@ public:
     ptrdiff_t index(void) const { return m_I; }
 
 private:
-    TFloatFloatPrVec *m_Knots;
+    TFloatFloatPrVec* m_Knots;
     ptrdiff_t m_I;
 };
 
@@ -123,9 +123,9 @@ CQuantileSketch::CQuantileSketch(EInterpolation interpolation, std::size_t size)
     m_Knots.reserve(m_MaxSize + 1);
 }
 
-bool CQuantileSketch::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CQuantileSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(UNSORTED_TAG, m_Unsorted)
         RESTORE(KNOTS_TAG, core::CPersistUtils::fromString(traverser.value(), m_Knots))
         RESTORE_BUILT_IN(COUNT_TAG, m_Count)
@@ -133,13 +133,13 @@ bool CQuantileSketch::acceptRestoreTraverser(core::CStateRestoreTraverser &trave
     return true;
 }
 
-void CQuantileSketch::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CQuantileSketch::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(UNSORTED_TAG, m_Unsorted);
     inserter.insertValue(KNOTS_TAG, core::CPersistUtils::toString(m_Knots));
     inserter.insertValue(COUNT_TAG, m_Count, core::CIEEE754::E_SinglePrecision);
 }
 
-const CQuantileSketch &CQuantileSketch::operator+=(const CQuantileSketch &rhs) {
+const CQuantileSketch& CQuantileSketch::operator+=(const CQuantileSketch& rhs) {
     m_Knots.insert(m_Knots.end(), rhs.m_Knots.begin(), rhs.m_Knots.end());
     std::sort(m_Knots.begin(), m_Knots.end());
     m_Unsorted = 0;
@@ -170,7 +170,7 @@ void CQuantileSketch::age(double factor) {
     m_Count *= factor;
 }
 
-bool CQuantileSketch::cdf(double x_, double &result) const {
+bool CQuantileSketch::cdf(double x_, double& result) const {
     result = 0.0;
     if (m_Knots.empty()) {
         LOG_ERROR("No values added to quantile sketch");
@@ -178,7 +178,7 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
     }
 
     if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch *>(this)->reduce();
+        const_cast<CQuantileSketch*>(this)->reduce();
     }
 
     CFloatStorage x = x_;
@@ -261,7 +261,7 @@ bool CQuantileSketch::cdf(double x_, double &result) const {
     return true;
 }
 
-bool CQuantileSketch::minimum(double &result) const {
+bool CQuantileSketch::minimum(double& result) const {
     if (m_Knots.empty()) {
         LOG_ERROR("No values added to quantile sketch");
         return false;
@@ -271,7 +271,7 @@ bool CQuantileSketch::minimum(double &result) const {
     return true;
 }
 
-bool CQuantileSketch::maximum(double &result) const {
+bool CQuantileSketch::maximum(double& result) const {
     if (m_Knots.empty()) {
         LOG_ERROR("No values added to quantile sketch");
         return false;
@@ -281,7 +281,7 @@ bool CQuantileSketch::maximum(double &result) const {
     return true;
 }
 
-bool CQuantileSketch::quantile(double percentage, double &result) const {
+bool CQuantileSketch::quantile(double percentage, double& result) const {
     result = 0.0;
     if (m_Knots.empty()) {
         LOG_ERROR("No values added to quantile sketch");
@@ -289,7 +289,7 @@ bool CQuantileSketch::quantile(double percentage, double &result) const {
     }
 
     if (m_Unsorted > 0) {
-        const_cast<CQuantileSketch *>(this)->reduce();
+        const_cast<CQuantileSketch*>(this)->reduce();
     }
 
     if (percentage < 0.0 || percentage > 100.0) {
@@ -342,9 +342,13 @@ bool CQuantileSketch::quantile(double percentage, double &result) const {
     return true;
 }
 
-const CQuantileSketch::TFloatFloatPrVec &CQuantileSketch::knots(void) const { return m_Knots; }
+const CQuantileSketch::TFloatFloatPrVec& CQuantileSketch::knots(void) const {
+    return m_Knots;
+}
 
-double CQuantileSketch::count(void) const { return m_Count; }
+double CQuantileSketch::count(void) const {
+    return m_Count;
+}
 
 uint64_t CQuantileSketch::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
@@ -357,7 +361,9 @@ void CQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
 }
 
-std::size_t CQuantileSketch::memoryUsage(void) const { return core::CMemory::dynamicSize(m_Knots); }
+std::size_t CQuantileSketch::memoryUsage(void) const {
+    return core::CMemory::dynamicSize(m_Knots);
+}
 
 bool CQuantileSketch::checkInvariants(void) const {
     if (m_Knots.size() > m_MaxSize) {
@@ -384,7 +390,9 @@ bool CQuantileSketch::checkInvariants(void) const {
     return true;
 }
 
-std::string CQuantileSketch::print(void) const { return core::CContainerPrinter::print(m_Knots); }
+std::string CQuantileSketch::print(void) const {
+    return core::CContainerPrinter::print(m_Knots);
+}
 
 void CQuantileSketch::reduce(void) {
     typedef std::vector<std::size_t> TSizeVec;
@@ -484,7 +492,7 @@ void CQuantileSketch::orderAndDeduplicate(void) {
     // Combine any duplicate points.
     std::size_t end = 0u;
     for (std::size_t i = 1u; i <= m_Knots.size(); ++end, ++i) {
-        TFloatFloatPr &knot = m_Knots[end];
+        TFloatFloatPr& knot = m_Knots[end];
         knot = m_Knots[i - 1];
         double x = knot.first;
         for (/**/; i < m_Knots.size() && m_Knots[i].first == x; ++i) {
@@ -501,7 +509,7 @@ std::size_t CQuantileSketch::target(void) const {
     return static_cast<std::size_t>(0.9 * static_cast<double>(m_MaxSize) + 1.0);
 }
 
-double CQuantileSketch::cost(const TFloatFloatPr &vl, const TFloatFloatPr &vr) const {
+double CQuantileSketch::cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) const {
     // Interestingly, minimizing the approximation error (area between
     // curve before and after merging) produces good summary for the
     // piecewise constant objective, but a very bad summary for the linear

@@ -39,11 +39,11 @@ typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumula
 
 void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
                 std::size_t n,
-                TDoubleVec &samples,
+                TDoubleVec& samples,
                 double maxBias,
                 double maxError,
-                TMeanAccumulator &meanBias,
-                TMeanAccumulator &meanError) {
+                TMeanAccumulator& meanBias,
+                TMeanAccumulator& meanError) {
     maths::CQuantileSketch sketch(interpolation, n);
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
 
@@ -117,8 +117,8 @@ void CQuantileSketchTest::testReduce(void) {
 
         // Test duplicate points.
 
-        double points[][2] = {
-            {5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0}, {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
+        double points[][2] =
+            {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0}, {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
         for (std::size_t i = 0u; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             CPPUNIT_ASSERT(sketch.checkInvariants());
@@ -134,9 +134,9 @@ void CQuantileSketchTest::testReduce(void) {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG("sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
@@ -192,8 +192,8 @@ void CQuantileSketchTest::testReduce(void) {
 
         // Test duplicate points.
 
-        double points[][2] = {
-            {5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0}, {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
+        double points[][2] =
+            {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0}, {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
         for (std::size_t i = 0u; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             CPPUNIT_ASSERT(sketch.checkInvariants());
@@ -209,9 +209,9 @@ void CQuantileSketchTest::testReduce(void) {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG("sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-            core::CContainerPrinter::print(sketch.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                             core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
@@ -285,9 +285,9 @@ void CQuantileSketchTest::testMerge(void) {
 
         sketch1 += sketch2;
         LOG_DEBUG("merged sketch = " << core::CContainerPrinter::print(sketch1.knots()));
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
-            core::CContainerPrinter::print(sketch1.knots()));
+        CPPUNIT_ASSERT_EQUAL(std::string(
+                                 "[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
+                             core::CContainerPrinter::print(sketch1.knots()));
     }
 
     {
@@ -424,8 +424,13 @@ void CQuantileSketchTest::testQuantileAccuracy(void) {
         for (std::size_t t = 0u; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(
-                maths::CQuantileSketch::E_Linear, 20, samples, 0.15, 0.3, meanBias, meanError);
+            testSketch(maths::CQuantileSketch::E_Linear,
+                       20,
+                       samples,
+                       0.15,
+                       0.3,
+                       meanBias,
+                       meanError);
         }
         LOG_DEBUG("mean bias = " << ::fabs(maths::CBasicStatistics::mean(meanBias))
                                  << ", mean error " << maths::CBasicStatistics::mean(meanError));
@@ -439,10 +444,17 @@ void CQuantileSketchTest::testQuantileAccuracy(void) {
         TMeanAccumulator meanError;
         for (std::size_t t = 0u; t < 5; ++t) {
             TDoubleVec samples;
-            rng.generateNormalSamples(
-                20.0 * static_cast<double>(t), 20.0 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(
-                maths::CQuantileSketch::E_Linear, 20, samples, 0.16, 0.2, meanBias, meanError);
+            rng.generateNormalSamples(20.0 * static_cast<double>(t),
+                                      20.0 * static_cast<double>(t + 1),
+                                      1000,
+                                      samples);
+            testSketch(maths::CQuantileSketch::E_Linear,
+                       20,
+                       samples,
+                       0.16,
+                       0.2,
+                       meanBias,
+                       meanError);
         }
         LOG_DEBUG("mean bias = " << maths::CBasicStatistics::mean(meanBias) << ", mean error "
                                  << maths::CBasicStatistics::mean(meanError));
@@ -456,10 +468,17 @@ void CQuantileSketchTest::testQuantileAccuracy(void) {
         TMeanAccumulator meanError;
         for (std::size_t t = 0u; t < 5; ++t) {
             TDoubleVec samples;
-            rng.generateLogNormalSamples(
-                0.1 * static_cast<double>(t), 0.4 * static_cast<double>(t + 1), 1000, samples);
-            testSketch(
-                maths::CQuantileSketch::E_Linear, 20, samples, 0.11, 0.12, meanBias, meanError);
+            rng.generateLogNormalSamples(0.1 * static_cast<double>(t),
+                                         0.4 * static_cast<double>(t + 1),
+                                         1000,
+                                         samples);
+            testSketch(maths::CQuantileSketch::E_Linear,
+                       20,
+                       samples,
+                       0.11,
+                       0.12,
+                       meanBias,
+                       meanError);
         }
         LOG_DEBUG("mean bias = " << maths::CBasicStatistics::mean(meanBias) << ", mean error "
                                  << maths::CBasicStatistics::mean(meanError));
@@ -474,10 +493,14 @@ void CQuantileSketchTest::testQuantileAccuracy(void) {
         TMeanAccumulator meanErrorPiecewise;
         for (std::size_t t = 0u; t < 5; ++t) {
             TDoubleVec samples_[4] = {};
-            rng.generateNormalSamples(
-                10.0 * static_cast<double>(t), 20.0 * static_cast<double>(t + 1), 400, samples_[0]);
-            rng.generateNormalSamples(
-                20.0 * static_cast<double>(t), 20.0 * static_cast<double>(t + 1), 600, samples_[1]);
+            rng.generateNormalSamples(10.0 * static_cast<double>(t),
+                                      20.0 * static_cast<double>(t + 1),
+                                      400,
+                                      samples_[0]);
+            rng.generateNormalSamples(20.0 * static_cast<double>(t),
+                                      20.0 * static_cast<double>(t + 1),
+                                      600,
+                                      samples_[1]);
             rng.generateNormalSamples(100.0 * static_cast<double>(t),
                                       40.0 * static_cast<double>(t + 1),
                                       400,
@@ -639,26 +662,33 @@ void CQuantileSketchTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CQuantileSketchTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CQuantileSketchTest");
+CppUnit::Test* CQuantileSketchTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CQuantileSketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testAdd", &CQuantileSketchTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testReduce", &CQuantileSketchTest::testReduce));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testMerge", &CQuantileSketchTest::testMerge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testMedian", &CQuantileSketchTest::testMedian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testPropagateForwardByTime",
-        &CQuantileSketchTest::testPropagateForwardByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testQuantileAccuracy", &CQuantileSketchTest::testQuantileAccuracy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testCdf", &CQuantileSketchTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testPersist", &CQuantileSketchTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testAdd",
+                                                     &CQuantileSketchTest::testAdd));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testReduce",
+                                                     &CQuantileSketchTest::testReduce));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testMerge",
+                                                     &CQuantileSketchTest::testMerge));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testMedian",
+                                                     &CQuantileSketchTest::testMedian));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CQuantileSketchTest>("CQuantileSketchTest::testPropagateForwardByTime",
+                                               &CQuantileSketchTest::testPropagateForwardByTime));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testQuantileAccuracy",
+                                                     &CQuantileSketchTest::testQuantileAccuracy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testCdf",
+                                                     &CQuantileSketchTest::testCdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CQuantileSketchTest>("CQuantileSketchTest::testPersist",
+                                                     &CQuantileSketchTest::testPersist));
 
     return suiteOfTests;
 }

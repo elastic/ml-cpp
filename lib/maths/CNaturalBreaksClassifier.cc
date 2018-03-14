@@ -45,8 +45,8 @@ namespace {
 
 //! Orders two tuples by their mean.
 struct SMeanLess {
-    bool operator()(const CNaturalBreaksClassifier::TTuple &lhs,
-                    const CNaturalBreaksClassifier::TTuple &rhs) const {
+    bool operator()(const CNaturalBreaksClassifier::TTuple& lhs,
+                    const CNaturalBreaksClassifier::TTuple& rhs) const {
         return CBasicStatistics::mean(lhs) < CBasicStatistics::mean(rhs);
     }
 };
@@ -56,7 +56,7 @@ class CCountLessThan {
 public:
     CCountLessThan(double count) : m_Count(count) {}
 
-    bool operator()(const CNaturalBreaksClassifier::TTuple &tuple) const {
+    bool operator()(const CNaturalBreaksClassifier::TTuple& tuple) const {
         return CBasicStatistics::count(tuple) < m_Count;
     }
 
@@ -81,13 +81,13 @@ CNaturalBreaksClassifier::CNaturalBreaksClassifier(std::size_t space,
     m_PointsBuffer.reserve(MAXIMUM_BUFFER_SIZE);
 }
 
-bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                                      core::CStateRestoreTraverser &traverser) {
+bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                                      core::CStateRestoreTraverser& traverser) {
     m_DecayRate = params.s_DecayRate;
     m_MinimumCategoryCount = params.s_MinimumCategoryCount;
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
         RESTORE_BUILT_IN(SPACE_TAG, m_Space)
         RESTORE(CATEGORY_TAG, core::CPersistUtils::restore(CATEGORY_TAG, m_Categories, traverser))
@@ -97,7 +97,7 @@ bool CNaturalBreaksClassifier::acceptRestoreTraverser(const SDistributionRestore
     return true;
 }
 
-void CNaturalBreaksClassifier::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CNaturalBreaksClassifier::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate);
     inserter.insertValue(SPACE_TAG, m_Space);
     core::CPersistUtils::persist(CATEGORY_TAG, m_Categories, inserter);
@@ -179,7 +179,7 @@ std::size_t CNaturalBreaksClassifier::size(void) const {
     return std::min(m_Categories.size() + m_PointsBuffer.size(), m_Space);
 }
 
-bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVec &result) {
+bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVec& result) {
     LOG_TRACE("split");
 
     result.clear();
@@ -238,7 +238,7 @@ bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVe
     return true;
 }
 
-bool CNaturalBreaksClassifier::split(const TSizeVec &split, TClassifierVec &result) {
+bool CNaturalBreaksClassifier::split(const TSizeVec& split, TClassifierVec& result) {
     result.clear();
 
     this->reduce();
@@ -265,13 +265,13 @@ bool CNaturalBreaksClassifier::split(const TSizeVec &split, TClassifierVec &resu
     return true;
 }
 
-bool CNaturalBreaksClassifier::naturalBreaks(std::size_t n, std::size_t p, TSizeVec &result) {
+bool CNaturalBreaksClassifier::naturalBreaks(std::size_t n, std::size_t p, TSizeVec& result) {
     return naturalBreaksImpl(m_Categories, n, p, E_TargetDeviation, result);
 }
 
 bool CNaturalBreaksClassifier::categories(std::size_t n,
                                           std::size_t p,
-                                          TTupleVec &result,
+                                          TTupleVec& result,
                                           bool append) {
     LOG_TRACE("categories");
 
@@ -327,7 +327,7 @@ bool CNaturalBreaksClassifier::categories(std::size_t n,
     return true;
 }
 
-bool CNaturalBreaksClassifier::categories(const TSizeVec &split, TTupleVec &result) {
+bool CNaturalBreaksClassifier::categories(const TSizeVec& split, TTupleVec& result) {
     result.clear();
 
     // Sanity checks.
@@ -361,7 +361,7 @@ void CNaturalBreaksClassifier::add(double x, double count) {
     }
 }
 
-void CNaturalBreaksClassifier::merge(const CNaturalBreaksClassifier &other) {
+void CNaturalBreaksClassifier::merge(const CNaturalBreaksClassifier& other) {
     LOG_TRACE("Merge");
 
     for (std::size_t i = 0u; i < other.m_PointsBuffer.size(); ++i) {
@@ -377,7 +377,9 @@ void CNaturalBreaksClassifier::merge(const CNaturalBreaksClassifier &other) {
     m_Categories.swap(categories);
 }
 
-void CNaturalBreaksClassifier::decayRate(double decayRate) { m_DecayRate = decayRate; }
+void CNaturalBreaksClassifier::decayRate(double decayRate) {
+    m_DecayRate = decayRate;
+}
 
 void CNaturalBreaksClassifier::propagateForwardsByTime(double time) {
     if (time < 0.0) {
@@ -403,12 +405,14 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time) {
     LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Categories));
 }
 
-bool CNaturalBreaksClassifier::buffering(void) const { return m_PointsBuffer.size() > 0; }
+bool CNaturalBreaksClassifier::buffering(void) const {
+    return m_PointsBuffer.size() > 0;
+}
 
 void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
                                       double smallest,
                                       double /*largest*/,
-                                      TDoubleVec &result) const {
+                                      TDoubleVec& result) const {
     result.clear();
     if (numberSamples == 0) {
         return;
@@ -419,7 +423,7 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     static const double ALMOST_ONE = 0.99999;
 
     // See, for example, Effective C++ item 3.
-    const_cast<CNaturalBreaksClassifier *>(this)->reduce();
+    const_cast<CNaturalBreaksClassifier*>(this)->reduce();
     LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Categories));
 
     TDoubleVec weights;
@@ -508,28 +512,28 @@ std::size_t CNaturalBreaksClassifier::memoryUsage(void) const {
     return mem;
 }
 
-bool CNaturalBreaksClassifier::naturalBreaks(const TTupleVec &categories,
+bool CNaturalBreaksClassifier::naturalBreaks(const TTupleVec& categories,
                                              std::size_t n,
                                              std::size_t p,
                                              EObjective target,
-                                             TSizeVec &result) {
+                                             TSizeVec& result) {
     return naturalBreaksImpl(categories, n, p, target, result);
 }
 
-bool CNaturalBreaksClassifier::naturalBreaks(const TDoubleTupleVec &categories,
+bool CNaturalBreaksClassifier::naturalBreaks(const TDoubleTupleVec& categories,
                                              std::size_t n,
                                              std::size_t p,
                                              EObjective target,
-                                             TSizeVec &result) {
+                                             TSizeVec& result) {
     return naturalBreaksImpl(categories, n, p, target, result);
 }
 
 template <typename TUPLE>
-bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categories,
+bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categories,
                                                  std::size_t n,
                                                  std::size_t p,
                                                  EObjective target,
-                                                 TSizeVec &result) {
+                                                 TSizeVec& result) {
     result.clear();
 
     if (categories.empty()) {
@@ -644,7 +648,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
 CNaturalBreaksClassifier::CNaturalBreaksClassifier(std::size_t space,
                                                    double decayRate,
                                                    double minimumCategoryCount,
-                                                   TTupleVec &categories)
+                                                   TTupleVec& categories)
     : m_Space(space), m_DecayRate(decayRate), m_MinimumCategoryCount(minimumCategoryCount) {
     m_Categories.swap(categories);
     m_Categories.reserve(m_Space + MAXIMUM_BUFFER_SIZE + 1u);
@@ -706,7 +710,7 @@ CNaturalBreaksClassifier::TSizeSizePr CNaturalBreaksClassifier::closestPair(void
     return result;
 }
 
-double CNaturalBreaksClassifier::deviation(const TTuple &category) {
+double CNaturalBreaksClassifier::deviation(const TTuple& category) {
     // The deviation objective is in some senses more natural
     // than the variation in one dimension. In particular, the
     // distances of the class boundaries from the class centers
@@ -768,7 +772,7 @@ double CNaturalBreaksClassifier::deviation(const TTuple &category) {
     return ::sqrt(count * variance);
 }
 
-double CNaturalBreaksClassifier::variation(const TTuple &category) {
+double CNaturalBreaksClassifier::variation(const TTuple& category) {
     double count = CBasicStatistics::count(category);
     double variance = CBasicStatistics::maximumLikelihoodVariance(category);
     return count * variance;

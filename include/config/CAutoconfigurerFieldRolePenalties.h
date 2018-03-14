@@ -39,25 +39,25 @@ class CPenalty;
 //! monolithic.
 class CONFIG_EXPORT CAutoconfigurerFieldRolePenalties : core::CNonCopyable {
 public:
-    CAutoconfigurerFieldRolePenalties(const CAutoconfigurerParams &params);
+    CAutoconfigurerFieldRolePenalties(const CAutoconfigurerParams& params);
 
     //! Get the penalty for categorical function arguments.
-    const CPenalty &categoricalFunctionArgumentPenalty(void) const;
+    const CPenalty& categoricalFunctionArgumentPenalty(void) const;
 
     //! Get the penalty for metric function arguments.
-    const CPenalty &metricFunctionArgumentPenalty(void) const;
+    const CPenalty& metricFunctionArgumentPenalty(void) const;
 
     //! Get the penalty for "by" fields.
-    const CPenalty &byPenalty(void) const;
+    const CPenalty& byPenalty(void) const;
 
     //! Get the penalty for "by" fields of rare commands.
-    const CPenalty &rareByPenalty(void) const;
+    const CPenalty& rareByPenalty(void) const;
 
     //! Get the penalty for "over" fields.
-    const CPenalty &overPenalty(void) const;
+    const CPenalty& overPenalty(void) const;
 
     //! Get the penalty for "partition" fields.
-    const CPenalty &partitionPenalty(void) const;
+    const CPenalty& partitionPenalty(void) const;
 
 private:
     typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
@@ -69,4 +69,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CAutoconfigurerFieldRolePenalties_h
+#endif // INCLUDED_ml_config_CAutoconfigurerFieldRolePenalties_h

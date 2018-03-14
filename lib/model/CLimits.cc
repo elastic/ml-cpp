@@ -40,7 +40,7 @@ CLimits::CLimits()
 
 CLimits::~CLimits() {}
 
-bool CLimits::init(const std::string &configFile) {
+bool CLimits::init(const std::string& configFile) {
     boost::property_tree::ptree propTree;
     try {
         std::ifstream strm(configFile.c_str());
@@ -51,21 +51,23 @@ bool CLimits::init(const std::string &configFile) {
         this->skipUtf8Bom(strm);
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error &e) {
+    } catch (boost::property_tree::ptree_error& e) {
         LOG_ERROR("Error reading config file " << configFile << " : " << e.what());
         return false;
     }
 
-    if (this->processSetting(
-            propTree, "autoconfig.events", DEFAULT_AUTOCONFIG_EVENTS, m_AutoConfigEvents) ==
-            false ||
+    if (this->processSetting(propTree,
+                             "autoconfig.events",
+                             DEFAULT_AUTOCONFIG_EVENTS,
+                             m_AutoConfigEvents) == false ||
         this->processSetting(propTree,
                              "anomaly.maxtimebuckets",
                              DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                              m_AnomalyMaxTimeBuckets) == false ||
-        this->processSetting(
-            propTree, "results.maxexamples", DEFAULT_RESULTS_MAX_EXAMPLES, m_MaxExamples) ==
-            false ||
+        this->processSetting(propTree,
+                             "results.maxexamples",
+                             DEFAULT_RESULTS_MAX_EXAMPLES,
+                             m_MaxExamples) == false ||
         this->processSetting(propTree,
                              "results.unusualprobabilitythreshold",
                              DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD,
@@ -83,21 +85,31 @@ bool CLimits::init(const std::string &configFile) {
     return true;
 }
 
-size_t CLimits::autoConfigEvents(void) const { return m_AutoConfigEvents; }
+size_t CLimits::autoConfigEvents(void) const {
+    return m_AutoConfigEvents;
+}
 
-size_t CLimits::anomalyMaxTimeBuckets(void) const { return m_AnomalyMaxTimeBuckets; }
+size_t CLimits::anomalyMaxTimeBuckets(void) const {
+    return m_AnomalyMaxTimeBuckets;
+}
 
-size_t CLimits::maxExamples(void) const { return m_MaxExamples; }
+size_t CLimits::maxExamples(void) const {
+    return m_MaxExamples;
+}
 
 double CLimits::unusualProbabilityThreshold(void) const {
     return m_UnusualProbabilityThreshold / 100.0;
 }
 
-size_t CLimits::memoryLimitMB(void) const { return m_MemoryLimitMB; }
+size_t CLimits::memoryLimitMB(void) const {
+    return m_MemoryLimitMB;
+}
 
-CResourceMonitor &CLimits::resourceMonitor(void) { return m_ResourceMonitor; }
+CResourceMonitor& CLimits::resourceMonitor(void) {
+    return m_ResourceMonitor;
+}
 
-void CLimits::skipUtf8Bom(std::ifstream &strm) {
+void CLimits::skipUtf8Bom(std::ifstream& strm) {
     if (strm.tellg() != std::streampos(0)) {
         return;
     }

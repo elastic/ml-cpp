@@ -42,11 +42,17 @@ CModelWeight::operator double(void) const {
     return m_LogWeight < LOG_SMALLEST_WEIGHT ? 0.0 : ::exp(m_LogWeight);
 }
 
-double CModelWeight::logWeight(void) const { return m_LogWeight; }
+double CModelWeight::logWeight(void) const {
+    return m_LogWeight;
+}
 
-void CModelWeight::logWeight(double logWeight) { m_LogWeight = logWeight; }
+void CModelWeight::logWeight(double logWeight) {
+    m_LogWeight = logWeight;
+}
 
-void CModelWeight::addLogFactor(double logFactor) { m_LogWeight += logFactor; }
+void CModelWeight::addLogFactor(double logFactor) {
+    m_LogWeight += logFactor;
+}
 
 void CModelWeight::age(double alpha) {
     m_LogWeight = alpha * m_LogWeight + (1 - alpha) * m_LongTermLogWeight;
@@ -57,19 +63,20 @@ uint64_t CModelWeight::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_LongTermLogWeight);
 }
 
-bool CModelWeight::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CModelWeight::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(LOG_WEIGHT_TAG, m_LogWeight)
         RESTORE_BUILT_IN(LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight)
     } while (traverser.next());
     return true;
 }
 
-void CModelWeight::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CModelWeight::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(LOG_WEIGHT_TAG, m_LogWeight, core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(
-        LONG_TERM_LOG_WEIGHT_TAG, m_LongTermLogWeight, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(LONG_TERM_LOG_WEIGHT_TAG,
+                         m_LongTermLogWeight,
+                         core::CIEEE754::E_SinglePrecision);
 }
 }
 }

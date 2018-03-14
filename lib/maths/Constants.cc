@@ -26,6 +26,8 @@ const maths_t::TWeightStyleVec CConstantWeights::SEASONAL_VARIANCE{
 const CConstantWeights::TDouble4Vec CConstantWeights::UNIT{1.0};
 const CConstantWeights::TDouble4Vec1Vec CConstantWeights::SINGLE_UNIT{UNIT};
 
-double maxModelPenalty(double numberSamples) { return 10.0 + numberSamples; }
+double maxModelPenalty(double numberSamples) {
+    return 10.0 + numberSamples;
+}
 }
 }

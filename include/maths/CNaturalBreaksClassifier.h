@@ -141,11 +141,11 @@ public:
                              double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the count \p p percentile position.
     double percentile(double p) const;
@@ -161,7 +161,7 @@ public:
     //! \param[out] result Filled in with the classifiers representing
     //! the split.
     //! \sa categories for details on the split.
-    bool split(std::size_t n, std::size_t p, TClassifierVec &result);
+    bool split(std::size_t n, std::size_t p, TClassifierVec& result);
 
     //! Split this classifier into the n-categories corresponding to
     //! \p split.
@@ -171,7 +171,7 @@ public:
     //! \p split if it is a valid partition and cleared otherwise.
     //! \note \p split should be ordered and the maximum value should
     //! be equal to the number of points in the classifier.
-    bool split(const TSizeVec &split, TClassifierVec &result);
+    bool split(const TSizeVec& split, TClassifierVec& result);
 
     //! Get the minimum within class total deviation partition
     //! of size at most \p n.
@@ -179,7 +179,7 @@ public:
     //! \param[in] n The number of partitions.
     //! \param[in] p The minimum category size.
     //! \param[out] result Filled in with the indices at which to break.
-    bool naturalBreaks(std::size_t n, std::size_t p, TSizeVec &result);
+    bool naturalBreaks(std::size_t n, std::size_t p, TSizeVec& result);
 
     //! Get as many tuples as possible, but not more than \p n,
     //! describing our best estimate of the categories in the data.
@@ -194,7 +194,7 @@ public:
     //! programming approach in complexity \f$O(N^2n)\f$ where
     //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
     //! size for the partition.
-    bool categories(std::size_t n, std::size_t p, TTupleVec &result, bool append = false);
+    bool categories(std::size_t n, std::size_t p, TTupleVec& result, bool append = false);
 
     //! Get the categories corresponding to \p split.
     //!
@@ -203,7 +203,7 @@ public:
     //! to \p split if it is a valid partition and cleared otherwise.
     //! \note \p split should be ordered and the maximum value should
     //! be equal to the number of points in the classifier.
-    bool categories(const TSizeVec &split, TTupleVec &result);
+    bool categories(const TSizeVec& split, TTupleVec& result);
 
     //! Add \p x to the classifier.
     //!
@@ -214,7 +214,7 @@ public:
     //! Merge \p other with this classifier.
     //!
     //! \param[in] other Another classifier to merge with this one.
-    void merge(const CNaturalBreaksClassifier &other);
+    void merge(const CNaturalBreaksClassifier& other);
 
     //! Set the rate at which information is aged out.
     void decayRate(double decayRate);
@@ -233,7 +233,7 @@ public:
     //! \param[in] largest The largest permitted sample.
     //! \param[out] result Filled in with the samples of the distribution.
     void
-    sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec &result) const;
+    sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec& result) const;
 
     //! Print this classifier for debug.
     std::string print(void) const;
@@ -262,20 +262,20 @@ public:
     //! programming approach in complexity \f$O(N^2n)\f$ where
     //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
     //! size for the partition.
-    static bool naturalBreaks(const TTupleVec &categories,
+    static bool naturalBreaks(const TTupleVec& categories,
                               std::size_t n,
                               std::size_t p,
                               EObjective target,
-                              TSizeVec &result);
+                              TSizeVec& result);
 
     //! Double tuple version.
     //!
     //! \see naturalBreaks for more details.
-    static bool naturalBreaks(const TDoubleTupleVec &categories,
+    static bool naturalBreaks(const TDoubleTupleVec& categories,
                               std::size_t n,
                               std::size_t p,
                               EObjective target,
-                              TSizeVec &result);
+                              TSizeVec& result);
 
 private:
     typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -284,11 +284,11 @@ private:
     //! Implementation called by naturalBreaks with explicit
     //! tuple types.
     template <typename TUPLE>
-    static bool naturalBreaksImpl(const std::vector<TUPLE> &categories,
+    static bool naturalBreaksImpl(const std::vector<TUPLE>& categories,
                                   std::size_t n,
                                   std::size_t p,
                                   EObjective target,
-                                  TSizeVec &result);
+                                  TSizeVec& result);
 
 private:
     //! The minimum permitted size for the classifier.
@@ -303,7 +303,7 @@ private:
     CNaturalBreaksClassifier(std::size_t space,
                              double decayRate,
                              double minimumCategoryCount,
-                             TTupleVec &categories);
+                             TTupleVec& categories);
 
     //! Reduce the number of tuples until we satisfy the space constraint.
     void reduce(void);
@@ -312,13 +312,13 @@ private:
     TSizeSizePr closestPair(void) const;
 
     //! Get the total deviation of the specified class.
-    static double deviation(const TTuple &category);
+    static double deviation(const TTuple& category);
 
     //! Get the total variation of the specified class.
-    static double variation(const TTuple &category);
+    static double variation(const TTuple& category);
 
     //! Wrapper to evaluate the specified object function.
-    static inline double objective(EObjective objective, const TTuple &category) {
+    static inline double objective(EObjective objective, const TTuple& category) {
         switch (objective) {
             case E_TargetDeviation:
                 return deviation(category);
@@ -347,4 +347,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CNaturalBreaksClassifier_h
+#endif // INCLUDED_ml_maths_CNaturalBreaksClassifier_h

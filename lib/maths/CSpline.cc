@@ -26,10 +26,10 @@ namespace {
 
 //! Sanity check the diagonals and the vector dimensions are
 //! consistent.
-bool checkTridiagonal(const TDoubleVec &a,
-                      const TDoubleVec &b,
-                      const TDoubleVec &c,
-                      const TDoubleVec &x) {
+bool checkTridiagonal(const TDoubleVec& a,
+                      const TDoubleVec& b,
+                      const TDoubleVec& c,
+                      const TDoubleVec& x) {
     if (a.size() + 1 != b.size()) {
         LOG_ERROR("Lower diagonal and main diagonal inconsistent:"
                   << " a = " << core::CContainerPrinter::print(a)
@@ -52,7 +52,7 @@ bool checkTridiagonal(const TDoubleVec &a,
 }
 }
 
-bool solveTridiagonal(const TDoubleVec &a, const TDoubleVec &b, TDoubleVec &c, TDoubleVec &x) {
+bool solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, TDoubleVec& x) {
     if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }
@@ -105,12 +105,12 @@ bool solveTridiagonal(const TDoubleVec &a, const TDoubleVec &b, TDoubleVec &c, T
     return true;
 }
 
-bool solvePeturbedTridiagonal(const TDoubleVec &a,
-                              const TDoubleVec &b,
-                              TDoubleVec &c,
-                              TDoubleVec &u,
-                              const TDoubleVec &v,
-                              TDoubleVec &x) {
+bool solvePeturbedTridiagonal(const TDoubleVec& a,
+                              const TDoubleVec& b,
+                              TDoubleVec& c,
+                              TDoubleVec& u,
+                              const TDoubleVec& v,
+                              TDoubleVec& x) {
     if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }

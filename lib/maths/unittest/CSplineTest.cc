@@ -35,15 +35,15 @@ typedef std::vector<std::size_t> TSizeVec;
 
 class CSplineFunctor {
 public:
-    CSplineFunctor(const maths::CSpline<> &spline) : m_Spline(&spline) {}
+    CSplineFunctor(const maths::CSpline<>& spline) : m_Spline(&spline) {}
 
-    bool operator()(double x, double &fx) const {
+    bool operator()(double x, double& fx) const {
         fx = m_Spline->value(x);
         return true;
     }
 
 private:
-    const maths::CSpline<> *m_Spline;
+    const maths::CSpline<>* m_Spline;
 };
 
 std::string print(maths::CSplineTypes::EType type) {
@@ -90,7 +90,7 @@ void CSplineTest::testNatural(void) {
             CPPUNIT_ASSERT(::fabs(yp - yy) < 1e-2);
         }
 
-        const TDoubleVec &curvatures = spline.curvatures();
+        const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0] << ", curvatures[n] = " << curvatures[n - 1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
@@ -118,7 +118,7 @@ void CSplineTest::testNatural(void) {
             CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.02);
         }
 
-        const TDoubleVec &curvatures = spline.curvatures();
+        const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0] << ", curvatures[n] = " << curvatures[n - 1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
@@ -155,7 +155,7 @@ void CSplineTest::testParabolicRunout(void) {
             CPPUNIT_ASSERT(::fabs(yp - yy) < 1e-2);
         }
 
-        const TDoubleVec &curvatures = spline.curvatures();
+        const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0] << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0], curvatures[1], 1e-10);
@@ -185,7 +185,7 @@ void CSplineTest::testParabolicRunout(void) {
             CPPUNIT_ASSERT(::fabs(::sin(xx) - yy) < 0.04);
         }
 
-        const TDoubleVec &curvatures = spline.curvatures();
+        const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0] << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0], curvatures[1], 1e-10);
@@ -280,15 +280,18 @@ void CSplineTest::testMean(void) {
                 double a = x[i - 1];
                 double b = x[i];
                 double integral;
-                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
-                    f, a, b, integral);
+                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(f,
+                                                                                    a,
+                                                                                    b,
+                                                                                    integral);
                 expectedMean += integral;
             }
             expectedMean /= (x[n] - x[0]);
 
             LOG_DEBUG("expectedMean = " << expectedMean << ", mean = " << spline.mean());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedMean, spline.mean(), std::numeric_limits<double>::epsilon() * expectedMean);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
+                                         spline.mean(),
+                                         std::numeric_limits<double>::epsilon() * expectedMean);
         }
     }
 
@@ -318,8 +321,10 @@ void CSplineTest::testMean(void) {
                     double a = x[j - 1];
                     double b = x[j];
                     double integral;
-                    maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
-                        f, a, b, integral);
+                    maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(f,
+                                                                                        a,
+                                                                                        b,
+                                                                                        integral);
                     expectedMean += integral;
                 }
                 expectedMean /= (x[n[0] - 1] - x[0]);
@@ -385,8 +390,9 @@ void CSplineTest::testIllposed(void) {
         for (std::size_t i = 0u; i <= 30; ++i) {
             LOG_DEBUG("expected = " << 0.2 * static_cast<double>(i)
                                     << ", actual = " << spline.value(static_cast<double>(i)));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                0.2 * static_cast<double>(i), spline.value(static_cast<double>(i)), 5e-7);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2 * static_cast<double>(i),
+                                         spline.value(static_cast<double>(i)),
+                                         5e-7);
         }
     }
 }
@@ -466,8 +472,9 @@ void CSplineTest::testSlope(void) {
                         LOG_DEBUG("x = " << xj << ", slope = " << slope
                                          << ", numerical slope = " << numericalSlope);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        numericalSlope, slope, 1e-3 * ::fabs(numericalSlope));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope,
+                                                 slope,
+                                                 1e-3 * ::fabs(numericalSlope));
                 }
             }
         }
@@ -566,8 +573,8 @@ void CSplineTest::testSplineReference(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), splineRef.memoryUsage());
 }
 
-CppUnit::Test *CSplineTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSplineTest");
+CppUnit::Test* CSplineTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSplineTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>("CSplineTest::testNatural",
                                                                &CSplineTest::testNatural));

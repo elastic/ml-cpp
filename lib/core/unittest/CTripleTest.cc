@@ -21,8 +21,8 @@
 
 #include <string>
 
-CppUnit::Test *CTripleTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTripleTest");
+CppUnit::Test* CTripleTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTripleTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTripleTest>("CTripleTest::testOperators",
                                                                &CTripleTest::testOperators));

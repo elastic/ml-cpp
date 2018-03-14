@@ -68,7 +68,7 @@ public:
     }
 
     //! Pop an item out of the queue, this blocks until an item is available
-    void pop(T &item) {
+    void pop(T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         while (m_Queue.empty()) {
             m_ConsumerCondition.wait(lock);
@@ -87,7 +87,7 @@ public:
 
     //! Pop an item out of the queue, this blocks if the queue is full
     //! which means it can deadlock if no one consumes items (implementor's responsibility)
-    void push(const T &item) {
+    void push(const T& item) {
         std::unique_lock<std::mutex> lock(m_Mutex);
         size_t pending = m_Queue.size();
         // block if buffer is full, this can deadlock if no one consumes items,

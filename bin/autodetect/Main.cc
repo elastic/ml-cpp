@@ -61,7 +61,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     typedef ml::autodetect::CCmdLineParser::TStrVec TStrVec;
 
     // Read command line options
@@ -288,7 +288,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    ml::api::CDataProcessor *firstProcessor(&job);
+    ml::api::CDataProcessor* firstProcessor(&job);
 
     // Chain the categorizer's output to the anomaly detector's input
     ml::api::COutputChainer outputChainer(job);
@@ -307,8 +307,10 @@ int main(int argc, char **argv) {
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(
-        restoreSearcher.get(), persister.get(), *inputParser, *firstProcessor);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(),
+                                   persister.get(),
+                                   *inputParser,
+                                   *firstProcessor);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer

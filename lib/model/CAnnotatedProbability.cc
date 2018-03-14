@@ -48,12 +48,12 @@ SAttributeProbability::SAttributeProbability(void)
       s_Feature(model_t::E_IndividualCountByBucketAndPerson) {}
 
 SAttributeProbability::SAttributeProbability(std::size_t cid,
-                                             const core::CStoredStringPtr &attribute,
+                                             const core::CStoredStringPtr& attribute,
                                              double probability,
                                              model_t::CResultType type,
                                              model_t::EFeature feature,
-                                             const TStoredStringPtr1Vec &correlatedAttributes,
-                                             const TSizeDoublePr1Vec &correlated)
+                                             const TStoredStringPtr1Vec& correlatedAttributes,
+                                             const TSizeDoublePr1Vec& correlated)
     : s_Cid(cid),
       s_Attribute(attribute),
       s_Probability(probability),
@@ -62,7 +62,7 @@ SAttributeProbability::SAttributeProbability(std::size_t cid,
       s_CorrelatedAttributes(correlatedAttributes),
       s_Correlated(correlated) {}
 
-bool SAttributeProbability::operator<(const SAttributeProbability &other) const {
+bool SAttributeProbability::operator<(const SAttributeProbability& other) const {
     return maths::COrderings::lexicographical_compare(s_Probability,
                                                       *s_Attribute,
                                                       s_Feature,
@@ -75,11 +75,11 @@ bool SAttributeProbability::operator<(const SAttributeProbability &other) const 
                                                       other.s_Correlated);
 }
 
-void SAttributeProbability::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void SAttributeProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(ATTRIBUTE_TAG, *s_Attribute);
     // We don't persist s_Cid because it isn't used in restored results.
     inserter.insertValue(ANOMALY_TYPE_TAG, s_Type.asUint());
-    for (const auto &attribute : s_CorrelatedAttributes) {
+    for (const auto& attribute : s_CorrelatedAttributes) {
         inserter.insertValue(CORRELATED_ATTRIBUTE_TAG, *attribute);
     }
     // We don't persist s_Correlated because it isn't used in restored results.
@@ -90,9 +90,9 @@ void SAttributeProbability::acceptPersistInserter(core::CStatePersistInserter &i
     core::CPersistUtils::persist(BASELINE_BUCKET_MEAN_TAG, s_BaselineBucketMean, inserter);
 }
 
-bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == ATTRIBUTE_TAG) {
             s_Attribute = CStringStore::names().get(traverser.value());
         } else if (name == ANOMALY_TYPE_TAG) {
@@ -124,19 +124,21 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser 
                 return false;
             }
             s_DescriptiveData.reserve(data.size());
-            for (const auto &data_ : data) {
+            for (const auto& data_ : data) {
                 s_DescriptiveData.emplace_back(annotated_probability::EDescriptiveData(data_.first),
                                                data_.second);
             }
         } else if (name == CURRENT_BUCKET_VALUE_TAG) {
-            if (!core::CPersistUtils::restore(
-                    CURRENT_BUCKET_VALUE_TAG, s_CurrentBucketValue, traverser)) {
+            if (!core::CPersistUtils::restore(CURRENT_BUCKET_VALUE_TAG,
+                                              s_CurrentBucketValue,
+                                              traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
         } else if (name == BASELINE_BUCKET_MEAN_TAG) {
-            if (!core::CPersistUtils::restore(
-                    BASELINE_BUCKET_MEAN_TAG, s_BaselineBucketMean, traverser)) {
+            if (!core::CPersistUtils::restore(BASELINE_BUCKET_MEAN_TAG,
+                                              s_BaselineBucketMean,
+                                              traverser)) {
                 LOG_ERROR("Failed to restore " << traverser.name() << " / " << traverser.value());
                 return false;
             }
@@ -161,7 +163,7 @@ void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescripti
     s_DescriptiveData.emplace_back(key, value);
 }
 
-void SAnnotatedProbability::swap(SAnnotatedProbability &other) {
+void SAnnotatedProbability::swap(SAnnotatedProbability& other) {
     std::swap(s_Probability, other.s_Probability);
     s_AttributeProbabilities.swap(other.s_AttributeProbabilities);
     s_Influences.swap(other.s_Influences);
@@ -170,12 +172,12 @@ void SAnnotatedProbability::swap(SAnnotatedProbability &other) {
     std::swap(s_BaselineBucketCount, other.s_BaselineBucketCount);
 }
 
-void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(PROBABILITY_TAG, s_Probability, inserter);
 
     core::CPersistUtils::persist(ATTRIBUTE_PROBABILITIES_TAG, s_AttributeProbabilities, inserter);
 
-    for (const auto &influence : s_Influences) {
+    for (const auto& influence : s_Influences) {
         inserter.insertValue(INFLUENCE_NAME_TAG, *influence.first.first);
         inserter.insertValue(INFLUENCE_VALUE_TAG, *influence.first.second);
         inserter.insertValue(INFLUENCE_TAG, influence.second);
@@ -189,11 +191,13 @@ void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter &i
     }
 }
 
-bool SAnnotatedProbability::isInterim(void) const { return s_ResultType.isInterim(); }
+bool SAnnotatedProbability::isInterim(void) const {
+    return s_ResultType.isInterim();
+}
 
-bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         core::CStoredStringPtr influencerName;
         core::CStoredStringPtr influencerValue;
         double d;
@@ -204,8 +208,9 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser 
                 return false;
             }
         } else if (name == ATTRIBUTE_PROBABILITIES_TAG) {
-            if (!core::CPersistUtils::restore(
-                    ATTRIBUTE_PROBABILITIES_TAG, s_AttributeProbabilities, traverser)) {
+            if (!core::CPersistUtils::restore(ATTRIBUTE_PROBABILITIES_TAG,
+                                              s_AttributeProbabilities,
+                                              traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
@@ -218,8 +223,9 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser 
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
                 return false;
             }
-            s_Influences.emplace_back(
-                TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue), d);
+            s_Influences.emplace_back(TStoredStringPtrStoredStringPtrPr(influencerName,
+                                                                        influencerValue),
+                                      d);
         } else if (name == CURRENT_BUCKET_COUNT_TAG) {
             uint64_t i;
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_COUNT_TAG, i, traverser)) {

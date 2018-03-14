@@ -41,10 +41,10 @@ public:
     void testUtf8ByteType(void);
     void testRoundtripMaxDouble(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void testTokeniser(const std::string &delim, const std::string &str);
+    void testTokeniser(const std::string& delim, const std::string& str);
 };
 
-#endif// INCLUDED_CStringUtilsTest_h
+#endif // INCLUDED_CStringUtilsTest_h

@@ -47,7 +47,7 @@ class API_EXPORT CSingleStreamDataAdder : public core::CDataAdder {
 public:
     //! The \p stream must already be open when the constructor is
     //! called.
-    CSingleStreamDataAdder(const TOStreamP &stream);
+    CSingleStreamDataAdder(const TOStreamP& stream);
 
     //! Returns a stream that can be used to persist data to a C++
     //! stream, or NULL if this is not possible.  Many errors cannot
@@ -56,13 +56,13 @@ public:
     //! must check for this.
     //! \param index Index to add to metadata document
     //! \param id ID to add to metadata document
-    virtual TOStreamP addStreamed(const std::string &index, const std::string &id);
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
     //! \param stream The completed data stream
     //! \param force If true the stream is flushed
-    virtual bool streamComplete(TOStreamP &stream, bool force);
+    virtual bool streamComplete(TOStreamP& stream, bool force);
 
     virtual std::size_t maxDocumentSize(void) const;
 
@@ -77,4 +77,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CSingleStreamDataAdder_h
+#endif // INCLUDED_ml_api_CSingleStreamDataAdder_h

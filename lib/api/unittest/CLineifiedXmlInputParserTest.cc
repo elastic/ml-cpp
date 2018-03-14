@@ -27,8 +27,8 @@
 #include <functional>
 #include <sstream>
 
-CppUnit::Test *CLineifiedXmlInputParserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
+CppUnit::Test* CLineifiedXmlInputParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
         "CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",
@@ -39,9 +39,11 @@ CppUnit::Test *CLineifiedXmlInputParserTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
         "CLineifiedXmlInputParserTest::testThroughputArbitraryRapid",
         &CLineifiedXmlInputParserTest::testThroughputArbitraryRapid));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-        "CLineifiedXmlInputParserTest::testThroughputCommonRapid",
-        &CLineifiedXmlInputParserTest::testThroughputCommonRapid));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLineifiedXmlInputParserTest>("CLineifiedXmlInputParserTest::testThroughputCommonRapid",
+                                          &CLineifiedXmlInputParserTest::
+                                              testThroughputCommonRapid));
 
     return suiteOfTests;
 }
@@ -53,7 +55,7 @@ public:
     CSetupVisitor(void) : m_RecordsPerBlock(0), m_OutputWriter("root") {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordsPerBlock;
         CPPUNIT_ASSERT(m_OutputWriter.writeRow(dataRowFields));
 
@@ -61,7 +63,7 @@ public:
     }
 
     std::string input(size_t testSize) const {
-        const std::string &block = m_OutputWriter.internalString();
+        const std::string& block = m_OutputWriter.internalString();
 
         std::string str;
         str.reserve(testSize * block.length());
@@ -88,7 +90,7 @@ public:
     CVisitor(void) : m_RecordCount(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap & /*dataRowFields*/) {
+    bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap& /*dataRowFields*/) {
         ++m_RecordCount;
         return true;
     }
@@ -122,7 +124,8 @@ void CLineifiedXmlInputParserTest::testThroughputCommonRapid(void) {
     this->runTest<ml::core::CRapidXmlParser>(true);
 }
 
-template <typename PARSER> void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
+template <typename PARSER>
+void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 

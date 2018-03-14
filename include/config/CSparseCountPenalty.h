@@ -33,19 +33,19 @@ namespace config {
 //! captures the count distribution at longer bucket lengths.
 class CONFIG_EXPORT CSparseCountPenalty : public CPenalty {
 public:
-    CSparseCountPenalty(const CAutoconfigurerParams &params);
+    CSparseCountPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CSparseCountPenalty *clone(void) const;
+    virtual CSparseCountPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
 
 private:
     //! Compute a penalty for rare detectors.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CSparseCountPenalty_h
+#endif // INCLUDED_ml_config_CSparseCountPenalty_h

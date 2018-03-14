@@ -66,12 +66,12 @@ namespace core {
 class CORE_EXPORT CTimezone : private CNonCopyable {
 public:
     //! Get the singleton instance
-    static CTimezone &instance(void);
+    static CTimezone& instance(void);
 
     //! Get the name of the current timezone.  This will be a POSIX name,
     //! e.g. Europe/London or America/New_York, or, if the timezone has not
     //! been changed from the system default, an empty string.
-    const std::string &timezoneName(void) const;
+    const std::string& timezoneName(void) const;
 
     //! Set the name of the timezone used by the C library functions (or our
     //! replacements for them)
@@ -80,10 +80,10 @@ public:
     //! A blank string will cause the timezone of the machine
     //! we're running on to be used (which the C library will determine
     //! in an OS dependent manner).
-    bool timezoneName(const std::string &name);
+    bool timezoneName(const std::string& name);
 
     //! Convenience wrapper around the setter for timezone name
-    static bool setTimezone(const std::string &timezone);
+    static bool setTimezone(const std::string& timezone);
 
     //! Abbreviation for standard time in the current timezone
     std::string stdAbbrev(void) const;
@@ -96,19 +96,19 @@ public:
     //! is a replacement for mktime() that switches to using Boost on
     //! Windows when the program's timezone is different to the operating
     //! system's timezone.
-    core_t::TTime localToUtc(struct tm &localTime) const;
+    core_t::TTime localToUtc(struct tm& localTime) const;
 
     //! Convert a UTC time to local time in the current timezone.
-    bool utcToLocal(core_t::TTime utcTime, struct tm &localTime) const;
+    bool utcToLocal(core_t::TTime utcTime, struct tm& localTime) const;
 
     //! Get the date fields.
     bool dateFields(core_t::TTime utcTime,
-                    int &daysSinceSunday,
-                    int &dayOfMonth,
-                    int &daysSinceJanuary1st,
-                    int &monthsSinceJanuary,
-                    int &yearsSince1900,
-                    int &secondsSinceMidnight) const;
+                    int& daysSinceSunday,
+                    int& dayOfMonth,
+                    int& daysSinceJanuary1st,
+                    int& monthsSinceJanuary,
+                    int& yearsSince1900,
+                    int& secondsSinceMidnight) const;
 
 private:
     //! Constructor for a singleton is private.
@@ -135,4 +135,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CTimezone_h
+#endif // INCLUDED_ml_core_CTimezone_h

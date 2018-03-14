@@ -31,7 +31,7 @@ public:
     void testPersistence(void);
     void testScale(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CKMostCorrelatedTest_h
+#endif // INCLUDED_CKMostCorrelatedTest_h

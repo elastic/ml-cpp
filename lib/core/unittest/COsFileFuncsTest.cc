@@ -25,8 +25,8 @@
 #include <unistd.h>
 #endif
 
-CppUnit::Test *COsFileFuncsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
+CppUnit::Test* COsFileFuncsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<COsFileFuncsTest>("COsFileFuncsTest::testInode",
                                                                     &COsFileFuncsTest::testInode));

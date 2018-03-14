@@ -60,7 +60,7 @@ namespace api {
 //!
 class API_EXPORT CBackgroundPersister : private core::CNonCopyable {
 public:
-    using TFirstProcessorPeriodicPersistFunc = std::function<bool(CBackgroundPersister &)>;
+    using TFirstProcessorPeriodicPersistFunc = std::function<bool(CBackgroundPersister&)>;
 
 public:
     //! The supplied data adder must outlive this object.  If the data
@@ -68,14 +68,14 @@ public:
     //! object until after this object is destroyed.  When using this
     //! constructor the first processor persistence function must be
     //! set before the object is used.
-    CBackgroundPersister(core_t::TTime periodicPersistInterval, core::CDataAdder &dataAdder);
+    CBackgroundPersister(core_t::TTime periodicPersistInterval, core::CDataAdder& dataAdder);
 
     //! As above, but also supply the first processor persistence
     //! function at construction time.
     CBackgroundPersister(
         core_t::TTime periodicPersistInterval,
-        const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc,
-        core::CDataAdder &dataAdder);
+        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
+        core::CDataAdder& dataAdder);
 
     ~CBackgroundPersister(void);
 
@@ -108,7 +108,7 @@ public:
     //! chain of background persistence.  This will be rejected if a
     //! background persistence is currently in progress.
     bool firstProcessorPeriodicPersistFunc(
-        const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc);
+        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
 
     //! Check whether a background persist is appropriate now, and if it is
     //! then start it by calling the first processor periodic persist
@@ -119,7 +119,7 @@ private:
     //! Implementation of the background thread
     class CBackgroundThread : public core::CThread {
     public:
-        CBackgroundThread(CBackgroundPersister &owner);
+        CBackgroundThread(CBackgroundPersister& owner);
 
     protected:
         //! Inherited virtual interface
@@ -128,7 +128,7 @@ private:
 
     private:
         //! Reference to the owning background persister
-        CBackgroundPersister &m_Owner;
+        CBackgroundPersister& m_Owner;
     };
 
 private:
@@ -147,7 +147,7 @@ private:
     //! The data adder refered to must outlive this object.  If the data
     //! adder is not thread safe then it may not be used by any other
     //! object until after this object is destroyed.
-    core::CDataAdder &m_DataAdder;
+    core::CDataAdder& m_DataAdder;
 
     //! Mutex to ensure atomicity of operations where required.
     core::CFastMutex m_Mutex;
@@ -173,4 +173,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CBackgroundPersister_h
+#endif // INCLUDED_ml_api_CBackgroundPersister_h

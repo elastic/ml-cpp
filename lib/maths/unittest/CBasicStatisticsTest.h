@@ -28,7 +28,7 @@ public:
     void testOrderStatistics(void);
     void testMinMax(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CBasicStatisticsTest_h
+#endif // INCLUDED_CBasicStatisticsTest_h

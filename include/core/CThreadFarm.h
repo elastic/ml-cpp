@@ -55,7 +55,7 @@ namespace core {
 template <typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT>
 class CThreadFarm : private CNonCopyable {
 public:
-    CThreadFarm(HANDLER &handler, const std::string &name)
+    CThreadFarm(HANDLER& handler, const std::string& name)
         : m_Handler(handler),
           m_Pending(0),
           m_LastPrint(0),
@@ -68,7 +68,7 @@ public:
     }
 
     //! Add a processor
-    bool addProcessor(PROCESSOR &processor) {
+    bool addProcessor(PROCESSOR& processor) {
         if (m_Started == true) {
             LOG_ERROR("Can't add receiver to running " << m_Name << " thread farm");
             return false;
@@ -86,7 +86,7 @@ public:
 
     //! Add some work, and find out how many results are pending
     //! following the addition
-    bool addMessage(const MESSAGE &msg, size_t &pending) {
+    bool addMessage(const MESSAGE& msg, size_t& pending) {
         CScopedLock lock(m_Mutex);
 
         if (m_Started == false) {
@@ -113,7 +113,7 @@ public:
     }
 
     //! Add some work
-    bool addMessage(const MESSAGE &msg) {
+    bool addMessage(const MESSAGE& msg) {
         size_t dummy = 0;
         return this->addMessage(msg, dummy);
     }
@@ -180,7 +180,7 @@ public:
 private:
     //! This should only be called by our friend the CThreadFarmReceiver
     //! otherwise the pending count will get messed up
-    void addResult(const RESULT &result) {
+    void addResult(const RESULT& result) {
         CScopedLock lock(m_Mutex);
 
         if (m_Pending <= 0) {
@@ -206,7 +206,7 @@ private:
 
 private:
     //! Reference to the object that will handle the results
-    HANDLER &m_Handler;
+    HANDLER& m_Handler;
 
     typedef CThreadFarm<HANDLER, PROCESSOR, MESSAGE, RESULT> TThreadFarm;
 
@@ -247,4 +247,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CThreadFarm_h
+#endif // INCLUDED_ml_core_CThreadFarm_h

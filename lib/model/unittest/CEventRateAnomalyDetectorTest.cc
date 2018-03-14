@@ -51,11 +51,11 @@ const std::string EMPTY_STRING;
 
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CResultWriter(const ml::model::CAnomalyDetectorModelConfig &modelConfig,
-                  const ml::model::CLimits &limits)
+    CResultWriter(const ml::model::CAnomalyDetectorModelConfig& modelConfig,
+                  const ml::model::CLimits& limits)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_Calls(0) {}
 
-    void operator()(ml::model::CAnomalyDetector &detector,
+    void operator()(ml::model::CAnomalyDetector& detector,
                     ml::core_t::TTime start,
                     ml::core_t::TTime end) {
         ml::model::CHierarchicalResults results;
@@ -68,8 +68,8 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults &results,
-                       const ml::model::CHierarchicalResults::TNode &node,
+    virtual void visit(const ml::model::CHierarchicalResults& results,
+                       const ml::model::CHierarchicalResults::TNode& node,
                        bool pivot) {
         if (pivot) {
             return;
@@ -97,7 +97,7 @@ public:
     }
 
     bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode &node,
+                    const ml::model::CHierarchicalResults::TNode& node,
                     bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability()
@@ -110,12 +110,12 @@ public:
 
     size_t numDistinctTimes(void) const { return m_AllAnomalies.size(); }
 
-    const TTimeDoubleMap &anomalyScores(void) const { return m_AnomalyScores; }
+    const TTimeDoubleMap& anomalyScores(void) const { return m_AnomalyScores; }
 
-    const TTimeStrPrSet &allAnomalies(void) const { return m_AllAnomalies; }
+    const TTimeStrPrSet& allAnomalies(void) const { return m_AllAnomalies; }
 
 private:
-    const ml::model::CAnomalyDetectorModelConfig &m_ModelConfig;
+    const ml::model::CAnomalyDetectorModelConfig& m_ModelConfig;
     ml::model::CLimits m_Limits;
     std::size_t m_Calls;
     TTimeStrPrSet m_AllAnomalies;
@@ -125,9 +125,9 @@ private:
 void importData(ml::core_t::TTime firstTime,
                 ml::core_t::TTime lastTime,
                 ml::core_t::TTime bucketLength,
-                CResultWriter &outputResults,
-                const TStrVec &fileNames,
-                ml::model::CAnomalyDetector &detector) {
+                CResultWriter& outputResults,
+                const TStrVec& fileNames,
+                ml::model::CAnomalyDetector& detector) {
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
     typedef std::vector<TifstreamPtr> TifstreamPtrVec;
     typedef std::vector<ml::core_t::TTime> TTimeVec;
@@ -193,13 +193,13 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1,// identifier
+    ml::model::CSearchKey key(1, // identifier
                               ml::model::function_t::E_IndividualRareCount,
                               false,
                               ml::model_t::E_XF_None,
                               EMPTY_STRING,
                               "status");
-    ml::model::CAnomalyDetector detector(1,// identifier
+    ml::model::CAnomalyDetector detector(1, // identifier
                                          limits,
                                          modelConfig,
                                          EMPTY_STRING,
@@ -216,9 +216,9 @@ void CEventRateAnomalyDetectorTest::testAnomalies(void) {
     LOG_DEBUG("visitor.calls() = " << writer.calls());
     // CPPUNIT_ASSERT_EQUAL(writer.calls(), writer.numDistinctTimes());
 
-    const TTimeDoubleMap &anomalyScores = writer.anomalyScores();
+    const TTimeDoubleMap& anomalyScores = writer.anomalyScores();
     TTimeVec peaks;
-    for (const auto &score : anomalyScores) {
+    for (const auto& score : anomalyScores) {
         if (score.second > HIGH_ANOMALY_SCORE) {
             peaks.push_back(score.first);
         }
@@ -252,14 +252,14 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1,// identifier
+    ml::model::CSearchKey key(1, // identifier
                               ml::model::function_t::E_IndividualCount,
                               false,
                               ml::model_t::E_XF_None,
                               EMPTY_STRING,
                               "status");
 
-    ml::model::CAnomalyDetector origDetector(1,// identifier
+    ml::model::CAnomalyDetector origDetector(1, // identifier
                                              limits,
                                              modelConfig,
                                              EMPTY_STRING,
@@ -281,7 +281,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
     LOG_TRACE("Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
-    ml::model::CAnomalyDetector restoredDetector(1,// identifier
+    ml::model::CAnomalyDetector restoredDetector(1, // identifier
                                                  limits,
                                                  modelConfig,
                                                  "",
@@ -308,14 +308,17 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CEventRateAnomalyDetectorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
+CppUnit::Test* CEventRateAnomalyDetectorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testAnomalies",
-        &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testPersist", &CEventRateAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testAnomalies",
+                                           &CEventRateAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testPersist",
+                                           &CEventRateAnomalyDetectorTest::testPersist));
 
     return suiteOfTests;
 }

@@ -58,11 +58,11 @@ public:
 
     //! Enumerates the type of model check we can perform.
     enum EChecks {
-        E_PredictionBias = 0x1,         //!< Check for prediction bias.
-        E_PredictionErrorIncrease = 0x2,//!< Check for recent increases
-                                        //! in the prediction errors.
-        E_PredictionErrorDecrease = 0x4 //!< Check for recent decreases
-                                        //! in the prediction errors.
+        E_PredictionBias = 0x1,          //!< Check for prediction bias.
+        E_PredictionErrorIncrease = 0x2, //!< Check for recent increases
+                                         //! in the prediction errors.
+        E_PredictionErrorDecrease = 0x4  //!< Check for recent decreases
+                                         //! in the prediction errors.
     };
 
 public:
@@ -73,15 +73,15 @@ public:
     void reset(void);
 
     //! Restore by reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing state to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the decay rate multiplier to apply and update the relevant
     //! prediction errors.
-    double multiplier(const TDouble1Vec &prediction,
-                      const TDouble1VecVec &predictionErrors,
+    double multiplier(const TDouble1Vec& prediction,
+                      const TDouble1VecVec& predictionErrors,
                       core_t::TTime bucketLength,
                       double learnRate,
                       double decayRate);
@@ -136,4 +136,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CDecayRateController_h
+#endif // INCLUDED_ml_maths_CDecayRateController_h

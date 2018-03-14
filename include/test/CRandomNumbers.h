@@ -44,7 +44,7 @@ public:
     //! A uniform generator on the interval [a,b].
     class TEST_EXPORT CUniform0nGenerator {
     public:
-        CUniform0nGenerator(const TGenerator &generator);
+        CUniform0nGenerator(const TGenerator& generator);
 
         std::size_t operator()(std::size_t n) const;
 
@@ -56,10 +56,10 @@ public:
     //! \brief Generate random samples from the specified distribution
     //! using a custom random number generator.
     template <typename RNG, typename Distribution, typename Container>
-    static void generateSamples(RNG &randomNumberGenerator,
-                                const Distribution &distribution,
+    static void generateSamples(RNG& randomNumberGenerator,
+                                const Distribution& distribution,
                                 std::size_t numberSamples,
-                                Container &samples);
+                                Container& samples);
 
     //! Shuffle the elements of a sequence using a random number generator.
     //!
@@ -70,72 +70,73 @@ public:
     //! based on the libc++ implementation because this is different from
     //! the libstdc++ implementation which can cause platform specific test
     //! failures.
-    template <typename ITR> void random_shuffle(ITR first, ITR last);
+    template <typename ITR>
+    void random_shuffle(ITR first, ITR last);
 
     //! Generate normal random samples with the specified mean and
     //! variance using the default random number generator.
     void generateNormalSamples(double mean,
                                double variance,
                                std::size_t numberSamples,
-                               TDoubleVec &samples);
+                               TDoubleVec& samples);
 
     //! Generate multivariate normal random samples with the specified
     //! mean and covariance matrix the default random number generator.
-    void generateMultivariateNormalSamples(const TDoubleVec &mean,
-                                           const TDoubleVecVec &covariances,
+    void generateMultivariateNormalSamples(const TDoubleVec& mean,
+                                           const TDoubleVecVec& covariances,
                                            std::size_t numberSamples,
-                                           TDoubleVecVec &samples);
+                                           TDoubleVecVec& samples);
 
     //! Generate Poisson random samples with the specified rate using
     //! the default random number generator.
-    void generatePoissonSamples(double rate, std::size_t numberSamples, TUIntVec &samples);
+    void generatePoissonSamples(double rate, std::size_t numberSamples, TUIntVec& samples);
 
     //! Generate Student's t random samples with the specified degrees
     //! freedom using the default random number generator.
     void
-    generateStudentsSamples(double degreesFreedom, std::size_t numberSamples, TDoubleVec &samples);
+    generateStudentsSamples(double degreesFreedom, std::size_t numberSamples, TDoubleVec& samples);
 
     //! Generate log-normal random samples with the specified location
     //! and scale using the default random number generator.
     void generateLogNormalSamples(double location,
                                   double squareScale,
                                   std::size_t numberSamples,
-                                  TDoubleVec &samples);
+                                  TDoubleVec& samples);
 
     //! Generate uniform random samples in the interval [a,b) using
     //! the default random number generator.
-    void generateUniformSamples(double a, double b, std::size_t numberSamples, TDoubleVec &samples);
+    void generateUniformSamples(double a, double b, std::size_t numberSamples, TDoubleVec& samples);
 
     //! Generate uniform integer samples from the the set [a, a+1, ..., b)
     //! using the default random number generator.
     void generateUniformSamples(std::size_t a,
                                 std::size_t b,
                                 std::size_t numberSamples,
-                                TSizeVec &samples);
+                                TSizeVec& samples);
 
     //! Generate gamma random samples with the specified shape and rate
     //! using the default random number generator.
     void generateGammaSamples(double shape,
                               double scale,
                               std::size_t numberSamples,
-                              TDoubleVec &samples);
+                              TDoubleVec& samples);
 
     //! Generate multinomial random samples on the specified categories
     //! using the default random number generator.
-    void generateMultinomialSamples(const TDoubleVec &categories,
-                                    const TDoubleVec &probabilities,
+    void generateMultinomialSamples(const TDoubleVec& categories,
+                                    const TDoubleVec& probabilities,
                                     std::size_t numberSamples,
-                                    TDoubleVec &samples);
+                                    TDoubleVec& samples);
 
     //! Generate random samples from a Diriclet distribution with
     //! concentration parameters \p concentrations.
-    void generateDirichletSamples(const TDoubleVec &concentrations,
+    void generateDirichletSamples(const TDoubleVec& concentrations,
                                   std::size_t numberSamples,
-                                  TDoubleVecVec &samples);
+                                  TDoubleVecVec& samples);
 
     //! Generate a collection of random words of specified length using
     //! the default random number generator.
-    void generateWords(std::size_t length, std::size_t numberSamples, TStrVec &samples);
+    void generateWords(std::size_t length, std::size_t numberSamples, TStrVec& samples);
 
     //! Generate a collection of |\p sizes| random mean vectors and
     //! covariance matrices and a collection of samples from those
@@ -150,10 +151,10 @@ public:
     //! \param[out] points Filled in with the samples from each cluster.
     template <typename T, std::size_t N>
     void
-    generateRandomMultivariateNormals(const TSizeVec &sizes,
-                                      std::vector<maths::CVectorNx1<T, N>> &means,
-                                      std::vector<maths::CSymmetricMatrixNxN<T, N>> &covariances,
-                                      std::vector<std::vector<maths::CVectorNx1<T, N>>> &points);
+    generateRandomMultivariateNormals(const TSizeVec& sizes,
+                                      std::vector<maths::CVectorNx1<T, N>>& means,
+                                      std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
+                                      std::vector<std::vector<maths::CVectorNx1<T, N>>>& points);
 
     //! Get a uniform generator in the range [0, n). This can be used
     //! in conjunction with std::random_shuffle if you want a seeded
@@ -170,4 +171,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_test_CRandomNumbers_h
+#endif // INCLUDED_ml_test_CRandomNumbers_h

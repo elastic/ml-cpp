@@ -50,27 +50,27 @@ public:
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CLineifiedJsonInputParser(std::istream &strmIn, bool allDocsSameStructure = false);
+    CLineifiedJsonInputParser(std::istream& strmIn, bool allDocsSameStructure = false);
 
     //! Read records from the stream. The supplied reader function is called
     //! once per record.  If the supplied reader function returns false,
     //! reading will stop.  This method keeps reading until it reaches the
     //! end of the stream or an error occurs.  If it successfully reaches
     //! the end of the stream it returns true, otherwise it returns false.
-    virtual bool readStream(const TReaderFunc &readerFunc);
+    virtual bool readStream(const TReaderFunc& readerFunc);
 
 private:
     //! Attempt to parse the current working record into data fields.
-    bool parseDocument(char *begin, rapidjson::Document &document);
+    bool parseDocument(char* begin, rapidjson::Document& document);
 
-    bool decodeDocumentWithCommonFields(const rapidjson::Document &document,
-                                        TStrVec &fieldNames,
-                                        TStrRefVec &fieldValRefs,
-                                        TStrStrUMap &recordFields);
+    bool decodeDocumentWithCommonFields(const rapidjson::Document& document,
+                                        TStrVec& fieldNames,
+                                        TStrRefVec& fieldValRefs,
+                                        TStrStrUMap& recordFields);
 
-    bool decodeDocumentWithArbitraryFields(const rapidjson::Document &document,
-                                           TStrVec &fieldNames,
-                                           TStrStrUMap &recordFields);
+    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+                                           TStrVec& fieldNames,
+                                           TStrStrUMap& recordFields);
 
 private:
     //! Are all JSON documents expected to contain the same fields in the
@@ -80,4 +80,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CLineifiedJsonInputParser_h
+#endif // INCLUDED_ml_api_CLineifiedJsonInputParser_h

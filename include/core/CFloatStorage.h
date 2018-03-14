@@ -84,7 +84,7 @@ public:
         if (value > MAX_PRECISE_INTEGER_FLOAT || -value < MAX_PRECISE_INTEGER_FLOAT) {
             LOG_WARN("Loss of precision assigning int " << value << " to float");
         }
-#endif// CFLOATSTORAGE_BOUNDS_CHECK
+#endif // CFLOATSTORAGE_BOUNDS_CHECK
     }
 
     //! Implicit construction from a float.
@@ -94,7 +94,7 @@ public:
     CFloatStorage(double value) : m_Value() { this->set(value); }
 
     //! Set from a string.
-    bool fromString(const std::string &string) {
+    bool fromString(const std::string& string) {
         double value;
         if (CStringUtils::stringToType(string, value)) {
             this->set(value);
@@ -112,27 +112,27 @@ public:
     //! \name Double Assignment
     //@{
     //! Assign from a double.
-    CFloatStorage &operator=(double value) {
+    CFloatStorage& operator=(double value) {
         this->set(value);
         return *this;
     }
     //! Plus assign from double.
-    CFloatStorage &operator+=(double value) {
+    CFloatStorage& operator+=(double value) {
         this->set(static_cast<double>(m_Value) + value);
         return *this;
     }
     //! Minus assign from double.
-    CFloatStorage &operator-=(double value) {
+    CFloatStorage& operator-=(double value) {
         this->set(static_cast<double>(m_Value) - value);
         return *this;
     }
     //! Multiply assign from double.
-    CFloatStorage &operator*=(double value) {
+    CFloatStorage& operator*=(double value) {
         this->set(static_cast<double>(m_Value) * value);
         return *this;
     }
     //! Divide assign from double.
-    CFloatStorage &operator/=(double value) {
+    CFloatStorage& operator/=(double value) {
         this->set(static_cast<double>(m_Value) / value);
         return *this;
     }
@@ -156,7 +156,7 @@ private:
                    -value < 100 * std::numeric_limits<float>::min()) {
             LOG_WARN("Less than 3 s.f. precision retained for " << value);
         }
-#endif// CFLOATSTORAGE_BOUNDS_CHECK
+#endif // CFLOATSTORAGE_BOUNDS_CHECK
         m_Value = static_cast<float>(value);
     }
 
@@ -166,4 +166,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CFloatStorage_h
+#endif // INCLUDED_ml_core_CFloatStorage_h

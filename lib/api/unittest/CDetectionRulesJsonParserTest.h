@@ -37,7 +37,7 @@ public:
     void testParseRulesGivenCategoricalRule(void);
     void testParseRulesGivenTimeRule(void);
     void testParseRulesGivenDifferentActions(void);
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CDetectionRulesJsonParserTest_h
+#endif // INCLUDED_CDetectionRulesJsonParserTest_h

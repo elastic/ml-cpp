@@ -55,10 +55,10 @@ void CContainerPrinterTest::testAll(void) {
 
     double three = 3.0;
     double fivePointOne = 5.1;
-    std::map<double, double *> map;
+    std::map<double, double*> map;
     map.insert(std::make_pair(1.1, &three));
     map.insert(std::make_pair(3.3, &fivePointOne));
-    map.insert(std::make_pair(1.0, static_cast<double *>(0)));
+    map.insert(std::make_pair(1.0, static_cast<double*>(0)));
     LOG_DEBUG("map = " << CContainerPrinter::print(map));
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
                          CContainerPrinter::print(map));
@@ -84,11 +84,12 @@ void CContainerPrinterTest::testAll(void) {
         CContainerPrinter::print(aggregate));
 }
 
-CppUnit::Test *CContainerPrinterTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
+CppUnit::Test* CContainerPrinterTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerPrinterTest>(
-        "CContainerPrinterTest::testAll", &CContainerPrinterTest::testAll));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerPrinterTest>("CContainerPrinterTest::testAll",
+                                                       &CContainerPrinterTest::testAll));
 
     return suiteOfTests;
 }

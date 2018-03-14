@@ -63,10 +63,10 @@ public:
     CBenchMarker(void);
 
     //! Initialise from a file
-    bool init(const std::string &regexFilename);
+    bool init(const std::string& regexFilename);
 
     //! Add a message together with the type Ml assigned to it
-    void addResult(const std::string &message, int type);
+    void addResult(const std::string& message, int type);
 
     void dumpResults(void) const;
 
@@ -84,4 +84,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CBenchMarker_h
+#endif // INCLUDED_ml_api_CBenchMarker_h

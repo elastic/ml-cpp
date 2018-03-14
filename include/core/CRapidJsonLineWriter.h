@@ -75,7 +75,7 @@ public:
     //! Note this non-virtual overwrite is needed to avoid slicing of the writer
     //! and hence ensure the correct StartObject/EndObject functions are called
     //! \p doc reference to rapidjson document value
-    void write(rapidjson::Value &doc) { doc.Accept(*this); }
+    void write(rapidjson::Value& doc) { doc.Accept(*this); }
 
 private:
     size_t m_ObjectCount = 0;

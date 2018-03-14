@@ -58,7 +58,7 @@ public:
     CInterimBucketCorrector(core_t::TTime bucketLength);
 
     //! Copy constructor
-    CInterimBucketCorrector(const CInterimBucketCorrector &other);
+    CInterimBucketCorrector(const CInterimBucketCorrector& other);
 
     //! Updates the model of the bucket count with a new measurement
     void update(core_t::TTime time, std::size_t bucketCount);
@@ -82,8 +82,8 @@ public:
     //! \param[in] values The values to be corrected.
     TDouble10Vec corrections(core_t::TTime time,
                              std::size_t currentCount,
-                             const TDouble10Vec &modes,
-                             const TDouble10Vec &values) const;
+                             const TDouble10Vec& modes,
+                             const TDouble10Vec& values) const;
 
     //! Get the memory used by the corrector
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -91,8 +91,8 @@ public:
     //! Get the memory used by the corrector
     std::size_t memoryUsage(void) const;
 
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! Returns the mid point in the bucket that contains \p time.
@@ -116,4 +116,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CInterimBucketCorrector_h
+#endif // INCLUDED_ml_model_CInterimBucketCorrector_h

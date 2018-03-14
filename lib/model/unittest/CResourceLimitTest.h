@@ -34,16 +34,16 @@ public:
     void testLimitByOver(void);
     void testLargeAllocations(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     void importCsvDataWithLimiter(ml::core_t::TTime firstTime,
                                   ml::core_t::TTime bucketLength,
-                                  CResultWriter &outputResults,
-                                  const std::string &fileName,
-                                  ml::model::CAnomalyDetector &detector,
+                                  CResultWriter& outputResults,
+                                  const std::string& fileName,
+                                  ml::model::CAnomalyDetector& detector,
                                   std::size_t limitCutoff,
-                                  ml::model::CResourceMonitor &resourceMonitor);
+                                  ml::model::CResourceMonitor& resourceMonitor);
 };
 
-#endif// INCLUDED_CResourceLimitTest_h
+#endif // INCLUDED_CResourceLimitTest_h

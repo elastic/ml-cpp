@@ -22,7 +22,7 @@ public:
     void testWordExtract(void);
     void testMinConsecutive(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CWordExtractorTest_h
+#endif // INCLUDED_CWordExtractorTest_h

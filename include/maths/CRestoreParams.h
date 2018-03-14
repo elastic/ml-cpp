@@ -74,9 +74,9 @@ struct MATHS_EXPORT SDistributionRestoreParams {
 struct MATHS_EXPORT SModelRestoreParams {
     using TModelParamsCRef = boost::reference_wrapper<const CModelParams>;
 
-    SModelRestoreParams(const CModelParams &params,
-                        const STimeSeriesDecompositionRestoreParams &decompositionParams,
-                        const SDistributionRestoreParams &distributionParams);
+    SModelRestoreParams(const CModelParams& params,
+                        const STimeSeriesDecompositionRestoreParams& decompositionParams,
+                        const SDistributionRestoreParams& distributionParams);
 
     //! The model parameters.
     TModelParamsCRef s_Params;
@@ -90,4 +90,4 @@ struct MATHS_EXPORT SModelRestoreParams {
 }
 }
 
-#endif// INCLUDED_ml_maths_CRestoreParams_h
+#endif // INCLUDED_ml_maths_CRestoreParams_h

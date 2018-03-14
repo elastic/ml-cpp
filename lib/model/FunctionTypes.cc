@@ -549,9 +549,9 @@ const model_t::EFeature INDIVIDUAL_RARE_COUNT_FEATURES[] = {
     model_t::E_IndividualCountByBucketAndPerson,
     model_t::E_IndividualTotalBucketCountByPerson,
 };
-const model_t::EFeature INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES[] = {
-    model_t::E_IndividualNonZeroCountByBucketAndPerson,
-    model_t::E_IndividualTotalBucketCountByPerson};
+const model_t::EFeature INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES[] =
+    {model_t::E_IndividualNonZeroCountByBucketAndPerson,
+     model_t::E_IndividualTotalBucketCountByPerson};
 const model_t::EFeature INDIVIDUAL_RARE_FEATURES[] = {model_t::E_IndividualTotalBucketCountByPerson,
                                                       model_t::E_IndividualIndicatorOfBucketPerson};
 const model_t::EFeature INDIVIDUAL_LOW_COUNTS_FEATURES[] = {
@@ -628,20 +628,20 @@ const model_t::EFeature POPULATION_LOW_DISTINCT_COUNT_FEATURES[] = {
     model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute};
 const model_t::EFeature POPULATION_HIGH_DISTINCT_COUNT_FEATURES[] = {
     model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_RARE_FEATURES[] = {
-    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-    model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_RARE_COUNT_FEATURES[] = {
-    model_t::E_PopulationCountByBucketPersonAndAttribute,
-    model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_FREQ_RARE_FEATURES[] = {
-    model_t::E_PopulationAttributeTotalCountByPerson,
-    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-    model_t::E_PopulationUniquePersonCountByAttribute};
-const model_t::EFeature POPULATION_FREQ_RARE_COUNT_FEATURES[] = {
-    model_t::E_PopulationAttributeTotalCountByPerson,
-    model_t::E_PopulationCountByBucketPersonAndAttribute,
-    model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_RARE_FEATURES[] =
+    {model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+     model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_RARE_COUNT_FEATURES[] =
+    {model_t::E_PopulationCountByBucketPersonAndAttribute,
+     model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_FREQ_RARE_FEATURES[] =
+    {model_t::E_PopulationAttributeTotalCountByPerson,
+     model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+     model_t::E_PopulationUniquePersonCountByAttribute};
+const model_t::EFeature POPULATION_FREQ_RARE_COUNT_FEATURES[] =
+    {model_t::E_PopulationAttributeTotalCountByPerson,
+     model_t::E_PopulationCountByBucketPersonAndAttribute,
+     model_t::E_PopulationUniquePersonCountByAttribute};
 const model_t::EFeature POPULATION_LOW_COUNTS_FEATURES[] = {
     model_t::E_PopulationLowCountsByBucketPersonAndAttribute};
 const model_t::EFeature POPULATION_HIGH_COUNTS_FEATURES[] = {
@@ -656,10 +656,10 @@ const model_t::EFeature POPULATION_TIME_OF_DAY_FEATURES[] = {
     model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute};
 const model_t::EFeature POPULATION_TIME_OF_WEEK_FEATURES[] = {
     model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute};
-const model_t::EFeature POPULATION_METRIC_FEATURES[] = {
-    model_t::E_PopulationMeanByPersonAndAttribute,
-    model_t::E_PopulationMinByPersonAndAttribute,
-    model_t::E_PopulationMaxByPersonAndAttribute};
+const model_t::EFeature POPULATION_METRIC_FEATURES[] =
+    {model_t::E_PopulationMeanByPersonAndAttribute,
+     model_t::E_PopulationMinByPersonAndAttribute,
+     model_t::E_PopulationMaxByPersonAndAttribute};
 const model_t::EFeature POPULATION_METRIC_MEAN_FEATURES[] = {
     model_t::E_PopulationMeanByPersonAndAttribute};
 const model_t::EFeature POPULATION_METRIC_LOW_MEAN_FEATURES[] = {
@@ -1161,8 +1161,8 @@ const TFunctionVec EMPTY_FUNCTIONS;
 #undef END
 
 //! Add the features corresponding to \p function to \p map.
-void addFeatures(EFunction function, TFeatureFunctionVecMap &map) {
-    const TFeatureVec &features = function_t::features(function);
+void addFeatures(EFunction function, TFeatureFunctionVecMap& map) {
+    const TFeatureVec& features = function_t::features(function);
     for (std::size_t i = 0u; i < features.size(); ++i) {
         map[features[i]].push_back(function);
     }
@@ -1449,7 +1449,7 @@ TFeatureFunctionVecMap buildFeatureFunctionMap(void) {
 const TFeatureFunctionVecMap FUNCTIONS_BY_FEATURE = buildFeatureFunctionMap();
 
 //! Get the function with the fewest features.
-EFunction mostSpecific(const TFunctionVec &functions) {
+EFunction mostSpecific(const TFunctionVec& functions) {
     if (functions.empty()) {
         LOG_ABORT("No functions specified");
     }
@@ -1467,7 +1467,7 @@ EFunction mostSpecific(const TFunctionVec &functions) {
 }
 }
 
-const TFeatureVec &features(EFunction function) {
+const TFeatureVec& features(EFunction function) {
     switch (function) {
         case E_IndividualCount:
             return INDIVIDUAL_COUNT_FEATURES;
@@ -1647,7 +1647,7 @@ const TFeatureVec &features(EFunction function) {
     return EMPTY_FEATURES;
 }
 
-EFunction function(const TFeatureVec &features) {
+EFunction function(const TFeatureVec& features) {
     if (features.empty()) {
         LOG_ERROR("No features default to '" << print(E_IndividualCount) << "'");
         return E_IndividualCount;
@@ -1697,7 +1697,7 @@ EFunction function(const TFeatureVec &features) {
     return mostSpecific(candidates);
 }
 
-const std::string &name(EFunction function) {
+const std::string& name(EFunction function) {
     switch (function) {
         case E_IndividualCount:
             return detail::COUNT;
@@ -2057,7 +2057,9 @@ std::string print(EFunction function) {
     return "-";
 }
 
-std::ostream &operator<<(std::ostream &o, EFunction function) { return o << print(function); }
+std::ostream& operator<<(std::ostream& o, EFunction function) {
+    return o << print(function);
+}
 }
 }
 }

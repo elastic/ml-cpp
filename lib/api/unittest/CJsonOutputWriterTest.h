@@ -37,7 +37,7 @@ public:
     void testThroughputWithScopedAllocator(void);
     void testThroughputWithoutScopedAllocator(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     void testBucketWriteHelper(bool isInterim);
@@ -45,4 +45,4 @@ private:
     void testThroughputHelper(bool useScopedAllocator);
 };
 
-#endif// INCLUDED_CJsonOutputWriterTest_h
+#endif // INCLUDED_CJsonOutputWriterTest_h

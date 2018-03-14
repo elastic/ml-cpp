@@ -19,18 +19,20 @@ namespace core {
 
 CStatePersistInserter::~CStatePersistInserter(void) {}
 
-void CStatePersistInserter::insertValue(const std::string &name,
+void CStatePersistInserter::insertValue(const std::string& name,
                                         double value,
                                         CIEEE754::EPrecision precision) {
     this->insertValue(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 
-CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string &name,
-                                              CStatePersistInserter &inserter)
+CStatePersistInserter::CAutoLevel::CAutoLevel(const std::string& name,
+                                              CStatePersistInserter& inserter)
     : m_Inserter(inserter) {
     m_Inserter.newLevel(name);
 }
 
-CStatePersistInserter::CAutoLevel::~CAutoLevel(void) { m_Inserter.endLevel(); }
+CStatePersistInserter::CAutoLevel::~CAutoLevel(void) {
+    m_Inserter.endLevel();
+}
 }
 }

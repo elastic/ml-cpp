@@ -26,22 +26,22 @@
 namespace ml {
 namespace core {
 
-CHexUtils::CHexUtils(const uint8_t *pkt, size_t pktLen, bool printHeader, bool printAscii)
+CHexUtils::CHexUtils(const uint8_t* pkt, size_t pktLen, bool printHeader, bool printAscii)
     : m_Pkt(pkt), m_PktLen(pktLen), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {}
 
-CHexUtils::CHexUtils(const TDataVec &data, bool printHeader, bool printAscii)
+CHexUtils::CHexUtils(const TDataVec& data, bool printHeader, bool printAscii)
     : m_Pkt((data.size() > 0) ? &data[0] : 0),
       m_PktLen(data.size()),
       m_PrintHeader(printHeader),
       m_PrintAscii(printAscii) {}
 
-void CHexUtils::dump(const uint8_t *pkt, size_t pktLen) {
+void CHexUtils::dump(const uint8_t* pkt, size_t pktLen) {
     CHexUtils hex(pkt, pktLen);
 
     std::cout << hex << std::endl;
 }
 
-std::ostream &operator<<(std::ostream &strm, const CHexUtils &hex) {
+std::ostream& operator<<(std::ostream& strm, const CHexUtils& hex) {
     if (hex.m_PrintHeader) {
         strm << "DataSize: " << hex.m_PktLen << " {" << core_t::LINE_ENDING;
     }

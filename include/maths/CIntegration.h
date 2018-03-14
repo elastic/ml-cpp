@@ -60,7 +60,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TLogFunc = std::function<bool(double, double &)>;
+    using TLogFunc = std::function<bool(double, double&)>;
 
 public:
     //! Enumeration of order of quadrature.
@@ -114,11 +114,11 @@ public:
     //! \tparam T The type of range of \p f. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template <EOrder ORDER, typename F, typename T>
-    static bool gaussLegendre(const F &function, double a, double b, T &result) {
+    static bool gaussLegendre(const F& function, double a, double b, T& result) {
         result = T();
 
-        const double *weights = CGaussLegendreQuadrature::weights(ORDER);
-        const double *abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
+        const double* weights = CGaussLegendreQuadrature::weights(ORDER);
+        const double* abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
 
         // Evaluate f(x) at the abscissas and compute the weighted sum
         // of the quadrature.
@@ -166,19 +166,19 @@ public:
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template <EOrder ORDER, typename F, typename G, typename U, typename V>
-    static bool productGaussLegendre(const F &f,
-                                     const G &g,
+    static bool productGaussLegendre(const F& f,
+                                     const G& g,
                                      double a,
                                      double b,
-                                     U &productIntegral,
-                                     U &fIntegral,
-                                     V &gIntegral) {
+                                     U& productIntegral,
+                                     U& fIntegral,
+                                     V& gIntegral) {
         productIntegral = U();
         fIntegral = U();
         gIntegral = V();
 
-        const double *weights = CGaussLegendreQuadrature::weights(ORDER);
-        const double *abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
+        const double* weights = CGaussLegendreQuadrature::weights(ORDER);
+        const double* abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
 
         // Evaluate f(x) at the abscissas and compute the weighted sum
         // of the quadrature.
@@ -225,15 +225,15 @@ public:
     //! where f is filled in with the value of the function at x and returning
     //! false means that the function could not be evaluated at x.
     template <EOrder ORDER, typename F>
-    static bool logGaussLegendre(const F &function, double a, double b, double &result) {
+    static bool logGaussLegendre(const F& function, double a, double b, double& result) {
         result = 0.0;
 
         if (b <= a) {
             std::swap(a, b);
         }
 
-        const double *weights = CGaussLegendreQuadrature::weights(ORDER);
-        const double *abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
+        const double* weights = CGaussLegendreQuadrature::weights(ORDER);
+        const double* abscissas = CGaussLegendreQuadrature::abscissas(ORDER);
 
         double fx[ORDER] = {0.0};
 
@@ -288,13 +288,13 @@ public:
     //! the copy if it isn't needed. If it is make copies yourself and pass
     //! these in.
     template <EOrder ORDER, typename F>
-    static bool adaptiveGaussLegendre(const F &f,
-                                      TDoubleDoublePrVec &intervals,
-                                      TDoubleVec &fIntervals,
+    static bool adaptiveGaussLegendre(const F& f,
+                                      TDoubleDoublePrVec& intervals,
+                                      TDoubleVec& fIntervals,
                                       std::size_t refinements,
                                       std::size_t splitsPerRefinement,
                                       double tolerance,
-                                      double &result) {
+                                      double& result) {
         if (intervals.size() != fIntervals.size()) {
             LOG_ERROR("Inconsistent intervals and function integrals: "
                       << core::CContainerPrinter::print(intervals) << " "
@@ -418,8 +418,8 @@ public:
         using TVectorVec = std::vector<TVector>;
 
     public:
-        static const CSparseGaussLegendreQuadrature &instance(void) {
-            const CSparseGaussLegendreQuadrature *tmp = ms_Instance.load(std::memory_order_acquire);
+        static const CSparseGaussLegendreQuadrature& instance(void) {
+            const CSparseGaussLegendreQuadrature* tmp = ms_Instance.load(std::memory_order_acquire);
             if (!tmp) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
                 tmp = ms_Instance.load(std::memory_order_relaxed);
@@ -432,10 +432,10 @@ public:
         }
 
         //! The sparse grid point weights.
-        const TDoubleVec &weights(void) const { return m_Weights; }
+        const TDoubleVec& weights(void) const { return m_Weights; }
 
         //! The sparse grid point points.
-        const TVectorVec &points(void) const { return m_Points; }
+        const TVectorVec& points(void) const { return m_Points; }
 
     private:
         using TUIntVec = std::vector<unsigned int>;
@@ -443,7 +443,7 @@ public:
     private:
         //! Iterates through the combinations such that \f$\|I\|_1 = l\f$
         //! for the indices \f$I\f$ and some fixed monomial order \f$l\f$.
-        static bool next(std::size_t d, TUIntVec &indices, TUIntVec &stop) {
+        static bool next(std::size_t d, TUIntVec& indices, TUIntVec& stop) {
             for (;;) {
                 ++indices[d];
                 if (indices[d] > stop[d]) {
@@ -504,8 +504,8 @@ public:
                         for (unsigned int i_ = i, j = 0u; j < indices.size();
                              i_ /= indices[j], ++j) {
                             EOrder order = static_cast<EOrder>(indices[j]);
-                            const double *w = CGaussLegendreQuadrature::weights(order);
-                            const double *a = CGaussLegendreQuadrature::abscissas(order);
+                            const double* w = CGaussLegendreQuadrature::weights(order);
+                            const double* a = CGaussLegendreQuadrature::abscissas(order);
                             std::size_t k = i_ % indices[j];
                             weights[i] *= w[k];
                             points[i](j) = a[k];
@@ -521,13 +521,13 @@ public:
 
             m_Weights.reserve(ordered.size());
             m_Points.reserve(ordered.size());
-            for (const auto &i : ordered) {
+            for (const auto& i : ordered) {
                 m_Weights.push_back(i.second);
                 m_Points.push_back(i.first);
             }
         }
 
-        static std::atomic<const CSparseGaussLegendreQuadrature *> ms_Instance;
+        static std::atomic<const CSparseGaussLegendreQuadrature*> ms_Instance;
 
         TDoubleVec m_Weights;
         TVectorVec m_Points;
@@ -557,7 +557,7 @@ public:
     //! default constructor, support multiplication by a double and addition.
     template <EOrder ORDER, EDimension DIMENSION, typename F, typename T>
     static bool
-    sparseGaussLegendre(const F &function, const TDoubleVec &a, const TDoubleVec &b, T &result) {
+    sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
         using TSparseQuadrature = CSparseGaussLegendreQuadrature<ORDER, DIMENSION>;
         using TVector = typename TSparseQuadrature::TVector;
         using TVectorVec = typename TSparseQuadrature::TVectorVec;
@@ -573,8 +573,8 @@ public:
             return false;
         }
 
-        const TDoubleVec &weights = TSparseQuadrature::instance().weights();
-        const TVectorVec &points = TSparseQuadrature::instance().points();
+        const TDoubleVec& weights = TSparseQuadrature::instance().weights();
+        const TVectorVec& points = TSparseQuadrature::instance().points();
 
         // Evaluate f(x) at the abscissas and compute the weighted sum
         // of the quadrature.
@@ -605,8 +605,8 @@ private:
     //! of Gauss-Legendre quadrature.
     class MATHS_EXPORT CGaussLegendreQuadrature {
     public:
-        static const double *weights(EOrder order);
-        static const double *abscissas(EOrder order);
+        static const double* weights(EOrder order);
+        static const double* abscissas(EOrder order);
 
     private:
         //! Order one.
@@ -659,9 +659,9 @@ private:
 };
 
 template <CIntegration::EOrder O, CIntegration::EDimension D>
-std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D> *>
+std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*>
     CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 }
 }
 
-#endif// INCLUDED_ml_maths_CIntegration_h
+#endif // INCLUDED_ml_maths_CIntegration_h

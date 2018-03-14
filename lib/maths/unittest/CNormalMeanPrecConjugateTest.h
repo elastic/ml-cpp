@@ -38,7 +38,7 @@ public:
     void testSeasonalVarianceScale(void);
     void testCountVarianceScale(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CNormalMeanPrecConjugateTest_h
+#endif // INCLUDED_CNormalMeanPrecConjugateTest_h

@@ -32,7 +32,7 @@ public:
     void testOverflow(void);
     void testConcentration(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CMultinomialConjugateTest_h
+#endif // INCLUDED_CMultinomialConjugateTest_h

@@ -39,7 +39,7 @@ const std::string CXmlParser::ATTRIBUTE_EQUALS("=");
 const size_t CXmlParser::DEFAULT_INDENT_SPACES(4);
 const size_t CXmlParser::MAX_INDENT_SPACES(10);
 // The number of spaces in this constant MUST match the maximum above
-const char *CXmlParser::INDENT_SPACE_STR("          ");
+const char* CXmlParser::INDENT_SPACE_STR("          ");
 
 CXmlParser::CXmlParser(void) : m_Doc(0), m_XPathContext(0), m_NavigatedNode(0) {
     // Note that xmlLoadExtDtdDefaultValue needs to be set before parsing,
@@ -47,7 +47,9 @@ CXmlParser::CXmlParser(void) : m_Doc(0), m_XPathContext(0), m_NavigatedNode(0) {
     // xmlLoadExtDtdDefaultValue = 1;
 }
 
-CXmlParser::~CXmlParser(void) { this->destroy(); }
+CXmlParser::~CXmlParser(void) {
+    this->destroy();
+}
 
 void CXmlParser::destroy(void) {
     if (m_XPathContext != 0) {
@@ -61,7 +63,7 @@ void CXmlParser::destroy(void) {
     m_NavigatedNode = 0;
 }
 
-bool CXmlParser::parseFile(const std::string &fileName) {
+bool CXmlParser::parseFile(const std::string& fileName) {
     this->destroy();
 
     // Initialise globals - NOTE this current prints a line for EVERY call to
@@ -96,11 +98,11 @@ bool CXmlParser::parseFile(const std::string &fileName) {
     return true;
 }
 
-bool CXmlParser::parseString(const std::string &xml) {
+bool CXmlParser::parseString(const std::string& xml) {
     return this->parseBuffer(xml.c_str(), xml.length());
 }
 
-bool CXmlParser::parseBuffer(const char *begin, size_t length) {
+bool CXmlParser::parseBuffer(const char* begin, size_t length) {
     this->destroy();
 
     // Initialise globals - NOTE this current prints a line for EVERY call to
@@ -137,7 +139,7 @@ bool CXmlParser::parseBuffer(const char *begin, size_t length) {
     return true;
 }
 
-bool CXmlParser::parseBufferInSitu(char *begin, size_t length) {
+bool CXmlParser::parseBufferInSitu(char* begin, size_t length) {
     // With libxml2 there's no benefit to parsing in-situ
     return this->parseBuffer(begin, length);
 }
@@ -148,13 +150,13 @@ std::string CXmlParser::rootElementName(void) const {
         return std::string();
     }
 
-    xmlNode *root(xmlDocGetRootElement(m_Doc));
+    xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return std::string();
     }
 
-    const char *name(reinterpret_cast<const char *>(root->name));
+    const char* name(reinterpret_cast<const char*>(root->name));
     if (name == 0) {
         LOG_ERROR("Error getting root element name");
         return std::string();
@@ -163,7 +165,7 @@ std::string CXmlParser::rootElementName(void) const {
     return name;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, std::string &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, std::string& ret) const {
     CXmlNode value;
     if (this->evalXPathExpression(xpathExpr, value) == false) {
         LOG_ERROR("Unable to eval " << xpathExpr);
@@ -175,7 +177,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, std::string &
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, CXmlNode &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlNode& ret) const {
     TXmlNodeVec vec;
 
     if (this->evalXPathExpression(xpathExpr, vec) == false) {
@@ -192,7 +194,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, CXmlNode &ret
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrVec &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrVec& ret) const {
     ret.clear();
 
     TXmlNodeVec vec;
@@ -214,7 +216,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrVec &ret)
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrSet &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrSet& ret) const {
     ret.clear();
 
     TXmlNodeVec vec;
@@ -238,7 +240,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrSet &ret)
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrStrMap &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrStrMap& ret) const {
     ret.clear();
 
     TXmlNodeVec values;
@@ -258,8 +260,8 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr, TStrStrMap &r
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
-                                     CXmlParser::TXmlNodeVec &ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr,
+                                     CXmlParser::TXmlNodeVec& ret) const {
     ret.clear();
 
     if (m_Doc == 0 || m_XPathContext == 0) {
@@ -267,8 +269,9 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
         return false;
     }
 
-    xmlXPathObject *xpathObj(xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpathExpr.c_str()), m_XPathContext));
+    xmlXPathObject* xpathObj(
+        xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()),
+                               m_XPathContext));
     if (xpathObj == 0) {
         LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr);
         return false;
@@ -280,7 +283,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
         return false;
     }
 
-    xmlNodeSet *nodes = xpathObj->nodesetval;
+    xmlNodeSet* nodes = xpathObj->nodesetval;
     if (nodes == 0) {
         xmlXPathFreeObject(xpathObj);
         // Returning 0 results is not an error at this stage
@@ -294,24 +297,24 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
     for (int i = 0; i < numEntries; ++i) {
         xmlElementType type(nodes->nodeTab[i]->type);
         if (type == XML_ELEMENT_NODE || type == XML_ATTRIBUTE_NODE) {
-            const xmlChar *name(nodes->nodeTab[i]->name);
-            xmlChar *value(xmlNodeGetContent(nodes->nodeTab[i]));
+            const xmlChar* name(nodes->nodeTab[i]->name);
+            xmlChar* value(xmlNodeGetContent(nodes->nodeTab[i]));
 
-            CXmlNode node(reinterpret_cast<const char *>(name), reinterpret_cast<char *>(value));
+            CXmlNode node(reinterpret_cast<const char*>(name), reinterpret_cast<char*>(value));
 
             ret.push_back(node);
 
             xmlFree(value);
 
-            CXmlNode::TStrStrPrVec &attrs = ret.back().m_Attributes;
+            CXmlNode::TStrStrPrVec& attrs = ret.back().m_Attributes;
 
-            xmlAttr *prop(nodes->nodeTab[i]->properties);
+            xmlAttr* prop(nodes->nodeTab[i]->properties);
             while (prop != 0) {
-                const xmlChar *propName(prop->name);
-                xmlChar *propValue(xmlGetProp(nodes->nodeTab[i], propName));
+                const xmlChar* propName(prop->name);
+                xmlChar* propValue(xmlGetProp(nodes->nodeTab[i], propName));
 
-                attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char *>(propName),
-                                                    reinterpret_cast<char *>(propValue)));
+                attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char*>(propName),
+                                                    reinterpret_cast<char*>(propValue)));
 
                 xmlFree(propValue);
 
@@ -336,13 +339,13 @@ std::string CXmlParser::dumpToString(void) const {
 
     if (m_Doc != 0) {
         // Dump the root node to a buffer and print it
-        xmlBuffer *buf(xmlBufferCreate());
-        xmlNode *rootNode(xmlDocGetRootElement(m_Doc));
+        xmlBuffer* buf(xmlBufferCreate());
+        xmlNode* rootNode(xmlDocGetRootElement(m_Doc));
 
         xmlNodeDump(buf, m_Doc, rootNode, 0, 0);
 
         // Set return
-        result = reinterpret_cast<const char *>(buf->content);
+        result = reinterpret_cast<const char*>(buf->content);
 
         // Free buffer
         xmlBufferFree(buf);
@@ -363,29 +366,29 @@ void CXmlParser::dumpToStdout(void) const {
     }
 }
 
-void CXmlParser::convert(const CXmlNodeWithChildren &root, std::string &result) {
+void CXmlParser::convert(const CXmlNodeWithChildren& root, std::string& result) {
     CXmlParser::convert(DEFAULT_INDENT_SPACES, root, result);
 }
 
 void CXmlParser::convert(size_t indentSpaces,
-                         const CXmlNodeWithChildren &root,
-                         std::string &result) {
+                         const CXmlNodeWithChildren& root,
+                         std::string& result) {
     // The xmlTreeIndentString "global" is really a per-thread variable.
     xmlTreeIndentString =
         INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
 
     // Create a temporary document
-    xmlDoc *doc(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0")));
+    xmlDoc* doc(xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0")));
 
     // Root node
-    xmlNode *rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(root.name().c_str())));
+    xmlNode* rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar*>(root.name().c_str())));
 
-    const CXmlNode::TStrStrPrVec &attrs = root.attributes();
+    const CXmlNode::TStrStrPrVec& attrs = root.attributes();
 
     for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end(); ++attrIter) {
         xmlSetProp(rootNode,
-                   reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
-                   reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
+                   reinterpret_cast<const xmlChar*>(attrIter->first.c_str()),
+                   reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
     }
 
     // Create child nodes
@@ -394,7 +397,7 @@ void CXmlParser::convert(size_t indentSpaces,
     xmlDocSetRootElement(doc, rootNode);
 
     // Dump the root node to a buffer
-    xmlBuffer *buf(xmlBufferCreate());
+    xmlBuffer* buf(xmlBufferCreate());
     xmlNodeDump(buf, doc, rootNode, 0, 1);
 
     // Free associated memory.
@@ -402,44 +405,46 @@ void CXmlParser::convert(size_t indentSpaces,
     doc = 0;
 
     // Set return
-    result = reinterpret_cast<const char *>(buf->content);
+    result = reinterpret_cast<const char*>(buf->content);
 
     // Free buffer
     xmlBufferFree(buf);
     buf = 0;
 }
 
-void CXmlParser::convertChildren(const CXmlNodeWithChildren &current, xmlNode &xmlRep) {
-    const CXmlNodeWithChildren::TChildNodePVec &childVec = current.children();
+void CXmlParser::convertChildren(const CXmlNodeWithChildren& current, xmlNode& xmlRep) {
+    const CXmlNodeWithChildren::TChildNodePVec& childVec = current.children();
 
     for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin();
          childIter != childVec.end();
          ++childIter) {
-        const CXmlNodeWithChildren *child = childIter->get();
+        const CXmlNodeWithChildren* child = childIter->get();
         if (child != 0) {
-            xmlNode *childRep(0);
+            xmlNode* childRep(0);
 
             if (child->value().empty() && !child->children().empty()) {
                 // It's crucial to specify the value as NULL rather than
                 // an empty string, otherwise the formatting will be messed
                 // up
-                childRep = xmlNewChild(
-                    &xmlRep, 0, reinterpret_cast<const xmlChar *>(child->name().c_str()), 0);
+                childRep = xmlNewChild(&xmlRep,
+                                       0,
+                                       reinterpret_cast<const xmlChar*>(child->name().c_str()),
+                                       0);
             } else {
                 childRep =
                     xmlNewTextChild(&xmlRep,
                                     0,
-                                    reinterpret_cast<const xmlChar *>(child->name().c_str()),
-                                    reinterpret_cast<const xmlChar *>(child->value().c_str()));
+                                    reinterpret_cast<const xmlChar*>(child->name().c_str()),
+                                    reinterpret_cast<const xmlChar*>(child->value().c_str()));
             }
 
-            const CXmlNode::TStrStrPrVec &attrs = child->attributes();
+            const CXmlNode::TStrStrPrVec& attrs = child->attributes();
 
             for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end();
                  ++attrIter) {
                 xmlSetProp(childRep,
-                           reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
-                           reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
+                           reinterpret_cast<const xmlChar*>(attrIter->first.c_str()),
+                           reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
             }
 
             CXmlParser::convertChildren(*child, *childRep);
@@ -447,23 +452,23 @@ void CXmlParser::convertChildren(const CXmlNodeWithChildren &current, xmlNode &x
     }
 }
 
-void CXmlParser::convert(const std::string &root, const TStrStrMap &values, std::string &result) {
+void CXmlParser::convert(const std::string& root, const TStrStrMap& values, std::string& result) {
     CXmlParser::convert(DEFAULT_INDENT_SPACES, root, values, result);
 }
 
 void CXmlParser::convert(size_t indentSpaces,
-                         const std::string &root,
-                         const TStrStrMap &values,
-                         std::string &result) {
+                         const std::string& root,
+                         const TStrStrMap& values,
+                         std::string& result) {
     // The xmlTreeIndentString "global" is really a per-thread variable.
     xmlTreeIndentString =
         INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
 
     // Create a temporary document
-    xmlDoc *doc(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0")));
+    xmlDoc* doc(xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0")));
 
     // Root node
-    xmlNode *rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(root.c_str())));
+    xmlNode* rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar*>(root.c_str())));
 
     // Create child nodes
     for (TStrStrMapCItr itr = values.begin(); itr != values.end(); ++itr) {
@@ -481,10 +486,10 @@ void CXmlParser::convert(size_t indentSpaces,
             tag.erase(attrPos);
         }
 
-        xmlNode *childRep(xmlNewTextChild(rootNode,
+        xmlNode* childRep(xmlNewTextChild(rootNode,
                                           0,
-                                          reinterpret_cast<const xmlChar *>(tag.c_str()),
-                                          reinterpret_cast<const xmlChar *>(itr->second.c_str())));
+                                          reinterpret_cast<const xmlChar*>(tag.c_str()),
+                                          reinterpret_cast<const xmlChar*>(itr->second.c_str())));
 
         if (!attribute.empty()) {
             size_t eqPos(attribute.find(ATTRIBUTE_EQUALS));
@@ -495,8 +500,8 @@ void CXmlParser::convert(size_t indentSpaces,
                           << core_t::LINE_ENDING << "Map value : " << itr->second);
             } else {
                 xmlSetProp(childRep,
-                           reinterpret_cast<const xmlChar *>(attribute.substr(0, eqPos).c_str()),
-                           reinterpret_cast<const xmlChar *>(attribute.substr(eqPos + 1).c_str()));
+                           reinterpret_cast<const xmlChar*>(attribute.substr(0, eqPos).c_str()),
+                           reinterpret_cast<const xmlChar*>(attribute.substr(eqPos + 1).c_str()));
             }
         }
     }
@@ -504,7 +509,7 @@ void CXmlParser::convert(size_t indentSpaces,
     xmlDocSetRootElement(doc, rootNode);
 
     // Dump the root node to a buffer and print it
-    xmlBuffer *buf(xmlBufferCreate());
+    xmlBuffer* buf(xmlBufferCreate());
     xmlNodeDump(buf, doc, rootNode, 0, 0);
 
     // Free associated memory.
@@ -512,30 +517,30 @@ void CXmlParser::convert(size_t indentSpaces,
     doc = 0;
 
     // Set return
-    result = reinterpret_cast<const char *>(buf->content);
+    result = reinterpret_cast<const char*>(buf->content);
 
     // Free buffer
     xmlBufferFree(buf);
 }
 
-bool CXmlParser::convert(const std::string &root, const TStrStrMap &values) {
+bool CXmlParser::convert(const std::string& root, const TStrStrMap& values) {
     if (m_Doc != 0) {
         LOG_ERROR("convert requires an empty document");
         return false;
     }
 
     // Create a temporary document
-    m_Doc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+    m_Doc = xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0"));
 
     // Root node
-    xmlNode *rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(root.c_str())));
+    xmlNode* rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar*>(root.c_str())));
 
     // Create child nodes
     for (TStrStrMapCItr itr = values.begin(); itr != values.end(); ++itr) {
         xmlNewTextChild(rootNode,
                         0,
-                        reinterpret_cast<const xmlChar *>(itr->first.c_str()),
-                        reinterpret_cast<const xmlChar *>(itr->second.c_str()));
+                        reinterpret_cast<const xmlChar*>(itr->first.c_str()),
+                        reinterpret_cast<const xmlChar*>(itr->second.c_str()));
     }
 
     xmlDocSetRootElement(m_Doc, rootNode);
@@ -553,7 +558,7 @@ bool CXmlParser::convert(const std::string &root, const TStrStrMap &values) {
     return true;
 }
 
-bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     // Because both the pool and the nodes use shared pointers, it doesn't
     // matter if the pool that originally allocates the nodes is destroyed
     // before the nodes themselves.  Hence we can get away with implementing
@@ -563,8 +568,8 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP &ro
     return this->toNodeHierarchy(pool, rootNodePtr);
 }
 
-bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     rootNodePtr.reset();
 
     if (m_Doc == 0) {
@@ -572,7 +577,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
         return false;
     }
 
-    const xmlNode *root(xmlDocGetRootElement(const_cast<xmlDoc *>(m_Doc)));
+    const xmlNode* root(xmlDocGetRootElement(const_cast<xmlDoc*>(m_Doc)));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
@@ -586,8 +591,8 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
     return this->toNodeHierarchy(*root, pool, 0, rootNodePtr);
 }
 
-bool CXmlParser::toNodeHierarchy(CStringCache &cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     // Because both the pool and the nodes use shared pointers, it doesn't
     // matter if the pool that originally allocates the nodes is destroyed
     // before the nodes themselves.  Hence we can get away with implementing
@@ -597,9 +602,9 @@ bool CXmlParser::toNodeHierarchy(CStringCache &cache,
     return this->toNodeHierarchy(pool, cache, rootNodePtr);
 }
 
-bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                                 CStringCache &cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     rootNodePtr.reset();
 
     if (m_Doc == 0) {
@@ -607,7 +612,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
         return false;
     }
 
-    const xmlNode *root(xmlDocGetRootElement(const_cast<xmlDoc *>(m_Doc)));
+    const xmlNode* root(xmlDocGetRootElement(const_cast<xmlDoc*>(m_Doc)));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
@@ -620,7 +625,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
 
     // Only use the cache if the current platform employs copy-on-write strings.
     // If all strings are distinct then the cache is pointless.
-    CStringCache *cachePtr(cache.haveCopyOnWriteStrings() ? &cache : 0);
+    CStringCache* cachePtr(cache.haveCopyOnWriteStrings() ? &cache : 0);
 
     return this->toNodeHierarchy(*root, pool, cachePtr, rootNodePtr);
 }
@@ -637,7 +642,7 @@ bool CXmlParser::navigateFirstChild(void) {
         return false;
     }
 
-    xmlNode *childNode(m_NavigatedNode->children);
+    xmlNode* childNode(m_NavigatedNode->children);
     while (childNode != 0) {
         if (childNode->type == XML_ELEMENT_NODE) {
             m_NavigatedNode = childNode;
@@ -655,7 +660,7 @@ bool CXmlParser::navigateNext(void) {
         return false;
     }
 
-    xmlNode *nextNode(m_NavigatedNode->next);
+    xmlNode* nextNode(m_NavigatedNode->next);
     while (nextNode != 0) {
         if (nextNode->type == XML_ELEMENT_NODE) {
             m_NavigatedNode = nextNode;
@@ -673,7 +678,7 @@ bool CXmlParser::navigateParent(void) {
         return false;
     }
 
-    xmlNode *parentNode(m_NavigatedNode->parent);
+    xmlNode* parentNode(m_NavigatedNode->parent);
     while (parentNode != 0) {
         if (parentNode->type == XML_ELEMENT_NODE) {
             m_NavigatedNode = parentNode;
@@ -686,17 +691,17 @@ bool CXmlParser::navigateParent(void) {
     return false;
 }
 
-bool CXmlParser::currentNodeName(std::string &name) {
+bool CXmlParser::currentNodeName(std::string& name) {
     if (m_NavigatedNode == 0) {
         return false;
     }
 
-    name = reinterpret_cast<const char *>(m_NavigatedNode->name);
+    name = reinterpret_cast<const char*>(m_NavigatedNode->name);
 
     return true;
 }
 
-bool CXmlParser::currentNodeValue(std::string &value) {
+bool CXmlParser::currentNodeValue(std::string& value) {
     if (m_NavigatedNode == 0) {
         return false;
     }
@@ -707,15 +712,15 @@ bool CXmlParser::currentNodeValue(std::string &value) {
     // (If we used xmlNodeGetContent() we'd get the text of child nodes too,
     // which we don't want, as we'll be dealing with the text in the child
     // nodes recursively.)
-    const xmlNode *child(m_NavigatedNode->children);
+    const xmlNode* child(m_NavigatedNode->children);
     while (child != 0) {
         if (child->type == XML_TEXT_NODE || child->type == XML_CDATA_SECTION_NODE) {
-            const xmlChar *textVal(child->content);
+            const xmlChar* textVal(child->content);
             if (textVal != 0) {
                 if (isValueSet) {
-                    value += reinterpret_cast<const char *>(textVal);
+                    value += reinterpret_cast<const char*>(textVal);
                 } else {
-                    value = reinterpret_cast<const char *>(textVal);
+                    value = reinterpret_cast<const char*>(textVal);
                     isValueSet = true;
                 }
             }
@@ -731,17 +736,17 @@ bool CXmlParser::currentNodeValue(std::string &value) {
     return true;
 }
 
-bool CXmlParser::setRootNode(const std::string &root) {
+bool CXmlParser::setRootNode(const std::string& root) {
     if (m_Doc != 0) {
         LOG_ERROR("setRootNode requires an empty document");
         return false;
     }
 
     // Create a temporary document
-    m_Doc = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
+    m_Doc = xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0"));
 
     // Root node
-    xmlNode *rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(root.c_str())));
+    xmlNode* rootNode(xmlNewNode(0, reinterpret_cast<const xmlChar*>(root.c_str())));
 
     xmlDocSetRootElement(m_Doc, rootNode);
 
@@ -758,13 +763,13 @@ bool CXmlParser::setRootNode(const std::string &root) {
     return true;
 }
 
-bool CXmlParser::addNewChildNode(const std::string &name, const std::string &value) {
+bool CXmlParser::addNewChildNode(const std::string& name, const std::string& value) {
     if (m_Doc == 0) {
         LOG_ERROR("Cannot add to uninitialised document");
         return false;
     }
 
-    xmlNode *root(xmlDocGetRootElement(m_Doc));
+    xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
@@ -773,8 +778,8 @@ bool CXmlParser::addNewChildNode(const std::string &name, const std::string &val
     // Note the namespace is NULL here
     if (xmlNewTextChild(root,
                         0,
-                        reinterpret_cast<const xmlChar *>(name.c_str()),
-                        reinterpret_cast<const xmlChar *>(value.c_str())) == 0) {
+                        reinterpret_cast<const xmlChar*>(name.c_str()),
+                        reinterpret_cast<const xmlChar*>(value.c_str())) == 0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
     }
@@ -785,25 +790,25 @@ bool CXmlParser::addNewChildNode(const std::string &name, const std::string &val
     return true;
 }
 
-bool CXmlParser::addNewChildNode(const std::string &name,
-                                 const std::string &value,
-                                 const TStrStrMap &attrs) {
+bool CXmlParser::addNewChildNode(const std::string& name,
+                                 const std::string& value,
+                                 const TStrStrMap& attrs) {
     if (m_Doc == 0) {
         LOG_ERROR("Cannot add to uninitialised document");
         return false;
     }
 
-    xmlNode *root(xmlDocGetRootElement(m_Doc));
+    xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
     }
 
     // Note the namespace is NULL here
-    xmlNode *child(xmlNewTextChild(root,
+    xmlNode* child(xmlNewTextChild(root,
                                    0,
-                                   reinterpret_cast<const xmlChar *>(name.c_str()),
-                                   reinterpret_cast<const xmlChar *>(value.c_str())));
+                                   reinterpret_cast<const xmlChar*>(name.c_str()),
+                                   reinterpret_cast<const xmlChar*>(value.c_str())));
     if (child == 0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
@@ -811,8 +816,8 @@ bool CXmlParser::addNewChildNode(const std::string &name,
 
     for (TStrStrMapCItr attrIter = attrs.begin(); attrIter != attrs.end(); ++attrIter) {
         xmlSetProp(child,
-                   reinterpret_cast<const xmlChar *>(attrIter->first.c_str()),
-                   reinterpret_cast<const xmlChar *>(attrIter->second.c_str()));
+                   reinterpret_cast<const xmlChar*>(attrIter->first.c_str()),
+                   reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
     }
 
     // This makes XPath operations on large documents much faster
@@ -821,27 +826,26 @@ bool CXmlParser::addNewChildNode(const std::string &name,
     return true;
 }
 
-bool CXmlParser::changeChildNodeValue(const std::string &name, const std::string &newValue) {
+bool CXmlParser::changeChildNodeValue(const std::string& name, const std::string& newValue) {
     if (m_Doc == 0) {
         LOG_ERROR("Cannot add to uninitialised document");
         return false;
     }
 
-    xmlNode *root(xmlDocGetRootElement(m_Doc));
+    xmlNode* root(xmlDocGetRootElement(m_Doc));
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
     }
 
-    xmlNode *child(root->children);
+    xmlNode* child(root->children);
     while (child != 0) {
-        if (child->type == XML_ELEMENT_NODE &&
-            name == reinterpret_cast<const char *>(child->name)) {
+        if (child->type == XML_ELEMENT_NODE && name == reinterpret_cast<const char*>(child->name)) {
             // Unlike xmlNewTextChild, xmlNodeSetContent doesn't escape special
             // characters, so we have to call xmlEncodeSpecialChars ourselves to
             // do this
-            xmlChar *encoded(
-                xmlEncodeSpecialChars(m_Doc, reinterpret_cast<const xmlChar *>(newValue.c_str())));
+            xmlChar* encoded(
+                xmlEncodeSpecialChars(m_Doc, reinterpret_cast<const xmlChar*>(newValue.c_str())));
             xmlNodeSetContent(child, encoded);
 
             xmlFree(encoded);
@@ -858,7 +862,7 @@ bool CXmlParser::changeChildNodeValue(const std::string &name, const std::string
 
 // TODO this whole function should really be replaced with a proper character
 // set conversion library
-bool CXmlParser::stringLatin1ToUtf8(std::string &str) {
+bool CXmlParser::stringLatin1ToUtf8(std::string& str) {
     // The UTF-8 character corresponding to each Latin1 character will require
     // either 1 or 2 bytes of storage (but note that some UTF-8 characters can
     // require 3 bytes)
@@ -871,9 +875,9 @@ bool CXmlParser::stringLatin1ToUtf8(std::string &str) {
     int outLen(static_cast<int>(bufferSize));
 
     // This function is provided by libxml2
-    int ret = ::isolat1ToUTF8(reinterpret_cast<unsigned char *>(&buffer[0]),
+    int ret = ::isolat1ToUTF8(reinterpret_cast<unsigned char*>(&buffer[0]),
                               &outLen,
-                              reinterpret_cast<const unsigned char *>(str.c_str()),
+                              reinterpret_cast<const unsigned char*>(str.c_str()),
                               &inLen);
     if (ret == -1 || inLen < static_cast<int>(str.length())) {
         LOG_ERROR("Failure converting Latin1 string to UTF-8"
@@ -889,10 +893,10 @@ bool CXmlParser::stringLatin1ToUtf8(std::string &str) {
     return true;
 }
 
-bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
-                                 CXmlNodeWithChildrenPool &pool,
-                                 CStringCache *cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr) const {
+bool CXmlParser::toNodeHierarchy(const xmlNode& parentNode,
+                                 CXmlNodeWithChildrenPool& pool,
+                                 CStringCache* cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) const {
     // Create the parent node
     nodePtr = pool.newNode();
 
@@ -901,9 +905,9 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
     if (cache != 0) {
         // Get the name from the cache if there is one, as we expect relatively
         // few distinct names repeated many times
-        nodePtr->m_Name = cache->stringFor(reinterpret_cast<const char *>(parentNode.name));
+        nodePtr->m_Name = cache->stringFor(reinterpret_cast<const char*>(parentNode.name));
     } else {
-        nodePtr->m_Name = reinterpret_cast<const char *>(parentNode.name);
+        nodePtr->m_Name = reinterpret_cast<const char*>(parentNode.name);
     }
 
     // Nodes from the pool may contain old values
@@ -913,15 +917,15 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
     // (If we used xmlNodeGetContent() we'd get the text of child nodes too,
     // which we don't want, as we'll be dealing with the text in the child
     // nodes recursively.)
-    const xmlNode *child(parentNode.children);
+    const xmlNode* child(parentNode.children);
     while (child != 0) {
         if (child->type == XML_TEXT_NODE || child->type == XML_CDATA_SECTION_NODE) {
-            const xmlChar *textVal(child->content);
+            const xmlChar* textVal(child->content);
             if (textVal != 0) {
                 if (isValueSet) {
-                    nodePtr->m_Value += reinterpret_cast<const char *>(textVal);
+                    nodePtr->m_Value += reinterpret_cast<const char*>(textVal);
                 } else {
-                    nodePtr->m_Value = reinterpret_cast<const char *>(textVal);
+                    nodePtr->m_Value = reinterpret_cast<const char*>(textVal);
                     isValueSet = true;
                 }
             }
@@ -936,7 +940,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
 
     // Take advantage of friendship to add attributes directly to the parent
     // node
-    const xmlAttr *prop(parentNode.properties);
+    const xmlAttr* prop(parentNode.properties);
     while (prop != 0) {
         // Only cover the likely case.
         // (If we ever need to cover unlikely cases then use:
@@ -944,10 +948,10 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
         // followed by:
         // xmlFree(propValue);
         // but obviously this involves a temporary memory allocation.)
-        const xmlNode *propChildren(prop->children);
+        const xmlNode* propChildren(prop->children);
         if (propChildren != 0 && propChildren->next == 0 && propChildren->type == XML_TEXT_NODE) {
-            const char *propName(reinterpret_cast<const char *>(prop->name));
-            const char *propValue(reinterpret_cast<const char *>(propChildren->content));
+            const char* propName(reinterpret_cast<const char*>(prop->name));
+            const char* propValue(reinterpret_cast<const char*>(propChildren->content));
 
             // Here we take advantage of friendship to directly modify the
             // CXmlNode's attributes map, thus avoiding the need to build a
@@ -967,7 +971,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
     }
 
     // Recursively add the children to the parent
-    const xmlNode *childNode(parentNode.children);
+    const xmlNode* childNode(parentNode.children);
     while (childNode != 0) {
         if (childNode->type == XML_ELEMENT_NODE) {
             CXmlNodeWithChildren::TXmlNodeWithChildrenP childPtr;
@@ -988,7 +992,7 @@ bool CXmlParser::toNodeHierarchy(const xmlNode &parentNode,
 // 'Ml' error handler
 // Note, this is called on every error
 // TODO print a consolidated error message
-void CXmlParser::errorHandler(void * /* ctxt */, const char *msg, ...) {
+void CXmlParser::errorHandler(void* /* ctxt */, const char* msg, ...) {
     static const size_t ERRBUF_SIZE(1024);
     char errbuf[ERRBUF_SIZE] = {'\0'};
 

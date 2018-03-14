@@ -24,7 +24,7 @@ public:
     void testPersist(void);
     void testExcludeFrequent(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMetricAnomalyDetectorTest_h
+#endif // INCLUDED_CMetricAnomalyDetectorTest_h

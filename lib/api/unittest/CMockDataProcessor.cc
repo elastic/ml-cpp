@@ -18,17 +18,19 @@
 
 #include <api/COutputHandler.h>
 
-CMockDataProcessor::CMockDataProcessor(ml::api::COutputHandler &outputHandler)
+CMockDataProcessor::CMockDataProcessor(ml::api::COutputHandler& outputHandler)
     : m_OutputHandler(outputHandler), m_NumRecordsHandled(0), m_WriteFieldNames(true) {}
 
-void CMockDataProcessor::newOutputStream(void) { m_OutputHandler.newOutputStream(); }
+void CMockDataProcessor::newOutputStream(void) {
+    m_OutputHandler.newOutputStream();
+}
 
-bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields) {
+bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
         TStrVec fieldNames;
         fieldNames.reserve(dataRowFields.size());
-        for (const auto &entry : dataRowFields) {
+        for (const auto& entry : dataRowFields) {
             fieldNames.push_back(entry.first);
         }
 
@@ -52,8 +54,8 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields) {
 
 void CMockDataProcessor::finalise(void) {}
 
-bool CMockDataProcessor::restoreState(ml::core::CDataSearcher &restoreSearcher,
-                                      ml::core_t::TTime &completeToTime) {
+bool CMockDataProcessor::restoreState(ml::core::CDataSearcher& restoreSearcher,
+                                      ml::core_t::TTime& completeToTime) {
     // Pass on the request in case we're chained
     if (m_OutputHandler.restoreState(restoreSearcher, completeToTime) == false) {
         return false;
@@ -62,7 +64,7 @@ bool CMockDataProcessor::restoreState(ml::core::CDataSearcher &restoreSearcher,
     return true;
 }
 
-bool CMockDataProcessor::persistState(ml::core::CDataAdder &persister) {
+bool CMockDataProcessor::persistState(ml::core::CDataAdder& persister) {
     // Pass on the request in case we're chained
     if (m_OutputHandler.persistState(persister) == false) {
         return false;
@@ -71,6 +73,10 @@ bool CMockDataProcessor::persistState(ml::core::CDataAdder &persister) {
     return true;
 }
 
-uint64_t CMockDataProcessor::numRecordsHandled(void) const { return m_NumRecordsHandled; }
+uint64_t CMockDataProcessor::numRecordsHandled(void) const {
+    return m_NumRecordsHandled;
+}
 
-ml::api::COutputHandler &CMockDataProcessor::outputHandler(void) { return m_OutputHandler; }
+ml::api::COutputHandler& CMockDataProcessor::outputHandler(void) {
+    return m_OutputHandler;
+}

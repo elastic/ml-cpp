@@ -33,9 +33,11 @@ CStringCache::CStringCache(void) : m_HaveCopyOnWriteStrings(false) {
     }
 }
 
-bool CStringCache::haveCopyOnWriteStrings(void) const { return m_HaveCopyOnWriteStrings; }
+bool CStringCache::haveCopyOnWriteStrings(void) const {
+    return m_HaveCopyOnWriteStrings;
+}
 
-const std::string &CStringCache::stringFor(const char *str) {
+const std::string& CStringCache::stringFor(const char* str) {
     // Stop processing NULL input immediately so that subsequent code doesn't
     // have to worry about NULL pointers
     if (str == 0) {
@@ -45,7 +47,7 @@ const std::string &CStringCache::stringFor(const char *str) {
     return this->stringFor(str, ::strlen(str));
 }
 
-const std::string &CStringCache::stringFor(const char *str, size_t length) {
+const std::string& CStringCache::stringFor(const char* str, size_t length) {
     // Stop processing NULL input immediately so that subsequent code doesn't
     // have to worry about NULL pointers
     if (length == 0 || str == 0) {
@@ -66,7 +68,7 @@ const std::string &CStringCache::stringFor(const char *str, size_t length) {
     return *iter;
 }
 
-size_t CStringCache::CStrHash::operator()(const std::string &str) const {
+size_t CStringCache::CStrHash::operator()(const std::string& str) const {
     // It is essential that the result of this hash matches that of the method
     // below
     size_t hash(0);
@@ -78,7 +80,7 @@ size_t CStringCache::CStrHash::operator()(const std::string &str) const {
 }
 
 // Caller is responsible for ensuring that str is not NULL and end > str
-inline CStringCache::CCharPHash::CCharPHash(const char *str, const char *end) : m_Hash(0) {
+inline CStringCache::CCharPHash::CCharPHash(const char* str, const char* end) : m_Hash(0) {
     // It is essential that the result of this hash matches that of the method
     // above
     size_t hash(*str);
@@ -89,13 +91,15 @@ inline CStringCache::CCharPHash::CCharPHash(const char *str, const char *end) : 
     m_Hash = hash;
 }
 
-inline size_t CStringCache::CCharPHash::operator()(const char *) const { return m_Hash; }
+inline size_t CStringCache::CCharPHash::operator()(const char*) const {
+    return m_Hash;
+}
 
 inline CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length) : m_Length(length) {}
 
 // Caller is responsible for ensuring that lhs is not NULL
-inline bool CStringCache::CCharPStrEqual::operator()(const char *lhs,
-                                                     const std::string &rhs) const {
+inline bool CStringCache::CCharPStrEqual::operator()(const char* lhs,
+                                                     const std::string& rhs) const {
     return m_Length == rhs.length() && ::memcmp(lhs, rhs.data(), m_Length) == 0;
 }
 }

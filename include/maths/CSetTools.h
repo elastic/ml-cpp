@@ -45,14 +45,15 @@ public:
 
     public:
         CIndexInSet(std::size_t index) : m_IndexSet(index) {}
-        CIndexInSet(const TSizeSet &indexSet) : m_IndexSet(indexSet) {}
+        CIndexInSet(const TSizeSet& indexSet) : m_IndexSet(indexSet) {}
 
-        template <typename T> bool operator()(const T &indexedObject) const {
-            const std::size_t *index = boost::get<std::size_t>(&m_IndexSet);
+        template <typename T>
+        bool operator()(const T& indexedObject) const {
+            const std::size_t* index = boost::get<std::size_t>(&m_IndexSet);
             if (index) {
                 return indexedObject.s_Index == *index;
             }
-            const TSizeSet &indexSet = boost::get<TSizeSet>(m_IndexSet);
+            const TSizeSet& indexSet = boost::get<TSizeSet>(m_IndexSet);
             return indexSet.count(indexedObject.s_Index) > 0;
         }
 
@@ -65,7 +66,7 @@ public:
 
     //! Compute the difference between \p S and [\p begin, \p end).
     template <typename T, typename ITR>
-    static void inplace_set_difference(std::vector<T> &S, ITR begin, ITR end) {
+    static void inplace_set_difference(std::vector<T>& S, ITR begin, ITR end) {
         typename std::vector<T>::iterator i = S.begin(), last = i;
         for (ITR j = begin; i != S.end() && j != end; /**/) {
             if (*i < *j) {
@@ -115,7 +116,7 @@ public:
     //! and corresponding values of \p values2.
     template <typename T1, typename T2, typename F>
     static bool
-    simultaneousRemoveIf(std::vector<T1> &values1, std::vector<T2> &values2, const F &pred) {
+    simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, const F& pred) {
         if (values1.size() != values2.size()) {
             return false;
         }
@@ -138,10 +139,10 @@ public:
     //! Remove all instances of \p values1 for which \p pred is true
     //! and corresponding values of \p values2 and \p values3.
     template <typename T1, typename T2, typename T3, typename F>
-    static bool simultaneousRemoveIf(std::vector<T1> &values1,
-                                     std::vector<T2> &values2,
-                                     std::vector<T3> &values3,
-                                     const F &pred) {
+    static bool simultaneousRemoveIf(std::vector<T1>& values1,
+                                     std::vector<T2>& values2,
+                                     std::vector<T3>& values3,
+                                     const F& pred) {
         if (values1.size() != values2.size() || values2.size() != values3.size()) {
             return false;
         }
@@ -249,4 +250,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CSetTools_h
+#endif // INCLUDED_ml_maths_CSetTools_h

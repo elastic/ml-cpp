@@ -55,10 +55,10 @@ public:
     typedef std::vector<TResultsTp> TResultsVec;
 
 public:
-    CResultWriter(const CAnomalyDetectorModelConfig &modelConfig, const CLimits &limits)
+    CResultWriter(const CAnomalyDetectorModelConfig& modelConfig, const CLimits& limits)
         : m_ModelConfig(modelConfig), m_Limits(limits) {}
 
-    void operator()(CAnomalyDetector &detector, core_t::TTime start, core_t::TTime end) {
+    void operator()(CAnomalyDetector& detector, core_t::TTime start, core_t::TTime end) {
         CHierarchicalResults results;
         detector.buildResults(start, end, results);
         results.buildHierarchy();
@@ -71,8 +71,8 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults &results,
-                       const ml::model::CHierarchicalResults::TNode &node,
+    virtual void visit(const ml::model::CHierarchicalResults& results,
+                       const ml::model::CHierarchicalResults::TNode& node,
                        bool pivot) {
         if (pivot) {
             return;
@@ -89,7 +89,7 @@ public:
 
         LOG_DEBUG("Got anomaly @ " << node.s_BucketStartTime << ": " << node.probability());
 
-        ml::model::SAnnotatedProbability::TAttributeProbability1Vec &attributes =
+        ml::model::SAnnotatedProbability::TAttributeProbability1Vec& attributes =
             node.s_AnnotatedProbability.s_AttributeProbabilities;
 
         m_Results.push_back(TResultsTp(node.s_BucketStartTime,
@@ -100,7 +100,7 @@ public:
     }
 
     bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode &node,
+                    const ml::model::CHierarchicalResults::TNode& node,
                     bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability()
@@ -109,23 +109,26 @@ public:
         return true;
     }
 
-    const TResultsVec &results(void) const { return m_Results; }
+    const TResultsVec& results(void) const { return m_Results; }
 
 private:
-    const CAnomalyDetectorModelConfig &m_ModelConfig;
-    const CLimits &m_Limits;
+    const CAnomalyDetectorModelConfig& m_ModelConfig;
+    const CLimits& m_Limits;
     TResultsVec m_Results;
 };
 
-CppUnit::Test *CResourceLimitTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
+CppUnit::Test* CResourceLimitTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLimitBy", &CResourceLimitTest::testLimitBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLimitByOver", &CResourceLimitTest::testLimitByOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLargeAllocations", &CResourceLimitTest::testLargeAllocations));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitBy",
+                                                    &CResourceLimitTest::testLimitBy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitByOver",
+                                                    &CResourceLimitTest::testLimitByOver));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLargeAllocations",
+                                                    &CResourceLimitTest::testLargeAllocations));
     return suiteOfTests;
 }
 
@@ -142,13 +145,13 @@ void CResourceLimitTest::testLimitBy(void) {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
-        CSearchKey key(1,// identifier
+        CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric,
                        false,
                        model_t::E_XF_None,
                        "value",
                        "colour");
-        CAnomalyDetector detector(1,// identifier
+        CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
                                   "",
@@ -178,13 +181,13 @@ void CResourceLimitTest::testLimitBy(void) {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
-        CSearchKey key(1,// identifier
+        CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric,
                        false,
                        model_t::E_XF_None,
                        "value",
                        "colour");
-        CAnomalyDetector detector(1,// identifier
+        CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
                                   "",
@@ -200,7 +203,7 @@ void CResourceLimitTest::testLimitBy(void) {
                                  1,
                                  limits.resourceMonitor());
 
-        const ::CResultWriter::TResultsVec &secondResults = writer.results();
+        const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), secondResults.size());
     }
@@ -220,14 +223,14 @@ void CResourceLimitTest::testLimitByOver(void) {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
-        CSearchKey key(1,// identifier
+        CSearchKey key(1, // identifier
                        function_t::E_PopulationMetric,
                        false,
                        model_t::E_XF_None,
                        "value",
                        "colour",
                        "species");
-        CAnomalyDetector detector(1,// identifier
+        CAnomalyDetector detector(1, // identifier
                                   limits,
                                   modelConfig,
                                   "",
@@ -255,14 +258,14 @@ void CResourceLimitTest::testLimitByOver(void) {
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
-    CSearchKey key(1,// identifier
+    CSearchKey key(1, // identifier
                    function_t::E_PopulationMetric,
                    false,
                    model_t::E_XF_None,
                    "value",
                    "colour",
                    "species");
-    CAnomalyDetector detector(1,// identifier
+    CAnomalyDetector detector(1, // identifier
                               limits,
                               modelConfig,
                               "",
@@ -278,7 +281,7 @@ void CResourceLimitTest::testLimitByOver(void) {
                              1,
                              limits.resourceMonitor());
 
-    const ::CResultWriter::TResultsVec &secondResults = writer.results();
+    const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
     // should only have red flowers as results now
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), secondResults.size());
@@ -290,12 +293,12 @@ namespace {
 //! and simulates taking lots of memory
 class CMockEventRateModel : public ml::model::CEventRateModel {
 public:
-    CMockEventRateModel(const SModelParams &params,
-                        const TDataGathererPtr &dataGatherer,
-                        const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                        const maths::CMultinomialConjugate &personProbabilityPrior,
-                        const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators,
-                        CResourceMonitor &resourceMonitor)
+    CMockEventRateModel(const SModelParams& params,
+                        const TDataGathererPtr& dataGatherer,
+                        const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                        const maths::CMultinomialConjugate& personProbabilityPrior,
+                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                        CResourceMonitor& resourceMonitor)
         : CEventRateModel(params,
                           dataGatherer,
                           newFeatureModels,
@@ -324,7 +327,7 @@ public:
     std::size_t getNewAttributes(void) const { return m_NewAttributes; }
 
 private:
-    CResourceMonitor &m_ResourceMonitor;
+    CResourceMonitor& m_ResourceMonitor;
     std::size_t m_NewPeople;
     std::size_t m_NewAttributes;
 };
@@ -333,11 +336,11 @@ private:
 //! and simulates taking lots of memory
 class CMockMetricModel : public ml::model::CMetricModel {
 public:
-    CMockMetricModel(const SModelParams &params,
-                     const TDataGathererPtr &dataGatherer,
-                     const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                     const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators,
-                     CResourceMonitor &resourceMonitor)
+    CMockMetricModel(const SModelParams& params,
+                     const TDataGathererPtr& dataGatherer,
+                     const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                     CResourceMonitor& resourceMonitor)
         : CMetricModel(params,
                        dataGatherer,
                        newFeatureModels,
@@ -365,15 +368,15 @@ public:
     std::size_t getNewAttributes(void) const { return m_NewAttributes; }
 
 private:
-    CResourceMonitor &m_ResourceMonitor;
+    CResourceMonitor& m_ResourceMonitor;
     std::size_t m_NewPeople;
     std::size_t m_NewAttributes;
 };
 
 void addArrival(core_t::TTime time,
-                const std::string &p,
-                CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor) {
+                const std::string& p,
+                CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&p);
     CEventData result;
@@ -384,8 +387,8 @@ void addArrival(core_t::TTime time,
 void addPersonData(std::size_t start,
                    std::size_t end,
                    core_t::TTime time,
-                   CDataGatherer &gatherer,
-                   CResourceMonitor &resourceMonitor) {
+                   CDataGatherer& gatherer,
+                   CResourceMonitor& resourceMonitor) {
     for (std::size_t i = start; i < end; i++) {
         std::ostringstream ssA;
         ssA << "person" << i;
@@ -396,9 +399,9 @@ void addPersonData(std::size_t start,
 const std::string VALUE("23");
 
 void addMetricArrival(core_t::TTime time,
-                      const std::string &p,
-                      CDataGatherer &gatherer,
-                      CResourceMonitor &resourceMonitor) {
+                      const std::string& p,
+                      CDataGatherer& gatherer,
+                      CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&p);
     fields.push_back(&VALUE);
@@ -410,8 +413,8 @@ void addMetricArrival(core_t::TTime time,
 void addPersonMetricData(std::size_t start,
                          std::size_t end,
                          core_t::TTime time,
-                         CDataGatherer &gatherer,
-                         CResourceMonitor &resourceMonitor) {
+                         CDataGatherer& gatherer,
+                         CResourceMonitor& resourceMonitor) {
     for (std::size_t i = start; i < end; i++) {
         std::ostringstream ssA;
         ssA << "person" << i;
@@ -438,18 +441,18 @@ void CResourceLimitTest::testLargeAllocations(void) {
         CModelFactory::SGathererInitializationData gathererInitData(FIRST_TIME);
 
         CModelFactory::TDataGathererPtr gatherer(
-            dynamic_cast<CDataGatherer *>(factory.makeDataGatherer(gathererInitData)));
+            dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
 
         CResourceMonitor resourceMonitor;
         resourceMonitor.memoryLimit(std::size_t(70));
         const maths::CMultinomialConjugate conjugate;
-        ::CMockEventRateModel model(
-            factory.modelParams(),
-            gatherer,
-            factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
-            conjugate,
-            CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-            resourceMonitor);
+        ::CMockEventRateModel
+            model(factory.modelParams(),
+                  gatherer,
+                  factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
+                  conjugate,
+                  CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
+                  resourceMonitor);
 
         CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model.category());
         CPPUNIT_ASSERT(model.isPopulation() == false);
@@ -571,11 +574,11 @@ void CResourceLimitTest::testLargeAllocations(void) {
 
 void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
                                                   core_t::TTime bucketLength,
-                                                  CResultWriter &outputResults,
-                                                  const std::string &fileName,
-                                                  CAnomalyDetector &detector,
+                                                  CResultWriter& outputResults,
+                                                  const std::string& fileName,
+                                                  CAnomalyDetector& detector,
                                                   std::size_t limitCutoff,
-                                                  CResourceMonitor &resourceMonitor) {
+                                                  CResourceMonitor& resourceMonitor) {
 
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));

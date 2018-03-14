@@ -63,10 +63,10 @@ public:
     }
 
     //! \return const reference to the underlying memory pool allocator
-    const rapidjson::MemoryPoolAllocator<> &get() const { return m_JsonPoolAllocator; }
+    const rapidjson::MemoryPoolAllocator<>& get() const { return m_JsonPoolAllocator; }
 
     //! \return reference to the underlying memory pool allocator
-    rapidjson::MemoryPoolAllocator<> &get() { return m_JsonPoolAllocator; }
+    rapidjson::MemoryPoolAllocator<>& get() { return m_JsonPoolAllocator; }
 
 private:
     //! Size of the fixed buffer to allocate
@@ -84,4 +84,4 @@ private:
 };
 }
 }
-#endif// INCLUDED_ml_core_CRapidJsonPoolAllocator_h
+#endif // INCLUDED_ml_core_CRapidJsonPoolAllocator_h

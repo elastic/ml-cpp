@@ -37,10 +37,10 @@ public:
     void testLatencyPersist(void);
     void testDiurnalFeatures(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CEventRateDataGathererTest_h
+#endif // INCLUDED_CEventRateDataGathererTest_h

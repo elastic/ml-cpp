@@ -53,11 +53,17 @@ double PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
 
 CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {}
 
-uint64_t CDataSummaryStatistics::count(void) const { return m_Count; }
+uint64_t CDataSummaryStatistics::count(void) const {
+    return m_Count;
+}
 
-core_t::TTime CDataSummaryStatistics::earliest(void) const { return m_Earliest[0]; }
+core_t::TTime CDataSummaryStatistics::earliest(void) const {
+    return m_Earliest[0];
+}
 
-core_t::TTime CDataSummaryStatistics::latest(void) const { return m_Latest[0]; }
+core_t::TTime CDataSummaryStatistics::latest(void) const {
+    return m_Latest[0];
+}
 
 double CDataSummaryStatistics::meanRate(void) const {
     return static_cast<double>(m_Count) / static_cast<double>(m_Latest[0] - m_Earliest[0]);
@@ -76,15 +82,15 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t
       m_DistinctValues(DS_NUMBER_HASHES, DS_MAX_SIZE),
       m_CountSketch(CS_ROWS, CS_COLUMNS),
       m_N(std::max(n, std::size_t(1))),
-      m_TopN(topNSize(m_N)),// This is important to stop invalidation of
-                            // the lowest top-n iterator by an insertion.
+      m_TopN(topNSize(m_N)), // This is important to stop invalidation of
+                             // the lowest top-n iterator by an insertion.
       m_LowestTopN(m_TopN.end()),
       m_EmpiricalEntropy(ES_K),
       m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
       m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
 
 CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(
-    const CDataSummaryStatistics &other,
+    const CDataSummaryStatistics& other,
     std::size_t n,
     std::size_t toApproximate)
     : CDataSummaryStatistics(other),
@@ -93,14 +99,14 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(
       m_DistinctValues(DS_NUMBER_HASHES, DS_MAX_SIZE),
       m_CountSketch(CS_ROWS, CS_COLUMNS),
       m_N(std::max(n, std::size_t(1))),
-      m_TopN(topNSize(m_N)),// This is important to stop invalidation of
-                            // the lowest top-n iterator by an insertion.
+      m_TopN(topNSize(m_N)), // This is important to stop invalidation of
+                             // the lowest top-n iterator by an insertion.
       m_LowestTopN(m_TopN.end()),
       m_EmpiricalEntropy(ES_K),
       m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
       m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
 
-void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::string &example) {
+void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::string& example) {
     this->CDataSummaryStatistics::add(time);
 
     std::size_t category;
@@ -157,15 +163,19 @@ std::size_t CCategoricalDataSummaryStatistics::distinctCount(void) const {
     return !m_Approximating ? m_ValueCounts.size() : m_DistinctValues.number();
 }
 
-std::size_t CCategoricalDataSummaryStatistics::minimumLength(void) const { return m_MinLength[0]; }
+std::size_t CCategoricalDataSummaryStatistics::minimumLength(void) const {
+    return m_MinLength[0];
+}
 
-std::size_t CCategoricalDataSummaryStatistics::maximumLength(void) const { return m_MaxLength[0]; }
+std::size_t CCategoricalDataSummaryStatistics::maximumLength(void) const {
+    return m_MaxLength[0];
+}
 
 double CCategoricalDataSummaryStatistics::entropy(void) const {
     return m_EmpiricalEntropy.calculate();
 }
 
-void CCategoricalDataSummaryStatistics::topN(TStrSizePrVec &result) const {
+void CCategoricalDataSummaryStatistics::topN(TStrSizePrVec& result) const {
     result.clear();
     result.reserve(m_N);
 
@@ -191,7 +201,7 @@ double CCategoricalDataSummaryStatistics::meanCountInRemainders(void) const {
                std::max(static_cast<std::size_t>(m_DistinctValues.number()), m_TopN.size()));
 }
 
-void CCategoricalDataSummaryStatistics::addNGrams(std::size_t n, const std::string &example) {
+void CCategoricalDataSummaryStatistics::addNGrams(std::size_t n, const std::string& example) {
     for (std::size_t i = n; i < example.length(); ++i) {
         std::size_t hash = HASHER(example.substr(i - n, n));
         m_DistinctNGrams[n - 1].add(CTools::category32(hash));
@@ -215,10 +225,11 @@ void CCategoricalDataSummaryStatistics::approximateIfCardinalityTooHigh(void) {
 void CCategoricalDataSummaryStatistics::updateCalibrators(std::size_t category_) {
     uint32_t category =
         m_Approximating ? static_cast<uint32_t>(category_) : CTools::category32(category_);
-    std::size_t i =
-        std::lower_bound(
-            m_Calibrators.begin(), m_Calibrators.end(), category, maths::COrderings::SFirstLess()) -
-        m_Calibrators.begin();
+    std::size_t i = std::lower_bound(m_Calibrators.begin(),
+                                     m_Calibrators.end(),
+                                     category,
+                                     maths::COrderings::SFirstLess()) -
+                    m_Calibrators.begin();
     if (i == m_Calibrators.size() || m_Calibrators[i].first != category) {
         if (m_Calibrators.size() < 5) {
             m_Calibrators.insert(m_Calibrators.begin() + i, std::make_pair(category, 1));
@@ -256,7 +267,7 @@ void CCategoricalDataSummaryStatistics::findLowestTopN(void) {
     m_LowestTopN = lowest[0];
 }
 
-void CCategoricalDataSummaryStatistics::topN(TStrUInt64UMapCItrVec &result) const {
+void CCategoricalDataSummaryStatistics::topN(TStrUInt64UMapCItrVec& result) const {
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TStrUInt64UMapCItr, TDerefSecondGreater>
         TMaxAccumulator;
     TMaxAccumulator topN(m_N);
@@ -273,14 +284,14 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(bool integer)
       m_Clusters(integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData,
                  maths::CAvailableModeDistributions::NORMAL,
                  maths_t::E_ClustersFractionWeight,
-                 0.0,                     // No decay
-                 CLUSTER_MINIMUM_FRACTION,// We're only interested in clusters which
-                                          // comprise at least 0.5% of the data.
-                 CLUSTER_MINIMUM_COUNT)   // We need a few points to get a reasonable
-                                          // variance estimate.
+                 0.0,                      // No decay
+                 CLUSTER_MINIMUM_FRACTION, // We're only interested in clusters which
+                                           // comprise at least 0.5% of the data.
+                 CLUSTER_MINIMUM_COUNT)    // We need a few points to get a reasonable
+                                           // variance estimate.
 {}
 
-CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics &other,
+CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics& other,
                                                              bool integer)
     : CDataSummaryStatistics(other),
       m_NonNumericCount(0),
@@ -288,14 +299,14 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryS
       m_Clusters(integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData,
                  maths::CAvailableModeDistributions::NORMAL,
                  maths_t::E_ClustersFractionWeight,
-                 0.0,                     // No decay
-                 CLUSTER_MINIMUM_FRACTION,// We're only interested in clusters which
-                                          // comprise at least 0.5% of the data.
-                 CLUSTER_MINIMUM_COUNT)   // Need a few points to get a reasonable
-                                          // variance estimate.
+                 0.0,                      // No decay
+                 CLUSTER_MINIMUM_FRACTION, // We're only interested in clusters which
+                                           // comprise at least 0.5% of the data.
+                 CLUSTER_MINIMUM_COUNT)    // Need a few points to get a reasonable
+                                           // variance estimate.
 {}
 
-void CNumericDataSummaryStatistics::add(core_t::TTime time, const std::string &example) {
+void CNumericDataSummaryStatistics::add(core_t::TTime time, const std::string& example) {
     std::string trimmed = example;
     core::CStringUtils::trimWhitespace(trimmed);
 
@@ -329,7 +340,7 @@ double CNumericDataSummaryStatistics::maximum(void) const {
     return result;
 }
 
-bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) const {
+bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec& result) const {
     result.clear();
 
     if (m_Clusters.clusters().empty()) {
@@ -340,7 +351,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
     typedef std::vector<boost::math::normal_distribution<>> TNormalVec;
     typedef maths::CMixtureDistribution<boost::math::normal_distribution<>> TGMM;
 
-    const maths::CXMeansOnline1d::TClusterVec &clusters = m_Clusters.clusters();
+    const maths::CXMeansOnline1d::TClusterVec& clusters = m_Clusters.clusters();
     std::size_t n = clusters.size();
 
     try {
@@ -358,8 +369,8 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
 
         TGMM gmm(weights, modes);
 
-        static const double QUANTILES[] = {
-            0.001, 0.005, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.995, 0.999};
+        static const double QUANTILES[] =
+            {0.001, 0.005, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.995, 0.999};
 
         TDoubleVec pillars;
         pillars.reserve(boost::size(QUANTILES));
@@ -377,7 +388,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
                 result.push_back(std::make_pair(x, maths::pdf(gmm, x)));
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute density chart: " << e.what());
         return false;
     }

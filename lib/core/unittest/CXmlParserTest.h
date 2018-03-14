@@ -51,16 +51,16 @@ public:
     void testConvertSpeed(void);
     void testComplexXPath(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    static void testParse1(const ml::core::CXmlParser &parser);
+    static void testParse1(const ml::core::CXmlParser& parser);
 
-    static std::string fileToString(const std::string &fileName);
+    static std::string fileToString(const std::string& fileName);
 
-    static bool testAttribute(const ml::core::CXmlNode &node,
-                              const std::string &key,
-                              const std::string &expected);
+    static bool testAttribute(const ml::core::CXmlNode& node,
+                              const std::string& key,
+                              const std::string& expected);
 };
 
-#endif// INCLUDED_CXmlParserTest_h
+#endif // INCLUDED_CXmlParserTest_h

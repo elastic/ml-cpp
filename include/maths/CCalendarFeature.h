@@ -59,7 +59,7 @@ public:
     void initialize(uint16_t feature, int dayOfWeek, int dayOfMonth, int month, int year);
 
     //! Initialize from \p value.
-    bool fromDelimited(const std::string &value);
+    bool fromDelimited(const std::string& value);
 
     //! Convert to a delimited string.
     std::string toDelimited(void) const;
@@ -102,4 +102,4 @@ private:
 }
 }
 
-#endif// INCLUDE_ml_maths_CCalendarFeature_h
+#endif // INCLUDE_ml_maths_CCalendarFeature_h

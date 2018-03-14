@@ -30,7 +30,9 @@ namespace core {
 // Initialise class static data
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
-core_t::TTime CTimeUtils::now(void) { return ::time(0); }
+core_t::TTime CTimeUtils::now(void) {
+    return ::time(0);
+}
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {
     std::string result;
@@ -50,9 +52,9 @@ std::string CTimeUtils::toTimeString(core_t::TTime t) {
     return result;
 }
 
-bool CTimeUtils::strptime(const std::string &format,
-                          const std::string &dateTime,
-                          core_t::TTime &preTime) {
+bool CTimeUtils::strptime(const std::string& format,
+                          const std::string& dateTime,
+                          core_t::TTime& preTime) {
     if (CTimeUtils::strptimeSilent(format, dateTime, preTime) == false) {
         LOG_ERROR("Unable to convert " << dateTime << " to " << format);
         return false;
@@ -61,20 +63,20 @@ bool CTimeUtils::strptime(const std::string &format,
     return true;
 }
 
-bool CTimeUtils::strptimeSilent(const std::string &format,
-                                const std::string &dateTime,
-                                core_t::TTime &preTime) {
+bool CTimeUtils::strptimeSilent(const std::string& format,
+                                const std::string& dateTime,
+                                core_t::TTime& preTime) {
     struct tm t;
     ::memset(&t, 0, sizeof(struct tm));
 
-    const char *ret(CStrPTime::strPTime(dateTime.c_str(), format.c_str(), &t));
+    const char* ret(CStrPTime::strPTime(dateTime.c_str(), format.c_str(), &t));
     if (ret == 0) {
         return false;
     }
 
     t.tm_isdst = -1;
 
-    CTimezone &tz = CTimezone::instance();
+    CTimezone& tz = CTimezone::instance();
 
     // Some date formats don't give the year, so we might need to guess it
     // We'll assume that the year is the current year, unless that results
@@ -115,11 +117,11 @@ bool CTimeUtils::strptimeSilent(const std::string &format,
     return true;
 }
 
-void CTimeUtils::toStringCommon(core_t::TTime t, const std::string &format, std::string &result) {
+void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std::string& result) {
     // core_t::TTime holds an epoch time (UTC)
     struct tm out;
 
-    CTimezone &tz = CTimezone::instance();
+    CTimezone& tz = CTimezone::instance();
     if (tz.utcToLocal(t, out) == false) {
         LOG_ERROR("Cannot convert time " << t << " : " << ::strerror(errno));
         result.clear();
@@ -139,15 +141,15 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string &format, std:
     result = buf;
 }
 
-bool CTimeUtils::isDateWord(const std::string &word) {
+bool CTimeUtils::isDateWord(const std::string& word) {
     return CDateWordCache::instance().isDateWord(word);
 }
 
 // Initialise statics for the inner class CDateWordCache
 CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache *CTimeUtils::CDateWordCache::ms_Instance(0);
+volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(0);
 
-const CTimeUtils::CDateWordCache &CTimeUtils::CDateWordCache::instance(void) {
+const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance(void) {
     if (ms_Instance == 0) {
         CScopedFastLock lock(ms_InitMutex);
 
@@ -161,10 +163,10 @@ const CTimeUtils::CDateWordCache &CTimeUtils::CDateWordCache::instance(void) {
     }
 
     // Need to explicitly cast away volatility
-    return *const_cast<const CDateWordCache *>(ms_Instance);
+    return *const_cast<const CDateWordCache*>(ms_Instance);
 }
 
-bool CTimeUtils::CDateWordCache::isDateWord(const std::string &word) const {
+bool CTimeUtils::CDateWordCache::isDateWord(const std::string& word) const {
     return m_DateWords.find(word) != m_DateWords.end();
 }
 
@@ -232,17 +234,19 @@ CTimeUtils::CDateWordCache::CDateWordCache(void) {
     m_DateWords.insert("UTC");
 
     // Finally, add the current timezone (if available)
-    CTimezone &tz = CTimezone::instance();
-    const std::string &stdAbbrev = tz.stdAbbrev();
+    CTimezone& tz = CTimezone::instance();
+    const std::string& stdAbbrev = tz.stdAbbrev();
     if (!stdAbbrev.empty()) {
         m_DateWords.insert(stdAbbrev);
     }
-    const std::string &dstAbbrev = tz.dstAbbrev();
+    const std::string& dstAbbrev = tz.dstAbbrev();
     if (!dstAbbrev.empty()) {
         m_DateWords.insert(dstAbbrev);
     }
 }
 
-CTimeUtils::CDateWordCache::~CDateWordCache(void) { ms_Instance = 0; }
+CTimeUtils::CDateWordCache::~CDateWordCache(void) {
+    ms_Instance = 0;
+}
 }
 }

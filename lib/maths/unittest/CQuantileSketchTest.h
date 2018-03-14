@@ -29,7 +29,7 @@ public:
     void testCdf(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CQuantileSketchTest_h
+#endif // INCLUDED_CQuantileSketchTest_h

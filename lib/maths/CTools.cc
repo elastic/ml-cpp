@@ -53,7 +53,7 @@ namespace math {
 namespace policies {
 
 template <class T>
-T user_overflow_error(const char * /*function*/, const char * /*message*/, const T & /*val*/) {
+T user_overflow_error(const char* /*function*/, const char* /*message*/, const T& /*val*/) {
     return boost::numeric::bounds<T>::highest();
 }
 }
@@ -71,17 +71,18 @@ using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
 
 namespace adapters {
 
-template <typename DISTRIBUTION> inline double pdf(const DISTRIBUTION &distribution, double x) {
+template <typename DISTRIBUTION>
+inline double pdf(const DISTRIBUTION& distribution, double x) {
     return CTools::safePdf(distribution, x);
 }
 
-inline double pdf(const CLogTDistribution &distribution, double x) {
+inline double pdf(const CLogTDistribution& distribution, double x) {
     return ml::maths::pdf(distribution, x);
 }
 
-}// adapters::
+} // adapters::
 
-inline TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<> &beta) {
+inline TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<>& beta) {
     if (beta.alpha() < 1.0 && beta.beta() < 1.0) {
         // This is the unique minimum of the p.d.f.
         return {(beta.alpha() - 1.0) / (beta.alpha() + beta.beta() - 2.0), false};
@@ -90,7 +91,9 @@ inline TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<> &bet
 }
 
 //! Compute \f$x^2\f$.
-inline double square(double x) { return x * x; }
+inline double square(double x) {
+    return x * x;
+}
 
 //! \brief p.d.f function adapter.
 //!
@@ -98,9 +101,10 @@ inline double square(double x) { return x * x; }
 //! Wrapper around a distribution object which evaluates the safe version
 //! of the p.d.f. function. This is used to adapt the function for use
 //! with the boost::math solvers.
-template <typename DISTRIBUTION> class CPdf {
+template <typename DISTRIBUTION>
+class CPdf {
 public:
-    CPdf(const DISTRIBUTION &distribution, double target)
+    CPdf(const DISTRIBUTION& distribution, double target)
         : m_Distribution(distribution), m_Target(target) {}
 
     double operator()(double x) const { return adapters::pdf(m_Distribution, x) - m_Target; }
@@ -112,12 +116,12 @@ private:
 
 //! Convenience factory method for the CPdf object for \p distribution.
 template <typename DISTRIBUTION>
-inline CPdf<DISTRIBUTION> makePdf(const DISTRIBUTION &distribution, double target) {
+inline CPdf<DISTRIBUTION> makePdf(const DISTRIBUTION& distribution, double target) {
     return CPdf<DISTRIBUTION>(distribution, target);
 }
 
 template <typename Distribution>
-inline double continuousSafePdf(const Distribution &distribution, double x) {
+inline double continuousSafePdf(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first || x >= support.second) {
         return 0.0;
@@ -129,7 +133,7 @@ inline double continuousSafePdf(const Distribution &distribution, double x) {
 }
 
 template <typename Distribution>
-inline double discreteSafePdf(const Distribution &distribution, double x) {
+inline double discreteSafePdf(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
     // end points.
@@ -145,7 +149,7 @@ inline double discreteSafePdf(const Distribution &distribution, double x) {
 }
 
 template <typename Distribution>
-inline double continuousSafeCdf(const Distribution &distribution, double x) {
+inline double continuousSafeCdf(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first) {
         return 0.0;
@@ -159,7 +163,7 @@ inline double continuousSafeCdf(const Distribution &distribution, double x) {
 }
 
 template <typename Distribution>
-inline double discreteSafeCdf(const Distribution &distribution, double x) {
+inline double discreteSafeCdf(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
     // end points.
@@ -177,7 +181,7 @@ inline double discreteSafeCdf(const Distribution &distribution, double x) {
 }
 
 template <typename Distribution>
-inline double continuousSafeCdfComplement(const Distribution &distribution, double x) {
+inline double continuousSafeCdfComplement(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first) {
         return 1.0;
@@ -191,7 +195,7 @@ inline double continuousSafeCdfComplement(const Distribution &distribution, doub
 }
 
 template <typename Distribution>
-inline double discreteSafeCdfComplement(const Distribution &distribution, double x) {
+inline double discreteSafeCdfComplement(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
     // end points.
@@ -213,7 +217,7 @@ const double MIN_DOUBLE = std::numeric_limits<double>::min();
 const double NEG_INF = boost::numeric::bounds<double>::lowest();
 const double POS_INF = boost::numeric::bounds<double>::highest();
 
-}// unnamed::
+} // unnamed::
 
 //////// SMinusLogCdf Implementation ////////
 
@@ -237,70 +241,70 @@ inline double safeMinusLogCdf(double cdf) {
 
 const double CTools::IMPROPER_CDF(0.5);
 
-double CTools::SMinusLogCdf::operator()(const SImproperDistribution &, double) const {
+double CTools::SMinusLogCdf::operator()(const SImproperDistribution&, double) const {
     return -std::log(IMPROPER_CDF);
 }
 
-double CTools::SMinusLogCdf::operator()(const normal &normal_, double x) const {
+double CTools::SMinusLogCdf::operator()(const normal& normal_, double x) const {
     return safeMinusLogCdf(safeCdf(normal_, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const students_t &students, double x) const {
+double CTools::SMinusLogCdf::operator()(const students_t& students, double x) const {
     return safeMinusLogCdf(safeCdf(students, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const negative_binomial &negativeBinomial, double x) const {
+double CTools::SMinusLogCdf::operator()(const negative_binomial& negativeBinomial, double x) const {
     return safeMinusLogCdf(safeCdf(negativeBinomial, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const lognormal &logNormal, double x) const {
+double CTools::SMinusLogCdf::operator()(const lognormal& logNormal, double x) const {
     return safeMinusLogCdf(safeCdf(logNormal, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const CLogTDistribution &logt, double x) const {
+double CTools::SMinusLogCdf::operator()(const CLogTDistribution& logt, double x) const {
     return safeMinusLogCdf(maths::cdf(logt, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const gamma &gamma_, double x) const {
+double CTools::SMinusLogCdf::operator()(const gamma& gamma_, double x) const {
     return safeMinusLogCdf(safeCdf(gamma_, x));
 }
 
-double CTools::SMinusLogCdf::operator()(const beta &beta_, double x) const {
+double CTools::SMinusLogCdf::operator()(const beta& beta_, double x) const {
     return safeMinusLogCdf(safeCdf(beta_, x));
 }
 
 //////// SMinusLogCdfComplement Implementation ////////
 
-double CTools::SMinusLogCdfComplement::operator()(const SImproperDistribution &, double) const {
+double CTools::SMinusLogCdfComplement::operator()(const SImproperDistribution&, double) const {
     return -std::log(1.0 - IMPROPER_CDF);
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const normal &normal_, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const normal& normal_, double x) const {
     return safeMinusLogCdf(safeCdfComplement(normal_, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const students_t &students, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const students_t& students, double x) const {
     return safeMinusLogCdf(safeCdfComplement(students, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const negative_binomial &negativeBinomial,
+double CTools::SMinusLogCdfComplement::operator()(const negative_binomial& negativeBinomial,
                                                   double x) const {
     return safeMinusLogCdf(safeCdfComplement(negativeBinomial, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const lognormal &logNormal, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const lognormal& logNormal, double x) const {
     return safeMinusLogCdf(safeCdfComplement(logNormal, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const CLogTDistribution &logt, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const CLogTDistribution& logt, double x) const {
     return safeMinusLogCdf(maths::cdfComplement(logt, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const gamma &gamma_, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const gamma& gamma_, double x) const {
     return safeMinusLogCdf(safeCdfComplement(gamma_, x));
 }
 
-double CTools::SMinusLogCdfComplement::operator()(const beta &beta_, double x) const {
+double CTools::SMinusLogCdfComplement::operator()(const beta& beta_, double x) const {
     return safeMinusLogCdf(safeCdfComplement(beta_, x));
 }
 
@@ -311,14 +315,14 @@ CTools::CProbabilityOfLessLikelySample::CProbabilityOfLessLikelySample(
     : m_Calculation(calculation) {}
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const SImproperDistribution &, double, maths_t::ETail &tail) const {
+operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const {
     // For any finite sample this is one.
     tail = maths_t::E_MixedOrNeitherTail;
     return 1.0;
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const normal &normal_, double x, maths_t::ETail &tail) const {
+operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(normal_);
@@ -359,7 +363,7 @@ operator()(const normal &normal_, double x, maths_t::ETail &tail) const {
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const students_t &students, double x, maths_t::ETail &tail) const {
+operator()(const students_t& students, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(students);
@@ -399,7 +403,7 @@ operator()(const students_t &students, double x, maths_t::ETail &tail) const {
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const negative_binomial &negativeBinomial, double x, maths_t::ETail &tail) const {
+operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const {
     x = ::floor(x);
 
     double px = 0.0;
@@ -420,10 +424,10 @@ operator()(const negative_binomial &negativeBinomial, double x, maths_t::ETail &
 
         case maths_t::E_OneSidedAbove:
             tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            return truncate(
-                2.0 * (safeCdfComplement(negativeBinomial, x) + safePdf(negativeBinomial, x)),
-                0.0,
-                1.0);
+            return truncate(2.0 * (safeCdfComplement(negativeBinomial, x) +
+                                   safePdf(negativeBinomial, x)),
+                            0.0,
+                            1.0);
     }
 
     double fx = safePdf(negativeBinomial, x);
@@ -544,12 +548,18 @@ operator()(const negative_binomial &negativeBinomial, double x, maths_t::ETail &
         double eps = 0.05 * px / std::max(fx, MIN_DOUBLE);
         eps = std::max(eps, EPSILON * std::min(b1, b2));
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
-        CSolvers::solve(
-            b1, b2, f1 - fx, f2 - fx, makePdf(negativeBinomial, fx), maxIterations, equal, y);
+        CSolvers::solve(b1,
+                        b2,
+                        f1 - fx,
+                        f2 - fx,
+                        makePdf(negativeBinomial, fx),
+                        maxIterations,
+                        equal,
+                        y);
         LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
                                 << ", iterations = " << maxIterations << ", f(y) = "
                                 << safePdf(negativeBinomial, y) - fx << ", eps = " << eps);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         if (::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
             y = b1;
         } else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
@@ -572,7 +582,7 @@ operator()(const negative_binomial &negativeBinomial, double x, maths_t::ETail &
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const lognormal &logNormal, double x, maths_t::ETail &tail) const {
+operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(logNormal);
@@ -621,7 +631,7 @@ operator()(const lognormal &logNormal, double x, maths_t::ETail &tail) const {
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const CLogTDistribution &logt, double x, maths_t::ETail &tail) const {
+operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = maths::support(logt);
@@ -688,12 +698,18 @@ operator()(const CLogTDistribution &logt, double x, maths_t::ETail &tail) const 
                 eps = std::max(eps, EPSILON * std::min(b1, b2));
                 CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
                 std::size_t maxIterations = MAX_ITERATIONS;
-                CSolvers::solve(
-                    b1, b2, f1 - fx, f2 - fx, makePdf(logt, fx), maxIterations, equal, y);
+                CSolvers::solve(b1,
+                                b2,
+                                f1 - fx,
+                                f2 - fx,
+                                makePdf(logt, fx),
+                                maxIterations,
+                                equal,
+                                y);
                 LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
                                         << ", iterations = " << maxIterations
                                         << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
-            } catch (const std::exception &e) {
+            } catch (const std::exception& e) {
                 if (::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
                     y = b1;
                 } else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
@@ -818,7 +834,7 @@ operator()(const CLogTDistribution &logt, double x, maths_t::ETail &tail) const 
         LOG_TRACE("bracket = (" << b1 << "," << b2 << ")"
                                 << ", iterations = " << maxIterations
                                 << ", f(y) = " << pdf(logt, y) - fx << ", eps = " << eps);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         if (::fabs(f1 - fx) < 10.0 * EPSILON * fx) {
             y = b1;
         } else if (::fabs(f2 - fx) < 10.0 * EPSILON * fx) {
@@ -835,7 +851,7 @@ operator()(const CLogTDistribution &logt, double x, maths_t::ETail &tail) const 
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const gamma &gamma_, double x, maths_t::ETail &tail) const {
+operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support = boost::math::support(gamma_);
@@ -996,8 +1012,14 @@ operator()(const gamma &gamma_, double x, maths_t::ETail &tail) const {
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
         std::size_t maxIterations = MAX_ITERATIONS / 2;
         double candidate;
-        CSolvers::solve(
-            a, b, fa - fx, fb - fx, makePdf(gamma_, fx), maxIterations, equal, candidate);
+        CSolvers::solve(a,
+                        b,
+                        fa - fx,
+                        fb - fx,
+                        makePdf(gamma_, fx),
+                        maxIterations,
+                        equal,
+                        candidate);
         LOG_TRACE("bracket = (" << a << "," << b << ")"
                                 << ", iterations = " << maxIterations
                                 << ", f(candidate) = " << safePdf(gamma_, candidate) - fx);
@@ -1005,7 +1027,7 @@ operator()(const gamma &gamma_, double x, maths_t::ETail &tail) const {
         if (::fabs(safePdf(gamma_, candidate) - fx) < ::fabs(fy - fx)) {
             y[i % 2] = candidate;
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         if (::fabs(fa - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = a;
         } else if (::fabs(fb - fx) < 10.0 * EPSILON * fx) {
@@ -1026,7 +1048,7 @@ operator()(const gamma &gamma_, double x, maths_t::ETail &tail) const {
 }
 
 double CTools::CProbabilityOfLessLikelySample::
-operator()(const beta &beta_, double x, maths_t::ETail &tail) const {
+operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
     double px = 0.0;
 
     TDoubleDoublePr support(0.0, 1.0);
@@ -1200,7 +1222,7 @@ operator()(const beta &beta_, double x, maths_t::ETail &tail) const {
             double fb = fy - fx;
             fBracket = std::make_pair(fa, fb);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to evaluate p.d.f.: " << e.what() << ", alpha = " << beta_.alpha()
                                                 << ", beta = " << beta_.beta() << ", x = " << x
                                                 << ", y = " << y[i % 2]);
@@ -1237,7 +1259,7 @@ operator()(const beta &beta_, double x, maths_t::ETail &tail) const {
         if (::fabs(safePdf(beta_, candidate) - fx) < ::fabs(fy - fx)) {
             y[i % 2] = candidate;
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         if (::fabs(fBracket.first - fx) < 10.0 * EPSILON * fx) {
             y[i % 2] = bracket.first;
         } else if (::fabs(fBracket.second - fx) < 10.0 * EPSILON * fx) {
@@ -1261,10 +1283,10 @@ operator()(const beta &beta_, double x, maths_t::ETail &tail) const {
                     1.0);
 }
 
-bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr &support,
+bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr& support,
                                                    double x,
-                                                   double &px,
-                                                   maths_t::ETail &tail) const {
+                                                   double& px,
+                                                   maths_t::ETail& tail) const {
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad argument x = " << x);
         tail = maths_t::E_MixedOrNeitherTail;
@@ -1299,7 +1321,7 @@ bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr &suppor
 
 void CTools::CProbabilityOfLessLikelySample::tail(double x,
                                                   double mode,
-                                                  maths_t::ETail &tail) const {
+                                                  maths_t::ETail& tail) const {
     if (x <= mode) {
         tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
     }
@@ -1352,7 +1374,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::addMode(double weight,
     m_MaxDeviation.add((2.0 + deviation) * modeSd);
 }
 
-void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec &intervals) {
+void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec& intervals) {
     std::sort(m_Endpoints.begin(), m_Endpoints.end());
     m_Endpoints.erase(std::unique(m_Endpoints.begin(), m_Endpoints.end()), m_Endpoints.end());
     intervals.reserve(m_Endpoints.size() - 1);
@@ -1367,7 +1389,7 @@ const double CTools::CMixtureProbabilityOfLessLikelySample::LOG_ROOT_TWO_PI =
 
 //////// SIntervalExpectation Implementation ////////
 
-double CTools::SIntervalExpectation::operator()(const normal &normal_, double a, double b) const {
+double CTools::SIntervalExpectation::operator()(const normal& normal_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
@@ -1394,7 +1416,7 @@ double CTools::SIntervalExpectation::operator()(const normal &normal_, double a,
 }
 
 double CTools::SIntervalExpectation::
-operator()(const lognormal &logNormal, double a, double b) const {
+operator()(const lognormal& logNormal, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
@@ -1428,7 +1450,7 @@ operator()(const lognormal &logNormal, double a, double b) const {
     return mean * (erfb - erfa) / (erfb_ - erfa_);
 }
 
-double CTools::SIntervalExpectation::operator()(const gamma &gamma_, double a, double b) const {
+double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
@@ -1458,7 +1480,9 @@ double CTools::SIntervalExpectation::operator()(const gamma &gamma_, double a, d
 
 //////// smallestProbability Implementation ////////
 
-double CTools::smallestProbability(void) { return MIN_DOUBLE; }
+double CTools::smallestProbability(void) {
+    return MIN_DOUBLE;
+}
 
 //////// safePdf Implementation ////////
 
@@ -1470,80 +1494,87 @@ using AllowOverflow = policy<overflow_error<user_error>>;
 }
 
 inline boost::math::normal_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::normal_distribution<> &normal) {
-    return boost::math::normal_distribution<double, math_policy::AllowOverflow>(
-        normal.mean(), normal.standard_deviation());
+allowOverflow(const boost::math::normal_distribution<>& normal) {
+    return boost::math::normal_distribution<double,
+                                            math_policy::AllowOverflow>(normal.mean(),
+                                                                        normal
+                                                                            .standard_deviation());
 }
 
 inline boost::math::students_t_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::students_t_distribution<> &students) {
+allowOverflow(const boost::math::students_t_distribution<>& students) {
     return boost::math::students_t_distribution<double, math_policy::AllowOverflow>(
         students.degrees_of_freedom());
 }
 
 inline boost::math::poisson_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::poisson_distribution<> &poisson) {
+allowOverflow(const boost::math::poisson_distribution<>& poisson) {
     return boost::math::poisson_distribution<double, math_policy::AllowOverflow>(poisson.mean());
 }
 
 inline boost::math::negative_binomial_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::negative_binomial_distribution<> &negativeBinomial) {
-    return boost::math::negative_binomial_distribution<double, math_policy::AllowOverflow>(
-        negativeBinomial.successes(), negativeBinomial.success_fraction());
+allowOverflow(const boost::math::negative_binomial_distribution<>& negativeBinomial) {
+    return boost::math::negative_binomial_distribution<
+        double,
+        math_policy::AllowOverflow>(negativeBinomial.successes(),
+                                    negativeBinomial.success_fraction());
 }
 
 inline boost::math::lognormal_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::lognormal_distribution<> &logNormal) {
-    return boost::math::lognormal_distribution<double, math_policy::AllowOverflow>(
-        logNormal.location(), logNormal.scale());
+allowOverflow(const boost::math::lognormal_distribution<>& logNormal) {
+    return boost::math::lognormal_distribution<double,
+                                               math_policy::AllowOverflow>(logNormal.location(),
+                                                                           logNormal.scale());
 }
 
 inline boost::math::gamma_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::gamma_distribution<> &gamma) {
+allowOverflow(const boost::math::gamma_distribution<>& gamma) {
     return boost::math::gamma_distribution<double, math_policy::AllowOverflow>(gamma.shape(),
                                                                                gamma.scale());
 }
 
 inline boost::math::beta_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::beta_distribution<> &beta) {
+allowOverflow(const boost::math::beta_distribution<>& beta) {
     return boost::math::beta_distribution<double, math_policy::AllowOverflow>(beta.alpha(),
                                                                               beta.beta());
 }
 
 inline boost::math::binomial_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::binomial_distribution<> &binomial) {
-    return boost::math::binomial_distribution<double, math_policy::AllowOverflow>(
-        binomial.trials(), binomial.success_fraction());
+allowOverflow(const boost::math::binomial_distribution<>& binomial) {
+    return boost::math::binomial_distribution<double,
+                                              math_policy::AllowOverflow>(binomial.trials(),
+                                                                          binomial
+                                                                              .success_fraction());
 }
 
 inline boost::math::chi_squared_distribution<double, math_policy::AllowOverflow>
-allowOverflow(const boost::math::chi_squared_distribution<> &chi2) {
+allowOverflow(const boost::math::chi_squared_distribution<>& chi2) {
     return boost::math::chi_squared_distribution<double, math_policy::AllowOverflow>(
         chi2.degrees_of_freedom());
 }
 }
 
-double CTools::safePdf(const normal &normal_, double x) {
+double CTools::safePdf(const normal& normal_, double x) {
     return continuousSafePdf(allowOverflow(normal_), x);
 }
 
-double CTools::safePdf(const students_t &students, double x) {
+double CTools::safePdf(const students_t& students, double x) {
     return continuousSafePdf(allowOverflow(students), x);
 }
 
-double CTools::safePdf(const poisson &poisson_, double x) {
+double CTools::safePdf(const poisson& poisson_, double x) {
     return discreteSafePdf(allowOverflow(poisson_), x);
 }
 
-double CTools::safePdf(const negative_binomial &negativeBinomial, double x) {
+double CTools::safePdf(const negative_binomial& negativeBinomial, double x) {
     return discreteSafePdf(allowOverflow(negativeBinomial), x);
 }
 
-double CTools::safePdf(const lognormal &logNormal, double x) {
+double CTools::safePdf(const lognormal& logNormal, double x) {
     return continuousSafePdf(allowOverflow(logNormal), x);
 }
 
-double CTools::safePdf(const gamma &gamma_, double x) {
+double CTools::safePdf(const gamma& gamma_, double x) {
     TDoubleDoublePr support = boost::math::support(gamma_);
 
     // The distribution at the 0 is either:
@@ -1565,7 +1596,7 @@ double CTools::safePdf(const gamma &gamma_, double x) {
     return continuousSafePdf(allowOverflow(gamma_), x);
 }
 
-double CTools::safePdf(const beta &beta_, double x) {
+double CTools::safePdf(const beta& beta_, double x) {
     TDoubleDoublePr support = boost::math::support(beta_);
 
     // The distribution is either:
@@ -1601,11 +1632,11 @@ double CTools::safePdf(const beta &beta_, double x) {
     return continuousSafePdf(allowOverflow(beta_), x);
 }
 
-double CTools::safePdf(const binomial &binomial_, double x) {
+double CTools::safePdf(const binomial& binomial_, double x) {
     return discreteSafePdf(allowOverflow(binomial_), x);
 }
 
-double CTools::safePdf(const chi_squared &chi2, double x) {
+double CTools::safePdf(const chi_squared& chi2, double x) {
     TDoubleDoublePr support = boost::math::support(chi2);
 
     // Depending on the degrees of freedom the pdf at zero is either:
@@ -1632,77 +1663,77 @@ double CTools::safePdf(const chi_squared &chi2, double x) {
 
 //////// safeCdf Implementation ////////
 
-double CTools::safeCdf(const normal &normal_, double x) {
+double CTools::safeCdf(const normal& normal_, double x) {
     return continuousSafeCdf(allowOverflow(normal_), x);
 }
 
-double CTools::safeCdf(const students_t &students, double x) {
+double CTools::safeCdf(const students_t& students, double x) {
     return continuousSafeCdf(allowOverflow(students), x);
 }
 
-double CTools::safeCdf(const poisson &poisson_, double x) {
+double CTools::safeCdf(const poisson& poisson_, double x) {
     return discreteSafeCdf(allowOverflow(poisson_), x);
 }
 
-double CTools::safeCdf(const negative_binomial &negativeBinomial, double x) {
+double CTools::safeCdf(const negative_binomial& negativeBinomial, double x) {
     return discreteSafeCdf(allowOverflow(negativeBinomial), x);
 }
 
-double CTools::safeCdf(const lognormal &logNormal, double x) {
+double CTools::safeCdf(const lognormal& logNormal, double x) {
     return continuousSafeCdf(allowOverflow(logNormal), x);
 }
 
-double CTools::safeCdf(const gamma &gamma_, double x) {
+double CTools::safeCdf(const gamma& gamma_, double x) {
     return continuousSafeCdf(allowOverflow(gamma_), x);
 }
 
-double CTools::safeCdf(const beta &beta_, double x) {
+double CTools::safeCdf(const beta& beta_, double x) {
     return continuousSafeCdf(allowOverflow(beta_), x);
 }
 
-double CTools::safeCdf(const binomial &binomial_, double x) {
+double CTools::safeCdf(const binomial& binomial_, double x) {
     return discreteSafeCdf(allowOverflow(binomial_), x);
 }
 
-double CTools::safeCdf(const chi_squared &chi2, double x) {
+double CTools::safeCdf(const chi_squared& chi2, double x) {
     return continuousSafeCdf(allowOverflow(chi2), x);
 }
 
 //////// safeCdfComplement Implementation ////////
 
-double CTools::safeCdfComplement(const normal &normal_, double x) {
+double CTools::safeCdfComplement(const normal& normal_, double x) {
     return continuousSafeCdfComplement(allowOverflow(normal_), x);
 }
 
-double CTools::safeCdfComplement(const students_t &students, double x) {
+double CTools::safeCdfComplement(const students_t& students, double x) {
     return continuousSafeCdfComplement(allowOverflow(students), x);
 }
 
-double CTools::safeCdfComplement(const poisson &poisson_, double x) {
+double CTools::safeCdfComplement(const poisson& poisson_, double x) {
     return discreteSafeCdfComplement(allowOverflow(poisson_), x);
 }
 
-double CTools::safeCdfComplement(const negative_binomial &negativeBinomial, double x) {
+double CTools::safeCdfComplement(const negative_binomial& negativeBinomial, double x) {
     return discreteSafeCdfComplement(allowOverflow(negativeBinomial), x);
 }
 
-double CTools::safeCdfComplement(const lognormal &logNormal, double x) {
+double CTools::safeCdfComplement(const lognormal& logNormal, double x) {
     return continuousSafeCdfComplement(allowOverflow(logNormal), x);
 }
 
-double CTools::safeCdfComplement(const gamma &gamma_, double x) {
+double CTools::safeCdfComplement(const gamma& gamma_, double x) {
     return continuousSafeCdfComplement(allowOverflow(gamma_), x);
 }
 
-double CTools::safeCdfComplement(const beta &beta_, double x) {
+double CTools::safeCdfComplement(const beta& beta_, double x) {
     return continuousSafeCdfComplement(allowOverflow(beta_), x);
 }
 
-double CTools::safeCdfComplement(const binomial &binomial_, double x) {
+double CTools::safeCdfComplement(const binomial& binomial_, double x) {
     return discreteSafeCdfComplement(allowOverflow(binomial_), x);
 }
 
-double CTools::safeCdfComplement(const chi_squared &chi2, double x) {
+double CTools::safeCdfComplement(const chi_squared& chi2, double x) {
     return continuousSafeCdfComplement(allowOverflow(chi2), x);
 }
 
@@ -1794,7 +1825,7 @@ double CTools::inverseDeviation(double deviation) {
 
 //////// differentialEntropy Implementation ////////
 
-double CTools::differentialEntropy(const poisson &poisson_) {
+double CTools::differentialEntropy(const poisson& poisson_) {
     // Approximate as sum over [mean - 5 * std, mean + 5 * std].
 
     double mean = boost::math::mean(poisson_);
@@ -1813,7 +1844,7 @@ double CTools::differentialEntropy(const poisson &poisson_) {
     return result;
 }
 
-double CTools::differentialEntropy(const normal &normal_) {
+double CTools::differentialEntropy(const normal& normal_) {
     // Equals log(2 * pi * e * v) / 2
     //
     // where,
@@ -1824,7 +1855,7 @@ double CTools::differentialEntropy(const normal &normal_) {
                           variance);
 }
 
-double CTools::differentialEntropy(const lognormal &logNormal) {
+double CTools::differentialEntropy(const lognormal& logNormal) {
     // Equals log(2 * pi * e * v) / 2 + m.
     //
     // where,
@@ -1838,7 +1869,7 @@ double CTools::differentialEntropy(const lognormal &logNormal) {
            location;
 }
 
-double CTools::differentialEntropy(const gamma &gamma_) {
+double CTools::differentialEntropy(const gamma& gamma_) {
     // Equals k + log(t) + log(g(k)) + (1 - k) * f(k)
     //
     // where,
@@ -1854,7 +1885,7 @@ double CTools::differentialEntropy(const gamma &gamma_) {
 
 //////// CGroup Implementation ////////
 
-void CTools::CGroup::merge(const CGroup &other, double separation, double min, double max) {
+void CTools::CGroup::merge(const CGroup& other, double separation, double min, double max) {
     m_A = std::min(m_A, other.m_A);
     m_B = std::max(m_B, other.m_B);
 
@@ -1867,7 +1898,7 @@ void CTools::CGroup::merge(const CGroup &other, double separation, double min, d
     m_Centre.s_Moments[0] += std::min(max - r, 0.0);
 }
 
-bool CTools::CGroup::overlap(const CGroup &other, double separation) const {
+bool CTools::CGroup::overlap(const CGroup& other, double separation) const {
     const double TOL{1.0 + EPSILON};
     double ll{this->leftEndpoint(separation)};
     double lr{this->rightEndpoint(separation)};

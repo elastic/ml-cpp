@@ -36,9 +36,9 @@ namespace ml {
 namespace model {
 
 CMetricPopulationModelFactory::CMetricPopulationModelFactory(
-    const SModelParams &params,
+    const SModelParams& params,
     model_t::ESummaryMode summaryMode,
-    const std::string &summaryCountFieldName)
+    const std::string& summaryCountFieldName)
     : CModelFactory(params),
       m_Identifier(),
       m_SummaryMode(summaryMode),
@@ -46,62 +46,66 @@ CMetricPopulationModelFactory::CMetricPopulationModelFactory(
       m_UseNull(false),
       m_BucketResultsDelay(0) {}
 
-CMetricPopulationModelFactory *CMetricPopulationModelFactory::clone(void) const {
+CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone(void) const {
     return new CMetricPopulationModelFactory(*this);
 }
 
-CAnomalyDetectorModel *
-CMetricPopulationModelFactory::makeModel(const SModelInitializationData &initData) const {
+CAnomalyDetectorModel*
+CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CMetricPopulationModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators);
+    return new CMetricPopulationModel(this->modelParams(),
+                                      dataGatherer,
+                                      this->defaultFeatureModels(features,
+                                                                 dataGatherer->bucketLength(),
+                                                                 1.0,
+                                                                 false),
+                                      this->defaultCorrelatePriors(features),
+                                      this->defaultCorrelates(features),
+                                      influenceCalculators);
 }
 
-CAnomalyDetectorModel *
-CMetricPopulationModelFactory::makeModel(const SModelInitializationData &initData,
-                                         core::CStateRestoreTraverser &traverser) const {
+CAnomalyDetectorModel*
+CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData,
+                                         core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CMetricPopulationModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators,
-        traverser);
+    return new CMetricPopulationModel(this->modelParams(),
+                                      dataGatherer,
+                                      this->defaultFeatureModels(features,
+                                                                 dataGatherer->bucketLength(),
+                                                                 1.0,
+                                                                 false),
+                                      this->defaultCorrelatePriors(features),
+                                      this->defaultCorrelates(features),
+                                      influenceCalculators,
+                                      traverser);
 }
 
-CDataGatherer *
-CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const {
+CDataGatherer*
+CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_PopulationMetric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -119,9 +123,9 @@ CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationDat
                              initData.s_SampleOverrideCount);
 }
 
-CDataGatherer *
-CMetricPopulationModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
-                                                core::CStateRestoreTraverser &traverser) const {
+CDataGatherer*
+CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_PopulationMetric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -139,7 +143,7 @@ CMetricPopulationModelFactory::makeDataGatherer(const std::string &partitionFiel
 
 CMetricPopulationModelFactory::TPriorPtr
 CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
-                                            const SModelParams &params) const {
+                                            const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -204,7 +208,7 @@ CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
 
 CMetricPopulationModelFactory::TMultivariatePriorPtr
 CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                        const SModelParams &params) const {
+                                                        const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     // Gaussian mixture for modeling (latitude, longitude).
@@ -225,7 +229,7 @@ CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature featur
 
 CMetricPopulationModelFactory::TMultivariatePriorPtr
 CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                                     const SModelParams &params) const {
+                                                     const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
@@ -236,7 +240,7 @@ CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CMetricPopulationModelFactory::searchKey(void) const {
+const CSearchKey& CMetricPopulationModelFactory::searchKey(void) const {
     if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
@@ -251,7 +255,9 @@ const CSearchKey &CMetricPopulationModelFactory::searchKey(void) const {
     return *m_SearchKeyCache;
 }
 
-bool CMetricPopulationModelFactory::isSimpleCount(void) const { return false; }
+bool CMetricPopulationModelFactory::isSimpleCount(void) const {
+    return false;
+}
 
 model_t::ESummaryMode CMetricPopulationModelFactory::summaryMode(void) const {
     return m_SummaryMode;
@@ -266,11 +272,11 @@ void CMetricPopulationModelFactory::identifier(int identifier) {
     m_SearchKeyCache.reset();
 }
 
-void CMetricPopulationModelFactory::fieldNames(const std::string &partitionFieldName,
-                                               const std::string &overFieldName,
-                                               const std::string &byFieldName,
-                                               const std::string &valueFieldName,
-                                               const TStrVec &influenceFieldNames) {
+void CMetricPopulationModelFactory::fieldNames(const std::string& partitionFieldName,
+                                               const std::string& overFieldName,
+                                               const std::string& byFieldName,
+                                               const std::string& valueFieldName,
+                                               const TStrVec& influenceFieldNames) {
     m_PartitionFieldName = partitionFieldName;
     m_PersonFieldName = overFieldName;
     m_AttributeFieldName = byFieldName;
@@ -284,7 +290,7 @@ void CMetricPopulationModelFactory::useNull(bool useNull) {
     m_SearchKeyCache.reset();
 }
 
-void CMetricPopulationModelFactory::features(const TFeatureVec &features) {
+void CMetricPopulationModelFactory::features(const TFeatureVec& features) {
     m_Features = features;
     m_SearchKeyCache.reset();
 }

@@ -37,12 +37,13 @@ namespace maths {
 //!
 //! DESCRIPTION:\n
 //! See, for example, CMultimodalPrior for usage.
-template <typename PRIOR_PTR> struct SMultimodalPriorMode {
+template <typename PRIOR_PTR>
+struct SMultimodalPriorMode {
     static const std::string INDEX_TAG;
     static const std::string PRIOR_TAG;
 
     SMultimodalPriorMode(void) : s_Index(0), s_Prior() {}
-    SMultimodalPriorMode(std::size_t index, const PRIOR_PTR &prior)
+    SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior)
         : s_Index(index), s_Prior(prior->clone()) {}
 
     //! Get the weight of this sample.
@@ -64,21 +65,23 @@ template <typename PRIOR_PTR> struct SMultimodalPriorMode {
     std::size_t memoryUsage(void) const { return core::CMemory::dynamicSize(s_Prior); }
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                core::CStateRestoreTraverser &traverser) {
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser) {
         do {
-            const std::string &name = traverser.name();
+            const std::string& name = traverser.name();
             RESTORE_BUILT_IN(INDEX_TAG, s_Index)
             RESTORE(PRIOR_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CPriorStateSerialiser(), boost::cref(params), boost::ref(s_Prior), _1)))
+                    traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
+                                                                 boost::cref(params),
+                                                                 boost::ref(s_Prior),
+                                                                 _1)))
         } while (traverser.next());
 
         return true;
     }
 
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(INDEX_TAG, s_Index);
         inserter.insertLevel(PRIOR_TAG,
                              boost::bind<void>(CPriorStateSerialiser(), boost::cref(*s_Prior), _1));
@@ -86,7 +89,7 @@ template <typename PRIOR_PTR> struct SMultimodalPriorMode {
 
     //! Full debug dump of the mode weights.
     template <typename T>
-    static std::string debugWeights(const std::vector<SMultimodalPriorMode<T>> &modes) {
+    static std::string debugWeights(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.empty()) {
             return std::string();
         }
@@ -102,9 +105,11 @@ template <typename PRIOR_PTR> struct SMultimodalPriorMode {
     PRIOR_PTR s_Prior;
 };
 
-template <typename PRIOR> const std::string SMultimodalPriorMode<PRIOR>::INDEX_TAG("a");
-template <typename PRIOR> const std::string SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b");
+template <typename PRIOR>
+const std::string SMultimodalPriorMode<PRIOR>::INDEX_TAG("a");
+template <typename PRIOR>
+const std::string SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b");
 }
 }
 
-#endif// INCLUDED_ml_maths_SMultimodalPriorMode_h
+#endif // INCLUDED_ml_maths_SMultimodalPriorMode_h

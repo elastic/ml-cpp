@@ -40,11 +40,11 @@ struct SEmptyNodeData {};
 //! Overload to adapt the Euclidean norm calculation for different
 //! point implementations.
 template <typename POINT>
-typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POINT &point) {
+typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POINT& point) {
     return point.euclidean();
 }
 
-}// kdtree_detail::
+} // kdtree_detail::
 
 //! \brief A k-d tree.
 //!
@@ -67,7 +67,8 @@ typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POIN
 //! when it is not needed). This should be default constructible and
 //! have value semantics. This can be useful for implementing certain
 //! algorithms efficiently.
-template <typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData> class CKdTree {
+template <typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
+class CKdTree {
 public:
     typedef std::vector<POINT> TPointVec;
     typedef typename TPointVec::iterator TPointVecItr;
@@ -80,7 +81,7 @@ public:
     class CCoordinateLess {
     public:
         CCoordinateLess(std::size_t i) : m_I(i) {}
-        bool operator()(const POINT &lhs, const POINT &rhs) const { return lhs(m_I) < rhs(m_I); }
+        bool operator()(const POINT& lhs, const POINT& rhs) const { return lhs(m_I) < rhs(m_I); }
 
     private:
         std::size_t m_I;
@@ -88,7 +89,7 @@ public:
 
     //! A node of the k-d tree.
     struct SNode : public NODE_DATA {
-        SNode(SNode *parent, const POINT &point)
+        SNode(SNode* parent, const POINT& point)
             : NODE_DATA(), s_Parent(parent), s_LeftChild(0), s_RightChild(0), s_Point(point) {}
 
         //! Check node invariants.
@@ -118,18 +119,18 @@ public:
         //! Get the coordinate the points are split on.
         std::size_t depth(void) const {
             std::size_t depth = 0u;
-            for (const SNode *ancestor = s_Parent; ancestor; ancestor = ancestor->s_Parent) {
+            for (const SNode* ancestor = s_Parent; ancestor; ancestor = ancestor->s_Parent) {
                 ++depth;
             }
             return depth;
         }
 
         //! The parent.
-        SNode *s_Parent;
+        SNode* s_Parent;
         //! The left child if one exists.
-        SNode *s_LeftChild;
+        SNode* s_LeftChild;
         //! The right child if one exists.
-        SNode *s_RightChild;
+        SNode* s_RightChild;
         //! The point at this node.
         POINT s_Point;
     };
@@ -141,15 +142,15 @@ public:
     //! Build a k-d tree on the collection of points \p points.
     //!
     //! \note \p points are reordered by this operation.
-    void build(TPointVec &points) {
+    void build(TPointVec& points) {
         if (points.empty()) {
             return;
         }
         m_Dimension = points[0].dimension();
         m_Nodes.clear();
         m_Nodes.reserve(points.size());
-        this->buildRecursively(0,// Parent pointer
-                               0,// Split coordinate
+        this->buildRecursively(0, // Parent pointer
+                               0, // Split coordinate
                                points.begin(),
                                points.end());
     }
@@ -158,8 +159,8 @@ public:
     std::size_t size(void) const { return m_Nodes.size(); }
 
     //! Branch and bound search for nearest neighbour of \p point.
-    const POINT *nearestNeighbour(const POINT &point) const {
-        const POINT *nearest = 0;
+    const POINT* nearestNeighbour(const POINT& point) const {
+        const POINT* nearest = 0;
 
         if (m_Nodes.empty()) {
             return nearest;
@@ -168,13 +169,13 @@ public:
         TCoordinatePrecise distanceToNearest = std::numeric_limits<TCoordinatePrecise>::max();
         return this->nearestNeighbour(point,
                                       m_Nodes[0],
-                                      0,// Split coordinate,
+                                      0, // Split coordinate,
                                       nearest,
                                       distanceToNearest);
     }
 
     //! Branch and bound search for nearest \p n neighbours of \p point.
-    void nearestNeighbours(std::size_t n, const POINT &point, TPointVec &result) const {
+    void nearestNeighbours(std::size_t n, const POINT& point, TPointVec& result) const {
         result.clear();
 
         if (n == 0 || m_Nodes.empty()) {
@@ -184,7 +185,7 @@ public:
         TNearestAccumulator nearest(n);
         this->nearestNeighbours(point,
                                 m_Nodes[0],
-                                0,// Split coordinate,
+                                0, // Split coordinate,
                                 nearest);
 
         result.reserve(nearest.count());
@@ -199,7 +200,8 @@ public:
     //! \param[in] f The function to apply to the nodes.
     //! \tparam F should have the signature bool (const SNode &).
     //! Traversal stops below point that \p f returns false.
-    template <typename F> void preorderDepthFirst(F f) const {
+    template <typename F>
+    void preorderDepthFirst(F f) const {
         if (m_Nodes.empty()) {
             return;
         }
@@ -210,7 +212,8 @@ public:
     //!
     //! \param[in] f The function to apply to the nodes.
     //! \tparam F should have the signature void (const SNode &).
-    template <typename F> void postorderDepthFirst(F f) const {
+    template <typename F>
+    void postorderDepthFirst(F f) const {
         if (m_Nodes.empty()) {
             return;
         }
@@ -232,20 +235,20 @@ private:
 
 private:
     //! Recursively build the k-d tree.
-    SNode *
-    buildRecursively(SNode *parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
+    SNode*
+    buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
         std::size_t n = static_cast<std::size_t>(end - begin) / 2;
         TPointVecItr median = begin + n;
         std::nth_element(begin, median, end, CCoordinateLess(coordinate));
         m_Nodes.push_back(SNode(parent, *median));
-        SNode *node = &m_Nodes.back();
+        SNode* node = &m_Nodes.back();
         if (median - begin > 0) {
-            SNode *leftChild =
+            SNode* leftChild =
                 this->buildRecursively(node, (coordinate + 1) % m_Dimension, begin, median);
             node->s_LeftChild = leftChild;
         }
         if (end - median > 1) {
-            SNode *rightChild =
+            SNode* rightChild =
                 this->buildRecursively(node, (coordinate + 1) % m_Dimension, median + 1, end);
             node->s_RightChild = rightChild;
         }
@@ -253,11 +256,11 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    const POINT *nearestNeighbour(const POINT &point,
-                                  const SNode &node,
+    const POINT* nearestNeighbour(const POINT& point,
+                                  const SNode& node,
                                   std::size_t coordinate,
-                                  const POINT *nearest,
-                                  TCoordinatePrecise &distanceToNearest) const {
+                                  const POINT* nearest,
+                                  TCoordinatePrecise& distanceToNearest) const {
         TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
 
         if (distance < distanceToNearest) {
@@ -268,8 +271,8 @@ private:
         if (node.s_LeftChild || node.s_RightChild) {
             TCoordinatePrecise distanceToHyperplane = point(coordinate) - node.s_Point(coordinate);
 
-            SNode *primary = node.s_LeftChild;
-            SNode *secondary = node.s_RightChild;
+            SNode* primary = node.s_LeftChild;
+            SNode* secondary = node.s_RightChild;
             if (!primary || (secondary && distanceToHyperplane > 0)) {
                 std::swap(primary, secondary);
             }
@@ -278,8 +281,11 @@ private:
             nearest =
                 this->nearestNeighbour(point, *primary, nextCoordinate, nearest, distanceToNearest);
             if (secondary && ::fabs(distanceToHyperplane) < distanceToNearest) {
-                nearest = this->nearestNeighbour(
-                    point, *secondary, nextCoordinate, nearest, distanceToNearest);
+                nearest = this->nearestNeighbour(point,
+                                                 *secondary,
+                                                 nextCoordinate,
+                                                 nearest,
+                                                 distanceToNearest);
             }
         }
 
@@ -287,10 +293,10 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    void nearestNeighbours(const POINT &point,
-                           const SNode &node,
+    void nearestNeighbours(const POINT& point,
+                           const SNode& node,
                            std::size_t coordinate,
-                           TNearestAccumulator &nearest) const {
+                           TNearestAccumulator& nearest) const {
         TCoordinatePrecise distance = kdtree_detail::euclidean(point - node.s_Point);
 
         nearest.add(TCoordinatePrecisePointPr(distance, node.s_Point));
@@ -298,8 +304,8 @@ private:
         if (node.s_LeftChild || node.s_RightChild) {
             TCoordinatePrecise distanceToHyperplane = point(coordinate) - node.s_Point(coordinate);
 
-            SNode *primary = node.s_LeftChild;
-            SNode *secondary = node.s_RightChild;
+            SNode* primary = node.s_LeftChild;
+            SNode* secondary = node.s_RightChild;
             if (!primary || (secondary && distanceToHyperplane > 0)) {
                 std::swap(primary, secondary);
             }
@@ -313,7 +319,8 @@ private:
     }
 
     //! Visit the branch rooted at \p node with \p f in pre-order.
-    template <typename F> static void preorderDepthFirst(const SNode &node, F f) {
+    template <typename F>
+    static void preorderDepthFirst(const SNode& node, F f) {
         if (f(node)) {
             if (node.s_LeftChild) {
                 preorderDepthFirst(*node.s_LeftChild, f);
@@ -325,7 +332,8 @@ private:
     }
 
     //! Visit the branch rooted at \p node with \p f in post-order.
-    template <typename F> static void postorderDepthFirst(const SNode &node, F f) {
+    template <typename F>
+    static void postorderDepthFirst(const SNode& node, F f) {
         if (node.s_LeftChild) {
             postorderDepthFirst(*node.s_LeftChild, f);
         }
@@ -344,4 +352,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CKdTree_h
+#endif // INCLUDED_ml_maths_CKdTree_h

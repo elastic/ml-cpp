@@ -21,7 +21,7 @@ class CMutexTest : public CppUnit::TestFixture {
 public:
     void testRecursive(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CMutexTest_h
+#endif // INCLUDED_CMutexTest_h

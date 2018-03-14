@@ -77,8 +77,8 @@ const std::string EMPTY_STRING;
 //////// CMultimodalPrior Implementation ////////
 
 CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
-                                   const CClusterer1d &clusterer,
-                                   const CPrior &seedPrior,
+                                   const CClusterer1d& clusterer,
+                                   const CPrior& seedPrior,
                                    double decayRate /*= 0.0*/)
     : CPrior(dataType, decayRate), m_Clusterer(clusterer.clone()), m_SeedPrior(seedPrior.clone()) {
     // Register the split and merge callbacks.
@@ -87,7 +87,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
 }
 
 CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
-                                   const TMeanVarAccumulatorVec &moments,
+                                   const TMeanVarAccumulatorVec& moments,
                                    double decayRate /*= 0.0*/)
     : CPrior(dataType, decayRate),
       m_SeedPrior(CNormalMeanPrecConjugate::nonInformativePrior(dataType, decayRate).clone()) {
@@ -95,7 +95,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
 
     TNormalVec normals;
     normals.reserve(moments.size());
-    for (const auto &moments_ : moments) {
+    for (const auto& moments_ : moments) {
         normals.emplace_back(dataType, moments_, decayRate);
     }
 
@@ -109,7 +109,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
 
 CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
                                    double decayRate,
-                                   TPriorPtrVec &priors)
+                                   TPriorPtrVec& priors)
     : CPrior(dataType, decayRate) {
     m_Modes.reserve(priors.size());
     for (std::size_t i = 0u; i < priors.size(); ++i) {
@@ -117,31 +117,38 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
     }
 }
 
-CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams &params,
-                                   core::CStateRestoreTraverser &traverser)
+CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
+                                   core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
     traverser.traverseSubLevel(
         boost::bind(&CMultimodalPrior::acceptRestoreTraverser, this, boost::cref(params), _1));
 }
 
-bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                              core::CStateRestoreTraverser &traverser) {
+bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                              core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
                                double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
                                this->decayRate(decayRate))
         RESTORE(CLUSTERER_TAG,
-                traverser.traverseSubLevel(boost::bind<bool>(
-                    CClustererStateSerialiser(), boost::cref(params), boost::ref(m_Clusterer), _1)))
+                traverser.traverseSubLevel(boost::bind<bool>(CClustererStateSerialiser(),
+                                                             boost::cref(params),
+                                                             boost::ref(m_Clusterer),
+                                                             _1)))
         RESTORE(SEED_PRIOR_TAG,
-                traverser.traverseSubLevel(boost::bind<bool>(
-                    CPriorStateSerialiser(), boost::cref(params), boost::ref(m_SeedPrior), _1)))
+                traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
+                                                             boost::cref(params),
+                                                             boost::ref(m_SeedPrior),
+                                                             _1)))
         RESTORE_SETUP_TEARDOWN(MODE_TAG,
                                TMode mode,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &TMode::acceptRestoreTraverser, &mode, boost::cref(params), _1)),
+                               traverser.traverseSubLevel(
+                                   boost::bind(&TMode::acceptRestoreTraverser,
+                                               &mode,
+                                               boost::cref(params),
+                                               _1)),
                                m_Modes.push_back(mode))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG,
                                double numberSamples,
@@ -158,7 +165,7 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams &
     return true;
 }
 
-CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior &other)
+CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior& other)
     : CPrior(other.dataType(), other.decayRate()),
       m_Clusterer(other.m_Clusterer->clone()),
       m_SeedPrior(other.m_SeedPrior->clone()) {
@@ -169,7 +176,7 @@ CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior &other)
     // Clone all the modes up front so we can implement strong exception safety.
     TModeVec modes;
     modes.reserve(other.m_Modes.size());
-    for (const auto &mode : other.m_Modes) {
+    for (const auto& mode : other.m_Modes) {
         modes.emplace_back(mode.s_Index, TPriorPtr(mode.s_Prior->clone()));
     }
     m_Modes.swap(modes);
@@ -177,7 +184,7 @@ CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior &other)
     this->addSamples(other.numberSamples());
 }
 
-CMultimodalPrior &CMultimodalPrior::operator=(const CMultimodalPrior &rhs) {
+CMultimodalPrior& CMultimodalPrior::operator=(const CMultimodalPrior& rhs) {
     if (this != &rhs) {
         CMultimodalPrior copy(rhs);
         this->swap(copy);
@@ -185,7 +192,7 @@ CMultimodalPrior &CMultimodalPrior::operator=(const CMultimodalPrior &rhs) {
     return *this;
 }
 
-void CMultimodalPrior::swap(CMultimodalPrior &other) {
+void CMultimodalPrior::swap(CMultimodalPrior& other) {
     this->CPrior::swap(other);
 
     std::swap(m_Clusterer, other.m_Clusterer);
@@ -201,14 +208,18 @@ void CMultimodalPrior::swap(CMultimodalPrior &other) {
     m_Modes.swap(other.m_Modes);
 }
 
-CMultimodalPrior::EPrior CMultimodalPrior::type(void) const { return E_Multimodal; }
+CMultimodalPrior::EPrior CMultimodalPrior::type(void) const {
+    return E_Multimodal;
+}
 
-CMultimodalPrior *CMultimodalPrior::clone(void) const { return new CMultimodalPrior(*this); }
+CMultimodalPrior* CMultimodalPrior::clone(void) const {
+    return new CMultimodalPrior(*this);
+}
 
 void CMultimodalPrior::dataType(maths_t::EDataType value) {
     this->CPrior::dataType(value);
     m_Clusterer->dataType(value);
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         mode.s_Prior->dataType(value);
     }
 }
@@ -216,7 +227,7 @@ void CMultimodalPrior::dataType(maths_t::EDataType value) {
 void CMultimodalPrior::decayRate(double value) {
     this->CPrior::decayRate(value);
     m_Clusterer->decayRate(value);
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         mode.s_Prior->decayRate(value);
     }
     m_SeedPrior->decayRate(value);
@@ -230,7 +241,7 @@ void CMultimodalPrior::setToNonInformative(double /*offset*/, double decayRate) 
 }
 
 bool CMultimodalPrior::needsOffset(void) const {
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         if (mode.s_Prior->needsOffset()) {
             return true;
         }
@@ -238,21 +249,23 @@ bool CMultimodalPrior::needsOffset(void) const {
     return false;
 }
 
-double CMultimodalPrior::adjustOffset(const TWeightStyleVec &weightStyles,
-                                      const TDouble1Vec &samples,
-                                      const TDouble4Vec1Vec &weights) {
+double CMultimodalPrior::adjustOffset(const TWeightStyleVec& weightStyles,
+                                      const TDouble1Vec& samples,
+                                      const TDouble4Vec1Vec& weights) {
     double result = 0.0;
 
     if (this->needsOffset()) {
         TSizeDoublePr2Vec clusters;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             m_Clusterer->cluster(samples[i], clusters);
-            for (const auto &cluster : clusters) {
-                auto j = std::find_if(
-                    m_Modes.begin(), m_Modes.end(), CSetTools::CIndexInSet(cluster.first));
+            for (const auto& cluster : clusters) {
+                auto j = std::find_if(m_Modes.begin(),
+                                      m_Modes.end(),
+                                      CSetTools::CIndexInSet(cluster.first));
                 if (j != m_Modes.end()) {
-                    result += j->s_Prior->adjustOffset(
-                        weightStyles, TDouble1Vec(1, samples[i]), TDouble4Vec1Vec(1, weights[i]));
+                    result += j->s_Prior->adjustOffset(weightStyles,
+                                                       TDouble1Vec(1, samples[i]),
+                                                       TDouble4Vec1Vec(1, weights[i]));
                 }
             }
         }
@@ -263,15 +276,15 @@ double CMultimodalPrior::adjustOffset(const TWeightStyleVec &weightStyles,
 
 double CMultimodalPrior::offset(void) const {
     double offset = 0.0;
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         offset = std::max(offset, mode.s_Prior->offset());
     }
     return offset;
 }
 
-void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
-                                  const TDouble1Vec &samples,
-                                  const TDouble4Vec1Vec &weights) {
+void CMultimodalPrior::addSamples(const TWeightStyleVec& weightStyles_,
+                                  const TDouble1Vec& samples,
+                                  const TDouble4Vec1Vec& weights) {
     if (samples.empty()) {
         return;
     }
@@ -357,12 +370,13 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
                 std::accumulate(m_Modes.begin(),
                                 m_Modes.end(),
                                 weight[0][count],
-                                [](double sum, const TMode &mode) { return sum + mode.weight(); });
+                                [](double sum, const TMode& mode) { return sum + mode.weight(); });
 
             double n = 0.0;
-            for (const auto &cluster : clusters) {
-                auto k = std::find_if(
-                    m_Modes.begin(), m_Modes.end(), CSetTools::CIndexInSet(cluster.first));
+            for (const auto& cluster : clusters) {
+                auto k = std::find_if(m_Modes.begin(),
+                                      m_Modes.end(),
+                                      CSetTools::CIndexInSet(cluster.first));
                 if (k == m_Modes.end()) {
                     LOG_TRACE("Creating mode with index " << cluster.first);
                     m_Modes.emplace_back(cluster.first, m_SeedPrior);
@@ -370,7 +384,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
                 }
                 weight[0][count] = cluster.second;
                 if (winsorisation != missing) {
-                    double &ww = weight[0][winsorisation];
+                    double& ww = weight[0][winsorisation];
                     double f = (k->weight() + cluster.second) / Z;
                     ww = std::max(1.0 - (1.0 - ww) / f, ww * f);
                 }
@@ -379,7 +393,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
             }
             this->addSamples(n);
         }
-    } catch (const std::exception &e) { LOG_ERROR("Failed to update likelihood: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR("Failed to update likelihood: " << e.what()); }
 }
 
 void CMultimodalPrior::propagateForwardsByTime(double time) {
@@ -401,7 +415,7 @@ void CMultimodalPrior::propagateForwardsByTime(double time) {
     // all weights by some factor f in the range [0, 1].
 
     m_Clusterer->propagateForwardsByTime(time);
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         mode.s_Prior->propagateForwardsByTime(time);
     }
 
@@ -435,14 +449,14 @@ double CMultimodalPrior::nearestMarginalLikelihoodMean(double value) const {
     return result;
 }
 
-double CMultimodalPrior::marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                const TDouble4Vec &weights) const {
+double CMultimodalPrior::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble4Vec& weights) const {
     return CMultimodalPriorUtils::marginalLikelihoodMode(m_Modes, weightStyles, weights);
 }
 
 CMultimodalPrior::TDouble1Vec
-CMultimodalPrior::marginalLikelihoodModes(const TWeightStyleVec &weightStyles,
-                                          const TDouble4Vec &weights) const {
+CMultimodalPrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                          const TDouble4Vec& weights) const {
     TDouble1Vec result(m_Modes.size());
     for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
         result[i] = m_Modes[i].s_Prior->marginalLikelihoodMode(weightStyles, weights);
@@ -450,24 +464,27 @@ CMultimodalPrior::marginalLikelihoodModes(const TWeightStyleVec &weightStyles,
     return result;
 }
 
-double CMultimodalPrior::marginalLikelihoodVariance(const TWeightStyleVec &weightStyles,
-                                                    const TDouble4Vec &weights) const {
+double CMultimodalPrior::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
+                                                    const TDouble4Vec& weights) const {
     return CMultimodalPriorUtils::marginalLikelihoodVariance(m_Modes, weightStyles, weights);
 }
 
 TDoubleDoublePr
 CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
-                                                       const TWeightStyleVec &weightStyles,
-                                                       const TDouble4Vec &weights) const {
-    return CMultimodalPriorUtils::marginalLikelihoodConfidenceInterval(
-        *this, m_Modes, percentage, weightStyles, weights);
+                                                       const TWeightStyleVec& weightStyles,
+                                                       const TDouble4Vec& weights) const {
+    return CMultimodalPriorUtils::marginalLikelihoodConfidenceInterval(*this,
+                                                                       m_Modes,
+                                                                       percentage,
+                                                                       weightStyles,
+                                                                       weights);
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultimodalPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                             const TDouble1Vec &samples,
-                                             const TDouble4Vec1Vec &weights,
-                                             double &result) const {
+CMultimodalPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                             const TDouble1Vec& samples,
+                                             const TDouble4Vec1Vec& weights,
+                                             double& result) const {
     result = 0.0;
 
     if (samples.empty()) {
@@ -495,14 +512,19 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles
         return maths_t::E_FpOverflowed;
     }
 
-    return m_Modes.size() == 1 ? m_Modes[0].s_Prior->jointLogMarginalLikelihood(
-                                     weightStyles, samples, weights, result)
-                               : CMultimodalPriorUtils::jointLogMarginalLikelihood(
-                                     m_Modes, weightStyles, samples, weights, result);
+    return m_Modes.size() == 1 ? m_Modes[0].s_Prior->jointLogMarginalLikelihood(weightStyles,
+                                                                                samples,
+                                                                                weights,
+                                                                                result)
+                               : CMultimodalPriorUtils::jointLogMarginalLikelihood(m_Modes,
+                                                                                   weightStyles,
+                                                                                   samples,
+                                                                                   weights,
+                                                                                   result);
 }
 
 void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
-                                                TDouble1Vec &samples) const {
+                                                TDouble1Vec& samples) const {
     samples.clear();
 
     if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -512,44 +534,61 @@ void CMultimodalPrior::sampleMarginalLikelihood(std::size_t numberSamples,
     CMultimodalPriorUtils::sampleMarginalLikelihood(m_Modes, numberSamples, samples);
 }
 
-bool CMultimodalPrior::minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                        const TDouble1Vec &samples,
-                                        const TDouble4Vec1Vec &weights,
-                                        double &lowerBound,
-                                        double &upperBound) const {
-    return CMultimodalPriorUtils::minusLogJointCdf(
-        m_Modes, weightStyles, samples, weights, lowerBound, upperBound);
+bool CMultimodalPrior::minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                        const TDouble1Vec& samples,
+                                        const TDouble4Vec1Vec& weights,
+                                        double& lowerBound,
+                                        double& upperBound) const {
+    return CMultimodalPriorUtils::minusLogJointCdf(m_Modes,
+                                                   weightStyles,
+                                                   samples,
+                                                   weights,
+                                                   lowerBound,
+                                                   upperBound);
 }
 
-bool CMultimodalPrior::minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                                  const TDouble1Vec &samples,
-                                                  const TDouble4Vec1Vec &weights,
-                                                  double &lowerBound,
-                                                  double &upperBound) const {
-    return CMultimodalPriorUtils::minusLogJointCdfComplement(
-        m_Modes, weightStyles, samples, weights, lowerBound, upperBound);
+bool CMultimodalPrior::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                                  const TDouble1Vec& samples,
+                                                  const TDouble4Vec1Vec& weights,
+                                                  double& lowerBound,
+                                                  double& upperBound) const {
+    return CMultimodalPriorUtils::minusLogJointCdfComplement(m_Modes,
+                                                             weightStyles,
+                                                             samples,
+                                                             weights,
+                                                             lowerBound,
+                                                             upperBound);
 }
 
 bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                      const TWeightStyleVec &weightStyles,
-                                                      const TDouble1Vec &samples,
-                                                      const TDouble4Vec1Vec &weights,
-                                                      double &lowerBound,
-                                                      double &upperBound,
-                                                      maths_t::ETail &tail) const {
-    return CMultimodalPriorUtils::probabilityOfLessLikelySamples(
-        *this, m_Modes, calculation, weightStyles, samples, weights, lowerBound, upperBound, tail);
+                                                      const TWeightStyleVec& weightStyles,
+                                                      const TDouble1Vec& samples,
+                                                      const TDouble4Vec1Vec& weights,
+                                                      double& lowerBound,
+                                                      double& upperBound,
+                                                      maths_t::ETail& tail) const {
+    return CMultimodalPriorUtils::probabilityOfLessLikelySamples(*this,
+                                                                 m_Modes,
+                                                                 calculation,
+                                                                 weightStyles,
+                                                                 samples,
+                                                                 weights,
+                                                                 lowerBound,
+                                                                 upperBound,
+                                                                 tail);
 }
 
 bool CMultimodalPrior::isNonInformative(void) const {
     return CMultimodalPriorUtils::isNonInformative(m_Modes);
 }
 
-void CMultimodalPrior::print(const std::string &indent, std::string &result) const {
+void CMultimodalPrior::print(const std::string& indent, std::string& result) const {
     CMultimodalPriorUtils::print(m_Modes, indent, result);
 }
 
-std::string CMultimodalPrior::printJointDensityFunction(void) const { return "Not supported"; }
+std::string CMultimodalPrior::printJointDensityFunction(void) const {
+    return "Not supported";
+}
 
 uint64_t CMultimodalPrior::checksum(uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
@@ -572,25 +611,31 @@ std::size_t CMultimodalPrior::memoryUsage(void) const {
     return mem;
 }
 
-std::size_t CMultimodalPrior::staticSize(void) const { return sizeof(*this); }
+std::size_t CMultimodalPrior::staticSize(void) const {
+    return sizeof(*this);
+}
 
-void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
-    inserter.insertLevel(
-        CLUSTERER_TAG,
-        boost::bind<void>(CClustererStateSerialiser(), boost::cref(*m_Clusterer), _1));
+void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertLevel(CLUSTERER_TAG,
+                         boost::bind<void>(CClustererStateSerialiser(),
+                                           boost::cref(*m_Clusterer),
+                                           _1));
     inserter.insertLevel(SEED_PRIOR_TAG,
                          boost::bind<void>(CPriorStateSerialiser(), boost::cref(*m_SeedPrior), _1));
     for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
         inserter.insertLevel(MODE_TAG, boost::bind(&TMode::acceptPersistInserter, &m_Modes[i], _1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(
-        NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_TAG,
+                         this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 }
 
-std::size_t CMultimodalPrior::numberModes(void) const { return m_Modes.size(); }
+std::size_t CMultimodalPrior::numberModes(void) const {
+    return m_Modes.size();
+}
 
-bool CMultimodalPrior::checkInvariants(const std::string &tag) const {
+bool CMultimodalPrior::checkInvariants(const std::string& tag) const {
     bool result = true;
 
     if (m_Modes.size() != m_Clusterer->numberClusters()) {
@@ -601,7 +646,7 @@ bool CMultimodalPrior::checkInvariants(const std::string &tag) const {
 
     double numberSamples = this->numberSamples();
     double modeSamples = 0.0;
-    for (const auto &mode : m_Modes) {
+    for (const auto& mode : m_Modes) {
         if (!m_Clusterer->hasCluster(mode.s_Index)) {
             LOG_ERROR(tag << "Expected cluster for = " << mode.s_Index);
             result = false;
@@ -609,8 +654,9 @@ bool CMultimodalPrior::checkInvariants(const std::string &tag) const {
         modeSamples += mode.s_Prior->numberSamples();
     }
 
-    CEqualWithTolerance<double> equal(
-        CToleranceTypes::E_AbsoluteTolerance | CToleranceTypes::E_RelativeTolerance, 1e-3);
+    CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance |
+                                          CToleranceTypes::E_RelativeTolerance,
+                                      1e-3);
     if (!equal(modeSamples, numberSamples)) {
         LOG_ERROR(tag << "Sum mode samples = " << modeSamples
                       << ", total samples = " << numberSamples);
@@ -620,24 +666,28 @@ bool CMultimodalPrior::checkInvariants(const std::string &tag) const {
     return result;
 }
 
-bool CMultimodalPrior::participatesInModelSelection(void) const { return m_Modes.size() > 1; }
+bool CMultimodalPrior::participatesInModelSelection(void) const {
+    return m_Modes.size() > 1;
+}
 
 double CMultimodalPrior::unmarginalizedParameters(void) const {
     return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
 }
 
-std::string CMultimodalPrior::debugWeights(void) const { return TMode::debugWeights(m_Modes); }
+std::string CMultimodalPrior::debugWeights(void) const {
+    return TMode::debugWeights(m_Modes);
+}
 
 ////////// CMultimodalPrior::CModeSplitCallback Implementation //////////
 
-CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior &prior)
+CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior& prior)
     : m_Prior(&prior) {}
 
 void CMultimodalPrior::CModeSplitCallback::
 operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
     LOG_TRACE("Splitting mode with index " << sourceIndex);
 
-    TModeVec &modes = m_Prior->m_Modes;
+    TModeVec& modes = m_Prior->m_Modes;
 
     // Remove the split mode.
     auto mode = std::find_if(modes.begin(), modes.end(), CSetTools::CIndexInSet(sourceIndex));
@@ -717,14 +767,14 @@ operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t righ
 
 ////////// CMultimodalPrior::CModeMergeCallback Implementation //////////
 
-CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior &prior)
+CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior& prior)
     : m_Prior(&prior) {}
 
 void CMultimodalPrior::CModeMergeCallback::
 operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {
     LOG_TRACE("Merging modes with indices " << leftMergeIndex << " " << rightMergeIndex);
 
-    TModeVec &modes = m_Prior->m_Modes;
+    TModeVec& modes = m_Prior->m_Modes;
 
     // Create the new mode.
     TMode newMode(targetIndex, m_Prior->m_SeedPrior);

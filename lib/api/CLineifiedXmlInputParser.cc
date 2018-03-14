@@ -22,15 +22,15 @@
 namespace ml {
 namespace api {
 
-CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
-                                                   std::istream &strmIn,
+CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
+                                                   std::istream& strmIn,
                                                    bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
       m_Parser(parser),
       m_AllDocsSameStructure(allDocsSameStructure) {}
 
-bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
-    TStrVec &fieldNames = this->fieldNames();
+bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
+    TStrVec& fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -72,9 +72,9 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
     return true;
 }
 
-bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldNames,
-                                                              TStrRefVec &fieldValRefs,
-                                                              TStrStrUMap &recordFields) {
+bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldNames,
+                                                              TStrRefVec& fieldValRefs,
+                                                              TStrStrUMap& recordFields) {
     if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
@@ -110,8 +110,8 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
     return true;
 }
 
-void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec &fieldNames,
-                                                                 TStrStrUMap &recordFields) {
+void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames,
+                                                                 TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();
@@ -119,7 +119,7 @@ void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec &fieldN
 
     do {
         fieldNames.push_back(std::string());
-        std::string &name = fieldNames.back();
+        std::string& name = fieldNames.back();
         m_Parser.currentNodeName(name);
         m_Parser.currentNodeValue(recordFields[name]);
     } while (m_Parser.navigateNext());

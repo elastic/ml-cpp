@@ -41,7 +41,7 @@ typedef std::vector<double> TDoubleVec;
 
 class CX {
 public:
-    bool operator()(const double &x, double &result) const {
+    bool operator()(const double& x, double& result) const {
         result = x;
         return true;
     }
@@ -51,7 +51,7 @@ class CVariance {
 public:
     CVariance(const double mean) : m_Mean(mean) {}
 
-    bool operator()(const double &x, double &result) const {
+    bool operator()(const double& x, double& result) const {
         result = (x - m_Mean) * (x - m_Mean);
         return true;
     }
@@ -65,13 +65,13 @@ public:
     typedef std::vector<TDoubleVec> TDoubleVecVec;
 
 public:
-    CMinusLogLikelihood(const maths::CPrior &prior)
+    CMinusLogLikelihood(const maths::CPrior& prior)
         : m_Prior(&prior),
           m_WeightStyle(1, maths_t::E_SampleCountWeight),
           m_X(1, 0.0),
           m_Weight(1, TDoubleVec(1, 1.0)) {}
 
-    bool operator()(const double &x, double &result) const {
+    bool operator()(const double& x, double& result) const {
         m_X[0] = x;
         maths_t::EFloatingPointErrorStatus status =
             m_Prior->jointLogMarginalLikelihood(m_WeightStyle, m_X, m_Weight, result);
@@ -80,7 +80,7 @@ public:
     }
 
 private:
-    const maths::CPrior *m_Prior;
+    const maths::CPrior* m_Prior;
     maths_t::TWeightStyleVec m_WeightStyle;
     mutable TDoubleVec m_X;
     TDoubleVecVec m_Weight;
@@ -140,8 +140,8 @@ void CPriorTest::testExpectation(void) {
     }
 }
 
-CppUnit::Test *CPriorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPriorTest");
+CppUnit::Test* CPriorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPriorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPriorTest>("CPriorTest::testExpectation",
                                                               &CPriorTest::testExpectation));

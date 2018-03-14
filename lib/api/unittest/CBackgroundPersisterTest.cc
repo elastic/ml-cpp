@@ -44,31 +44,35 @@
 namespace {
 
 void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string &description,
-                           const std::string &snapshotIdIn,
+                           const std::string& description,
+                           const std::string& snapshotIdIn,
                            size_t numDocsIn,
-                           std::string &snapshotIdOut,
-                           size_t &numDocsOut) {
+                           std::string& snapshotIdOut,
+                           size_t& numDocsOut) {
     LOG_DEBUG("Persist complete with description: " << description);
     snapshotIdOut = snapshotIdIn;
     numDocsOut = numDocsIn;
 }
 }
 
-CppUnit::Test *CBackgroundPersisterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBackgroundPersisterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testDetectorPersistBy",
-        &CBackgroundPersisterTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testDetectorPersistOver",
-        &CBackgroundPersisterTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testDetectorPersistPartition",
-        &CBackgroundPersisterTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBackgroundPersisterTest>(
-        "CBackgroundPersisterTest::testCategorizationOnlyPersist",
-        &CBackgroundPersisterTest::testCategorizationOnlyPersist));
+CppUnit::Test* CBackgroundPersisterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBackgroundPersisterTest");
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistBy",
+                                      &CBackgroundPersisterTest::testDetectorPersistBy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistOver",
+                                      &CBackgroundPersisterTest::testDetectorPersistOver));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CBackgroundPersisterTest>("CBackgroundPersisterTest::testDetectorPersistPartition",
+                                      &CBackgroundPersisterTest::testDetectorPersistPartition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CBackgroundPersisterTest>("CBackgroundPersisterTest::testCategorizationOnlyPersist",
+                                      &CBackgroundPersisterTest::testCategorizationOnlyPersist));
 
     return suiteOfTests;
 }
@@ -104,7 +108,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig("agent");
 
-    std::ostringstream *backgroundStream(nullptr);
+    std::ostringstream* backgroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream =
                                                                        new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
@@ -112,7 +116,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
     // in this test and kick off the background persistence chain explicitly
     ml::api::CBackgroundPersister backgroundPersister(300, backgroundDataAdder);
 
-    std::ostringstream *foregroundStream(nullptr);
+    std::ostringstream* foregroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(foregroundStream =
                                                                        new std::ostringstream());
     {
@@ -124,8 +128,12 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
         ml::api::CNullOutput nullOutput;
 
         // The typer knows how to assign categories to records
-        ml::api::CFieldDataTyper typer(
-            JOB_ID, fieldConfig, limits, nullOutput, outputWriter, &backgroundPersister);
+        ml::api::CFieldDataTyper typer(JOB_ID,
+                                       fieldConfig,
+                                       limits,
+                                       nullOutput,
+                                       outputWriter,
+                                       &backgroundPersister);
 
         ml::api::CLineifiedJsonInputParser parser(inputStrm);
 
@@ -157,7 +165,7 @@ void CBackgroundPersisterTest::testCategorizationOnlyPersist(void) {
 }
 
 void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(
-    const std::string &configFileName) {
+    const std::string& configFileName) {
     // Start by creating processors with non-trivial state
 
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -179,7 +187,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-    std::ostringstream *backgroundStream(0);
+    std::ostringstream* backgroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(backgroundStream =
                                                                        new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
@@ -193,7 +201,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
     std::string backgroundSnapshotId;
     std::string foregroundSnapshotId;
 
-    std::ostringstream *foregroundStream(0);
+    std::ostringstream* foregroundStream(0);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(foregroundStream =
                                                                        new std::ostringstream());
     {
@@ -217,7 +225,7 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
                                  "time",
                                  "%d/%b/%Y:%T %z");
 
-        ml::api::CDataProcessor *firstProcessor(&job);
+        ml::api::CDataProcessor* firstProcessor(&job);
 
         // Chain the detector's input
         ml::api::COutputChainer outputChainer(job);
@@ -255,12 +263,14 @@ void CBackgroundPersisterTest::foregroundBackgroundCompCategorizationAndAnomalyD
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(
-        size_t(1),
-        ml::core::CStringUtils::replaceFirst(backgroundSnapshotId, "snap", backgroundState));
-    CPPUNIT_ASSERT_EQUAL(
-        size_t(1),
-        ml::core::CStringUtils::replaceFirst(foregroundSnapshotId, "snap", foregroundState));
+    CPPUNIT_ASSERT_EQUAL(size_t(1),
+                         ml::core::CStringUtils::replaceFirst(backgroundSnapshotId,
+                                                              "snap",
+                                                              backgroundState));
+    CPPUNIT_ASSERT_EQUAL(size_t(1),
+                         ml::core::CStringUtils::replaceFirst(foregroundSnapshotId,
+                                                              "snap",
+                                                              foregroundState));
 
     // Replace the zero byte separators so the expected/actual strings don't get
     // truncated by CppUnit if the test fails

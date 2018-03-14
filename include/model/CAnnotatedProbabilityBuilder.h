@@ -48,31 +48,31 @@ public:
     typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
 
 public:
-    CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability);
+    CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability);
 
-    CAnnotatedProbabilityBuilder(SAnnotatedProbability &annotatedProbability,
+    CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability,
                                  std::size_t numberAttributeProbabilities,
                                  function_t::EFunction function,
                                  std::size_t numberOfPeople);
 
-    void attributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
-    void personAttributeProbabilityPrior(const maths::CMultinomialConjugate *prior);
+    void attributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
+    void personAttributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
     void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void addAttributeProbability(std::size_t cid,
-                                 const core::CStoredStringPtr &attribute,
+                                 const core::CStoredStringPtr& attribute,
                                  double pAttribute,
                                  double pGivenAttribute,
                                  model_t::CResultType type,
                                  model_t::EFeature feature,
-                                 const TStoredStringPtr1Vec &correlatedAttributes,
-                                 const TSizeDoublePr1Vec &correlated);
+                                 const TStoredStringPtr1Vec& correlatedAttributes,
+                                 const TSizeDoublePr1Vec& correlated);
     void build(void);
 
 private:
     void addAttributeDescriptiveData(std::size_t cid,
                                      double pAttribute,
-                                     SAttributeProbability &attributeProbability);
+                                     SAttributeProbability& attributeProbability);
 
     void addDescriptiveData(void);
 
@@ -80,11 +80,11 @@ private:
     typedef maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability> TMinAccumulator;
 
 private:
-    SAnnotatedProbability &m_Result;
+    SAnnotatedProbability& m_Result;
     std::size_t m_NumberAttributeProbabilities;
     std::size_t m_NumberOfPeople;
-    const maths::CMultinomialConjugate *m_AttributeProbabilityPrior;
-    const maths::CMultinomialConjugate *m_PersonAttributeProbabilityPrior;
+    const maths::CMultinomialConjugate* m_AttributeProbabilityPrior;
+    const maths::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
     TMinAccumulator m_MinAttributeProbabilities;
     std::size_t m_DistinctTotalAttributes;
     std::size_t m_DistinctRareAttributes;
@@ -96,4 +96,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
+#endif // INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h

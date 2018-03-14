@@ -26,7 +26,7 @@ public:
     void testNumericBasicStatistics(void);
     void testNumericDistribution(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CDataSummaryStatisticsTest_h
+#endif // INCLUDED_CDataSummaryStatisticsTest_h

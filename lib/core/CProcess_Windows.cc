@@ -71,10 +71,10 @@ const DWORD PPID(findParentProcessId());
 namespace ml {
 namespace core {
 
-const char *CProcess::STARTING_MSG("Process Starting.");
-const char *CProcess::STARTED_MSG("Process Started.");
-const char *CProcess::STOPPING_MSG("Process Shutting Down.");
-const char *CProcess::STOPPED_MSG("Process Exiting.");
+const char* CProcess::STARTING_MSG("Process Starting.");
+const char* CProcess::STARTED_MSG("Process Started.");
+const char* CProcess::STOPPING_MSG("Process Shutting Down.");
+const char* CProcess::STOPPED_MSG("Process Exiting.");
 
 CProcess::CProcess(void)
     : m_IsService(false),
@@ -83,14 +83,18 @@ CProcess::CProcess(void)
       m_MlMainFunc(0),
       m_ServiceHandle(0) {}
 
-CProcess &CProcess::instance(void) {
+CProcess& CProcess::instance(void) {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const { return m_IsService; }
+bool CProcess::isService(void) const {
+    return m_IsService;
+}
 
-CProcess::TPid CProcess::id(void) const { return GetCurrentProcessId(); }
+CProcess::TPid CProcess::id(void) const {
+    return GetCurrentProcessId();
+}
 
 CProcess::TPid CProcess::parentId(void) const {
     if (PPID == 0) {
@@ -99,7 +103,7 @@ CProcess::TPid CProcess::parentId(void) const {
     return PPID;
 }
 
-bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char *argv[]) {
+bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     if (mlMain == 0) {
         LOG_ABORT("NULL mlMain() function passed");
     }
@@ -154,9 +158,11 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char *argv[]) {
     return success;
 }
 
-bool CProcess::isInitialised(void) const { return m_Initialised; }
+bool CProcess::isInitialised(void) const {
+    return m_Initialised;
+}
 
-void CProcess::initialisationComplete(const TShutdownFunc &shutdownFunc) {
+void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
     if (!m_Initialised) {
@@ -192,11 +198,13 @@ void CProcess::initialisationComplete(void) {
     this->serviceCtrlHandler(SERVICE_CONTROL_INTERROGATE);
 }
 
-bool CProcess::isRunning(void) const { return m_Running; }
+bool CProcess::isRunning(void) const {
+    return m_Running;
+}
 
-void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
+void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
     // This is a static method, so get the singleton instance
-    CProcess &process = CProcess::instance();
+    CProcess& process = CProcess::instance();
 
     // Since we're an "own process" service the name is not required
     process.m_ServiceHandle = RegisterServiceCtrlHandler("", &serviceCtrlHandler);
@@ -205,7 +213,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
     }
 
     if (process.m_MlMainFunc != 0) {
-        typedef boost::scoped_array<char *> TScopedCharPArray;
+        typedef boost::scoped_array<char*> TScopedCharPArray;
 
         // Merge the arguments from the service itself with the arguments
         // passed to the original main() call
@@ -215,9 +223,9 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
         }
 
         size_t index(0);
-        TScopedCharPArray mergedArgV(new char *[mergedArgC]);
+        TScopedCharPArray mergedArgV(new char*[mergedArgC]);
         for (TStrVecCItr iter = process.m_Args.begin(); iter != process.m_Args.end(); ++iter) {
-            mergedArgV[index++] = const_cast<char *>(iter->c_str());
+            mergedArgV[index++] = const_cast<char*>(iter->c_str());
         }
 
         if (argv != 0 && argc > 1) {
@@ -254,7 +262,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char *argv[]) {
 
 void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
     // This is a static method, so get the singleton instance
-    CProcess &process = CProcess::instance();
+    CProcess& process = CProcess::instance();
 
     // If we're not running as a service, do nothing
     if (process.m_ServiceHandle == 0) {

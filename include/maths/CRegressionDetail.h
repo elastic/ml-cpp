@@ -33,9 +33,9 @@ namespace maths {
 
 template <std::size_t N, typename T>
 bool CRegression::CLeastSquaresOnline<N, T>::acceptRestoreTraverser(
-    core::CStateRestoreTraverser &traverser) {
+    core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE(STATISTIC_TAG, m_S.fromDelimited(traverser.value()))
     } while (traverser.next());
 
@@ -44,7 +44,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::acceptRestoreTraverser(
 
 template <std::size_t N, typename T>
 void CRegression::CLeastSquaresOnline<N, T>::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(STATISTIC_TAG, m_S.toDelimited());
 }
 
@@ -90,7 +90,7 @@ void CRegression::CLeastSquaresOnline<N, T>::shiftAbscissa(double dx) {
 }
 
 template <std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray &result, double maxCondition) const {
+bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray& result, double maxCondition) const {
     result.fill(0.0);
 
     // Search for non-singular solution.
@@ -124,7 +124,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray &result, double m
 
 template <std::size_t N, typename T>
 bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance,
-                                                         TMatrix &result,
+                                                         TMatrix& result,
                                                          double maxCondition) const {
     result = TMatrix(0.0);
 
@@ -174,10 +174,10 @@ std::string CRegression::CLeastSquaresOnline<N, T>::print(void) const {
 template <std::size_t N, typename T>
 template <typename MATRIX, typename VECTOR>
 bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
-                                                        MATRIX &x,
-                                                        VECTOR &y,
+                                                        MATRIX& x,
+                                                        VECTOR& y,
                                                         double maxCondition,
-                                                        TArray &result) const {
+                                                        TArray& result) const {
     if (n == 1) {
         result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
         return true;
@@ -211,10 +211,10 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
 template <std::size_t N, typename T>
 template <typename MATRIX>
 bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
-                                                         MATRIX &x,
+                                                         MATRIX& x,
                                                          double variance,
                                                          double maxCondition,
-                                                         TMatrix &result) const {
+                                                         TMatrix& result) const {
     if (n == 1) {
         x(0) = variance / CBasicStatistics::count(m_S);
         return true;
@@ -247,9 +247,9 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
 
 template <std::size_t N, typename T>
 bool CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptRestoreTraverser(
-    core::CStateRestoreTraverser &traverser) {
+    core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE(UNIT_TIME_COVARIANCES_TAG, m_UnitTimeCovariances.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;
@@ -257,7 +257,7 @@ bool CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptRestoreTraver
 
 template <std::size_t N, typename T>
 void CRegression::CLeastSquaresOnlineParameterProcess<N, T>::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(UNIT_TIME_COVARIANCES_TAG, m_UnitTimeCovariances.toDelimited());
 }
 
@@ -281,4 +281,4 @@ std::string CRegression::CLeastSquaresOnlineParameterProcess<N, T>::print(void) 
 }
 }
 
-#endif// INCLUDED_ml_maths_CRegressionDetail_h
+#endif // INCLUDED_ml_maths_CRegressionDetail_h

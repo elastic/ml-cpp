@@ -40,7 +40,7 @@ const double LOG_TWO = std::log(2.0);
 //! A fast lower bound for the binomial probability of \p m
 //! successes for \p n trials and probability of success \p p.
 inline maths_t::EFloatingPointErrorStatus
-logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double &result) {
+logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     double n_ = static_cast<double>(n);
     double m_ = static_cast<double>(m);
 
@@ -91,7 +91,7 @@ logBinomialProbabilityFastLowerBound(std::size_t n, double p, std::size_t m, dou
 //! from a binomial with \p trials and probability of success
 //! \p p.
 maths_t::EFloatingPointErrorStatus
-logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double &result) {
+logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR("Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
@@ -137,7 +137,7 @@ logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double
         double chernoff = m_ * (q * std::log(p / q) + (1.0 - q) * std::log((1.0 - p) / (1.0 - q)));
         result = std::min(chernoff + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n
                                                             << ", p = " << p);
     }
@@ -150,7 +150,7 @@ logRightTailProbabilityUpperBound(std::size_t n, double p, std::size_t m, double
 //! from a binomial with \p trials and probability of success
 //! \p p.
 maths_t::EFloatingPointErrorStatus
-logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double &result) {
+logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR("Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
@@ -231,7 +231,7 @@ logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double
                                                  (std::exp(p / (1.0 - p) * (n_ - m_) / n_) - 1.0));
         result = std::min(bound + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n
                                                             << ", p = " << p);
     }
@@ -243,7 +243,7 @@ logRightTailProbabilityLowerBound(std::size_t n, double p, std::size_t m, double
 //! of seeing m or a larger value from a binomial with \p trials
 //! and probability of success \p p.
 maths_t::EFloatingPointErrorStatus
-logRightTailProbability(std::size_t n, double p, std::size_t m, double &result) {
+logRightTailProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         LOG_ERROR("Invalid sample: " << m << " > " << n);
         result = boost::numeric::bounds<double>::lowest();
@@ -318,7 +318,7 @@ logRightTailProbability(std::size_t n, double p, std::size_t m, double &result) 
         double f = status == maths_t::E_FpOverflowed ? 0.0 : std::exp(logf);
         result = std::min(std::log(oneMinusF + f) + LOG_TWO, 0.0);
         return maths_t::E_FpNoErrors;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to calculate c.d.f. complement: " << e.what() << ", n = " << n
                                                             << ", p = " << p);
     }
@@ -328,10 +328,10 @@ logRightTailProbability(std::size_t n, double p, std::size_t m, double &result) 
 }
 
 bool CCategoricalTools::probabilityOfLessLikelyMultinomialSample(
-    const TDoubleVec & /*probabilities*/,
-    const TSizeVec &i,
-    const TSizeVec &ni,
-    double &result) {
+    const TDoubleVec& /*probabilities*/,
+    const TSizeVec& i,
+    const TSizeVec& ni,
+    double& result) {
     result = 1.0;
 
     if (i.size() != ni.size()) {
@@ -360,9 +360,9 @@ double CCategoricalTools::probabilityOfCategory(std::size_t n, const double prob
     return probability;
 }
 
-bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec &probabilities,
+bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec& probabilities,
                                                    const double n,
-                                                   double &result) {
+                                                   double& result) {
     // We imagine drawing n samples from a multinomial random variable
     // with m categories. We'd like to calculate how many distinct
     // categories we'd expect in this sample of n. This quantity is
@@ -420,10 +420,10 @@ double CCategoricalTools::binomialCoefficient(std::size_t n, std::size_t m) {
     return std::exp(logBinomialCoefficient(n, m));
 }
 
-bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec &probabilities,
-                                                             const TSizeVec &i,
-                                                             const TSizeVec &ni,
-                                                             TDoubleVec &result,
+bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabilities,
+                                                             const TSizeVec& i,
+                                                             const TSizeVec& ni,
+                                                             TDoubleVec& result,
                                                              std::size_t trials) {
     result.clear();
 
@@ -518,7 +518,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec &probabi
 }
 
 maths_t::EFloatingPointErrorStatus
-CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double &result) {
+CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m, double& result) {
     if (m > n) {
         result = boost::numeric::bounds<double>::lowest();
         return maths_t::E_FpOverflowed;
@@ -555,9 +555,9 @@ CCategoricalTools::logBinomialProbability(std::size_t n, double p, std::size_t m
 }
 
 maths_t::EFloatingPointErrorStatus
-CCategoricalTools::logMultinomialProbability(const TDoubleVec &probabilities,
-                                             const TSizeVec &ni,
-                                             double &result) {
+CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
+                                             const TSizeVec& ni,
+                                             double& result) {
     result = 0.0;
 
     if (probabilities.size() != ni.size()) {

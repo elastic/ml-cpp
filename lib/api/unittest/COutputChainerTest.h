@@ -21,7 +21,7 @@ class COutputChainerTest : public CppUnit::TestFixture {
 public:
     void testChaining(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_COutputChainerTest_h
+#endif // INCLUDED_COutputChainerTest_h

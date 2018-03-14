@@ -27,7 +27,7 @@ public:
     void testUpdateGivenFilters(void);
     void testUpdateGivenScheduledEvents(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CConfigUpdaterTest_h
+#endif // INCLUDED_CConfigUpdaterTest_h

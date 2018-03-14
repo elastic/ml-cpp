@@ -35,10 +35,10 @@ public:
     void testApplyGivenTimeCondition(void);
     void testRuleActions(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CDetectionRuleTest_h
+#endif // INCLUDED_CDetectionRuleTest_h

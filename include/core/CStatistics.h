@@ -120,18 +120,18 @@ class CStatePersistInserter;
 class CORE_EXPORT CStatistics : private CNonCopyable {
 public:
     //! Singleton pattern
-    static CStatistics &instance(void);
+    static CStatistics& instance(void);
 
     //! Provide access to the relevant stat from the collection
-    static CStat &stat(int index);
+    static CStat& stat(int index);
 
     //! \name Persistence
     //@{
     //! Restore the static members of this class from persisted state
-    static bool staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser);
+    static bool staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser);
 
     //! Persist the static members of this class
-    static void staticsAcceptPersistInserter(CStatePersistInserter &inserter);
+    static void staticsAcceptPersistInserter(CStatePersistInserter& inserter);
     //@}
 
 private:
@@ -148,10 +148,10 @@ private:
     TStatArray m_Stats;
 
     //! Enabling printing out the current statistics.
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &o, const CStatistics &stats);
+    friend CORE_EXPORT std::ostream& operator<<(std::ostream& o, const CStatistics& stats);
 };
 
-}// core
-}// ml
+} // core
+} // ml
 
-#endif// INCLUDED_ml_core_CStatistics_h
+#endif // INCLUDED_ml_core_CStatistics_h

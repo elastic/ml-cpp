@@ -84,78 +84,78 @@ typedef core::CSmallVector<ESampleWeightStyle, 4> TWeightStyleVec;
 
 //! Extract the effective sample count from a collection of weights.
 MATHS_EXPORT
-double count(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+double count(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Extract the effective sample count from a collection of weights.
 MATHS_EXPORT
 TDouble10Vec
-count(std::size_t dimension, const TWeightStyleVec &weightStyles, const TDouble10Vec4Vec &weights);
+count(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
 MATHS_EXPORT
-double countForUpdate(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+double countForUpdate(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
 MATHS_EXPORT
 TDouble10Vec countForUpdate(std::size_t dimension,
-                            const TWeightStyleVec &weightStyles,
-                            const TDouble10Vec4Vec &weights);
+                            const TWeightStyleVec& weightStyles,
+                            const TDouble10Vec4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
-double seasonalVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+double seasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
 TDouble10Vec seasonalVarianceScale(std::size_t dimension,
-                                   const TWeightStyleVec &weightStyles,
-                                   const TDouble10Vec4Vec &weights);
+                                   const TWeightStyleVec& weightStyles,
+                                   const TDouble10Vec4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
-double countVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+double countVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
 TDouble10Vec countVarianceScale(std::size_t dimension,
-                                const TWeightStyleVec &weightStyles,
-                                const TDouble10Vec4Vec &weights);
+                                const TWeightStyleVec& weightStyles,
+                                const TDouble10Vec4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasSeasonalVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasSeasonalVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec1Vec &weights);
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasSeasonalVarianceScale(const TWeightStyleVec &weightStyles, const TDouble10Vec4Vec &weights);
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasSeasonalVarianceScale(const TWeightStyleVec &weightStyles,
-                              const TDouble10Vec4Vec1Vec &weights);
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
+                              const TDouble10Vec4Vec1Vec& weights);
 
 //! Check if a non-unit count variance scale applies.
 MATHS_EXPORT
-bool hasCountVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec &weights);
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasCountVarianceScale(const TWeightStyleVec &weightStyles, const TDouble4Vec1Vec &weights);
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasCountVarianceScale(const TWeightStyleVec &weightStyles, const TDouble10Vec4Vec &weights);
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasCountVarianceScale(const TWeightStyleVec &weightStyles,
-                           const TDouble10Vec4Vec1Vec &weights);
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
+                           const TDouble10Vec4Vec1Vec& weights);
 
 //! Enumerates the possible probability of less likely sample calculations.
 //!
@@ -213,4 +213,4 @@ enum ETail {
 }
 }
 
-#endif// INCLUDED_ml_maths_t_MathsTypes_h
+#endif // INCLUDED_ml_maths_t_MathsTypes_h

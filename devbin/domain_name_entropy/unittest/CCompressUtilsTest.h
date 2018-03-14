@@ -22,7 +22,7 @@ public:
     void testCompressString1(void);
     void testCompressString2(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCompressUtilsTest_h
+#endif // INCLUDED_CCompressUtilsTest_h

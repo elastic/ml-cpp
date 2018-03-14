@@ -38,9 +38,9 @@ class TEST_EXPORT CShellCmdEscape : private core::CNonInstantiatable {
 public:
     //! Modifies the command such that special characters are appropriately
     //! escaped
-    static void escapeCmd(std::string &cmd);
+    static void escapeCmd(std::string& cmd);
 };
 }
 }
 
-#endif// INCLUDED_ml_test_CShellCmdEscape_h
+#endif // INCLUDED_ml_test_CShellCmdEscape_h

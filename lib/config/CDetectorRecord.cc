@@ -29,7 +29,7 @@ namespace ml {
 namespace config {
 namespace {
 
-typedef const CDetectorSpecification::TOptionalStr &(CDetectorSpecification::*TField)(void)const;
+typedef const CDetectorSpecification::TOptionalStr& (CDetectorSpecification::*TField)(void)const;
 const TField FIELDS[] = {
     &CDetectorSpecification::argumentField,
     &CDetectorSpecification::byField,
@@ -40,55 +40,61 @@ const TField FIELDS[] = {
 const std::string NULL_STRING("null");
 
 //! Print the string \p ptr or null if it is zero.
-const std::string &extract(const std::string *ptr) { return ptr ? *ptr : NULL_STRING; }
+const std::string& extract(const std::string* ptr) {
+    return ptr ? *ptr : NULL_STRING;
+}
 
 const core::CHashing::CMurmurHash2String HASHER;
 }
 
 CDetectorRecord::CDetectorRecord(core_t::TTime time,
                                  config_t::EFunctionCategory function,
-                                 const TStrCPtrAry &fieldNames,
-                                 const TStrCPtrAry &fieldValues,
-                                 const TSizeAry &hashedFieldValues)
+                                 const TStrCPtrAry& fieldNames,
+                                 const TStrCPtrAry& fieldValues,
+                                 const TSizeAry& hashedFieldValues)
     : m_Time(time),
       m_Function(function),
       m_FieldNames(fieldNames),
       m_FieldValues(fieldValues),
       m_HashedFieldValues(hashedFieldValues) {}
 
-core_t::TTime CDetectorRecord::time(void) const { return m_Time; }
+core_t::TTime CDetectorRecord::time(void) const {
+    return m_Time;
+}
 
-config_t::EFunctionCategory CDetectorRecord::function(void) const { return m_Function; }
+config_t::EFunctionCategory CDetectorRecord::function(void) const {
+    return m_Function;
+}
 
-const std::string *CDetectorRecord::argumentFieldName(void) const {
+const std::string* CDetectorRecord::argumentFieldName(void) const {
     return m_FieldNames[constants::ARGUMENT_INDEX];
 }
 
-const std::string *CDetectorRecord::byFieldName(void) const {
+const std::string* CDetectorRecord::byFieldName(void) const {
     return m_FieldNames[constants::BY_INDEX];
 }
 
-const std::string *CDetectorRecord::overFieldName(void) const {
+const std::string* CDetectorRecord::overFieldName(void) const {
     return m_FieldNames[constants::OVER_INDEX];
 }
 
-const std::string *CDetectorRecord::partitionFieldName(void) const {
+const std::string* CDetectorRecord::partitionFieldName(void) const {
     return m_FieldNames[constants::PARTITION_INDEX];
 }
 
-const std::string *CDetectorRecord::argumentFieldValue(void) const {
+const std::string* CDetectorRecord::argumentFieldValue(void) const {
     return m_FieldValues[constants::ARGUMENT_INDEX];
 }
 
-const std::string *CDetectorRecord::byFieldValue(void) const {
+const std::string* CDetectorRecord::byFieldValue(void) const {
     return m_FieldValues[constants::BY_INDEX];
 }
 
-const std::string *CDetectorRecord::overFieldValue(void) const {
+const std::string* CDetectorRecord::overFieldValue(void) const {
     return m_FieldValues[constants::OVER_INDEX];
 }
 
-const std::string *CDetectorRecord::partitionFieldValue(void) const {
+const std::string* CDetectorRecord::partitionFieldValue(void) const {
     return m_FieldValues[constants::PARTITION_INDEX];
 }
 
@@ -114,7 +120,7 @@ std::string CDetectorRecord::print(void) const {
            extract(this->partitionFieldValue());
 }
 
-void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &specs) {
+void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec& specs) {
     typedef boost::unordered_map<std::string, std::size_t> TStrSizeUMap;
     typedef TStrSizeUMap::const_iterator TStrSizeUMapCItr;
 
@@ -124,7 +130,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &s
     size_t size = 0u;
     for (std::size_t i = 0u; i < specs.size(); ++i) {
         for (std::size_t j = 0u; j < boost::size(FIELDS); ++j) {
-            if (const CDetectorSpecification::TOptionalStr &field = ((specs[i]).*FIELDS[j])()) {
+            if (const CDetectorSpecification::TOptionalStr& field = ((specs[i]).*FIELDS[j])()) {
                 uniques.emplace(*field, uniques.size());
             }
         }
@@ -143,7 +149,7 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &s
     for (std::size_t i = 0u; i < specs.size(); ++i) {
         TSizeAry entry;
         for (std::size_t j = 0u; j < boost::size(FIELDS); ++j) {
-            const CDetectorSpecification::TOptionalStr &field = ((specs[i]).*FIELDS[j])();
+            const CDetectorSpecification::TOptionalStr& field = ((specs[i]).*FIELDS[j])();
             entry[constants::CFieldIndices::ALL[j]] =
                 field ? uniques[*field] : m_FieldSchema.size();
         }
@@ -154,9 +160,9 @@ void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &s
 }
 
 void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
-                                                        const TStrStrUMap &fieldValues,
-                                                        const TDetectorSpecificationVec &specs,
-                                                        TDetectorRecordVec &result) {
+                                                        const TStrStrUMap& fieldValues,
+                                                        const TDetectorSpecificationVec& specs,
+                                                        TDetectorRecordVec& result) {
     result.clear();
 
     if (specs.empty()) {
@@ -183,7 +189,7 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
     result.resize(size + 1, CDetectorRecord(time, config_t::E_Count, ni, vi, hi));
     for (std::size_t i = 0u; i < specs.size(); ++i) {
         std::size_t id = specs[i].id();
-        const TSizeAry &schema = m_DetectorFieldSchema[id];
+        const TSizeAry& schema = m_DetectorFieldSchema[id];
         config_t::EFunctionCategory function = specs[i].function();
         for (std::size_t j = 0u; j < TSizeAry::size(); ++j) {
             ni[j] = (specs[i].*FIELDS[j])().get_ptr();

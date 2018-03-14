@@ -56,7 +56,7 @@ public:
     //! Add a string.  Multiple calls to this function without finishing the
     //! compression are equivalent to compressing the concatenation of the
     //! strings passed in the order they are passed.
-    bool addString(const std::string &input);
+    bool addString(const std::string& input);
 
     //! Get compressed representation.  This will fail if the lengthOnly
     //! constructor argument was set to true.
@@ -65,12 +65,12 @@ public:
     //! and hence not printable.
     //!
     //! If finish==false then retrieve partial compressed state.
-    bool compressedData(bool finish, TByteVec &result);
+    bool compressedData(bool finish, TByteVec& result);
 
     //! Get compressed string length.
     //!
     //! If finish==false then retrieve partial compressed length.
-    bool compressedLength(bool finish, size_t &length);
+    bool compressedLength(bool finish, size_t& length);
 
     //! Reset the compressor.  This will happen automatically when adding a
     //! new string after having finished the previous compression, but
@@ -79,7 +79,7 @@ public:
     void reset(void);
 
 private:
-    bool doCompress(bool finish, const std::string &input);
+    bool doCompress(bool finish, const std::string& input);
 
 private:
     enum EState { E_Unused, E_Compressing, E_Finished };
@@ -98,4 +98,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CCompressUtils_h
+#endif // INCLUDED_ml_core_CCompressUtils_h

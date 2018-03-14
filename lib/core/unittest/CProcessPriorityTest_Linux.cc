@@ -26,7 +26,7 @@
 
 namespace {
 
-bool readFromSystemFile(const std::string &fileName, std::string &content) {
+bool readFromSystemFile(const std::string& fileName, std::string& content) {
     char buffer[16] = {'\0'};
 
     // Use low level functions to read rather than C++ wrappers, as these are
@@ -57,11 +57,12 @@ bool readFromSystemFile(const std::string &fileName, std::string &content) {
 }
 }
 
-CppUnit::Test *CProcessPriorityTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProcessPriorityTest");
+CppUnit::Test* CProcessPriorityTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessPriorityTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessPriorityTest>(
-        "CProcessPriorityTest::testReducePriority", &CProcessPriorityTest::testReducePriority));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CProcessPriorityTest>("CProcessPriorityTest::testReducePriority",
+                                                      &CProcessPriorityTest::testReducePriority));
 
     return suiteOfTests;
 }

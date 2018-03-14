@@ -22,7 +22,7 @@ public:
     void testInode(void);
     void testLStat(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_COsFileFuncsTest_h
+#endif // INCLUDED_COsFileFuncsTest_h

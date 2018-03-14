@@ -34,7 +34,7 @@ public:
     void testProbabilityWithCorrelations(void);
     void testAnomalyModel(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CTimeSeriesModelTest_h
+#endif // INCLUDED_CTimeSeriesModelTest_h

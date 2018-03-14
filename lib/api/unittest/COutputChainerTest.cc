@@ -30,11 +30,12 @@
 
 #include <fstream>
 
-CppUnit::Test *COutputChainerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
+CppUnit::Test* COutputChainerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>(
-        "COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining",
+                                                    &COutputChainerTest::testChaining));
 
     return suiteOfTests;
 }

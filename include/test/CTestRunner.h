@@ -88,7 +88,7 @@ public:
     static const std::string XML_RESULT_FILE_NAME;
 
 public:
-    CTestRunner(int argc, const char **argv);
+    CTestRunner(int argc, const char** argv);
     virtual ~CTestRunner(void);
 
     //! The command to run tests - DO NOT CALL run()
@@ -96,18 +96,18 @@ public:
 
 protected:
     //! Time the unit tests
-    bool timeTests(const std::string &topPath, const std::string &testPath);
+    bool timeTests(const std::string& topPath, const std::string& testPath);
 
     //! Is the current directory listed in the skip file?  If so, did the
     //! previously run tests pass?
-    bool checkSkipFile(const std::string &cwd, bool &passed) const;
+    bool checkSkipFile(const std::string& cwd, bool& passed) const;
 
     //! Add the current directory to the skip file (if it exists) so that
     //! tests for the same directory aren't re-run.
-    bool updateSkipFile(const std::string &cwd, bool passed) const;
+    bool updateSkipFile(const std::string& cwd, bool passed) const;
 
 private:
-    void processCmdLine(int argc, const char **argv);
+    void processCmdLine(int argc, const char** argv);
 
 private:
     typedef std::vector<std::string> TStrVec;
@@ -119,4 +119,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_test_CTestRunner_h
+#endif // INCLUDED_ml_test_CTestRunner_h

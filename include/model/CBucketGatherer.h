@@ -73,7 +73,7 @@ public:
     typedef std::vector<std::size_t> TSizeVec;
     typedef std::vector<std::string> TStrVec;
     typedef TStrVec::const_iterator TStrVecCItr;
-    typedef std::vector<const std::string *> TStrCPtrVec;
+    typedef std::vector<const std::string*> TStrCPtrVec;
     typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
     typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
     typedef model_t::TFeatureVec TFeatureVec;
@@ -103,7 +103,7 @@ public:
 
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
-        std::size_t operator()(const TSizeSizePrStoredStringPtrPr &key) const {
+        std::size_t operator()(const TSizeSizePrStoredStringPtrPr& key) const {
             uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(key.first.first),
                                                         static_cast<uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
@@ -113,8 +113,8 @@ public:
 
     //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
-        bool operator()(const TSizeSizePrStoredStringPtrPr &lhs,
-                        const TSizeSizePrStoredStringPtrPr &rhs) const {
+        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs,
+                        const TSizeSizePrStoredStringPtrPr& rhs) const {
             return lhs.first == rhs.first && *lhs.second == *rhs.second;
         }
     };
@@ -155,14 +155,14 @@ public:
     //! \param[in] dataGatherer The owning data gatherer.
     //! \param[in] startTime The start of the time interval
     //! for which to gather data.
-    CBucketGatherer(CDataGatherer &dataGatherer, core_t::TTime startTime);
+    CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime startTime);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CBucketGatherer(bool isForPersistence, const CBucketGatherer &other);
+    CBucketGatherer(bool isForPersistence, const CBucketGatherer& other);
 
     virtual ~CBucketGatherer(void) = default;
     //@}
@@ -170,20 +170,20 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void baseAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void baseAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the state
-    virtual bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool baseAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not
     //! affect the persisted representation, and must not be used for any
     //! other purpose.
     //! \warning The caller owns the object returned.
-    virtual CBucketGatherer *cloneForPersistence(void) const = 0;
+    virtual CBucketGatherer* cloneForPersistence(void) const = 0;
 
     //! The persistence tag name of the subclass.
-    virtual const std::string &persistenceTag(void) const = 0;
+    virtual const std::string& persistenceTag(void) const = 0;
     //@}
 
     //! \name Fields
@@ -192,13 +192,13 @@ public:
     //! probabilities are aggregated, i.e. the "by" field name for
     //! individual models and the "over" field name for population
     //! models.
-    virtual const std::string &personFieldName(void) const = 0;
+    virtual const std::string& personFieldName(void) const = 0;
 
     //! Get the attribute field name if one exists.
-    virtual const std::string &attributeFieldName(void) const = 0;
+    virtual const std::string& attributeFieldName(void) const = 0;
 
     //! Get the name of the field containing the metric value.
-    virtual const std::string &valueFieldName(void) const = 0;
+    virtual const std::string& valueFieldName(void) const = 0;
 
     //! Get an iterator at the beginning the influencing field names.
     virtual TStrVecCItr beginInfluencers(void) const = 0;
@@ -212,7 +212,7 @@ public:
     //! the fields which define the categories whose counts are being
     //! analyzed, the fields containing metric series names and values
     //! and the fields defining a population.
-    virtual const TStrVec &fieldsOfInterest(void) const = 0;
+    virtual const TStrVec& fieldsOfInterest(void) const = 0;
     //@}
 
     //! Get a description of the component searches.
@@ -224,12 +224,12 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    virtual bool processFields(const TStrCPtrVec &fieldValues,
-                               CEventData &result,
-                               CResourceMonitor &resourceMonitor) = 0;
+    virtual bool processFields(const TStrCPtrVec& fieldValues,
+                               CEventData& result,
+                               CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
-    bool addEventData(CEventData &data);
+    bool addEventData(CEventData& data);
 
     //! Roll time forwards to \p time.
     void timeNow(core_t::TTime time);
@@ -259,10 +259,10 @@ public:
     //! where,\n
     //!   \f$pid\f$ is the person identifier,\n
     //!   \f$c\f$ is the count for the person.
-    void personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec &result) const;
+    void personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& result) const;
 
     //! Stop gathering data on the people identified by \p peopleToRemove.
-    virtual void recyclePeople(const TSizeVec &peopleToRemove) = 0;
+    virtual void recyclePeople(const TSizeVec& peopleToRemove) = 0;
 
     //! Remove all traces of people whose identifiers are greater than
     //! or equal to \p lowestPersonToRemove.
@@ -272,7 +272,7 @@ public:
     //! \name Attribute
     //@{
     //! Stop gathering data on the attributes identified by \p attributesToRemove.
-    virtual void recycleAttributes(const TSizeVec &attributesToRemove) = 0;
+    virtual void recycleAttributes(const TSizeVec& attributesToRemove) = 0;
 
     //! Remove all traces of attributes whose identifiers are greater than
     //! or equal to \p lowestAttributeToRemove.
@@ -303,7 +303,7 @@ public:
     //!
     //! \param[in,out] startTime The start of the interval to sample.
     //! \param[in] endTime The end of the interval to sample.
-    bool validateSampleTimes(core_t::TTime &startTime, core_t::TTime endTime) const;
+    bool validateSampleTimes(core_t::TTime& startTime, core_t::TTime endTime) const;
 
     //! Print the current bucket.
     std::string printCurrentBucket(void) const;
@@ -313,11 +313,11 @@ public:
     //@{
     //! Get the non-zero (person, attribute) pair counts in the
     //! bucketing interval corresponding to the given time.
-    const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
+    const TSizeSizePrUInt64UMap& bucketCounts(core_t::TTime time) const;
 
     //! Get the non-zero (person, attribute) pair counts for each
     //! value of influencing field.
-    const TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts(core_t::TTime time) const;
+    const TSizeSizePrStoredStringPtrPrUInt64UMapVec& influencerCounts(core_t::TTime time) const;
     //@}
 
     //! Get the checksum of this gatherer.
@@ -348,11 +348,11 @@ public:
     //! \tparam T This must be an associative array from person
     //! id and/or attribute id to some corresponding value.
     template <typename F, typename T>
-    static void remove(const TSizeVec &toRemove, const F &extractId, CBucketQueue<T> &queue) {
+    static void remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<T>& queue) {
         typedef typename CBucketQueue<T>::iterator TQueueItr;
 
         for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
-            T &bucket = *bucketItr;
+            T& bucket = *bucketItr;
             for (typename T::iterator i = bucket.begin(); i != bucket.end(); /**/) {
                 if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(*i))) {
                     i = bucket.erase(i);
@@ -370,12 +370,12 @@ public:
     //! id and/or attribute id to some corresponding value.
     template <typename F, typename T>
     static void
-    remove(const TSizeVec &toRemove, const F &extractId, CBucketQueue<std::vector<T>> &queue) {
+    remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
         typedef typename CBucketQueue<std::vector<T>>::iterator TQueueItr;
 
         for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
             for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
-                T &bucket = (*bucketItr)[i];
+                T& bucket = (*bucketItr)[i];
                 for (typename T::iterator j = bucket.begin(); j != bucket.end(); /**/) {
                     if (std::binary_search(toRemove.begin(), toRemove.end(), extractId(j->first))) {
                         j = bucket.erase(j);
@@ -393,10 +393,10 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
     virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec &result) const = 0;
+    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const = 0;
 
     //! Get a reference to the owning data gatherer.
-    const CDataGatherer &dataGatherer(void) const;
+    const CDataGatherer& dataGatherer(void) const;
 
     //! Has this pid/cid pair had only explicit null records?
     bool hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, std::size_t cid) const;
@@ -430,10 +430,10 @@ private:
     virtual void addValue(std::size_t pid,
                           std::size_t cid,
                           core_t::TTime time,
-                          const CEventData::TDouble1VecArray &values,
+                          const CEventData::TDouble1VecArray& values,
                           std::size_t count,
-                          const CEventData::TOptionalStr &stringValue,
-                          const TStoredStringPtrVec &influences) = 0;
+                          const CEventData::TOptionalStr& stringValue,
+                          const TStoredStringPtrVec& influences) = 0;
 
     //! Handle the start of a new bucketing interval.
     virtual void startNewBucket(core_t::TTime time, bool skipUpdates) = 0;
@@ -443,7 +443,7 @@ private:
 
 protected:
     //! Reference to the owning data gatherer
-    CDataGatherer &m_DataGatherer;
+    CDataGatherer& m_DataGatherer;
 
 private:
     //! The earliest time of any record that has arrived.
@@ -478,4 +478,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CBucketGatherer_h
+#endif // INCLUDED_ml_model_CBucketGatherer_h

@@ -27,7 +27,7 @@ public:
     void testFFTIFFTIdempotency(void);
     void testAutocorrelations(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSignalTest_h
+#endif // INCLUDED_CSignalTest_h

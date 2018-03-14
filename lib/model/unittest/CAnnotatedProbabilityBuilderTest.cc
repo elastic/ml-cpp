@@ -50,10 +50,10 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder {
 public:
-    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability)
+    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability)
         : CAnnotatedProbabilityBuilder(annotatedProbability) {}
 
-    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability,
+    CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability& annotatedProbability,
                                         std::size_t numberAttributeProbabilities,
                                         function_t::EFunction function,
                                         std::size_t numberOfPeople)
@@ -401,12 +401,13 @@ void CAnnotatedProbabilityBuilderTest::testPersonFrequencyGivenPopulationRare(vo
     CPPUNIT_ASSERT(result.s_DescriptiveData.empty());
 }
 
-CppUnit::Test *CAnnotatedProbabilityBuilderTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnnotatedProbabilityBuilderTest");
+CppUnit::Test* CAnnotatedProbabilityBuilderTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAnnotatedProbabilityBuilderTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
-        "CAnnotatedProbabilityBuilderTest::testProbability",
-        &CAnnotatedProbabilityBuilderTest::testProbability));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CAnnotatedProbabilityBuilderTest>("CAnnotatedProbabilityBuilderTest::testProbability",
+                                              &CAnnotatedProbabilityBuilderTest::testProbability));
     suiteOfTests->addTest(new CppUnit::TestCaller<CAnnotatedProbabilityBuilderTest>(
         "CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount",
         &CAnnotatedProbabilityBuilderTest::testAddAttributeProbabilityGivenIndividualCount));

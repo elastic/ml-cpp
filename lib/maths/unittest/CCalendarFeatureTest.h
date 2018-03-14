@@ -24,7 +24,7 @@ public:
     void testOffset(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CCalendarFeatureTest_h
+#endif // INCLUDED_CCalendarFeatureTest_h

@@ -42,10 +42,11 @@ const std::string FUNCTION_CATEGORY_NAMES[] = {std::string("count"),
                                                std::string("varp"),
                                                std::string("median")};
 
-const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {
-    {std::string("n/a"), std::string("n/a")},
-    {std::string("count"), std::string("non_zero_count")},
-    {std::string("sum"), std::string("non_null_sum")}};
+const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {{std::string("n/a"), std::string("n/a")},
+                                                     {std::string("count"),
+                                                      std::string("non_zero_count")},
+                                                     {std::string("sum"),
+                                                      std::string("non_null_sum")}};
 
 const std::string SIDE_NAME[] = {std::string("high"),
                                  std::string("low"),
@@ -53,9 +54,11 @@ const std::string SIDE_NAME[] = {std::string("high"),
                                  std::string("<unknown>")};
 }
 
-const std::string &print(EUserDataType type) { return USER_DATA_TYPE_NAMES[type]; }
+const std::string& print(EUserDataType type) {
+    return USER_DATA_TYPE_NAMES[type];
+}
 
-std::ostream &operator<<(std::ostream &o, EUserDataType type) {
+std::ostream& operator<<(std::ostream& o, EUserDataType type) {
     return o << USER_DATA_TYPE_NAMES[type];
 }
 
@@ -104,9 +107,13 @@ bool isInteger(EDataType type) {
     return false;
 }
 
-const std::string &print(EDataType type) { return DATA_TYPE_NAMES[type]; }
+const std::string& print(EDataType type) {
+    return DATA_TYPE_NAMES[type];
+}
 
-std::ostream &operator<<(std::ostream &o, EDataType type) { return o << DATA_TYPE_NAMES[type]; }
+std::ostream& operator<<(std::ostream& o, EDataType type) {
+    return o << DATA_TYPE_NAMES[type];
+}
 
 bool hasArgument(EFunctionCategory function) {
     switch (function) {
@@ -234,7 +241,7 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function) {
     return true;
 }
 
-const std::string &
+const std::string&
 ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
     std::size_t index = 0u;
     switch (function) {
@@ -257,14 +264,20 @@ ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopu
     return IGNORE_EMPTY_VERSION_NAMES[index][ignoreEmpty && !isPopulation];
 }
 
-const std::string &print(EFunctionCategory function) { return FUNCTION_CATEGORY_NAMES[function]; }
+const std::string& print(EFunctionCategory function) {
+    return FUNCTION_CATEGORY_NAMES[function];
+}
 
-std::ostream &operator<<(std::ostream &o, EFunctionCategory function) {
+std::ostream& operator<<(std::ostream& o, EFunctionCategory function) {
     return o << FUNCTION_CATEGORY_NAMES[function];
 }
 
-const std::string &print(ESide side) { return SIDE_NAME[side]; }
+const std::string& print(ESide side) {
+    return SIDE_NAME[side];
+}
 
-std::ostream &operator<<(std::ostream &o, ESide side) { return o << SIDE_NAME[side]; }
+std::ostream& operator<<(std::ostream& o, ESide side) {
+    return o << SIDE_NAME[side];
+}
 }
 }

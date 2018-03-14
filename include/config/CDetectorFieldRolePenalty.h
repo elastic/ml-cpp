@@ -33,10 +33,10 @@ class CAutoconfigurerParams;
 //! and partitioning fields penalties.
 class CDetectorFieldRolePenalty : public CPenalty {
 public:
-    CDetectorFieldRolePenalty(const CAutoconfigurerParams &params);
+    CDetectorFieldRolePenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CDetectorFieldRolePenalty *clone(void) const;
+    virtual CDetectorFieldRolePenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
@@ -44,17 +44,17 @@ public:
     //! Set the field penalty for the field identified by \p index
     //! which must be one of ARGUMENT_INDEX, BY_INDEX, OVER_INDEX
     //! or PARTITION_INDEX.
-    void addPenalty(std::size_t index, const CPenalty &penalty);
+    void addPenalty(std::size_t index, const CPenalty& penalty);
 
 private:
     //! Compute the penalty based on the detector's fields.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
 private:
     //! The penalties to apply for each field.
-    const CPenalty *m_FieldRolePenalties[constants::NUMBER_FIELD_INDICES];
+    const CPenalty* m_FieldRolePenalties[constants::NUMBER_FIELD_INDICES];
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CDetectorFieldRolePenalty_h
+#endif // INCLUDED_ml_config_CDetectorFieldRolePenalty_h

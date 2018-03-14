@@ -44,11 +44,17 @@ CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(void) : m_M(1000), m_A(1), m_
 CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(uint32_t m, uint32_t a, uint32_t b)
     : m_M(m), m_A(a), m_B(b) {}
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::m(void) const { return m_M; }
+uint32_t CHashing::CUniversalHash::CUInt32Hash::m(void) const {
+    return m_M;
+}
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::a(void) const { return m_A; }
+uint32_t CHashing::CUniversalHash::CUInt32Hash::a(void) const {
+    return m_A;
+}
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::b(void) const { return m_B; }
+uint32_t CHashing::CUniversalHash::CUInt32Hash::b(void) const {
+    return m_B;
+}
 
 std::string CHashing::CUniversalHash::CUInt32Hash::print(void) const {
     std::ostringstream result;
@@ -61,9 +67,13 @@ CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(void)
 CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(uint32_t a, uint32_t b)
     : m_A(a), m_B(b) {}
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a(void) const { return m_A; }
+uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a(void) const {
+    return m_A;
+}
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b(void) const { return m_B; }
+uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b(void) const {
+    return m_B;
+}
 
 std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const {
     std::ostringstream result;
@@ -72,18 +82,22 @@ std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const
 }
 
 CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m,
-                                                         const TUInt32Vec &a,
+                                                         const TUInt32Vec& a,
                                                          uint32_t b)
     : m_M(m), m_A(a), m_B(b) {}
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::m(void) const { return m_M; }
+uint32_t CHashing::CUniversalHash::CUInt32VecHash::m(void) const {
+    return m_M;
+}
 
-const CHashing::CUniversalHash::TUInt32Vec &
+const CHashing::CUniversalHash::TUInt32Vec&
 CHashing::CUniversalHash::CUInt32VecHash::a(void) const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::b(void) const { return m_B; }
+uint32_t CHashing::CUniversalHash::CUInt32VecHash::b(void) const {
+    return m_B;
+}
 
 std::string CHashing::CUniversalHash::CUInt32VecHash::print(void) const {
     std::ostringstream result;
@@ -98,12 +112,12 @@ std::string CHashing::CUniversalHash::CUInt32VecHash::print(void) const {
 CHashing::CUniversalHash::CToString::CToString(const char delimiter) : m_Delimiter(delimiter) {}
 
 std::string CHashing::CUniversalHash::CToString::
-operator()(const CUInt32UnrestrictedHash &hash) const {
+operator()(const CUInt32UnrestrictedHash& hash) const {
     return CStringUtils::typeToString(hash.a()) + m_Delimiter +
            CStringUtils::typeToString(hash.b());
 }
 
-std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash &hash) const {
+std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash& hash) const {
     return CStringUtils::typeToString(hash.m()) + m_Delimiter +
            CStringUtils::typeToString(hash.a()) + m_Delimiter +
            CStringUtils::typeToString(hash.b());
@@ -111,8 +125,8 @@ std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash &h
 
 CHashing::CUniversalHash::CFromString::CFromString(const char delimiter) : m_Delimiter(delimiter) {}
 
-bool CHashing::CUniversalHash::CFromString::operator()(const std::string &token,
-                                                       CUInt32UnrestrictedHash &hash) const {
+bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
+                                                       CUInt32UnrestrictedHash& hash) const {
     std::size_t delimPos = token.find(m_Delimiter);
     if (delimPos == std::string::npos) {
         LOG_ERROR("Invalid hash state " << token);
@@ -135,8 +149,8 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string &token,
 
     return true;
 }
-bool CHashing::CUniversalHash::CFromString::operator()(const std::string &token,
-                                                       CUInt32Hash &hash) const {
+bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
+                                                       CUInt32Hash& hash) const {
     std::size_t firstDelimPos = token.find(m_Delimiter);
     if (firstDelimPos == std::string::npos) {
         LOG_ERROR("Invalid hash state " << token);
@@ -171,7 +185,7 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string &token,
     return true;
 }
 
-void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32HashVec &result) {
+void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32HashVec& result) {
     TUInt32Vec a, b;
     a.reserve(k);
     b.reserve(k);
@@ -198,7 +212,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
     }
 }
 
-void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32UnrestrictedHashVec &result) {
+void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32UnrestrictedHashVec& result) {
     TUInt32Vec a, b;
     a.reserve(k);
     b.reserve(k);
@@ -228,7 +242,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, TUInt32Unrestricted
 void CHashing::CUniversalHash::generateHashes(std::size_t k,
                                               std::size_t n,
                                               uint32_t m,
-                                              TUInt32VecHashVec &result) {
+                                              TUInt32VecHashVec& result) {
     typedef std::vector<TUInt32Vec> TUInt32VecVec;
 
     TUInt32VecVec a;
@@ -243,8 +257,9 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
             a.push_back(TUInt32Vec());
             a.back().reserve(n);
             TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
-            std::generate_n(
-                std::back_inserter(a.back()), n, boost::bind(uniform1, boost::ref(ms_Generator)));
+            std::generate_n(std::back_inserter(a.back()),
+                            n,
+                            boost::bind(uniform1, boost::ref(ms_Generator)));
             for (std::size_t j = 0u; j < a.back().size(); ++j) {
                 if ((a.back())[j] == 0) {
                     LOG_ERROR("Expected a in [1," << BIG_PRIME << ")");
@@ -263,7 +278,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     }
 }
 
-uint32_t CHashing::murmurHash32(const void *key, int length, uint32_t seed) {
+uint32_t CHashing::murmurHash32(const void* key, int length, uint32_t seed) {
     const uint32_t m = 0x5bd1e995;
     const int r = 24;
 
@@ -271,12 +286,12 @@ uint32_t CHashing::murmurHash32(const void *key, int length, uint32_t seed) {
 
     // Note, remainder = length % 4
     const int remainder = length & 0x3;
-    const uint32_t *data = static_cast<const uint32_t *>(key);
+    const uint32_t* data = static_cast<const uint32_t*>(key);
     // Note, shift = (length - remainder) / 4
-    const uint32_t *end = data + ((length - remainder) >> 2);
+    const uint32_t* end = data + ((length - remainder) >> 2);
 
     while (data != end) {
-        uint32_t k = *reinterpret_cast<const uint32_t *>(data);
+        uint32_t k = *reinterpret_cast<const uint32_t*>(data);
 
         k *= m;
         k ^= k >> r;
@@ -288,7 +303,7 @@ uint32_t CHashing::murmurHash32(const void *key, int length, uint32_t seed) {
         ++data;
     }
 
-    const unsigned char *remainingData = reinterpret_cast<const unsigned char *>(end);
+    const unsigned char* remainingData = reinterpret_cast<const unsigned char*>(end);
 
     switch (remainder) {
         case 3:
@@ -312,13 +327,13 @@ uint32_t CHashing::murmurHash32(const void *key, int length, uint32_t seed) {
     return h;
 }
 
-uint32_t CHashing::safeMurmurHash32(const void *key, int length, uint32_t seed) {
+uint32_t CHashing::safeMurmurHash32(const void* key, int length, uint32_t seed) {
     const uint32_t m = 0x5bd1e995;
     const int r = 24;
 
     uint32_t h = seed ^ length;
 
-    const unsigned char *data = static_cast<const unsigned char *>(key);
+    const unsigned char* data = static_cast<const unsigned char*>(key);
 
     // Endian and alignment neutral implementation of the main loop.
     while (length >= 4) {
@@ -362,7 +377,7 @@ uint32_t CHashing::safeMurmurHash32(const void *key, int length, uint32_t seed) 
     return h;
 }
 
-uint64_t CHashing::murmurHash64(const void *key, int length, uint64_t seed) {
+uint64_t CHashing::murmurHash64(const void* key, int length, uint64_t seed) {
     const uint64_t m = 0xc6a4a7935bd1e995ull;
     const int r = 47;
 
@@ -370,9 +385,9 @@ uint64_t CHashing::murmurHash64(const void *key, int length, uint64_t seed) {
 
     // Note, remainder = length % 8
     const int remainder = length & 0x7;
-    const uint64_t *data = static_cast<const uint64_t *>(key);
+    const uint64_t* data = static_cast<const uint64_t*>(key);
     // Note, shift = (length - remainder) / 8
-    const uint64_t *end = data + ((length - remainder) >> 3);
+    const uint64_t* end = data + ((length - remainder) >> 3);
 
     while (data != end) {
         uint64_t k = *data;
@@ -387,7 +402,7 @@ uint64_t CHashing::murmurHash64(const void *key, int length, uint64_t seed) {
         ++data;
     }
 
-    const unsigned char *remainingData = reinterpret_cast<const unsigned char *>(end);
+    const unsigned char* remainingData = reinterpret_cast<const unsigned char*>(end);
 
     switch (remainder) {
         case 7:
@@ -423,13 +438,13 @@ uint64_t CHashing::murmurHash64(const void *key, int length, uint64_t seed) {
     return h;
 }
 
-uint64_t CHashing::safeMurmurHash64(const void *key, int length, uint64_t seed) {
+uint64_t CHashing::safeMurmurHash64(const void* key, int length, uint64_t seed) {
     const uint64_t m = 0xc6a4a7935bd1e995ull;
     const int r = 47;
 
     uint64_t h = seed ^ (length * m);
 
-    const unsigned char *data = static_cast<const unsigned char *>(key);
+    const unsigned char* data = static_cast<const unsigned char*>(key);
 
     // Endian and alignment neutral implementation.
     while (length >= 8) {

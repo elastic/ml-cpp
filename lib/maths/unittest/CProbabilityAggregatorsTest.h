@@ -25,7 +25,7 @@ public:
     void testProbabilityOfExtremeSample(void);
     void testProbabilityOfMFromNExtremeSamples(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CProbabilityAggregatorsTest_h
+#endif // INCLUDED_CProbabilityAggregatorsTest_h

@@ -24,7 +24,7 @@ public:
     void testBjkstVec(void);
     void testTimeSeriesDecompositions(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMathsMemoryTest_h
+#endif // INCLUDED_CMathsMemoryTest_h

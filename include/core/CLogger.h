@@ -79,18 +79,18 @@ public:
 public:
     //! Access to singleton - use MACROS to get to this when logging
     //! messages
-    static CLogger &instance(void);
+    static CLogger& instance(void);
 
     //! Reconfigure to either a named pipe or a properties file.
     //! If both are supplied the named pipe takes precedence.
-    bool reconfigure(const std::string &pipeName, const std::string &propertiesFile);
+    bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
     //! Tell the logger to log to a named pipe rather than a file.
-    bool reconfigureLogToNamedPipe(const std::string &pipeName);
+    bool reconfigureLogToNamedPipe(const std::string& pipeName);
 
     //! Tell the logger to reconfigure itself by reading a specified
     //! properties file, if the file exists.
-    bool reconfigureFromFile(const std::string &propertiesFile);
+    bool reconfigureFromFile(const std::string& propertiesFile);
 
     //! Tell the logger to reconfigure itself to log JSON.
     bool reconfigureLogJson(void);
@@ -131,18 +131,18 @@ private:
     //! 1) %D with the path to the Ml base log directory
     //! 2) %N with the program's name
     //! 3) %P with the program's process ID
-    void massageProperties(log4cxx::helpers::Properties &props) const;
+    void massageProperties(log4cxx::helpers::Properties& props) const;
 
     typedef std::map<log4cxx::logchar, log4cxx::LogString> TLogCharLogStrMap;
     typedef TLogCharLogStrMap::const_iterator TLogCharLogStrMapCItr;
 
     //! Replace Ml specific mappings in a single string
-    void massageString(const TLogCharLogStrMap &mappings,
-                       const log4cxx::LogString &oldStr,
-                       log4cxx::LogString &newStr) const;
+    void massageString(const TLogCharLogStrMap& mappings,
+                       const log4cxx::LogString& oldStr,
+                       log4cxx::LogString& newStr) const;
 
     //! Helper for other reconfiguration methods
-    bool reconfigureFromProps(log4cxx::helpers::Properties &props);
+    bool reconfigureFromProps(log4cxx::helpers::Properties& props);
 
     //! Reset the logger, this is a helper for unit testing as
     //! CLogger is a singleton, so we can not just create new instances
@@ -174,4 +174,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CLogger_h
+#endif // INCLUDED_ml_core_CLogger_h

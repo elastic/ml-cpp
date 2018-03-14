@@ -27,20 +27,20 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: normalize [options]\n"
                                                 "Options:";
 
 bool CCmdLineParser::parse(int argc,
-                           const char *const *argv,
-                           std::string &modelConfigFile,
-                           std::string &logProperties,
-                           std::string &logPipe,
-                           core_t::TTime &bucketSpan,
-                           bool &lengthEncodedInput,
-                           std::string &inputFileName,
-                           bool &isInputFileNamedPipe,
-                           std::string &outputFileName,
-                           bool &isOutputFileNamedPipe,
-                           std::string &quantilesState,
-                           bool &deleteStateFiles,
-                           bool &writeCsv,
-                           bool &perPartitionNormalization) {
+                           const char* const* argv,
+                           std::string& modelConfigFile,
+                           std::string& logProperties,
+                           std::string& logPipe,
+                           core_t::TTime& bucketSpan,
+                           bool& lengthEncodedInput,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           std::string& quantilesState,
+                           bool& deleteStateFiles,
+                           bool& writeCsv,
+                           bool& perPartitionNormalization) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -126,7 +126,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("perPartitionNormalization") > 0) {
             perPartitionNormalization = true;
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }

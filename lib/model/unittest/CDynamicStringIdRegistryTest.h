@@ -22,7 +22,7 @@ class CDynamicStringIdRegistryTest : public CppUnit::TestFixture {
 public:
     void testAddName(void);
     void testPersist(void);
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CDynamicStringIdRegistryTest_h
+#endif // INCLUDED_CDynamicStringIdRegistryTest_h

@@ -71,10 +71,10 @@ namespace {
 const CSearchKey key;
 const std::string EMPTY_STRING("");
 
-std::size_t addPerson(CDataGatherer &gatherer,
-                      CResourceMonitor &resourceMonitor,
-                      const std::string &p,
-                      const std::string &v = EMPTY_STRING,
+std::size_t addPerson(CDataGatherer& gatherer,
+                      CResourceMonitor& resourceMonitor,
+                      const std::string& p,
+                      const std::string& v = EMPTY_STRING,
                       std::size_t numInfluencers = 0) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
@@ -90,10 +90,10 @@ std::size_t addPerson(CDataGatherer &gatherer,
     return *result.personId();
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person) {
+                const std::string& person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -103,11 +103,11 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const std::string &attribute) {
+                const std::string& person,
+                const std::string& attribute) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     fieldValues.push_back(&attribute);
@@ -118,12 +118,12 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const std::string &value,
-                const std::string &influencer) {
+                const std::string& person,
+                const std::string& value,
+                const std::string& influencer) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     fieldValues.push_back(&influencer);
@@ -135,12 +135,12 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person,
-                const TStrVec &influencers,
-                const std::string &value) {
+                const std::string& person,
+                const TStrVec& influencers,
+                const std::string& value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -158,7 +158,7 @@ void addArrival(CDataGatherer &gatherer,
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void testPersistence(const SModelParams &params, const CDataGatherer &gatherer) {
+void testPersistence(const SModelParams& params, const CDataGatherer& gatherer) {
     // Test persistence. (We check for idempotency.)
     std::string origXml;
     {
@@ -201,11 +201,11 @@ void testPersistence(const SModelParams &params, const CDataGatherer &gatherer) 
 }
 
 void testInfluencerPerFeature(model_t::EFeature feature,
-                              const TTimeVec &data,
-                              const TStrVecVec &influencers,
-                              const TStrVec &expected,
-                              const std::string &valueField,
-                              CResourceMonitor &resourceMonitor) {
+                              const TTimeVec& data,
+                              const TStrVecVec& influencers,
+                              const TStrVec& expected,
+                              const std::string& valueField,
+                              CResourceMonitor& resourceMonitor) {
     LOG_DEBUG(" *** testing " << model_t::print(feature) << " ***");
 
     const core_t::TTime startTime = 0;
@@ -287,10 +287,10 @@ void testInfluencerPerFeature(model_t::EFeature feature,
     }
 }
 
-void importCsvData(CDataGatherer &gatherer,
-                   CResourceMonitor &resourceMonitor,
-                   const std::string &filename,
-                   const TSizeVec &fields) {
+void importCsvData(CDataGatherer& gatherer,
+                   CResourceMonitor& resourceMonitor,
+                   const std::string& filename,
+                   const TSizeVec& fields) {
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
     TifstreamPtr ifs(new std::ifstream(filename.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
@@ -321,7 +321,7 @@ void importCsvData(CDataGatherer &gatherer,
     ifs.reset();
 }
 
-}// namespace
+} // namespace
 
 void CEventRateDataGathererTest::testLatencyPersist(void) {
     LOG_DEBUG("*** testLatencyPersist ***");
@@ -461,17 +461,17 @@ void CEventRateDataGathererTest::singleSeriesTests(void) {
         180,
         190,
         400,
-        550,// bucket 1
+        550, // bucket 1
         600,
         799,
-        1199,// bucket 2
+        1199, // bucket 2
         1200,
-        1250,// bucket 3
-             // bucket 4
+        1250, // bucket 3
+              // bucket 4
         2420,
         2480,
-        2490,// bucket 5
-        10000// sentinel
+        2490, // bucket 5
+        10000 // sentinel
     };
 
     std::string expectedPersonCounts[] = {std::string("[(0, 6)]"),
@@ -677,25 +677,25 @@ void CEventRateDataGathererTest::multipleSeriesTests(void) {
         180,
         190,
         400,
-        550,// bucket 1
+        550, // bucket 1
         600,
         799,
-        1199,// bucket 2
+        1199, // bucket 2
         1200,
-        1250,// bucket 3
-        1900,// bucket 4
+        1250, // bucket 3
+        1900, // bucket 4
         2420,
         2480,
-        2490,// bucket 5
-        10000// sentinel
+        2490, // bucket 5
+        10000 // sentinel
     };
     core_t::TTime data2[] = {
-        1,    5,    15,   25,   180,  190,  400, 550,// bucket 1
-        600,  605,  609,  799,  1199,                // bucket 2
-        1200, 1250, 1255, 1256, 1300, 1400,          // bucket 3
-        1900, 1950,                                  // bucket 4
-        2420, 2480, 2490, 2500, 2550, 2600,          // bucket 5
-        10000                                        // sentinel
+        1,    5,    15,   25,   180,  190,  400, 550, // bucket 1
+        600,  605,  609,  799,  1199,                 // bucket 2
+        1200, 1250, 1255, 1256, 1300, 1400,           // bucket 3
+        1900, 1950,                                   // bucket 4
+        2420, 2480, 2490, 2500, 2550, 2600,           // bucket 5
+        10000                                         // sentinel
     };
 
     std::string expectedPersonCounts[] = {std::string("[(0, 6), (1, 8)]"),
@@ -1038,17 +1038,17 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests(void) {
         1200,
         190,
         400,
-        600,// bucket 1, 2 & 3
+        600, // bucket 1, 2 & 3
         550,
         799,
         1199,
-        15,  // bucket 1 & 2
-        2490,// bucket 5
-             // bucket 4 is empty
+        15,   // bucket 1 & 2
+        2490, // bucket 5
+              // bucket 4 is empty
         2420,
         2480,
-        1250,// bucket 3 & 5
-        10000// sentinel
+        1250, // bucket 3 & 5
+        10000 // sentinel
     };
 
     std::string expectedPersonCounts[] = {std::string("[(0, 6)]"),
@@ -1224,13 +1224,13 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests(void) 
     core_t::TTime data[] = {
         1,
         1200,
-        600,// bucket 1, 3 & 2
+        600, // bucket 1, 3 & 2
         1199,
-        15,  // bucket 2 & 1
-        2490,// bucket 5
-             // bucket 4 is empty
+        15,   // bucket 2 & 1
+        2490, // bucket 5
+              // bucket 4 is empty
         2420,
-        1250// bucket 5 & 3
+        1250 // bucket 5 & 3
     };
 
     TFeatureVec features;
@@ -1371,25 +1371,25 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests(void) 
         1200,
         190,
         400,
-        550,// bucket 1, 2 & 3
+        550, // bucket 1, 2 & 3
         600,
         1250,
-        1199,// bucket 2 & 3
+        1199, // bucket 2 & 3
         180,
-        799, // bucket 1 & 2
-        2480,// bucket 5
+        799,  // bucket 1 & 2
+        2480, // bucket 5
         2420,
         1900,
-        2490,// bucket 4 & 5
-        10000// sentinel
+        2490, // bucket 4 & 5
+        10000 // sentinel
     };
     core_t::TTime data2[] = {
-        1250, 5,    15,   600,  180,  190,  400, 550,// bucket 1, 2 & 3
-        25,   605,  609,  799,  1199,                // bucket 1 & 2
-        1200, 1,    1255, 1950, 1400,                // bucket 1, 3 & 4
-        2550, 1300, 2500,                            // bucket 3 & 5
-        2420, 2480, 2490, 1256, 1900, 2600,          // bucket 3, 4 & 5
-        10000                                        // sentinel
+        1250, 5,    15,   600,  180,  190,  400, 550, // bucket 1, 2 & 3
+        25,   605,  609,  799,  1199,                 // bucket 1 & 2
+        1200, 1,    1255, 1950, 1400,                 // bucket 1, 3 & 4
+        2550, 1300, 2500,                             // bucket 3 & 5
+        2420, 2480, 2490, 1256, 1900, 2600,           // bucket 3, 4 & 5
+        10000                                         // sentinel
     };
 
     std::string expectedPersonCounts[] = {std::string("[(0, 6), (1, 8)]"),
@@ -1552,8 +1552,8 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored(void) {
     params.s_LatencyBuckets = latencyBuckets;
 
     core_t::TTime data[] = {
-        1800,// Bucket 4, thus bucket 1 values are already out of latency window
-        1    // Bucket 1
+        1800, // Bucket 4, thus bucket 1 values are already out of latency window
+        1     // Bucket 1
     };
 
     TFeatureVec features;
@@ -1607,11 +1607,11 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries(void) {
 
     core_t::TTime data[] = {
         100,
-        300,// Bucket 1
+        300, // Bucket 1
         600,
         800,
-        850,// Bucket 2
-        1200// Bucket 3
+        850, // Bucket 2
+        1200 // Bucket 3
     };
 
     TFeatureVec features;
@@ -1677,11 +1677,11 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries(void) {
 
     core_t::TTime data[] = {
         100,
-        300,// Bucket 1
+        300, // Bucket 1
         600,
         800,
-        850,// Bucket 2
-        1200// Bucket 3
+        850, // Bucket 2
+        1200 // Bucket 3
     };
 
     TFeatureVec features;
@@ -1783,17 +1783,17 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics(void) {
         180,
         190,
         400,
-        550,// bucket 1
+        550, // bucket 1
         600,
         799,
-        1199,// bucket 2
+        1199, // bucket 2
         1200,
-        1250,// bucket 3
-             // bucket 4
+        1250, // bucket 3
+              // bucket 4
         2420,
         2480,
-        2490,// bucket 5
-        10000// sentinel
+        2490, // bucket 5
+        10000 // sentinel
     };
     TTimeVec dataVec(data, &data[15]);
 
@@ -1958,9 +1958,9 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
                       featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
-            CPPUNIT_ASSERT_EQUAL(
-                std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
-                featureData.print());
+            CPPUNIT_ASSERT_EQUAL(std::string(
+                                     "3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
+                                 featureData.print());
         }
     }
 
@@ -2179,14 +2179,30 @@ void CEventRateDataGathererTest::testDistinctStrings(void) {
         testPersistence(params, gatherer);
 
         // Add data, some of which will be out of order
-        addArrival(
-            gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringOne", "inf1");
-        addArrival(
-            gatherer, m_ResourceMonitor, time - (2 * bucketLength), "p", "stringTwo", "inf2");
-        addArrival(
-            gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringThree", "inf3");
-        addArrival(
-            gatherer, m_ResourceMonitor, time - (1 * bucketLength), "p", "stringFour", "inf1");
+        addArrival(gatherer,
+                   m_ResourceMonitor,
+                   time - (2 * bucketLength),
+                   "p",
+                   "stringOne",
+                   "inf1");
+        addArrival(gatherer,
+                   m_ResourceMonitor,
+                   time - (2 * bucketLength),
+                   "p",
+                   "stringTwo",
+                   "inf2");
+        addArrival(gatherer,
+                   m_ResourceMonitor,
+                   time - (1 * bucketLength),
+                   "p",
+                   "stringThree",
+                   "inf3");
+        addArrival(gatherer,
+                   m_ResourceMonitor,
+                   time - (1 * bucketLength),
+                   "p",
+                   "stringFour",
+                   "inf1");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringFive", "inf2");
         addArrival(gatherer, m_ResourceMonitor, time, "p", "stringSix", "inf3");
         testPersistence(params, gatherer);
@@ -2728,18 +2744,21 @@ void CEventRateDataGathererTest::testDiurnalFeatures(void) {
     }
 }
 
-CppUnit::Test *CEventRateDataGathererTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
+CppUnit::Test* CEventRateDataGathererTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::singleSeriesTests",
-        &CEventRateDataGathererTest::singleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::multipleSeriesTests",
-        &CEventRateDataGathererTest::multipleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testRemovePeople",
-        &CEventRateDataGathererTest::testRemovePeople));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::singleSeriesTests",
+                                        &CEventRateDataGathererTest::singleSeriesTests));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::multipleSeriesTests",
+                                        &CEventRateDataGathererTest::multipleSeriesTests));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::testRemovePeople",
+                                        &CEventRateDataGathererTest::testRemovePeople));
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
         "CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests",
         &CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests));
@@ -2764,14 +2783,17 @@ CppUnit::Test *CEventRateDataGathererTest::suite(void) {
     suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
         "CEventRateDataGathererTest::testInfluencerBucketStatistics",
         &CEventRateDataGathererTest::testInfluencerBucketStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testDistinctStrings",
-        &CEventRateDataGathererTest::testDistinctStrings));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testLatencyPersist",
-        &CEventRateDataGathererTest::testLatencyPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testDiurnalFeatures",
-        &CEventRateDataGathererTest::testDiurnalFeatures));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::testDistinctStrings",
+                                        &CEventRateDataGathererTest::testDistinctStrings));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::testLatencyPersist",
+                                        &CEventRateDataGathererTest::testLatencyPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CEventRateDataGathererTest>("CEventRateDataGathererTest::testDiurnalFeatures",
+                                        &CEventRateDataGathererTest::testDiurnalFeatures));
     return suiteOfTests;
 }

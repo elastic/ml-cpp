@@ -48,13 +48,13 @@ namespace test {
 class TEST_EXPORT CTestTimer : public CppUnit::TestListener {
 public:
     //! Called at the start of each test
-    virtual void startTest(CppUnit::Test *test);
+    virtual void startTest(CppUnit::Test* test);
 
     //! Called at the end of each test
-    virtual void endTest(CppUnit::Test *test);
+    virtual void endTest(CppUnit::Test* test);
 
     //! Get the time taken for a given test
-    uint64_t timeForTest(const std::string &testName) const;
+    uint64_t timeForTest(const std::string& testName) const;
 
     //! Get the total time taken for all tests
     uint64_t totalTime(void) const;
@@ -75,4 +75,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_test_CTestTimer_h
+#endif // INCLUDED_ml_test_CTestTimer_h

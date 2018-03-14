@@ -115,7 +115,8 @@ public:
     //! A single unit weight.
     static const TDouble4Vec1Vec SINGLE_UNIT;
     //! Get a unit weight for data with \p dimension.
-    template <typename VECTOR> static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {
+    template <typename VECTOR>
+    static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {
         return TDouble2Vec4Vec{VECTOR(dimension, 1.0)};
     }
     //! Get a single unit weight for data with \p dimension.
@@ -140,4 +141,4 @@ MATHS_EXPORT double maxModelPenalty(double numberSamples);
 }
 }
 
-#endif// INCLUDED_ml_maths_Constants_h
+#endif // INCLUDED_ml_maths_Constants_h

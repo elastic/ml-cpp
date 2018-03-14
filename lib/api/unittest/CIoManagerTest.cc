@@ -34,23 +34,23 @@ const uint32_t PAUSE_TIME_MS = 10;
 const size_t MAX_ATTEMPTS = 100;
 const size_t TEST_SIZE = 10000;
 const char TEST_CHAR = 'a';
-const char *GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
-const char *GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
+const char* GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
+const char* GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
 #ifdef Windows
-const char *GOOD_INPUT_PIPE_NAME = "\\\\.\\pipe\\good_input_pipe";
-const char *GOOD_OUTPUT_PIPE_NAME = "\\\\.\\pipe\\good_output_pipe";
+const char* GOOD_INPUT_PIPE_NAME = "\\\\.\\pipe\\good_input_pipe";
+const char* GOOD_OUTPUT_PIPE_NAME = "\\\\.\\pipe\\good_output_pipe";
 #else
-const char *GOOD_INPUT_PIPE_NAME = "testfiles/good_input_pipe";
-const char *GOOD_OUTPUT_PIPE_NAME = "testfiles/good_output_pipe";
+const char* GOOD_INPUT_PIPE_NAME = "testfiles/good_input_pipe";
+const char* GOOD_OUTPUT_PIPE_NAME = "testfiles/good_output_pipe";
 #endif
-const char *BAD_INPUT_FILE_NAME = "can't_create_a_file_here/bad_input_file";
-const char *BAD_OUTPUT_FILE_NAME = "can't_create_a_file_here/bad_output_file";
-const char *BAD_INPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_input_pipe";
-const char *BAD_OUTPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_output_pipe";
+const char* BAD_INPUT_FILE_NAME = "can't_create_a_file_here/bad_input_file";
+const char* BAD_OUTPUT_FILE_NAME = "can't_create_a_file_here/bad_output_file";
+const char* BAD_INPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_input_pipe";
+const char* BAD_OUTPUT_PIPE_NAME = "can't_create_a_pipe_here/bad_output_pipe";
 
 class CThreadDataWriter : public ml::core::CThread {
 public:
-    CThreadDataWriter(const std::string &fileName, size_t size)
+    CThreadDataWriter(const std::string& fileName, size_t size)
         : m_FileName(fileName), m_Size(size) {}
 
 protected:
@@ -73,9 +73,9 @@ private:
 
 class CThreadDataReader : public ml::core::CThread {
 public:
-    CThreadDataReader(const std::string &fileName) : m_FileName(fileName), m_Shutdown(false) {}
+    CThreadDataReader(const std::string& fileName) : m_FileName(fileName), m_Shutdown(false) {}
 
-    const std::string &data(void) const {
+    const std::string& data(void) const {
         // The memory barriers associated with the mutex lock should ensure
         // the thread calling this method has as up-to-date view of m_Data's
         // member variables as the thread that updated it
@@ -113,7 +113,7 @@ protected:
                 ml::core::CScopedLock lock(m_Mutex);
                 // This code deals with the test character we write to
                 // detect the short-lived connection problem on Windows
-                const char *copyFrom = buffer;
+                const char* copyFrom = buffer;
                 size_t copyLen = static_cast<size_t>(strm.gcount());
                 if (m_Data.empty() && *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                     ++copyFrom;
@@ -136,19 +136,22 @@ private:
 };
 }
 
-CppUnit::Test *CIoManagerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIoManagerTest");
+CppUnit::Test* CIoManagerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIoManagerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testStdinStdout",
+                                                &CIoManagerTest::testStdinStdout));
     suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoGood",
                                                                   &CIoManagerTest::testFileIoGood));
     suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testFileIoBad",
                                                                   &CIoManagerTest::testFileIoBad));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testNamedPipeIoGood", &CIoManagerTest::testNamedPipeIoGood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testNamedPipeIoBad", &CIoManagerTest::testNamedPipeIoBad));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoGood",
+                                                &CIoManagerTest::testNamedPipeIoGood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIoManagerTest>("CIoManagerTest::testNamedPipeIoBad",
+                                                &CIoManagerTest::testNamedPipeIoBad));
 
     return suiteOfTests;
 }
@@ -159,10 +162,10 @@ void CIoManagerTest::testStdinStdout(void) {
 
     // Assign to a different pointer in case of "this" pointer manipulation due
     // to multiple inheritance
-    std::istream *cinAsIStream = &std::cin;
+    std::istream* cinAsIStream = &std::cin;
     CPPUNIT_ASSERT_EQUAL(cinAsIStream, &ioMgr.inputStream());
 
-    std::ostream *coutAsIStream = &std::cout;
+    std::ostream* coutAsIStream = &std::cout;
     CPPUNIT_ASSERT_EQUAL(coutAsIStream, &ioMgr.outputStream());
 }
 
@@ -203,9 +206,9 @@ void CIoManagerTest::testNamedPipeIoBad(void) {
     this->testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
 }
 
-void CIoManagerTest::testCommon(const std::string &inputFileName,
+void CIoManagerTest::testCommon(const std::string& inputFileName,
                                 bool isInputFileNamedPipe,
-                                const std::string &outputFileName,
+                                const std::string& outputFileName,
                                 bool isOutputFileNamedPipe,
                                 bool isGood) {
     // Test reader reads from the IO manager's output stream.
@@ -215,8 +218,10 @@ void CIoManagerTest::testCommon(const std::string &inputFileName,
     std::string processedData;
 
     {
-        ml::api::CIoManager ioMgr(
-            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
+        ml::api::CIoManager ioMgr(inputFileName,
+                                  isInputFileNamedPipe,
+                                  outputFileName,
+                                  isOutputFileNamedPipe);
         CPPUNIT_ASSERT_EQUAL(isGood, ioMgr.initIo());
         if (isGood) {
             static const std::streamsize BUF_SIZE = 512;

@@ -32,7 +32,7 @@ using namespace core;
 
 typedef boost::mt19937 TRandom;
 typedef boost::uniform_int<> TDistribution;
-typedef boost::random::variate_generator<TRandom &, TDistribution> TGenerator;
+typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
 typedef boost::generator_iterator<TGenerator> TGeneratorItr;
 
 namespace {
@@ -42,12 +42,12 @@ typedef TSizeStrMap::const_iterator TSizeStrMapCItr;
 typedef core::CDataAdder::TOStreamP TOStreamP;
 typedef core::CDataSearcher::TIStreamP TIStreamP;
 
-void insert3rdLevel(ml::core::CStatePersistInserter &inserter) {
+void insert3rdLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("ssdrgad", 99999, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("bbvczcvbdfb", "rrtw");
 }
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter) {
+void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("eerwq_dsf_dfsgh_h5dafg", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
     for (std::size_t i = 0; i < 50; i++) {
@@ -55,7 +55,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter &inserter) {
     }
 }
 
-void insert1stLevel(ml::core::CStatePersistInserter &inserter, std::size_t n) {
+void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
     inserter.insertValue("theFirstThing", "a");
     inserter.insertValue("anItemThatComesNext", 25);
     for (std::size_t i = 0; i < n; i++) {
@@ -67,15 +67,15 @@ class CMockDataAdder : public ml::core::CDataAdder {
 public:
     CMockDataAdder(std::size_t maxDocSize) : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
 
-    virtual TOStreamP addStreamed(const std::string & /*index*/, const std::string & /*id*/) {
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
         ++m_CurrentDocNum;
         m_CurrentStream = TOStreamP(new std::ostringstream);
         return m_CurrentStream;
     }
 
-    virtual bool streamComplete(TOStreamP &strm, bool /*force*/) {
+    virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
         CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
-        std::ostringstream *ss = dynamic_cast<std::ostringstream *>(m_CurrentStream.get());
+        std::ostringstream* ss = dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
         CPPUNIT_ASSERT(ss);
         LOG_TRACE(ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
@@ -85,7 +85,7 @@ public:
 
     virtual std::size_t maxDocumentSize(void) const { return m_MaxDocumentSize; }
 
-    const TSizeStrMap &data(void) const { return m_Data; }
+    const TSizeStrMap& data(void) const { return m_Data; }
 
 private:
     TSizeStrMap m_Data;
@@ -96,11 +96,11 @@ private:
 
 class CMockDataSearcher : public ml::core::CDataSearcher {
 public:
-    CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0) {}
+    CMockDataSearcher(CMockDataAdder& adder) : m_Adder(adder), m_AskedFor(0) {}
 
     virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
         TIStreamP stream;
-        const TSizeStrMap &events = m_Adder.data();
+        const TSizeStrMap& events = m_Adder.data();
 
         TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
         if (iter == events.end()) {
@@ -119,7 +119,7 @@ public:
     std::size_t askedFor(void) const { return m_AskedFor; }
 
 private:
-    CMockDataAdder &m_Adder;
+    CMockDataAdder& m_Adder;
     std::size_t m_AskedFor;
 };
 }
@@ -264,7 +264,7 @@ void CStateCompressorTest::testChunking(void) {
                     std::istreambuf_iterator<char> eos;
                     decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
                 }
-            } catch (std::exception &e) {
+            } catch (std::exception& e) {
                 LOG_DEBUG("Error in test case " << i << " / " << j << ": " << e.what());
                 LOG_DEBUG("String is: " << ss.str());
                 CPPUNIT_ASSERT(false);
@@ -297,7 +297,7 @@ void CStateCompressorTest::testChunking(void) {
                 std::istreambuf_iterator<char> eos;
                 decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
             }
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             LOG_DEBUG("Error in test case " << e.what());
             LOG_DEBUG("String is: " << ss.str());
             CPPUNIT_ASSERT(false);
@@ -306,15 +306,18 @@ void CStateCompressorTest::testChunking(void) {
     }
 }
 
-CppUnit::Test *CStateCompressorTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
+CppUnit::Test* CStateCompressorTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testStreaming", &CStateCompressorTest::testStreaming));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testChunking", &CStateCompressorTest::testChunking));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testForApiNoKey",
+                                                      &CStateCompressorTest::testForApiNoKey));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testStreaming",
+                                                      &CStateCompressorTest::testStreaming));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testChunking",
+                                                      &CStateCompressorTest::testChunking));
 
     return suiteOfTests;
 }

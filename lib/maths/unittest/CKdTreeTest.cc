@@ -37,7 +37,8 @@ typedef maths::CVectorNx1<double, 5> TVector5;
 typedef std::pair<double, TVector5> TDoubleVector5Pr;
 typedef std::vector<TVector5> TVector5Vec;
 
-template <typename T> std::string print(const T &t) {
+template <typename T>
+std::string print(const T& t) {
     std::ostringstream o;
     o << t;
     return o.str();
@@ -124,7 +125,7 @@ void CKdTreeTest::testNearestNeighbour(void) {
                     TDoubleVector2Pr((tests[j] - points[k]).euclidean(), points[k]));
             }
 
-            const TVector2 *nearest = kdTree.nearestNeighbour(tests[j]);
+            const TVector2* nearest = kdTree.nearestNeighbour(tests[j]);
             CPPUNIT_ASSERT(nearest);
             if (i % 10 == 0) {
                 LOG_DEBUG("Expected nearest = " << expectedNearest[0].second
@@ -138,8 +139,8 @@ void CKdTreeTest::testNearestNeighbour(void) {
     }
 }
 
-CppUnit::Test *CKdTreeTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
+CppUnit::Test* CKdTreeTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CKdTreeTest>("CKdTreeTest::testBuild", &CKdTreeTest::testBuild));

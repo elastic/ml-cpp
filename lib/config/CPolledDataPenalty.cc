@@ -36,16 +36,20 @@ namespace {
 const double LOG_TENTH_NUMBER_POLLING_INTERVALS = 10.0;
 }
 
-CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {}
 
-CPolledDataPenalty *CPolledDataPenalty::clone(void) const { return new CPolledDataPenalty(*this); }
+CPolledDataPenalty* CPolledDataPenalty::clone(void) const {
+    return new CPolledDataPenalty(*this);
+}
 
-std::string CPolledDataPenalty::name(void) const { return "polled data penalty"; }
+std::string CPolledDataPenalty::name(void) const {
+    return "polled data penalty";
+}
 
-void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
-    if (const CDataCountStatistics *stats = spec.countStatistics()) {
+void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
+    if (const CDataCountStatistics* stats = spec.countStatistics()) {
         if (TOptionalTime interval = this->pollingInterval(*stats)) {
-            const TTimeVec &candidates = this->params().candidateBucketLengths();
+            const TTimeVec& candidates = this->params().candidateBucketLengths();
 
             TSizeVec indices;
             TDoubleVec penalties;
@@ -56,7 +60,7 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
 
             for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
                 if (candidates[bid] < *interval) {
-                    const TSizeVec &indices_ = this->params().penaltyIndicesFor(bid);
+                    const TSizeVec& indices_ = this->params().penaltyIndicesFor(bid);
                     indices.insert(indices.end(), indices_.begin(), indices_.end());
                     std::fill_n(std::back_inserter(penalties),
                                 indices_.size(),
@@ -78,14 +82,14 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
 }
 
 CPolledDataPenalty::TOptionalTime
-CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
+CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
     typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
                                                            2,
                                                            maths::COrderings::SSecondGreater>
         TMaxAccumulator;
 
-    const maths::CQuantileSketch &F = stats.arrivalTimeDistribution();
-    const maths::CQuantileSketch::TFloatFloatPrVec &knots = F.knots();
+    const maths::CQuantileSketch& F = stats.arrivalTimeDistribution();
+    const maths::CQuantileSketch::TFloatFloatPrVec& knots = F.knots();
     if (knots.size() == 1) {
         return static_cast<core_t::TTime>(knots[0].first);
     }

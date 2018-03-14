@@ -37,7 +37,7 @@ const CCategoryExamplesCollector::TStrSet EMPTY_EXAMPLES;
 
 const std::string ELLIPSIS(3, '.');
 
-}// unnamed
+} // unnamed
 
 const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
@@ -45,17 +45,17 @@ CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
     : m_MaxExamples(maxExamples) {}
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
-                                                       core::CStateRestoreTraverser &traverser)
+                                                       core::CStateRestoreTraverser& traverser)
     : m_MaxExamples(maxExamples) {
     traverser.traverseSubLevel(
         boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
 }
 
-bool CCategoryExamplesCollector::add(std::size_t category, const std::string &example) {
+bool CCategoryExamplesCollector::add(std::size_t category, const std::string& example) {
     if (m_MaxExamples == 0) {
         return false;
     }
-    TStrSet &examplesForCategory = m_ExamplesByCategory[category];
+    TStrSet& examplesForCategory = m_ExamplesByCategory[category];
     if (examplesForCategory.size() >= m_MaxExamples) {
         return false;
     }
@@ -67,7 +67,7 @@ std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t 
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }
 
-const CCategoryExamplesCollector::TStrSet &
+const CCategoryExamplesCollector::TStrSet&
 CCategoryExamplesCollector::examples(std::size_t category) const {
     auto iterator = m_ExamplesByCategory.find(category);
     if (iterator == m_ExamplesByCategory.end()) {
@@ -77,23 +77,23 @@ CCategoryExamplesCollector::examples(std::size_t category) const {
 }
 
 void CCategoryExamplesCollector::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     // Persist the examples sorted by category ID to make it easier to compare
     // persisted state
 
-    using TSizeStrSetCPtrPr = std::pair<size_t, const TStrSet *>;
+    using TSizeStrSetCPtrPr = std::pair<size_t, const TStrSet*>;
     using TSizeStrSetCPtrPrVec = std::vector<TSizeStrSetCPtrPr>;
 
     TSizeStrSetCPtrPrVec orderedData;
     orderedData.reserve(m_ExamplesByCategory.size());
 
-    for (const auto &exampleByCategory : m_ExamplesByCategory) {
+    for (const auto& exampleByCategory : m_ExamplesByCategory) {
         orderedData.emplace_back(exampleByCategory.first, &exampleByCategory.second);
     }
 
     std::sort(orderedData.begin(), orderedData.end());
 
-    for (const auto &exampleByCategory : orderedData) {
+    for (const auto& exampleByCategory : orderedData) {
         inserter.insertLevel(EXAMPLES_BY_CATEGORY_TAG,
                              boost::bind(&CCategoryExamplesCollector::persistExamples,
                                          this,
@@ -104,18 +104,18 @@ void CCategoryExamplesCollector::acceptPersistInserter(
 }
 
 void CCategoryExamplesCollector::persistExamples(std::size_t category,
-                                                 const TStrSet &examples,
-                                                 core::CStatePersistInserter &inserter) const {
+                                                 const TStrSet& examples,
+                                                 core::CStatePersistInserter& inserter) const {
     inserter.insertValue(CATEGORY_TAG, category);
     for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         inserter.insertValue(EXAMPLE_TAG, *itr);
     }
 }
 
-bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_ExamplesByCategory.clear();
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
             if (traverser.traverseSubLevel(
                     boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
@@ -128,11 +128,11 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser &traverser) {
+bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& traverser) {
     std::size_t category = 0;
     TStrSet examples;
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == CATEGORY_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), category) == false) {
                 LOG_ERROR("Error restoring category: " << traverser.value());
@@ -150,7 +150,9 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser &t
     return true;
 }
 
-void CCategoryExamplesCollector::clear(void) { m_ExamplesByCategory.clear(); }
+void CCategoryExamplesCollector::clear(void) {
+    m_ExamplesByCategory.clear();
+}
 
 std::string CCategoryExamplesCollector::truncateExample(std::string example) {
     if (example.length() > MAX_EXAMPLE_LENGTH) {

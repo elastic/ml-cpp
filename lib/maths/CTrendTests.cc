@@ -68,12 +68,12 @@ using TTimeVec = std::vector<core_t::TTime>;
 //! \brief Sets the timezone to a specified value in a constructor
 //! call so it can be called once by static initialisation.
 struct SSetTimeZone {
-    SSetTimeZone(const std::string &zone) { core::CTimezone::instance().timezoneName(zone); }
+    SSetTimeZone(const std::string& zone) { core::CTimezone::instance().timezoneName(zone); }
 };
 
 //! Generate \p n samples uniformly in the interval [\p a, \p b].
 template <typename ITR>
-void generateUniformSamples(boost::random::mt19937_64 &rng,
+void generateUniformSamples(boost::random::mt19937_64& rng,
                             double a,
                             double b,
                             std::size_t n,
@@ -83,12 +83,12 @@ void generateUniformSamples(boost::random::mt19937_64 &rng,
 }
 
 //! Force the sample mean to zero.
-void zeroMean(TDoubleVec &samples) {
+void zeroMean(TDoubleVec& samples) {
     TMeanAccumulator mean;
     for (auto sample : samples) {
         mean.add(sample);
     }
-    for (auto &&sample : samples) {
+    for (auto&& sample : samples) {
         sample -= CBasicStatistics::mean(mean);
     }
 }
@@ -134,7 +134,7 @@ CRandomizedPeriodicityTest::CRandomizedPeriodicityTest(void)
 }
 
 bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(
-    core::CStateRestoreTraverser &traverser) {
+    core::CStateRestoreTraverser& traverser) {
     // Note we require that we only ever do one persistence per process.
 
     std::size_t index = 0;
@@ -143,7 +143,7 @@ bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(
     core::CScopedLock lock(ms_Lock);
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
 
         if (name == RNG_TAG) {
             // Replace '_' with space
@@ -185,7 +185,7 @@ bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(
 }
 
 void CRandomizedPeriodicityTest::staticsAcceptPersistInserter(
-    core::CStatePersistInserter &inserter) {
+    core::CStatePersistInserter& inserter) {
     // Note we require that we only ever do one persistence per process.
 
     core::CScopedLock lock(ms_Lock);
@@ -215,9 +215,9 @@ void CRandomizedPeriodicityTest::staticsAcceptPersistInserter(
     }
 }
 
-bool CRandomizedPeriodicityTest::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CRandomizedPeriodicityTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
 
         RESTORE(DAY_PROJECTIONS_TAG, m_DayProjections.fromDelimited(traverser.value()))
         RESTORE(DAY_STATISTICS_TAG, m_DayStatistics.fromDelimited(traverser.value()))
@@ -234,7 +234,7 @@ bool CRandomizedPeriodicityTest::acceptRestoreTraverser(core::CStateRestoreTrave
 }
 
 void CRandomizedPeriodicityTest::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DAY_PROJECTIONS_TAG, m_DayProjections.toDelimited());
     inserter.insertValue(DAY_STATISTICS_TAG, m_DayStatistics.toDelimited());
     inserter.insertValue(DAY_REFRESHED_PROJECTIONS_TAG, m_DayRefreshedProjections);
@@ -306,7 +306,7 @@ bool CRandomizedPeriodicityTest::test(void) const {
                 return true;
             }
         }
-    } catch (const std::exception &e) { LOG_ERROR("Failed to test for periodicity: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR("Failed to test for periodicity: " << e.what()); }
 
     return false;
 }
@@ -337,12 +337,12 @@ uint64_t CRandomizedPeriodicityTest::checksum(uint64_t seed) const {
     return seed;
 }
 
-void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator &projections,
-                                                  TVector2MeanAccumulator &statistics) {
+void CRandomizedPeriodicityTest::updateStatistics(TVector2NMeanAccumulator& projections,
+                                                  TVector2MeanAccumulator& statistics) {
     static const double ALPHA = 0.1;
 
     if (CBasicStatistics::count(projections) > 0.0) {
-        const TVector2N &mean = CBasicStatistics::mean(projections);
+        const TVector2N& mean = CBasicStatistics::mean(projections);
         LOG_TRACE("mean = " << mean);
 
         TVector2MeanAccumulator statistic;
@@ -366,8 +366,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE("Updating daily random projections at " << time);
         if (time >= ms_DayResampled.load(std::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL) {
-            resample(
-                DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections, ms_DayRandomProjections);
+            resample(DAY,
+                     DAY_RESAMPLE_INTERVAL,
+                     ms_DayPeriodicProjections,
+                     ms_DayRandomProjections);
             ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL),
                                   std::memory_order_release);
         }
@@ -378,8 +380,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE("Updating weekly random projections at " << time);
         if (time >= ms_WeekResampled.load(std::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL) {
-            resample(
-                WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections, ms_WeekRandomProjections);
+            resample(WEEK,
+                     WEEK_RESAMPLE_INTERVAL,
+                     ms_WeekPeriodicProjections,
+                     ms_WeekRandomProjections);
             ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL),
                                    std::memory_order_release);
         }
@@ -432,9 +436,9 @@ CCalendarCyclicTest::CCalendarCyclicTest(double decayRate)
     m_ErrorSums.reserve(WINDOW / BUCKET / 10);
 }
 
-bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(BUCKET_TAG, m_Bucket)
         RESTORE(ERROR_QUANTILES_TAG,
                 traverser.traverseSubLevel(
@@ -446,11 +450,12 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser &t
     return true;
 }
 
-void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BUCKET_TAG, m_Bucket);
-    inserter.insertLevel(
-        ERROR_QUANTILES_TAG,
-        boost::bind(&CQuantileSketch::acceptPersistInserter, &m_ErrorQuantiles, _1));
+    inserter.insertLevel(ERROR_QUANTILES_TAG,
+                         boost::bind(&CQuantileSketch::acceptPersistInserter,
+                                     &m_ErrorQuantiles,
+                                     _1));
     core::CPersistUtils::persist(ERROR_COUNTS_TAG, m_ErrorCounts, inserter);
     inserter.insertValue(ERROR_SUMS_TAG, core::CPersistUtils::toString(m_ErrorSums));
 }
@@ -478,7 +483,7 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
             }
         }
 
-        uint32_t &count = m_ErrorCounts.back();
+        uint32_t& count = m_ErrorCounts.back();
         count += (count % COUNT_BITS < COUNT_BITS - 1) ? 1 : 0;
 
         double high;
@@ -487,7 +492,7 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
         m_ErrorSums.erase(m_ErrorSums.begin(),
                           std::find_if(m_ErrorSums.begin(),
                                        m_ErrorSums.end(),
-                                       [bucket](const TTimeFloatPr &error_) {
+                                       [bucket](const TTimeFloatPr& error_) {
                                            return error_.first + WINDOW > bucket;
                                        }));
         if (error >= high) {
@@ -526,14 +531,14 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
     stats.reserve(m_ErrorSums.size());
 
     for (auto offset : TIMEZONE_OFFSETS) {
-        for (const auto &error : m_ErrorSums) {
+        for (const auto& error : m_ErrorSums) {
             std::size_t i = m_ErrorCounts.size() - 1 -
                             static_cast<std::size_t>((m_Bucket - error.first) / BUCKET);
             double n = static_cast<double>(m_ErrorCounts[i] % COUNT_BITS);
             double x = static_cast<double>(m_ErrorCounts[i] / COUNT_BITS);
             double s = this->significance(n, x);
             for (auto feature : CCalendarFeature::features(error.first + BUCKET / 2 + offset)) {
-                SStats &stat = stats[feature];
+                SStats& stat = stats[feature];
                 ++stat.s_Repeats;
                 stat.s_Offset = offset;
                 stat.s_Sum += error.second;
@@ -547,7 +552,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
     m_ErrorQuantiles.quantile(50.0, errorThreshold);
     errorThreshold *= 2.0;
 
-    for (const auto &stat : stats) {
+    for (const auto& stat : stats) {
         CCalendarFeature feature = stat.first;
         double r = static_cast<double>(stat.second.s_Repeats);
         double x = stat.second.s_Count;
@@ -590,7 +595,7 @@ double CCalendarCyclicTest::significance(double n, double x) const {
     try {
         boost::math::binomial binom(n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0);
         return std::min(2.0 * CTools::safeCdfComplement(binom, x - 1.0), 1.0);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to calculate significance: " << e.what() << " n = " << n << " x = " << x);
     }
     return 1.0;

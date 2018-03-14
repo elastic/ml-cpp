@@ -66,7 +66,7 @@ public:
 
     //! Allocate a new XML node with the provided name and value
     template <typename TYPE>
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name, const TYPE &value) {
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP newNode(std::string name, const TYPE& value) {
         return this->newNode(name, CStringUtils::typeToString(value));
     }
 
@@ -74,10 +74,10 @@ public:
     //! whether the double should be output with full precision (e.g. for
     //! persistence) or not (e.g. for human readability)
     CXmlNodeWithChildren::TXmlNodeWithChildrenP
-    newNode(const std::string &name, double value, CIEEE754::EPrecision precision);
+    newNode(const std::string& name, double value, CIEEE754::EPrecision precision);
 
     //! Recycle an XML node, plus any children it may have
-    void recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr);
+    void recycle(CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr);
 
 private:
     //! Vector of recycled nodes that can be quickly provided
@@ -90,4 +90,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CXmlNodeWithChildrenPool_h
+#endif // INCLUDED_ml_core_CXmlNodeWithChildrenPool_h

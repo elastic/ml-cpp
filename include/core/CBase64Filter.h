@@ -81,12 +81,13 @@ public:
     //! here how many bytes were actually written to the stream, only how many
     //! we actually consumed from s.
     template <typename SINK>
-    std::streamsize write(SINK &snk, const char_type *s, std::streamsize n) {
+    std::streamsize write(SINK& snk, const char_type* s, std::streamsize n) {
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
         while (done < n) {
-            std::streamsize toCopy = std::min(
-                std::streamsize(n - done), std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
+            std::streamsize toCopy =
+                std::min(std::streamsize(n - done),
+                         std::streamsize(m_Buffer.capacity() - m_Buffer.size()));
             m_Buffer.insert(m_Buffer.end(), s + done, s + done + toCopy);
             done += toCopy;
             this->Encode(snk, false);
@@ -97,12 +98,16 @@ public:
 
     //! Interface method for terminating this filter class - flush
     //! any remaining bytes and pad the output if necessary.
-    template <typename SINK> void close(SINK &snk) { this->Encode(snk, true); }
+    template <typename SINK>
+    void close(SINK& snk) {
+        this->Encode(snk, true);
+    }
 
 private:
     //! Do the actual work of encoding the data - take a chunck of buffered data and write
     //! the converted output into the stream snk
-    template <typename SINK> void Encode(SINK &snk, bool isFinal) {
+    template <typename SINK>
+    void Encode(SINK& snk, bool isFinal) {
         typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>
             TUInt8BufCItrTransformItr;
         typedef boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr>
@@ -184,7 +189,8 @@ public:
     //! The input bytes are buffered, decoded, and the decoded bytes
     //! written to s. Note that we return the number of bytes written to
     //! s, not the number of input bytes copied from src
-    template <typename SOURCE> std::streamsize read(SOURCE &src, char_type *s, std::streamsize n) {
+    template <typename SOURCE>
+    std::streamsize read(SOURCE& src, char_type* s, std::streamsize n) {
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
         char buf[4096];
@@ -251,7 +257,8 @@ public:
     }
 
     //! Interface method - unused
-    template <typename SOURCE> void close(SOURCE & /*src*/) {}
+    template <typename SOURCE>
+    void close(SOURCE& /*src*/) {}
 
 private:
     //! Perform the conversion from Base64 to raw bytes
@@ -301,8 +308,9 @@ private:
         }
         LOG_TRACE("About to decode: " << std::string(m_BufferIn.begin(), endItr));
 
-        m_BufferOut.insert(
-            m_BufferOut.end(), TBase64Binary(m_BufferIn.begin()), TBase64Binary(endItr));
+        m_BufferOut.insert(m_BufferOut.end(),
+                           TBase64Binary(m_BufferIn.begin()),
+                           TBase64Binary(endItr));
 
         // Remove padding bytes off the back of the stream
         m_BufferOut.erase_end(paddingBytes);
@@ -322,8 +330,8 @@ private:
     bool m_Eos;
 };
 
-}// core
+} // core
 
-}// ml
+} // ml
 
-#endif// INCLUDED_ml_core_CBase64Filter_h
+#endif // INCLUDED_ml_core_CBase64Filter_h

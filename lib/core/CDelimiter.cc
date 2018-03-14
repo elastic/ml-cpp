@@ -31,7 +31,7 @@ CDelimiter::CDelimiter(void)
       m_Quote('\0'),
       m_Escape('\0') {}
 
-CDelimiter::CDelimiter(const std::string &delimiter)
+CDelimiter::CDelimiter(const std::string& delimiter)
     : m_Valid(m_Delimiter.init(delimiter)),
       m_HaveFollowingRegex(false),
       m_WaiveFollowingRegexAfterTime(false),
@@ -42,7 +42,7 @@ CDelimiter::CDelimiter(const std::string &delimiter)
     }
 }
 
-CDelimiter::CDelimiter(const std::string &delimiter, const std::string &followingRegex, bool orTime)
+CDelimiter::CDelimiter(const std::string& delimiter, const std::string& followingRegex, bool orTime)
     : m_Valid(m_Delimiter.init(delimiter)),
       m_HaveFollowingRegex(m_FollowingRegex.init(followingRegex)),
       m_WaiveFollowingRegexAfterTime(orTime),
@@ -57,7 +57,7 @@ CDelimiter::CDelimiter(const std::string &delimiter, const std::string &followin
     }
 }
 
-bool CDelimiter::operator==(const CDelimiter &rhs) const {
+bool CDelimiter::operator==(const CDelimiter& rhs) const {
     if (m_Valid != rhs.m_Valid || m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
         m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime ||
         m_Quote != rhs.m_Quote || m_Escape != rhs.m_Escape) {
@@ -80,11 +80,13 @@ bool CDelimiter::operator==(const CDelimiter &rhs) const {
     return true;
 }
 
-bool CDelimiter::operator!=(const CDelimiter &rhs) const { return !this->operator==(rhs); }
+bool CDelimiter::operator!=(const CDelimiter& rhs) const {
+    return !this->operator==(rhs);
+}
 
 // Check whether the text that followed the primary delimiter was acceptable
 bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
-                                           const std::string &str,
+                                           const std::string& str,
                                            bool timePassed) const {
     bool answer(false);
 
@@ -105,37 +107,41 @@ bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
     return answer;
 }
 
-bool CDelimiter::valid(void) const { return m_Valid; }
+bool CDelimiter::valid(void) const {
+    return m_Valid;
+}
 
-std::string CDelimiter::delimiter(void) const { return m_Delimiter.str(); }
+std::string CDelimiter::delimiter(void) const {
+    return m_Delimiter.str();
+}
 
-void CDelimiter::tokenise(const std::string &str,
-                          CStringUtils::TStrVec &tokens,
-                          std::string &remainder) const {
+void CDelimiter::tokenise(const std::string& str,
+                          CStringUtils::TStrVec& tokens,
+                          std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, false, tokens, exampleDelimiter, remainder);
 }
 
-void CDelimiter::tokenise(const std::string &str,
+void CDelimiter::tokenise(const std::string& str,
                           bool timePassed,
-                          CStringUtils::TStrVec &tokens,
-                          std::string &remainder) const {
+                          CStringUtils::TStrVec& tokens,
+                          std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, timePassed, tokens, exampleDelimiter, remainder);
 }
 
-void CDelimiter::tokenise(const std::string &str,
-                          CStringUtils::TStrVec &tokens,
-                          std::string &exampleDelimiter,
-                          std::string &remainder) const {
+void CDelimiter::tokenise(const std::string& str,
+                          CStringUtils::TStrVec& tokens,
+                          std::string& exampleDelimiter,
+                          std::string& remainder) const {
     this->tokenise(str, false, tokens, exampleDelimiter, remainder);
 }
 
-void CDelimiter::tokenise(const std::string &str,
+void CDelimiter::tokenise(const std::string& str,
                           bool timePassed,
-                          CStringUtils::TStrVec &tokens,
-                          std::string &exampleDelimiter,
-                          std::string &remainder) const {
+                          CStringUtils::TStrVec& tokens,
+                          std::string& exampleDelimiter,
+                          std::string& remainder) const {
     tokens.clear();
     exampleDelimiter.clear();
 
@@ -174,8 +180,10 @@ void CDelimiter::tokenise(const std::string &str,
         }
 
         // Search for the delimiter
-        bool found(m_Delimiter.search(
-            expectingQuote ? (quotePos + 1) : searchPos, str, delimStartPos, delimLength));
+        bool found(m_Delimiter.search(expectingQuote ? (quotePos + 1) : searchPos,
+                                      str,
+                                      delimStartPos,
+                                      delimLength));
         if (!found) {
             if (expectingQuote && quotePos < str.length()) {
                 // If we're expecting a quote and find one, treat this as
@@ -246,9 +254,11 @@ void CDelimiter::quote(char quote, char escape) {
     m_Escape = escape;
 }
 
-char CDelimiter::quote(void) const { return m_Quote; }
+char CDelimiter::quote(void) const {
+    return m_Quote;
+}
 
-size_t CDelimiter::getNextQuote(const std::string &str, size_t startPos) const {
+size_t CDelimiter::getNextQuote(const std::string& str, size_t startPos) const {
     size_t result(std::string::npos);
 
     if (m_Quote != '\0') {
@@ -286,7 +296,7 @@ size_t CDelimiter::getNextQuote(const std::string &str, size_t startPos) const {
     return result;
 }
 
-std::ostream &operator<<(std::ostream &strm, const CDelimiter &delimiter) {
+std::ostream& operator<<(std::ostream& strm, const CDelimiter& delimiter) {
     strm << "Delimiter { ";
 
     if (delimiter.m_Valid) {

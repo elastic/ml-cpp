@@ -105,8 +105,9 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount(void) {
         }
 
         LOG_DEBUG("# categories = 1000000, distinct count = " << summary.distinctCount());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            1000000.0, static_cast<double>(summary.distinctCount()), 0.005 * 1000000.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1000000.0,
+                                     static_cast<double>(summary.distinctCount()),
+                                     0.005 * 1000000.0);
     }
 }
 
@@ -144,7 +145,7 @@ void CDataSummaryStatisticsTest::testCategoricalTopN(void) {
             rng.generateUniformSamples(0, categories.size(), 1, index);
         }
 
-        const std::size_t *f = std::lower_bound(boost::begin(freq), boost::end(freq), index[0]);
+        const std::size_t* f = std::lower_bound(boost::begin(freq), boost::end(freq), index[0]);
         if (f != boost::end(freq) && *f == index[0]) {
             ++counts[f - boost::begin(freq)];
         }
@@ -353,23 +354,28 @@ void CDataSummaryStatisticsTest::testNumericDistribution(void) {
     }
 }
 
-CppUnit::Test *CDataSummaryStatisticsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
+CppUnit::Test* CDataSummaryStatisticsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testRate", &CDataSummaryStatisticsTest::testRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testCategoricalDistinctCount",
-        &CDataSummaryStatisticsTest::testCategoricalDistinctCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testCategoricalTopN",
-        &CDataSummaryStatisticsTest::testCategoricalTopN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testNumericBasicStatistics",
-        &CDataSummaryStatisticsTest::testNumericBasicStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testNumericDistribution",
-        &CDataSummaryStatisticsTest::testNumericDistribution));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDataSummaryStatisticsTest>("CDataSummaryStatisticsTest::testRate",
+                                                            &CDataSummaryStatisticsTest::testRate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDataSummaryStatisticsTest>("CDataSummaryStatisticsTest::testCategoricalDistinctCount",
+                                        &CDataSummaryStatisticsTest::testCategoricalDistinctCount));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDataSummaryStatisticsTest>("CDataSummaryStatisticsTest::testCategoricalTopN",
+                                        &CDataSummaryStatisticsTest::testCategoricalTopN));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDataSummaryStatisticsTest>("CDataSummaryStatisticsTest::testNumericBasicStatistics",
+                                        &CDataSummaryStatisticsTest::testNumericBasicStatistics));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDataSummaryStatisticsTest>("CDataSummaryStatisticsTest::testNumericDistribution",
+                                        &CDataSummaryStatisticsTest::testNumericDistribution));
 
     return suiteOfTests;
 }

@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 namespace {
-const char *CPP_SRC_HOME("CPP_SRC_HOME");
+const char* CPP_SRC_HOME("CPP_SRC_HOME");
 }
 
 namespace ml {
@@ -38,7 +38,7 @@ std::string CResourceLocator::resourceDir(void) {
     // error message is nicer for the end user.
     COsFileFuncs::TStat buf;
     if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
-        const char *cppSrcHome(::getenv(CPP_SRC_HOME));
+        const char* cppSrcHome(::getenv(CPP_SRC_HOME));
         if (cppSrcHome != 0) {
             std::string devDir(cppSrcHome);
             devDir += "/lib/core";
@@ -68,7 +68,7 @@ std::string CResourceLocator::logDir(void) {
 }
 
 std::string CResourceLocator::cppRootDir(void) {
-    const char *cppSrcHome(::getenv(CPP_SRC_HOME));
+    const char* cppSrcHome(::getenv(CPP_SRC_HOME));
     if (cppSrcHome == 0) {
         // Assume we're in a unittest directory
         return "../../..";

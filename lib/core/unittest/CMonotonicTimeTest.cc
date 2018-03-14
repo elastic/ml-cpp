@@ -18,13 +18,15 @@
 #include <core/CMonotonicTime.h>
 #include <core/CSleep.h>
 
-CppUnit::Test *CMonotonicTimeTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
+CppUnit::Test* CMonotonicTimeTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
-        "CMonotonicTimeTest::testMilliseconds", &CMonotonicTimeTest::testMilliseconds));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
-        "CMonotonicTimeTest::testNanoseconds", &CMonotonicTimeTest::testNanoseconds));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMonotonicTimeTest>("CMonotonicTimeTest::testMilliseconds",
+                                                    &CMonotonicTimeTest::testMilliseconds));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMonotonicTimeTest>("CMonotonicTimeTest::testNanoseconds",
+                                                    &CMonotonicTimeTest::testNanoseconds));
 
     return suiteOfTests;
 }

@@ -23,7 +23,7 @@ public:
     void testEncode(void);
     void testBoth(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CBase64FilterTest_h
+#endif // INCLUDED_CBase64FilterTest_h

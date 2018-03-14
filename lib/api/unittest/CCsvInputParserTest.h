@@ -26,7 +26,7 @@ public:
     void testQuoteParsing(void);
     void testLineParser(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCsvInputParserTest_h
+#endif // INCLUDED_CCsvInputParserTest_h

@@ -26,7 +26,7 @@ public:
     void testTimezone(void);
     void testDateWords(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTimeUtilsTest_h
+#endif // INCLUDED_CTimeUtilsTest_h

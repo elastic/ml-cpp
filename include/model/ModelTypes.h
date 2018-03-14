@@ -432,7 +432,7 @@ std::size_t dimension(EFeature feature);
 //! For features which have extra statistics in order to compute
 //! influence remove those extra statistics.
 MODEL_EXPORT
-TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec &values);
+TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec& values);
 
 //! Check if \p feature is categorical, i.e. we should create
 //! a distribution over the distinct values observed for the
@@ -499,7 +499,7 @@ double offsetCountToZero(EFeature feature, double count);
 
 //! Offset count features so that their range starts at zero.
 MODEL_EXPORT
-void offsetCountToZero(EFeature feature, TDouble1Vec &count);
+void offsetCountToZero(EFeature feature, TDouble1Vec& count);
 
 //! The inverse of offsetCountToZero.
 MODEL_EXPORT
@@ -507,7 +507,7 @@ double inverseOffsetCountToZero(EFeature feature, double count);
 
 //! The inverse of offsetCountToZero.
 MODEL_EXPORT
-void inverseOffsetCountToZero(EFeature feature, TDouble1Vec &count);
+void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count);
 
 //! Check if the feature counts empty buckets.
 MODEL_EXPORT
@@ -521,7 +521,7 @@ double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
 
 //! Get the rate at which \p feature learns.
 MODEL_EXPORT
-double learnRate(EFeature feature, const model::SModelParams &params);
+double learnRate(EFeature feature, const model::SModelParams& params);
 
 //! Get the type of probability calculation to use for \p feature.
 MODEL_EXPORT
@@ -558,7 +558,7 @@ bool requiresInterimResultAdjustment(EFeature feature);
 //! Maps internal feature names to human readable output function
 //! names that can be included in the results.
 MODEL_EXPORT
-const std::string &outputFunctionName(EFeature feature);
+const std::string& outputFunctionName(EFeature feature);
 
 //! Get a string description of \p feature.
 MODEL_EXPORT
@@ -710,7 +710,7 @@ static const size_t NUM_METRIC_CATEGORIES = 9;
 //! Get the metric feature data corresponding to \p feature
 //! if there is one.
 MODEL_EXPORT
-bool metricCategory(EFeature feature, EMetricCategory &result);
+bool metricCategory(EFeature feature, EMetricCategory& result);
 
 //! Get a string description of \p category.
 MODEL_EXPORT
@@ -757,8 +757,8 @@ std::string print(EAnalysisCategory category);
 //! The different ways we might be told the fields for receiving pre-summarised
 //! data.
 enum ESummaryMode {
-    E_None, //!< No pre-summarisation of input
-    E_Manual//!< Config defines the field names for pre-summarised input
+    E_None,  //!< No pre-summarisation of input
+    E_Manual //!< Config defines the field names for pre-summarised input
 };
 
 //! An enumeration of the options for ExcludeFrequent, which removes
@@ -774,9 +774,9 @@ enum EExcludeFrequent { E_XF_None = 0, E_XF_By = 1, E_XF_Over = 2, E_XF_Both = 3
 //! has taken place to avoid hitting the memory limit,
 //! and goes to hard limit if samples have been dropped
 enum EMemoryStatus {
-    E_MemoryStatusOk = 0,       //!< Memory usage normal
-    E_MemoryStatusSoftLimit = 1,//!< Pruning has taken place to reduce usage
-    E_MemoryStatusHardLimit = 2 //!< Samples have been dropped
+    E_MemoryStatusOk = 0,        //!< Memory usage normal
+    E_MemoryStatusSoftLimit = 1, //!< Pruning has taken place to reduce usage
+    E_MemoryStatusHardLimit = 2  //!< Samples have been dropped
 };
 
 //! Get a string description of \p memoryStatus.
@@ -819,4 +819,4 @@ const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0u;
 }
 }
 
-#endif// INCLUDED_ml_model_t_ModelTypes_h
+#endif // INCLUDED_ml_model_t_ModelTypes_h

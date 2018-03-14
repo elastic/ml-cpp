@@ -18,8 +18,8 @@
 #include <core/CSleep.h>
 #include <core/CTicker.h>
 
-CppUnit::Test *CTickerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTickerTest");
+CppUnit::Test* CTickerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTickerTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CTickerTest>("CTickerTest::testTicker", &CTickerTest::testTicker));

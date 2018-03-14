@@ -70,32 +70,32 @@ public:
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap &dataRowFields) = 0;
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise(void) = 0;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher,
-                              core_t::TTime &completeToTime) = 0;
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+                              core_t::TTime& completeToTime) = 0;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder &persister) = 0;
+    virtual bool persistState(core::CDataAdder& persister) = 0;
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister &persister);
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled(void) const = 0;
 
     //! Access the output handler
-    virtual COutputHandler &outputHandler(void) = 0;
+    virtual COutputHandler& outputHandler(void) = 0;
 
     //! Create debug for a record.  This is expensive so should NOT be
     //! called for every record as a matter of course.
-    static std::string debugPrintRecord(const TStrStrUMap &dataRowFields);
+    static std::string debugPrintRecord(const TStrStrUMap& dataRowFields);
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CDataProcessor_h
+#endif // INCLUDED_ml_api_CDataProcessor_h

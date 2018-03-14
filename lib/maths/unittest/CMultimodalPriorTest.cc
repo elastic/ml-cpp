@@ -61,11 +61,17 @@ typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior> CMultimodalPrior;
 typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
 
 //! Make the default mode prior.
-COneOfNPrior makeModePrior(const double &decayRate = 0.0) {
-    CGammaRateConjugate gamma(maths::CGammaRateConjugate::nonInformativePrior(
-        maths_t::E_ContinuousData, 0.01, decayRate, 0.0));
-    CLogNormalMeanPrecConjugate logNormal(maths::CLogNormalMeanPrecConjugate::nonInformativePrior(
-        maths_t::E_ContinuousData, 0.01, decayRate, 0.0));
+COneOfNPrior makeModePrior(const double& decayRate = 0.0) {
+    CGammaRateConjugate gamma(
+        maths::CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData,
+                                                        0.01,
+                                                        decayRate,
+                                                        0.0));
+    CLogNormalMeanPrecConjugate logNormal(
+        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
+                                                                0.01,
+                                                                decayRate,
+                                                                0.0));
     CNormalMeanPrecConjugate normal(
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, decayRate));
 
@@ -77,7 +83,7 @@ COneOfNPrior makeModePrior(const double &decayRate = 0.0) {
 }
 
 //! Make a vanilla multimodal prior.
-CMultimodalPrior makePrior(const maths::CPrior *modePrior, const double &decayRate) {
+CMultimodalPrior makePrior(const maths::CPrior* modePrior, const double& decayRate) {
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight,
@@ -86,39 +92,51 @@ CMultimodalPrior makePrior(const maths::CPrior *modePrior, const double &decayRa
     if (modePrior) {
         return maths::CMultimodalPrior(maths_t::E_ContinuousData, clusterer, *modePrior, decayRate);
     }
-    return maths::CMultimodalPrior(
-        maths_t::E_ContinuousData, clusterer, makeModePrior(decayRate), decayRate);
+    return maths::CMultimodalPrior(maths_t::E_ContinuousData,
+                                   clusterer,
+                                   makeModePrior(decayRate),
+                                   decayRate);
 }
-CMultimodalPrior makePrior(const maths::CPrior *modePrior) { return makePrior(modePrior, 0.0); }
-CMultimodalPrior makePrior(double decayRate) { return makePrior(0, decayRate); }
-CMultimodalPrior makePrior(void) { return makePrior(0, 0.0); }
+CMultimodalPrior makePrior(const maths::CPrior* modePrior) {
+    return makePrior(modePrior, 0.0);
+}
+CMultimodalPrior makePrior(double decayRate) {
+    return makePrior(0, decayRate);
+}
+CMultimodalPrior makePrior(void) {
+    return makePrior(0, 0.0);
+}
 
 test::CRandomNumbers RNG;
 
-void sample(const boost::math::normal_distribution<> &normal,
+void sample(const boost::math::normal_distribution<>& normal,
             std::size_t numberSamples,
-            TDoubleVec &result) {
-    RNG.generateNormalSamples(
-        boost::math::mean(normal), boost::math::variance(normal), numberSamples, result);
+            TDoubleVec& result) {
+    RNG.generateNormalSamples(boost::math::mean(normal),
+                              boost::math::variance(normal),
+                              numberSamples,
+                              result);
 }
 
-void sample(const boost::math::lognormal_distribution<> &lognormal,
+void sample(const boost::math::lognormal_distribution<>& lognormal,
             std::size_t numberSamples,
-            TDoubleVec &result) {
-    RNG.generateLogNormalSamples(
-        lognormal.location(), lognormal.scale() * lognormal.scale(), numberSamples, result);
+            TDoubleVec& result) {
+    RNG.generateLogNormalSamples(lognormal.location(),
+                                 lognormal.scale() * lognormal.scale(),
+                                 numberSamples,
+                                 result);
 }
 
-void sample(const boost::math::gamma_distribution<> &gamma,
+void sample(const boost::math::gamma_distribution<>& gamma,
             std::size_t numberSamples,
-            TDoubleVec &result) {
+            TDoubleVec& result) {
     RNG.generateGammaSamples(gamma.shape(), gamma.scale(), numberSamples, result);
 }
 template <typename T>
-void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture,
-                                   const double &x,
-                                   double &probability,
-                                   double &deviation) {
+void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T>& mixture,
+                                   const double& x,
+                                   double& probability,
+                                   double& deviation) {
     typedef typename maths::CMixtureDistribution<T>::TModeVec TModeVec;
 
     static const double NUMBER_SAMPLES = 10000.0;
@@ -126,8 +144,8 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture
     probability = 0.0;
 
     double fx = pdf(mixture, x);
-    const TDoubleVec &weights = mixture.weights();
-    const TModeVec &modes = mixture.modes();
+    const TDoubleVec& weights = mixture.weights();
+    const TModeVec& modes = mixture.modes();
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         TDoubleVec samples;
         sample(modes[i], static_cast<std::size_t>(NUMBER_SAMPLES * weights[i]), samples);
@@ -169,10 +187,11 @@ void CMultimodalPriorTest::testMultipleUpdate(void) {
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight);
 
-        CMultimodalPrior filter1(maths::CMultimodalPrior(
-            dataTypes[i],
-            clusterer,
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(dataTypes[i], decayRate)));
+        CMultimodalPrior filter1(
+            maths::CMultimodalPrior(dataTypes[i],
+                                    clusterer,
+                                    maths::CNormalMeanPrecConjugate::
+                                        nonInformativePrior(dataTypes[i], decayRate)));
         CMultimodalPrior filter2(filter1);
 
         for (std::size_t j = 0; j < samples.size(); ++j) {
@@ -825,14 +844,20 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
         LOG_DEBUG("# modes = " << filter.numberModes());
 
         TDoubleVec manySamples1;
-        rng.generateNormalSamples(
-            mean1, variance1, static_cast<std::size_t>(w1 * 100000.0), manySamples1);
+        rng.generateNormalSamples(mean1,
+                                  variance1,
+                                  static_cast<std::size_t>(w1 * 100000.0),
+                                  manySamples1);
         TDoubleVec manySamples2;
-        rng.generateNormalSamples(
-            mean2, variance2, static_cast<std::size_t>(w2 * 100000.0), manySamples2);
+        rng.generateNormalSamples(mean2,
+                                  variance2,
+                                  static_cast<std::size_t>(w2 * 100000.0),
+                                  manySamples2);
         TDoubleVec manySamples3;
-        rng.generateNormalSamples(
-            mean3, variance3, static_cast<std::size_t>(w3 * 100000.0), manySamples3);
+        rng.generateNormalSamples(mean3,
+                                  variance3,
+                                  static_cast<std::size_t>(w3 * 100000.0),
+                                  manySamples3);
         TDoubleVec manySamples;
         manySamples.insert(manySamples.end(), manySamples1.begin(), manySamples1.end());
         manySamples.insert(manySamples.end(), manySamples2.begin(), manySamples2.end());
@@ -869,8 +894,9 @@ void CMultimodalPriorTest::testMarginalLikelihood(void) {
                                            << ", expectedDifferentialEntropy = "
                                            << expectedDifferentialEntropy);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            expectedDifferentialEntropy, differentialEntropy, 0.05 * expectedDifferentialEntropy);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedDifferentialEntropy,
+                                     differentialEntropy,
+                                     0.05 * expectedDifferentialEntropy);
     }
 }
 
@@ -900,8 +926,8 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
     samples.insert(samples.end(), samples2.begin(), samples2.end());
     rng.random_shuffle(samples.begin(), samples.end());
 
-    const double varianceScales[] = {
-        0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const double varianceScales[] =
+        {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
     CMultimodalPrior filter(makePrior());
     filter.addSamples(samples);
@@ -925,10 +951,14 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
         double modePlusEps = mode + eps;
         double fMode, fModeMinusEps, fModePlusEps;
         filter.jointLogMarginalLikelihood(weightStyle, TDouble1Vec(1, mode), weights, fMode);
-        filter.jointLogMarginalLikelihood(
-            weightStyle, TDouble1Vec(1, modeMinusEps), weights, fModeMinusEps);
-        filter.jointLogMarginalLikelihood(
-            weightStyle, TDouble1Vec(1, modePlusEps), weights, fModePlusEps);
+        filter.jointLogMarginalLikelihood(weightStyle,
+                                          TDouble1Vec(1, modeMinusEps),
+                                          weights,
+                                          fModeMinusEps);
+        filter.jointLogMarginalLikelihood(weightStyle,
+                                          TDouble1Vec(1, modePlusEps),
+                                          weights,
+                                          fModePlusEps);
         fMode = ::exp(fMode);
         fModeMinusEps = ::exp(fModeMinusEps);
         fModePlusEps = ::exp(fModePlusEps);
@@ -945,8 +975,10 @@ void CMultimodalPriorTest::testMarginalLikelihoodMode(void) {
         TDoubleVec fTrials;
         for (std::size_t j = 0u; j < trials.size(); ++j) {
             double fTrial;
-            filter.jointLogMarginalLikelihood(
-                weightStyle, TDouble1Vec(1, trials[j]), weights, fTrial);
+            filter.jointLogMarginalLikelihood(weightStyle,
+                                              TDouble1Vec(1, trials[j]),
+                                              weights,
+                                              fTrial);
             fTrial = ::exp(fTrial);
             if (fTrial > fMode) {
                 LOG_DEBUG("f(" << trials[j] << ") = " << fTrial << " > " << fMode);
@@ -984,21 +1016,25 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
         double mean2 = 8.0;
         double variance2 = 2.0;
         TDoubleVec samples1;
-        rng.generateLogNormalSamples(
-            location1, squareScale1, static_cast<std::size_t>(w1 * 2000.0), samples1);
+        rng.generateLogNormalSamples(location1,
+                                     squareScale1,
+                                     static_cast<std::size_t>(w1 * 2000.0),
+                                     samples1);
         TDoubleVec samples2;
-        rng.generateNormalSamples(
-            mean2, variance2, static_cast<std::size_t>(w2 * 2000.0), samples2);
+        rng.generateNormalSamples(mean2,
+                                  variance2,
+                                  static_cast<std::size_t>(w2 * 2000.0),
+                                  samples2);
         TDoubleVec samples;
         samples.insert(samples.end(), samples1.begin(), samples1.end());
         samples.insert(samples.end(), samples2.begin(), samples2.end());
         rng.random_shuffle(samples.begin(), samples.end());
 
-        const double varianceScales[] = {
-            0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
+        const double varianceScales[] =
+            {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0};
 
-        const double percentages[] = {
-            5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 95.0, 99.0, 99.9, 99.99};
+        const double percentages[] =
+            {5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 95.0, 99.0, 99.9, 99.99};
 
         CMultimodalPrior filter(makePrior());
         filter.addSamples(samples);
@@ -1065,10 +1101,14 @@ void CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval(void) {
         TPriorPtr prior;
         maths::CPriorStateSerialiser restorer;
         CPPUNIT_ASSERT(restorer(params, prior, traverser));
-        TDoubleDoublePr median = prior->marginalLikelihoodConfidenceInterval(
-            0, maths::CConstantWeights::COUNT, maths::CConstantWeights::UNIT);
-        TDoubleDoublePr i90 = prior->marginalLikelihoodConfidenceInterval(
-            90, maths::CConstantWeights::COUNT, maths::CConstantWeights::UNIT);
+        TDoubleDoublePr median =
+            prior->marginalLikelihoodConfidenceInterval(0,
+                                                        maths::CConstantWeights::COUNT,
+                                                        maths::CConstantWeights::UNIT);
+        TDoubleDoublePr i90 =
+            prior->marginalLikelihoodConfidenceInterval(90,
+                                                        maths::CConstantWeights::COUNT,
+                                                        maths::CConstantWeights::UNIT);
 
         LOG_DEBUG("median = " << maths::CBasicStatistics::mean(median));
         LOG_DEBUG("confidence interval = " << core::CContainerPrinter::print(i90));
@@ -1288,11 +1328,15 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
         double variance1 = 1.0, variance2 = 1.0;
 
         TDoubleVec samples1;
-        rng.generateNormalSamples(
-            mean1, variance1, static_cast<std::size_t>(10000.0 * weight1), samples1);
+        rng.generateNormalSamples(mean1,
+                                  variance1,
+                                  static_cast<std::size_t>(10000.0 * weight1),
+                                  samples1);
         TDoubleVec samples2;
-        rng.generateNormalSamples(
-            mean2, variance2, static_cast<std::size_t>(10000.0 * weight2), samples2);
+        rng.generateNormalSamples(mean2,
+                                  variance2,
+                                  static_cast<std::size_t>(10000.0 * weight2),
+                                  samples2);
         TDoubleVec samples;
         samples.insert(samples.end(), samples1.begin(), samples1.end());
         samples.insert(samples.end(), samples2.begin(), samples2.end());
@@ -1321,8 +1365,10 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
 
             double lowerBound;
             double upperBound;
-            filter.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, TDouble1Vec(1, x[i]), lowerBound, upperBound);
+            filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                  TDouble1Vec(1, x[i]),
+                                                  lowerBound,
+                                                  upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound << ", upperBound = " << upperBound
                                       << ", expectedProbability = " << expectedProbability
                                       << ", deviation = " << deviation);
@@ -1334,8 +1380,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
                                 ? probability - (expectedProbability + 2.0 * deviation)
                                 : 0.0);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedProbability, probability, std::max(3.0 * deviation, 3e-5));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability,
+                                         probability,
+                                         std::max(3.0 * deviation, 3e-5));
         }
 
         error /= static_cast<double>(boost::size(x));
@@ -1415,8 +1462,10 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
 
             double lowerBound;
             double upperBound;
-            filter.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, TDouble1Vec(1, x[i]), lowerBound, upperBound);
+            filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                  TDouble1Vec(1, x[i]),
+                                                  lowerBound,
+                                                  upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound << ", upperBound = " << upperBound
                                       << ", expectedProbability = " << expectedProbability
                                       << ", deviation = " << deviation);
@@ -1428,10 +1477,11 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
                                 ? probability - (expectedProbability + 2.0 * deviation)
                                 : 0.0);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expectedProbability,
-                probability,
-                std::min(0.2 * expectedProbability + std::max(3.0 * deviation, 1e-10), 0.06));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability,
+                                         probability,
+                                         std::min(0.2 * expectedProbability +
+                                                      std::max(3.0 * deviation, 1e-10),
+                                                  0.06));
         }
 
         error /= static_cast<double>(boost::size(x));
@@ -1447,8 +1497,10 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
         samples.reserve(20000u);
         for (std::size_t i = 0u; i < boost::size(weights); ++i) {
             TDoubleVec modeSamples;
-            rng.generateGammaSamples(
-                shapes[i], scales[i], static_cast<std::size_t>(20000.0 * weights[i]), modeSamples);
+            rng.generateGammaSamples(shapes[i],
+                                     scales[i],
+                                     static_cast<std::size_t>(20000.0 * weights[i]),
+                                     modeSamples);
             samples.insert(samples.end(), modeSamples.begin(), modeSamples.end());
         }
         rng.random_shuffle(samples.begin(), samples.end());
@@ -1475,8 +1527,10 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
 
             double lowerBound;
             double upperBound;
-            filter.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, TDouble1Vec(1, x[i]), lowerBound, upperBound);
+            filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                  TDouble1Vec(1, x[i]),
+                                                  lowerBound,
+                                                  upperBound);
             LOG_DEBUG("lowerBound = " << lowerBound << ", upperBound = " << upperBound
                                       << ", expectedProbability = " << expectedProbability
                                       << ", deviation = " << deviation);
@@ -1508,95 +1562,110 @@ void CMultimodalPriorTest::testLargeValues(void) {
     // Check that the confidence interval calculation stays
     // well conditioned for very large values.
 
-    TDoubleVec values{
-        7.324121e+10,  7.251927e+10,  7.152208e+10,  7.089604e+10,  7.018831e+10,  6.94266e+10,
-        6.890659e+10,  6.837292e+10,  6.794372e+10,  6.793463e+10,  6.785385e+10,  6.773589e+10,
-        6.787609e+10,  6.760049e+10,  6.709596e+10,  6.701824e+10,  6.672568e+10,  6.617609e+10,
-        6.620431e+10,  6.627069e+10,  6.617393e+10,  6.633176e+10,  6.600326e+10,  6.530363e+10,
-        6.494482e+10,  6.433443e+10,  6.362233e+10,  6.317814e+10,  6.296127e+10,  6.272491e+10,
-        6.243567e+10,  6.19567e+10,   6.13123e+10,   6.150823e+10,  6.160438e+10,  6.106396e+10,
-        6.128276e+10,  6.13318e+10,   6.161243e+10,  6.182719e+10,  6.177156e+10,  6.174539e+10,
-        6.216147e+10,  6.272091e+10,  6.286637e+10,  6.310137e+10,  6.315882e+10,  6.312109e+10,
-        6.312296e+10,  6.312432e+10,  6.328676e+10,  6.37708e+10,   6.421867e+10,  6.490675e+10,
-        6.547625e+10,  6.593425e+10,  6.67186e+10,   6.755033e+10,  6.754501e+10,  6.730381e+10,
-        6.76163e+10,   6.761007e+10,  6.745505e+10,  6.777796e+10,  6.783472e+10,  6.779558e+10,
-        6.787643e+10,  6.800003e+10,  6.840413e+10,  6.856255e+10,  6.939239e+10,  6.907512e+10,
-        6.914988e+10,  6.901868e+10,  6.884531e+10,  6.934499e+10,  6.955862e+10,  6.938019e+10,
-        6.942022e+10,  6.950912e+10,  6.979618e+10,  7.064871e+10,  7.152501e+10,  7.178129e+10,
-        7.2239e+10,    7.257321e+10,  7.28913e+10,   7.365193e+10,  7.432521e+10,  7.475098e+10,
-        7.553025e+10,  7.654561e+10,  7.698032e+10,  7.768267e+10,  7.826669e+10,  7.866854e+10,
-        7.924608e+10,  7.998602e+10,  8.038091e+10,  8.094976e+10,  8.145126e+10,  8.132123e+10,
-        8.142747e+10,  8.148276e+10,  8.118588e+10,  8.122279e+10,  8.078815e+10,  8.008936e+10,
-        7.991103e+10,  7.981722e+10,  7.932372e+10,  7.900164e+10,  7.881053e+10,  7.837734e+10,
-        7.847101e+10,  7.816575e+10,  7.789224e+10,  7.803634e+10,  7.827226e+10,  7.812112e+10,
-        7.814848e+10,  7.812407e+10,  7.779805e+10,  7.783394e+10,  7.768365e+10,  7.74484e+10,
-        7.740301e+10,  7.725512e+10,  7.666682e+10,  7.635862e+10,  7.592468e+10,  7.539656e+10,
-        7.529974e+10,  7.501661e+10,  7.442706e+10,  7.406878e+10,  7.347894e+10,  7.268775e+10,
-        7.23729e+10,   7.171337e+10,  7.146626e+10,  7.130693e+10,  7.066356e+10,  6.977915e+10,
-        6.915126e+10,  6.830462e+10,  6.73021e+10,   6.67686e+10,   6.600806e+10,  6.504958e+10,
-        6.427045e+10,  6.35093e+10,   6.277891e+10,  6.258429e+10,  6.184866e+10,  6.114754e+10,
-        6.093035e+10,  6.063859e+10,  5.999596e+10,  5.952608e+10,  5.927059e+10,  5.831014e+10,
-        5.763428e+10,  5.77239e+10,   5.82414e+10,   5.911797e+10,  5.987076e+10,  5.976584e+10,
-        6.017487e+10,  6.023042e+10,  6.029144e+10,  6.068466e+10,  6.139924e+10,  6.208432e+10,
-        6.259237e+10,  6.300856e+10,  6.342197e+10,  6.423638e+10,  6.494938e+10,  6.478293e+10,
-        6.444705e+10,  6.432593e+10,  6.437474e+10,  6.447832e+10,  6.450247e+10,  6.398122e+10,
-        6.399681e+10,  6.406744e+10,  6.404553e+10,  6.417746e+10,  6.39819e+10,   6.389218e+10,
-        6.453242e+10,  6.491168e+10,  6.493824e+10,  6.524365e+10,  6.537463e+10,  6.543864e+10,
-        6.583769e+10,  6.596521e+10,  6.641129e+10,  6.718787e+10,  6.741177e+10,  6.776819e+10,
-        6.786579e+10,  6.783788e+10,  6.790788e+10,  6.77233e+10,   6.738099e+10,  6.718351e+10,
-        6.739131e+10,  6.752051e+10,  6.747344e+10,  6.757187e+10,  6.739908e+10,  6.702725e+10,
-        6.70474e+10,   6.708783e+10,  6.72989e+10,   6.75298e+10,   6.727323e+10,  6.677787e+10,
-        6.686342e+10,  6.687026e+10,  6.714555e+10,  6.750766e+10,  6.807156e+10,  6.847816e+10,
-        6.915895e+10,  6.958225e+10,  6.970934e+10,  6.972807e+10,  6.973312e+10,  6.970858e+10,
-        6.962325e+10,  6.968693e+10,  6.965446e+10,  6.983768e+10,  6.974386e+10,  6.992195e+10,
-        7.010707e+10,  7.004337e+10,  7.006336e+10,  7.06312e+10,   7.078169e+10,  7.080609e+10,
-        7.107845e+10,  7.084754e+10,  7.032667e+10,  7.052029e+10,  7.031464e+10,  7.006906e+10,
-        7.018558e+10,  7.022278e+10,  7.012379e+10,  7.043974e+10,  7.016036e+10,  6.975801e+10,
-        6.95197e+10,   6.92444e+10,   6.85828e+10,   6.808828e+10,  6.74055e+10,   6.663602e+10,
-        6.588224e+10,  6.52747e+10,   6.412303e+10,  6.315978e+10,  6.268569e+10,  6.219346e+10,
-        6.177174e+10,  6.101807e+10,  6.018369e+10,  5.97554e+10,   5.924427e+10,  5.867325e+10,
-        5.814079e+10,  5.745633e+10,  5.641881e+10,  5.608709e+10,  5.529503e+10,  5.450575e+10,
-        5.383054e+10,  5.297568e+10,  5.210389e+10,  5.139513e+10,  5.03026e+10,   4.922761e+10,
-        4.839502e+10,  4.739353e+10,  4.605013e+10,  4.486422e+10,  4.369101e+10,  4.241115e+10,
-        4.128026e+10,  4.025775e+10,  3.915851e+10,  3.819004e+10,  3.700971e+10,  3.581475e+10,
-        3.498126e+10,  3.384422e+10,  3.224959e+10,  3.108637e+10,  2.997983e+10,  2.86439e+10,
-        2.774108e+10,  2.682793e+10,  2.590098e+10,  2.500665e+10,  2.368987e+10,  2.24582e+10,
-        2.158596e+10,  2.062636e+10,  1.942922e+10,  1.873734e+10,  1.823214e+10,  1.726518e+10,
-        1.665115e+10,  1.582729e+10,  1.477715e+10,  1.406265e+10,  1.285904e+10,  1.145722e+10,
-        1.038312e+10,  9.181713e+09,  8.141138e+09,  7.45358e+09,   6.59996e+09,   5.72857e+09,
-        5.136189e+09,  4.51829e+09,   3.649536e+09,  2.990132e+09,  2.29392e+09,   1.390141e+09,
-        5.611192e+08,  -1.62469e+08,  -1.041465e+09, -1.804217e+09, -2.923116e+09, -4.205691e+09,
-        -5.09832e+09,  -6.12155e+09,  -7.10503e+09,  -7.957297e+09, -9.107372e+09, -1.039097e+10,
-        -1.133152e+10, -1.221205e+10, -1.318018e+10, -1.402195e+10, -1.512e+10,    -1.634369e+10,
-        -1.710999e+10, -1.786548e+10, -1.866482e+10, -1.938912e+10, -2.039964e+10, -2.160603e+10,
-        -2.259855e+10, -2.353314e+10, -2.449689e+10, -2.52005e+10,  -2.627104e+10, -2.730019e+10,
-        -2.815777e+10, -2.920027e+10, -3.03507e+10,  -3.126021e+10, -3.212383e+10, -3.329089e+10,
-        -3.402306e+10, -3.475361e+10, -3.572698e+10, -3.644467e+10, -3.721484e+10, -3.800023e+10,
-        -3.865459e+10, -3.918282e+10, -3.983764e+10, -4.051065e+10, -4.119051e+10, -4.202436e+10,
-        -4.24868e+10,  -4.340278e+10, -4.418258e+10, -4.490206e+10, -4.587365e+10, -4.697342e+10,
-        -4.778222e+10, -4.882614e+10, -4.984197e+10, -5.051089e+10, -5.143766e+10, -5.252824e+10,
-        -5.353136e+10, -5.436329e+10, -5.533555e+10, -5.623246e+10, -5.689744e+10, -5.798439e+10,
-        -5.882786e+10, -5.96284e+10,  -6.061507e+10, -6.145417e+10, -6.235327e+10, -6.335978e+10,
-        -6.405788e+10, -6.496648e+10, -6.600807e+10, -6.686964e+10, -6.782611e+10, -6.890904e+10,
-        -6.941638e+10, -7.012465e+10, -7.113145e+10, -7.186233e+10, -7.2293e+10,   -7.313894e+10,
-        -7.394114e+10, -7.475566e+10, -7.572029e+10, -7.660066e+10, -7.738602e+10, -7.846013e+10,
-        -7.921084e+10, -7.986093e+10, -8.07113e+10,  -8.159104e+10, -8.243174e+10, -8.305353e+10,
-        -8.346367e+10, -8.402575e+10, -8.482895e+10, -8.536747e+10, -8.581526e+10, -8.640365e+10,
-        -8.683093e+10, -8.724777e+10, -8.746026e+10, -8.760338e+10, -8.809235e+10, -8.870936e+10,
-        -8.905536e+10, -8.953669e+10, -9.031665e+10, -9.090067e+10, -9.135409e+10, -9.185499e+10,
-        -9.225697e+10, -9.253896e+10, -9.314785e+10, -9.354807e+10, -9.391591e+10, -9.436751e+10,
-        -9.471133e+10, -9.517393e+10, -9.587184e+10, -9.619209e+10, -9.607482e+10, -9.593427e+10,
-        -9.604743e+10, -9.619758e+10, -9.62449e+10,  -9.61466e+10,  -9.636941e+10, -9.692289e+10,
-        -9.735416e+10, -9.774056e+10, -9.828883e+10, -9.859253e+10, -9.888183e+10, -9.95351e+10,
-        -1.001142e+11};
+    TDoubleVec values{7.324121e+10,  7.251927e+10,  7.152208e+10,  7.089604e+10,  7.018831e+10,
+                      6.94266e+10,   6.890659e+10,  6.837292e+10,  6.794372e+10,  6.793463e+10,
+                      6.785385e+10,  6.773589e+10,  6.787609e+10,  6.760049e+10,  6.709596e+10,
+                      6.701824e+10,  6.672568e+10,  6.617609e+10,  6.620431e+10,  6.627069e+10,
+                      6.617393e+10,  6.633176e+10,  6.600326e+10,  6.530363e+10,  6.494482e+10,
+                      6.433443e+10,  6.362233e+10,  6.317814e+10,  6.296127e+10,  6.272491e+10,
+                      6.243567e+10,  6.19567e+10,   6.13123e+10,   6.150823e+10,  6.160438e+10,
+                      6.106396e+10,  6.128276e+10,  6.13318e+10,   6.161243e+10,  6.182719e+10,
+                      6.177156e+10,  6.174539e+10,  6.216147e+10,  6.272091e+10,  6.286637e+10,
+                      6.310137e+10,  6.315882e+10,  6.312109e+10,  6.312296e+10,  6.312432e+10,
+                      6.328676e+10,  6.37708e+10,   6.421867e+10,  6.490675e+10,  6.547625e+10,
+                      6.593425e+10,  6.67186e+10,   6.755033e+10,  6.754501e+10,  6.730381e+10,
+                      6.76163e+10,   6.761007e+10,  6.745505e+10,  6.777796e+10,  6.783472e+10,
+                      6.779558e+10,  6.787643e+10,  6.800003e+10,  6.840413e+10,  6.856255e+10,
+                      6.939239e+10,  6.907512e+10,  6.914988e+10,  6.901868e+10,  6.884531e+10,
+                      6.934499e+10,  6.955862e+10,  6.938019e+10,  6.942022e+10,  6.950912e+10,
+                      6.979618e+10,  7.064871e+10,  7.152501e+10,  7.178129e+10,  7.2239e+10,
+                      7.257321e+10,  7.28913e+10,   7.365193e+10,  7.432521e+10,  7.475098e+10,
+                      7.553025e+10,  7.654561e+10,  7.698032e+10,  7.768267e+10,  7.826669e+10,
+                      7.866854e+10,  7.924608e+10,  7.998602e+10,  8.038091e+10,  8.094976e+10,
+                      8.145126e+10,  8.132123e+10,  8.142747e+10,  8.148276e+10,  8.118588e+10,
+                      8.122279e+10,  8.078815e+10,  8.008936e+10,  7.991103e+10,  7.981722e+10,
+                      7.932372e+10,  7.900164e+10,  7.881053e+10,  7.837734e+10,  7.847101e+10,
+                      7.816575e+10,  7.789224e+10,  7.803634e+10,  7.827226e+10,  7.812112e+10,
+                      7.814848e+10,  7.812407e+10,  7.779805e+10,  7.783394e+10,  7.768365e+10,
+                      7.74484e+10,   7.740301e+10,  7.725512e+10,  7.666682e+10,  7.635862e+10,
+                      7.592468e+10,  7.539656e+10,  7.529974e+10,  7.501661e+10,  7.442706e+10,
+                      7.406878e+10,  7.347894e+10,  7.268775e+10,  7.23729e+10,   7.171337e+10,
+                      7.146626e+10,  7.130693e+10,  7.066356e+10,  6.977915e+10,  6.915126e+10,
+                      6.830462e+10,  6.73021e+10,   6.67686e+10,   6.600806e+10,  6.504958e+10,
+                      6.427045e+10,  6.35093e+10,   6.277891e+10,  6.258429e+10,  6.184866e+10,
+                      6.114754e+10,  6.093035e+10,  6.063859e+10,  5.999596e+10,  5.952608e+10,
+                      5.927059e+10,  5.831014e+10,  5.763428e+10,  5.77239e+10,   5.82414e+10,
+                      5.911797e+10,  5.987076e+10,  5.976584e+10,  6.017487e+10,  6.023042e+10,
+                      6.029144e+10,  6.068466e+10,  6.139924e+10,  6.208432e+10,  6.259237e+10,
+                      6.300856e+10,  6.342197e+10,  6.423638e+10,  6.494938e+10,  6.478293e+10,
+                      6.444705e+10,  6.432593e+10,  6.437474e+10,  6.447832e+10,  6.450247e+10,
+                      6.398122e+10,  6.399681e+10,  6.406744e+10,  6.404553e+10,  6.417746e+10,
+                      6.39819e+10,   6.389218e+10,  6.453242e+10,  6.491168e+10,  6.493824e+10,
+                      6.524365e+10,  6.537463e+10,  6.543864e+10,  6.583769e+10,  6.596521e+10,
+                      6.641129e+10,  6.718787e+10,  6.741177e+10,  6.776819e+10,  6.786579e+10,
+                      6.783788e+10,  6.790788e+10,  6.77233e+10,   6.738099e+10,  6.718351e+10,
+                      6.739131e+10,  6.752051e+10,  6.747344e+10,  6.757187e+10,  6.739908e+10,
+                      6.702725e+10,  6.70474e+10,   6.708783e+10,  6.72989e+10,   6.75298e+10,
+                      6.727323e+10,  6.677787e+10,  6.686342e+10,  6.687026e+10,  6.714555e+10,
+                      6.750766e+10,  6.807156e+10,  6.847816e+10,  6.915895e+10,  6.958225e+10,
+                      6.970934e+10,  6.972807e+10,  6.973312e+10,  6.970858e+10,  6.962325e+10,
+                      6.968693e+10,  6.965446e+10,  6.983768e+10,  6.974386e+10,  6.992195e+10,
+                      7.010707e+10,  7.004337e+10,  7.006336e+10,  7.06312e+10,   7.078169e+10,
+                      7.080609e+10,  7.107845e+10,  7.084754e+10,  7.032667e+10,  7.052029e+10,
+                      7.031464e+10,  7.006906e+10,  7.018558e+10,  7.022278e+10,  7.012379e+10,
+                      7.043974e+10,  7.016036e+10,  6.975801e+10,  6.95197e+10,   6.92444e+10,
+                      6.85828e+10,   6.808828e+10,  6.74055e+10,   6.663602e+10,  6.588224e+10,
+                      6.52747e+10,   6.412303e+10,  6.315978e+10,  6.268569e+10,  6.219346e+10,
+                      6.177174e+10,  6.101807e+10,  6.018369e+10,  5.97554e+10,   5.924427e+10,
+                      5.867325e+10,  5.814079e+10,  5.745633e+10,  5.641881e+10,  5.608709e+10,
+                      5.529503e+10,  5.450575e+10,  5.383054e+10,  5.297568e+10,  5.210389e+10,
+                      5.139513e+10,  5.03026e+10,   4.922761e+10,  4.839502e+10,  4.739353e+10,
+                      4.605013e+10,  4.486422e+10,  4.369101e+10,  4.241115e+10,  4.128026e+10,
+                      4.025775e+10,  3.915851e+10,  3.819004e+10,  3.700971e+10,  3.581475e+10,
+                      3.498126e+10,  3.384422e+10,  3.224959e+10,  3.108637e+10,  2.997983e+10,
+                      2.86439e+10,   2.774108e+10,  2.682793e+10,  2.590098e+10,  2.500665e+10,
+                      2.368987e+10,  2.24582e+10,   2.158596e+10,  2.062636e+10,  1.942922e+10,
+                      1.873734e+10,  1.823214e+10,  1.726518e+10,  1.665115e+10,  1.582729e+10,
+                      1.477715e+10,  1.406265e+10,  1.285904e+10,  1.145722e+10,  1.038312e+10,
+                      9.181713e+09,  8.141138e+09,  7.45358e+09,   6.59996e+09,   5.72857e+09,
+                      5.136189e+09,  4.51829e+09,   3.649536e+09,  2.990132e+09,  2.29392e+09,
+                      1.390141e+09,  5.611192e+08,  -1.62469e+08,  -1.041465e+09, -1.804217e+09,
+                      -2.923116e+09, -4.205691e+09, -5.09832e+09,  -6.12155e+09,  -7.10503e+09,
+                      -7.957297e+09, -9.107372e+09, -1.039097e+10, -1.133152e+10, -1.221205e+10,
+                      -1.318018e+10, -1.402195e+10, -1.512e+10,    -1.634369e+10, -1.710999e+10,
+                      -1.786548e+10, -1.866482e+10, -1.938912e+10, -2.039964e+10, -2.160603e+10,
+                      -2.259855e+10, -2.353314e+10, -2.449689e+10, -2.52005e+10,  -2.627104e+10,
+                      -2.730019e+10, -2.815777e+10, -2.920027e+10, -3.03507e+10,  -3.126021e+10,
+                      -3.212383e+10, -3.329089e+10, -3.402306e+10, -3.475361e+10, -3.572698e+10,
+                      -3.644467e+10, -3.721484e+10, -3.800023e+10, -3.865459e+10, -3.918282e+10,
+                      -3.983764e+10, -4.051065e+10, -4.119051e+10, -4.202436e+10, -4.24868e+10,
+                      -4.340278e+10, -4.418258e+10, -4.490206e+10, -4.587365e+10, -4.697342e+10,
+                      -4.778222e+10, -4.882614e+10, -4.984197e+10, -5.051089e+10, -5.143766e+10,
+                      -5.252824e+10, -5.353136e+10, -5.436329e+10, -5.533555e+10, -5.623246e+10,
+                      -5.689744e+10, -5.798439e+10, -5.882786e+10, -5.96284e+10,  -6.061507e+10,
+                      -6.145417e+10, -6.235327e+10, -6.335978e+10, -6.405788e+10, -6.496648e+10,
+                      -6.600807e+10, -6.686964e+10, -6.782611e+10, -6.890904e+10, -6.941638e+10,
+                      -7.012465e+10, -7.113145e+10, -7.186233e+10, -7.2293e+10,   -7.313894e+10,
+                      -7.394114e+10, -7.475566e+10, -7.572029e+10, -7.660066e+10, -7.738602e+10,
+                      -7.846013e+10, -7.921084e+10, -7.986093e+10, -8.07113e+10,  -8.159104e+10,
+                      -8.243174e+10, -8.305353e+10, -8.346367e+10, -8.402575e+10, -8.482895e+10,
+                      -8.536747e+10, -8.581526e+10, -8.640365e+10, -8.683093e+10, -8.724777e+10,
+                      -8.746026e+10, -8.760338e+10, -8.809235e+10, -8.870936e+10, -8.905536e+10,
+                      -8.953669e+10, -9.031665e+10, -9.090067e+10, -9.135409e+10, -9.185499e+10,
+                      -9.225697e+10, -9.253896e+10, -9.314785e+10, -9.354807e+10, -9.391591e+10,
+                      -9.436751e+10, -9.471133e+10, -9.517393e+10, -9.587184e+10, -9.619209e+10,
+                      -9.607482e+10, -9.593427e+10, -9.604743e+10, -9.619758e+10, -9.62449e+10,
+                      -9.61466e+10,  -9.636941e+10, -9.692289e+10, -9.735416e+10, -9.774056e+10,
+                      -9.828883e+10, -9.859253e+10, -9.888183e+10, -9.95351e+10,  -1.001142e+11};
 
     maths::CGammaRateConjugate gammaPrior =
         maths::CGammaRateConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.2, 0.001);
     maths::CNormalMeanPrecConjugate normalPrior =
         maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, 0.001);
     maths::CLogNormalMeanPrecConjugate logNormalPrior =
-        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(
-            maths_t::E_ContinuousData, 0.2, 0.001);
+        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
+                                                                0.2,
+                                                                0.001);
 
     maths::COneOfNPrior::TPriorPtrVec modePriors;
     modePriors.reserve(3u);
@@ -1619,8 +1688,10 @@ void CMultimodalPriorTest::testLargeValues(void) {
                                    TDouble1Vec(1, value),
                                    TDouble4Vec1Vec(1, TDouble4Vec(1, 1.0 / 3.0)));
         if (!multimodalPrior.isNonInformative()) {
-            TDoubleDoublePr interval = multimodalPrior.marginalLikelihoodConfidenceInterval(
-                95.0, maths::CConstantWeights::COUNT, maths::CConstantWeights::UNIT);
+            TDoubleDoublePr interval =
+                multimodalPrior.marginalLikelihoodConfidenceInterval(95.0,
+                                                                     maths::CConstantWeights::COUNT,
+                                                                     maths::CConstantWeights::UNIT);
             if (interval.second - interval.first >= 3e11) {
                 LOG_DEBUG("interval = " << interval.second - interval.first);
                 LOG_DEBUG(multimodalPrior.print());
@@ -1681,11 +1752,13 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
         double points[] = {0.5, 4.0, 12.0, 20.0, 40.0, 50.0, 60.0};
 
         double unscaledExpectationVariance;
-        filter.expectation(
-            CVarianceKernel(filter.marginalLikelihoodMean()), 50, unscaledExpectationVariance);
+        filter.expectation(CVarianceKernel(filter.marginalLikelihoodMean()),
+                           50,
+                           unscaledExpectationVariance);
         LOG_DEBUG("unscaledExpectationVariance = " << unscaledExpectationVariance);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            v, unscaledExpectationVariance, 1e-2 * unscaledExpectationVariance);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(v,
+                                     unscaledExpectationVariance,
+                                     1e-2 * unscaledExpectationVariance);
 
         for (std::size_t i = 0u; i < boost::size(varianceScales); ++i) {
             double vs = varianceScales[i];
@@ -1709,10 +1782,10 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(vs * unscaledExpectationVariance,
                                          expectationVariance,
                                          1e-3 * vs * unscaledExpectationVariance);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                filter.marginalLikelihoodVariance(weightStyle, weight),
-                expectationVariance,
-                1e-3 * filter.marginalLikelihoodVariance(weightStyle, weight));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodVariance(weightStyle, weight),
+                                         expectationVariance,
+                                         1e-3 * filter.marginalLikelihoodVariance(weightStyle,
+                                                                                  weight));
 
             TDouble1Vec sample(1, 0.0);
             for (std::size_t j = 0u; j < boost::size(points); ++j) {
@@ -1728,8 +1801,9 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
                 double FxMinusEps = ::exp(-(lb + ub) / 2.0);
                 LOG_DEBUG("x = " << points[j] << ", log(f(x)) = " << fx
                                  << ", log(dF/dx)) = " << ::log((FxPlusEps - FxMinusEps) / 2e-3));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                    fx, ::log((FxPlusEps - FxMinusEps) / 2e-3), 0.05 * ::fabs(fx));
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(fx,
+                                             ::log((FxPlusEps - FxMinusEps) / 2e-3),
+                                             0.05 * ::fabs(fx));
 
                 sample[0] = m + (points[j] - m) / ::sqrt(vs);
                 weights[0][0] = 1.0;
@@ -1772,10 +1846,12 @@ void CMultimodalPriorTest::testSeasonalVarianceScale(void) {
                                                  ::log(upperBound),
                                                  0.1 * ::fabs(::log(expectedUpperBound)));
                 } else {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedLowerBound, lowerBound, 0.05 * expectedLowerBound);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedUpperBound, upperBound, 0.05 * expectedUpperBound);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedLowerBound,
+                                                 lowerBound,
+                                                 0.05 * expectedLowerBound);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedUpperBound,
+                                                 upperBound,
+                                                 0.05 * expectedUpperBound);
                 }
                 CPPUNIT_ASSERT_EQUAL(expectedTail, tail);
             }
@@ -1881,41 +1957,51 @@ void CMultimodalPriorTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CMultimodalPriorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMultimodalPriorTest");
+CppUnit::Test* CMultimodalPriorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultimodalPriorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testMultipleUpdate", &CMultimodalPriorTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testPropagation", &CMultimodalPriorTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testSingleMode", &CMultimodalPriorTest::testSingleMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testMultipleModes", &CMultimodalPriorTest::testMultipleModes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testMarginalLikelihood",
-        &CMultimodalPriorTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testMarginalLikelihoodMode",
-        &CMultimodalPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval",
-        &CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testSampleMarginalLikelihood",
-        &CMultimodalPriorTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testCdf", &CMultimodalPriorTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testProbabilityOfLessLikelySamples",
-        &CMultimodalPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testSeasonalVarianceScale",
-        &CMultimodalPriorTest::testSeasonalVarianceScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testLargeValues", &CMultimodalPriorTest::testLargeValues));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultimodalPriorTest>(
-        "CMultimodalPriorTest::testPersist", &CMultimodalPriorTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testMultipleUpdate",
+                                                      &CMultimodalPriorTest::testMultipleUpdate));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testPropagation",
+                                                      &CMultimodalPriorTest::testPropagation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testSingleMode",
+                                                      &CMultimodalPriorTest::testSingleMode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testMultipleModes",
+                                                      &CMultimodalPriorTest::testMultipleModes));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMultimodalPriorTest>("CMultimodalPriorTest::testMarginalLikelihood",
+                                                &CMultimodalPriorTest::testMarginalLikelihood));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMultimodalPriorTest>("CMultimodalPriorTest::testMarginalLikelihoodMode",
+                                                &CMultimodalPriorTest::testMarginalLikelihoodMode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultimodalPriorTest>("CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval",
+                                  &CMultimodalPriorTest::testMarginalLikelihoodConfidenceInterval));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultimodalPriorTest>("CMultimodalPriorTest::testSampleMarginalLikelihood",
+                                  &CMultimodalPriorTest::testSampleMarginalLikelihood));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testCdf",
+                                                      &CMultimodalPriorTest::testCdf));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMultimodalPriorTest>("CMultimodalPriorTest::testProbabilityOfLessLikelySamples",
+                                  &CMultimodalPriorTest::testProbabilityOfLessLikelySamples));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMultimodalPriorTest>("CMultimodalPriorTest::testSeasonalVarianceScale",
+                                                &CMultimodalPriorTest::testSeasonalVarianceScale));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testLargeValues",
+                                                      &CMultimodalPriorTest::testLargeValues));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMultimodalPriorTest>("CMultimodalPriorTest::testPersist",
+                                                      &CMultimodalPriorTest::testPersist));
 
     return suiteOfTests;
 }

@@ -25,15 +25,18 @@
 #include <functional>
 #include <sstream>
 
-CppUnit::Test *CLineifiedJsonInputParserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
+CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputArbitrary",
-        &CLineifiedJsonInputParserTest::testThroughputArbitrary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
-        "CLineifiedJsonInputParserTest::testThroughputCommon",
-        &CLineifiedJsonInputParserTest::testThroughputCommon));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputArbitrary",
+                                           &CLineifiedJsonInputParserTest::
+                                               testThroughputArbitrary));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputCommon",
+                                           &CLineifiedJsonInputParserTest::testThroughputCommon));
 
     return suiteOfTests;
 }
@@ -45,7 +48,7 @@ public:
     CSetupVisitor(void) : m_RecordsPerBlock(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
+    bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordsPerBlock;
 
         CPPUNIT_ASSERT(m_OutputWriter.writeRow(dataRowFields));
@@ -54,7 +57,7 @@ public:
     }
 
     std::string input(size_t testSize) const {
-        const std::string &block = m_OutputWriter.internalString();
+        const std::string& block = m_OutputWriter.internalString();
 
         std::string str;
         str.reserve(testSize * block.length());
@@ -81,7 +84,7 @@ public:
     CVisitor(void) : m_RecordCount(0) {}
 
     //! Handle a record
-    bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap & /*dataRowFields*/) {
+    bool operator()(const ml::api::CLineifiedJsonInputParser::TStrStrUMap& /*dataRowFields*/) {
         ++m_RecordCount;
         return true;
     }

@@ -45,7 +45,7 @@ class API_EXPORT CSingleStreamSearcher : public core::CDataSearcher {
 public:
     //! The \p stream must already be open when the constructor is
     //! called.
-    CSingleStreamSearcher(const TIStreamP &stream);
+    CSingleStreamSearcher(const TIStreamP& stream);
 
     //! Get the stream to retrieve data from.
     //! \return Pointer to the input stream.
@@ -61,4 +61,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CSingleStreamSearcher_h
+#endif // INCLUDED_ml_api_CSingleStreamSearcher_h

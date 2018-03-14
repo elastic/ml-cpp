@@ -27,7 +27,7 @@ public:
     void testIndicatorInfluenceCalculator(void);
     void testProbabilityAndInfluenceCalculator(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CProbabilityAndInfluenceCalculatorTest_h
+#endif // INCLUDED_CProbabilityAndInfluenceCalculatorTest_h

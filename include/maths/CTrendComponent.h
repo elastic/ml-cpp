@@ -64,13 +64,13 @@ public:
     CTrendComponent(double decayRate);
 
     //! Efficiently swap the state of this and \p other.
-    void swap(CTrendComponent &other);
+    void swap(CTrendComponent& other);
 
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //!  Check if the trend has been estimated.
     bool initialized() const;
@@ -120,7 +120,7 @@ public:
                   core_t::TTime endTime,
                   core_t::TTime step,
                   double confidence,
-                  TDouble3VecVec &result) const;
+                  TDouble3VecVec& result) const;
 
     //! Get the interval which has been observed so far.
     core_t::TTime observedInterval() const;
@@ -145,8 +145,8 @@ private:
     //! \brief A model of the trend at a specific time scale.
     struct SModel {
         explicit SModel(double weight);
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         uint64_t checksum(uint64_t seed) const;
         TMeanAccumulator s_Weight;
         TRegression s_Regression;
@@ -168,7 +168,7 @@ private:
     double count() const;
 
     //! Get the predicted value at \p time.
-    double value(const TDoubleVec &weights, const TRegressionArrayVec &models, double time) const;
+    double value(const TDoubleVec& weights, const TRegressionArrayVec& models, double time) const;
 
     //! Get the weight to assign to the prediction verses the long term mean.
     double weightOfPrediction(core_t::TTime time) const;
@@ -197,4 +197,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CTrendComponent_h
+#endif // INCLUDED_ml_maths_CTrendComponent_h

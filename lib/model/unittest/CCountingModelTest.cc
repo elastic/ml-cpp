@@ -33,9 +33,9 @@ using namespace ml;
 using namespace model;
 
 namespace {
-std::size_t addPerson(const std::string &p,
-                      const CModelFactory::TDataGathererPtr &gatherer,
-                      CResourceMonitor &resourceMonitor) {
+std::size_t addPerson(const std::string& p,
+                      const CModelFactory::TDataGathererPtr& gatherer,
+                      CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec person;
     person.push_back(&p);
     CEventData result;
@@ -43,10 +43,10 @@ std::size_t addPerson(const std::string &p,
     return *result.personId();
 }
 
-void addArrival(CDataGatherer &gatherer,
-                CResourceMonitor &resourceMonitor,
+void addArrival(CDataGatherer& gatherer,
+                CResourceMonitor& resourceMonitor,
                 core_t::TTime time,
-                const std::string &person) {
+                const std::string& person) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
 
@@ -56,7 +56,7 @@ void addArrival(CDataGatherer &gatherer,
 }
 
 SModelParams::TStrDetectionRulePr
-makeScheduledEvent(const std::string &description, double start, double end) {
+makeScheduledEvent(const std::string& description, double start, double end) {
     CRuleCondition conditionGte;
     conditionGte.type(CRuleCondition::E_Time);
     conditionGte.condition().s_Op = CRuleCondition::E_GTE;
@@ -100,7 +100,7 @@ void CCountingModelTest::testSkipSampling(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *modelNoGap = dynamic_cast<CCountingModel *>(modelHolderNoGap.get());
+        CCountingModel* modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // |2|2|0|0|1| -> 1.0 mean count
         addArrival(*gathererNoGap, m_ResourceMonitor, 100, "p");
@@ -124,7 +124,7 @@ void CCountingModelTest::testSkipSampling(void) {
         CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
         CAnomalyDetectorModel::TModelPtr modelHolderWithGap(
             factory.makeModel(modelWithGapInitData));
-        CCountingModel *modelWithGap = dynamic_cast<CCountingModel *>(modelHolderWithGap.get());
+        CCountingModel* modelWithGap = dynamic_cast<CCountingModel*>(modelHolderWithGap.get());
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
@@ -169,7 +169,7 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
         addArrival(*gatherer, m_ResourceMonitor, 200, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *modelNoGap = dynamic_cast<CCountingModel *>(modelHolderNoGap.get());
+        CCountingModel* modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         SModelParams::TStrDetectionRulePrVec matchedEvents = modelNoGap->checkScheduledEvents(50);
         CPPUNIT_ASSERT_EQUAL(std::size_t{0}, matchedEvents.size());
@@ -215,7 +215,7 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
         addArrival(*gatherer, m_ResourceMonitor, 100, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *modelNoGap = dynamic_cast<CCountingModel *>(modelHolderNoGap.get());
+        CCountingModel* modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // There are no events at this time
         modelNoGap->sampleBucketStatistics(0, 100, m_ResourceMonitor);
@@ -239,11 +239,12 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
     }
 }
 
-CppUnit::Test *CCountingModelTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
+CppUnit::Test* CCountingModelTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
-        "CCountingModelTest::testSkipSampling", &CCountingModelTest::testSkipSampling));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CCountingModelTest>("CCountingModelTest::testSkipSampling",
+                                                    &CCountingModelTest::testSkipSampling));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CCountingModelTest>("CCountingModelTest::testCheckScheduledEvents",
                                                     &CCountingModelTest::testCheckScheduledEvents));

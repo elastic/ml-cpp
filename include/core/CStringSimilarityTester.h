@@ -79,32 +79,34 @@ public:
 
     //! Used by the more advanced Berghel-Roach algorithm
     typedef boost::scoped_array<int> TScopedIntArray;
-    typedef boost::scoped_array<int *> TScopedIntPArray;
+    typedef boost::scoped_array<int*> TScopedIntPArray;
 
 public:
     CStringSimilarityTester(void);
 
     //! Calculate how similar two strings are
-    bool similarity(const std::string &first, const std::string &second, double &result) const;
+    bool similarity(const std::string& first, const std::string& second, double& result) const;
 
     //! Calculate how similar two strings are in the case where
     //! we already know their individual compressed lengths
-    bool similarity(const std::string &first,
+    bool similarity(const std::string& first,
                     size_t firstCompLength,
-                    const std::string &second,
+                    const std::string& second,
                     size_t secondCompLength,
-                    double &result) const;
+                    double& result) const;
 
     //! Remove those characters from a string that cause a provided
     //! predicate to return true (can be used with ctype.h functions
     //! like isalpha() etc, or with a functor)
     template <typename PREDICATE>
-    std::string strippedString(const std::string &original, PREDICATE excludePred) const {
+    std::string strippedString(const std::string& original, PREDICATE excludePred) const {
         std::string stripped;
         stripped.reserve(original.size());
 
-        std::remove_copy_if(
-            original.begin(), original.end(), std::back_inserter(stripped), excludePred);
+        std::remove_copy_if(original.begin(),
+                            original.end(),
+                            std::back_inserter(stripped),
+                            excludePred);
 
         return stripped;
     }
@@ -112,10 +114,10 @@ public:
     //! Calculate how similar two strings are, excluding
     //! certain characters
     template <typename PREDICATE>
-    bool similarityEx(const std::string &first,
-                      const std::string &second,
+    bool similarityEx(const std::string& first,
+                      const std::string& second,
                       PREDICATE excludePred,
-                      double &result) const {
+                      double& result) const {
         return this->similarity(this->strippedString(first, excludePred),
                                 this->strippedString(second, excludePred),
                                 result);
@@ -123,13 +125,13 @@ public:
 
     //! Find the length of the compressed version of a string - note
     //! that the actual compressed version is discarded
-    bool compressedLengthOf(const std::string &str, size_t &length) const;
+    bool compressedLengthOf(const std::string& str, size_t& length) const;
 
     //! Calculate the Levenshtein distance between two strings,
     //! excluding certain characters
     template <typename STRINGLIKE, typename PREDICATE>
-    size_t levenshteinDistanceEx(const STRINGLIKE &first,
-                                 const STRINGLIKE &second,
+    size_t levenshteinDistanceEx(const STRINGLIKE& first,
+                                 const STRINGLIKE& second,
                                  PREDICATE excludePred) const {
         return this->levenshteinDistance(this->strippedString(first, excludePred),
                                          this->strippedString(second, excludePred));
@@ -141,7 +143,7 @@ public:
     //! operator[]() where the elements held in the container implement
     //! operator==().
     template <typename STRINGLIKE>
-    size_t levenshteinDistance(const STRINGLIKE &first, const STRINGLIKE &second) const {
+    size_t levenshteinDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // Levenshtein distance is the number of operations required to
         // convert one string into another, where an operation means
         // inserting 1 character, deleting 1 character or changing 1
@@ -212,7 +214,7 @@ public:
     //! TODO - It may be possible to apply some of the lesser optimisations
     //! from section 2 of Ukkonen's paper to this algorithm.
     template <typename PAIRCONTAINER>
-    size_t weightedEditDistance(const PAIRCONTAINER &first, const PAIRCONTAINER &second) const {
+    size_t weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
         // This is similar to the levenshteinDistanceSimple() method below,
         // but adding the concept of different costs for each element.  If
         // you are trying to understand this method, you should first make
@@ -245,8 +247,8 @@ public:
         // of the memory block.
         typedef boost::scoped_array<size_t> TScopedSizeArray;
         TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
-        size_t *currentCol(data.get());
-        size_t *prevCol(currentCol + (secondLen + 1));
+        size_t* currentCol(data.get());
+        size_t* prevCol(currentCol + (secondLen + 1));
 
         // Populate the left column
         currentCol[0] = 0;
@@ -299,7 +301,7 @@ private:
     //! assumes that first.size() > 0 and second.size() > 0.  However,
     //! it's best if second.size() >= first.size() in addition.
     template <typename STRINGLIKE>
-    size_t levenshteinDistanceSimple(const STRINGLIKE &first, const STRINGLIKE &second) const {
+    size_t levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // This method implements the simple algorithm for calculating
         // Levenshtein distance.
         //
@@ -321,8 +323,8 @@ private:
         // pointers alternate between pointing and the first and second half
         // of the memory block.
         TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
-        size_t *currentCol(data.get());
-        size_t *prevCol(currentCol + (secondLen + 1));
+        size_t* currentCol(data.get());
+        size_t* prevCol(currentCol + (secondLen + 1));
 
         // Populate the left column
         for (size_t down = 0; down <= secondLen; ++down) {
@@ -368,7 +370,7 @@ private:
     //! This private method assumes that first.size() > 0 and
     //! second.size() >= first.size().
     template <typename STRINGLIKE>
-    size_t berghelRoachEditDistance(const STRINGLIKE &first, const STRINGLIKE &second) const {
+    size_t berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // We need to do the calculation using signed variables
         int shortLen(static_cast<int>(first.size()));
         int maxDist(static_cast<int>(second.size()));
@@ -379,7 +381,7 @@ private:
         // paper.
         TScopedIntArray dataArray;
         TScopedIntPArray matrixArary;
-        int **matrix;
+        int** matrix;
         matrix = this->setupBerghelRoachMatrix(maxDist, dataArray, matrixArary);
         if (matrix == 0) {
             return 0;
@@ -417,11 +419,11 @@ private:
     //! Helper function for the Berghel-Roach edit distance algorithm.  This
     //! is called f(k, p) in http://berghel.net/publications/asm/asm.pdf
     template <typename STRINGLIKE>
-    void calcDist(const STRINGLIKE &first,
-                  const STRINGLIKE &second,
+    void calcDist(const STRINGLIKE& first,
+                  const STRINGLIKE& second,
                   int row,
                   int column,
-                  int **matrix) const {
+                  int** matrix) const {
         // 1) Substitution
         int option1(matrix[row][column - 1] + 1);
 
@@ -444,8 +446,8 @@ private:
 
     //! Setup the matrices needed for the Berghel-Roach method of
     //! calculating edit distance
-    static int **
-    setupBerghelRoachMatrix(int longLen, TScopedIntArray &data, TScopedIntPArray &matrix);
+    static int**
+    setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
 
 private:
     //! Required for initialisation of the Berghel-Roach matrix (don't call
@@ -461,4 +463,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CStringSimilarityTester_h
+#endif // INCLUDED_ml_core_CStringSimilarityTester_h

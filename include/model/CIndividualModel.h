@@ -83,19 +83,19 @@ public:
     //! for each feature.
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CIndividualModel(const SModelParams &params,
-                     const TDataGathererPtr &dataGatherer,
-                     const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                     const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-                     const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-                     const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
+    CIndividualModel(const SModelParams& params,
+                     const TDataGathererPtr& dataGatherer,
+                     const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                     const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                     const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
-    CIndividualModel(bool isForPersistence, const CIndividualModel &other);
+    CIndividualModel(bool isForPersistence, const CIndividualModel& other);
     //@}
 
     //! Returns false.
@@ -124,7 +124,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CResourceMonitor &resourceMonitor) = 0;
+                                        CResourceMonitor& resourceMonitor) = 0;
 
     //! Sample any state needed by computeProbablity for the out-
     //! of-phase bucket in the time interval [\p startTime, \p endTime]
@@ -134,7 +134,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleOutOfPhase(core_t::TTime startTime,
                                   core_t::TTime endTime,
-                                  CResourceMonitor &resourceMonitor);
+                                  CResourceMonitor& resourceMonitor);
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -143,7 +143,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
     virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor) = 0;
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Prune any person models which haven't been updated for a
     //! specified period.
@@ -153,10 +153,10 @@ public:
     //! \name Probability
     //@{
     //! Clears \p probability and \p attributeProbabilities.
-    virtual bool computeTotalProbability(const std::string &person,
+    virtual bool computeTotalProbability(const std::string& person,
                                          std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble &probability,
-                                         TAttributeProbability1Vec &attributeProbabilities) const;
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const;
     //@}
 
     //! Get the checksum of this model.
@@ -188,10 +188,10 @@ protected:
 
 protected:
     //! Persist state by passing information to the supplied inserter.
-    void doAcceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore the model reading state from the supplied traverser.
-    bool doAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the start time of the current bucket.
     virtual core_t::TTime currentBucketStartTime(void) const = 0;
@@ -200,7 +200,7 @@ protected:
     virtual void currentBucketStartTime(core_t::TTime time) = 0;
 
     //! Monitor the resource usage while creating new models.
-    void createUpdateNewModels(core_t::TTime time, CResourceMonitor &resourceMonitor);
+    void createUpdateNewModels(core_t::TTime time, CResourceMonitor& resourceMonitor);
 
     //! Create the time series models for "n" newly observed people.
     virtual void createNewModels(std::size_t n, std::size_t m) = 0;
@@ -209,42 +209,42 @@ protected:
     virtual void updateRecycledModels(void) = 0;
 
     //! Update the correlation models.
-    void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor &resourceMonitor);
+    void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people that are pruned.
-    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
     template <typename T>
-    void currentBucketPersonIds(core_t::TTime time, const T &featureData, TSizeVec &result) const;
+    void currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
     template <typename T>
-    const T *featureData(
+    const T* featureData(
         model_t::EFeature feature,
         std::size_t pid,
         core_t::TTime time,
-        const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>
-            &featureData) const;
+        const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>&
+            featureData) const;
 
     //! Sample the bucket statistics and write the results in to
     //! \p featureData.
     template <typename T, typename FILTER>
     void sampleBucketStatistics(core_t::TTime startTime,
                                 core_t::TTime endTime,
-                                const FILTER &filter,
-                                std::vector<std::pair<model_t::EFeature, T>> &featureData,
-                                CResourceMonitor &resourceMonitor);
+                                const FILTER& filter,
+                                std::vector<std::pair<model_t::EFeature, T>>& featureData,
+                                CResourceMonitor& resourceMonitor);
 
     //! Add the probability and influences for \p feature and \p pid.
     template <typename PARAMS, typename INFLUENCES>
     bool addProbabilityAndInfluences(std::size_t pid,
-                                     PARAMS &params,
-                                     const INFLUENCES &influences,
-                                     CProbabilityAndInfluenceCalculator &pJoint,
-                                     CAnnotatedProbabilityBuilder &builder) const;
+                                     PARAMS& params,
+                                     const INFLUENCES& influences,
+                                     CProbabilityAndInfluenceCalculator& pJoint,
+                                     CAnnotatedProbabilityBuilder& builder) const;
 
     //! Get the weight associated with an update to the prior from an empty bucket
     //! for features which count empty buckets.
@@ -255,27 +255,27 @@ protected:
     double probabilityBucketEmpty(model_t::EFeature feature, std::size_t pid) const;
 
     //! Get a read only model corresponding to \p feature of the person \p pid.
-    const maths::CModel *model(model_t::EFeature feature, std::size_t pid) const;
+    const maths::CModel* model(model_t::EFeature feature, std::size_t pid) const;
 
     //! Get a writable model corresponding to \p feature of the person \p pid.
-    maths::CModel *model(model_t::EFeature feature, std::size_t pid);
+    maths::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Sample the correlate models.
-    void sampleCorrelateModels(const maths_t::TWeightStyleVec &weightStyles);
+    void sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles);
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,
                                    std::size_t pid,
                                    model_t::CResultType type,
-                                   const TSizeDoublePr1Vec &correlated,
-                                   const TFeatureSizeSizeTripleDouble1VecUMap &corrections,
-                                   TDouble1Vec &baseline) const;
+                                   const TSizeDoublePr1Vec& correlated,
+                                   const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+                                   TDouble1Vec& baseline) const;
 
     //! Get the first time each person was seen.
-    const TTimeVec &firstBucketTimes(void) const;
+    const TTimeVec& firstBucketTimes(void) const;
 
     //! Get the last time each persion was seen
-    const TTimeVec &lastBucketTimes(void) const;
+    const TTimeVec& lastBucketTimes(void) const;
 
     //! Get the amount by which to derate the initial decay rate
     //! and the minimum Winsorisation weight for \p pid at \p time.
@@ -286,10 +286,10 @@ protected:
 
 private:
     //! Get the person counts in the current bucket.
-    virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const = 0;
+    virtual const TSizeUInt64PrVec& currentBucketPersonCounts(void) const = 0;
 
     //! Get writable person counts in the current bucket.
-    virtual TSizeUInt64PrVec &currentBucketPersonCounts(void) = 0;
+    virtual TSizeUInt64PrVec& currentBucketPersonCounts(void) = 0;
 
     //! Get the total number of correlation models.
     std::size_t numberCorrelations(void) const;
@@ -301,7 +301,7 @@ private:
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
 
     //! Get the model memory usage estimator
-    virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
+    virtual CMemoryUsageEstimator* memoryUsageEstimator(void) const;
 
 private:
     //! The time that each person was first seen.
@@ -326,4 +326,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CIndividualModel_h
+#endif // INCLUDED_ml_model_CIndividualModel_h

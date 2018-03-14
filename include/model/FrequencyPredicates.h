@@ -26,12 +26,13 @@ namespace model {
 //! frequency is greater than a specified frequency.
 class MODEL_EXPORT CPersonFrequencyGreaterThan {
 public:
-    CPersonFrequencyGreaterThan(const CAnomalyDetectorModel &model, double threshold);
+    CPersonFrequencyGreaterThan(const CAnomalyDetectorModel& model, double threshold);
 
     //! Test whether the person's frequency, whose identifier
     //! is the first element of \p t, is greater than the
     //! threshold supplied to the constructor.
-    template <typename T> bool operator()(const std::pair<std::size_t, T> &t) {
+    template <typename T>
+    bool operator()(const std::pair<std::size_t, T>& t) {
         return m_Model->personFrequency(t.first) > m_Threshold;
     }
 
@@ -39,13 +40,13 @@ public:
     //! is encoded in the first element of \p t, is greater
     //! than the threshold supplied to the constructor.
     template <typename T>
-    bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T> &t) {
+    bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T>& t) {
         return m_Model->personFrequency(CDataGatherer::extractPersonId(t)) > m_Threshold;
     }
 
 private:
     //! The model containing the person frequencies.
-    const CAnomalyDetectorModel *m_Model;
+    const CAnomalyDetectorModel* m_Model;
     //! The test threshold frequency.
     double m_Threshold;
 };
@@ -54,23 +55,23 @@ private:
 //! frequency is greater than a specified frequency.
 class MODEL_EXPORT CAttributeFrequencyGreaterThan {
 public:
-    CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel &model, double threshold);
+    CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel& model, double threshold);
 
     //! Test whether the person's frequency, whose identifier
     //! is encoded in the first element of \p t, is greater
     //! than the threshold supplied to the constructor.
     template <typename T>
-    bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T> &t) {
+    bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T>& t) {
         return m_Model->attributeFrequency(CDataGatherer::extractAttributeId(t)) > m_Threshold;
     }
 
 private:
     //! The model containing the person frequencies.
-    const CAnomalyDetectorModel *m_Model;
+    const CAnomalyDetectorModel* m_Model;
     //! The test threshold frequency.
     double m_Threshold;
 };
 }
 }
 
-#endif// INCLUDED_ml_model_FrequencyPredicates_h
+#endif // INCLUDED_ml_model_FrequencyPredicates_h

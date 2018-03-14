@@ -36,11 +36,11 @@ namespace maths {
 //! \tparam T The return type of the function F which must conform to the type
 //! expected by CIntegration::gaussLegendre.
 template <typename F, typename T>
-bool CPrior::expectation(const F &f,
+bool CPrior::expectation(const F& f,
                          std::size_t numberIntervals,
-                         T &result,
-                         const TWeightStyleVec &weightStyles,
-                         const TDouble4Vec &weight) const {
+                         T& result,
+                         const TWeightStyleVec& weightStyles,
+                         const TDouble4Vec& weight) const {
     if (numberIntervals == 0) {
         LOG_ERROR("Must specify non-zero number of intervals");
         return false;
@@ -57,13 +57,18 @@ bool CPrior::expectation(const F &f,
     double normalizationFactor = 0.0;
     TDouble4Vec1Vec weights(1, weight);
     CPrior::CLogMarginalLikelihood logLikelihood(*this, weightStyles, weights);
-    CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood &> likelihood(logLikelihood);
+    CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&> likelihood(logLikelihood);
     for (std::size_t i = 0u; i < numberIntervals; ++i, x += dx) {
         T productIntegral;
         T fIntegral;
         double likelihoodIntegral;
-        if (!CIntegration::productGaussLegendre<CIntegration::OrderThree>(
-                f, likelihood, x, x + dx, productIntegral, fIntegral, likelihoodIntegral)) {
+        if (!CIntegration::productGaussLegendre<CIntegration::OrderThree>(f,
+                                                                          likelihood,
+                                                                          x,
+                                                                          x + dx,
+                                                                          productIntegral,
+                                                                          fIntegral,
+                                                                          likelihoodIntegral)) {
             result = T();
             return false;
         }
@@ -74,5 +79,5 @@ bool CPrior::expectation(const F &f,
     return true;
 }
 
-}// maths
-}// ml
+} // maths
+} // ml

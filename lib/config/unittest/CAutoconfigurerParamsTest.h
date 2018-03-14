@@ -23,7 +23,7 @@ public:
     void testDefaults(void);
     void testInit(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAutoconfigurerParamsTest_h
+#endif // INCLUDED_CAutoconfigurerParamsTest_h

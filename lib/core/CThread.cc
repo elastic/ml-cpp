@@ -69,7 +69,7 @@ bool CThread::start(void) {
     return this->start(dummy);
 }
 
-bool CThread::start(TThreadId &threadId) {
+bool CThread::start(TThreadId& threadId) {
     CScopedLock lock(m_IdMutex);
 
     if (m_ThreadId != 0) {
@@ -193,10 +193,12 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     return true;
 }
 
-CThread::TThreadId CThread::currentThreadId(void) { return pthread_self(); }
+CThread::TThreadId CThread::currentThreadId(void) {
+    return pthread_self();
+}
 
-CThread::TThreadRet STDCALL CThread::threadFunc(void *obj) {
-    CThread *instance = static_cast<CThread *>(obj);
+CThread::TThreadRet STDCALL CThread::threadFunc(void* obj) {
+    CThread* instance = static_cast<CThread*>(obj);
 
     instance->run();
 

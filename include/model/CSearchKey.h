@@ -118,31 +118,31 @@ public:
                         std::string byFieldName = EMPTY_STRING,
                         std::string overFieldName = EMPTY_STRING,
                         std::string partitionFieldName = EMPTY_STRING,
-                        const TStrVec &influenceFieldNames = TStrVec());
+                        const TStrVec& influenceFieldNames = TStrVec());
 
     //! Create the key from part of an state document.
     //!
     //! \param[in,out] traverser A state document traverser.
     //! \param[out] successful Set to true if the state could be fully
     //! deserialised and false otherwise.
-    CSearchKey(core::CStateRestoreTraverser &traverser, bool &successful);
+    CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful);
 
 private:
     //! Initialise by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 public:
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two objects of this class.
-    void swap(CSearchKey &other);
+    void swap(CSearchKey& other);
 
     //! Check if this and \p rhs are equal.
-    bool operator==(const CSearchKey &rhs) const;
+    bool operator==(const CSearchKey& rhs) const;
 
     //! Check if this is less than \p rhs.
-    bool operator<(const CSearchKey &rhs) const;
+    bool operator<(const CSearchKey& rhs) const;
 
     //! Get an identifier for this search.
     int identifier(void) const;
@@ -151,14 +151,14 @@ public:
     //!
     //! Definition: the function is individual count and the "by"
     //! field name is "count".
-    static const CSearchKey &simpleCountKey(void);
+    static const CSearchKey& simpleCountKey(void);
 
     //! Does this key represent a simple counting search?
     bool isSimpleCount(void) const;
 
     //! Do the function and by field name identify a simple
     //! counting search.
-    static bool isSimpleCount(function_t::EFunction function, const std::string &byFieldName);
+    static bool isSimpleCount(function_t::EFunction function, const std::string& byFieldName);
 
     //! Is the function type for use with the individual models?
     bool isMetric(void) const;
@@ -184,22 +184,22 @@ public:
     model_t::EExcludeFrequent excludeFrequent(void) const;
 
     //! Check if there is a field called \p name.
-    bool hasField(const std::string &name) const;
+    bool hasField(const std::string& name) const;
 
     //! Get the value field name.
-    const std::string &fieldName(void) const;
+    const std::string& fieldName(void) const;
 
     //! Get the by field name.
-    const std::string &byFieldName(void) const;
+    const std::string& byFieldName(void) const;
 
     //! Get the over field name.
-    const std::string &overFieldName(void) const;
+    const std::string& overFieldName(void) const;
 
     //! Get the partition field name.
-    const std::string &partitionFieldName(void) const;
+    const std::string& partitionFieldName(void) const;
 
     //! Get the influence field names.
-    const TStoredStringPtrVec &influenceFieldNames(void) const;
+    const TStoredStringPtrVec& influenceFieldNames(void) const;
 
     //! Get a hash of the contents of this key.
     uint64_t hash(void) const;
@@ -219,22 +219,23 @@ private:
     mutable uint64_t m_Hash;
 
     // For debug output
-    friend MODEL_EXPORT std::ostream &operator<<(std::ostream &, const CSearchKey &);
+    friend MODEL_EXPORT std::ostream& operator<<(std::ostream&, const CSearchKey&);
 };
 
 MODEL_EXPORT
-std::ostream &operator<<(std::ostream &strm, const CSearchKey &key);
+std::ostream& operator<<(std::ostream& strm, const CSearchKey& key);
 
 //! Hashes a (string, search key) pair.
 class CStrKeyPrHash {
 public:
-    std::size_t operator()(const CSearchKey::TStrKeyPr &key) const { return this->hash(key); }
-    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr &key) const {
+    std::size_t operator()(const CSearchKey::TStrKeyPr& key) const { return this->hash(key); }
+    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr& key) const {
         return this->hash(key);
     }
 
 private:
-    template <typename T> std::size_t hash(const T &key) const {
+    template <typename T>
+    std::size_t hash(const T& key) const {
         core::CHashing::CSafeMurmurHash2String64 stringHasher;
         uint64_t result = stringHasher(boost::unwrap_ref(key.first));
         core::CHashing::hashCombine(boost::unwrap_ref(key.second).hash(), result);
@@ -245,24 +246,25 @@ private:
 //! Checks if two (string, search key) pairs are equal.
 class CStrKeyPrEqual {
 public:
-    bool operator()(const CSearchKey::TStrKeyPr &lhs, const CSearchKey::TStrKeyPr &rhs) const {
+    bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrKeyPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs,
-                    const CSearchKey::TStrKeyPr &rhs) const {
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
+                    const CSearchKey::TStrKeyPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrKeyPr &lhs,
-                    const CSearchKey::TStrCRefKeyCRefPr &rhs) const {
+    bool operator()(const CSearchKey::TStrKeyPr& lhs,
+                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr &lhs,
-                    const CSearchKey::TStrCRefKeyCRefPr &rhs) const {
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
+                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
         return this->equal(lhs, rhs);
     }
 
 private:
-    template <typename U, typename V> bool equal(const U &lhs, const V &rhs) const {
+    template <typename U, typename V>
+    bool equal(const U& lhs, const V& rhs) const {
         return boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second) &&
                boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
     }
@@ -270,4 +272,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CSearchKey_h
+#endif // INCLUDED_ml_model_CSearchKey_h

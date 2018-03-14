@@ -58,7 +58,8 @@ namespace maths {
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template <typename POINT> class CKMeansOnline {
+template <typename POINT>
+class CKMeansOnline {
 public:
     typedef std::vector<std::size_t> TSizeVec;
     typedef std::vector<TSizeVec> TSizeVecVec;
@@ -75,7 +76,8 @@ protected:
     public:
         CShouldDelete(double minimumCategoryCount) : m_MinimumCategoryCount(minimumCategoryCount) {}
 
-        template <typename CLUSTER> bool operator()(const CLUSTER &cluster) const {
+        template <typename CLUSTER>
+        bool operator()(const CLUSTER& cluster) const {
             return CBasicStatistics::count(cluster.first) < m_MinimumCategoryCount;
         }
 
@@ -135,8 +137,8 @@ public:
     }
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                core::CStateRestoreTraverser &traverser) {
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser) {
         m_DecayRate = params.s_DecayRate;
         m_MinimumCategoryCount = params.s_MinimumCategoryCount;
 
@@ -151,7 +153,7 @@ public:
     }
 
     //! Persist state by passing to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(RNG_TAG, m_Rng.toString());
         core::CPersistUtils::persist(K_TAG, m_K, inserter);
         core::CPersistUtils::persist(CLUSTERS_TAG, m_Clusters, inserter);
@@ -159,7 +161,7 @@ public:
     }
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(CKMeansOnline &other) {
+    void swap(CKMeansOnline& other) {
         std::swap(m_Rng, other.m_Rng);
         std::swap(m_K, other.m_K);
         std::swap(m_DecayRate, other.m_DecayRate);
@@ -174,11 +176,11 @@ public:
     }
 
     //! Get the clusters being maintained.
-    void clusters(TSphericalClusterVec &result) const {
+    void clusters(TSphericalClusterVec& result) const {
         result.clear();
         result.reserve(m_Clusters.size());
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            const TFloatPoint &m = CBasicStatistics::mean(m_Clusters[i].first);
+            const TFloatPoint& m = CBasicStatistics::mean(m_Clusters[i].first);
             double n = CBasicStatistics::count(m_Clusters[i].first);
             double v = m_Clusters[i].second;
             result.push_back(TSphericalCluster(m, SCountAndVariance(n, v)));
@@ -190,7 +192,7 @@ public:
     //!
     //! \param[in] k The desired size for the clustering.
     //! \param[out] result Filled in with the \p k means clustering.
-    bool kmeans(std::size_t k, TSphericalClusterVecVec &result) {
+    bool kmeans(std::size_t k, TSphericalClusterVecVec& result) {
         LOG_TRACE("split");
 
         result.clear();
@@ -218,10 +220,10 @@ public:
     //! \param[out] result Filled in with the \p k means clustering
     //! of \p clusters.
     template <typename RNG>
-    static bool kmeans(RNG &rng,
-                       TSphericalClusterVec &clusters,
+    static bool kmeans(RNG& rng,
+                       TSphericalClusterVec& clusters,
                        std::size_t k,
-                       TSphericalClusterVecVec &result) {
+                       TSphericalClusterVecVec& result) {
         result.clear();
 
         if (k == 0) {
@@ -276,7 +278,7 @@ public:
     //! \param[in] split The desired partition of the k clusters.
     //! \param[out] result Filled in with the clusterers representing
     //! \p split if it is a valid partition and cleared otherwise.
-    bool split(const TSizeVecVec &split, TKMeansOnlineVec &result) {
+    bool split(const TSizeVecVec& split, TKMeansOnlineVec& result) {
         result.clear();
         this->reduce();
         if (!this->checkSplit(split)) {
@@ -301,7 +303,7 @@ public:
     //!
     //! \param[in] x A point to add to the clusterer.
     //! \param[in] count The count weight of this point.
-    void add(const TDoublePoint &x, double count = 1.0) {
+    void add(const TDoublePoint& x, double count = 1.0) {
         if (m_PointsBuffer.size() < MAXIMUM_BUFFER_SIZE) {
             m_PointsBuffer.push_back(std::make_pair(x, count));
         } else {
@@ -314,13 +316,14 @@ public:
     //! Merge \p other with this clusterer.
     //!
     //! \param[in] other Another clusterer to merge with this one.
-    void merge(const CKMeansOnline &other) {
+    void merge(const CKMeansOnline& other) {
         LOG_TRACE("Merge");
 
         for (std::size_t i = 0u; i < other.m_PointsBuffer.size(); ++i) {
             m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
-            CKMeansOnline::add(
-                other.m_PointsBuffer[i].first, other.m_PointsBuffer[i].second, m_Clusters.back());
+            CKMeansOnline::add(other.m_PointsBuffer[i].first,
+                               other.m_PointsBuffer[i].second,
+                               m_Clusters.back());
         }
         m_Clusters.insert(m_Clusters.end(), other.m_Clusters.begin(), other.m_Clusters.end());
 
@@ -373,7 +376,7 @@ public:
     //!
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] result Filled in with the samples of the distribution.
-    void sample(std::size_t numberSamples, TDoublePointVec &result) const {
+    void sample(std::size_t numberSamples, TDoublePointVec& result) const {
         result.clear();
         if (numberSamples == 0) {
             return;
@@ -385,7 +388,7 @@ public:
         static const double ALMOST_ONE = 0.99999;
 
         // See, for example, Effective C++ item 3.
-        const_cast<CKMeansOnline *>(this)->reduce();
+        const_cast<CKMeansOnline*>(this)->reduce();
         LOG_TRACE("categories = " << core::CContainerPrinter::print(m_Clusters));
 
         TDoubleVec counts;
@@ -434,7 +437,7 @@ public:
         TDoubleMeanAccumulator sample;
         for (;;) {
             CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> nearest;
-            const TDoublePoint &sample_ = CBasicStatistics::mean(sample);
+            const TDoublePoint& sample_ = CBasicStatistics::mean(sample);
             for (std::size_t j = 0u; j < result.size(); ++j) {
                 if (weights[j] > 0.0) {
                     nearest.add(std::make_pair((result[j] - sample_).euclidean(), j));
@@ -445,7 +448,7 @@ public:
             }
 
             std::size_t j = nearest[0].second;
-            const TDoublePoint &xj = result[j];
+            const TDoublePoint& xj = result[j];
             do {
                 double nj = std::min(1.0 - CBasicStatistics::count(sample), weights[j]);
                 sample.add(xj, nj);
@@ -493,7 +496,7 @@ protected:
     CKMeansOnline(std::size_t k,
                   double decayRate,
                   double minimumCategoryCount,
-                  TFloatMeanAccumulatorDoublePrVec &clusters)
+                  TFloatMeanAccumulatorDoublePrVec& clusters)
         : m_K(std::max(k, MINIMUM_SPACE)),
           m_DecayRate(decayRate),
           m_MinimumCategoryCount(minimumCategoryCount) {
@@ -503,7 +506,7 @@ protected:
     }
 
     //! Sanity check \p split.
-    bool checkSplit(const TSizeVecVec &split) const {
+    bool checkSplit(const TSizeVecVec& split) const {
         if (split.empty()) {
             LOG_ERROR("Bad split = " << core::CContainerPrinter::print(split));
             return false;
@@ -528,8 +531,9 @@ protected:
         // Add all the points as new spherical clusters and reduce.
         for (std::size_t i = 0u; i < m_PointsBuffer.size(); ++i) {
             m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
-            CKMeansOnline::add(
-                m_PointsBuffer[i].first, m_PointsBuffer[i].second, m_Clusters.back());
+            CKMeansOnline::add(m_PointsBuffer[i].first,
+                               m_PointsBuffer[i].second,
+                               m_Clusters.back());
         }
         m_PointsBuffer.clear();
 
@@ -554,7 +558,7 @@ protected:
                 cluster.add(kclusters[i][j]);
             }
             double n = CBasicStatistics::count(cluster);
-            const TDoublePoint &m = CBasicStatistics::mean(cluster);
+            const TDoublePoint& m = CBasicStatistics::mean(cluster);
             m_Clusters[i].first =
                 CBasicStatistics::accumulator(TFloatCoordinate(n), TFloatPoint(m));
             m_Clusters[i].second = variance(cluster);
@@ -565,7 +569,7 @@ protected:
     }
 
     //! Add \p count copies of \p mx to the cluster \p cluster.
-    static void add(const TDoublePoint &mx, double count, TFloatMeanAccumulatorDoublePr &cluster) {
+    static void add(const TDoublePoint& mx, double count, TFloatMeanAccumulatorDoublePr& cluster) {
         double nx = count;
         TDoublePoint vx(0.0);
         double nc = CBasicStatistics::count(cluster.first);
@@ -580,8 +584,8 @@ protected:
     }
 
     //! Get the spherically symmetric variance from \p moments.
-    static double variance(const TDoubleMeanVarAccumulator &moments) {
-        const TDoublePoint &v = CBasicStatistics::maximumLikelihoodVariance(moments);
+    static double variance(const TDoubleMeanVarAccumulator& moments) {
+        const TDoublePoint& v = CBasicStatistics::maximumLikelihoodVariance(moments);
         return v.L1() / static_cast<double>(v.dimension());
     }
 
@@ -606,15 +610,23 @@ private:
     TFloatPointDoublePrVec m_PointsBuffer;
 };
 
-template <typename POINT> const std::size_t CKMeansOnline<POINT>::MINIMUM_SPACE = 4u;
-template <typename POINT> const std::size_t CKMeansOnline<POINT>::MAXIMUM_BUFFER_SIZE = 6u;
-template <typename POINT> const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
-template <typename POINT> const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
-template <typename POINT> const std::string CKMeansOnline<POINT>::K_TAG("a");
-template <typename POINT> const std::string CKMeansOnline<POINT>::CLUSTERS_TAG("b");
-template <typename POINT> const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
-template <typename POINT> const std::string CKMeansOnline<POINT>::RNG_TAG("d");
+template <typename POINT>
+const std::size_t CKMeansOnline<POINT>::MINIMUM_SPACE = 4u;
+template <typename POINT>
+const std::size_t CKMeansOnline<POINT>::MAXIMUM_BUFFER_SIZE = 6u;
+template <typename POINT>
+const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
+template <typename POINT>
+const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
+template <typename POINT>
+const std::string CKMeansOnline<POINT>::K_TAG("a");
+template <typename POINT>
+const std::string CKMeansOnline<POINT>::CLUSTERS_TAG("b");
+template <typename POINT>
+const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
+template <typename POINT>
+const std::string CKMeansOnline<POINT>::RNG_TAG("d");
 }
 }
 
-#endif// INCLUDED_ml_maths_CKMeansOnline_h
+#endif // INCLUDED_ml_maths_CKMeansOnline_h

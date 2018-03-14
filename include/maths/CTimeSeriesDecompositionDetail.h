@@ -63,20 +63,20 @@ public:
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
-                  const maths_t::TWeightStyleVec &weightStyles,
-                  const maths_t::TDouble4Vec &weights,
+                  const maths_t::TWeightStyleVec& weightStyles,
+                  const maths_t::TDouble4Vec& weights,
                   double trend,
                   double seasonal,
                   double calendar,
-                  const TPredictor &predictor,
-                  const CPeriodicityHypothesisTestsConfig &periodicityTestConfig);
+                  const TPredictor& predictor,
+                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
 
         //! The value to add.
         double s_Value;
         //! The styles of the weights.
-        const maths_t::TWeightStyleVec &s_WeightStyles;
+        const maths_t::TWeightStyleVec& s_WeightStyles;
         //! The weights of associated with the value.
-        const maths_t::TDouble4Vec &s_Weights;
+        const maths_t::TDouble4Vec& s_Weights;
         //! The trend component prediction at the value's time.
         double s_Trend;
         //! The seasonal component prediction at the value's time.
@@ -94,14 +94,14 @@ public:
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
-                          const CPeriodicityHypothesisTestsResult &result,
-                          const CExpandingWindow &window,
-                          const TPredictor &predictor);
+                          const CPeriodicityHypothesisTestsResult& result,
+                          const CExpandingWindow& window,
+                          const TPredictor& predictor);
 
         //! The components found.
         CPeriodicityHypothesisTestsResult s_Result;
         //! The window tested.
-        const CExpandingWindow &s_Window;
+        const CExpandingWindow& s_Window;
         //! The predictor for window values.
         TPredictor s_Predictor;
     };
@@ -134,36 +134,37 @@ public:
         virtual ~CHandler(void);
 
         //! Add a value.
-        virtual void handle(const SAddValue &message);
+        virtual void handle(const SAddValue& message);
 
         //! Handle when a diurnal component is detected.
-        virtual void handle(const SDetectedSeasonal &message);
+        virtual void handle(const SDetectedSeasonal& message);
 
         //! Handle when a calendar component is detected.
-        virtual void handle(const SDetectedCalendar &message);
+        virtual void handle(const SDetectedCalendar& message);
 
         //! Handle when a new component is being modeled.
-        virtual void handle(const SNewComponents &message);
+        virtual void handle(const SNewComponents& message);
 
         //! Set the mediator.
-        void mediator(CMediator *mediator);
+        void mediator(CMediator* mediator);
 
         //! Get the mediator.
-        CMediator *mediator(void) const;
+        CMediator* mediator(void) const;
 
     private:
         //! The controller responsible for forwarding messages.
-        CMediator *m_Mediator;
+        CMediator* m_Mediator;
     };
 
     //! \brief Manages communication between handlers.
     class MATHS_EXPORT CMediator : core::CNonCopyable {
     public:
         //! Forward \p message to all registered models.
-        template <typename M> void forward(const M &message) const;
+        template <typename M>
+        void forward(const M& message) const;
 
         //! Register \p handler.
-        void registerHandler(CHandler &handler);
+        void registerHandler(CHandler& handler);
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -185,25 +186,25 @@ public:
     class MATHS_EXPORT CPeriodicityTest : public CHandler {
     public:
         CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-        CPeriodicityTest(const CPeriodicityTest &other);
+        CPeriodicityTest(const CPeriodicityTest& other);
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CPeriodicityTest &other);
+        void swap(CPeriodicityTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue &message);
+        virtual void handle(const SAddValue& message);
 
         //! Reset the test.
-        virtual void handle(const SNewComponents &message);
+        virtual void handle(const SNewComponents& message);
 
         //! Test to see whether any seasonal components are present.
-        void test(const SAddValue &message);
+        void test(const SAddValue& message);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
@@ -235,13 +236,13 @@ public:
 
     private:
         //! Handle \p symbol.
-        void apply(std::size_t symbol, const SMessage &message);
+        void apply(std::size_t symbol, const SMessage& message);
 
         //! Check if we should run the periodicity test on \p window.
-        bool shouldTest(const TExpandingWindowPtr &window, core_t::TTime time) const;
+        bool shouldTest(const TExpandingWindowPtr& window, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning owned by the caller.)
-        CExpandingWindow *newWindow(ETest test) const;
+        CExpandingWindow* newWindow(ETest test) const;
 
         //! Account for memory that is not yet allocated
         //! during the initial state
@@ -266,25 +267,25 @@ public:
     class MATHS_EXPORT CCalendarTest : public CHandler {
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
-        CCalendarTest(const CCalendarTest &other);
+        CCalendarTest(const CCalendarTest& other);
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CCalendarTest &other);
+        void swap(CCalendarTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue &message);
+        virtual void handle(const SAddValue& message);
 
         //! Reset the test.
-        virtual void handle(const SNewComponents &message);
+        virtual void handle(const SNewComponents& message);
 
         //! Test to see whether any seasonal components are present.
-        void test(const SMessage &message);
+        void test(const SMessage& message);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.
@@ -304,7 +305,7 @@ public:
 
     private:
         //! Handle \p symbol.
-        void apply(std::size_t symbol, const SMessage &message);
+        void apply(std::size_t symbol, const SMessage& message);
 
         //! Check if we should run a test.
         bool shouldTest(core_t::TTime time);
@@ -336,12 +337,12 @@ public:
         CComponents(double decayRate,
                     core_t::TTime bucketLength,
                     std::size_t seasonalComponentSize);
-        CComponents(const CComponents &other);
+        CComponents(const CComponents& other);
 
         //! \brief Watches to see if the seasonal components state changes.
         class MATHS_EXPORT CScopeNotifyOnStateChange : core::CNonCopyable {
         public:
-            CScopeNotifyOnStateChange(CComponents &components);
+            CScopeNotifyOnStateChange(CComponents& components);
             ~CScopeNotifyOnStateChange(void);
 
             //! Check if the seasonal component's state changed.
@@ -349,32 +350,32 @@ public:
 
         private:
             //! The seasonal components this is watching.
-            CComponents &m_Components;
+            CComponents& m_Components;
 
             //! The flag used to watch for changes.
             bool m_Watcher;
         };
 
         //! Initialize by reading state from \p traverser.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CComponents &other);
+        void swap(CComponents& other);
 
         //! Update the components with a new value.
-        virtual void handle(const SAddValue &message);
+        virtual void handle(const SAddValue& message);
 
         //! Create new seasonal components.
-        virtual void handle(const SDetectedSeasonal &message);
+        virtual void handle(const SDetectedSeasonal& message);
 
         //! Create a new calendar component.
-        virtual void handle(const SDetectedCalendar &message);
+        virtual void handle(const SDetectedCalendar& message);
 
         //! Maybe re-interpolate the components.
-        void interpolate(const SMessage &message, bool refine = true);
+        void interpolate(const SMessage& message, bool refine = true);
 
         //! Set the decay rate.
         void decayRate(double decayRate);
@@ -390,13 +391,13 @@ public:
         bool initialized(void) const;
 
         //! Get the long term trend.
-        const CTrendComponent &trend(void) const;
+        const CTrendComponent& trend(void) const;
 
         //! Get the seasonal components.
-        const maths_t::TSeasonalComponentVec &seasonal(void) const;
+        const maths_t::TSeasonalComponentVec& seasonal(void) const;
 
         //! Get the calendar components.
-        const maths_t::TCalendarComponentVec &calendar(void) const;
+        const maths_t::TCalendarComponentVec& calendar(void) const;
 
         //! Return true if we're using the trend for prediction.
         bool usingTrendForPrediction(void) const;
@@ -425,8 +426,8 @@ public:
     private:
         using TOptionalDouble = boost::optional<double>;
         using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-        using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent *>;
-        using TCalendarComponentPtrVec = std::vector<CCalendarComponent *>;
+        using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
+        using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
         using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 
         //! \brief Tracks prediction errors with and without components.
@@ -438,7 +439,7 @@ public:
         class MATHS_EXPORT CComponentErrors {
         public:
             //! Initialize from a delimited string.
-            bool fromDelimited(const std::string &str);
+            bool fromDelimited(const std::string& str);
 
             //! Convert to a delimited string.
             std::string toDelimited(void) const;
@@ -454,10 +455,10 @@ public:
             void clear(void);
 
             //! Check if we should discard \p seasonal.
-            bool remove(core_t::TTime bucketLength, CSeasonalComponent &seasonal) const;
+            bool remove(core_t::TTime bucketLength, CSeasonalComponent& seasonal) const;
 
             //! Check if we should discard \p calendar.
-            bool remove(core_t::TTime bucketLength, CCalendarComponent &calendar) const;
+            bool remove(core_t::TTime bucketLength, CCalendarComponent& calendar) const;
 
             //! Age the errors by \p factor.
             void age(double factor);
@@ -467,7 +468,7 @@ public:
 
         private:
             //! Truncate large, i.e. more than 6 sigma, errors.
-            static double winsorise(double squareError, const TFloatMeanAccumulator &variance);
+            static double winsorise(double squareError, const TFloatMeanAccumulator& variance);
 
         private:
             //! The mean prediction error in the window.
@@ -478,17 +479,17 @@ public:
         };
 
         using TComponentErrorsVec = std::vector<CComponentErrors>;
-        using TComponentErrorsPtrVec = std::vector<CComponentErrors *>;
+        using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
         //! \brief The seasonal components of the decomposition.
         struct MATHS_EXPORT SSeasonal {
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
-                                        core::CStateRestoreTraverser &traverser);
+                                        core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
-            void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+            void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
             //! Set the decay rate.
             void decayRate(double decayRate);
@@ -502,9 +503,9 @@ public:
 
             //! Get the state to update.
             void componentsErrorsAndDeltas(core_t::TTime time,
-                                           TSeasonalComponentPtrVec &components,
-                                           TComponentErrorsPtrVec &errors,
-                                           TDoubleVec &deltas);
+                                           TSeasonalComponentPtrVec& components,
+                                           TComponentErrorsPtrVec& errors,
+                                           TDoubleVec& deltas);
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -544,10 +545,10 @@ public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
                                         core_t::TTime bucketLength,
-                                        core::CStateRestoreTraverser &traverser);
+                                        core::CStateRestoreTraverser& traverser);
 
             //! Persist state by passing information to \p inserter.
-            void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+            void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
             //! Set the decay rate.
             void decayRate(double decayRate);
@@ -564,8 +565,8 @@ public:
 
             //! Get the state to update.
             void componentsAndErrors(core_t::TTime time,
-                                     TCalendarComponentPtrVec &components,
-                                     TComponentErrorsPtrVec &errors);
+                                     TCalendarComponentPtrVec& components,
+                                     TComponentErrorsPtrVec& errors);
 
             //! Check if we need to interpolate any of the components.
             bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
@@ -605,24 +606,24 @@ public:
         std::size_t maxSize(void) const;
 
         //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult &result,
-                                   const CExpandingWindow &window,
-                                   const TPredictor &predictor,
-                                   CTrendComponent &trend,
-                                   maths_t::TSeasonalComponentVec &components,
-                                   TComponentErrorsVec &errors) const;
+        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
+                                   const CExpandingWindow& window,
+                                   const TPredictor& predictor,
+                                   CTrendComponent& trend,
+                                   maths_t::TSeasonalComponentVec& components,
+                                   TComponentErrorsVec& errors) const;
 
         //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature &feature,
+        bool addCalendarComponent(const CCalendarFeature& feature,
                                   core_t::TTime time,
-                                  maths_t::TCalendarComponentVec &components,
-                                  TComponentErrorsVec &errors) const;
+                                  maths_t::TCalendarComponentVec& components,
+                                  TComponentErrorsVec& errors) const;
 
         //! Clear all component error statistics.
         void clearComponentErrors(void);
 
         //! Handle \p symbol.
-        void apply(std::size_t symbol, const SMessage &message);
+        void apply(std::size_t symbol, const SMessage& message);
 
         //! Check if we should interpolate.
         bool shouldInterpolate(core_t::TTime time, core_t::TTime last);
@@ -639,7 +640,7 @@ public:
         void canonicalize(core_t::TTime time);
 
         //! Set a watcher for state changes.
-        void notifyOnNewComponents(bool *watcher);
+        void notifyOnNewComponents(bool* watcher);
 
     private:
         //! The state machine.
@@ -679,28 +680,28 @@ public:
         bool m_UsingTrendForPrediction;
 
         //! Set to true if non-null when the seasonal components change.
-        bool *m_Watcher;
+        bool* m_Watcher;
     };
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest &lhs,
-                 CTimeSeriesDecompositionDetail::CPeriodicityTest &rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs,
+                 CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest &lhs,
-                 CTimeSeriesDecompositionDetail::CCalendarTest &rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs,
+                 CTimeSeriesDecompositionDetail::CCalendarTest& rhs) {
     lhs.swap(rhs);
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CComponents &lhs,
-                 CTimeSeriesDecompositionDetail::CComponents &rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CComponents& lhs,
+                 CTimeSeriesDecompositionDetail::CComponents& rhs) {
     lhs.swap(rhs);
 }
 }
 }
 
-#endif// INCLUDED_ml_maths_CTimeSeriesDecompositionDetail_h
+#endif // INCLUDED_ml_maths_CTimeSeriesDecompositionDetail_h

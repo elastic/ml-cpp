@@ -35,8 +35,8 @@ namespace {
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 //! Get the description prefix.
-std::string descriptionPrefix(const CDetectorSpecification &spec,
-                              const TMeanAccumulator &meanOccupied,
+std::string descriptionPrefix(const CDetectorSpecification& spec,
+                              const TMeanAccumulator& meanOccupied,
                               std::size_t partitions) {
     if (spec.byField() && spec.partitionField()) {
         return "A significant proportion, " +
@@ -60,54 +60,56 @@ std::string descriptionPrefix(const CDetectorSpecification &spec,
 const bool IGNORE_EMPTY[] = {false, true};
 }
 
-CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams &params)
+CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams& params)
     : CPenalty(params) {}
 
-CNotEnoughDataPenalty *CNotEnoughDataPenalty::clone(void) const {
+CNotEnoughDataPenalty* CNotEnoughDataPenalty::clone(void) const {
     return new CNotEnoughDataPenalty(*this);
 }
 
-std::string CNotEnoughDataPenalty::name(void) const { return "not enough data"; }
+std::string CNotEnoughDataPenalty::name(void) const {
+    return "not enough data";
+}
 
-void CNotEnoughDataPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
+void CNotEnoughDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     if (!config_t::isRare(spec.function())) {
-        if (const CPartitionDataCountStatistics *partitionStats =
-                dynamic_cast<const CPartitionDataCountStatistics *>(spec.countStatistics())) {
+        if (const CPartitionDataCountStatistics* partitionStats =
+                dynamic_cast<const CPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*partitionStats, spec);
-        } else if (const CByAndPartitionDataCountStatistics *byAndPartitionStats =
-                       dynamic_cast<const CByAndPartitionDataCountStatistics *>(
+        } else if (const CByAndPartitionDataCountStatistics* byAndPartitionStats =
+                       dynamic_cast<const CByAndPartitionDataCountStatistics*>(
                            spec.countStatistics())) {
             this->penaltyFor(*byAndPartitionStats, spec);
-        } else if (const CByOverAndPartitionDataCountStatistics *byOverAndPartitionStats =
-                       dynamic_cast<const CByOverAndPartitionDataCountStatistics *>(
+        } else if (const CByOverAndPartitionDataCountStatistics* byOverAndPartitionStats =
+                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(
                            spec.countStatistics())) {
             this->penaltyFor(*byOverAndPartitionStats, spec);
         }
     }
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const CPartitionDataCountStatistics &stats,
-                                       CDetectorSpecification &spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const CPartitionDataCountStatistics& stats,
+                                       CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics &stats,
-                                       CDetectorSpecification &spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats,
+                                       CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics &stats,
-                                       CDetectorSpecification &spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& stats,
+                                       CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
-void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
-                                       const TBucketCountStatisticsVec &statistics,
-                                       CDetectorSpecification &spec) const {
+void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
+                                       const TBucketCountStatisticsVec& statistics,
+                                       CDetectorSpecification& spec) const {
     typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator
         TSizeSizePrMomentsUMapCItr;
 
-    const CAutoconfigurerParams::TTimeVec &candidates = this->params().candidateBucketLengths();
+    const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
     LOG_TRACE("bucket counts = " << core::CContainerPrinter::print(bucketCounts));
 
@@ -125,8 +127,8 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
             uint64_t bc = bucketCounts[bid];
             if (bc > 0) {
-                const CBucketCountStatistics &si = statistics[bid];
-                const CBucketCountStatistics::TSizeSizePrMomentsUMap &mi =
+                const CBucketCountStatistics& si = statistics[bid];
+                const CBucketCountStatistics::TSizeSizePrMomentsUMap& mi =
                     si.countMomentsPerPartition();
 
                 TMeanAccumulator penalty_;
@@ -135,12 +137,16 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                 for (TSizeSizePrMomentsUMapCItr j = mi.begin(); j != mi.end(); ++j) {
                     double occupied =
                         maths::CBasicStatistics::count(j->second) / static_cast<double>(bc);
-                    double penalty = CTools::logInterpolate(
-                        this->params().lowPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
-                        this->params().minimumPopulatedBucketFraction(function, IGNORE_EMPTY[i]),
-                        1.0,
-                        1.0 / static_cast<double>(bc),
-                        occupied);
+                    double penalty =
+                        CTools::logInterpolate(this->params()
+                                                   .lowPopulatedBucketFraction(function,
+                                                                               IGNORE_EMPTY[i]),
+                                               this->params()
+                                                   .minimumPopulatedBucketFraction(function,
+                                                                                   IGNORE_EMPTY[i]),
+                                               1.0,
+                                               1.0 / static_cast<double>(bc),
+                                               occupied);
                     penalty_.add(maths::CTools::fastLog(penalty));
                     if (penalty < 1.0) {
                         meanOccupied.add(occupied);
@@ -155,8 +161,9 @@ void CNotEnoughDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
                 if (penalty < 1.0) {
                     if (spec.byField() || spec.partitionField()) {
                         descriptions.back() =
-                            descriptionPrefix(
-                                spec, meanOccupied, si.countMomentsPerPartition().size()) +
+                            descriptionPrefix(spec,
+                                              meanOccupied,
+                                              si.countMomentsPerPartition().size()) +
                             " On average, only " +
                             CTools::prettyPrint(100.0 *
                                                 maths::CBasicStatistics::mean(meanOccupied)) +

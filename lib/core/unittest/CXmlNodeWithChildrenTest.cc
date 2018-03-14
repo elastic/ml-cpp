@@ -20,21 +20,25 @@
 #include <core/CXmlNodeWithChildrenPool.h>
 #include <core/CXmlParser.h>
 
-CppUnit::Test *CXmlNodeWithChildrenTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
+CppUnit::Test* CXmlNodeWithChildrenTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
-        &CXmlNodeWithChildrenTest::testNodeHierarchyToXml));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
-        &CXmlNodeWithChildrenTest::testParserToNodeHierarchy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testPerformanceNoPool",
-        &CXmlNodeWithChildrenTest::testPerformanceNoPool));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-        "CXmlNodeWithChildrenTest::testPerformanceWithPool",
-        &CXmlNodeWithChildrenTest::testPerformanceWithPool));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
+                                      &CXmlNodeWithChildrenTest::testNodeHierarchyToXml));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
+                                      &CXmlNodeWithChildrenTest::testParserToNodeHierarchy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceNoPool",
+                                      &CXmlNodeWithChildrenTest::testPerformanceNoPool));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CXmlNodeWithChildrenTest>("CXmlNodeWithChildrenTest::testPerformanceWithPool",
+                                      &CXmlNodeWithChildrenTest::testPerformanceWithPool));
 
     return suiteOfTests;
 }

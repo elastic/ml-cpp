@@ -71,16 +71,16 @@ std::string versionNumber() {
 }
 
 void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string &description,
-                           const std::string & /*snapshotIdIn*/,
+                           const std::string& description,
+                           const std::string& /*snapshotIdIn*/,
                            size_t /*numDocsIn*/,
-                           const ml::model::CResourceMonitor::SResults & /*results*/,
-                           const std::string &normalizerState) {
+                           const ml::model::CResourceMonitor::SResults& /*results*/,
+                           const std::string& normalizerState) {
     LOG_INFO("Persist complete with description: " << description);
     persistedNormalizerState = normalizerState;
 }
 
-bool writeNormalizerState(const std::string &outputFileName) {
+bool writeNormalizerState(const std::string& outputFileName) {
     std::ofstream out(outputFileName);
     if (!out.is_open()) {
         LOG_ERROR("Failed to open normalizer state output file " << outputFileName);
@@ -94,7 +94,7 @@ bool writeNormalizerState(const std::string &outputFileName) {
     return true;
 }
 
-bool persistCategorizerStateToFile(const std::string &outputFileName) {
+bool persistCategorizerStateToFile(const std::string& outputFileName) {
     ml::model::CLimits limits;
     ml::api::CFieldConfig config("count", "mlcategory");
 
@@ -112,7 +112,7 @@ bool persistCategorizerStateToFile(const std::string &outputFileName) {
 
     // Persist the categorizer state to file
     {
-        std::ofstream *out = nullptr;
+        std::ofstream* out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open categorizer state output file " << outputFileName);
@@ -130,11 +130,11 @@ bool persistCategorizerStateToFile(const std::string &outputFileName) {
     return true;
 }
 
-bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
-                                       const std::string &inputFilename,
-                                       const std::string &outputFileName,
+bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
+                                       const std::string& inputFilename,
+                                       const std::string& outputFileName,
                                        int latencyBuckets,
-                                       const std::string &timeFormat = std::string()) {
+                                       const std::string& timeFormat = std::string()) {
     // Open the input and output files
     std::ifstream inputStrm(inputFilename);
     if (!inputStrm.is_open()) {
@@ -155,8 +155,13 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
     ml::core_t::TTime bucketSize(3600);
     std::string jobId("foo");
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, 0, false, "");
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize,
+                                                              ml::model_t::E_None,
+                                                              "",
+                                                              bucketSize * latencyBuckets,
+                                                              0,
+                                                              false,
+                                                              "");
 
     ml::api::CAnomalyJob origJob(jobId,
                                  limits,
@@ -184,7 +189,7 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
 
     // Persist the job state to file
     {
-        std::ofstream *out = nullptr;
+        std::ofstream* out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open state output file " << outputFileName);
@@ -203,7 +208,7 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
     return true;
 }
 
-bool persistByDetector(const std::string &version) {
+bool persistByDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields.conf",
                                              "../unittest/testfiles/big_ascending.txt",
                                              "../unittest/testfiles/state/" + version +
@@ -212,7 +217,7 @@ bool persistByDetector(const std::string &version) {
                                              "%d/%b/%Y:%T %z");
 }
 
-bool persistOverDetector(const std::string &version) {
+bool persistOverDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields_over.conf",
                                              "../unittest/testfiles/big_ascending.txt",
                                              "../unittest/testfiles/state/" + version +
@@ -221,7 +226,7 @@ bool persistOverDetector(const std::string &version) {
                                              "%d/%b/%Y:%T %z");
 }
 
-bool persistPartitionDetector(const std::string &version) {
+bool persistPartitionDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields_partition.conf",
                                              "../unittest/testfiles/big_ascending.txt",
                                              "../unittest/testfiles/state/" + version +
@@ -230,7 +235,7 @@ bool persistPartitionDetector(const std::string &version) {
                                              "%d/%b/%Y:%T %z");
 }
 
-bool persistDcDetector(const std::string &version) {
+bool persistDcDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_persist_dc.conf",
                                              "../unittest/testfiles/files_users_programs.csv",
                                              "../unittest/testfiles/state/" + version +
@@ -238,7 +243,7 @@ bool persistDcDetector(const std::string &version) {
                                              5);
 }
 
-bool persistCountDetector(const std::string &version) {
+bool persistCountDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_persist_count.conf",
                                              "../unittest/testfiles/files_users_programs.csv",
                                              "../unittest/testfiles/state/" + version +
@@ -246,7 +251,7 @@ bool persistCountDetector(const std::string &version) {
                                              5);
 }
 
-int main(int /*argc*/, char ** /*argv*/) {
+int main(int /*argc*/, char** /*argv*/) {
     ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Info);
 
     std::string version = versionNumber();
@@ -304,7 +309,7 @@ int main(int /*argc*/, char ** /*argv*/) {
     }
 
     LOG_INFO("Written state files:");
-    for (const auto &stateFile : persistedStateFiles) {
+    for (const auto& stateFile : persistedStateFiles) {
         LOG_INFO("\t" << stateFile)
     }
 

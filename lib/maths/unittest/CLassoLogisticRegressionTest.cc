@@ -39,7 +39,8 @@ typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
 typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
 typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
 
-template <typename ARRAY> void initializeMatrix(const ARRAY &x_, TDoubleVecVec &x) {
+template <typename ARRAY>
+void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
     x.resize(boost::size(x_[0]), TDoubleVec(boost::size(x_), 0.0));
     for (std::size_t i = 0u; i < boost::size(x_); ++i) {
         for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
@@ -48,7 +49,8 @@ template <typename ARRAY> void initializeMatrix(const ARRAY &x_, TDoubleVecVec &
     }
 }
 
-template <typename ARRAY> void initializeMatrix(const ARRAY &x_, TSizeSizePrDoublePrVec &x) {
+template <typename ARRAY>
+void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
     for (std::size_t i = 0u; i < boost::size(x_); ++i) {
         for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
             if (x_[i][j] > 0.0) {
@@ -58,7 +60,7 @@ template <typename ARRAY> void initializeMatrix(const ARRAY &x_, TSizeSizePrDoub
     }
 }
 
-double inner(const TDoubleVec &x, const TDoubleVec &y) {
+double inner(const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result += x[i] * y[i];
@@ -66,10 +68,10 @@ double inner(const TDoubleVec &x, const TDoubleVec &y) {
     return result;
 }
 
-double logLikelihood(const TDoubleVecVec &x,
-                     const TDoubleVec &y,
-                     const TDoubleVec &lambda,
-                     const TDoubleVec &beta) {
+double logLikelihood(const TDoubleVecVec& x,
+                     const TDoubleVec& y,
+                     const TDoubleVec& lambda,
+                     const TDoubleVec& beta) {
     double result = 0.0;
     for (std::size_t i = 0u; i < y.size(); ++i) {
         double f = 0.0;
@@ -129,8 +131,9 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent(void) {
                                   << ", numberIterations = " << numberIterations);
 
         TDoubleVec beta2;
-        maths::lasso_logistic_regression_detail::CSparseMatrix xs(
-            boost::size(x_), boost::size(x_[0]), xs_);
+        maths::lasso_logistic_regression_detail::CSparseMatrix xs(boost::size(x_),
+                                                                  boost::size(x_[0]),
+                                                                  xs_);
         clg.run(xs, y, lambda, beta2, numberIterations);
         LOG_DEBUG("sparse beta = " << core::CContainerPrinter::print(beta2)
                                    << ", numberIterations = " << numberIterations);
@@ -247,8 +250,8 @@ void CLassoLogisticRegressionTest::testCrossValidatedLambda(void) {
     // TODO
 }
 
-CppUnit::Test *CLassoLogisticRegressionTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
+CppUnit::Test* CLassoLogisticRegressionTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
         "CLassoLogisticRegressionTest::testCyclicCoordinateDescent",
@@ -259,12 +262,14 @@ CppUnit::Test *CLassoLogisticRegressionTest::suite(void) {
     suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
         "CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental",
         &CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testNormBasedLambda",
-        &CLassoLogisticRegressionTest::testNormBasedLambda));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCrossValidatedLambda",
-        &CLassoLogisticRegressionTest::testCrossValidatedLambda));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testNormBasedLambda",
+                                          &CLassoLogisticRegressionTest::testNormBasedLambda));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CLassoLogisticRegressionTest>("CLassoLogisticRegressionTest::testCrossValidatedLambda",
+                                          &CLassoLogisticRegressionTest::testCrossValidatedLambda));
 
     return suiteOfTests;
 }

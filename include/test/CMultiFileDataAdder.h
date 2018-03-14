@@ -54,15 +54,15 @@ public:
     //! Add streamed data
     //! \param index Sub-directory name
     //! \param id File name (without extension)
-    virtual TOStreamP addStreamed(const std::string &index, const std::string &id);
+    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
-    virtual bool streamComplete(TOStreamP &strm, bool force);
+    virtual bool streamComplete(TOStreamP& strm, bool force);
 
 private:
     //! Make a file name of the form base/_index/id.extension
-    std::string makeFilename(const std::string &index, const std::string &id) const;
+    std::string makeFilename(const std::string& index, const std::string& id) const;
 
 private:
     //! Name of the file to serialise models to
@@ -74,4 +74,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_test_CMultiFileDataAdder_h
+#endif // INCLUDED_ml_test_CMultiFileDataAdder_h

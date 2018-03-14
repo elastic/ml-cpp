@@ -67,9 +67,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char **argv) {
-    const std::string &defaultNamedPipePath = ml::core::CNamedPipeFactory::defaultPath();
-    const std::string &progName = ml::core::CProgName::progName();
+int main(int argc, char** argv) {
+    const std::string& defaultNamedPipePath = ml::core::CNamedPipeFactory::defaultPath();
+    const std::string& progName = ml::core::CProgName::progName();
 
     // Read command line options
     std::string jvmPidStr =
@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
     // 4) No plugin code ever runs
     // This thread will detect the death of the parent process because this
     // process's STDIN will be closed.
-    ml::controller::CBlockingCallCancellerThread cancellerThread(
-        ml::core::CThread::currentThreadId(), std::cin);
+    ml::controller::CBlockingCallCancellerThread
+        cancellerThread(ml::core::CThread::currentThreadId(), std::cin);
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
         // real stderr of this process rather than the log pipe...
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     // Change directory to the directory containing this program, because the
     // permitted paths all assume the current working directory contains the
     // permitted programs
-    const std::string &progDir = ml::core::CProgName::progDir();
+    const std::string& progDir = ml::core::CProgName::progDir();
     if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1) {
         LOG_FATAL("Could not change directory to '" << progDir << "': " << ::strerror(errno));
         cancellerThread.stop();

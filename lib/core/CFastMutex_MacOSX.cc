@@ -24,8 +24,12 @@ CFastMutex::CFastMutex(void)
 
 CFastMutex::~CFastMutex(void) {}
 
-void CFastMutex::lock(void) { OSSpinLockLock(&m_Mutex); }
+void CFastMutex::lock(void) {
+    OSSpinLockLock(&m_Mutex);
+}
 
-void CFastMutex::unlock(void) { OSSpinLockUnlock(&m_Mutex); }
+void CFastMutex::unlock(void) {
+    OSSpinLockUnlock(&m_Mutex);
+}
 }
 }

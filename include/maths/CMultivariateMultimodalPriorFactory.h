@@ -46,15 +46,15 @@ public:
                                     double minimumClusterFraction,
                                     double minimumClusterCount,
                                     double minimumCategoryCount,
-                                    const CMultivariatePrior &seedPrior);
+                                    const CMultivariatePrior& seedPrior);
 
     //! Create reading state from its state document representation.
     static bool restore(std::size_t dimension,
-                        const SDistributionRestoreParams &params,
-                        TPriorPtr &ptr,
-                        core::CStateRestoreTraverser &traverser);
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CPriorStateSerialiserMultivariateNormal_h
+#endif // INCLUDED_ml_maths_CPriorStateSerialiserMultivariateNormal_h

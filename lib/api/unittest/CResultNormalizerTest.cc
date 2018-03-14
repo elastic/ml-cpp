@@ -30,11 +30,12 @@
 #include <sstream>
 #include <string>
 
-CppUnit::Test *CResultNormalizerTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResultNormalizerTest");
+CppUnit::Test* CResultNormalizerTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResultNormalizerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResultNormalizerTest>(
-        "CResultNormalizerTest::testInitNormalizer", &CResultNormalizerTest::testInitNormalizer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CResultNormalizerTest>("CResultNormalizerTest::testInitNormalizer",
+                                                       &CResultNormalizerTest::testInitNormalizer));
 
     return suiteOfTests;
 }
@@ -72,7 +73,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
     // the normaliser is 2.56098e-205, so this should map to the highest normalised
     // score which is 98.28496
     {
-        const rapidjson::Document &doc = resultDocs[0];
+        const rapidjson::Document& doc = resultDocs[0];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("2.56098e-205"),
@@ -85,7 +86,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
                              std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[1];
+        const rapidjson::Document& doc = resultDocs[1];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("2.93761e-203"),
@@ -98,7 +99,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
                              std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[2];
+        const rapidjson::Document& doc = resultDocs[2];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("5.56572e-204"),
@@ -111,7 +112,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
                              std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[4];
+        const rapidjson::Document& doc = resultDocs[4];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("count"), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("1e-300"), std::string(doc["probability"].GetString()));
@@ -123,7 +124,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
                              std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[15];
+        const rapidjson::Document& doc = resultDocs[15];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("1e-10"), std::string(doc["probability"].GetString()));
@@ -135,7 +136,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
                              std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[35];
+        const rapidjson::Document& doc = resultDocs[35];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("1"), std::string(doc["probability"].GetString()));
@@ -146,7 +147,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("0"), std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[36];
+        const rapidjson::Document& doc = resultDocs[36];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("1"), std::string(doc["probability"].GetString()));
@@ -157,7 +158,7 @@ void CResultNormalizerTest::testInitNormalizer(void) {
         CPPUNIT_ASSERT_EQUAL(std::string("0"), std::string(doc["normalized_score"].GetString()));
     }
     {
-        const rapidjson::Document &doc = resultDocs[37];
+        const rapidjson::Document& doc = resultDocs[37];
         CPPUNIT_ASSERT_EQUAL(std::string(""), std::string(doc["value_field_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("count"), std::string(doc["function_name"].GetString()));
         CPPUNIT_ASSERT_EQUAL(std::string("1"), std::string(doc["probability"].GetString()));

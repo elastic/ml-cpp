@@ -75,13 +75,15 @@ void CVectorRangeTest::testAccessors(void) {
     CPPUNIT_ASSERT_EQUAL(0.1, range14.at(0));
     CPPUNIT_ASSERT_EQUAL(0.7, range14.at(1));
     CPPUNIT_ASSERT_EQUAL(9.8, range14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(
-        std::string("out of range: 3 >= 3"), range14.at(3), std::out_of_range);
+    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 3 >= 3"),
+                                 range14.at(3),
+                                 std::out_of_range);
     CPPUNIT_ASSERT_EQUAL(0.1, crange14.at(0));
     CPPUNIT_ASSERT_EQUAL(0.7, crange14.at(1));
     CPPUNIT_ASSERT_EQUAL(9.8, crange14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(
-        std::string("out of range: 4 >= 3"), crange14.at(4), std::out_of_range);
+    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 4 >= 3"),
+                                 crange14.at(4),
+                                 std::out_of_range);
 
     CPPUNIT_ASSERT_EQUAL(0.1, range14[0]);
     CPPUNIT_ASSERT_EQUAL(0.7, range14[1]);
@@ -256,21 +258,26 @@ void CVectorRangeTest::testComparisons(void) {
     CPPUNIT_ASSERT(!(range103 >= range202));
 }
 
-CppUnit::Test *CVectorRangeTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
+CppUnit::Test* CVectorRangeTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CVectorRangeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
-        "CVectorRangeTest::testCreation", &CVectorRangeTest::testCreation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
-        "CVectorRangeTest::testAccessors", &CVectorRangeTest::testAccessors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
-        "CVectorRangeTest::testIterators", &CVectorRangeTest::testIterators));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testCreation",
+                                                  &CVectorRangeTest::testCreation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testAccessors",
+                                                  &CVectorRangeTest::testAccessors));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testIterators",
+                                                  &CVectorRangeTest::testIterators));
     suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testSizing",
                                                                     &CVectorRangeTest::testSizing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
-        "CVectorRangeTest::testModifiers", &CVectorRangeTest::testModifiers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CVectorRangeTest>(
-        "CVectorRangeTest::testComparisons", &CVectorRangeTest::testComparisons));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testModifiers",
+                                                  &CVectorRangeTest::testModifiers));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CVectorRangeTest>("CVectorRangeTest::testComparisons",
+                                                  &CVectorRangeTest::testComparisons));
 
     return suiteOfTests;
 }

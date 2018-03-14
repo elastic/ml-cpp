@@ -48,30 +48,30 @@ public:
     CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth);
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the top \p n most co-occurring events by significance
     //! with events \p X.
     void topNBySignificance(std::size_t X,
                             std::size_t n,
-                            TSizeSizePrVec &top,
-                            TDoubleVec &significances) const;
+                            TSizeSizePrVec& top,
+                            TDoubleVec& significances) const;
 
     //! Get the top \p n most co-occurring events by significance.
-    void topNBySignificance(std::size_t n, TSizeSizePrVec &top, TDoubleVec &significances) const;
+    void topNBySignificance(std::size_t n, TSizeSizePrVec& top, TDoubleVec& significances) const;
 
     //! Resize the relevant statistics to accommodate up to \p event
     //! streams.
     void addEventStreams(std::size_t n);
 
     //! Remove the event streams \p remove.
-    void removeEventStreams(const TSizeVec &remove);
+    void removeEventStreams(const TSizeVec& remove);
 
     //! Recycle the event streams \p recycle.
-    void recycleEventStreams(const TSizeVec &recycle);
+    void recycleEventStreams(const TSizeVec& recycle);
 
     //! Add the value \p x for the variable \p X.
     void add(std::size_t X);
@@ -114,4 +114,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CCooccurrences_h
+#endif // INCLUDED_ml_maths_CCooccurrences_h

@@ -43,9 +43,9 @@ static const std::string KEY_TAG("a");
 static const std::string VALUE_TAG("b");
 
 //! Helper function to add a string/int pair to JSON writer
-void addStringInt(TGenericLineWriter &writer,
-                  const std::string &name,
-                  const std::string &description,
+void addStringInt(TGenericLineWriter& writer,
+                  const std::string& name,
+                  const std::string& description,
                   uint64_t stat) {
     writer.StartObject();
 
@@ -64,16 +64,18 @@ void addStringInt(TGenericLineWriter &writer,
 
 CStatistics::CStatistics(void) {}
 
-CStatistics &CStatistics::instance(void) { return ms_Instance; }
+CStatistics& CStatistics::instance(void) {
+    return ms_Instance;
+}
 
-CStat &CStatistics::stat(int index) {
+CStat& CStatistics::stat(int index) {
     if (static_cast<std::size_t>(index) >= ms_Instance.m_Stats.size()) {
         LOG_ABORT("Bad index " << index);
     }
     return ms_Instance.m_Stats[index];
 }
 
-void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter) {
+void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter& inserter) {
     // This does not guarantee that consistent statistics get persisted for a
     // background persistence.  The analytics thread could be updating
     // statistics while this method is running.  There is no danger of memory
@@ -93,11 +95,11 @@ void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter &inserter) 
     }
 }
 
-bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverser) {
+bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser) {
     uint64_t value = 0;
     int key = 0;
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == KEY_TAG) {
             value = 0;
             if (CStringUtils::stringToType(traverser.value(), key) == false) {
@@ -120,7 +122,7 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser &traverse
 
 CStatistics CStatistics::ms_Instance;
 
-std::ostream &operator<<(std::ostream &o, const CStatistics & /*stats*/) {
+std::ostream& operator<<(std::ostream& o, const CStatistics& /*stats*/) {
     rapidjson::OStreamWrapper writeStream(o);
     TGenericLineWriter writer(writeStream);
 
@@ -227,5 +229,5 @@ std::ostream &operator<<(std::ostream &o, const CStatistics & /*stats*/) {
     return o;
 }
 
-}// core
-}// ml
+} // core
+} // ml

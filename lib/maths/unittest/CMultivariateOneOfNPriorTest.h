@@ -32,7 +32,7 @@ public:
     void testProbabilityOfLessLikelySamples(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMultivariateOneOfNPriorTest_h
+#endif // INCLUDED_CMultivariateOneOfNPriorTest_h

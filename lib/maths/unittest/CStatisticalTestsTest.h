@@ -23,7 +23,7 @@ public:
     void testCramerVonMises(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CStatisticalTestsTest_h
+#endif // INCLUDED_CStatisticalTestsTest_h

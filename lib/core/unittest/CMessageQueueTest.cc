@@ -22,13 +22,15 @@
 
 #include <stdint.h>
 
-CppUnit::Test *CMessageQueueTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMessageQueueTest");
+CppUnit::Test* CMessageQueueTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageQueueTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageQueueTest>(
-        "CMessageQueueTest::testSendReceive", &CMessageQueueTest::testSendReceive));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageQueueTest>(
-        "CMessageQueueTest::testTiming", &CMessageQueueTest::testTiming));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testSendReceive",
+                                                   &CMessageQueueTest::testSendReceive));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testTiming",
+                                                   &CMessageQueueTest::testTiming));
 
     return suiteOfTests;
 }
@@ -38,7 +40,7 @@ class CReceiver {
 public:
     CReceiver(uint32_t sleepTime = 0) : m_SleepTime(sleepTime) {}
 
-    void processMsg(const std::string &str, size_t /* backlog */) {
+    void processMsg(const std::string& str, size_t /* backlog */) {
         m_Strings.push_back(str);
         if ((m_Strings.size() % 1000) == 0) {
             LOG_DEBUG("Received " << m_Strings.size() << " strings");

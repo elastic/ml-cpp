@@ -41,47 +41,55 @@ typedef std::vector<std::string> TStrVec;
 const std::string EMPTY_STRING;
 }
 
-CppUnit::Test *CDetectionRuleTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectionRuleTest");
+CppUnit::Test* CDetectionRuleTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectionRuleTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenCategoricalCondition",
-        &CDetectionRuleTest::testApplyGivenCategoricalCondition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenNumericalActualCondition",
-        &CDetectionRuleTest::testApplyGivenNumericalActualCondition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenNumericalTypicalCondition",
-        &CDetectionRuleTest::testApplyGivenNumericalTypicalCondition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition",
-        &CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenCategoricalCondition",
+                                &CDetectionRuleTest::testApplyGivenCategoricalCondition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenNumericalActualCondition",
+                                &CDetectionRuleTest::testApplyGivenNumericalActualCondition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenNumericalTypicalCondition",
+                                &CDetectionRuleTest::testApplyGivenNumericalTypicalCondition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition",
+                                &CDetectionRuleTest::testApplyGivenNumericalDiffAbsCondition));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField",
         &CDetectionRuleTest::testApplyGivenSingleSeriesModelAndConditionWithField));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenNoActualValueAvailable",
-        &CDetectionRuleTest::testApplyGivenNoActualValueAvailable));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenNoActualValueAvailable",
+                                &CDetectionRuleTest::testApplyGivenNoActualValueAvailable));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel",
         &CDetectionRuleTest::testApplyGivenDifferentSeriesAndIndividualModel));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel",
         &CDetectionRuleTest::testApplyGivenDifferentSeriesAndPopulationModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr",
-        &CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd",
-        &CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr",
+                                &CDetectionRuleTest::testApplyGivenMultipleConditionsWithOr));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd",
+                                &CDetectionRuleTest::testApplyGivenMultipleConditionsWithAnd));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
         "CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel",
         &CDetectionRuleTest::testApplyGivenTargetFieldIsPartitionAndIndividualModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testApplyGivenTimeCondition",
-        &CDetectionRuleTest::testApplyGivenTimeCondition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRuleTest>(
-        "CDetectionRuleTest::testRuleActions", &CDetectionRuleTest::testRuleActions));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CDetectionRuleTest>("CDetectionRuleTest::testApplyGivenTimeCondition",
+                                              &CDetectionRuleTest::testApplyGivenTimeCondition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CDetectionRuleTest>("CDetectionRuleTest::testRuleActions",
+                                                    &CDetectionRuleTest::testRuleActions));
 
     return suiteOfTests;
 }

@@ -28,7 +28,7 @@ namespace ml {
 namespace core {
 
 // Work around the fact that Windows strftime() treats %z differently to Unix
-size_t CStrFTime::strFTime(char *buf, size_t maxSize, const char *format, struct tm *tm) {
+size_t CStrFTime::strFTime(char* buf, size_t maxSize, const char* format, struct tm* tm) {
     if (buf == 0 || format == 0 || tm == 0) {
         errno = EINVAL;
         return 0;
@@ -55,7 +55,7 @@ size_t CStrFTime::strFTime(char *buf, size_t maxSize, const char *format, struct
 
     zPos = adjFormat.find("%Z");
     if (zPos != std::string::npos) {
-        CTimezone &tz = CTimezone::instance();
+        CTimezone& tz = CTimezone::instance();
 
         // +ve means in DST; -ve means unknown
         if (tm->tm_isdst > 0) {

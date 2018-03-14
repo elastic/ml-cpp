@@ -43,10 +43,10 @@ public:
     CRegexFilter(void);
 
     //! Configures the filter for the given \p regularExpressions.
-    bool configure(const TStrVec &regularExpressions);
+    bool configure(const TStrVec& regularExpressions);
 
     //! Applies the filter to \p target.
-    std::string apply(const std::string &target) const;
+    std::string apply(const std::string& target) const;
 
     //! Returns true if the filter is empty.
     bool empty(void) const;
@@ -58,4 +58,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CRegexFilter_h
+#endif // INCLUDED_ml_core_CRegexFilter_h

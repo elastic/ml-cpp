@@ -42,12 +42,12 @@ using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1
 struct SAddProbability : public boost::static_visitor<void> {
     void operator()(double probability,
                     double weight,
-                    maths::CJointProbabilityOfLessLikelySamples &aggregator) const {
+                    maths::CJointProbabilityOfLessLikelySamples& aggregator) const {
         aggregator.add(probability, weight);
     }
     void operator()(double probability,
                     double /*weight*/,
-                    maths::CProbabilityOfExtremeSample &aggregator) const {
+                    maths::CProbabilityOfExtremeSample& aggregator) const {
         aggregator.add(probability);
     }
 };
@@ -56,7 +56,7 @@ struct SAddProbability : public boost::static_visitor<void> {
 //! of possible aggregation styles.
 struct SReadProbability : public boost::static_visitor<bool> {
     template <typename T>
-    bool operator()(double weight, double &result, const T &aggregator) const {
+    bool operator()(double weight, double& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
             LOG_ERROR("Failed to compute probability");
@@ -65,7 +65,8 @@ struct SReadProbability : public boost::static_visitor<bool> {
         result *= weight < 1.0 ? std::pow(probability, std::max(weight, 0.0)) : probability;
         return true;
     }
-    template <typename T> bool operator()(TMinAccumulator &result, const T &aggregator) const {
+    template <typename T>
+    bool operator()(TMinAccumulator& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
             LOG_ERROR("Failed to compute probability");
@@ -177,22 +178,24 @@ core_t::TTime CModelTools::CFuzzyDeduplicate::quantize(core_t::TTime time) const
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::
-operator()(const TTimeDouble2VecPr &value) const {
-    return static_cast<std::size_t>(std::accumulate(value.second.begin(),
-                                                    value.second.end(),
-                                                    static_cast<uint64_t>(value.first),
-                                                    [](uint64_t seed, double v) {
-                                                        return core::CHashing::hashCombine(
-                                                            seed, static_cast<uint64_t>(v));
-                                                    }));
+operator()(const TTimeDouble2VecPr& value) const {
+    return static_cast<std::size_t>(
+        std::accumulate(value.second.begin(),
+                        value.second.end(),
+                        static_cast<uint64_t>(value.first),
+                        [](uint64_t seed, double v) {
+                            return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
+                        }));
 }
 
 CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style)
     : m_Style(style), m_TotalWeight(0.0) {}
 
-bool CModelTools::CProbabilityAggregator::empty(void) const { return m_TotalWeight == 0.0; }
+bool CModelTools::CProbabilityAggregator::empty(void) const {
+    return m_TotalWeight == 0.0;
+}
 
-void CModelTools::CProbabilityAggregator::add(const TAggregator &aggregator, double weight) {
+void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, double weight) {
     switch (m_Style) {
         case E_Sum:
             if (weight > 0.0) {
@@ -208,13 +211,13 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator &aggregator, dou
 
 void CModelTools::CProbabilityAggregator::add(double probability, double weight) {
     m_TotalWeight += weight;
-    for (auto &&aggregator : m_Aggregators) {
+    for (auto&& aggregator : m_Aggregators) {
         boost::apply_visitor(boost::bind<void>(SAddProbability(), probability, weight, _1),
                              aggregator.first);
     }
 }
 
-bool CModelTools::CProbabilityAggregator::calculate(double &result) const {
+bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     result = 1.0;
 
     if (m_TotalWeight == 0.0) {
@@ -232,14 +235,15 @@ bool CModelTools::CProbabilityAggregator::calculate(double &result) const {
     switch (m_Style) {
         case E_Sum: {
             double n{0.0};
-            for (const auto &aggregator : m_Aggregators) {
+            for (const auto& aggregator : m_Aggregators) {
                 n += aggregator.second;
             }
-            for (const auto &aggregator : m_Aggregators) {
-                if (!boost::apply_visitor(
-                        boost::bind<bool>(
-                            SReadProbability(), aggregator.second / n, boost::ref(p), _1),
-                        aggregator.first)) {
+            for (const auto& aggregator : m_Aggregators) {
+                if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(),
+                                                            aggregator.second / n,
+                                                            boost::ref(p),
+                                                            _1),
+                                          aggregator.first)) {
                     return false;
                 }
             }
@@ -247,7 +251,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double &result) const {
         }
         case E_Min: {
             TMinAccumulator p_;
-            for (const auto &aggregator : m_Aggregators) {
+            for (const auto& aggregator : m_Aggregators) {
                 if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), boost::ref(p_), _1),
                                           aggregator.first)) {
                     return false;
@@ -272,10 +276,10 @@ CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void)
     : m_Prior(0), m_SmallestProbability(1.0) {}
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(
-    const maths::CMultinomialConjugate &prior)
+    const maths::CMultinomialConjugate& prior)
     : m_Prior(&prior), m_SmallestProbability(1.0) {}
 
-bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, double &result) const {
+bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, double& result) const {
     result = 1.0;
     if (!m_Prior || m_Prior->isNonInformative()) {
         return false;
@@ -322,18 +326,20 @@ std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage(void) const {
 CModelTools::CProbabilityCache::CProbabilityCache(double maximumError)
     : m_MaximumError(maximumError) {}
 
-void CModelTools::CProbabilityCache::clear(void) { m_Caches.clear(); }
+void CModelTools::CProbabilityCache::clear(void) {
+    m_Caches.clear();
+}
 
 void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
                                               std::size_t id,
-                                              const maths::CModel &model) {
+                                              const maths::CModel& model) {
     if (model_t::dimension(feature) == 1) {
-        TDouble1Vec &modes{m_Caches[{feature, id}].s_Modes};
+        TDouble1Vec& modes{m_Caches[{feature, id}].s_Modes};
         if (modes.empty()) {
             TDouble2Vec1Vec modes_(
                 model.residualModes(maths::CConstantWeights::COUNT_VARIANCE,
                                     maths::CConstantWeights::unit<TDouble2Vec>(1)));
-            for (const auto &mode : modes_) {
+            for (const auto& mode : modes_) {
                 modes.push_back(mode[0]);
             }
             std::sort(modes.begin(), modes.end());
@@ -343,24 +349,27 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
 
 void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     std::size_t id,
-                                                    const TDouble2Vec1Vec &value,
+                                                    const TDouble2Vec1Vec& value,
                                                     double probability,
-                                                    const TTail2Vec &tail,
+                                                    const TTail2Vec& tail,
                                                     bool conditional,
-                                                    const TSize1Vec &mostAnomalousCorrelate) {
+                                                    const TSize1Vec& mostAnomalousCorrelate) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
-        m_Caches[{feature, id}].s_Probabilities.emplace(
-            value[0][0], SProbability{probability, tail, conditional, mostAnomalousCorrelate});
+        m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0],
+                                                        SProbability{probability,
+                                                                     tail,
+                                                                     conditional,
+                                                                     mostAnomalousCorrelate});
     }
 }
 
 bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                             std::size_t id,
-                                            const TDouble2Vec1Vec &value,
-                                            double &probability,
-                                            TTail2Vec &tail,
-                                            bool &conditional,
-                                            TSize1Vec &mostAnomalousCorrelate) const {
+                                            const TDouble2Vec1Vec& value,
+                                            double& probability,
+                                            TTail2Vec& tail,
+                                            bool& conditional,
+                                            TSize1Vec& mostAnomalousCorrelate) const {
     // The idea of this cache is to:
     //   1. Check that the requested value x is in a region where the
     //      probability as a function of value is monotonic
@@ -377,8 +386,8 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
         auto pos = m_Caches.find({feature, id});
         if (pos != m_Caches.end()) {
             double x{value[0][0]};
-            const TDouble1Vec &modes{pos->second.s_Modes};
-            const TDoubleProbabilityFMap &probabilities{pos->second.s_Probabilities};
+            const TDouble1Vec& modes{pos->second.s_Modes};
+            const TDoubleProbabilityFMap& probabilities{pos->second.s_Probabilities};
             auto right = probabilities.lower_bound(x);
 
             if (right != probabilities.end() && right->first == x) {

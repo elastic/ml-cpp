@@ -33,21 +33,21 @@ public:
     void testPruning(void);
     void testExtraMemory(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void reportCallback(const ml::model::CResourceMonitor::SResults &results);
+    void reportCallback(const ml::model::CResourceMonitor::SResults& results);
 
-    void addTestData(ml::core_t::TTime &firstTime,
+    void addTestData(ml::core_t::TTime& firstTime,
                      const ml::core_t::TTime bucketLength,
                      const std::size_t buckets,
                      const std::size_t newPeoplePerBucket,
-                     std::size_t &startOffset,
-                     ml::model::CAnomalyDetector &detector,
-                     ml::model::CResourceMonitor &monitor);
+                     std::size_t& startOffset,
+                     ml::model::CAnomalyDetector& detector,
+                     ml::model::CResourceMonitor& monitor);
 
 private:
     ml::model::CResourceMonitor::SResults m_CallbackResults;
 };
 
-#endif// INCLUDED_CResourceMonitorTest_h
+#endif // INCLUDED_CResourceMonitorTest_h

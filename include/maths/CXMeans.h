@@ -75,15 +75,17 @@ public:
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster &other) const {
+        bool operator==(const CCluster& other) const {
             return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
         }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
-        bool operator<(const CCluster &rhs) const {
-            return COrderings::lexicographical_compare(
-                m_Checksum, m_Points, rhs.m_Checksum, rhs.m_Points);
+        bool operator<(const CCluster& rhs) const {
+            return COrderings::lexicographical_compare(m_Checksum,
+                                                       m_Points,
+                                                       rhs.m_Checksum,
+                                                       rhs.m_Points);
         }
 
         //! Get the number of points in the cluster.
@@ -95,18 +97,18 @@ public:
         double cost(void) const { return m_Cost; }
 
         //! Set the cluster centre.
-        void centre(const POINT &centre) { m_Centre = centre; }
+        void centre(const POINT& centre) { m_Centre = centre; }
         //! Get the cluster centre.
-        const POINT &centre(void) const { return m_Centre; }
+        const POINT& centre(void) const { return m_Centre; }
 
         //! Swap the points into place and recalculate the checksum.
-        void points(TPointVec &points) {
+        void points(TPointVec& points) {
             m_Points.swap(points);
             std::sort(m_Points.begin(), m_Points.end());
             m_Checksum = CChecksum::calculate(0, m_Points);
         }
         //! Get the cluster points.
-        const TPointVec &points(void) const { return m_Points; }
+        const TPointVec& points(void) const { return m_Points; }
 
         //! Get the cluster checksum.
         uint64_t checksum(void) const { return m_Checksum; }
@@ -133,7 +135,7 @@ public:
     //! Set the points to cluster.
     //!
     //! \note These are swapped in to place.
-    void setPoints(TPointVec &points) {
+    void setPoints(TPointVec& points) {
         m_Kmeans.setPoints(points);
         m_Clusters.clear();
         m_Clusters.push_back(CCluster());
@@ -148,10 +150,10 @@ public:
     }
 
     //! Get the best centres found to date.
-    const TPointVec &centres(void) const { return m_BestCentres; }
+    const TPointVec& centres(void) const { return m_BestCentres; }
 
     //! Get the best clusters found to date.
-    const TClusterVec &clusters(void) const { return m_Clusters; }
+    const TClusterVec& clusters(void) const { return m_Clusters; }
 
     //! Run the full x-means algorithm.
     //!
@@ -185,7 +187,7 @@ protected:
     //! \param[in] kmeansIterations The limit on the number of
     //! iterations of Lloyd's algorithm to use.
     void improveParams(std::size_t kmeansIterations) {
-        typedef const CCluster *TClusterCPtr;
+        typedef const CCluster* TClusterCPtr;
         typedef std::vector<TClusterCPtr> TClusterCPtrVec;
 
         std::size_t n = m_Clusters.size();
@@ -205,7 +207,7 @@ protected:
 
         // k-means to improve parameters.
         m_Kmeans.run(kmeansIterations);
-        const TPointVec &newCentres = m_Kmeans.centres();
+        const TPointVec& newCentres = m_Kmeans.centres();
         TPointVecVec newClusterPoints;
         m_Kmeans.clusters(newClusterPoints);
 
@@ -220,11 +222,13 @@ protected:
 
         for (std::size_t i = 0u; i < n; ++i) {
             newClusters.push_back(CCluster());
-            CCluster &cluster = newClusters.back();
+            CCluster& cluster = newClusters.back();
             cluster.centre(newCentres[i]);
             cluster.points(newClusterPoints[i]);
-            typename TClusterCPtrVec::const_iterator j = std::lower_bound(
-                oldClusters.begin(), oldClusters.end(), &cluster, COrderings::SPtrLess());
+            typename TClusterCPtrVec::const_iterator j = std::lower_bound(oldClusters.begin(),
+                                                                          oldClusters.end(),
+                                                                          &cluster,
+                                                                          COrderings::SPtrLess());
             if (j != oldClusters.end() && **j == cluster) {
                 cluster.cost((*j)->cost());
                 preserved.insert(cluster.checksum());
@@ -309,7 +313,7 @@ protected:
                 kmeans.setCentres(seedClusterCentres);
                 kmeans.run(kmeansIterations);
 
-                const TPointVec &centres = kmeans.centres();
+                const TPointVec& centres = kmeans.centres();
                 LOG_TRACE("centres = " << core::CContainerPrinter::print(centres));
                 clusterPoints.clear();
                 kmeans.clusters(clusterPoints);
@@ -347,7 +351,7 @@ protected:
     }
 
     //! Get the checksums of the clusters which are inactive.
-    const TUInt64USet &inactive(void) const { return m_Inactive; }
+    const TUInt64USet& inactive(void) const { return m_Inactive; }
 
 private:
     //! Generate seed points for the cluster centres in k-splits
@@ -355,7 +359,7 @@ private:
     //!
     //! These are used to initialize the k-means centres in the
     //! step to improve structure.
-    void generateSeedCentres(const TPointVec &points, std::size_t k, TPointVec &result) const {
+    void generateSeedCentres(const TPointVec& points, std::size_t k, TPointVec& result) const {
         CKMeansPlusPlusInitialization<POINT, CPRNG::CXorShift1024Mult> kmeansPlusPlus(m_Rng);
         kmeansPlusPlus.run(points, k, result);
     }
@@ -375,7 +379,7 @@ private:
             m_Clusters.reserve(m_BestCentres.size());
             for (std::size_t i = 0u; i < m_BestCentres.size(); ++i) {
                 m_Clusters.push_back(CCluster());
-                CCluster &cluster = m_Clusters.back();
+                CCluster& cluster = m_Clusters.back();
                 cluster.cost(COST(polishedClusterPoints[i]).calculate());
                 cluster.centre(m_BestCentres[i]);
                 cluster.points(polishedClusterPoints[i]);
@@ -409,4 +413,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CXMeans_h
+#endif // INCLUDED_ml_maths_CXMeans_h

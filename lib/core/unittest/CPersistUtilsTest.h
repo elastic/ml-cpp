@@ -24,7 +24,7 @@ public:
     void testPersistIterators(void);
     void testAppend(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CPersistUtilsTest_h
+#endif // INCLUDED_CPersistUtilsTest_h

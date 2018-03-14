@@ -33,7 +33,7 @@ public:
     void testNonNegative();
     void testFinancialIndex();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     using TTrend = std::function<double(ml::core_t::TTime, double)>;
@@ -47,4 +47,4 @@ private:
               double maximumError);
 };
 
-#endif// INCLUDED_CForecastTest_h
+#endif // INCLUDED_CForecastTest_h

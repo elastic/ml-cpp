@@ -37,9 +37,9 @@
 namespace ml {
 namespace model {
 
-CEventRateModelFactory::CEventRateModelFactory(const SModelParams &params,
+CEventRateModelFactory::CEventRateModelFactory(const SModelParams& params,
                                                model_t::ESummaryMode summaryMode,
-                                               const std::string &summaryCountFieldName)
+                                               const std::string& summaryCountFieldName)
     : CModelFactory(params),
       m_Identifier(),
       m_SummaryMode(summaryMode),
@@ -47,63 +47,67 @@ CEventRateModelFactory::CEventRateModelFactory(const SModelParams &params,
       m_UseNull(false),
       m_BucketResultsDelay(0) {}
 
-CEventRateModelFactory *CEventRateModelFactory::clone(void) const {
+CEventRateModelFactory* CEventRateModelFactory::clone(void) const {
     return new CEventRateModelFactory(*this);
 }
 
-CAnomalyDetectorModel *
-CEventRateModelFactory::makeModel(const SModelInitializationData &initData) const {
+CAnomalyDetectorModel*
+CEventRateModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRateModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        this->defaultCategoricalPrior(),
-        influenceCalculators);
+    return new CEventRateModel(this->modelParams(),
+                               dataGatherer,
+                               this->defaultFeatureModels(features,
+                                                          dataGatherer->bucketLength(),
+                                                          0.4,
+                                                          true),
+                               this->defaultCorrelatePriors(features),
+                               this->defaultCorrelates(features),
+                               this->defaultCategoricalPrior(),
+                               influenceCalculators);
 }
 
-CAnomalyDetectorModel *
-CEventRateModelFactory::makeModel(const SModelInitializationData &initData,
-                                  core::CStateRestoreTraverser &traverser) const {
+CAnomalyDetectorModel*
+CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
+                                  core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRateModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators,
-        traverser);
+    return new CEventRateModel(this->modelParams(),
+                               dataGatherer,
+                               this->defaultFeatureModels(features,
+                                                          dataGatherer->bucketLength(),
+                                                          0.4,
+                                                          true),
+                               this->defaultCorrelatePriors(features),
+                               this->defaultCorrelates(features),
+                               influenceCalculators,
+                               traverser);
 }
 
-CDataGatherer *
-CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const {
+CDataGatherer*
+CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -111,7 +115,7 @@ CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData &init
                              m_PartitionFieldName,
                              initData.s_PartitionFieldValue,
                              m_PersonFieldName,
-                             EMPTY_STRING,// AttributeFieldName
+                             EMPTY_STRING, // AttributeFieldName
                              m_ValueFieldName,
                              m_InfluenceFieldNames,
                              m_UseNull,
@@ -121,9 +125,9 @@ CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData &init
                              initData.s_SampleOverrideCount);
 }
 
-CDataGatherer *
-CEventRateModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
-                                         core::CStateRestoreTraverser &traverser) const {
+CDataGatherer*
+CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                         core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -131,7 +135,7 @@ CEventRateModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
                              m_PartitionFieldName,
                              partitionFieldValue,
                              m_PersonFieldName,
-                             EMPTY_STRING,// AttributeFieldName
+                             EMPTY_STRING, // AttributeFieldName
                              m_ValueFieldName,
                              m_InfluenceFieldNames,
                              m_UseNull,
@@ -140,7 +144,7 @@ CEventRateModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
 }
 
 CEventRateModelFactory::TPriorPtr
-CEventRateModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams &params) const {
+CEventRateModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -212,7 +216,7 @@ CEventRateModelFactory::defaultPrior(model_t::EFeature feature, const SModelPara
 
 CEventRateModelFactory::TMultivariatePriorPtr
 CEventRateModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                 const SModelParams &params) const {
+                                                 const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     TMultivariatePriorPtrVec priors;
@@ -228,7 +232,7 @@ CEventRateModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
 
 CEventRateModelFactory::TMultivariatePriorPtr
 CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                              const SModelParams &params) const {
+                                              const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
@@ -239,7 +243,7 @@ CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CEventRateModelFactory::searchKey(void) const {
+const CSearchKey& CEventRateModelFactory::searchKey(void) const {
     if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
@@ -258,20 +262,24 @@ bool CEventRateModelFactory::isSimpleCount(void) const {
     return CSearchKey::isSimpleCount(function_t::function(m_Features), m_PersonFieldName);
 }
 
-model_t::ESummaryMode CEventRateModelFactory::summaryMode(void) const { return m_SummaryMode; }
+model_t::ESummaryMode CEventRateModelFactory::summaryMode(void) const {
+    return m_SummaryMode;
+}
 
-maths_t::EDataType CEventRateModelFactory::dataType(void) const { return maths_t::E_IntegerData; }
+maths_t::EDataType CEventRateModelFactory::dataType(void) const {
+    return maths_t::E_IntegerData;
+}
 
 void CEventRateModelFactory::identifier(int identifier) {
     m_Identifier = identifier;
     m_SearchKeyCache.reset();
 }
 
-void CEventRateModelFactory::fieldNames(const std::string &partitionFieldName,
-                                        const std::string & /*overFieldName*/,
-                                        const std::string &byFieldName,
-                                        const std::string &valueFieldName,
-                                        const TStrVec &influenceFieldNames) {
+void CEventRateModelFactory::fieldNames(const std::string& partitionFieldName,
+                                        const std::string& /*overFieldName*/,
+                                        const std::string& byFieldName,
+                                        const std::string& valueFieldName,
+                                        const TStrVec& influenceFieldNames) {
     m_PartitionFieldName = partitionFieldName;
     m_PersonFieldName = byFieldName;
     m_ValueFieldName = valueFieldName;
@@ -284,7 +292,7 @@ void CEventRateModelFactory::useNull(bool useNull) {
     m_SearchKeyCache.reset();
 }
 
-void CEventRateModelFactory::features(const TFeatureVec &features) {
+void CEventRateModelFactory::features(const TFeatureVec& features) {
     m_Features = features;
     m_SearchKeyCache.reset();
 }

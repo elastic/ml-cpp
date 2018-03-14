@@ -25,7 +25,7 @@
 
 using namespace ml;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     if (argc != 2) {
         std::cerr << "Utility to convert a Unix time to a string" << std::endl;
         std::cerr << "Usage: " << argv[0] << " <unixtime>" << std::endl;

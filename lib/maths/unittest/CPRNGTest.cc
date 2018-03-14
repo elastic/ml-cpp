@@ -389,8 +389,8 @@ void CPRNGTest::testXorShift1024Mult(void) {
     }
 }
 
-CppUnit::Test *CPRNGTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
+CppUnit::Test* CPRNGTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testSplitMix64",
                                                              &CPRNGTest::testSplitMix64));

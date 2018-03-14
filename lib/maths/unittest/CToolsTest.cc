@@ -48,52 +48,65 @@ typedef std::vector<double> TDoubleVec;
 
 namespace adapters {
 
-template <typename DISTRIBUTION> bool isDiscrete(const DISTRIBUTION &) { return false; }
-bool isDiscrete(const boost::math::negative_binomial_distribution<> &) { return true; }
+template <typename DISTRIBUTION>
+bool isDiscrete(const DISTRIBUTION&) {
+    return false;
+}
+bool isDiscrete(const boost::math::negative_binomial_distribution<>&) {
+    return true;
+}
 
-template <typename DISTRIBUTION> TDoubleDoublePr support(const DISTRIBUTION &distribution) {
+template <typename DISTRIBUTION>
+TDoubleDoublePr support(const DISTRIBUTION& distribution) {
     return boost::math::support(distribution);
 }
-TDoubleDoublePr support(const CLogTDistribution &logt) {
+TDoubleDoublePr support(const CLogTDistribution& logt) {
     CLogTDistribution::TOptionalDouble minimum = localMinimum(logt);
     return TDoubleDoublePr(minimum ? *minimum : 0.0, boost::math::tools::max_value<double>());
 }
 
-template <typename DISTRIBUTION> TDoubleBoolPr stationaryPoint(const DISTRIBUTION &distribution) {
+template <typename DISTRIBUTION>
+TDoubleBoolPr stationaryPoint(const DISTRIBUTION& distribution) {
     return TDoubleBoolPr(boost::math::mode(distribution), true);
 }
-TDoubleBoolPr stationaryPoint(const CLogTDistribution &logt) {
+TDoubleBoolPr stationaryPoint(const CLogTDistribution& logt) {
     return TDoubleBoolPr(ml::maths::mode(logt), true);
 }
-TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<> &beta) {
+TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<>& beta) {
     if (beta.alpha() < 1.0 && beta.beta() < 1.0) {
         return TDoubleBoolPr((beta.alpha() - 1.0) / (beta.alpha() + beta.beta() - 2.0), false);
     }
     return TDoubleBoolPr(boost::math::mode(beta), true);
 }
 
-template <typename DISTRIBUTION> double pdf(const DISTRIBUTION &distribution, const double &x) {
+template <typename DISTRIBUTION>
+double pdf(const DISTRIBUTION& distribution, const double& x) {
     return CTools::safePdf(distribution, x);
 }
-double pdf(const CLogTDistribution &logt, const double &x) { return ml::maths::pdf(logt, x); }
-
-template <typename DISTRIBUTION> double cdf(const DISTRIBUTION &distribution, const double &x) {
-    return CTools::safeCdf(distribution, x);
+double pdf(const CLogTDistribution& logt, const double& x) {
+    return ml::maths::pdf(logt, x);
 }
-double cdf(const CLogTDistribution &logt, const double &x) { return ml::maths::cdf(logt, x); }
 
 template <typename DISTRIBUTION>
-double cdfComplement(const DISTRIBUTION &distribution, const double &x) {
+double cdf(const DISTRIBUTION& distribution, const double& x) {
+    return CTools::safeCdf(distribution, x);
+}
+double cdf(const CLogTDistribution& logt, const double& x) {
+    return ml::maths::cdf(logt, x);
+}
+
+template <typename DISTRIBUTION>
+double cdfComplement(const DISTRIBUTION& distribution, const double& x) {
     return CTools::safeCdfComplement(distribution, x);
 }
-double cdfComplement(const CLogTDistribution &logt, const double &x) {
+double cdfComplement(const CLogTDistribution& logt, const double& x) {
     return ml::maths::cdfComplement(logt, x);
 }
 
-}// adapters::
+} // adapters::
 
 template <typename DISTRIBUTION>
-double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION &distribution, double x) {
+double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distribution, double x) {
     TDoubleBoolPr stationaryPoint = adapters::stationaryPoint(distribution);
 
     double eps = 1e-8;
@@ -170,12 +183,12 @@ double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION &distributi
 }
 
 template <typename DISTRIBUTION>
-double numericalProbabilityOfLessLikelySample(const DISTRIBUTION &distribution, double x) {
+double numericalProbabilityOfLessLikelySample(const DISTRIBUTION& distribution, double x) {
     return numericalProbabilityOfLessLikelySampleImpl(distribution, x);
 }
 
 double numericalProbabilityOfLessLikelySample(
-    const boost::math::negative_binomial_distribution<> &negativeBinomial,
+    const boost::math::negative_binomial_distribution<>& negativeBinomial,
     double x) {
     double fx = CTools::safePdf(negativeBinomial, x);
 
@@ -192,7 +205,7 @@ double numericalProbabilityOfLessLikelySample(
     return numericalProbabilityOfLessLikelySampleImpl(negativeBinomial, x);
 }
 
-double numericalProbabilityOfLessLikelySample(const CLogTDistribution &logt, double x) {
+double numericalProbabilityOfLessLikelySample(const CLogTDistribution& logt, double x) {
     // We need special handling for the case that the p.d.f. is
     // single sided and if it is greater at x than the local "mode".
 
@@ -215,7 +228,7 @@ double numericalProbabilityOfLessLikelySample(const CLogTDistribution &logt, dou
     return numericalProbabilityOfLessLikelySampleImpl(logt, x);
 }
 
-double numericalProbabilityOfLessLikelySample(const boost::math::beta_distribution<> &beta,
+double numericalProbabilityOfLessLikelySample(const boost::math::beta_distribution<>& beta,
                                               double x) {
     // We need special handling of the case that the equal p.d.f.
     // point is very close to 0 or 1.
@@ -241,14 +254,15 @@ double numericalProbabilityOfLessLikelySample(const boost::math::beta_distributi
     return numericalProbabilityOfLessLikelySampleImpl(beta, x);
 }
 
-template <typename DISTRIBUTION> class CPdf {
+template <typename DISTRIBUTION>
+class CPdf {
 public:
     typedef double result_type;
 
 public:
-    CPdf(const DISTRIBUTION &distribution) : m_Distribution(distribution) {}
+    CPdf(const DISTRIBUTION& distribution) : m_Distribution(distribution) {}
 
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         result = boost::math::pdf(m_Distribution, x);
         return true;
     }
@@ -262,14 +276,14 @@ public:
     typedef double result_type;
 
 public:
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         result = x;
         return true;
     }
 };
 
 template <typename DISTRIBUTION>
-double numericalIntervalExpectation(const DISTRIBUTION &distribution, double a, double b) {
+double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, double b) {
     double numerator = 0.0;
     double denominator = 0.0;
 
@@ -281,8 +295,10 @@ double numericalIntervalExpectation(const DISTRIBUTION &distribution, double a, 
         CPPUNIT_ASSERT(
             maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(fx, a, a + dx, fxi));
         double xfxi;
-        CPPUNIT_ASSERT(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
-            xfx, a, a + dx, xfxi));
+        CPPUNIT_ASSERT(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(xfx,
+                                                                                          a,
+                                                                                          a + dx,
+                                                                                          xfxi));
         numerator += xfxi;
         denominator += fxi;
     }
@@ -290,12 +306,13 @@ double numericalIntervalExpectation(const DISTRIBUTION &distribution, double a, 
     return numerator / denominator;
 }
 
-template <typename T> class CTruncatedPdf {
+template <typename T>
+class CTruncatedPdf {
 public:
-    CTruncatedPdf(const maths::CMixtureDistribution<T> &mixture, double cutoff)
+    CTruncatedPdf(const maths::CMixtureDistribution<T>& mixture, double cutoff)
         : m_Mixture(mixture), m_Cutoff(cutoff) {}
 
-    bool operator()(double x, double &fx) const {
+    bool operator()(double x, double& fx) const {
         fx = maths::pdf(m_Mixture, x);
         if (fx > m_Cutoff) {
             fx = 0.0;
@@ -304,23 +321,24 @@ public:
     }
 
 private:
-    const maths::CMixtureDistribution<T> &m_Mixture;
+    const maths::CMixtureDistribution<T>& m_Mixture;
     double m_Cutoff;
 };
 
-template <typename T> class CLogPdf {
+template <typename T>
+class CLogPdf {
 public:
-    CLogPdf(const maths::CMixtureDistribution<T> &mixture) : m_Mixture(mixture) {}
+    CLogPdf(const maths::CMixtureDistribution<T>& mixture) : m_Mixture(mixture) {}
 
     double operator()(double x) const { return ::log(maths::pdf(m_Mixture, x)); }
 
-    bool operator()(double x, double &fx) const {
+    bool operator()(double x, double& fx) const {
         fx = ::log(maths::pdf(m_Mixture, x));
         return true;
     }
 
 private:
-    const maths::CMixtureDistribution<T> &m_Mixture;
+    const maths::CMixtureDistribution<T>& m_Mixture;
 };
 }
 
@@ -410,8 +428,8 @@ void CToolsTest::testProbabilityOfLessLikelySample(void) {
                 LOG_DEBUG("**** r = " << successFraction[i] << ", p = " << successProbability[j]
                                       << " ****");
 
-                boost::math::negative_binomial_distribution<> negativeBinomial(
-                    successFraction[i], successProbability[j]);
+                boost::math::negative_binomial_distribution<>
+                    negativeBinomial(successFraction[i], successProbability[j]);
 
                 if (successFraction[i] <= 1.0) {
                     // Monotone decreasing.
@@ -949,8 +967,11 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                     logFx = ::log(logFx);
                 }
 
-                maths::CTools::CMixtureProbabilityOfLessLikelySample calculator(
-                    i, x[k], logFx, a, b);
+                maths::CTools::CMixtureProbabilityOfLessLikelySample calculator(i,
+                                                                                x[k],
+                                                                                logFx,
+                                                                                a,
+                                                                                b);
                 for (std::size_t l = 0u; l < modeWeights.size(); ++l) {
                     calculator.addMode((mixture.weights())[l],
                                        boost::math::mean(modes[l]),
@@ -960,8 +981,8 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                 double pTails = 0.0;
 
                 CLogPdf<boost::math::normal> logPdf(mixture);
-                maths::CEqualWithTolerance<double> equal(
-                    maths::CToleranceTypes::E_AbsoluteTolerance, 0.5);
+                maths::CEqualWithTolerance<double>
+                    equal(maths::CToleranceTypes::E_AbsoluteTolerance, 0.5);
                 double xleft;
                 CPPUNIT_ASSERT(calculator.leftTail(logPdf, 10, equal, xleft));
                 pTails += maths::cdf(mixture, xleft);
@@ -977,8 +998,10 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                      l < 2 * static_cast<std::size_t>(b - a);
                      xi += step, ++l) {
                     double pi;
-                    maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
-                        pdf, xi, xi + step, pi);
+                    maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(pdf,
+                                                                                        xi,
+                                                                                        xi + step,
+                                                                                        pi);
                     pExpected += pi;
                 }
 
@@ -992,11 +1015,13 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void) {
                 if (pExpected > 0.1) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pExpected, p, 0.12);
                 } else if (pExpected > 1e-10) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        ::log(pExpected), ::log(p), 0.15 * ::fabs(::log(pExpected)));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(pExpected),
+                                                 ::log(p),
+                                                 0.15 * ::fabs(::log(pExpected)));
                 } else {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        ::log(pExpected), ::log(p), 0.015 * ::fabs(::log(pExpected)));
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(::log(pExpected),
+                                                 ::log(p),
+                                                 0.015 * ::fabs(::log(pExpected)));
                 }
                 meanError.add(::fabs(p - pExpected));
                 meanLogError.add(::fabs(::log(p) - ::log(pExpected)) /
@@ -1070,8 +1095,10 @@ void CToolsTest::testSpread(void) {
         CRandomNumbers rng;
         for (std::size_t i = 0u; i < 100; ++i) {
             TDoubleVec origSamples;
-            rng.generateUniformSamples(
-                1000.0, static_cast<double>(period) - 1000.0, 100, origSamples);
+            rng.generateUniformSamples(1000.0,
+                                       static_cast<double>(period) - 1000.0,
+                                       100,
+                                       origSamples);
             TDoubleVec samples(origSamples);
             CTools::spread(0.0, period, 150.0, samples);
 
@@ -1169,14 +1196,15 @@ void CToolsTest::testMiscellaneous(void) {
     }
 }
 
-CppUnit::Test *CToolsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CToolsTest");
+CppUnit::Test* CToolsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CToolsTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CToolsTest>("CToolsTest::testProbabilityOfLessLikelySample",
                                             &CToolsTest::testProbabilityOfLessLikelySample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testIntervalExpectation", &CToolsTest::testIntervalExpectation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CToolsTest>("CToolsTest::testIntervalExpectation",
+                                            &CToolsTest::testIntervalExpectation));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CToolsTest>("CToolsTest::testMixtureProbabilityOfLessLikelySample",
                                             &CToolsTest::testMixtureProbabilityOfLessLikelySample));

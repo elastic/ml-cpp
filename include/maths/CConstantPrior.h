@@ -51,10 +51,10 @@ public:
 public:
     //! \name Life-Cycle
     //@{
-    explicit CConstantPrior(const TOptionalDouble &constant = TOptionalDouble());
+    explicit CConstantPrior(const TOptionalDouble& constant = TOptionalDouble());
 
     //! Construct by traversing a state document.
-    CConstantPrior(core::CStateRestoreTraverser &traverser);
+    CConstantPrior(core::CStateRestoreTraverser& traverser);
     //@}
 
     //! \name Prior Contract
@@ -65,7 +65,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CConstantPrior *clone(void) const;
+    virtual CConstantPrior* clone(void) const;
 
     //! Reset the prior to non-informative.
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
@@ -74,17 +74,17 @@ public:
     virtual bool needsOffset(void) const;
 
     //! No-op.
-    virtual double adjustOffset(const TWeightStyleVec &weightStyle,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyle,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
     virtual double offset(void) const;
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec &weightStyle,
-                            const TDouble1Vec &samples,
-                            const TDouble4Vec1Vec &weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyle,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
@@ -97,55 +97,55 @@ public:
 
     //! Returns constant or zero if unset (by equidistribution).
     virtual double
-    marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! All confidence intervals are the point [constant, constant].
     virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
-        const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec &weights = TWeights::UNIT) const;
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble1Vec &samples,
-                               const TDouble4Vec1Vec &weights,
-                               double &result) const;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const;
 
     //! Get \p numberSamples times the constant.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec &samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! A large number if any sample is less than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                  const TDouble1Vec &samples,
-                                  const TDouble4Vec1Vec &weights,
-                                  double &lowerBound,
-                                  double &upperBound) const;
+    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                  const TDouble1Vec& samples,
+                                  const TDouble4Vec1Vec& weights,
+                                  double& lowerBound,
+                                  double& upperBound) const;
 
     //! A large number if any sample is larger than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                            const TDouble1Vec &samples,
-                                            const TDouble4Vec1Vec &weights,
-                                            double &lowerBound,
-                                            double &upperBound) const;
+    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                            const TDouble1Vec& samples,
+                                            const TDouble4Vec1Vec& weights,
+                                            double& lowerBound,
+                                            double& upperBound) const;
 
     //! Returns one if all samples equal the constant and one otherwise.
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec &weightStyles,
-                                                const TDouble1Vec &samples,
-                                                const TDouble4Vec1Vec &weights,
-                                                double &lowerBound,
-                                                double &upperBound,
-                                                maths_t::ETail &tail) const;
+                                                const TWeightStyleVec& weightStyles,
+                                                const TDouble1Vec& samples,
+                                                const TDouble4Vec1Vec& weights,
+                                                double& lowerBound,
+                                                double& upperBound,
+                                                maths_t::ETail& tail) const;
 
     //! Check if this is a non-informative prior.
     bool isNonInformative(void) const;
@@ -154,7 +154,7 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &indent, std::string &result) const;
+    virtual void print(const std::string& indent, std::string& result) const;
 
     //! Print the marginal likelihood function.
     virtual std::string printMarginalLikelihoodFunction(double weight = 1.0) const;
@@ -175,7 +175,7 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! Get the constant value.
@@ -183,7 +183,7 @@ public:
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     TOptionalDouble m_Constant;
@@ -191,4 +191,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CConstantPrior_h
+#endif // INCLUDED_ml_maths_CConstantPrior_h

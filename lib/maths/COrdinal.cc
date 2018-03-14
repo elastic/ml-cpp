@@ -25,13 +25,21 @@
 namespace ml {
 namespace maths {
 
-COrdinal::COrdinal(void) : m_Type(E_Nan) { m_Value.integer = 0; }
+COrdinal::COrdinal(void) : m_Type(E_Nan) {
+    m_Value.integer = 0;
+}
 
-COrdinal::COrdinal(int64_t value) : m_Type(E_Integer) { m_Value.integer = value; }
+COrdinal::COrdinal(int64_t value) : m_Type(E_Integer) {
+    m_Value.integer = value;
+}
 
-COrdinal::COrdinal(uint64_t value) : m_Type(E_PositiveInteger) { m_Value.positiveInteger = value; }
+COrdinal::COrdinal(uint64_t value) : m_Type(E_PositiveInteger) {
+    m_Value.positiveInteger = value;
+}
 
-COrdinal::COrdinal(double value) : m_Type(E_Real) { m_Value.real = value; }
+COrdinal::COrdinal(double value) : m_Type(E_Real) {
+    m_Value.real = value;
+}
 
 bool COrdinal::operator==(COrdinal rhs) const {
     switch (m_Type) {
@@ -124,7 +132,9 @@ bool COrdinal::operator<(COrdinal rhs) const {
     return false;
 }
 
-bool COrdinal::isNan(void) const { return m_Type == E_Nan; }
+bool COrdinal::isNan(void) const {
+    return m_Type == E_Nan;
+}
 
 double COrdinal::asDouble(void) const {
     switch (m_Type) {
@@ -140,7 +150,9 @@ double COrdinal::asDouble(void) const {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-uint64_t COrdinal::hash(void) { return m_Value.positiveInteger; }
+uint64_t COrdinal::hash(void) {
+    return m_Value.positiveInteger;
+}
 
 bool COrdinal::equal(int64_t lhs, uint64_t rhs) const {
     return lhs < 0 ? false : static_cast<uint64_t>(lhs) == rhs;
@@ -195,7 +207,7 @@ bool COrdinal::less(uint64_t lhs, double rhs) const {
            (lhs == static_cast<uint64_t>(integerPart) && remainder > 0.0);
 }
 
-std::ostream &operator<<(std::ostream &o, COrdinal ord) {
+std::ostream& operator<<(std::ostream& o, COrdinal ord) {
     switch (ord.m_Type) {
         case COrdinal::E_Integer:
             o << ord.m_Value.integer;

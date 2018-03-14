@@ -42,35 +42,35 @@ public:
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
 public:
-    CFieldStatistics(const std::string &fieldName, const CAutoconfigurerParams &params);
+    CFieldStatistics(const std::string& fieldName, const CAutoconfigurerParams& params);
 
     //! Get the name of the field.
-    const std::string &name(void) const;
+    const std::string& name(void) const;
 
     //! If we have been able to determine the data type start
     //! capturing the appropriate statistics.
     void maybeStartCapturingTypeStatistics(void);
 
     //! Add an example value for the field.
-    void add(core_t::TTime time, const std::string &example);
+    void add(core_t::TTime time, const std::string& example);
 
     //! Get the type of data we think we have.
     config_t::EDataType type(void) const;
 
     //! Get the data summary statistics if no more specific
     //! ones are available.
-    const CDataSummaryStatistics *summary(void) const;
+    const CDataSummaryStatistics* summary(void) const;
 
     //! Get the categorical summary statistics if we think
     //! the data are categorical.
-    const CCategoricalDataSummaryStatistics *categoricalSummary(void) const;
+    const CCategoricalDataSummaryStatistics* categoricalSummary(void) const;
 
     //! Get the numeric summary statistics if we think the
     //! data are numeric.
-    const CNumericDataSummaryStatistics *numericSummary(void) const;
+    const CNumericDataSummaryStatistics* numericSummary(void) const;
 
     //! Get the score for this field based on \p penalty.
-    double score(const CPenalty &penalty) const;
+    double score(const CPenalty& penalty) const;
 
 private:
     typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
@@ -82,7 +82,7 @@ private:
 
 private:
     //! The auto-configuration parameters.
-    const CAutoconfigurerParams &params(void) const;
+    const CAutoconfigurerParams& params(void) const;
 
     //! Add the records in the buffer to the statistics.
     void replayBuffer(void);
@@ -109,4 +109,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CFieldStatistics_h
+#endif // INCLUDED_ml_config_CFieldStatistics_h

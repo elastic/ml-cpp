@@ -35,7 +35,7 @@ namespace {
 
 typedef std::vector<TDoubleVec> TDoubleVecVec;
 
-double multinomialProbability(const TDoubleVec &probabilities, const TSizeVec &counts) {
+double multinomialProbability(const TDoubleVec& probabilities, const TSizeVec& counts) {
     std::size_t n = std::accumulate(counts.begin(), counts.end(), std::size_t(0));
     double logP = boost::math::lgamma(static_cast<double>(n + 1));
     for (std::size_t i = 0u; i < counts.size(); ++i) {
@@ -50,7 +50,7 @@ double multinomialProbability(const TDoubleVec &probabilities, const TSizeVec &c
 namespace test_detail {
 
 //! Subtract two vectors.
-TDoubleVec minus(const TDoubleVec &v1, const TDoubleVec &v2) {
+TDoubleVec minus(const TDoubleVec& v1, const TDoubleVec& v2) {
     TDoubleVec result;
     for (std::size_t i = 0u; i < v1.size(); ++i) {
         result.push_back(v1[i] - v2[i]);
@@ -59,7 +59,7 @@ TDoubleVec minus(const TDoubleVec &v1, const TDoubleVec &v2) {
 }
 
 //! Subtract two matrices.
-TDoubleVecVec minus(const TDoubleVecVec &m1, const TDoubleVecVec &m2) {
+TDoubleVecVec minus(const TDoubleVecVec& m1, const TDoubleVecVec& m2) {
     TDoubleVecVec result;
     for (std::size_t i = 0u; i < m1.size(); ++i) {
         result.push_back(TDoubleVec());
@@ -71,7 +71,7 @@ TDoubleVecVec minus(const TDoubleVecVec &m1, const TDoubleVecVec &m2) {
 }
 
 //! Compute the outer product of two vectors.
-TDoubleVecVec outer(const TDoubleVec &v1, const TDoubleVec &v2) {
+TDoubleVecVec outer(const TDoubleVec& v1, const TDoubleVec& v2) {
     TDoubleVecVec result;
     for (std::size_t i = 0u; i < v1.size(); ++i) {
         result.push_back(TDoubleVec());
@@ -83,7 +83,7 @@ TDoubleVecVec outer(const TDoubleVec &v1, const TDoubleVec &v2) {
 }
 
 //! Add two matrices.
-void add(const TDoubleVecVec &m1, TDoubleVecVec &m2) {
+void add(const TDoubleVecVec& m1, TDoubleVecVec& m2) {
     for (std::size_t i = 0u; i < m1.size(); ++i) {
         for (std::size_t j = 0u; j < m1[i].size(); ++j) {
             m2[i][j] += m1[i][j];
@@ -92,7 +92,7 @@ void add(const TDoubleVecVec &m1, TDoubleVecVec &m2) {
 }
 
 //! Divide a matrix by a constant.
-void divide(TDoubleVecVec &m, double c) {
+void divide(TDoubleVecVec& m, double c) {
     for (std::size_t i = 0u; i < m.size(); ++i) {
         for (std::size_t j = 0u; j < m[i].size(); ++j) {
             m[i][j] /= c;
@@ -101,7 +101,7 @@ void divide(TDoubleVecVec &m, double c) {
 }
 
 //! Euclidean norm of a vector.
-double euclidean(const TDoubleVec &v) {
+double euclidean(const TDoubleVec& v) {
     double result = 0.0;
     for (std::size_t i = 0u; i < v.size(); ++i) {
         result += v[i] * v[i];
@@ -110,7 +110,7 @@ double euclidean(const TDoubleVec &v) {
 }
 
 //! Frobenius norm of a matrix.
-double frobenius(const TDoubleVecVec &m) {
+double frobenius(const TDoubleVecVec& m) {
     double result = 0.0;
     for (std::size_t i = 0u; i < m.size(); ++i) {
         for (std::size_t j = 0u; j < m.size(); ++j) {
@@ -230,11 +230,12 @@ void CSamplingTest::testMultivariateNormalSample(void) {
     }
 }
 
-CppUnit::Test *CSamplingTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
+CppUnit::Test* CSamplingTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>(
-        "CSamplingTest::testMultinomialSample", &CSamplingTest::testMultinomialSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultinomialSample",
+                                               &CSamplingTest::testMultinomialSample));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CSamplingTest>("CSamplingTest::testMultivariateNormalSample",
                                                &CSamplingTest::testMultivariateNormalSample));

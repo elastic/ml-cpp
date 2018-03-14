@@ -27,7 +27,7 @@ public:
     void testAddInOrderCommonToken(void);
     void testCloseStandardSearch(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTokenListReverseSearchCreatorTest_h
+#endif // INCLUDED_CTokenListReverseSearchCreatorTest_h

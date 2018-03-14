@@ -61,9 +61,9 @@ public:
     //! Create a data typer with threshold for how comparable types are
     //! 0.0 means everything is the same type
     //! 1.0 means things have to match exactly to be the same type
-    CTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr &reverseSearchCreator,
+    CTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                         double threshold,
-                        const std::string &fieldName)
+                        const std::string& fieldName)
         : CBaseTokenListDataTyper(reverseSearchCreator, threshold, fieldName),
           m_Dict(core::CWordDictionary::instance()) {}
 
@@ -71,11 +71,11 @@ protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    virtual void tokeniseString(const TStrStrUMap &fields,
-                                const std::string &str,
-                                TSizeSizePrVec &tokenIds,
-                                TSizeSizeMap &tokenUniqueIds,
-                                size_t &totalWeight) {
+    virtual void tokeniseString(const TStrStrUMap& fields,
+                                const std::string& str,
+                                TSizeSizePrVec& tokenIds,
+                                TSizeSizeMap& tokenUniqueIds,
+                                size_t& totalWeight) {
         tokenIds.clear();
         tokenUniqueIds.clear();
         totalWeight = 0;
@@ -103,8 +103,12 @@ protected:
                 }
             } else {
                 if (!temp.empty()) {
-                    this->considerToken(
-                        fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight);
+                    this->considerToken(fields,
+                                        nonHexPos,
+                                        temp,
+                                        tokenIds,
+                                        tokenUniqueIds,
+                                        totalWeight);
                     temp.clear();
                 }
 
@@ -124,10 +128,10 @@ protected:
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void tokenToIdAndWeight(const std::string &token,
-                                    TSizeSizePrVec &tokenIds,
-                                    TSizeSizeMap &tokenUniqueIds,
-                                    size_t &totalWeight) {
+    virtual void tokenToIdAndWeight(const std::string& token,
+                                    TSizeSizePrVec& tokenIds,
+                                    TSizeSizeMap& tokenUniqueIds,
+                                    size_t& totalWeight) {
         TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
         if (token.length() >= MIN_DICTIONARY_LENGTH) {
@@ -140,9 +144,9 @@ protected:
     }
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec &left,
+    virtual double similarity(const TSizeSizePrVec& left,
                               size_t leftWeight,
-                              const TSizeSizePrVec &right,
+                              const TSizeSizePrVec& right,
                               size_t rightWeight) const {
         double similarity(1.0);
 
@@ -161,7 +165,7 @@ private:
     //! Compare two vectors of tokens without doing any warping (this is an
     //! alternative to using the Levenshtein distance, which is a form of
     //! warping)
-    size_t compareNoWarp(const TSizeSizePrVec &left, const TSizeSizePrVec &right) const {
+    size_t compareNoWarp(const TSizeSizePrVec& left, const TSizeSizePrVec& right) const {
         size_t minSize(std::min(left.size(), right.size()));
         size_t maxSize(std::max(left.size(), right.size()));
 
@@ -190,12 +194,12 @@ private:
     //! Consider adding a token to the data structures that will be used in
     //! the comparison.  The \p token argument must not be empty when this
     //! method is called.  This method may modify \p token.
-    void considerToken(const TStrStrUMap &fields,
+    void considerToken(const TStrStrUMap& fields,
                        std::string::size_type nonHexPos,
-                       std::string &token,
-                       TSizeSizePrVec &tokenIds,
-                       TSizeSizeMap &tokenUniqueIds,
-                       size_t &totalWeight) {
+                       std::string& token,
+                       TSizeSizePrVec& tokenIds,
+                       TSizeSizeMap& tokenUniqueIds,
+                       size_t& totalWeight) {
         if (IGNORE_LEADING_DIGIT && ::isdigit(static_cast<unsigned char>(token[0]))) {
             return;
         }
@@ -237,7 +241,7 @@ private:
 
 private:
     //! Reference to a part-of-speech dictionary.
-    const core::CWordDictionary &m_Dict;
+    const core::CWordDictionary& m_Dict;
 
     //! Used for determining the edit distance between two vectors of
     //! strings, i.e. how many insertions, deletions or changes would it
@@ -250,4 +254,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CTokenListDataTyper_h
+#endif // INCLUDED_ml_api_CTokenListDataTyper_h

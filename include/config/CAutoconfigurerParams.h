@@ -65,22 +65,22 @@ public:
     typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
 
 public:
-    CAutoconfigurerParams(const std::string &timeFieldName,
-                          const std::string &timeFieldFormat,
+    CAutoconfigurerParams(const std::string& timeFieldName,
+                          const std::string& timeFieldFormat,
                           bool verbose,
                           bool writeDetectorConfigs);
 
     //! Initialize from the specified file.
-    bool init(const std::string &file);
+    bool init(const std::string& file);
 
     //! Get the name of field holding the time.
-    const std::string &timeFieldName(void) const;
+    const std::string& timeFieldName(void) const;
 
     //! Get the time field format. Blank means seconds since the epoch, i.e.
     //! the time field can be converted to a time_t by simply converting the
     //! string to a number. Otherwise, it is assumed to be suitable for passing
     //! to strptime.
-    const std::string &timeFieldFormat(void) const;
+    const std::string& timeFieldFormat(void) const;
 
     //! Check if we should be outputting all detectors including those that
     //! have been discarded.
@@ -90,34 +90,34 @@ public:
     bool writeDetectorConfigs(void) const;
 
     //! Get the line ending to use when writing detectors in JSON format.
-    const std::string &detectorConfigLineEnding(void) const;
+    const std::string& detectorConfigLineEnding(void) const;
 
     //! \name Scoping
     //@{
     //! Check that \p field is not one of the fields in the data set we've
     //! been told to ignore.
-    bool fieldOfInterest(const std::string &field) const;
+    bool fieldOfInterest(const std::string& field) const;
 
     //! Check if we can use \p argument for the argument of a function.
-    bool canUseForFunctionArgument(const std::string &argument) const;
+    bool canUseForFunctionArgument(const std::string& argument) const;
 
     //! Check if we can use \p by as a by field.
-    bool canUseForByField(const std::string &by) const;
+    bool canUseForByField(const std::string& by) const;
 
     //! Check if we can use \p over as an over field.
-    bool canUseForOverField(const std::string &over) const;
+    bool canUseForOverField(const std::string& over) const;
 
     //! Check if we can use \p partition as a partition field.
-    bool canUseForPartitionField(const std::string &partition) const;
+    bool canUseForPartitionField(const std::string& partition) const;
 
     //! Get the function categories to configure.
-    const TFunctionCategoryVec &functionsCategoriesToConfigure(void) const;
+    const TFunctionCategoryVec& functionsCategoriesToConfigure(void) const;
     //@}
 
     //! \name Statistics
     //@{
     //! The user specified field data types.
-    TOptionalUserDataType dataType(const std::string &field) const;
+    TOptionalUserDataType dataType(const std::string& field) const;
 
     //! The minimum number of records to classify a field.
     uint64_t minimumExamplesToClassify(void) const;
@@ -199,7 +199,7 @@ public:
                                           bool ignoreEmpty) const;
 
     //! Get the candidate bucket lengths to test for each detector.
-    const TTimeVec &candidateBucketLengths(void) const;
+    const TTimeVec& candidateBucketLengths(void) const;
 
     //! Get a number of buckets considered small to configure a detector.
     double lowNumberOfBucketsForConfig(void) const;
@@ -264,11 +264,11 @@ public:
 
     //! Get the penalty indices for the candidate bucket length identified
     //! by \p bid.
-    const TSizeVec &penaltyIndicesFor(std::size_t bid) const;
+    const TSizeVec& penaltyIndicesFor(std::size_t bid) const;
 
     //! Get the penalty indices for the function version which ignores empty
     //! value if \p value is true and considers them otherwise.
-    const TSizeVec &penaltyIndicesFor(bool ignoreEmpty) const;
+    const TSizeVec& penaltyIndicesFor(bool ignoreEmpty) const;
 
     //! Get the penalty index for the candidate bucket length identified
     //! by \p bid and the function version which ignores empty.
@@ -459,4 +459,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CAutoconfigurerParams_h
+#endif // INCLUDED_ml_config_CAutoconfigurerParams_h

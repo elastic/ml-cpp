@@ -35,10 +35,10 @@ public:
     void testPersistence(void);
     void testIgnoreSamplingGivenDetectionRules(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CEventRatePopulationModelTest_h
+#endif // INCLUDED_CEventRatePopulationModelTest_h

@@ -61,14 +61,14 @@ namespace model {
 class MODEL_EXPORT CStringStore : private core::CNonCopyable {
 public:
     struct MODEL_EXPORT SHashStoredStringPtr {
-        std::size_t operator()(const core::CStoredStringPtr &key) const {
+        std::size_t operator()(const core::CStoredStringPtr& key) const {
             boost::hash<std::string> hasher;
             return hasher(*key);
         }
     };
     struct MODEL_EXPORT SStoredStringPtrEqual {
-        bool operator()(const core::CStoredStringPtr &lhs,
-                        const core::CStoredStringPtr &rhs) const {
+        bool operator()(const core::CStoredStringPtr& lhs,
+                        const core::CStoredStringPtr& rhs) const {
             return *lhs == *rhs;
         }
     };
@@ -78,19 +78,19 @@ public:
     static void tidyUpNotThreadSafe(void);
 
     //! Singleton pattern for person/attribute names.
-    static CStringStore &names(void);
+    static CStringStore& names(void);
 
     //! Singleton pattern for influencer names.
-    static CStringStore &influencers(void);
+    static CStringStore& influencers(void);
 
     //! Fast method to get the pointer for an empty string.
-    const core::CStoredStringPtr &getEmpty(void) const;
+    const core::CStoredStringPtr& getEmpty(void) const;
 
     //! (Possibly) add \p value to the store and get back a pointer to it.
-    core::CStoredStringPtr get(const std::string &value);
+    core::CStoredStringPtr get(const std::string& value);
 
     //! (Possibly) remove \p value from the store.
-    void remove(const std::string &value);
+    void remove(const std::string& value);
 
     //! Prune strings which have been removed.
     void pruneRemovedNotThreadSafe(void);
@@ -145,7 +145,7 @@ private:
     friend class ::CStringStoreTest;
 };
 
-}// model
-}// ml
+} // model
+} // ml
 
-#endif// INCLUDED_ml_model_CStringStore_h
+#endif // INCLUDED_ml_model_CStringStore_h

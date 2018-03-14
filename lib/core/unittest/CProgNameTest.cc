@@ -18,8 +18,8 @@
 #include <core/CProgName.h>
 #include <core/CRegex.h>
 
-CppUnit::Test *CProgNameTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProgNameTest");
+CppUnit::Test* CProgNameTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProgNameTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CProgNameTest>("CProgNameTest::testProgName",
                                                                  &CProgNameTest::testProgName));

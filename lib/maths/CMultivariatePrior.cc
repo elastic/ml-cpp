@@ -33,7 +33,7 @@ namespace maths {
 
 namespace {
 
-void setDecayRate(double value, double fallback, double &result) {
+void setDecayRate(double value, double fallback, double& result) {
     if (CMathsFuncs::isFinite(value)) {
         result = value;
     } else {
@@ -54,36 +54,48 @@ CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decay
     setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CMultivariatePrior::swap(CMultivariatePrior &other) {
+void CMultivariatePrior::swap(CMultivariatePrior& other) {
     std::swap(m_Forecasting, other.m_Forecasting);
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);
 }
 
-void CMultivariatePrior::forForecasting(void) { m_Forecasting = true; }
+void CMultivariatePrior::forForecasting(void) {
+    m_Forecasting = true;
+}
 
-bool CMultivariatePrior::isForForecasting(void) const { return m_Forecasting; }
+bool CMultivariatePrior::isForForecasting(void) const {
+    return m_Forecasting;
+}
 
 bool CMultivariatePrior::isDiscrete(void) const {
     return m_DataType == maths_t::E_DiscreteData || m_DataType == maths_t::E_IntegerData;
 }
 
-bool CMultivariatePrior::isInteger(void) const { return m_DataType == maths_t::E_IntegerData; }
+bool CMultivariatePrior::isInteger(void) const {
+    return m_DataType == maths_t::E_IntegerData;
+}
 
-maths_t::EDataType CMultivariatePrior::dataType(void) const { return m_DataType; }
+maths_t::EDataType CMultivariatePrior::dataType(void) const {
+    return m_DataType;
+}
 
-double CMultivariatePrior::decayRate(void) const { return m_DecayRate; }
+double CMultivariatePrior::decayRate(void) const {
+    return m_DecayRate;
+}
 
-void CMultivariatePrior::dataType(maths_t::EDataType value) { m_DataType = value; }
+void CMultivariatePrior::dataType(maths_t::EDataType value) {
+    m_DataType = value;
+}
 
 void CMultivariatePrior::decayRate(double value) {
     setDecayRate(value, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CMultivariatePrior::addSamples(const TWeightStyleVec &weightStyles,
-                                    const TDouble10Vec1Vec & /*samples*/,
-                                    const TDouble10Vec4Vec1Vec &weights) {
+void CMultivariatePrior::addSamples(const TWeightStyleVec& weightStyles,
+                                    const TDouble10Vec1Vec& /*samples*/,
+                                    const TDouble10Vec4Vec1Vec& weights) {
     std::size_t d = this->dimension();
     TDouble10Vec n(d, 0.0);
     try {
@@ -93,32 +105,32 @@ void CMultivariatePrior::addSamples(const TWeightStyleVec &weightStyles,
                 n[j] += wi[j];
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to extract sample counts: " << e.what());
     }
     this->addSamples(smallest(n));
 }
 
 CMultivariatePrior::TDouble10Vec
-CMultivariatePrior::nearestMarginalLikelihoodMean(const TDouble10Vec & /*value*/) const {
+CMultivariatePrior::nearestMarginalLikelihoodMean(const TDouble10Vec& /*value*/) const {
     return this->marginalLikelihoodMean();
 }
 
 CMultivariatePrior::TDouble10Vec1Vec
-CMultivariatePrior::marginalLikelihoodModes(const TWeightStyleVec &weightStyles,
-                                            const TDouble10Vec4Vec &weights) const {
+CMultivariatePrior::marginalLikelihoodModes(const TWeightStyleVec& weightStyles,
+                                            const TDouble10Vec4Vec& weights) const {
     return TDouble10Vec1Vec{this->marginalLikelihoodMode(weightStyles, weights)};
 }
 
 bool CMultivariatePrior::probabilityOfLessLikelySamples(
     maths_t::EProbabilityCalculation calculation,
-    const TWeightStyleVec &weightStyles,
-    const TDouble10Vec1Vec &samples,
-    const TDouble10Vec4Vec1Vec &weights,
-    const TSize10Vec &coordinates,
-    TDouble10Vec2Vec &lowerBounds,
-    TDouble10Vec2Vec &upperBounds,
-    TTail10Vec &tail) const {
+    const TWeightStyleVec& weightStyles,
+    const TDouble10Vec1Vec& samples,
+    const TDouble10Vec4Vec1Vec& weights,
+    const TSize10Vec& coordinates,
+    TDouble10Vec2Vec& lowerBounds,
+    TDouble10Vec2Vec& upperBounds,
+    TTail10Vec& tail) const {
     if (coordinates.empty()) {
         lowerBounds.clear();
         upperBounds.clear();
@@ -147,12 +159,12 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(
     static const TSize10Vec NO_MARGINS;
     static const TSizeDoublePr10Vec NO_CONDITIONS;
 
-    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] = {
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
-    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2] = {
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
-        TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
+    TJointProbabilityOfLessLikelySamplesVec lowerBounds_[2] =
+        {TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
+         TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
+    TJointProbabilityOfLessLikelySamplesVec upperBounds_[2] =
+        {TJointProbabilityOfLessLikelySamplesVec(coordinates.size()),
+         TJointProbabilityOfLessLikelySamplesVec(coordinates.size())};
 
     std::size_t d = this->dimension();
     TSize10Vec marginalize(d - 1);
@@ -187,8 +199,13 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(
             double lb[2], ub[2];
             maths_t::ETail tc[2];
 
-            if (!margin->probabilityOfLessLikelySamples(
-                    calculation, weightStyles, sc, wc, lb[0], ub[0], tc[0])) {
+            if (!margin->probabilityOfLessLikelySamples(calculation,
+                                                        weightStyles,
+                                                        sc,
+                                                        wc,
+                                                        lb[0],
+                                                        ub[0],
+                                                        tc[0])) {
                 LOG_ERROR("Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
@@ -196,8 +213,13 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(
                             << ") = " << ub[0]);
 
             TUnivariatePriorPtr conditional(this->univariate(NO_MARGINS, condition).first);
-            if (!conditional->probabilityOfLessLikelySamples(
-                    calculation, weightStyles, sc, wc, lb[1], ub[1], tc[1])) {
+            if (!conditional->probabilityOfLessLikelySamples(calculation,
+                                                             weightStyles,
+                                                             sc,
+                                                             wc,
+                                                             lb[1],
+                                                             ub[1],
+                                                             tc[1])) {
                 LOG_ERROR("Failed to compute probability for coordinate " << coordinate);
                 return false;
             }
@@ -227,12 +249,12 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(
 
 bool CMultivariatePrior::probabilityOfLessLikelySamples(
     maths_t::EProbabilityCalculation calculation,
-    const TWeightStyleVec &weightStyles,
-    const TDouble10Vec1Vec &samples,
-    const TDouble10Vec4Vec1Vec &weights,
-    double &lowerBound,
-    double &upperBound,
-    TTail10Vec &tail) const {
+    const TWeightStyleVec& weightStyles,
+    const TDouble10Vec1Vec& samples,
+    const TDouble10Vec4Vec1Vec& weights,
+    double& lowerBound,
+    double& upperBound,
+    TTail10Vec& tail) const {
     lowerBound = upperBound = 1.0;
     tail.assign(this->dimension(), maths_t::E_UndeterminedTail);
 
@@ -253,8 +275,14 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         sample[0] = samples[i];
         weight[0] = weights[i];
-        if (!this->probabilityOfLessLikelySamples(
-                calculation, weightStyles, sample, weight, coordinates, lbs, ubs, tail)) {
+        if (!this->probabilityOfLessLikelySamples(calculation,
+                                                  weightStyles,
+                                                  sample,
+                                                  weight,
+                                                  coordinates,
+                                                  lbs,
+                                                  ubs,
+                                                  tail)) {
             return false;
         }
 
@@ -373,24 +401,36 @@ std::string CMultivariatePrior::print(void) const {
     return result;
 }
 
-double CMultivariatePrior::offsetMargin(void) const { return 0.2; }
+double CMultivariatePrior::offsetMargin(void) const {
+    return 0.2;
+}
 
-double CMultivariatePrior::numberSamples(void) const { return m_NumberSamples; }
+double CMultivariatePrior::numberSamples(void) const {
+    return m_NumberSamples;
+}
 
-void CMultivariatePrior::numberSamples(double numberSamples) { m_NumberSamples = numberSamples; }
+void CMultivariatePrior::numberSamples(double numberSamples) {
+    m_NumberSamples = numberSamples;
+}
 
-bool CMultivariatePrior::participatesInModelSelection(void) const { return true; }
+bool CMultivariatePrior::participatesInModelSelection(void) const {
+    return true;
+}
 
-double CMultivariatePrior::unmarginalizedParameters(void) const { return 0.0; }
+double CMultivariatePrior::unmarginalizedParameters(void) const {
+    return 0.0;
+}
 
 double CMultivariatePrior::scaledDecayRate(void) const {
     return ::pow(0.5, static_cast<double>(this->dimension())) * this->decayRate();
 }
 
-void CMultivariatePrior::addSamples(double n) { m_NumberSamples += n; }
+void CMultivariatePrior::addSamples(double n) {
+    m_NumberSamples += n;
+}
 
-bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
-                               const TDouble10Vec4Vec1Vec &weights) const {
+bool CMultivariatePrior::check(const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights) const {
     if (samples.size() != weights.size()) {
         LOG_ERROR("Mismatch in samples '" << samples << "' and weights '" << weights << "'");
         return false;
@@ -400,7 +440,7 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
             LOG_ERROR("Invalid sample '" << samples[i] << "'");
             return false;
         }
-        for (const auto &weight : weights[i]) {
+        for (const auto& weight : weights[i]) {
             if (weight.size() != this->dimension()) {
                 LOG_ERROR("Invalid weight '" << weight << "'");
                 return false;
@@ -410,9 +450,9 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
     return true;
 }
 
-bool CMultivariatePrior::check(const TSize10Vec &marginalize,
-                               const TSizeDoublePr10Vec &condition) const {
-    static const auto FIRST = [](const TSizeDoublePr &pair) { return pair.first; };
+bool CMultivariatePrior::check(const TSize10Vec& marginalize,
+                               const TSizeDoublePr10Vec& condition) const {
+    static const auto FIRST = [](const TSizeDoublePr& pair) { return pair.first; };
     std::size_t d = this->dimension();
     if ((marginalize.size() > 0 && marginalize.back() >= d) ||
         (condition.size() > 0 && condition.back().first >= d) ||
@@ -428,9 +468,9 @@ bool CMultivariatePrior::check(const TSize10Vec &marginalize,
     return true;
 }
 
-void CMultivariatePrior::remainingVariables(const TSize10Vec &marginalize,
-                                            const TSizeDoublePr10Vec &condition,
-                                            TSize10Vec &result) const {
+void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize,
+                                            const TSizeDoublePr10Vec& condition,
+                                            TSize10Vec& result) const {
     std::size_t d = this->dimension();
     result.reserve(d - marginalize.size() - condition.size());
     for (std::size_t i = 0u, j = 0u, k = 0u; k < d; ++k) {
@@ -446,7 +486,7 @@ void CMultivariatePrior::remainingVariables(const TSize10Vec &marginalize,
     }
 }
 
-double CMultivariatePrior::smallest(const TDouble10Vec &x) const {
+double CMultivariatePrior::smallest(const TDouble10Vec& x) const {
     return *std::min_element(x.begin(), x.end());
 }
 

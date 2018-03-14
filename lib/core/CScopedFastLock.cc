@@ -19,8 +19,12 @@
 namespace ml {
 namespace core {
 
-CScopedFastLock::CScopedFastLock(CFastMutex &mutex) : m_Mutex(mutex) { m_Mutex.lock(); }
+CScopedFastLock::CScopedFastLock(CFastMutex& mutex) : m_Mutex(mutex) {
+    m_Mutex.lock();
+}
 
-CScopedFastLock::~CScopedFastLock(void) { m_Mutex.unlock(); }
+CScopedFastLock::~CScopedFastLock(void) {
+    m_Mutex.unlock();
+}
 }
 }

@@ -53,10 +53,10 @@ public:
     //! \name Life-Cycle
     //@{
     CMultivariateConstantPrior(std::size_t dimension,
-                               const TOptionalDouble10Vec &constant = TOptionalDouble10Vec());
+                               const TOptionalDouble10Vec& constant = TOptionalDouble10Vec());
 
     //! Construct by traversing a state document.
-    CMultivariateConstantPrior(std::size_t dimension, core::CStateRestoreTraverser &traverser);
+    CMultivariateConstantPrior(std::size_t dimension, core::CStateRestoreTraverser& traverser);
     //@}
 
     //! \name Prior Contract
@@ -64,7 +64,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariateConstantPrior *clone(void) const;
+    virtual CMultivariateConstantPrior* clone(void) const;
 
     //! Get the dimension of the prior.
     virtual std::size_t dimension(void) const;
@@ -73,25 +73,25 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! No-op.
-    virtual void adjustOffset(const TWeightStyleVec &weightStyle,
-                              const TDouble10Vec1Vec &samples,
-                              const TDouble10Vec4Vec1Vec &weights);
+    virtual void adjustOffset(const TWeightStyleVec& weightStyle,
+                              const TDouble10Vec1Vec& samples,
+                              const TDouble10Vec4Vec1Vec& weights);
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TWeightStyleVec &weightStyle,
-                            const TDouble10Vec1Vec &samples,
-                            const TDouble10Vec4Vec1Vec &weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyle,
+                            const TDouble10Vec1Vec& samples,
+                            const TDouble10Vec4Vec1Vec& weights);
 
     //! No-op.
     virtual void propagateForwardsByTime(double time);
 
     //! Get the corresponding constant univariate prior.
-    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec &marginalize,
-                                                   const TSizeDoublePr10Vec &condition) const;
+    virtual TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
+                                                   const TSizeDoublePr10Vec& condition) const;
 
     //! Compute the bivariate const bivariate prior.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec &marginalize,
-                                        const TSizeDoublePr10Vec &condition) const;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                        const TSizeDoublePr10Vec& condition) const;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const;
@@ -100,8 +100,8 @@ public:
     virtual TDouble10Vec marginalLikelihoodMean(void) const;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                const TDouble10Vec4Vec &weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                const TDouble10Vec4Vec& weights) const;
 
     //! Get the covariance matrix of the marginal likelihood.
     virtual TDouble10Vec10Vec marginalLikelihoodCovariance(void) const;
@@ -112,14 +112,14 @@ public:
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble10Vec1Vec &samples,
-                               const TDouble10Vec4Vec1Vec &weights,
-                               double &result) const;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble10Vec1Vec& samples,
+                               const TDouble10Vec4Vec1Vec& weights,
+                               double& result) const;
 
     //! Get \p numberSamples times the constant.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec &samples) const;
+                                          TDouble10Vec1Vec& samples) const;
 
     //! Check if this is a non-informative prior.
     bool isNonInformative(void) const;
@@ -128,7 +128,7 @@ public:
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &separator, std::string &result) const;
+    virtual void print(const std::string& separator, std::string& result) const;
 
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed = 0) const;
@@ -143,18 +143,18 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Get the tag name for this prior.
     virtual std::string persistenceTag(void) const;
     //@}
 
     //! Get the constant value.
-    const TOptionalDouble10Vec &constant(void) const;
+    const TOptionalDouble10Vec& constant(void) const;
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! The data dimension.
@@ -166,4 +166,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CMultivariateConstantPrior_h
+#endif // INCLUDED_ml_maths_CMultivariateConstantPrior_h

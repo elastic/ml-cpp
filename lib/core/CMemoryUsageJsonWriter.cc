@@ -23,23 +23,31 @@ const std::string UNUSED("unused");
 namespace ml {
 namespace core {
 
-CMemoryUsageJsonWriter::CMemoryUsageJsonWriter(std::ostream &outStream)
+CMemoryUsageJsonWriter::CMemoryUsageJsonWriter(std::ostream& outStream)
     : m_WriteStream(outStream), m_Writer(m_WriteStream), m_Finalised(false) {}
 
-CMemoryUsageJsonWriter::~CMemoryUsageJsonWriter() { this->finalise(); }
+CMemoryUsageJsonWriter::~CMemoryUsageJsonWriter() {
+    this->finalise();
+}
 
-void CMemoryUsageJsonWriter::startObject() { m_Writer.StartObject(); }
+void CMemoryUsageJsonWriter::startObject() {
+    m_Writer.StartObject();
+}
 
-void CMemoryUsageJsonWriter::endObject() { m_Writer.EndObject(); }
+void CMemoryUsageJsonWriter::endObject() {
+    m_Writer.EndObject();
+}
 
-void CMemoryUsageJsonWriter::startArray(const std::string &description) {
+void CMemoryUsageJsonWriter::startArray(const std::string& description) {
     m_Writer.String(description);
     m_Writer.StartArray();
 }
 
-void CMemoryUsageJsonWriter::endArray() { m_Writer.EndArray(); }
+void CMemoryUsageJsonWriter::endArray() {
+    m_Writer.EndArray();
+}
 
-void CMemoryUsageJsonWriter::addItem(const CMemoryUsage::SMemoryUsage &item) {
+void CMemoryUsageJsonWriter::addItem(const CMemoryUsage::SMemoryUsage& item) {
     m_Writer.String(item.s_Name);
     m_Writer.StartObject();
 
@@ -60,5 +68,5 @@ void CMemoryUsageJsonWriter::finalise() {
     m_Finalised = true;
 }
 
-}// core
-}// ml
+} // core
+} // ml

@@ -26,7 +26,7 @@ public:
     void testWithSparseData();
     void testTestForPeriods();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CPeriodicityHypothesisTestsTest_h
+#endif // INCLUDED_CPeriodicityHypothesisTestsTest_h

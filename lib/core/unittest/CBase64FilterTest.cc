@@ -24,7 +24,7 @@
 
 typedef boost::mt19937 TRandom;
 typedef boost::uniform_int<> TDistribution;
-typedef boost::random::variate_generator<TRandom &, TDistribution> TGenerator;
+typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
 typedef boost::generator_iterator<TGenerator> TGeneratorItr;
 
 using namespace ml;
@@ -43,9 +43,9 @@ public:
     struct category : public boost::iostreams::source_tag {};
 
 public:
-    CMockSource(const std::string &s) : m_Data(s), m_Read(0) {}
+    CMockSource(const std::string& s) : m_Data(s), m_Read(0) {}
 
-    std::streamsize read(char *s, std::streamsize n) {
+    std::streamsize read(char* s, std::streamsize n) {
         if (m_Read >= std::streamsize(m_Data.size())) {
             return -1;
         }
@@ -73,7 +73,7 @@ public:
 public:
     CMockSink() {}
 
-    std::streamsize write(const char *s, std::streamsize n) {
+    std::streamsize write(const char* s, std::streamsize n) {
         m_Data.append(s, n);
         return n;
     }
@@ -83,13 +83,13 @@ public:
     const std::string getData(void) const { return m_Data; }
 
 private:
-    void writeInternal(const char *s, std::streamsize &written, std::streamsize &n);
+    void writeInternal(const char* s, std::streamsize& written, std::streamsize& n);
 
 private:
     std::string m_Data;
 };
 
-void testEncodeDecode(const std::string &input) {
+void testEncodeDecode(const std::string& input) {
     CMockSink sink;
     {
         TFilteredOutput filter;
@@ -122,10 +122,10 @@ void CBase64FilterTest::testEncode(void) {
             filter.push(boost::ref(sink));
             filter << "Man is distinguished, not only by his reason, but by this singular passion "
                       "from ";
-            filter
-                << "other animals, which is a lust of the mind, that by a perseverance of delight ";
-            filter
-                << "in the continued and indefatigable generation of knowledge, exceeds the short ";
+            filter << "other animals, which is a lust of the mind, that by a perseverance of "
+                      "delight ";
+            filter << "in the continued and indefatigable generation of knowledge, exceeds the "
+                      "short ";
             filter << "vehemence of any carnal pleasure.";
         }
         std::string expected =
@@ -216,13 +216,15 @@ void CBase64FilterTest::testBoth(void) {
     }
 }
 
-CppUnit::Test *CBase64FilterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBase64FilterTest");
+CppUnit::Test* CBase64FilterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBase64FilterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>(
-        "CBase64FilterTest::testDecode", &CBase64FilterTest::testDecode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>(
-        "CBase64FilterTest::testEncode", &CBase64FilterTest::testEncode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testDecode",
+                                                   &CBase64FilterTest::testDecode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testEncode",
+                                                   &CBase64FilterTest::testEncode));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>("CBase64FilterTest::testBoth",
                                                                      &CBase64FilterTest::testBoth));
 

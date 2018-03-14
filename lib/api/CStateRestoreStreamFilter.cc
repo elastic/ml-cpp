@@ -25,7 +25,7 @@ CStateRestoreStreamFilter::CStateRestoreStreamFilter()
       m_RewrotePreviousLine(false) {}
 
 CStateRestoreStreamFilter::string_type
-CStateRestoreStreamFilter::do_filter(const string_type &line) {
+CStateRestoreStreamFilter::do_filter(const string_type& line) {
     // Persist format is:
     // { bulk metadata }
     // { document source }
@@ -75,6 +75,8 @@ CStateRestoreStreamFilter::do_filter(const string_type &line) {
     }
 }
 
-size_t CStateRestoreStreamFilter::getDocCount() const { return m_DocCount; }
+size_t CStateRestoreStreamFilter::getDocCount() const {
+    return m_DocCount;
+}
 }
 }

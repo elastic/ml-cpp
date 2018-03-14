@@ -42,24 +42,24 @@ public:
 public:
     CRegex(void);
 
-    bool init(const std::string &);
+    bool init(const std::string&);
 
     //! Simple match test for a string
-    bool matches(const std::string &) const;
+    bool matches(const std::string&) const;
 
     //! Find the position within a string at which this regex first matches
-    bool search(size_t startPos, const std::string &str, size_t &position, size_t &length) const;
-    bool search(size_t startPos, const std::string &str, size_t &position) const;
-    bool search(const std::string &str, size_t &position, size_t &length) const;
-    bool search(const std::string &str, size_t &position) const;
+    bool search(size_t startPos, const std::string& str, size_t& position, size_t& length) const;
+    bool search(size_t startPos, const std::string& str, size_t& position) const;
+    bool search(const std::string& str, size_t& position, size_t& length) const;
+    bool search(const std::string& str, size_t& position) const;
 
     //! Match a string with the regex AND
     //! tokenise a string by sub-expressions (...)
     //! This is based on the 'grouping' syntax in perl regex
-    bool tokenise(const std::string &, TStrVec &) const;
+    bool tokenise(const std::string&, TStrVec&) const;
 
     //! Split a string based on a regex
-    bool split(const std::string &, TStrVec &) const;
+    bool split(const std::string&, TStrVec&) const;
 
     //! Get the pattern string (not a reference due to boost API)
     std::string str(void) const;
@@ -70,7 +70,7 @@ public:
 
     //! Useful for converting a string literal into a regex that will match
     //! it
-    static std::string escapeRegexSpecial(const std::string &literal);
+    static std::string escapeRegexSpecial(const std::string& literal);
 
 private:
     bool m_Initialised;
@@ -79,4 +79,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CRegex_h
+#endif // INCLUDED_ml_core_CRegex_h

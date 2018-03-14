@@ -45,25 +45,29 @@ void CDataClassifier::add(model_t::EFeature feature, double value, unsigned int 
 }
 
 void CDataClassifier::add(model_t::EFeature feature,
-                          const TDouble1Vec &values,
+                          const TDouble1Vec& values,
                           unsigned int count) {
-    for (const auto &value : values) {
+    for (const auto& value : values) {
         this->add(feature, value, count);
     }
 }
 
-bool CDataClassifier::isInteger(void) const { return m_IsInteger; }
+bool CDataClassifier::isInteger(void) const {
+    return m_IsInteger;
+}
 
-bool CDataClassifier::isNonNegative(void) const { return m_IsNonNegative; }
+bool CDataClassifier::isNonNegative(void) const {
+    return m_IsNonNegative;
+}
 
-void CDataClassifier::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CDataClassifier::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(IS_INTEGER_TAG, static_cast<int>(m_IsInteger));
     inserter.insertValue(IS_NON_NEGATIVE_TAG, static_cast<int>(m_IsNonNegative));
 }
 
-bool CDataClassifier::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CDataClassifier::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BOOL(IS_INTEGER_TAG, m_IsInteger)
         RESTORE_BOOL(IS_NON_NEGATIVE_TAG, m_IsNonNegative)
     } while (traverser.next());

@@ -38,9 +38,9 @@ namespace ml {
 namespace model {
 
 CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(
-    const SModelParams &params,
+    const SModelParams& params,
     model_t::ESummaryMode summaryMode,
-    const std::string &summaryCountFieldName)
+    const std::string& summaryCountFieldName)
     : CModelFactory(params),
       m_Identifier(),
       m_SummaryMode(summaryMode),
@@ -48,62 +48,66 @@ CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(
       m_UseNull(false),
       m_BucketResultsDelay(0) {}
 
-CEventRatePopulationModelFactory *CEventRatePopulationModelFactory::clone(void) const {
+CEventRatePopulationModelFactory* CEventRatePopulationModelFactory::clone(void) const {
     return new CEventRatePopulationModelFactory(*this);
 }
 
-CAnomalyDetectorModel *
-CEventRatePopulationModelFactory::makeModel(const SModelInitializationData &initData) const {
+CAnomalyDetectorModel*
+CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRatePopulationModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators);
+    return new CEventRatePopulationModel(this->modelParams(),
+                                         dataGatherer,
+                                         this->defaultFeatureModels(features,
+                                                                    dataGatherer->bucketLength(),
+                                                                    1.0,
+                                                                    false),
+                                         this->defaultCorrelatePriors(features),
+                                         this->defaultCorrelates(features),
+                                         influenceCalculators);
 }
 
-CAnomalyDetectorModel *
-CEventRatePopulationModelFactory::makeModel(const SModelInitializationData &initData,
-                                            core::CStateRestoreTraverser &traverser) const {
+CAnomalyDetectorModel*
+CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData,
+                                            core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
-    const TFeatureVec &features = dataGatherer->features();
+    const TFeatureVec& features = dataGatherer->features();
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames) {
+    for (const auto& name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
-    return new CEventRatePopulationModel(
-        this->modelParams(),
-        dataGatherer,
-        this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
-        this->defaultCorrelatePriors(features),
-        this->defaultCorrelates(features),
-        influenceCalculators,
-        traverser);
+    return new CEventRatePopulationModel(this->modelParams(),
+                                         dataGatherer,
+                                         this->defaultFeatureModels(features,
+                                                                    dataGatherer->bucketLength(),
+                                                                    1.0,
+                                                                    false),
+                                         this->defaultCorrelatePriors(features),
+                                         this->defaultCorrelates(features),
+                                         influenceCalculators,
+                                         traverser);
 }
 
-CDataGatherer *CEventRatePopulationModelFactory::makeDataGatherer(
-    const SGathererInitializationData &initData) const {
+CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(
+    const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_PopulationEventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -121,9 +125,9 @@ CDataGatherer *CEventRatePopulationModelFactory::makeDataGatherer(
                              0);
 }
 
-CDataGatherer *
-CEventRatePopulationModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
-                                                   core::CStateRestoreTraverser &traverser) const {
+CDataGatherer*
+CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                   core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_PopulationEventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -141,7 +145,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const std::string &partitionF
 
 CEventRatePopulationModelFactory::TPriorPtr
 CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
-                                               const SModelParams &params) const {
+                                               const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -212,7 +216,7 @@ CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
 
 CEventRatePopulationModelFactory::TMultivariatePriorPtr
 CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                           const SModelParams &params) const {
+                                                           const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     TMultivariatePriorPtrVec priors;
@@ -228,7 +232,7 @@ CEventRatePopulationModelFactory::defaultMultivariatePrior(model_t::EFeature fea
 
 CEventRatePopulationModelFactory::TMultivariatePriorPtr
 CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                                        const SModelParams &params) const {
+                                                        const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
@@ -239,7 +243,7 @@ CEventRatePopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feat
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CEventRatePopulationModelFactory::searchKey(void) const {
+const CSearchKey& CEventRatePopulationModelFactory::searchKey(void) const {
     if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
@@ -254,7 +258,9 @@ const CSearchKey &CEventRatePopulationModelFactory::searchKey(void) const {
     return *m_SearchKeyCache;
 }
 
-bool CEventRatePopulationModelFactory::isSimpleCount(void) const { return false; }
+bool CEventRatePopulationModelFactory::isSimpleCount(void) const {
+    return false;
+}
 
 model_t::ESummaryMode CEventRatePopulationModelFactory::summaryMode(void) const {
     return m_SummaryMode;
@@ -269,11 +275,11 @@ void CEventRatePopulationModelFactory::identifier(int identifier) {
     m_SearchKeyCache.reset();
 }
 
-void CEventRatePopulationModelFactory::fieldNames(const std::string &partitionFieldName,
-                                                  const std::string &overFieldName,
-                                                  const std::string &byFieldName,
-                                                  const std::string &valueFieldName,
-                                                  const TStrVec &influenceFieldNames) {
+void CEventRatePopulationModelFactory::fieldNames(const std::string& partitionFieldName,
+                                                  const std::string& overFieldName,
+                                                  const std::string& byFieldName,
+                                                  const std::string& valueFieldName,
+                                                  const TStrVec& influenceFieldNames) {
     m_PartitionFieldName = partitionFieldName;
     m_PersonFieldName = overFieldName;
     m_AttributeFieldName = byFieldName;
@@ -287,7 +293,7 @@ void CEventRatePopulationModelFactory::useNull(bool useNull) {
     m_SearchKeyCache.reset();
 }
 
-void CEventRatePopulationModelFactory::features(const TFeatureVec &features) {
+void CEventRatePopulationModelFactory::features(const TFeatureVec& features) {
     m_Features = features;
     m_SearchKeyCache.reset();
 }

@@ -26,7 +26,7 @@ public:
     void testNormBasedLambda(void);
     void testCrossValidatedLambda(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CLassoLogisticRegressionTest_h
+#endif // INCLUDED_CLassoLogisticRegressionTest_h

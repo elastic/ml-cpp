@@ -44,10 +44,11 @@ namespace core {
 //!
 class CORE_EXPORT CByteSwapper : private CNonInstantiatable {
 public:
-    template <typename TYPE> static TYPE swapBytes(TYPE var) {
-        void *varAddress(&var);
-        uint8_t *begin(static_cast<uint8_t *>(varAddress));
-        uint8_t *end(begin + sizeof(var));
+    template <typename TYPE>
+    static TYPE swapBytes(TYPE var) {
+        void* varAddress(&var);
+        uint8_t* begin(static_cast<uint8_t*>(varAddress));
+        uint8_t* end(begin + sizeof(var));
 
         std::reverse(begin, end);
 
@@ -57,4 +58,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CByteSwapper_h
+#endif // INCLUDED_ml_core_CByteSwapper_h

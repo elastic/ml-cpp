@@ -43,7 +43,8 @@ namespace {
 using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Clear a vector and recover its memory.
-template <typename T> void clearAndShrink(std::vector<T> &vector) {
+template <typename T>
+void clearAndShrink(std::vector<T>& vector) {
     std::vector<T> empty;
     empty.swap(vector);
 }
@@ -63,9 +64,9 @@ const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
 const double MINIMUM_DECAY_RATE{0.001};
 }
 
-bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name{traverser.name()};
+        const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(DECAY_RATE_TAG, m_DecayRate)
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
@@ -75,7 +76,7 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser &tr
     return true;
 }
 
-void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
@@ -89,13 +90,13 @@ CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLen
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
                                        double minimumBucketLength,
-                                       core::CStateRestoreTraverser &traverser)
+                                       core::CStateRestoreTraverser& traverser)
     : m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)},
       m_MinimumBucketLength{minimumBucketLength} {
     traverser.traverseSubLevel(boost::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this, _1));
 }
 
-void CAdaptiveBucketing::swap(CAdaptiveBucketing &other) {
+void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
     m_Endpoints.swap(other.m_Endpoints);
@@ -104,7 +105,9 @@ void CAdaptiveBucketing::swap(CAdaptiveBucketing &other) {
     std::swap(m_Force, other.m_Force);
 }
 
-bool CAdaptiveBucketing::initialized(void) const { return m_Endpoints.size() > 0; }
+bool CAdaptiveBucketing::initialized(void) const {
+    return m_Endpoints.size() > 0;
+}
 
 bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     if (n == 0) {
@@ -133,7 +136,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
 
 void CAdaptiveBucketing::initialValues(core_t::TTime start,
                                        core_t::TTime end,
-                                       const TFloatMeanAccumulatorVec &values) {
+                                       const TFloatMeanAccumulatorVec& values) {
     if (!this->initialized()) {
         return;
     }
@@ -161,7 +164,9 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
     }
 }
 
-std::size_t CAdaptiveBucketing::size(void) const { return m_Centres.size(); }
+std::size_t CAdaptiveBucketing::size(void) const {
+    return m_Centres.size();
+}
 
 void CAdaptiveBucketing::clear(void) {
     clearAndShrink(m_Endpoints);
@@ -179,7 +184,9 @@ void CAdaptiveBucketing::decayRate(double value) {
     m_DecayRate = std::max(value, MINIMUM_DECAY_RATE);
 }
 
-double CAdaptiveBucketing::decayRate(void) const { return m_DecayRate; }
+double CAdaptiveBucketing::decayRate(void) const {
+    return m_DecayRate;
+}
 
 void CAdaptiveBucketing::age(double factor) {
     factor = factor * factor;
@@ -187,7 +194,9 @@ void CAdaptiveBucketing::age(double factor) {
     m_Force.age(factor);
 }
 
-double CAdaptiveBucketing::minimumBucketLength(void) const { return m_MinimumBucketLength; }
+double CAdaptiveBucketing::minimumBucketLength(void) const {
+    return m_MinimumBucketLength;
+}
 
 void CAdaptiveBucketing::refine(core_t::TTime time) {
     using TDoubleDoublePr = std::pair<double, double>;
@@ -344,9 +353,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
 
 bool CAdaptiveBucketing::knots(core_t::TTime time,
                                CSplineTypes::EBoundaryCondition boundary,
-                               TDoubleVec &knots,
-                               TDoubleVec &values,
-                               TDoubleVec &variances) const {
+                               TDoubleVec& knots,
+                               TDoubleVec& values,
+                               TDoubleVec& variances) const {
     knots.clear();
     values.clear();
     variances.clear();
@@ -415,15 +424,21 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     return knots.size() >= 2;
 }
 
-const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints(void) const {
+const CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::endpoints(void) const {
     return m_Endpoints;
 }
 
-CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::endpoints(void) { return m_Endpoints; }
+CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::endpoints(void) {
+    return m_Endpoints;
+}
 
-const CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres(void) const { return m_Centres; }
+const CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::centres(void) const {
+    return m_Centres;
+}
 
-CAdaptiveBucketing::TFloatVec &CAdaptiveBucketing::centres(void) { return m_Centres; }
+CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::centres(void) {
+    return m_Centres;
+}
 
 double CAdaptiveBucketing::count(void) const {
     double result = 0.0;
@@ -451,7 +466,7 @@ CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::variances(void) const {
     return result;
 }
 
-bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t &result) const {
+bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     double t{this->offset(time)};
 
     std::size_t i(std::upper_bound(m_Endpoints.begin(), m_Endpoints.end(), t) -

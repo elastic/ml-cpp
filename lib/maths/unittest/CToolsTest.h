@@ -28,7 +28,7 @@ public:
     void testFastLog(void);
     void testMiscellaneous(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CToolsTest_h
+#endif // INCLUDED_CToolsTest_h

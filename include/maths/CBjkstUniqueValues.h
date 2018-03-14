@@ -91,18 +91,18 @@ public:
     CBjkstUniqueValues(std::size_t numberHashes, std::size_t maxSize);
 
     //! Create by traversing a state document.
-    CBjkstUniqueValues(core::CStateRestoreTraverser &traverser);
+    CBjkstUniqueValues(core::CStateRestoreTraverser& traverser);
 
     //! Efficiently swap the contents of two sketches.
-    void swap(CBjkstUniqueValues &other);
+    void swap(CBjkstUniqueValues& other);
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 public:
     //! Convert to a node tree.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Add a new value.
     void add(uint32_t value);
@@ -135,14 +135,14 @@ private:
         SSketch(std::size_t numberHashes);
 
         //! Efficiently swap the contents of two sketches.
-        void swap(SSketch &other);
+        void swap(SSketch& other);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
                                     std::size_t numberHashes);
 
         //! Convert to a node tree.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Add a new value.
         void add(std::size_t maxSize, uint32_t value);
@@ -180,4 +180,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CBjkstUniqueValues_h
+#endif // INCLUDED_ml_maths_CBjkstUniqueValues_h

@@ -38,9 +38,10 @@ namespace core {
 //!
 class CORE_EXPORT CStrPairFirstElementLess {
 public:
-    template <typename PAIR1, typename PAIR2> bool operator()(const PAIR1 &pr1, const PAIR2 &pr2) {
-        const std::string &pr1first = pr1.first;
-        const std::string &pr2first = pr2.first;
+    template <typename PAIR1, typename PAIR2>
+    bool operator()(const PAIR1& pr1, const PAIR2& pr2) {
+        const std::string& pr1first = pr1.first;
+        const std::string& pr2first = pr2.first;
 
         return pr1first < pr2first;
     }
@@ -48,4 +49,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CStrPairFirstElementLess_h
+#endif // INCLUDED_ml_core_CStrPairFirstElementLess_h

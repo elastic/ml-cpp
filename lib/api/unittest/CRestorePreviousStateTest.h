@@ -27,17 +27,17 @@ public:
     void testRestoreNormalizer(void);
     void testRestoreCategorizer(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void anomalyDetectorRestoreHelper(const std::string &stateFile,
-                                      const std::string &configFileName,
+    void anomalyDetectorRestoreHelper(const std::string& stateFile,
+                                      const std::string& configFileName,
                                       bool isSymmetric,
                                       int latencyBuckets);
 
-    void categorizerRestoreHelper(const std::string &stateFile, bool isSymmetric);
+    void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric);
 
-    std::string stripDocIds(const std::string &peristedState);
+    std::string stripDocIds(const std::string& peristedState);
 };
 
-#endif// INCLUDED_CRestorePreviousStateTest_h
+#endif // INCLUDED_CRestorePreviousStateTest_h

@@ -22,8 +22,8 @@
 
 #include <errno.h>
 
-CppUnit::Test *CFileDeleterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CFileDeleterTest");
+CppUnit::Test* CFileDeleterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFileDeleterTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CFileDeleterTest>("CFileDeleterTest::testDelete",
                                                                     &CFileDeleterTest::testDelete));
@@ -40,14 +40,16 @@ void CFileDeleterTest::testDelete(void) {
         {
             std::ofstream testFile(fileName.c_str());
             testFile << "to be deleted" << std::endl;
-        }// The file should exist by the time the stream is closed here
+        } // The file should exist by the time the stream is closed here
 
-        CPPUNIT_ASSERT_EQUAL(
-            0, ml::core::COsFileFuncs::access(fileName.c_str(), ml::core::COsFileFuncs::EXISTS));
-    }// The file should be deleted here
+        CPPUNIT_ASSERT_EQUAL(0,
+                             ml::core::COsFileFuncs::access(fileName.c_str(),
+                                                            ml::core::COsFileFuncs::EXISTS));
+    } // The file should be deleted here
 
-    CPPUNIT_ASSERT_EQUAL(
-        -1, ml::core::COsFileFuncs::access(fileName.c_str(), ml::core::COsFileFuncs::EXISTS));
+    CPPUNIT_ASSERT_EQUAL(-1,
+                         ml::core::COsFileFuncs::access(fileName.c_str(),
+                                                        ml::core::COsFileFuncs::EXISTS));
 
     CPPUNIT_ASSERT_EQUAL(ENOENT, errno);
 }

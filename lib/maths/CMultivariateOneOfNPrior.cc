@@ -64,14 +64,14 @@ const std::string PRIOR_TAG("d");
 const std::string DECAY_RATE_TAG("e");
 
 //! Add elements of \p x to \p y.
-void add(const TDouble10Vec &x, TDouble10Vec &y) {
+void add(const TDouble10Vec& x, TDouble10Vec& y) {
     for (std::size_t i = 0u; i < x.size(); ++i) {
         y[i] += x[i];
     }
 }
 
 //! Get the min of \p x and \p y.
-TDouble10Vec min(const TDouble10Vec &x, const TDouble10Vec &y) {
+TDouble10Vec min(const TDouble10Vec& x, const TDouble10Vec& y) {
     TDouble10Vec result(x);
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result[i] = std::min(result[i], y[i]);
@@ -80,7 +80,7 @@ TDouble10Vec min(const TDouble10Vec &x, const TDouble10Vec &y) {
 }
 
 //! Get the max of \p x and \p y.
-TDouble10Vec max(const TDouble10Vec &x, const TDouble10Vec &y) {
+TDouble10Vec max(const TDouble10Vec& x, const TDouble10Vec& y) {
     TDouble10Vec result(x);
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result[i] = std::max(result[i], y[i]);
@@ -89,7 +89,7 @@ TDouble10Vec max(const TDouble10Vec &x, const TDouble10Vec &y) {
 }
 
 //! Update the arithmetic mean \p mean with \p x and weight \p nx.
-void updateMean(const TDouble10Vec &x, double nx, TDouble10Vec &mean, double &n) {
+void updateMean(const TDouble10Vec& x, double nx, TDouble10Vec& mean, double& n) {
     if (nx <= 0.0) {
         return;
     }
@@ -100,7 +100,7 @@ void updateMean(const TDouble10Vec &x, double nx, TDouble10Vec &mean, double &n)
 }
 
 //! Update the arithmetic mean \p mean with \p x and weight \p nx.
-void updateMean(const TDouble10Vec10Vec &x, double nx, TDouble10Vec10Vec &mean, double &n) {
+void updateMean(const TDouble10Vec10Vec& x, double nx, TDouble10Vec10Vec& mean, double& n) {
     if (nx <= 0.0) {
         return;
     }
@@ -113,26 +113,30 @@ void updateMean(const TDouble10Vec10Vec &x, double nx, TDouble10Vec10Vec &mean, 
 }
 
 //! Get the largest element of \p x.
-double largest(const TDouble10Vec &x) { return *std::max_element(x.begin(), x.end()); }
+double largest(const TDouble10Vec& x) {
+    return *std::max_element(x.begin(), x.end());
+}
 
 //! Add a model vector entry reading parameters from \p traverser.
-bool modelAcceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                 TWeightPriorPtrPrVec &models,
-                                 core::CStateRestoreTraverser &traverser) {
+bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                 TWeightPriorPtrPrVec& models,
+                                 core::CStateRestoreTraverser& traverser) {
     CModelWeight weight(1.0);
     bool gotWeight = false;
     TPriorPtr model;
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
                                /**/,
                                traverser.traverseSubLevel(
                                    boost::bind(&CModelWeight::acceptRestoreTraverser, &weight, _1)),
                                gotWeight = true)
         RESTORE(PRIOR_TAG,
-                traverser.traverseSubLevel(boost::bind<bool>(
-                    CPriorStateSerialiser(), boost::cref(params), boost::ref(model), _1)))
+                traverser.traverseSubLevel(boost::bind<bool>(CPriorStateSerialiser(),
+                                                             boost::cref(params),
+                                                             boost::ref(model),
+                                                             _1)))
     } while (traverser.next());
 
     if (!gotWeight) {
@@ -150,17 +154,19 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams &params,
 }
 
 //! Read the models, decay rate and number of samples from the supplied traverser.
-bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                            TWeightPriorPtrPrVec &models,
-                            double &decayRate,
-                            double &numberSamples,
-                            core::CStateRestoreTraverser &traverser) {
+bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                            TWeightPriorPtrPrVec& models,
+                            double& decayRate,
+                            double& numberSamples,
+                            core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(DECAY_RATE_TAG, decayRate)
         RESTORE(MODEL_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &modelAcceptRestoreTraverser, boost::cref(params), boost::ref(models), _1)))
+                traverser.traverseSubLevel(boost::bind(&modelAcceptRestoreTraverser,
+                                                       boost::cref(params),
+                                                       boost::ref(models),
+                                                       _1)))
         RESTORE_BUILT_IN(NUMBER_SAMPLES_TAG, numberSamples)
     } while (traverser.next());
 
@@ -169,9 +175,9 @@ bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
 
 //! Persist state for one of the models by passing information
 //! to the supplied inserter.
-void modelAcceptPersistInserter(const CModelWeight &weight,
-                                const CMultivariatePrior &prior,
-                                core::CStatePersistInserter &inserter) {
+void modelAcceptPersistInserter(const CModelWeight& weight,
+                                const CMultivariatePrior& prior,
+                                core::CStatePersistInserter& inserter) {
     inserter.insertLevel(WEIGHT_TAG,
                          boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
     inserter.insertLevel(PRIOR_TAG,
@@ -186,7 +192,7 @@ const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 }
 
 CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
-                                                   const TPriorPtrVec &models,
+                                                   const TPriorPtrVec& models,
                                                    maths_t::EDataType dataType,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
@@ -198,13 +204,13 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
     // Create a new model vector using uniform weights.
     m_Models.reserve(models.size());
     CModelWeight weight(1.0);
-    for (const auto &model : models) {
+    for (const auto& model : models) {
         m_Models.emplace_back(weight, model);
     }
 }
 
 CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
-                                                   const TDoublePriorPtrPrVec &models,
+                                                   const TDoublePriorPtrPrVec& models,
                                                    maths_t::EDataType dataType,
                                                    double decayRate)
     : CMultivariatePrior(dataType, decayRate), m_Dimension(dimension) {
@@ -217,14 +223,14 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
 
     // Create a new model vector using the specified models and their associated weights.
     m_Models.reserve(models.size());
-    for (const auto &model : models) {
+    for (const auto& model : models) {
         m_Models.emplace_back(CModelWeight(model.first), model.second);
     }
 }
 
 CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
-                                                   const SDistributionRestoreParams &params,
-                                                   core::CStateRestoreTraverser &traverser)
+                                                   const SDistributionRestoreParams& params,
+                                                   core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(params.s_DataType, params.s_DecayRate), m_Dimension(dimension) {
     double decayRate;
     double numberSamples;
@@ -240,18 +246,18 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
     this->numberSamples(numberSamples);
 }
 
-CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior &other)
+CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(const CMultivariateOneOfNPrior& other)
     : CMultivariatePrior(other.dataType(), other.decayRate()), m_Dimension(other.m_Dimension) {
     // Clone all the models up front so we can implement strong exception safety.
     m_Models.reserve(other.m_Models.size());
-    for (const auto &model : other.m_Models) {
+    for (const auto& model : other.m_Models) {
         m_Models.emplace_back(model.first, TPriorPtr(model.second->clone()));
     }
 
     this->CMultivariatePrior::addSamples(other.numberSamples());
 }
 
-CMultivariateOneOfNPrior &CMultivariateOneOfNPrior::operator=(const CMultivariateOneOfNPrior &rhs) {
+CMultivariateOneOfNPrior& CMultivariateOneOfNPrior::operator=(const CMultivariateOneOfNPrior& rhs) {
     if (this != &rhs) {
         CMultivariateOneOfNPrior tmp(rhs);
         this->swap(tmp);
@@ -259,33 +265,35 @@ CMultivariateOneOfNPrior &CMultivariateOneOfNPrior::operator=(const CMultivariat
     return *this;
 }
 
-void CMultivariateOneOfNPrior::swap(CMultivariateOneOfNPrior &other) {
+void CMultivariateOneOfNPrior::swap(CMultivariateOneOfNPrior& other) {
     this->CMultivariatePrior::swap(other);
     m_Models.swap(other.m_Models);
 }
 
-CMultivariateOneOfNPrior *CMultivariateOneOfNPrior::clone(void) const {
+CMultivariateOneOfNPrior* CMultivariateOneOfNPrior::clone(void) const {
     return new CMultivariateOneOfNPrior(*this);
 }
 
-std::size_t CMultivariateOneOfNPrior::dimension(void) const { return m_Dimension; }
+std::size_t CMultivariateOneOfNPrior::dimension(void) const {
+    return m_Dimension;
+}
 
 void CMultivariateOneOfNPrior::dataType(maths_t::EDataType value) {
     this->CMultivariatePrior::dataType(value);
-    for (auto &&model : m_Models) {
+    for (auto&& model : m_Models) {
         model.second->dataType(value);
     }
 }
 
 void CMultivariateOneOfNPrior::decayRate(double value) {
     this->CMultivariatePrior::decayRate(value);
-    for (auto &&model : m_Models) {
+    for (auto&& model : m_Models) {
         model.second->decayRate(this->decayRate());
     }
 }
 
 void CMultivariateOneOfNPrior::setToNonInformative(double offset, double decayRate) {
-    for (auto &&model : m_Models) {
+    for (auto&& model : m_Models) {
         model.first.age(0.0);
         model.second->setToNonInformative(offset, decayRate);
     }
@@ -293,17 +301,17 @@ void CMultivariateOneOfNPrior::setToNonInformative(double offset, double decayRa
     this->numberSamples(0.0);
 }
 
-void CMultivariateOneOfNPrior::adjustOffset(const TWeightStyleVec &weightStyles,
-                                            const TDouble10Vec1Vec &samples,
-                                            const TDouble10Vec4Vec1Vec &weights) {
-    for (auto &&model : m_Models) {
+void CMultivariateOneOfNPrior::adjustOffset(const TWeightStyleVec& weightStyles,
+                                            const TDouble10Vec1Vec& samples,
+                                            const TDouble10Vec4Vec1Vec& weights) {
+    for (auto&& model : m_Models) {
         model.second->adjustOffset(weightStyles, samples, weights);
     }
 }
 
-void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
-                                          const TDouble10Vec1Vec &samples,
-                                          const TDouble10Vec4Vec1Vec &weights) {
+void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec& weightStyles,
+                                          const TDouble10Vec1Vec& samples,
+                                          const TDouble10Vec4Vec1Vec& weights) {
     if (samples.empty()) {
         return;
     }
@@ -330,14 +338,16 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
     TDouble3Vec logLikelihoods;
     TMaxAccumulator maxLogLikelihood;
     TBool3Vec used, uses;
-    for (auto &&model : m_Models) {
+    for (auto&& model : m_Models) {
         bool use = model.second->participatesInModelSelection();
 
         // Update the weights with the marginal likelihoods.
         double logLikelihood = 0.0;
         maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(
-                      weightStyles, samples, weights, logLikelihood)
+            use ? model.second->jointLogMarginalLikelihood(weightStyles,
+                                                           samples,
+                                                           weights,
+                                                           logLikelihood)
                 : maths_t::E_FpOverflowed;
         if (status & maths_t::E_FpFailed) {
             LOG_ERROR("Failed to compute log-likelihood");
@@ -361,10 +371,10 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
 
     TDouble10Vec n(m_Dimension, 0.0);
     try {
-        for (const auto &weight : weights) {
+        for (const auto& weight : weights) {
             add(maths_t::count(m_Dimension, weightStyles, weight), n);
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Failed to add samples: " << e.what());
         return;
     }
@@ -381,7 +391,7 @@ void CMultivariateOneOfNPrior::addSamples(const TWeightStyleVec &weightStyles,
 
         TMaxAccumulator maxLogWeight;
         for (std::size_t i = 0; i < logLikelihoods.size(); ++i) {
-            CModelWeight &weight = m_Models[i].first;
+            CModelWeight& weight = m_Models[i].first;
             if (!uses[i]) {
                 weight.logWeight(MINUS_INF);
             } else if (used[i]) {
@@ -414,7 +424,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
 
     double alpha = ::exp(-this->scaledDecayRate() * time);
 
-    for (auto &&model : m_Models) {
+    for (auto&& model : m_Models) {
         if (!this->isForForecasting()) {
             model.first.age(alpha);
         }
@@ -427,14 +437,14 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
 }
 
 CMultivariateOneOfNPrior::TUnivariatePriorPtrDoublePr
-CMultivariateOneOfNPrior::univariate(const TSize10Vec &marginalize,
-                                     const TSizeDoublePr10Vec &condition) const {
+CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
+                                     const TSizeDoublePr10Vec& condition) const {
     COneOfNPrior::TDoublePriorPtrPrVec models;
     TDouble3Vec weights;
     TMaxAccumulator maxWeight;
     double Z = 0.0;
 
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             TUnivariatePriorPtrDoublePr prior(model.second->univariate(marginalize, condition));
             if (prior.first == 0) {
@@ -451,14 +461,14 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec &marginalize,
         models[i].first *= ::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return std::make_pair(
-        TUnivariatePriorPtr(new COneOfNPrior(models, this->dataType(), this->decayRate())),
-        maxWeight.count() > 0 ? maxWeight[0] : 0.0);
+    return std::make_pair(TUnivariatePriorPtr(
+                              new COneOfNPrior(models, this->dataType(), this->decayRate())),
+                          maxWeight.count() > 0 ? maxWeight[0] : 0.0);
 }
 
 CMultivariateOneOfNPrior::TPriorPtrDoublePr
-CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
-                                    const TSizeDoublePr10Vec &condition) const {
+CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
+                                    const TSizeDoublePr10Vec& condition) const {
     if (m_Dimension == 2) {
         return TPriorPtrDoublePr(TPriorPtr(this->clone()), 0.0);
     }
@@ -468,7 +478,7 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
     TMaxAccumulator maxWeight;
     double Z = 0.0;
 
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             TPriorPtrDoublePr prior(model.second->bivariate(marginalize, condition));
             if (prior.first == 0) {
@@ -485,9 +495,11 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec &marginalize,
         models[i].first *= ::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return std::make_pair(
-        TPriorPtr(new CMultivariateOneOfNPrior(2, models, this->dataType(), this->decayRate())),
-        maxWeight.count() > 0 ? maxWeight[0] : 0.0);
+    return std::make_pair(TPriorPtr(new CMultivariateOneOfNPrior(2,
+                                                                 models,
+                                                                 this->dataType(),
+                                                                 this->decayRate())),
+                          maxWeight.count() > 0 ? maxWeight[0] : 0.0);
 }
 
 TDouble10VecDouble10VecPr CMultivariateOneOfNPrior::marginalLikelihoodSupport(void) const {
@@ -497,7 +509,7 @@ TDouble10VecDouble10VecPr CMultivariateOneOfNPrior::marginalLikelihoodSupport(vo
     TDouble10VecDouble10VecPr result(TDouble10Vec(m_Dimension, MINUS_INF),
                                      TDouble10Vec(m_Dimension, INF));
     TDouble10VecDouble10VecPr modelSupport;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             modelSupport = model.second->marginalLikelihoodSupport();
             result.first = max(result.first, modelSupport.first);
@@ -517,7 +529,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean(void) const {
 
     TDouble10Vec result(m_Dimension, 0.0);
     double w = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
             updateMean(model.second->marginalLikelihoodMean(), wi, result, w);
@@ -527,12 +539,12 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodMean(void) const {
 }
 
 TDouble10Vec
-CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDouble10Vec &value) const {
+CMultivariateOneOfNPrior::nearestMarginalLikelihoodMean(const TDouble10Vec& value) const {
     // See marginalLikelihoodMean for discussion.
 
     TDouble10Vec result(m_Dimension, 0.0);
     double w = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
             updateMean(model.second->nearestMarginalLikelihoodMean(value), wi, result, w);
@@ -557,7 +569,7 @@ TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance(void) c
     // the model if there is strong evidence against it.
 
     double w = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
             updateMean(model.second->marginalLikelihoodCovariance(), wi, result, w);
@@ -573,7 +585,7 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances(void) const {
 
     TDouble10Vec result(m_Dimension, 0.0);
     double w = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         double wi = model.first;
         if (wi > MINIMUM_SIGNIFICANT_WEIGHT) {
             updateMean(model.second->marginalLikelihoodVariances(), wi, result, w);
@@ -583,8 +595,8 @@ TDouble10Vec CMultivariateOneOfNPrior::marginalLikelihoodVariances(void) const {
 }
 
 TDouble10Vec
-CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                 const TDouble10Vec4Vec &weights) const {
+CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                 const TDouble10Vec4Vec& weights) const {
     // We approximate this as the weighted average of the component
     // model modes.
 
@@ -595,12 +607,14 @@ CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec &weightSt
 
     TDouble10Vec result(m_Dimension, 0.0);
     double w = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             sample[0] = model.second->marginalLikelihoodMode(weightStyles, weights);
             double logLikelihood;
-            model.second->jointLogMarginalLikelihood(
-                weightStyles, sample, sampleWeights, logLikelihood);
+            model.second->jointLogMarginalLikelihood(weightStyles,
+                                                     sample,
+                                                     sampleWeights,
+                                                     logLikelihood);
             updateMean(sample[0], model.first * ::exp(logLikelihood), result, w);
         }
     }
@@ -610,10 +624,10 @@ CMultivariateOneOfNPrior::marginalLikelihoodMode(const TWeightStyleVec &weightSt
 }
 
 maths_t::EFloatingPointErrorStatus
-CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                                     const TDouble10Vec1Vec &samples,
-                                                     const TDouble10Vec4Vec1Vec &weights,
-                                                     double &result) const {
+CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                     const TDouble10Vec1Vec& samples,
+                                                     const TDouble10Vec4Vec1Vec& weights,
+                                                     double& result) const {
     result = 0.0;
 
     if (samples.empty()) {
@@ -632,11 +646,14 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
     TMaxAccumulator maxLogLikelihood;
     double Z = 0.0;
 
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->participatesInModelSelection()) {
             double logLikelihood;
-            maths_t::EFloatingPointErrorStatus status = model.second->jointLogMarginalLikelihood(
-                weightStyles, samples, weights, logLikelihood);
+            maths_t::EFloatingPointErrorStatus status =
+                model.second->jointLogMarginalLikelihood(weightStyles,
+                                                         samples,
+                                                         weights,
+                                                         logLikelihood);
             if (status & maths_t::E_FpFailed) {
                 return status;
             }
@@ -677,7 +694,7 @@ CMultivariateOneOfNPrior::jointLogMarginalLikelihood(const TWeightStyleVec &weig
 }
 
 void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
-                                                        TDouble10Vec1Vec &samples) const {
+                                                        TDouble10Vec1Vec& samples) const {
     samples.clear();
 
     if (numberSamples == 0 || this->isNonInformative()) {
@@ -686,11 +703,11 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
 
     TDouble3Vec weights;
     double Z = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         weights.push_back(model.first);
         Z += model.first;
     }
-    for (auto &&weight : weights) {
+    for (auto&& weight : weights) {
         weight /= Z;
     }
 
@@ -723,7 +740,7 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
 }
 
 bool CMultivariateOneOfNPrior::isNonInformative(void) const {
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (model.second->isNonInformative()) {
             return true;
         }
@@ -731,7 +748,7 @@ bool CMultivariateOneOfNPrior::isNonInformative(void) const {
     return false;
 }
 
-void CMultivariateOneOfNPrior::print(const std::string &separator, std::string &result) const {
+void CMultivariateOneOfNPrior::print(const std::string& separator, std::string& result) const {
     result += core_t::LINE_ENDING + separator + " one-of-n";
     if (this->isNonInformative()) {
         result += " non-informative";
@@ -743,7 +760,7 @@ void CMultivariateOneOfNPrior::print(const std::string &separator, std::string &
 
     std::string separator_ = separator + separator;
 
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         double weight = model.first;
         if (weight >= MINIMUM_SIGNIFICANT_WEIGHT) {
             result += core_t::LINE_ENDING + separator_ + " weight " +
@@ -767,14 +784,16 @@ std::size_t CMultivariateOneOfNPrior::memoryUsage(void) const {
     return core::CMemory::dynamicSize(m_Models);
 }
 
-std::size_t CMultivariateOneOfNPrior::staticSize(void) const { return sizeof(*this); }
+std::size_t CMultivariateOneOfNPrior::staticSize(void) const {
+    return sizeof(*this);
+}
 
 std::string CMultivariateOneOfNPrior::persistenceTag(void) const {
     return ONE_OF_N_TAG + core::CStringUtils::typeToString(m_Dimension);
 }
 
-void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
-    for (const auto &model : m_Models) {
+void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    for (const auto& model : m_Models) {
         inserter.insertLevel(MODEL_TAG,
                              boost::bind(&modelAcceptPersistInserter,
                                          boost::cref(model.first),
@@ -782,13 +801,14 @@ void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter
                                          _1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(
-        NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_TAG,
+                         this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 }
 
 CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::weights(void) const {
     TDouble3Vec result = this->logWeights();
-    for (auto &&weight : result) {
+    for (auto&& weight : result) {
         weight = ::exp(weight);
     }
     return result;
@@ -798,12 +818,12 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void)
     TDouble3Vec result;
 
     double Z = 0.0;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         result.push_back(model.first.logWeight());
         Z += ::exp(result.back());
     }
     Z = ::log(Z);
-    for (auto &&weight : result) {
+    for (auto&& weight : result) {
         weight -= Z;
     }
 
@@ -812,14 +832,14 @@ CMultivariateOneOfNPrior::TDouble3Vec CMultivariateOneOfNPrior::logWeights(void)
 
 CMultivariateOneOfNPrior::TPriorCPtr3Vec CMultivariateOneOfNPrior::models(void) const {
     TPriorCPtr3Vec result;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         result.push_back(model.second.get());
     }
     return result;
 }
 
 bool CMultivariateOneOfNPrior::badWeights(void) const {
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         if (!CMathsFuncs::isFinite(model.first.logWeight())) {
             return true;
         }
@@ -833,7 +853,7 @@ std::string CMultivariateOneOfNPrior::debugWeights(void) const {
     }
     std::ostringstream result;
     result << std::scientific << std::setprecision(15);
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         result << " " << model.first.logWeight();
     }
     result << " ";

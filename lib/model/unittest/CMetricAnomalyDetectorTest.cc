@@ -51,7 +51,7 @@ typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
 typedef std::vector<TTimeTimePr> TTimeTimePrVec;
 typedef std::vector<double> TDoubleVec;
 
-bool doIntersect(const TTimeTimePr &i1, const TTimeTimePr &i2) {
+bool doIntersect(const TTimeTimePr& i1, const TTimeTimePr& i2) {
     return !(i2.second <= i1.first || i1.second <= i2.first);
 }
 
@@ -60,12 +60,12 @@ public:
     static const double HIGH_ANOMALY_SCORE;
 
 public:
-    CResultWriter(const model::CAnomalyDetectorModelConfig &modelConfig,
-                  const model::CLimits &limits,
+    CResultWriter(const model::CAnomalyDetectorModelConfig& modelConfig,
+                  const model::CLimits& limits,
                   core_t::TTime bucketLength)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_BucketLength(bucketLength) {}
 
-    void operator()(ml::model::CAnomalyDetector &detector,
+    void operator()(ml::model::CAnomalyDetector& detector,
                     ml::core_t::TTime start,
                     ml::core_t::TTime end) {
         ml::model::CHierarchicalResults results;
@@ -81,8 +81,8 @@ public:
     }
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults &results,
-                       const ml::model::CHierarchicalResults::TNode &node,
+    virtual void visit(const ml::model::CHierarchicalResults& results,
+                       const ml::model::CHierarchicalResults::TNode& node,
                        bool pivot) {
         if (pivot) {
             return;
@@ -115,7 +115,7 @@ public:
     }
 
     bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode &node,
+                    const ml::model::CHierarchicalResults::TNode& node,
                     bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
                   << node.s_Spec.print() << " initial score " << node.probability()
@@ -124,17 +124,17 @@ public:
         return true;
     }
 
-    const TTimeTimePrVec &highAnomalyTimes(void) const { return m_HighAnomalyTimes; }
+    const TTimeTimePrVec& highAnomalyTimes(void) const { return m_HighAnomalyTimes; }
 
-    const TDoubleVec &highAnomalyFactors(void) const { return m_HighAnomalyFactors; }
+    const TDoubleVec& highAnomalyFactors(void) const { return m_HighAnomalyFactors; }
 
-    const TDoubleVec &anomalyFactors(void) const { return m_AnomalyFactors; }
+    const TDoubleVec& anomalyFactors(void) const { return m_AnomalyFactors; }
 
-    const TDoubleVec &anomalyRates(void) const { return m_AnomalyRates; }
+    const TDoubleVec& anomalyRates(void) const { return m_AnomalyRates; }
 
 private:
-    const model::CAnomalyDetectorModelConfig &m_ModelConfig;
-    const model::CLimits &m_Limits;
+    const model::CAnomalyDetectorModelConfig& m_ModelConfig;
+    const model::CLimits& m_Limits;
     core_t::TTime m_BucketLength;
     TTimeTimePrVec m_HighAnomalyTimes;
     TDoubleVec m_HighAnomalyFactors;
@@ -147,9 +147,9 @@ const double CResultWriter::HIGH_ANOMALY_SCORE(0.35);
 void importData(core_t::TTime firstTime,
                 core_t::TTime lastTime,
                 core_t::TTime bucketLength,
-                CResultWriter &outputResults,
-                const std::string &fileName,
-                model::CAnomalyDetector &detector) {
+                CResultWriter& outputResults,
+                const std::string& fileName,
+                model::CAnomalyDetector& detector) {
     test::CTimeSeriesTestData::TTimeDoublePrVec timeData;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(fileName, timeData));
 
@@ -177,9 +177,9 @@ void importData(core_t::TTime firstTime,
 
 void importCsvData(core_t::TTime firstTime,
                    core_t::TTime bucketLength,
-                   CResultWriter &outputResults,
-                   const std::string &fileName,
-                   model::CAnomalyDetector &detector) {
+                   CResultWriter& outputResults,
+                   const std::string& fileName,
+                   model::CAnomalyDetector& detector) {
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
     CPPUNIT_ASSERT(ifs->is_open());
@@ -257,8 +257,8 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
 
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
-    static const core_t::TTime BUCKET_LENGTHS[] = {
-        120, 150, 180, 210, 240, 300, 450, 600, 900, 1200};
+    static const core_t::TTime BUCKET_LENGTHS[] =
+        {120, 150, 180, 210, 240, 300, 450, 600, 900, 1200};
     static const TTimeTimePr ANOMALOUS_INTERVALS[] = {TTimeTimePr(1360576852, 1360578629),
                                                       TTimeTimePr(1360617335, 1360617481)};
 
@@ -269,13 +269,13 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
         model::CLimits limits;
-        model::CSearchKey key(1,// identifier
+        model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
                               model_t::E_XF_None,
                               "n/a",
                               "n/a");
-        model::CAnomalyDetector detector(1,// identifier
+        model::CAnomalyDetector detector(1, // identifier
                                          limits,
                                          modelConfig,
                                          "",
@@ -352,13 +352,13 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     model::CLimits limits;
-    model::CSearchKey key(1,// identifier
+    model::CSearchKey key(1, // identifier
                           model::function_t::E_IndividualMetric,
                           false,
                           model_t::E_XF_None,
                           "responsetime",
                           "Airline");
-    model::CAnomalyDetector origDetector(1,// identifier
+    model::CAnomalyDetector origDetector(1, // identifier
                                          limits,
                                          modelConfig,
                                          EMPTY_STRING,
@@ -383,7 +383,7 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
     LOG_TRACE("Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
-    model::CAnomalyDetector restoredDetector(1,// identifier
+    model::CAnomalyDetector restoredDetector(1, // identifier
                                              limits,
                                              modelConfig,
                                              EMPTY_STRING,
@@ -418,13 +418,13 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         model::CLimits limits;
-        model::CSearchKey key(1,// identifier
+        model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
                               model_t::E_XF_None,
                               "bytes",
                               "host");
-        model::CAnomalyDetector detector(1,// identifier
+        model::CAnomalyDetector detector(1, // identifier
                                          limits,
                                          modelConfig,
                                          "",
@@ -452,13 +452,13 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         model::CLimits limits;
-        model::CSearchKey key(1,// identifier
+        model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric,
                               false,
                               model_t::E_XF_By,
                               "bytes",
                               "host");
-        model::CAnomalyDetector detector(1,// identifier
+        model::CAnomalyDetector detector(1, // identifier
                                          limits,
                                          modelConfig,
                                          "",
@@ -484,16 +484,19 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
     }
 }
 
-CppUnit::Test *CMetricAnomalyDetectorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
+CppUnit::Test* CMetricAnomalyDetectorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testAnomalies", &CMetricAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testPersist", &CMetricAnomalyDetectorTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testExcludeFrequent",
-        &CMetricAnomalyDetectorTest::testExcludeFrequent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testAnomalies",
+                                                      &CMetricAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testPersist",
+                                                      &CMetricAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testExcludeFrequent",
+                                        &CMetricAnomalyDetectorTest::testExcludeFrequent));
 
     return suiteOfTests;
 }

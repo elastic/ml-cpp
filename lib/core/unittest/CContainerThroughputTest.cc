@@ -28,21 +28,27 @@
 const size_t CContainerThroughputTest::FILL_SIZE(2);
 const size_t CContainerThroughputTest::TEST_SIZE(10000000);
 
-CppUnit::Test *CContainerThroughputTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CContainerThroughputTest");
+CppUnit::Test* CContainerThroughputTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CContainerThroughputTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testVector", &CContainerThroughputTest::testVector));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testList", &CContainerThroughputTest::testList));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testDeque", &CContainerThroughputTest::testDeque));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testMap", &CContainerThroughputTest::testMap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testCircBuf", &CContainerThroughputTest::testCircBuf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CContainerThroughputTest>(
-        "CContainerThroughputTest::testMultiIndex", &CContainerThroughputTest::testMultiIndex));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerThroughputTest>("CContainerThroughputTest::testVector",
+                                                          &CContainerThroughputTest::testVector));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerThroughputTest>("CContainerThroughputTest::testList",
+                                                          &CContainerThroughputTest::testList));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerThroughputTest>("CContainerThroughputTest::testDeque",
+                                                          &CContainerThroughputTest::testDeque));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerThroughputTest>("CContainerThroughputTest::testMap",
+                                                          &CContainerThroughputTest::testMap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CContainerThroughputTest>("CContainerThroughputTest::testCircBuf",
+                                                          &CContainerThroughputTest::testCircBuf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CContainerThroughputTest>("CContainerThroughputTest::testMultiIndex",
+                                                    &CContainerThroughputTest::testMultiIndex));
 
     return suiteOfTests;
 }

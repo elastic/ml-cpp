@@ -29,10 +29,10 @@ public:
     void testInvalidQuotedTokenise(void);
     void testQuoteEqualsEscapeTokenise(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     typedef std::ostream_iterator<std::string> TStrOStreamItr;
 };
 
-#endif// INCLUDED_CDelimiterTest_h
+#endif // INCLUDED_CDelimiterTest_h

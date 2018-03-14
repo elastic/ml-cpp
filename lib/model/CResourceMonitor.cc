@@ -54,16 +54,16 @@ CResourceMonitor::CResourceMonitor(void)
     this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
-void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc &reporter) {
+void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc& reporter) {
     m_MemoryUsageReporter = reporter;
 }
 
-void CResourceMonitor::registerComponent(CAnomalyDetector &detector) {
+void CResourceMonitor::registerComponent(CAnomalyDetector& detector) {
     LOG_TRACE("Registering component: " << detector.model());
     m_Models.insert({detector.model().get(), std::size_t(0)});
 }
 
-void CResourceMonitor::unRegisterComponent(CAnomalyDetector &detector) {
+void CResourceMonitor::unRegisterComponent(CAnomalyDetector& detector) {
     auto iter = m_Models.find(detector.model().get());
     if (iter == m_Models.end()) {
         LOG_ERROR("Inconsistency - component has not been registered: " << detector.model());
@@ -110,16 +110,18 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
     m_PruneThreshold = static_cast<std::size_t>(m_ByteLimitHigh / 5 * 3);
 }
 
-model_t::EMemoryStatus CResourceMonitor::getMemoryStatus() { return m_MemoryStatus; }
+model_t::EMemoryStatus CResourceMonitor::getMemoryStatus() {
+    return m_MemoryStatus;
+}
 
-void CResourceMonitor::refresh(CAnomalyDetector &detector) {
+void CResourceMonitor::refresh(CAnomalyDetector& detector) {
     if (m_NoLimit) {
         return;
     }
     this->forceRefresh(detector);
 }
 
-void CResourceMonitor::forceRefresh(CAnomalyDetector &detector) {
+void CResourceMonitor::forceRefresh(CAnomalyDetector& detector) {
     this->memUsage(detector.model().get());
     core::CStatistics::stat(stat_t::E_MemoryUsage).set(this->totalMemory());
     LOG_TRACE("Checking allocations: currently at " << this->totalMemory());
@@ -166,7 +168,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
 
     if (m_HasPruningStarted == false) {
         // The longest we'll consider keeping priors for is 1M buckets.
-        CAnomalyDetectorModel *model = m_Models.begin()->first;
+        CAnomalyDetectorModel* model = m_Models.begin()->first;
         if (model == 0) {
             return false;
         }
@@ -182,7 +184,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         // Do a prune and see how much we got back
         // These are the expensive operations
         std::size_t usageAfter = 0;
-        for (auto &&model : m_Models) {
+        for (auto&& model : m_Models) {
             model.first->prune(m_PruneWindow);
             model.second = model.first->memoryUsage();
             usageAfter += model.second;
@@ -213,7 +215,9 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
     return aboveThreshold;
 }
 
-bool CResourceMonitor::areAllocationsAllowed(void) const { return m_AllowAllocations; }
+bool CResourceMonitor::areAllocationsAllowed(void) const {
+    return m_AllowAllocations;
+}
 
 bool CResourceMonitor::areAllocationsAllowed(std::size_t size) const {
     if (m_AllowAllocations) {
@@ -226,7 +230,7 @@ std::size_t CResourceMonitor::allocationLimit(void) const {
     return m_ByteLimitHigh - std::min(m_ByteLimitHigh, this->totalMemory());
 }
 
-void CResourceMonitor::memUsage(CAnomalyDetectorModel *model) {
+void CResourceMonitor::memUsage(CAnomalyDetectorModel* model) {
     auto iter = m_Models.find(model);
     if (iter == m_Models.end()) {
         LOG_ERROR("Inconsistency - component has not been registered: " << model);
@@ -283,7 +287,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
-    for (const auto &model : m_Models) {
+    for (const auto& model : m_Models) {
         ++res.s_PartitionFields;
         res.s_OverFields += model.first->dataGatherer().numberOverFieldValues();
         res.s_ByFields += model.first->dataGatherer().numberByFieldValues();
@@ -303,7 +307,9 @@ void CResourceMonitor::acceptPruningResult(void) {
     }
 }
 
-bool CResourceMonitor::haveNoLimit(void) const { return m_NoLimit; }
+bool CResourceMonitor::haveNoLimit(void) const {
+    return m_NoLimit;
+}
 
 void CResourceMonitor::addExtraMemory(std::size_t mem) {
     m_ExtraMemory += mem;
@@ -322,5 +328,5 @@ std::size_t CResourceMonitor::totalMemory(void) const {
            CStringStore::influencers().memoryUsage();
 }
 
-}// model
-}// ml
+} // model
+} // ml

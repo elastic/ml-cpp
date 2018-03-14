@@ -33,7 +33,7 @@ typedef maths::CBoundingBox<TVector4> TBoundingBox4;
 
 namespace {
 
-bool closerToX(const TBoundingBox2 &bb, const TVector2 &x, const TVector2 &y) {
+bool closerToX(const TBoundingBox2& bb, const TVector2& x, const TVector2& y) {
     TVector2 cc[] = {bb.blc(), bb.trc()};
     for (std::size_t c = 0u; c < 4; ++c) {
         double p[] = {cc[c / 2](0), cc[c % 2](1)};
@@ -45,7 +45,7 @@ bool closerToX(const TBoundingBox2 &bb, const TVector2 &x, const TVector2 &y) {
     return true;
 }
 
-bool closerToX(const TBoundingBox4 &bb, const TVector4 &x, const TVector4 &y) {
+bool closerToX(const TBoundingBox4& bb, const TVector4& x, const TVector4& y) {
     TVector4 cc[] = {bb.blc(), bb.trc()};
     for (std::size_t c = 0u; c < 16; ++c) {
         double p[] = {cc[c / 8](0), cc[(c / 4) % 2](1), cc[(c / 2) % 2](2), cc[c % 2](3)};
@@ -169,13 +169,14 @@ void CBoundingBoxTest::testCloserTo(void) {
     }
 }
 
-CppUnit::Test *CBoundingBoxTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
+CppUnit::Test* CBoundingBoxTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testAdd",
                                                                     &CBoundingBoxTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>(
-        "CBoundingBoxTest::testCloserTo", &CBoundingBoxTest::testCloserTo));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testCloserTo",
+                                                  &CBoundingBoxTest::testCloserTo));
 
     return suiteOfTests;
 }

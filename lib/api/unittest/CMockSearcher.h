@@ -33,7 +33,7 @@ class CMockDataAdder;
 //!
 class CMockSearcher : public ml::core::CDataSearcher {
 public:
-    CMockSearcher(const CMockDataAdder &mockDataAdder);
+    CMockSearcher(const CMockDataAdder& mockDataAdder);
 
     //! Do a search that results in an input stream.
     //! A return value of NULL indicates a technical problem with the
@@ -42,7 +42,7 @@ public:
     virtual TIStreamP search(size_t currentDocNum, size_t limit);
 
 private:
-    const CMockDataAdder &m_MockDataAdder;
+    const CMockDataAdder& m_MockDataAdder;
 };
 
-#endif// INCLUDED_CMockSearcher_h
+#endif // INCLUDED_CMockSearcher_h

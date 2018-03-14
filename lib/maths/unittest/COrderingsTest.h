@@ -31,7 +31,7 @@ public:
     void testLexicographicalCompare(void);
     void testSimultaneousSort(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_COrderingsTest_h
+#endif // INCLUDED_COrderingsTest_h

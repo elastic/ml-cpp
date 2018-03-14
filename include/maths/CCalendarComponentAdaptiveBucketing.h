@@ -53,13 +53,13 @@ public:
     //! Construct by traversing a state document.
     CCalendarComponentAdaptiveBucketing(double decayRate,
                                         double minimumBucketLength,
-                                        core::CStateRestoreTraverser &traverser);
+                                        core::CStateRestoreTraverser& traverser);
 
     //! Persist by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two bucketing objects.
-    void swap(CCalendarComponentAdaptiveBucketing &other);
+    void swap(CCalendarComponentAdaptiveBucketing& other);
 
     //! Check if the bucketing has been initialized.
     bool initialized(void) const;
@@ -112,7 +112,7 @@ public:
     std::size_t emptyBucketCount(void) const;
 
     //! Get the value at \p time.
-    const TFloatMeanVarAccumulator *value(core_t::TTime time) const;
+    const TFloatMeanVarAccumulator* value(core_t::TTime time) const;
 
     //! Get a set of knot points and knot point values to use for
     //! interpolating the bucket values.
@@ -126,9 +126,9 @@ public:
     //! and false otherwise.
     bool knots(core_t::TTime time,
                CSplineTypes::EBoundaryCondition boundary,
-               TDoubleVec &knots,
-               TDoubleVec &values,
-               TDoubleVec &variances) const;
+               TDoubleVec& knots,
+               TDoubleVec& values,
+               TDoubleVec& variances) const;
 
     //! Get a checksum for this object.
     uint64_t checksum(uint64_t seed = 0) const;
@@ -142,7 +142,7 @@ public:
     //! \name Test Functions
     //@{
     //! Get the bucket end points.
-    const TFloatVec &endpoints(void) const;
+    const TFloatVec& endpoints(void) const;
 
     //! Get the total count of in the bucketing.
     double count(void) const;
@@ -159,7 +159,7 @@ private:
 
 private:
     //! Restore by traversing a state document
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Compute the values corresponding to the change in end
     //! points from \p endpoints. The values are assigned based
@@ -167,7 +167,7 @@ private:
     //! bucket configuration.
     //!
     //! \param[in] endpoints The old end points.
-    void refresh(const TFloatVec &endpoints);
+    void refresh(const TFloatVec& endpoints);
 
     //! Check if \p time is in the this component's window.
     virtual bool inWindow(core_t::TTime time) const;
@@ -196,11 +196,11 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CCalendarComponentAdaptiveBucketing &lhs,
-                 CCalendarComponentAdaptiveBucketing &rhs) {
+inline void swap(CCalendarComponentAdaptiveBucketing& lhs,
+                 CCalendarComponentAdaptiveBucketing& rhs) {
     lhs.swap(rhs);
 }
 }
 }
 
-#endif// INCLUDED_ml_maths_CCalendarComponentAdaptiveBucketing_h
+#endif // INCLUDED_ml_maths_CCalendarComponentAdaptiveBucketing_h

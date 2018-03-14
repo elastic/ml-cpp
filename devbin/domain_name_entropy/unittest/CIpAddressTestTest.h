@@ -22,7 +22,7 @@ public:
     void testIpv4(void);
     void testIpv6(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CIpAddressTestTest_h
+#endif // INCLUDED_CIpAddressTestTest_h

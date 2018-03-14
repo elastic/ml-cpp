@@ -30,28 +30,30 @@ CDetectionRule::CDetectionRule(void)
     m_Conditions.reserve(1);
 }
 
-void CDetectionRule::action(int action) { m_Action = action; }
+void CDetectionRule::action(int action) {
+    m_Action = action;
+}
 
 void CDetectionRule::conditionsConnective(EConditionsConnective connective) {
     m_ConditionsConnective = connective;
 }
 
-void CDetectionRule::addCondition(const CRuleCondition &condition) {
+void CDetectionRule::addCondition(const CRuleCondition& condition) {
     m_Conditions.push_back(condition);
 }
 
-void CDetectionRule::targetFieldName(const std::string &targetFieldName) {
+void CDetectionRule::targetFieldName(const std::string& targetFieldName) {
     m_TargetFieldName = targetFieldName;
 }
 
-void CDetectionRule::targetFieldValue(const std::string &targetFieldValue) {
+void CDetectionRule::targetFieldValue(const std::string& targetFieldValue) {
     m_TargetFieldValue = targetFieldValue;
 }
 
 bool CDetectionRule::apply(ERuleAction action,
-                           const CAnomalyDetectorModel &model,
+                           const CAnomalyDetectorModel& model,
                            model_t::EFeature feature,
-                           const model_t::CResultType &resultType,
+                           const model_t::CResultType& resultType,
                            std::size_t pid,
                            std::size_t cid,
                            core_t::TTime time) const {
@@ -64,8 +66,9 @@ bool CDetectionRule::apply(ERuleAction action,
     }
 
     for (std::size_t i = 0; i < m_Conditions.size(); ++i) {
-        bool conditionResult = m_Conditions[i].test(
-            model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
+        bool conditionResult =
+            m_Conditions[i]
+                .test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
         switch (m_ConditionsConnective) {
             case E_Or:
                 if (conditionResult == true) {
@@ -89,14 +92,14 @@ bool CDetectionRule::apply(ERuleAction action,
     return false;
 }
 
-bool CDetectionRule::isInScope(const CAnomalyDetectorModel &model,
+bool CDetectionRule::isInScope(const CAnomalyDetectorModel& model,
                                std::size_t pid,
                                std::size_t cid) const {
     if (m_TargetFieldName.empty() || m_TargetFieldValue.empty()) {
         return true;
     }
 
-    const CDataGatherer &gatherer = model.dataGatherer();
+    const CDataGatherer& gatherer = model.dataGatherer();
     if (m_TargetFieldName == gatherer.partitionFieldName()) {
         return m_TargetFieldValue == gatherer.partitionFieldValue();
     } else if (m_TargetFieldName == gatherer.personFieldName()) {

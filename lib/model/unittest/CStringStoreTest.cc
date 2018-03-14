@@ -32,16 +32,16 @@ namespace {
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<std::string> TStrVec;
 typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
-typedef boost::unordered_set<const std::string *> TStrCPtrUSet;
+typedef boost::unordered_set<const std::string*> TStrCPtrUSet;
 
 class CStringThread : public core::CThread {
 public:
     typedef boost::shared_ptr<CppUnit::Exception> TCppUnitExceptionP;
 
 public:
-    CStringThread(std::size_t i, const TStrVec &strings) : m_I(i), m_Strings(strings) {}
+    CStringThread(std::size_t i, const TStrVec& strings) : m_I(i), m_Strings(strings) {}
 
-    void uniques(TStrCPtrUSet &result) const {
+    void uniques(TStrCPtrUSet& result) const {
         result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
     }
 
@@ -74,7 +74,7 @@ private:
         }
         // CppUnit won't automatically catch the exceptions thrown by
         // assertions in newly created threads, so propagate manually
-        catch (CppUnit::Exception &e) {
+        catch (CppUnit::Exception& e) {
             m_LastException.reset(new CppUnit::Exception(e));
         }
     }
@@ -250,13 +250,15 @@ void CStringStoreTest::testMemUsage(void) {
     CPPUNIT_ASSERT_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
 
-CppUnit::Test *CStringStoreTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
+CppUnit::Test* CStringStoreTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
-        "CStringStoreTest::testStringStore", &CStringStoreTest::testStringStore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
-        "CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore",
+                                                  &CStringStoreTest::testStringStore));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage",
+                                                  &CStringStoreTest::testMemUsage));
 
     return suiteOfTests;
 }

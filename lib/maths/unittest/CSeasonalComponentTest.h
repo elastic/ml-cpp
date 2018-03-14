@@ -27,7 +27,7 @@ public:
     void testVariance(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSeasonalComponentTest_h
+#endif // INCLUDED_CSeasonalComponentTest_h

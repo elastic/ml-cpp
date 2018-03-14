@@ -31,19 +31,19 @@ namespace config {
 //! large w.r.t. the observed data span.
 class CONFIG_EXPORT CSpanTooSmallForBucketLengthPenalty : public CPenalty {
 public:
-    CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams &params);
+    CSpanTooSmallForBucketLengthPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CSpanTooSmallForBucketLengthPenalty *clone(void) const;
+    virtual CSpanTooSmallForBucketLengthPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
 
 private:
     //! Compute a penalty for rare detectors.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CSpanTooSmallForBucketLengthPenalty_h
+#endif // INCLUDED_ml_config_CSpanTooSmallForBucketLengthPenalty_h

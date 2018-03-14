@@ -22,12 +22,14 @@
 #include <sstream>
 #include <string>
 
-CppUnit::Test *CStateRestoreStreamFilterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
+CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CStateRestoreStreamFilterTest>("CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
+                                           &CStateRestoreStreamFilterTest::
+                                               testBulkIndexHeaderRemoval));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
         "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
         &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));

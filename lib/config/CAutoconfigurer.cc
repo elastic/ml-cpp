@@ -66,16 +66,16 @@ public:
     typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
 public:
-    CAutoconfigurerImpl(const CAutoconfigurerParams &params, CReportWriter &reportWriter);
+    CAutoconfigurerImpl(const CAutoconfigurerParams& params, CReportWriter& reportWriter);
 
     //! Receive a single record to be processed.
-    bool handleRecord(const TStrStrUMap &fieldValues);
+    bool handleRecord(const TStrStrUMap& fieldValues);
 
     //! Generate the report.
     void finalise(void);
 
     //! Get the report writer.
-    CReportWriter &reportWriter(void);
+    CReportWriter& reportWriter(void);
 
     //! How many records did we handle?
     uint64_t numRecordsHandled(void) const;
@@ -89,17 +89,17 @@ private:
 
 private:
     //! Extract the time from \p fieldValues.
-    bool extractTime(const TStrStrUMap &fieldValues, core_t::TTime &time) const;
+    bool extractTime(const TStrStrUMap& fieldValues, core_t::TTime& time) const;
 
     //! Initialize the field statistics.
-    void initializeFieldStatisticsOnce(const TStrStrUMap &fieldValues);
+    void initializeFieldStatisticsOnce(const TStrStrUMap& fieldValues);
 
     //! Actually process the content of the record.
-    void processRecord(core_t::TTime time, const TStrStrUMap &dataRowFields);
+    void processRecord(core_t::TTime time, const TStrStrUMap& dataRowFields);
 
     //! Update the statistics with \p time and \p fieldValues and maybe
     //! recompute detector scores and prune.
-    void updateStatisticsAndMaybeComputeScores(core_t::TTime time, const TStrStrUMap &fieldValues);
+    void updateStatisticsAndMaybeComputeScores(core_t::TTime time, const TStrStrUMap& fieldValues);
 
     //! Compute the detector scores.
     void computeScores(bool final);
@@ -151,37 +151,47 @@ private:
     CDetectorRecordDirectAddressTable m_DetectorRecordFactory;
 
     //! Writes out a report on the data and recommended configurations.
-    CReportWriter &m_ReportWriter;
+    CReportWriter& m_ReportWriter;
 };
 
 //////// CAutoconfigurer ////////
 
-CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams &params, CReportWriter &reportWriter)
+CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter)
     : m_Impl(new CAutoconfigurerImpl(params, reportWriter)) {}
 
-void CAutoconfigurer::newOutputStream(void) { m_Impl->reportWriter().newOutputStream(); }
+void CAutoconfigurer::newOutputStream(void) {
+    m_Impl->reportWriter().newOutputStream();
+}
 
-bool CAutoconfigurer::handleRecord(const TStrStrUMap &fieldValues) {
+bool CAutoconfigurer::handleRecord(const TStrStrUMap& fieldValues) {
     return m_Impl->handleRecord(fieldValues);
 }
 
-void CAutoconfigurer::finalise(void) { m_Impl->finalise(); }
+void CAutoconfigurer::finalise(void) {
+    m_Impl->finalise();
+}
 
-bool CAutoconfigurer::restoreState(core::CDataSearcher & /*restoreSearcher*/,
-                                   core_t::TTime & /*completeToTime*/) {
+bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/,
+                                   core_t::TTime& /*completeToTime*/) {
     return true;
 }
 
-bool CAutoconfigurer::persistState(core::CDataAdder & /*persister*/) { return true; }
+bool CAutoconfigurer::persistState(core::CDataAdder& /*persister*/) {
+    return true;
+}
 
-uint64_t CAutoconfigurer::numRecordsHandled(void) const { return m_Impl->numRecordsHandled(); }
+uint64_t CAutoconfigurer::numRecordsHandled(void) const {
+    return m_Impl->numRecordsHandled();
+}
 
-api::COutputHandler &CAutoconfigurer::outputHandler(void) { return m_Impl->reportWriter(); }
+api::COutputHandler& CAutoconfigurer::outputHandler(void) {
+    return m_Impl->reportWriter();
+}
 
 //////// CAutoconfigurerImpl ////////
 
-CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams &params,
-                                         CReportWriter &reportWriter)
+CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params,
+                                         CReportWriter& reportWriter)
     : m_Params(params),
       m_Initialized(false),
       m_NumberRecords(0),
@@ -193,7 +203,7 @@ CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams &params,
       m_GeneratedCandidateFieldNames(false),
       m_ReportWriter(reportWriter) {}
 
-bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap &fieldValues) {
+bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap& fieldValues) {
     ++m_NumberRecords;
 
     if (reportProgress(m_NumberRecords)) {
@@ -220,16 +230,16 @@ void CAutoconfigurerImpl::finalise(void) {
     m_ReportWriter.addInvalidRecords(m_NumberRecordsWithNoOrInvalidTime);
 
     for (std::size_t i = 0u; i < m_FieldStatistics.size(); ++i) {
-        const std::string &name = m_FieldStatistics[i].name();
+        const std::string& name = m_FieldStatistics[i].name();
         config_t::EDataType type = m_FieldStatistics[i].type();
-        if (const CDataSummaryStatistics *summary = m_FieldStatistics[i].summary()) {
+        if (const CDataSummaryStatistics* summary = m_FieldStatistics[i].summary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
-        if (const CCategoricalDataSummaryStatistics *summary =
+        if (const CCategoricalDataSummaryStatistics* summary =
                 m_FieldStatistics[i].categoricalSummary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
-        if (const CNumericDataSummaryStatistics *summary = m_FieldStatistics[i].numericSummary()) {
+        if (const CNumericDataSummaryStatistics* summary = m_FieldStatistics[i].numericSummary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
     }
@@ -243,11 +253,15 @@ void CAutoconfigurerImpl::finalise(void) {
     LOG_TRACE("CAutoconfigurerImpl::finalise done");
 }
 
-CReportWriter &CAutoconfigurerImpl::reportWriter(void) { return m_ReportWriter; }
+CReportWriter& CAutoconfigurerImpl::reportWriter(void) {
+    return m_ReportWriter;
+}
 
-uint64_t CAutoconfigurerImpl::numRecordsHandled(void) const { return m_NumberRecords; }
+uint64_t CAutoconfigurerImpl::numRecordsHandled(void) const {
+    return m_NumberRecords;
+}
 
-bool CAutoconfigurerImpl::extractTime(const TStrStrUMap &fieldValues, core_t::TTime &time) const {
+bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues, core_t::TTime& time) const {
     TStrStrUMapCItr i = fieldValues.find(m_Params.timeFieldName());
 
     if (i == fieldValues.end()) {
@@ -275,14 +289,14 @@ bool CAutoconfigurerImpl::extractTime(const TStrStrUMap &fieldValues, core_t::TT
     return true;
 }
 
-void CAutoconfigurerImpl::initializeFieldStatisticsOnce(const TStrStrUMap &fieldValues) {
+void CAutoconfigurerImpl::initializeFieldStatisticsOnce(const TStrStrUMap& fieldValues) {
     if (m_Initialized) {
         return;
     }
 
     m_FieldStatistics.reserve(fieldValues.size());
-    for (const auto &entry : fieldValues) {
-        const std::string &fieldName = entry.first;
+    for (const auto& entry : fieldValues) {
+        const std::string& fieldName = entry.first;
         if (fieldName != m_Params.timeFieldName() && m_Params.fieldOfInterest(fieldName)) {
             LOG_DEBUG("Adding field '" << fieldName << "'");
             m_FieldStatistics.push_back(CFieldStatistics(fieldName, m_Params));
@@ -292,7 +306,7 @@ void CAutoconfigurerImpl::initializeFieldStatisticsOnce(const TStrStrUMap &field
     m_Initialized = true;
 }
 
-void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap &fieldValues) {
+void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap& fieldValues) {
     for (std::size_t i = 0u; i < m_FieldStatistics.size(); ++i) {
         TStrStrUMapCItr j = fieldValues.find(m_FieldStatistics[i].name());
         if (j != fieldValues.end()) {
@@ -310,7 +324,7 @@ void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap &f
 }
 
 void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime time,
-                                                                const TStrStrUMap &fieldValues) {
+                                                                const TStrStrUMap& fieldValues) {
     CDetectorRecordDirectAddressTable::TDetectorRecordVec records;
     m_DetectorRecordFactory.detectorRecords(time, fieldValues, m_CandidateDetectors, records);
     m_DetectorCountStatistics.add(records);
@@ -355,8 +369,8 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void) {
 
     LOG_DEBUG("Generate Candidate Detectors:");
 
-    typedef void (CDetectorEnumerator::*TAddField)(const std::string &);
-    typedef bool (CAutoconfigurerParams::*TCanUse)(const std::string &) const;
+    typedef void (CDetectorEnumerator::*TAddField)(const std::string&);
+    typedef bool (CAutoconfigurerParams::*TCanUse)(const std::string&) const;
 
     CDetectorEnumerator enumerator(m_Params);
     for (std::size_t i = 0u; i < m_Params.functionsCategoriesToConfigure().size(); ++i) {
@@ -381,15 +395,16 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void) {
                                     &CAutoconfigurerParams::canUseForByField,
                                     &CAutoconfigurerParams::canUseForOverField,
                                     &CAutoconfigurerParams::canUseForPartitionField};
-        double scores[] = {
-            m_FieldStatistics[i].score(m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
-            m_FieldStatistics[i].score(m_FieldRolePenalties.metricFunctionArgumentPenalty()),
-            m_FieldStatistics[i].score(m_FieldRolePenalties.byPenalty()),
-            m_FieldStatistics[i].score(m_FieldRolePenalties.rareByPenalty()),
-            m_FieldStatistics[i].score(m_FieldRolePenalties.overPenalty()),
-            m_FieldStatistics[i].score(m_FieldRolePenalties.partitionPenalty())};
+        double scores[] = {m_FieldStatistics[i].score(
+                               m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
+                           m_FieldStatistics[i].score(
+                               m_FieldRolePenalties.metricFunctionArgumentPenalty()),
+                           m_FieldStatistics[i].score(m_FieldRolePenalties.byPenalty()),
+                           m_FieldStatistics[i].score(m_FieldRolePenalties.rareByPenalty()),
+                           m_FieldStatistics[i].score(m_FieldRolePenalties.overPenalty()),
+                           m_FieldStatistics[i].score(m_FieldRolePenalties.partitionPenalty())};
 
-        const std::string &fieldName = m_FieldStatistics[i].name();
+        const std::string& fieldName = m_FieldStatistics[i].name();
         for (std::size_t j = 0u; j < boost::size(FIELD_NAMES); ++j) {
             if ((m_Params.*CAN_USE[j])(fieldName) && scores[j] > 0.0) {
                 LOG_DEBUG(FIELD_NAMES[j] << " '" << fieldName << "' with score " << scores[j]);
@@ -406,7 +421,7 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void) {
     m_DetectorRecordFactory.build(m_CandidateDetectors);
 
     for (std::size_t i = 0u; i < m_CandidateDetectors.size(); ++i) {
-        CDetectorSpecification &spec = m_CandidateDetectors[i];
+        CDetectorSpecification& spec = m_CandidateDetectors[i];
         spec.addFieldStatistics(m_FieldStatistics);
         spec.setPenalty(m_DetectorPenalties.penaltyFor(spec));
         spec.setCountStatistics(m_DetectorCountStatistics.statistics(spec));

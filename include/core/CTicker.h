@@ -36,10 +36,11 @@ namespace core {
 //! The method is templated - we could use boost function
 //! objects for this but there is complexity with scope.
 //!
-template <typename RECEIVER> class CTicker : public CThread {
+template <typename RECEIVER>
+class CTicker : public CThread {
 public:
     //! Timeout is in milliseconds
-    CTicker(uint32_t timeOut, RECEIVER &receiver)
+    CTicker(uint32_t timeOut, RECEIVER& receiver)
         : m_Condition(m_Mutex), m_Quit(false), m_TimeOut(timeOut), m_Receiver(receiver) {}
 
     //! Destructor will stop the ticker thread if it's already running
@@ -82,9 +83,9 @@ private:
     uint32_t m_TimeOut;
 
     //! Reference to the object whose tick() method will be called
-    RECEIVER &m_Receiver;
+    RECEIVER& m_Receiver;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CTicker_h
+#endif // INCLUDED_ml_core_CTicker_h

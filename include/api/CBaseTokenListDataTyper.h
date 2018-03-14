@@ -91,12 +91,12 @@ public:
     //! Used for stream output of token IDs translated back to the original
     //! tokens
     struct API_EXPORT SIdTranslater {
-        SIdTranslater(const CBaseTokenListDataTyper &typer,
-                      const TSizeSizePrVec &tokenIds,
+        SIdTranslater(const CBaseTokenListDataTyper& typer,
+                      const TSizeSizePrVec& tokenIds,
                       char separator);
 
-        const CBaseTokenListDataTyper &s_Typer;
-        const TSizeSizePrVec &s_TokenIds;
+        const CBaseTokenListDataTyper& s_Typer;
+        const TSizeSizePrVec& s_TokenIds;
         char s_Separator;
     };
 
@@ -104,9 +104,9 @@ public:
     //! Create a data typer with threshold for how comparable types are
     //! 0.0 means everything is the same type
     //! 1.0 means things have to match exactly to be the same type
-    CBaseTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr &reverseSearchCreator,
+    CBaseTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                             double threshold,
-                            const std::string &fieldName);
+                            const std::string& fieldName);
 
     //! Dump stats
     virtual void dumpStats(void) const;
@@ -116,8 +116,8 @@ public:
     //! have the date stripped out of it.  Field names/values are available
     //! to the type computation.
     virtual int computeType(bool dryRun,
-                            const TStrStrUMap &fields,
-                            const std::string &str,
+                            const TStrStrUMap& fields,
+                            const std::string& str,
                             size_t rawStringLen);
 
     // Bring the other overload of computeType() into scope
@@ -128,19 +128,19 @@ public:
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned type.
     virtual bool createReverseSearch(int type,
-                                     std::string &part1,
-                                     std::string &part2,
-                                     size_t &maxMatchingLength,
-                                     bool &wasCached);
+                                     std::string& part1,
+                                     std::string& part2,
+                                     size_t& maxMatchingLength,
+                                     bool& wasCached);
 
     //! Has the data typer's state changed?
     virtual bool hasChanged(void) const;
 
     //! Populate the object from part of a state document
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Make a function that can be called later to persist state
     virtual TPersistFunc makePersistFunc(void) const;
@@ -149,23 +149,23 @@ protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    virtual void tokeniseString(const TStrStrUMap &fields,
-                                const std::string &str,
-                                TSizeSizePrVec &tokenIds,
-                                TSizeSizeMap &tokenUniqueIds,
-                                size_t &totalWeight) = 0;
+    virtual void tokeniseString(const TStrStrUMap& fields,
+                                const std::string& str,
+                                TSizeSizePrVec& tokenIds,
+                                TSizeSizeMap& tokenUniqueIds,
+                                size_t& totalWeight) = 0;
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void tokenToIdAndWeight(const std::string &token,
-                                    TSizeSizePrVec &tokenIds,
-                                    TSizeSizeMap &tokenUniqueIds,
-                                    size_t &totalWeight) = 0;
+    virtual void tokenToIdAndWeight(const std::string& token,
+                                    TSizeSizePrVec& tokenIds,
+                                    TSizeSizeMap& tokenUniqueIds,
+                                    size_t& totalWeight) = 0;
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec &left,
+    virtual double similarity(const TSizeSizePrVec& left,
                               size_t leftWeight,
-                              const TSizeSizePrVec &right,
+                              const TSizeSizePrVec& right,
                               size_t rightWeight) const = 0;
 
     //! Used to hold statistics about the types we compute:
@@ -176,12 +176,12 @@ protected:
 
     //! Add a match to an existing type
     void addTypeMatch(bool isDryRun,
-                      const std::string &str,
+                      const std::string& str,
                       size_t rawStringLen,
-                      const TSizeSizePrVec &tokenIds,
-                      const TSizeSizeMap &tokenUniqueIds,
+                      const TSizeSizePrVec& tokenIds,
+                      const TSizeSizeMap& tokenUniqueIds,
                       double similarity,
-                      TSizeSizePrListItr &iter);
+                      TSizeSizePrListItr& iter);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! the minimum possible token weight in a different vector that could
@@ -195,16 +195,16 @@ protected:
 
     //! Get the unique token ID for a given token (assigning one if it's
     //! being seen for the first time)
-    size_t idForToken(const std::string &token);
+    size_t idForToken(const std::string& token);
 
 private:
     //! Value type for the TTokenMIndex below
     class CTokenInfoItem {
     public:
-        CTokenInfoItem(const std::string &str, size_t index);
+        CTokenInfoItem(const std::string& str, size_t index);
 
         //! Accessors
-        const std::string &str(void) const;
+        const std::string& str(void) const;
         size_t index(void) const;
         size_t typeCount(void) const;
         void typeCount(size_t typeCount);
@@ -230,7 +230,8 @@ private:
 
         //! PAIRTYPE can be any struct with a data member named "first"
         //! that can be checked for equality to a size_t
-        template <typename PAIRTYPE> bool operator()(const PAIRTYPE &lhs) const {
+        template <typename PAIRTYPE>
+        bool operator()(const PAIRTYPE& lhs) const {
             return lhs.first == m_Value;
         }
 
@@ -255,19 +256,19 @@ private:
 
 private:
     //! Used by deferred persistence functions
-    static void acceptPersistInserter(const TTokenMIndex &tokenIdLookup,
-                                      const TTokenListTypeVec &types,
-                                      core::CStatePersistInserter &inserter);
+    static void acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
+                                      const TTokenListTypeVec& types,
+                                      core::CStatePersistInserter& inserter);
 
     //! Given a string containing comma separated pre-tokenised input, add
     //! the tokens to the working data structures in the same way as if they
     //! had been determined by the tokeniseString() method.  The result of
     //! the tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    bool addPretokenisedTokens(const std::string &tokensCsv,
-                               TSizeSizePrVec &tokenIds,
-                               TSizeSizeMap &tokenUniqueIds,
-                               size_t &totalWeight);
+    bool addPretokenisedTokens(const std::string& tokensCsv,
+                               TSizeSizePrVec& tokenIds,
+                               TSizeSizeMap& tokenUniqueIds,
+                               size_t& totalWeight);
 
 private:
     //! Reference to the object we'll use to create reverse searches
@@ -309,12 +310,12 @@ private:
     friend class ::CBaseTokenListDataTyperTest;
 
     // For ostream output
-    friend API_EXPORT std::ostream &operator<<(std::ostream &, const SIdTranslater &);
+    friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
 };
 
-API_EXPORT std::ostream &operator<<(std::ostream &strm,
-                                    const CBaseTokenListDataTyper::SIdTranslater &translator);
+API_EXPORT std::ostream& operator<<(std::ostream& strm,
+                                    const CBaseTokenListDataTyper::SIdTranslater& translator);
 }
 }
 
-#endif// INCLUDED_ml_api_CBaseTokenListDataTyper_h
+#endif // INCLUDED_ml_api_CBaseTokenListDataTyper_h

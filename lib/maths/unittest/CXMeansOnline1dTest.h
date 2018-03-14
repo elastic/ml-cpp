@@ -32,7 +32,7 @@ public:
     void testPersist(void);
     void testPruneEmptyCluster(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CXMeansOnline1dTest_h
+#endif // INCLUDED_CXMeansOnline1dTest_h

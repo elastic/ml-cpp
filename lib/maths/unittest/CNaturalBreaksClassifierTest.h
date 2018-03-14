@@ -25,7 +25,7 @@ public:
     void testSample(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CNaturalBreaksClassifierTest_h
+#endif // INCLUDED_CNaturalBreaksClassifierTest_h

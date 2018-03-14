@@ -42,14 +42,14 @@ public:
         // Close the handles to any child processes that outlived us
         CScopedLock lock(m_Mutex);
 
-        for (const auto &entry : m_Pids) {
+        for (const auto& entry : m_Pids) {
             CloseHandle(entry.second);
         }
     }
 
     //! Mutex is accessible so the code outside the class can avoid race
     //! conditions.
-    CMutex &mutex(void) { return m_Mutex; }
+    CMutex& mutex(void) { return m_Mutex; }
 
     //! Add a PID to track, together with its corresponding process handle.
     void addPid(CProcess::TPid pid, HANDLE processHandle) {
@@ -83,7 +83,7 @@ public:
         CScopedLock lock(m_Mutex);
         // Do an extra cycle of waiting for zombies, so we give the most
         // up-to-date answer possible
-        const_cast<CTrackerThread *>(this)->checkForDeadChildren();
+        const_cast<CTrackerThread*>(this)->checkForDeadChildren();
         auto iter = m_Pids.find(pid);
         return iter == m_Pids.end() ? INVALID_HANDLE_VALUE : iter->second;
     }
@@ -143,7 +143,7 @@ private:
 };
 }
 
-CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec &permittedProcessPaths)
+CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec& permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths),
       m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
     if (m_TrackerThread->start() == false) {
@@ -157,14 +157,14 @@ CDetachedProcessSpawner::~CDetachedProcessSpawner(void) {
     }
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string &processPath, const TStrVec &args) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath, const TStrVec& args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string &processPath,
-                                    const TStrVec &args,
-                                    CProcess::TPid &childPid) {
+bool CDetachedProcessSpawner::spawn(const std::string& processPath,
+                                    const TStrVec& args,
+                                    CProcess::TPid& childPid) {
     if (std::find(m_PermittedProcessPaths.begin(), m_PermittedProcessPaths.end(), processPath) ==
         m_PermittedProcessPaths.end()) {
         LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
@@ -195,7 +195,7 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         CScopedLock lock(m_TrackerThread->mutex());
 
         if (CreateProcess((processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
-                          const_cast<char *>(cmdLine.c_str()),
+                          const_cast<char*>(cmdLine.c_str()),
                           0,
                           0,
                           FALSE,

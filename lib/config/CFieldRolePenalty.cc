@@ -32,20 +32,26 @@ const std::string EMPTY;
 const std::string SPACE(" ");
 
 //! Get the penalty description prefix.
-std::string prefix(const std::string &description) { return description.empty() ? EMPTY : SPACE; }
+std::string prefix(const std::string& description) {
+    return description.empty() ? EMPTY : SPACE;
+}
 }
 
 //////// CCantBeNumeric ////////
 
-CCantBeNumeric::CCantBeNumeric(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CCantBeNumeric::CCantBeNumeric(const CAutoconfigurerParams& params) : CPenalty(params) {}
 
-CCantBeNumeric *CCantBeNumeric::clone(void) const { return new CCantBeNumeric(*this); }
+CCantBeNumeric* CCantBeNumeric::clone(void) const {
+    return new CCantBeNumeric(*this);
+}
 
-std::string CCantBeNumeric::name(void) const { return "can't be numeric"; }
+std::string CCantBeNumeric::name(void) const {
+    return "can't be numeric";
+}
 
-void CCantBeNumeric::penaltyFromMe(const CFieldStatistics &stats,
-                                   double &penalty,
-                                   std::string &description) const {
+void CCantBeNumeric::penaltyFromMe(const CFieldStatistics& stats,
+                                   double& penalty,
+                                   std::string& description) const {
     if (config_t::isNumeric(stats.type())) {
         penalty = 0.0;
         description += prefix(description) + "Can't use numeric";
@@ -54,15 +60,19 @@ void CCantBeNumeric::penaltyFromMe(const CFieldStatistics &stats,
 
 //////// CCantBeCategorical ////////
 
-CCantBeCategorical::CCantBeCategorical(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CCantBeCategorical::CCantBeCategorical(const CAutoconfigurerParams& params) : CPenalty(params) {}
 
-CCantBeCategorical *CCantBeCategorical::clone(void) const { return new CCantBeCategorical(*this); }
+CCantBeCategorical* CCantBeCategorical::clone(void) const {
+    return new CCantBeCategorical(*this);
+}
 
-std::string CCantBeCategorical::name(void) const { return "Can't be categorical"; }
+std::string CCantBeCategorical::name(void) const {
+    return "Can't be categorical";
+}
 
-void CCantBeCategorical::penaltyFromMe(const CFieldStatistics &stats,
-                                       double &penalty,
-                                       std::string &description) const {
+void CCantBeCategorical::penaltyFromMe(const CFieldStatistics& stats,
+                                       double& penalty,
+                                       std::string& description) const {
     if (config_t::isCategorical(stats.type())) {
         penalty = 0.0;
         description += prefix(description) + "Can't use categorical";
@@ -71,16 +81,20 @@ void CCantBeCategorical::penaltyFromMe(const CFieldStatistics &stats,
 
 //////// CDontUseUnaryField ////////
 
-CDontUseUnaryField::CDontUseUnaryField(const CAutoconfigurerParams &params) : CPenalty(params) {}
+CDontUseUnaryField::CDontUseUnaryField(const CAutoconfigurerParams& params) : CPenalty(params) {}
 
-CDontUseUnaryField *CDontUseUnaryField::clone(void) const { return new CDontUseUnaryField(*this); }
+CDontUseUnaryField* CDontUseUnaryField::clone(void) const {
+    return new CDontUseUnaryField(*this);
+}
 
-std::string CDontUseUnaryField::name(void) const { return "don't use unary field"; }
+std::string CDontUseUnaryField::name(void) const {
+    return "don't use unary field";
+}
 
-void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics &stats,
-                                       double &penalty,
-                                       std::string &description) const {
-    if (const CCategoricalDataSummaryStatistics *summary = stats.categoricalSummary()) {
+void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics& stats,
+                                       double& penalty,
+                                       std::string& description) const {
+    if (const CCategoricalDataSummaryStatistics* summary = stats.categoricalSummary()) {
         if (summary->distinctCount() == 1) {
             penalty = 0.0;
             description += prefix(description) + "There's no point using a unary field";
@@ -91,14 +105,14 @@ void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics &stats,
 //////// CDistinctCountThreshold ////////
 
 CDistinctCountThresholdPenalty::CDistinctCountThresholdPenalty(
-    const CAutoconfigurerParams &params,
+    const CAutoconfigurerParams& params,
     std::size_t distinctCountForPenaltyOfOne,
     std::size_t distinctCountForPenaltyOfZero)
     : CPenalty(params),
       m_DistinctCountForPenaltyOfOne(static_cast<double>(distinctCountForPenaltyOfOne)),
       m_DistinctCountForPenaltyOfZero(static_cast<double>(distinctCountForPenaltyOfZero)) {}
 
-CDistinctCountThresholdPenalty *CDistinctCountThresholdPenalty::clone(void) const {
+CDistinctCountThresholdPenalty* CDistinctCountThresholdPenalty::clone(void) const {
     return new CDistinctCountThresholdPenalty(*this);
 }
 
@@ -108,10 +122,10 @@ std::string CDistinctCountThresholdPenalty::name(void) const {
            core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfOne);
 }
 
-void CDistinctCountThresholdPenalty::penaltyFromMe(const CFieldStatistics &stats,
-                                                   double &penalty,
-                                                   std::string &description) const {
-    if (const CCategoricalDataSummaryStatistics *summary = stats.categoricalSummary()) {
+void CDistinctCountThresholdPenalty::penaltyFromMe(const CFieldStatistics& stats,
+                                                   double& penalty,
+                                                   std::string& description) const {
+    if (const CCategoricalDataSummaryStatistics* summary = stats.categoricalSummary()) {
         double penalty_ = CTools::interpolate(m_DistinctCountForPenaltyOfZero,
                                               m_DistinctCountForPenaltyOfOne,
                                               0.0,

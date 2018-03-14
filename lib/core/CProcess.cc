@@ -22,26 +22,32 @@
 namespace ml {
 namespace core {
 
-const char *CProcess::STARTING_MSG("Process Starting.");
-const char *CProcess::STARTED_MSG("Process Started.");
-const char *CProcess::STOPPING_MSG("Process Shutting Down.");
-const char *CProcess::STOPPED_MSG("Process Exiting.");
+const char* CProcess::STARTING_MSG("Process Starting.");
+const char* CProcess::STARTED_MSG("Process Started.");
+const char* CProcess::STOPPING_MSG("Process Shutting Down.");
+const char* CProcess::STOPPED_MSG("Process Exiting.");
 
 CProcess::CProcess(void)
     : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {}
 
-CProcess &CProcess::instance(void) {
+CProcess& CProcess::instance(void) {
     static CProcess instance;
     return instance;
 }
 
-bool CProcess::isService(void) const { return m_IsService; }
+bool CProcess::isService(void) const {
+    return m_IsService;
+}
 
-CProcess::TPid CProcess::id(void) const { return ::getpid(); }
+CProcess::TPid CProcess::id(void) const {
+    return ::getpid();
+}
 
-CProcess::TPid CProcess::parentId(void) const { return ::getppid(); }
+CProcess::TPid CProcess::parentId(void) const {
+    return ::getppid();
+}
 
-bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char *argv[]) {
+bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char* argv[]) {
     if (mlMain == 0) {
         LOG_ABORT("NULL mlMain() function passed");
     }
@@ -67,9 +73,11 @@ bool CProcess::startDispatcher(TMlMainFunc mlMain, int argc, char *argv[]) {
     return success;
 }
 
-bool CProcess::isInitialised(void) const { return m_Initialised; }
+bool CProcess::isInitialised(void) const {
+    return m_Initialised;
+}
 
-void CProcess::initialisationComplete(const TShutdownFunc &shutdownFunc) {
+void CProcess::initialisationComplete(const TShutdownFunc& shutdownFunc) {
     CScopedFastLock lock(m_ShutdownFuncMutex);
 
     if (!m_Initialised) {
@@ -97,7 +105,9 @@ void CProcess::initialisationComplete(void) {
     m_ShutdownFunc.swap(emptyFunc);
 }
 
-bool CProcess::isRunning(void) const { return m_Running; }
+bool CProcess::isRunning(void) const {
+    return m_Running;
+}
 
 bool CProcess::shutdown(void) {
     if (CLogger::instance().hasBeenReconfigured()) {

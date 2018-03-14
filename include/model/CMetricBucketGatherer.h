@@ -71,52 +71,52 @@ public:
     //! compute influences.
     //! \param[in] startTime The start of the time interval for which
     //! to gather data.
-    CMetricBucketGatherer(CDataGatherer &dataGatherer,
-                          const std::string &summaryCountFieldName,
-                          const std::string &personFieldName,
-                          const std::string &attributeFieldName,
-                          const std::string &valueFieldName,
-                          const TStrVec &influenceFieldNames,
+    CMetricBucketGatherer(CDataGatherer& dataGatherer,
+                          const std::string& summaryCountFieldName,
+                          const std::string& personFieldName,
+                          const std::string& attributeFieldName,
+                          const std::string& valueFieldName,
+                          const TStrVec& influenceFieldNames,
                           core_t::TTime startTime);
 
     //! Construct from a state document.
-    CMetricBucketGatherer(CDataGatherer &dataGatherer,
-                          const std::string &summaryCountFieldName,
-                          const std::string &personFieldName,
-                          const std::string &attributeFieldName,
-                          const std::string &valueFieldName,
-                          const TStrVec &influenceFieldNames,
-                          core::CStateRestoreTraverser &traverser);
+    CMetricBucketGatherer(CDataGatherer& dataGatherer,
+                          const std::string& summaryCountFieldName,
+                          const std::string& personFieldName,
+                          const std::string& attributeFieldName,
+                          const std::string& valueFieldName,
+                          const TStrVec& influenceFieldNames,
+                          core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CMetricBucketGatherer(bool isForPersistence, const CMetricBucketGatherer &other);
+    CMetricBucketGatherer(bool isForPersistence, const CMetricBucketGatherer& other);
     //@}
 
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Fill in the state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this data gatherer that will result in the same
     //! persisted state.  The clone may be incomplete in ways that do not
     //! affect the persisted representation, and must not be used for any
     //! other purpose.
     //! \warning The caller owns the object returned.
-    virtual CBucketGatherer *cloneForPersistence(void) const;
+    virtual CBucketGatherer* cloneForPersistence(void) const;
 
     //! The persistence tag name of this derived class.
-    virtual const std::string &persistenceTag(void) const;
+    virtual const std::string& persistenceTag(void) const;
 
 private:
     //! Internal restore function.
-    bool acceptRestoreTraverserInternal(core::CStateRestoreTraverser &traverser,
+    bool acceptRestoreTraverserInternal(core::CStateRestoreTraverser& traverser,
                                         bool isCurrentVersion);
     //@}
 
@@ -129,14 +129,14 @@ public:
     //! probabilities are aggregated, i.e. the "over" field name for
     //! population searches and the "by" field name for individual
     //! searches.
-    virtual const std::string &personFieldName(void) const;
+    virtual const std::string& personFieldName(void) const;
 
     //! Get the attribute field name if one exists, i.e. the "by" for
     //! population searches, field name and returns empty otherwise.
-    virtual const std::string &attributeFieldName(void) const;
+    virtual const std::string& attributeFieldName(void) const;
 
     //! Returns an empty string.
-    virtual const std::string &valueFieldName(void) const;
+    virtual const std::string& valueFieldName(void) const;
 
     //! Get an iterator at the beginning the influencing field names.
     virtual TStrVecCItr beginInfluencers(void) const;
@@ -152,7 +152,7 @@ public:
     //! attributes which are being analyzed. An empty string acts like
     //! a wild card and matches all records. This is used for analysis
     //! which is attribute independent such as total count.
-    virtual const TStrVec &fieldsOfInterest(void) const;
+    virtual const TStrVec& fieldsOfInterest(void) const;
     //@}
 
     //! Get a description of the search.
@@ -171,15 +171,15 @@ public:
     //! should the by clause field value or a generic name if none was
     //! specified. The third field should contain a number corresponding
     //! to the metric value.
-    virtual bool processFields(const TStrCPtrVec &fieldValues,
-                               CEventData &result,
-                               CResourceMonitor &resourceMonitor);
+    virtual bool processFields(const TStrCPtrVec& fieldValues,
+                               CEventData& result,
+                               CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Person
     //@{
     //! Stop gathering data on the people identified by \p peopleToRemove.
-    virtual void recyclePeople(const TSizeVec &peopleToRemove);
+    virtual void recyclePeople(const TSizeVec& peopleToRemove);
 
     //! Remove all traces of people whose identifiers are greater than
     //! or equal to \p lowestPersonToRemove.
@@ -189,7 +189,7 @@ public:
     //! \name Attribute
     //@{
     //! Stop gathering data on the attributes identified by \p attributesToRemove.
-    virtual void recycleAttributes(const TSizeVec &attributesToRemove);
+    virtual void recycleAttributes(const TSizeVec& attributesToRemove);
 
     //! Remove all traces of attributes whose identifiers are greater
     //! than or equal to \p lowestAttributeToRemove.
@@ -225,7 +225,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
     virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec &result) const;
+    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
     //@}
 
 private:
@@ -256,10 +256,10 @@ private:
     virtual void addValue(std::size_t pid,
                           std::size_t cid,
                           core_t::TTime time,
-                          const CEventData::TDouble1VecArray &values,
+                          const CEventData::TDouble1VecArray& values,
                           std::size_t count,
-                          const CEventData::TOptionalStr &stringValue,
-                          const TStoredStringPtrVec &influences);
+                          const CEventData::TOptionalStr& stringValue,
+                          const TStoredStringPtrVec& influences);
 
     //! Start a new bucket.
     virtual void startNewBucket(core_t::TTime time, bool skipUpdates);
@@ -271,9 +271,9 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart1(const std::string &personFieldName,
-                                   const std::string &attributeFieldName,
-                                   const TStrVec &influenceFieldNames);
+    void initializeFieldNamesPart1(const std::string& personFieldName,
+                                   const std::string& attributeFieldName,
+                                   const TStrVec& influenceFieldNames);
 
     //! Initialize the field names collection.
     //! initializeFieldNamesPart1() must be called before this.
@@ -282,8 +282,8 @@ private:
     //! 1) initializeFieldNamesPart1()
     //! 2) restore state
     //! 3) initializeFieldNamesPart2()
-    void initializeFieldNamesPart2(const std::string &valueFieldName,
-                                   const std::string &summaryCountFieldName);
+    void initializeFieldNamesPart2(const std::string& valueFieldName,
+                                   const std::string& summaryCountFieldName);
 
     //! Initialize the feature data gatherers.
     void initializeFeatureData(void);
@@ -328,4 +328,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CMetricBucketGatherer_h
+#endif // INCLUDED_ml_model_CMetricBucketGatherer_h

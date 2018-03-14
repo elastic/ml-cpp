@@ -64,13 +64,13 @@ public:
     CQuantileSketch(EInterpolation interpolation, std::size_t size);
 
     //! Create reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Convert to a node tree.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Combine two sketches.
-    const CQuantileSketch &operator+=(const CQuantileSketch &rhs);
+    const CQuantileSketch& operator+=(const CQuantileSketch& rhs);
 
     //! Define a function operator for use with std:: algorithms.
     inline void operator()(double x) { this->add(x); }
@@ -82,19 +82,19 @@ public:
     void age(double factor);
 
     //! Get the c.d.f at \p x.
-    bool cdf(double x, double &result) const;
+    bool cdf(double x, double& result) const;
 
     //! Get the minimum value added.
-    bool minimum(double &result) const;
+    bool minimum(double& result) const;
 
     //! Get the maximum value added.
-    bool maximum(double &result) const;
+    bool maximum(double& result) const;
 
     //! Get the quantile corresponding to \p percentage.
-    bool quantile(double percentage, double &result) const;
+    bool quantile(double percentage, double& result) const;
 
     //! Get the knot values.
-    const TFloatFloatPrVec &knots(void) const;
+    const TFloatFloatPrVec& knots(void) const;
 
     //! Get the total count of points added.
     double count(void) const;
@@ -125,7 +125,7 @@ private:
     std::size_t target(void) const;
 
     //! Compute the cost of combining \p vl and \p vr.
-    double cost(const TFloatFloatPr &vl, const TFloatFloatPr &vr) const;
+    double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) const;
 
 private:
     //! The style of interpolation to use.
@@ -169,10 +169,10 @@ public:
 };
 
 //! Write to stream using print member.
-inline std::ostream &operator<<(std::ostream &o, const CQuantileSketch &qs) {
+inline std::ostream& operator<<(std::ostream& o, const CQuantileSketch& qs) {
     return o << qs.print();
 }
 }
 }
 
-#endif// INCLUDED_ml_maths_CQuantileSketch_h
+#endif // INCLUDED_ml_maths_CQuantileSketch_h

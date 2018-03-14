@@ -98,7 +98,7 @@ public:
     using TRapidJsonWriterBase =
         JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS>;
 
-    CRapidJsonWriterBase(OUTPUT_STREAM &os) : TRapidJsonWriterBase(os) {
+    CRapidJsonWriterBase(OUTPUT_STREAM& os) : TRapidJsonWriterBase(os) {
         // push a default rapidjson allocator onto our stack
         m_JsonPoolAllocators.push(boost::make_shared<CRapidJsonPoolAllocator>());
     }
@@ -115,8 +115,8 @@ public:
 
     //! Push a named allocator on to the stack
     //! Look in the cache for the allocator - creating it if not present
-    void pushAllocator(const std::string &allocatorName) {
-        TPoolAllocatorPtr &ptr = m_AllocatorCache[allocatorName];
+    void pushAllocator(const std::string& allocatorName) {
+        TPoolAllocatorPtr& ptr = m_AllocatorCache[allocatorName];
         if (ptr == nullptr) {
             ptr = boost::make_shared<CRapidJsonPoolAllocator>();
         }
@@ -138,7 +138,7 @@ public:
     //! If no valid allocator can be found then store and return a freshly minted one
     boost::shared_ptr<CRapidJsonPoolAllocator> getAllocator() const {
         TPoolAllocatorPtr allocator;
-        CRapidJsonPoolAllocator *rawAllocator = nullptr;
+        CRapidJsonPoolAllocator* rawAllocator = nullptr;
         while (!m_JsonPoolAllocators.empty()) {
             allocator = m_JsonPoolAllocators.top();
 
@@ -160,7 +160,7 @@ public:
         return allocator;
     }
 
-    rapidjson::MemoryPoolAllocator<> &getRawAllocator() const {
+    rapidjson::MemoryPoolAllocator<>& getRawAllocator() const {
         return this->getAllocator()->get();
     }
 
@@ -177,7 +177,7 @@ public:
     //! \p[in] value constant string
     //! \p[out] obj rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    void pushBack(const char *value, TValue &obj) const {
+    void pushBack(const char* value, TValue& obj) const {
         obj.PushBack(rapidjson::StringRef(value), this->getRawAllocator());
     }
 
@@ -185,7 +185,8 @@ public:
     //! \p[in] value generic rapidjson value object
     //! \p[out] obj rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    template <typename T> void pushBack(T &&value, TValue &obj) const {
+    template <typename T>
+    void pushBack(T&& value, TValue& obj) const {
         obj.PushBack(value, this->getRawAllocator());
     }
 
@@ -193,20 +194,21 @@ public:
     //! \p[in] value generic rapidjson value object
     //! \p[out] obj shared pointer to a rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    template <typename T> void pushBack(T &&value, const TValuePtr &obj) const {
+    template <typename T>
+    void pushBack(T&& value, const TValuePtr& obj) const {
         obj->PushBack(value, this->getRawAllocator());
     }
 
     //! Add an array of doubles to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     template <typename CONTAINER>
-    void addDoubleArrayFieldToObj(const std::string &fieldName,
-                                  const CONTAINER &values,
-                                  TValue &obj) const {
+    void addDoubleArrayFieldToObj(const std::string& fieldName,
+                                  const CONTAINER& values,
+                                  TValue& obj) const {
         TValue array = this->makeArray(values.size());
 
         bool considerLogging(true);
-        for (const auto &value : values) {
+        for (const auto& value : values) {
             this->checkArrayNumberFinite(value, fieldName, considerLogging);
             this->pushBack(value, array);
         }
@@ -216,7 +218,7 @@ public:
 
     //! write the rapidjson value document to the output stream
     //! \p[in] doc rapidjson document value to write out
-    virtual void write(TValue &doc) { doc.Accept(*this); }
+    virtual void write(TValue& doc) { doc.Accept(*this); }
 
     //! Return a new rapidjson document
     TDocument makeDoc() const {
@@ -252,7 +254,7 @@ public:
     //! \p[in] name field name
     //! \p[in] value generic rapidjson value
     //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
-    TValuePtr addMember(const std::string &name, TValue &value, const TValuePtr &obj) const {
+    TValuePtr addMember(const std::string& name, TValue& value, const TValuePtr& obj) const {
         obj->AddMember(rapidjson::StringRef(name), value, this->getRawAllocator());
         return obj;
     }
@@ -262,7 +264,7 @@ public:
     //! \p[in] value string field to be copied
     //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
     TValuePtr
-    addMember(const std::string &name, const std::string &value, const TValuePtr &obj) const {
+    addMember(const std::string& name, const std::string& value, const TValuePtr& obj) const {
         TValue v(value, this->getRawAllocator());
         obj->AddMember(rapidjson::StringRef(name), v, this->getRawAllocator());
         return obj;
@@ -273,9 +275,10 @@ public:
     //! \p[in] value string field
     //! \p[out] obj shared pointer to rapidjson object to contain the \p name \p value pair
     TValuePtr
-    addMemberRef(const std::string &name, const std::string &value, const TValuePtr &obj) const {
-        obj->AddMember(
-            rapidjson::StringRef(name), rapidjson::StringRef(value), this->getRawAllocator());
+    addMemberRef(const std::string& name, const std::string& value, const TValuePtr& obj) const {
+        obj->AddMember(rapidjson::StringRef(name),
+                       rapidjson::StringRef(value),
+                       this->getRawAllocator());
         return obj;
     }
 
@@ -283,7 +286,7 @@ public:
     //! \p[in] name field name
     //! \p[in] value generic rapidjson value
     //! \p[out] obj rapidjson object to contain the \p name \p value pair
-    void addMember(const std::string &name, TValue &value, TValue &obj) const {
+    void addMember(const std::string& name, TValue& value, TValue& obj) const {
         obj.AddMember(rapidjson::StringRef(name), value, this->getRawAllocator());
     }
 
@@ -291,7 +294,7 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field to be copied
     //! \p[out] obj rapidjson object to contain the \p name \p value pair
-    void addMember(const std::string &name, const std::string &value, TValue &obj) const {
+    void addMember(const std::string& name, const std::string& value, TValue& obj) const {
         TValue v(value, this->getRawAllocator());
         obj.AddMember(rapidjson::StringRef(name), v, this->getRawAllocator());
     }
@@ -300,16 +303,17 @@ public:
     //! \p[in] name field name
     //! \p[in] value string field
     //! \p[out] obj rapidjson object to contain the \p name \p value pair
-    void addMemberRef(const std::string &name, const std::string &value, TValue &obj) const {
-        obj.AddMember(
-            rapidjson::StringRef(name), rapidjson::StringRef(value), this->getRawAllocator());
+    void addMemberRef(const std::string& name, const std::string& value, TValue& obj) const {
+        obj.AddMember(rapidjson::StringRef(name),
+                      rapidjson::StringRef(value),
+                      this->getRawAllocator());
     }
 
     //! Adds a copy of a string field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addStringFieldCopyToObj(const std::string &fieldName,
-                                 const std::string &value,
-                                 TValue &obj,
+    void addStringFieldCopyToObj(const std::string& fieldName,
+                                 const std::string& value,
+                                 TValue& obj,
                                  bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
@@ -323,9 +327,9 @@ public:
     //! \p fieldName AND \p value must outlive \p obj or memory corruption will occur.
     //! This is an optimized version of addStringFieldToObj() avoiding
     //! the string copy for the value. Use with care.
-    void addStringFieldReferenceToObj(const std::string &fieldName,
-                                      const std::string &value,
-                                      TValue &obj,
+    void addStringFieldReferenceToObj(const std::string& fieldName,
+                                      const std::string& value,
+                                      TValue& obj,
                                       bool allowEmptyString = false) const {
         // Don't add empty strings unless explicitly told to
         if (!allowEmptyString && value.empty()) {
@@ -338,7 +342,7 @@ public:
     //! Adds a time field with the name fieldname to an object.
     //! Automatically turns time from 'seconds_since_epoch' into 'milliseconds_since_epoch'
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addTimeFieldToObj(const std::string &fieldName, core_t::TTime value, TValue &obj) const {
+    void addTimeFieldToObj(const std::string& fieldName, core_t::TTime value, TValue& obj) const {
         int64_t javaTimestamp = int64_t(value) * 1000;
         TValue v(javaTimestamp);
         this->addMember(fieldName, v, obj);
@@ -346,7 +350,7 @@ public:
 
     //! Adds a double field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addDoubleFieldToObj(const std::string &fieldName, double value, TValue &obj) const {
+    void addDoubleFieldToObj(const std::string& fieldName, double value, TValue& obj) const {
         if (!(boost::math::isfinite)(value)) {
             LOG_ERROR("Adding " << value << " to the \"" << fieldName
                                 << "\" field of a JSON document");
@@ -359,47 +363,48 @@ public:
 
     //! Adds a bool field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addBoolFieldToObj(const std::string &fieldName, bool value, TValue &obj) const {
+    void addBoolFieldToObj(const std::string& fieldName, bool value, TValue& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds a signed integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addIntFieldToObj(const std::string &fieldName, int64_t value, TValue &obj) const {
+    void addIntFieldToObj(const std::string& fieldName, int64_t value, TValue& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Adds an unsigned integer field with the name fieldname to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addUIntFieldToObj(const std::string &fieldName, uint64_t value, TValue &obj) const {
+    void addUIntFieldToObj(const std::string& fieldName, uint64_t value, TValue& obj) const {
         TValue v(value);
         this->addMember(fieldName, v, obj);
     }
 
     //! Add an array of strings to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addStringArrayFieldToObj(const std::string &fieldName,
-                                  const TStrVec &values,
-                                  TValue &obj) const {
+    void addStringArrayFieldToObj(const std::string& fieldName,
+                                  const TStrVec& values,
+                                  TValue& obj) const {
         this->addArrayToObj(fieldName, values.begin(), values.end(), obj);
     }
 
     //! Add an array of strings to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addStringArrayFieldToObj(const std::string &fieldName,
-                                  const TStrUSet &values,
-                                  TValue &obj) const {
-        using TStrCPtrVec = std::vector<const std::string *>;
+    void addStringArrayFieldToObj(const std::string& fieldName,
+                                  const TStrUSet& values,
+                                  TValue& obj) const {
+        using TStrCPtrVec = std::vector<const std::string*>;
 
         TStrCPtrVec ordered;
         ordered.reserve(values.size());
-        for (const auto &value : values) {
+        for (const auto& value : values) {
             ordered.push_back(&value);
         }
-        std::sort(
-            ordered.begin(), ordered.end(), CFunctional::SDereference<std::less<std::string>>());
+        std::sort(ordered.begin(),
+                  ordered.end(),
+                  CFunctional::SDereference<std::less<std::string>>());
 
         addArrayToObj(fieldName,
                       boost::iterators::make_indirect_iterator(ordered.begin()),
@@ -409,13 +414,13 @@ public:
 
     //! Add an array of pair double, pair double double to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addDoubleDoubleDoublePrPrArrayFieldToObj(const std::string &fieldName,
-                                                  const TDoubleDoubleDoublePrPrVec &values,
-                                                  TValue &obj) const {
+    void addDoubleDoubleDoublePrPrArrayFieldToObj(const std::string& fieldName,
+                                                  const TDoubleDoubleDoublePrPrVec& values,
+                                                  TValue& obj) const {
         TValue array = this->makeArray(values.size());
 
         bool considerLogging(true);
-        for (const auto &value : values) {
+        for (const auto& value : values) {
             double firstVal = value.first;
             this->checkArrayNumberFinite(firstVal, fieldName, considerLogging);
             this->pushBack(firstVal, array);
@@ -432,16 +437,16 @@ public:
 
     //! Add an array of pair double double to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    void addDoubleDoublePrArrayFieldToObj(const std::string &firstFieldName,
-                                          const std::string &secondFieldName,
-                                          const TDoubleDoublePrVec &values,
-                                          TValue &obj) const {
+    void addDoubleDoublePrArrayFieldToObj(const std::string& firstFieldName,
+                                          const std::string& secondFieldName,
+                                          const TDoubleDoublePrVec& values,
+                                          TValue& obj) const {
         TValue firstArray = this->makeArray(values.size());
         TValue secondArray = this->makeArray(values.size());
 
         bool considerLoggingFirst(true);
         bool considerLoggingSecond(true);
-        for (const auto &value : values) {
+        for (const auto& value : values) {
             double firstVal = value.first;
             this->checkArrayNumberFinite(firstVal, firstFieldName, considerLoggingFirst);
             this->pushBack(firstVal, firstArray);
@@ -458,12 +463,12 @@ public:
     //! \p fieldName must outlive \p obj or memory corruption will occur.
     //! Note: The time values are adjusted to be in standard Java format
     //! i.e. milliseconds since epoch
-    void addTimeArrayFieldToObj(const std::string &fieldName,
-                                const TTimeVec &values,
-                                TValue &obj) const {
+    void addTimeArrayFieldToObj(const std::string& fieldName,
+                                const TTimeVec& values,
+                                TValue& obj) const {
         TValue array = this->makeArray(values.size());
 
-        for (const auto &value : values) {
+        for (const auto& value : values) {
             this->pushBack(value * int64_t(1000), array);
         }
 
@@ -472,7 +477,7 @@ public:
 
     //! Checks if the \p obj has a member named \p fieldName and
     //! removes it if it does.
-    void removeMemberIfPresent(const std::string &fieldName, TValue &obj) const {
+    void removeMemberIfPresent(const std::string& fieldName, TValue& obj) const {
         if (obj.HasMember(fieldName)) {
             obj.RemoveMember(fieldName);
         }
@@ -482,7 +487,7 @@ private:
     //! Log a message if we're trying to add nan/infinity to a JSON array
     template <typename NUMBER>
     void
-    checkArrayNumberFinite(NUMBER val, const std::string &fieldName, bool &considerLogging) const {
+    checkArrayNumberFinite(NUMBER val, const std::string& fieldName, bool& considerLogging) const {
         if (considerLogging && !(boost::math::isfinite)(val)) {
             LOG_ERROR("Adding " << val << " to the \"" << fieldName
                                 << "\" array in a JSON document");
@@ -493,13 +498,13 @@ private:
     }
 
     //! Convert \p value to a RapidJSON value.
-    TValue asRapidJsonValue(const std::string &value) const {
+    TValue asRapidJsonValue(const std::string& value) const {
         return {value, this->getRawAllocator()};
     }
 
     //! Convert the range [\p begin, \p end) to a RapidJSON array and add to \p obj.
     template <typename ITR>
-    void addArrayToObj(const std::string &fieldName, ITR begin, ITR end, TValue &obj) const {
+    void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
         TValue array = this->makeArray(std::distance(begin, end));
         for (/**/; begin != end; ++begin) {
             this->pushBack(asRapidJsonValue(*begin), array);

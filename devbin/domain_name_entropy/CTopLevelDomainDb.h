@@ -78,7 +78,7 @@ namespace domain_name_entropy {
 //!
 class CTopLevelDomainDb : private core::CNonCopyable {
 public:
-    CTopLevelDomainDb(const std::string &effectiveTldNamesFileName);
+    CTopLevelDomainDb(const std::string& effectiveTldNamesFileName);
 
     //! Create DB
     bool init(void);
@@ -92,53 +92,53 @@ public:
     //! - if the host name is a suffix: "co.uk", "s3.amazonaws.com"
     //! - if the host name is a wildcard: "test.ck" (there is a rule *.ck) so test.ck is a public
     //! suffix
-    bool registeredDomainName(const std::string &host, std::string &registereddomainname) const;
+    bool registeredDomainName(const std::string& host, std::string& registereddomainname) const;
 
     //! Split a host name into
     //! 'subdomain' - token above domain
     //! 'domain' - next token above suffix (domain+suffix) is registered domain
     //! 'suffix' - TLD suffix (if available)
-    void splitHostName(const std::string &host,
-                       std::string &subDomain,
-                       std::string &domain,
-                       std::string &suffix) const;
+    void splitHostName(const std::string& host,
+                       std::string& subDomain,
+                       std::string& domain,
+                       std::string& suffix) const;
 
 private:
     enum ERuleType { E_ExceptionRule = 0, E_Rule, E_WildcardRule, E_NoMatch };
 
-    ERuleType isSuffixTld(const std::string &suffix) const;
+    ERuleType isSuffixTld(const std::string& suffix) const;
 
     //! Read a line from the tld file
-    bool readLine(const std::string &);
+    bool readLine(const std::string&);
 
     //! Internal extract domains using rules
-    void extract(const std::string &str,
-                 std::string &subDomain,
-                 std::string &domain,
-                 std::string &suffix) const;
+    void extract(const std::string& str,
+                 std::string& subDomain,
+                 std::string& domain,
+                 std::string& suffix) const;
 
     typedef std::vector<std::string::size_type> TSizeTypeVec;
 
     //! If a normal rule matches, split domain
-    static void ruleDomains(const std::string &str,
-                            const TSizeTypeVec &periods,
-                            std::string &subDomain,
-                            std::string &domain,
-                            std::string &suffix);
+    static void ruleDomains(const std::string& str,
+                            const TSizeTypeVec& periods,
+                            std::string& subDomain,
+                            std::string& domain,
+                            std::string& suffix);
 
     //! If a wildcard rule matches, split domain
-    static void wildcardDomains(const std::string &str,
-                                const TSizeTypeVec &periods,
-                                std::string &subDomain,
-                                std::string &domain,
-                                std::string &suffix);
+    static void wildcardDomains(const std::string& str,
+                                const TSizeTypeVec& periods,
+                                std::string& subDomain,
+                                std::string& domain,
+                                std::string& suffix);
 
     //! If an exception rule matches, split domain
-    static void exceptionDomains(const std::string &str,
-                                 const TSizeTypeVec &periods,
-                                 std::string &subDomain,
-                                 std::string &domain,
-                                 std::string &suffix);
+    static void exceptionDomains(const std::string& str,
+                                 const TSizeTypeVec& periods,
+                                 std::string& subDomain,
+                                 std::string& domain,
+                                 std::string& suffix);
 
 private:
     static const std::string PERIOD;
@@ -156,4 +156,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_domain_name_entropy_CTopLevelDomainDb_h
+#endif // INCLUDED_ml_domain_name_entropy_CTopLevelDomainDb_h

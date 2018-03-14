@@ -33,12 +33,12 @@ namespace core {
 template <typename THREADFARM, typename PROCESSOR, typename MESSAGE, typename RESULT>
 class CThreadFarmReceiver {
 public:
-    CThreadFarmReceiver(PROCESSOR &processor, THREADFARM &threadFarm)
+    CThreadFarmReceiver(PROCESSOR& processor, THREADFARM& threadFarm)
         : m_Processor(processor), m_ThreadFarm(threadFarm) {}
 
     virtual ~CThreadFarmReceiver(void) {}
 
-    void processMsg(const MESSAGE &msg, size_t /* backlog */) {
+    void processMsg(const MESSAGE& msg, size_t /* backlog */) {
         RESULT result;
 
         m_Processor.msgToResult(msg, result);
@@ -47,10 +47,10 @@ public:
     }
 
 private:
-    PROCESSOR &m_Processor;
-    THREADFARM &m_ThreadFarm;
+    PROCESSOR& m_Processor;
+    THREADFARM& m_ThreadFarm;
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CThreadFarmReceiver_h
+#endif // INCLUDED_ml_core_CThreadFarmReceiver_h

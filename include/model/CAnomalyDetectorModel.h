@@ -188,16 +188,16 @@ public:
     //! \param[in] dataGatherer The object that gathers time series data.
     //! \param[in] influenceCalculators The influence calculators to use
     //! for each feature.
-    CAnomalyDetectorModel(const SModelParams &params,
-                          const TDataGathererPtr &dataGatherer,
-                          const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
+    CAnomalyDetectorModel(const SModelParams& params,
+                          const TDataGathererPtr& dataGatherer,
+                          const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CAnomalyDetectorModel(bool isForPersistence, const CAnomalyDetectorModel &other);
+    CAnomalyDetectorModel(bool isForPersistence, const CAnomalyDetectorModel& other);
 
     virtual ~CAnomalyDetectorModel(void) = default;
     //@}
@@ -208,17 +208,17 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! Restore the model reading state from the supplied traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) = 0;
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 
     //! Create a clone of this model that will result in the same persisted
     //! state.  The clone may be incomplete in ways that do not affect the
     //! persisted representation, and must not be used for any other
     //! purpose.
     //! \warning The caller owns the object returned.
-    virtual CAnomalyDetectorModel *cloneForPersistence(void) const = 0;
+    virtual CAnomalyDetectorModel* cloneForPersistence(void) const = 0;
     //@}
 
     //! Get the model category.
@@ -284,7 +284,7 @@ public:
                                            std::size_t pid,
                                            std::size_t cid,
                                            model_t::CResultType type,
-                                           const TSizeDoublePr1Vec &correlated,
+                                           const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const = 0;
 
     //! Check if bucket statistics are available for the specified time.
@@ -295,15 +295,15 @@ public:
     //@{
     //! Get the name of the person identified by \p pid. This returns
     //! a default fallback string if the person doesn't exist.
-    const std::string &personName(std::size_t pid) const;
+    const std::string& personName(std::size_t pid) const;
 
     //! As above but with a specified fallback.
-    const std::string &personName(std::size_t pid, const std::string &fallback) const;
+    const std::string& personName(std::size_t pid, const std::string& fallback) const;
 
     //! Print the people identified by \p pids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printPeople(const TSizeVec &pids,
+    std::string printPeople(const TSizeVec& pids,
                             size_t limit = std::numeric_limits<size_t>::max()) const;
 
     //! Get the person unique identifiers which have a feature value
@@ -312,7 +312,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the person identifiers
     //! in the bucketing time interval of interest.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const = 0;
+    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const = 0;
 
     // TODO this needs to be renamed to numberOfActivePeople, and
     // the places where it is used carefully checked
@@ -327,15 +327,15 @@ public:
     //! a default fallback string if the attribute doesn't exist.
     //!
     //! \param[in] cid The identifier of the attribute of interest.
-    const std::string &attributeName(std::size_t cid) const;
+    const std::string& attributeName(std::size_t cid) const;
 
     //! As above but with a specified fallback.
-    const std::string &attributeName(std::size_t cid, const std::string &fallback) const;
+    const std::string& attributeName(std::size_t cid, const std::string& fallback) const;
 
     //! Print the attributes identified by \p cids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printAttributes(const TSizeVec &cids,
+    std::string printAttributes(const TSizeVec& cids,
                                 size_t limit = std::numeric_limits<size_t>::max()) const;
     //@}
 
@@ -350,7 +350,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CResourceMonitor &resourceMonitor) = 0;
+                                        CResourceMonitor& resourceMonitor) = 0;
 
     //! Update the model with the samples of the process in the
     //! time interval [\p startTime, \p endTime].
@@ -359,7 +359,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
     virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor) = 0;
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -370,7 +370,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleOutOfPhase(core_t::TTime startTime,
                                   core_t::TTime endTime,
-                                  CResourceMonitor &resourceMonitor) = 0;
+                                  CResourceMonitor& resourceMonitor) = 0;
 
     //! Rolls time to \p endTime while skipping sampling the models for
     //! buckets within the gap.
@@ -412,9 +412,9 @@ public:
     virtual bool computeProbability(std::size_t pid,
                                     core_t::TTime startTime,
                                     core_t::TTime endTime,
-                                    CPartitioningFields &partitioningFields,
+                                    CPartitioningFields& partitioningFields,
                                     std::size_t numberAttributeProbabilities,
-                                    SAnnotatedProbability &result) const = 0;
+                                    SAnnotatedProbability& result) const = 0;
 
     //! Update the results with this model's probability.
     //!
@@ -429,7 +429,7 @@ public:
                     core_t::TTime startTime,
                     core_t::TTime endTime,
                     std::size_t numberAttributeProbabilities,
-                    CHierarchicalResults &results) const;
+                    CHierarchicalResults& results) const;
 
     //! Compute the probability of seeing \p person's attribute processes
     //! so far given the population distributions.
@@ -443,10 +443,10 @@ public:
     //! \p numberAttributeProbabilities attribute probabilities and
     //! associated data describing the calculation.
     virtual bool
-    computeTotalProbability(const std::string &person,
+    computeTotalProbability(const std::string& person,
                             std::size_t numberAttributeProbabilities,
-                            TOptionalDouble &probability,
-                            TAttributeProbability1Vec &attributeProbabilities) const = 0;
+                            TOptionalDouble& probability,
+                            TAttributeProbability1Vec& attributeProbabilities) const = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -481,9 +481,9 @@ public:
     virtual std::size_t staticSize(void) const = 0;
 
     //! Get the time series data gatherer.
-    const CDataGatherer &dataGatherer(void) const;
+    const CDataGatherer& dataGatherer(void) const;
     //! Get the time series data gatherer.
-    CDataGatherer &dataGatherer(void);
+    CDataGatherer& dataGatherer(void);
 
     //! Get the length of the time interval used to aggregate data.
     core_t::TTime bucketLength(void) const;
@@ -500,7 +500,7 @@ public:
     static bool isTimeUnset(core_t::TTime);
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
-    virtual const TStr1Vec &scheduledEventDescriptions(core_t::TTime time) const;
+    virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
 protected:
     using TStrCRef = boost::reference_wrapper<const std::string>;
@@ -513,10 +513,10 @@ protected:
         SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams &params,
-                                    core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(const SModelParams& params,
+                                    core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -539,10 +539,10 @@ protected:
                                 TCorrelationsPtr model);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams &params,
-                                    core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(const SModelParams& params,
+                                    core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -564,7 +564,7 @@ protected:
         using TMemoryUsage = std::function<std::size_t(std::size_t)>;
 
     public:
-        CTimeSeriesCorrelateModelAllocator(CResourceMonitor &resourceMonitor,
+        CTimeSeriesCorrelateModelAllocator(CResourceMonitor& resourceMonitor,
                                            TMemoryUsage memoryUsage,
                                            std::size_t resourceLimit,
                                            std::size_t maxNumberCorrelations);
@@ -585,11 +585,11 @@ protected:
         virtual TMultivariatePriorPtr newPrior(void) const;
 
         //! Set the prototype prior.
-        void prototypePrior(const TMultivariatePriorPtr &prior);
+        void prototypePrior(const TMultivariatePriorPtr& prior);
 
     private:
         //! The global resource monitor.
-        CResourceMonitor *m_ResourceMonitor;
+        CResourceMonitor* m_ResourceMonitor;
         //! Computes the current memory usage.
         TMemoryUsage m_MemoryUsage;
         //! The number of correlations which can still be modeled.
@@ -613,8 +613,8 @@ protected:
     template <typename T, typename FILTER>
     void applyFilter(model_t::EExcludeFrequent exclude,
                      bool updateStatistics,
-                     const FILTER &filter,
-                     T &data) const {
+                     const FILTER& filter,
+                     T& data) const {
         if (this->params().s_ExcludeFrequent & exclude) {
             std::size_t initialSize = data.size();
             data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
@@ -631,7 +631,7 @@ protected:
     CAttributeFrequencyGreaterThan attributeFilter(void) const;
 
     //! Get the global configuration parameters.
-    const SModelParams &params(void) const;
+    const SModelParams& params(void) const;
 
     //! Get the LearnRate parameter from the model configuration -
     //! this may be affected by the current feature being used
@@ -645,13 +645,13 @@ protected:
 
     //! Get the influence calculator for the influencer field identified
     //! by \p iid and the \p feature.
-    const CInfluenceCalculator *influenceCalculator(model_t::EFeature feature,
+    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature,
                                                     std::size_t iid) const;
 
     //! Get the person bucket counts.
-    const TDoubleVec &personBucketCounts(void) const;
+    const TDoubleVec& personBucketCounts(void) const;
     //! Writable access to the person bucket counts.
-    TDoubleVec &personBucketCounts(void);
+    TDoubleVec& personBucketCounts(void);
     //! Set the total count of buckets in the window.
     void windowBucketCount(double windowBucketCount);
     //! Get the total count of buckets in the window.
@@ -666,10 +666,10 @@ protected:
     virtual void updateRecycledModels(void) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned
-    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes) = 0;
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
 
     //! Get the objects which calculates corrections for interim buckets.
-    const CInterimBucketCorrector &interimValueCorrector(void) const;
+    const CInterimBucketCorrector& interimValueCorrector(void) const;
 
     //! Check if any of the sample-filtering detection rules apply to this series.
     bool shouldIgnoreSample(model_t::EFeature feature,
@@ -679,7 +679,7 @@ protected:
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,
-                            const model_t::CResultType &resultType,
+                            const model_t::CResultType& resultType,
                             std::size_t pid,
                             std::size_t cid,
                             core_t::TTime time) const;
@@ -688,15 +688,15 @@ protected:
     virtual std::size_t computeMemoryUsage(void) const = 0;
 
     //! Restore interim bucket corrector.
-    bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool interimBucketCorrectorAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist the interim bucket corrector.
-    void interimBucketCorrectorAcceptPersistInserter(const std::string &tag,
-                                                     core::CStatePersistInserter &inserter) const;
+    void interimBucketCorrectorAcceptPersistInserter(const std::string& tag,
+                                                     core::CStatePersistInserter& inserter) const;
 
     //! Create a stub version of maths::CModel for use when pruning people
     //! or attributes to free memory resource.
-    static maths::CModel *tinyModel(void);
+    static maths::CModel* tinyModel(void);
 
 private:
     using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
@@ -710,7 +710,7 @@ private:
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
 
     //! Get the model memory usage estimator
-    virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const = 0;
+    virtual CMemoryUsageEstimator* memoryUsageEstimator(void) const = 0;
 
 private:
     //! The global configuration parameters.
@@ -737,4 +737,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CAnomalyDetectorModel_h
+#endif // INCLUDED_ml_model_CAnomalyDetectorModel_h

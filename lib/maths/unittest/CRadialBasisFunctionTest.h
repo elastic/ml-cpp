@@ -25,7 +25,7 @@ public:
     void testMeanSquareDerivative(void);
     void testProduct(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CRadialBasisFunctionTest_h
+#endif // INCLUDED_CRadialBasisFunctionTest_h

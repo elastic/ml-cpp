@@ -46,20 +46,20 @@ public:
     //! \brief Component data.
     struct MATHS_EXPORT SComponent {
         SComponent();
-        SComponent(const std::string &description,
+        SComponent(const std::string& description,
                    bool diurnal,
                    core_t::TTime startOfPartition,
                    core_t::TTime period,
-                   const TTimeTimePr &window,
+                   const TTimeTimePr& window,
                    double precedence = 1.0);
 
         //! Check if this is equal to \p other.
-        bool operator==(const SComponent &other) const;
+        bool operator==(const SComponent& other) const;
 
         //! Get a seasonal time for the specified results.
         //!
         //! \warning The caller owns the returned object.
-        CSeasonalTime *seasonalTime() const;
+        CSeasonalTime* seasonalTime() const;
 
         //! An identifier for the component used by the test.
         std::string s_Description;
@@ -80,31 +80,31 @@ public:
 
 public:
     //! Check if this is equal to \p other.
-    bool operator==(const CPeriodicityHypothesisTestsResult &other) const;
+    bool operator==(const CPeriodicityHypothesisTestsResult& other) const;
 
     //! Sets to the union of the periodic components present.
     //!
     //! \warning This only makes sense if the this and the
     //! other result share the start of the partition time.
-    const CPeriodicityHypothesisTestsResult &
-    operator+=(const CPeriodicityHypothesisTestsResult &other);
+    const CPeriodicityHypothesisTestsResult&
+    operator+=(const CPeriodicityHypothesisTestsResult& other);
 
     //! Add a component.
-    void add(const std::string &description,
+    void add(const std::string& description,
              bool diurnal,
              core_t::TTime startOfWeek,
              core_t::TTime period,
-             const TTimeTimePr &window,
+             const TTimeTimePr& window,
              double precedence = 1.0);
 
     //! Remove the component with \p description.
-    void remove(const std::string &description);
+    void remove(const std::string& description);
 
     //! Check if there are any periodic components.
     bool periodic() const;
 
     //! Get the binary representation of the periodic components.
-    const TComponent5Vec &components() const;
+    const TComponent5Vec& components() const;
 
     //! Get a human readable description of the result.
     std::string print() const;
@@ -183,7 +183,7 @@ public:
 
 public:
     CPeriodicityHypothesisTests();
-    explicit CPeriodicityHypothesisTests(const CPeriodicityHypothesisTestsConfig &config);
+    explicit CPeriodicityHypothesisTests(const CPeriodicityHypothesisTestsConfig& config);
 
     //! Check if the test is initialized.
     bool initialized() const;
@@ -246,19 +246,19 @@ private:
     //! \brief Manages the testing of a set of nested hypotheses.
     class CNestedHypotheses {
     public:
-        using TTestFunc = std::function<CPeriodicityHypothesisTestsResult(STestStats &)>;
+        using TTestFunc = std::function<CPeriodicityHypothesisTestsResult(STestStats&)>;
 
         //! \brief Manages the building of a collection of nested
         //! hypotheses.
         class CBuilder {
         public:
-            explicit CBuilder(CNestedHypotheses &hypothesis);
-            CBuilder &addNested(TTestFunc test);
-            CBuilder &addAlternative(TTestFunc test);
-            CBuilder &finishedNested();
+            explicit CBuilder(CNestedHypotheses& hypothesis);
+            CBuilder& addNested(TTestFunc test);
+            CBuilder& addAlternative(TTestFunc test);
+            CBuilder& finishedNested();
 
         private:
-            using TNestedHypothesesPtrVec = std::vector<CNestedHypotheses *>;
+            using TNestedHypothesesPtrVec = std::vector<CNestedHypotheses*>;
 
         private:
             TNestedHypothesesPtrVec m_Levels;
@@ -270,9 +270,9 @@ private:
         //! Set the null hypothesis.
         CBuilder null(TTestFunc test);
         //! Add a nested hypothesis for \p test.
-        CNestedHypotheses &addNested(TTestFunc test);
+        CNestedHypotheses& addNested(TTestFunc test);
         //! Test the hypotheses.
-        CPeriodicityHypothesisTestsResult test(STestStats &stats) const;
+        CPeriodicityHypothesisTestsResult test(STestStats& stats) const;
 
     private:
         using THypothesisVec = std::vector<CNestedHypotheses>;
@@ -290,97 +290,97 @@ private:
 
 private:
     //! Get the hypotheses to test for period/daily/weekly components.
-    void hypothesesForWeekly(const TTimeTimePr2Vec &windowForTestingWeekly,
-                             const TFloatMeanAccumulatorCRng &bucketsForTestingWeekly,
-                             const TTimeTimePr2Vec &windowForTestingPeriod,
-                             const TFloatMeanAccumulatorCRng &bucketsForTestingPeriod,
-                             TNestedHypothesesVec &hypotheses) const;
+    void hypothesesForWeekly(const TTimeTimePr2Vec& windowForTestingWeekly,
+                             const TFloatMeanAccumulatorCRng& bucketsForTestingWeekly,
+                             const TTimeTimePr2Vec& windowForTestingPeriod,
+                             const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
+                             TNestedHypothesesVec& hypotheses) const;
 
     //! Get the hypotheses to test for period/daily components.
-    void hypothesesForDaily(const TTimeTimePr2Vec &windowForTestingDaily,
-                            const TFloatMeanAccumulatorCRng &bucketsForTestingDaily,
-                            const TTimeTimePr2Vec &windowForTestingPeriod,
-                            const TFloatMeanAccumulatorCRng &bucketsForTestingPeriod,
-                            TNestedHypothesesVec &hypotheses) const;
+    void hypothesesForDaily(const TTimeTimePr2Vec& windowForTestingDaily,
+                            const TFloatMeanAccumulatorCRng& bucketsForTestingDaily,
+                            const TTimeTimePr2Vec& windowForTestingPeriod,
+                            const TFloatMeanAccumulatorCRng& bucketsForTestingPeriod,
+                            TNestedHypothesesVec& hypotheses) const;
 
     //! Get the hypotheses to test for period components.
-    void hypothesesForPeriod(const TTimeTimePr2Vec &windows,
-                             const TFloatMeanAccumulatorCRng &buckets,
-                             TNestedHypothesesVec &hypotheses) const;
+    void hypothesesForPeriod(const TTimeTimePr2Vec& windows,
+                             const TFloatMeanAccumulatorCRng& buckets,
+                             TNestedHypothesesVec& hypotheses) const;
 
     //! Extract the best hypothesis.
-    CPeriodicityHypothesisTestsResult best(const TNestedHypothesesVec &hypotheses) const;
+    CPeriodicityHypothesisTestsResult best(const TNestedHypothesesVec& hypotheses) const;
 
     //! The null hypothesis of the various tests.
-    CPeriodicityHypothesisTestsResult testForNull(const TTimeTimePr2Vec &window,
-                                                  const TFloatMeanAccumulatorCRng &buckets,
-                                                  STestStats &stats) const;
+    CPeriodicityHypothesisTestsResult testForNull(const TTimeTimePr2Vec& window,
+                                                  const TFloatMeanAccumulatorCRng& buckets,
+                                                  STestStats& stats) const;
 
     //! Test for a daily periodic component.
-    CPeriodicityHypothesisTestsResult testForDaily(const TTimeTimePr2Vec &window,
-                                                   const TFloatMeanAccumulatorCRng &buckets,
-                                                   STestStats &stats) const;
+    CPeriodicityHypothesisTestsResult testForDaily(const TTimeTimePr2Vec& window,
+                                                   const TFloatMeanAccumulatorCRng& buckets,
+                                                   STestStats& stats) const;
 
     //! Test for a weekly periodic component.
-    CPeriodicityHypothesisTestsResult testForWeekly(const TTimeTimePr2Vec &window,
-                                                    const TFloatMeanAccumulatorCRng &buckets,
-                                                    STestStats &stats) const;
+    CPeriodicityHypothesisTestsResult testForWeekly(const TTimeTimePr2Vec& window,
+                                                    const TFloatMeanAccumulatorCRng& buckets,
+                                                    STestStats& stats) const;
 
     //! Test for a weekday/end partition.
     CPeriodicityHypothesisTestsResult
-    testForDailyWithWeekend(const TFloatMeanAccumulatorCRng &buckets, STestStats &stats) const;
+    testForDailyWithWeekend(const TFloatMeanAccumulatorCRng& buckets, STestStats& stats) const;
 
     //! Test for a weekday/end partition with weekly .
     CPeriodicityHypothesisTestsResult
-    testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec &window,
-                                       const TFloatMeanAccumulatorCRng &buckets,
-                                       STestStats &stats) const;
+    testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec& window,
+                                       const TFloatMeanAccumulatorCRng& buckets,
+                                       STestStats& stats) const;
 
     //! Test for the specified period given we think there is
     //! some diurnal periodicity.
-    CPeriodicityHypothesisTestsResult testForPeriod(const TTimeTimePr2Vec &window,
-                                                    const TFloatMeanAccumulatorCRng &buckets,
-                                                    STestStats &stats) const;
+    CPeriodicityHypothesisTestsResult testForPeriod(const TTimeTimePr2Vec& window,
+                                                    const TFloatMeanAccumulatorCRng& buckets,
+                                                    STestStats& stats) const;
 
     //! Check we've seen sufficient data to test accurately.
     bool seenSufficientDataToTest(core_t::TTime period,
-                                  const TFloatMeanAccumulatorCRng &buckets) const;
+                                  const TFloatMeanAccumulatorCRng& buckets) const;
 
     //! Compute various ancillary statistics for testing.
-    bool testStatisticsFor(const TFloatMeanAccumulatorCRng &buckets, STestStats &stats) const;
+    bool testStatisticsFor(const TFloatMeanAccumulatorCRng& buckets, STestStats& stats) const;
 
     //! Get the variance and degrees freedom for the null hypothesis
     //! that there is no trend or repeating partition of any kind.
-    void nullHypothesis(const TTimeTimePr2Vec &window,
-                        const TFloatMeanAccumulatorCRng &buckets,
-                        STestStats &stats) const;
+    void nullHypothesis(const TTimeTimePr2Vec& window,
+                        const TFloatMeanAccumulatorCRng& buckets,
+                        STestStats& stats) const;
 
     //! Compute the variance and degrees freedom for the hypothesis.
-    void hypothesis(const TTime2Vec &periods,
-                    const TFloatMeanAccumulatorCRng &buckets,
-                    STestStats &stats) const;
+    void hypothesis(const TTime2Vec& periods,
+                    const TFloatMeanAccumulatorCRng& buckets,
+                    STestStats& stats) const;
 
     //! Condition \p buckets assuming the null hypothesis is true.
     //!
     //! This removes any trend associated with the null hypothesis.
-    void conditionOnHypothesis(const TTimeTimePr2Vec &windows,
-                               const STestStats &stats,
-                               TFloatMeanAccumulatorVec &buckets) const;
+    void conditionOnHypothesis(const TTimeTimePr2Vec& windows,
+                               const STestStats& stats,
+                               TFloatMeanAccumulatorVec& buckets) const;
 
     //! Test to see if there is significant evidence for a component
     //! with period \p period.
-    bool testPeriod(const TTimeTimePr2Vec &window,
-                    const TFloatMeanAccumulatorCRng &buckets,
+    bool testPeriod(const TTimeTimePr2Vec& window,
+                    const TFloatMeanAccumulatorCRng& buckets,
                     core_t::TTime period,
-                    STestStats &stats) const;
+                    STestStats& stats) const;
 
     //! Test to see if there is significant evidence for a repeating
     //! partition of the data into windows defined by \p partition.
-    bool testPartition(const TTimeTimePr2Vec &partition,
-                       const TFloatMeanAccumulatorCRng &buckets,
+    bool testPartition(const TTimeTimePr2Vec& partition,
+                       const TFloatMeanAccumulatorCRng& buckets,
                        core_t::TTime period,
                        double correction,
-                       STestStats &stats) const;
+                       STestStats& stats) const;
 
 private:
     //! The minimum proportion of populated buckets for which
@@ -415,11 +415,11 @@ using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 //! Test for periodic components in \p values.
 MATHS_EXPORT
-CPeriodicityHypothesisTestsResult testForPeriods(const CPeriodicityHypothesisTestsConfig &config,
+CPeriodicityHypothesisTestsResult testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
                                                  core_t::TTime startTime,
                                                  core_t::TTime bucketLength,
-                                                 const TFloatMeanAccumulatorVec &values);
+                                                 const TFloatMeanAccumulatorVec& values);
 }
 }
 
-#endif// INCLUDED_ml_maths_CPeriodicityHypothesisTests_h
+#endif // INCLUDED_ml_maths_CPeriodicityHypothesisTests_h

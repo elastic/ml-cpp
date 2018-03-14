@@ -67,10 +67,10 @@ public:
     uint64_t checksum(uint64_t seed) const;
 
     //! Restore state from part of a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 private:
     //! The current weight and must be in the interval [0,1].
@@ -82,28 +82,29 @@ private:
 };
 
 //! \brief Re-normalizes weights (so that the sum to one) on destruction.
-template <typename PRIOR> class CScopeCanonicalizeWeights : private core::CNonCopyable {
+template <typename PRIOR>
+class CScopeCanonicalizeWeights : private core::CNonCopyable {
 public:
     typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;
     typedef std::vector<TWeightPriorPr> TWeightPriorPrVec;
 
 public:
-    CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
+    CScopeCanonicalizeWeights(TWeightPriorPrVec& models) : m_Models(models) {}
 
     ~CScopeCanonicalizeWeights(void) {
         CBasicStatistics::SMax<double>::TAccumulator logMaxWeight;
-        for (const auto &model : m_Models) {
+        for (const auto& model : m_Models) {
             logMaxWeight.add(model.first.logWeight());
         }
-        for (auto &&model : m_Models) {
+        for (auto&& model : m_Models) {
             model.first.logWeight(model.first.logWeight() - logMaxWeight[0]);
         }
     }
 
 private:
-    TWeightPriorPrVec &m_Models;
+    TWeightPriorPrVec& m_Models;
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CModelWeight_h
+#endif // INCLUDED_ml_maths_CModelWeight_h

@@ -22,8 +22,8 @@
 
 #include <time.h>
 
-CppUnit::Test *CTimeUtilsTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CTimeUtilsTest");
+CppUnit::Test* CTimeUtilsTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeUtilsTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testNow",
                                                                   &CTimeUtilsTest::testNow));

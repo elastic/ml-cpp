@@ -54,19 +54,19 @@ public:
     enum EJob { E_UpdateAndCorrect, E_Correct, E_NoOp };
 
 public:
-    CHierarchicalResultsAggregator(const CAnomalyDetectorModelConfig &modelConfig);
+    CHierarchicalResultsAggregator(const CAnomalyDetectorModelConfig& modelConfig);
 
     //! Add a job for the subsequent invocations of the normalizer.
     void setJob(EJob job);
 
     //! Update the parameters to reflect changes to the model configuration.
-    void refresh(const CAnomalyDetectorModelConfig &modelConfig);
+    void refresh(const CAnomalyDetectorModelConfig& modelConfig);
 
     //! Clear all state such that all equalizers restart from scratch.
     void clear(void);
 
     //! Compute the aggregate probability for \p node.
-    virtual void visit(const CHierarchicalResults &results, const TNode &node, bool pivot);
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
 
     //! Age the quantile sketches.
     void propagateForwardByTime(double time);
@@ -74,10 +74,10 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore reading state from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     // Clone for persistence?
     //@}
@@ -98,32 +98,32 @@ private:
 
 private:
     //! Aggregate at a leaf node.
-    void aggregateLeaf(const TNode &node);
+    void aggregateLeaf(const TNode& node);
 
     //! Aggregate at internal node.
-    void aggregateNode(const TNode &node, bool pivot);
+    void aggregateNode(const TNode& node, bool pivot);
 
     //! Partition the child probabilities into groups to aggregate together.
-    bool partitionChildProbabilities(const TNode &node,
+    bool partitionChildProbabilities(const TNode& node,
                                      bool pivot,
-                                     std::size_t &numberDetectors,
+                                     std::size_t& numberDetectors,
                                      TIntSizePrDouble1VecUMap (&partition)[N]);
 
     //! Compute the probability for each of the detectors.
-    void detectorProbabilities(const TNode &node,
+    void detectorProbabilities(const TNode& node,
                                bool pivot,
                                std::size_t numberDetectors,
                                const TIntSizePrDouble1VecUMap (&partition)[N],
-                               int &detector,
-                               int &aggregation,
-                               TDouble1Vec &probabilities);
+                               int& detector,
+                               int& aggregation,
+                               TDouble1Vec& probabilities);
 
     //! Compute a hash of \p node for gathering up related results.
-    std::size_t hash(const TNode &node) const;
+    std::size_t hash(const TNode& node) const;
 
     //! Correct the probability for \p node to equalize probabilities
     //! across detectors.
-    double correctProbability(const TNode &node, bool pivot, int detector, double probability);
+    double correctProbability(const TNode& node, bool pivot, int detector, double probability);
 
 private:
     //! The jobs that the aggregator will perform when invoked can be:
@@ -142,4 +142,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CHierarchicalResultsAggregator_h
+#endif // INCLUDED_ml_model_CHierarchicalResultsAggregator_h

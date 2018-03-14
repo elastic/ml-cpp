@@ -40,7 +40,7 @@ typedef std::vector<TTuple> TTupleVec;
 
 //! Computes the deviation of a category.mac1Password
 
-bool computeDeviation(const TTuple &category, std::size_t p, double &result) {
+bool computeDeviation(const TTuple& category, std::size_t p, double& result) {
     double count = CBasicStatistics::count(category);
     double variance = CBasicStatistics::variance(category);
     result = ::sqrt((count - 1.0) * variance);
@@ -48,10 +48,10 @@ bool computeDeviation(const TTuple &category, std::size_t p, double &result) {
 }
 
 //! Branch and bound exhaustive search for the optimum split.
-bool naturalBreaksBranchAndBound(const TTupleVec &categories,
+bool naturalBreaksBranchAndBound(const TTupleVec& categories,
                                  std::size_t n,
                                  std::size_t p,
-                                 TTupleVec &result) {
+                                 TTupleVec& result) {
     typedef std::vector<std::size_t> TSizeVec;
 
     // Find the minimum variance partition.
@@ -611,14 +611,18 @@ void CNaturalBreaksClassifierTest::testSample(void) {
     LOG_DEBUG("mean, variance 1          = " << meanVar1);
     LOG_DEBUG("expected mean, variance 2 = " << expectedMeanVar2);
     LOG_DEBUG("mean, variance 2          = " << meanVar2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        CBasicStatistics::mean(expectedMeanVar1), CBasicStatistics::mean(meanVar1), 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        CBasicStatistics::variance(expectedMeanVar1), CBasicStatistics::variance(meanVar1), 0.1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        CBasicStatistics::mean(expectedMeanVar2), CBasicStatistics::mean(meanVar2), 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-        CBasicStatistics::variance(expectedMeanVar2), CBasicStatistics::variance(meanVar2), 0.1);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::mean(expectedMeanVar1),
+                                 CBasicStatistics::mean(meanVar1),
+                                 0.01);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::variance(expectedMeanVar1),
+                                 CBasicStatistics::variance(meanVar1),
+                                 0.1);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::mean(expectedMeanVar2),
+                                 CBasicStatistics::mean(meanVar2),
+                                 0.01);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::variance(expectedMeanVar2),
+                                 CBasicStatistics::variance(meanVar2),
+                                 0.1);
 }
 
 void CNaturalBreaksClassifierTest::testPersist(void) {
@@ -687,19 +691,23 @@ void CNaturalBreaksClassifierTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CNaturalBreaksClassifierTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
+CppUnit::Test* CNaturalBreaksClassifierTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testCategories",
-        &CNaturalBreaksClassifierTest::testCategories));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CNaturalBreaksClassifierTest>("CNaturalBreaksClassifierTest::testCategories",
+                                          &CNaturalBreaksClassifierTest::testCategories));
     suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
         "CNaturalBreaksClassifierTest::testPropagateForwardsByTime",
         &CNaturalBreaksClassifierTest::testPropagateForwardsByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testSample", &CNaturalBreaksClassifierTest::testSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testPersist", &CNaturalBreaksClassifierTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CNaturalBreaksClassifierTest>("CNaturalBreaksClassifierTest::testSample",
+                                                        &CNaturalBreaksClassifierTest::testSample));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CNaturalBreaksClassifierTest>("CNaturalBreaksClassifierTest::testPersist",
+                                          &CNaturalBreaksClassifierTest::testPersist));
 
     return suiteOfTests;
 }

@@ -74,7 +74,7 @@ public:
     void testQualityOfSamplesGivenVariableRate(void);
     void testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CSampleQueueTest_h
+#endif // INCLUDED_CSampleQueueTest_h

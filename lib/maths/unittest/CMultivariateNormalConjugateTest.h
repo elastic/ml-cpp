@@ -34,7 +34,7 @@ public:
     void calibrationExperiment(void);
     void dataGenerator(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CMultivariateNormalConjugateTest_h
+#endif // INCLUDED_CMultivariateNormalConjugateTest_h

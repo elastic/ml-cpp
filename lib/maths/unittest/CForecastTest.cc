@@ -65,8 +65,10 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{0.25};
-    return maths::CModelParams{
-        bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength,
+                               learnRates[bucketLength],
+                               DECAY_RATE,
+                               minimumSeasonalVarianceScale};
 }
 
 maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers(void) {
@@ -81,7 +83,7 @@ maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers
 }
 }
 
-void mockSink(maths::SErrorBar errorBar, TErrorBarVec &prediction) {
+void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
     prediction.push_back(errorBar);
 }
 
@@ -321,8 +323,11 @@ void CForecastTest::testFinancialIndex(void) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
-        "testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
+    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
+                                                    timeseries,
+                                                    startTime,
+                                                    endTime,
+                                                    "^([0-9]+),([0-9\\.]+)"));
     CPPUNIT_ASSERT(!timeseries.empty());
 
     LOG_DEBUG("timeseries = " << core::CContainerPrinter::print(timeseries.begin(),
@@ -354,9 +359,10 @@ void CForecastTest::testFinancialIndex(void) {
             .weightStyles(maths::CConstantWeights::COUNT)
             .trendWeights(weights)
             .priorWeights(weights);
-        model.addSamples(
-            params,
-            {core::make_triple(timeseries[i].first, TDouble2Vec{timeseries[i].second}, TAG)});
+        model.addSamples(params,
+                         {core::make_triple(timeseries[i].first,
+                                            TDouble2Vec{timeseries[i].second},
+                                            TAG)});
         // actual.push_back(timeseries[i].second);
     }
 
@@ -404,19 +410,21 @@ void CForecastTest::testFinancialIndex(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
-CppUnit::Test *CForecastTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CForecastTest");
+CppUnit::Test* CForecastTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testDailyNoLongTermTrend", &CForecastTest::testDailyNoLongTermTrend));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyNoLongTermTrend",
+                                               &CForecastTest::testDailyNoLongTermTrend));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyConstantLongTermTrend",
                                                &CForecastTest::testDailyConstantLongTermTrend));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CForecastTest>("CForecastTest::testDailyVaryingLongTermTrend",
                                                &CForecastTest::testDailyVaryingLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testComplexNoLongTermTrend", &CForecastTest::testComplexNoLongTermTrend));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexNoLongTermTrend",
+                                               &CForecastTest::testComplexNoLongTermTrend));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CForecastTest>("CForecastTest::testComplexConstantLongTermTrend",
                                                &CForecastTest::testComplexConstantLongTermTrend));
@@ -425,8 +433,9 @@ CppUnit::Test *CForecastTest::suite(void) {
                                                &CForecastTest::testComplexVaryingLongTermTrend));
     suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>("CForecastTest::testNonNegative",
                                                                  &CForecastTest::testNonNegative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testFinancialIndex", &CForecastTest::testFinancialIndex));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CForecastTest>("CForecastTest::testFinancialIndex",
+                                               &CForecastTest::testFinancialIndex));
 
     return suiteOfTests;
 }
@@ -450,12 +459,13 @@ void CForecastTest::test(TTrend trend,
     test::CRandomNumbers rng;
 
     maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel model(
-        params(bucketLength),
-        TAG,
-        maths::CTimeSeriesDecomposition(0.012, bucketLength),
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
-        &controllers);
+    maths::CUnivariateTimeSeriesModel
+        model(params(bucketLength),
+              TAG,
+              maths::CTimeSeriesDecomposition(0.012, bucketLength),
+              maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
+                                                                   DECAY_RATE),
+              &controllers);
 
     core_t::TTime time{0};
     TDouble2Vec4VecVec weights{{{1.0}}};

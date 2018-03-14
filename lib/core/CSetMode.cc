@@ -17,8 +17,12 @@
 namespace ml {
 namespace core {
 
-int CSetMode::setMode(int /* fd */, int /* mode */) { return 0; }
+int CSetMode::setMode(int /* fd */, int /* mode */) {
+    return 0;
+}
 
-int CSetMode::setBinaryMode(int /* fd */) { return 0; }
+int CSetMode::setBinaryMode(int /* fd */) {
+    return 0;
+}
 }
 }

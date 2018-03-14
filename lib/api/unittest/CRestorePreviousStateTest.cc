@@ -44,11 +44,11 @@
 namespace {
 
 void reportPersistComplete(ml::core_t::TTime /*snapshotTimestamp*/,
-                           const std::string &description,
-                           const std::string &snapshotIdIn,
+                           const std::string& description,
+                           const std::string& snapshotIdIn,
                            size_t numDocsIn,
-                           std::string &snapshotIdOut,
-                           size_t &numDocsOut) {
+                           std::string& snapshotIdOut,
+                           size_t& numDocsOut) {
     LOG_DEBUG("Persist complete with description: " << description);
     snapshotIdOut = snapshotIdIn;
     numDocsOut = numDocsIn;
@@ -65,34 +65,41 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{SRestoreTestConfig{"5.6.0", f
                                                    SRestoreTestConfig{"6.1.0", false, true}};
 }
 
-CppUnit::Test *CRestorePreviousStateTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRestorePreviousStateTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorPersistBy",
-        &CRestorePreviousStateTest::testRestoreDetectorBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorOver",
-        &CRestorePreviousStateTest::testRestoreDetectorOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorPartition",
-        &CRestorePreviousStateTest::testRestoreDetectorPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorDc",
-        &CRestorePreviousStateTest::testRestoreDetectorDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorCount",
-        &CRestorePreviousStateTest::testRestoreDetectorCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreNormalizer",
-        &CRestorePreviousStateTest::testRestoreNormalizer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreCategorizer",
-        &CRestorePreviousStateTest::testRestoreCategorizer));
+CppUnit::Test* CRestorePreviousStateTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestorePreviousStateTest");
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorPersistBy",
+                                       &CRestorePreviousStateTest::testRestoreDetectorBy));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorOver",
+                                       &CRestorePreviousStateTest::testRestoreDetectorOver));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorPartition",
+                                       &CRestorePreviousStateTest::testRestoreDetectorPartition));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorDc",
+                                       &CRestorePreviousStateTest::testRestoreDetectorDc));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreDetectorCount",
+                                       &CRestorePreviousStateTest::testRestoreDetectorCount));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreNormalizer",
+                                       &CRestorePreviousStateTest::testRestoreNormalizer));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRestorePreviousStateTest>("CRestorePreviousStateTest::testRestoreCategorizer",
+                                       &CRestorePreviousStateTest::testRestoreCategorizer));
     return suiteOfTests;
 }
 
 void CRestorePreviousStateTest::testRestoreDetectorBy(void) {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version +
                                                "/by_detector_state.json",
@@ -103,7 +110,7 @@ void CRestorePreviousStateTest::testRestoreDetectorBy(void) {
 }
 
 void CRestorePreviousStateTest::testRestoreDetectorOver(void) {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version +
                                                "/over_detector_state.json",
@@ -114,7 +121,7 @@ void CRestorePreviousStateTest::testRestoreDetectorOver(void) {
 }
 
 void CRestorePreviousStateTest::testRestoreDetectorPartition(void) {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version +
                                                "/partition_detector_state.json",
@@ -125,7 +132,7 @@ void CRestorePreviousStateTest::testRestoreDetectorPartition(void) {
 }
 
 void CRestorePreviousStateTest::testRestoreDetectorDc(void) {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version +
                                                "/dc_detector_state.json",
@@ -136,7 +143,7 @@ void CRestorePreviousStateTest::testRestoreDetectorDc(void) {
 }
 
 void CRestorePreviousStateTest::testRestoreDetectorCount(void) {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         this->anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version +
                                                "/count_detector_state.json",
@@ -147,7 +154,7 @@ void CRestorePreviousStateTest::testRestoreDetectorCount(void) {
 }
 
 void CRestorePreviousStateTest::testRestoreNormalizer() {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         ml::api::CCsvOutputWriter outputWriter;
@@ -158,14 +165,14 @@ void CRestorePreviousStateTest::testRestoreNormalizer() {
 }
 
 void CRestorePreviousStateTest::testRestoreCategorizer() {
-    for (const auto &version : BWC_VERSIONS) {
+    for (const auto& version : BWC_VERSIONS) {
         LOG_INFO("Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
                                  version.s_CategorizerRestoreIsSymmetric);
     }
 }
 
-void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string &stateFile,
+void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stateFile,
                                                          bool isSymmetric) {
     ml::model::CLimits limits;
     ml::api::CFieldConfig config("count", "mlcategory");
@@ -198,7 +205,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string &stat
         // same as the riginial
         std::string newPersistedState;
         {
-            std::ostringstream *strm(0);
+            std::ostringstream* strm(0);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
             CPPUNIT_ASSERT(restoredTyper.persistState(persister));
@@ -209,8 +216,8 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string &stat
     }
 }
 
-void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &stateFile,
-                                                             const std::string &configFileName,
+void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& stateFile,
+                                                             const std::string& configFileName,
                                                              bool isSymmetric,
                                                              int latencyBuckets) {
     // Open the input state file
@@ -228,8 +235,13 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
     CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, 0, false, "");
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE,
+                                                              ml::model_t::E_None,
+                                                              "",
+                                                              BUCKET_SIZE * latencyBuckets,
+                                                              0,
+                                                              false,
+                                                              "");
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
     CPPUNIT_ASSERT(outputStrm.is_open());
@@ -255,7 +267,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
     {
         ml::core_t::TTime completeToTime(0);
 
-        std::stringstream *output = new std::stringstream();
+        std::stringstream* output = new std::stringstream();
         ml::api::CSingleStreamSearcher::TIStreamP strm(output);
         boost::iostreams::filtering_ostream in;
         in.push(ml::api::CStateRestoreStreamFilter());
@@ -275,7 +287,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
         // same as the original
         std::string newPersistedState;
         {
-            std::ostringstream *strm(0);
+            std::ostringstream* strm(0);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
             CPPUNIT_ASSERT(restoredJob.persistState(persister));
@@ -288,7 +300,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
     }
 }
 
-std::string CRestorePreviousStateTest::stripDocIds(const std::string &persistedState) {
+std::string CRestorePreviousStateTest::stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
     // This is an index action followed by the document source:
     // { "index": { "id": "foo" ... }}\n

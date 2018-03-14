@@ -25,13 +25,14 @@
 #include <set>
 #include <string>
 
-CppUnit::Test *CThreadFarmTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
+CppUnit::Test* CThreadFarmTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus",
                                                                    &CThreadFarmTest::testNumCpus));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>(
-        "CThreadFarmTest::testSendReceive", &CThreadFarmTest::testSendReceive));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive",
+                                                 &CThreadFarmTest::testSendReceive));
 
     return suiteOfTests;
 }
@@ -47,21 +48,21 @@ class CString {
 public:
     CString(void) {}
 
-    CString(const std::string &str) : m_Str(str) {}
+    CString(const std::string& str) : m_Str(str) {}
 
-    CString(const CString &arg) : m_Str(arg.m_Str) {}
+    CString(const CString& arg) : m_Str(arg.m_Str) {}
 
-    CString &operator=(const CString &arg) {
+    CString& operator=(const CString& arg) {
         m_Str = arg.m_Str;
         return *this;
     }
 
-    CString &operator=(const std::string &str) {
+    CString& operator=(const std::string& str) {
         m_Str = str;
         return *this;
     }
 
-    const std::string &str(void) const { return m_Str; }
+    const std::string& str(void) const { return m_Str; }
 
 private:
     std::string m_Str;
@@ -69,7 +70,7 @@ private:
 
 class CHandler {
 public:
-    void processResult(const CString &result) {
+    void processResult(const CString& result) {
         LOG_DEBUG("Process result " << result.str() << " in thread "
                                     << ml::core::CThread::currentThreadId());
 
@@ -77,7 +78,7 @@ public:
         m_OutstandingOutput.erase(result.str());
     }
 
-    void addExpectedOutput(const std::string &expected) {
+    void addExpectedOutput(const std::string& expected) {
         ml::core::CScopedLock lock(m_Mutex);
         m_OutstandingOutput.insert(expected);
     }
@@ -102,9 +103,9 @@ private:
 
 class CProcessor {
 public:
-    CProcessor(const std::string &id) : m_Id(id) {}
+    CProcessor(const std::string& id) : m_Id(id) {}
 
-    void msgToResult(const std::string &str, CString &result) {
+    void msgToResult(const std::string& str, CString& result) {
         LOG_DEBUG("messageToResult " << str);
 
         result = (str + ' ' + m_Id);

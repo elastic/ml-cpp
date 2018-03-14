@@ -25,7 +25,7 @@ public:
     void testSparseGrid(void);
     void testMultivariateSmooth(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CIntegration_h
+#endif // INCLUDED_CIntegration_h

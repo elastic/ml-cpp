@@ -24,7 +24,7 @@ const std::string INDEX_TAG("a");
 CClustererTypes::CIndexGenerator::CIndexGenerator(void) : m_IndexHeap(new TSizeVec(1u, 0u)) {}
 
 bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(
-    core::CStateRestoreTraverser &traverser) {
+    core::CStateRestoreTraverser& traverser) {
     m_IndexHeap->clear();
 
     do {
@@ -38,7 +38,7 @@ bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(
 }
 
 void CClustererTypes::CIndexGenerator::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(INDEX_TAG, *m_IndexHeap, inserter);
 }
 

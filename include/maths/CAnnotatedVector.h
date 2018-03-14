@@ -29,7 +29,8 @@ namespace maths {
 //!
 //! \tparam VECTOR The vector type.
 //! \tparam ANNOTATION The annotated data type.
-template <typename VECTOR, typename ANNOTATION> class CAnnotatedVector : public VECTOR {
+template <typename VECTOR, typename ANNOTATION>
+class CAnnotatedVector : public VECTOR {
 public:
     typedef ANNOTATION TAnnotation;
     typedef typename SCoordinate<VECTOR>::Type TCoordinate;
@@ -42,7 +43,7 @@ public:
 
 public:
     //! Construct with a vector and annotation data.
-    CAnnotatedVector(const VECTOR &vector = VECTOR(), const ANNOTATION &annotation = ANNOTATION())
+    CAnnotatedVector(const VECTOR& vector = VECTOR(), const ANNOTATION& annotation = ANNOTATION())
         : VECTOR(vector), m_Annotation(annotation) {}
 
     //! Construct with a vector initialized with \p coordinate
@@ -50,10 +51,10 @@ public:
     explicit CAnnotatedVector(TCoordinate coordinate) : VECTOR(coordinate), m_Annotation() {}
 
     //! Get the annotation data by constant reference.
-    const ANNOTATION &annotation(void) const { return m_Annotation; }
+    const ANNOTATION& annotation(void) const { return m_Annotation; }
 
     //! Get the annotation data by reference.
-    ANNOTATION &annotation(void) { return m_Annotation; }
+    ANNOTATION& annotation(void) { return m_Annotation; }
 
 private:
     //! The data which has been annotated onto the vector.
@@ -62,4 +63,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CAnnotatedVector_h
+#endif // INCLUDED_ml_maths_CAnnotatedVector_h

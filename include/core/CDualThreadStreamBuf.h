@@ -99,7 +99,7 @@ protected:
 
     //! Get up to n characters from the read buffer and store them in the
     //! array pointed to by s.
-    virtual std::streamsize xsgetn(char *s, std::streamsize n);
+    virtual std::streamsize xsgetn(char* s, std::streamsize n);
 
     //! Try to obtain more data for the write buffer.  This is done by
     //! swapping it with the intermediate buffer.  This may block if no data
@@ -111,7 +111,7 @@ protected:
 
     //! Write up to n characters from the array pointed to by s into the
     //! write buffer.
-    virtual std::streamsize xsputn(const char *s, std::streamsize n);
+    virtual std::streamsize xsputn(const char* s, std::streamsize n);
 
     //! Try to obtain more space in the write buffer.  This is done by
     //! swapping it with the intermediate buffer.  This may block if no data
@@ -163,7 +163,7 @@ private:
     //! End of data held in the intermediate buffer.  If this points at the
     //! beginning of the intermediate buffer, the implication is that the
     //! buffer is empty.
-    char *m_IntermediateBufferEnd;
+    char* m_IntermediateBufferEnd;
 
     //! Number of bytes that have been swapped from the read buffer to the
     //! intermediate buffer over the lifetime of this object.  Enables
@@ -193,4 +193,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CDualThreadStreamBuf_h
+#endif // INCLUDED_ml_core_CDualThreadStreamBuf_h

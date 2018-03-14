@@ -33,7 +33,7 @@ const size_t TEST_COUNT(1000000000);
 
 typedef std::pair<size_t, uint64_t> TSizeUInt64Pr;
 
-size_t benchmark(char testId, ml::vfprog::CIncrementer &incrementer, size_t count) {
+size_t benchmark(char testId, ml::vfprog::CIncrementer& incrementer, size_t count) {
     size_t val(0);
     switch (testId) {
         case '1':
@@ -50,7 +50,7 @@ size_t benchmark(char testId, ml::vfprog::CIncrementer &incrementer, size_t coun
     return val;
 }
 
-size_t benchmark(char testId, ml::vflib::CIncrementer &incrementer, size_t count) {
+size_t benchmark(char testId, ml::vflib::CIncrementer& incrementer, size_t count) {
     size_t val(0);
     switch (testId) {
         case '4':
@@ -76,7 +76,8 @@ size_t benchmark(char testId, ml::vflib::CIncrementer &incrementer, size_t count
     return val;
 }
 
-template <typename INCREMENTER> TSizeUInt64Pr benchmark(char testId, INCREMENTER &incrementer) {
+template <typename INCREMENTER>
+TSizeUInt64Pr benchmark(char testId, INCREMENTER& incrementer) {
     ml::core::CMonotonicTime clock;
     TSizeUInt64Pr result;
 
@@ -103,7 +104,7 @@ TSizeUInt64Pr benchmark(char testId) {
 }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     if (argc != 2 || ::strlen(argv[1]) != 1 || argv[1][0] < '1' || argv[1][0] > '9') {
         std::cerr << "Usage: " << argv[0] << " <1-9>" << std::endl;
         return EXIT_FAILURE;

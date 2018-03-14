@@ -24,7 +24,7 @@ namespace ml {
 namespace model {
 
 CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
-    SAnnotatedProbability &annotatedProbability)
+    SAnnotatedProbability& annotatedProbability)
     : m_Result(annotatedProbability),
       m_NumberAttributeProbabilities(1),
       m_NumberOfPeople(0),
@@ -42,7 +42,7 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
 }
 
 CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
-    SAnnotatedProbability &annotatedProbability,
+    SAnnotatedProbability& annotatedProbability,
     std::size_t numberAttributeProbabilities,
     function_t::EFunction function,
     std::size_t numberOfPeople)
@@ -80,29 +80,36 @@ void CAnnotatedProbabilityBuilder::personFrequency(double frequency, bool everSe
 }
 
 void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(
-    const maths::CMultinomialConjugate *prior) {
+    const maths::CMultinomialConjugate* prior) {
     m_AttributeProbabilityPrior = prior;
 }
 
 void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(
-    const maths::CMultinomialConjugate *prior) {
+    const maths::CMultinomialConjugate* prior) {
     m_PersonAttributeProbabilityPrior = prior;
 }
 
-void CAnnotatedProbabilityBuilder::probability(double p) { m_Result.s_Probability = p; }
+void CAnnotatedProbabilityBuilder::probability(double p) {
+    m_Result.s_Probability = p;
+}
 
 void CAnnotatedProbabilityBuilder::addAttributeProbability(
     std::size_t cid,
-    const core::CStoredStringPtr &attribute,
+    const core::CStoredStringPtr& attribute,
     double pAttribute,
     double pGivenAttribute_,
     model_t::CResultType type,
     model_t::EFeature feature,
-    const TStoredStringPtr1Vec &correlatedAttributes,
-    const TSizeDoublePr1Vec &correlated) {
+    const TStoredStringPtr1Vec& correlatedAttributes,
+    const TSizeDoublePr1Vec& correlated) {
     type.set(m_Result.s_ResultType.asInterimOrFinal());
-    SAttributeProbability pGivenAttribute(
-        cid, attribute, pGivenAttribute_, type, feature, correlatedAttributes, correlated);
+    SAttributeProbability pGivenAttribute(cid,
+                                          attribute,
+                                          pGivenAttribute_,
+                                          type,
+                                          feature,
+                                          correlatedAttributes,
+                                          correlated);
     this->addAttributeDescriptiveData(cid, pAttribute, pGivenAttribute);
     m_MinAttributeProbabilities.add(pGivenAttribute);
     ++m_DistinctTotalAttributes;
@@ -111,7 +118,7 @@ void CAnnotatedProbabilityBuilder::addAttributeProbability(
 void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(
     std::size_t cid,
     double pAttribute,
-    SAttributeProbability &attributeProbability) {
+    SAttributeProbability& attributeProbability) {
     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
         double concentration;
         m_AttributeProbabilityPrior->concentration(static_cast<double>(cid), concentration);

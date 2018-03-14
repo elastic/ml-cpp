@@ -35,7 +35,7 @@ std::string CTestTmpDir::tmpDir(void) {
     ::memset(&pwd, 0, sizeof(pwd));
     static const size_t BUFSIZE(16384);
     char buffer[BUFSIZE] = {'\0'};
-    struct passwd *result(0);
+    struct passwd* result(0);
     ::getpwuid_r(::getuid(), &pwd, buffer, BUFSIZE, &result);
     if (result == 0 || result->pw_name == 0) {
         LOG_ERROR("Could not get current user name: " << ::strerror(errno));
@@ -50,7 +50,7 @@ std::string CTestTmpDir::tmpDir(void) {
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(userSubdir);
         boost::filesystem::create_directories(directoryPath);
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Failed to create directory " << userSubdir << " - " << e.what());
         return "/tmp";
     }

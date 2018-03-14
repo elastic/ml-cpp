@@ -21,7 +21,7 @@ class CTickerTest : public CppUnit::TestFixture {
 public:
     void testTicker(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTickerTest_h
+#endif // INCLUDED_CTickerTest_h

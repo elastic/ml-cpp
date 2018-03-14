@@ -35,9 +35,9 @@ namespace core {
 //!
 class CORE_EXPORT CTimeGm : private CNonInstantiatable {
 public:
-    static time_t timeGm(struct tm *ts);
+    static time_t timeGm(struct tm* ts);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CTimeGm_h
+#endif // INCLUDED_ml_core_CTimeGm_h

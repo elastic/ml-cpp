@@ -49,14 +49,14 @@ public:
     virtual ~CXmlParserIntf(void);
 
     //! Parse XML stored in a string
-    virtual bool parseString(const std::string &xml) = 0;
+    virtual bool parseString(const std::string& xml) = 0;
 
     //! Parse XML stored in a char buffer
-    virtual bool parseBuffer(const char *begin, size_t length) = 0;
+    virtual bool parseBuffer(const char* begin, size_t length) = 0;
 
     //! Parse XML stored in a char buffer that may be modified by the
     //! parsing and will outlive this object
-    virtual bool parseBufferInSitu(char *begin, size_t length) = 0;
+    virtual bool parseBufferInSitu(char* begin, size_t length) = 0;
 
     //! Return the root element name (empty string if not parsed yet)
     virtual std::string rootElementName(void) const = 0;
@@ -69,24 +69,24 @@ public:
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
     virtual bool
-    toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const = 0;
+    toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
     virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const = 0;
+    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
     virtual bool
-    toNodeHierarchy(CStringCache &cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const = 0;
+    toNodeHierarchy(CStringCache& cache,
+                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use both a node pool and a string cache
     virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool &pool,
-                    CStringCache &cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const = 0;
+    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                    CStringCache& cache,
+                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
@@ -94,18 +94,18 @@ public:
     virtual bool navigateFirstChild(void) = 0;
     virtual bool navigateNext(void) = 0;
     virtual bool navigateParent(void) = 0;
-    virtual bool currentNodeName(std::string &name) = 0;
-    virtual bool currentNodeValue(std::string &value) = 0;
+    virtual bool currentNodeName(std::string& name) = 0;
+    virtual bool currentNodeValue(std::string& value) = 0;
 
     //! Replace characters that are not valid in an XML element name
     //! with underscores
-    static std::string makeValidName(const std::string &str);
+    static std::string makeValidName(const std::string& str);
 
     //! Reformat a piece of XML to a single line.  Useful for writing files
     //! where each line contains a complete XML document.
-    static std::string toOneLine(const std::string &xml);
+    static std::string toOneLine(const std::string& xml);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CXmlParserIntf_h
+#endif // INCLUDED_ml_core_CXmlParserIntf_h

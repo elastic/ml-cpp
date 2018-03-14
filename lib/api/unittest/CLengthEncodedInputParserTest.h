@@ -23,7 +23,7 @@ public:
     void testThroughput(void);
     void testCorruptStreamDetection(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CLengthEncodedInputParserTest_h
+#endif // INCLUDED_CLengthEncodedInputParserTest_h

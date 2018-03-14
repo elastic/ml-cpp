@@ -23,7 +23,7 @@
 
 class CFieldConfigTest : public CppUnit::TestFixture {
 public:
-    using TInitFromFileFunc = std::function<bool(ml::api::CFieldConfig *, const std::string &)>;
+    using TInitFromFileFunc = std::function<bool(ml::api::CFieldConfig*, const std::string&)>;
 
 public:
     void testTrivial(void);
@@ -47,19 +47,19 @@ public:
     void testAddOptions(void);
     void testScheduledEvents(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
-    void testValidFile(TInitFromFileFunc initFunc, const std::string &fileName);
-    void testInvalidFile(TInitFromFileFunc initFunc, const std::string &fileName);
+    void testValidFile(TInitFromFileFunc initFunc, const std::string& fileName);
+    void testInvalidFile(TInitFromFileFunc initFunc, const std::string& fileName);
     void testValidSummaryCountFieldNameFile(TInitFromFileFunc initFunc,
-                                            const std::string &fileName);
-    void testValidPopulationFile(TInitFromFileFunc initFunc, const std::string &fileName);
+                                            const std::string& fileName);
+    void testValidPopulationFile(TInitFromFileFunc initFunc, const std::string& fileName);
     void testDefaultCategorizationFieldFile(TInitFromFileFunc initFunc,
-                                            const std::string &fileName);
-    void testExcludeFrequentFile(TInitFromFileFunc initFunc, const std::string &fileName);
-    void testSlashesFile(TInitFromFileFunc initFunc, const std::string &fileName);
-    void testBracketPercentFile(TInitFromFileFunc initFunc, const std::string &fileName);
+                                            const std::string& fileName);
+    void testExcludeFrequentFile(TInitFromFileFunc initFunc, const std::string& fileName);
+    void testSlashesFile(TInitFromFileFunc initFunc, const std::string& fileName);
+    void testBracketPercentFile(TInitFromFileFunc initFunc, const std::string& fileName);
 };
 
-#endif// INCLUDED_CFieldConfigTest_h
+#endif // INCLUDED_CFieldConfigTest_h

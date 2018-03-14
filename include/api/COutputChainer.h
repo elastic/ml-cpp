@@ -48,17 +48,17 @@ class CDataProcessor;
 class API_EXPORT COutputChainer : public COutputHandler {
 public:
     //! Construct with a reference to the next data processor in the chain
-    COutputChainer(CDataProcessor &dataProcessor);
+    COutputChainer(CDataProcessor& dataProcessor);
 
     //! We're going to be writing to a new output stream
     virtual void newOutputStream(void);
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Get field names
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
@@ -67,8 +67,8 @@ public:
     //! values, optionally overriding some of the original field values.
     //! Where the same field is present in both overrideDataRowFields and
     //! dataRowFields, the value in overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -81,13 +81,13 @@ public:
     virtual void finalise(void);
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher, core_t::TTime &completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder &persister);
+    virtual bool persistState(core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister &persister);
+    virtual bool periodicPersistState(CBackgroundPersister& persister);
 
     //! The chainer does consume control messages, because it passes them on
     //! to whatever processor it's chained to.
@@ -96,7 +96,7 @@ public:
 private:
     //! The function that will be called for every record output via this
     //! object
-    CDataProcessor &m_DataProcessor;
+    CDataProcessor& m_DataProcessor;
 
     //! Field names in the order they are to be written to the output
     TStrVec m_FieldNames;
@@ -122,4 +122,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_COutputChainer_h
+#endif // INCLUDED_ml_api_COutputChainer_h

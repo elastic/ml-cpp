@@ -63,32 +63,42 @@ IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
 
 CJsonLogLayout::CJsonLogLayout(void) : m_LocationInfo(true), m_Properties(false) {}
 
-void CJsonLogLayout::locationInfo(bool locationInfo) { m_LocationInfo = locationInfo; }
+void CJsonLogLayout::locationInfo(bool locationInfo) {
+    m_LocationInfo = locationInfo;
+}
 
-bool CJsonLogLayout::locationInfo(void) const { return m_LocationInfo; }
+bool CJsonLogLayout::locationInfo(void) const {
+    return m_LocationInfo;
+}
 
-void CJsonLogLayout::properties(bool properties) { m_Properties = properties; }
+void CJsonLogLayout::properties(bool properties) {
+    m_Properties = properties;
+}
 
-bool CJsonLogLayout::properties(void) const { return m_Properties; }
+bool CJsonLogLayout::properties(void) const {
+    return m_Properties;
+}
 
-void CJsonLogLayout::activateOptions(Pool & /*p*/) {
+void CJsonLogLayout::activateOptions(Pool& /*p*/) {
     // NO-OP
 }
 
-void CJsonLogLayout::setOption(const LogString &option, const LogString &value) {
-    if (StringHelper::equalsIgnoreCase(
-            option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo"))) {
+void CJsonLogLayout::setOption(const LogString& option, const LogString& value) {
+    if (StringHelper::equalsIgnoreCase(option,
+                                       LOG4CXX_STR("LOCATIONINFO"),
+                                       LOG4CXX_STR("locationinfo"))) {
         this->locationInfo(OptionConverter::toBoolean(value, false));
     }
-    if (StringHelper::equalsIgnoreCase(
-            option, LOG4CXX_STR("PROPERTIES"), LOG4CXX_STR("properties"))) {
+    if (StringHelper::equalsIgnoreCase(option,
+                                       LOG4CXX_STR("PROPERTIES"),
+                                       LOG4CXX_STR("properties"))) {
         this->properties(OptionConverter::toBoolean(value, false));
     }
 }
 
-void CJsonLogLayout::format(LogString &output,
-                            const spi::LoggingEventPtr &event,
-                            Pool & /*p*/) const {
+void CJsonLogLayout::format(LogString& output,
+                            const spi::LoggingEventPtr& event,
+                            Pool& /*p*/) const {
     typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
     rapidjson::StringBuffer buffer;
     TStringBufferWriter writer(buffer);
@@ -125,15 +135,15 @@ void CJsonLogLayout::format(LogString &output,
     }
 
     if (m_LocationInfo) {
-        const spi::LocationInfo &locInfo = event->getLocationInformation();
+        const spi::LocationInfo& locInfo = event->getLocationInformation();
 
-        const std::string &className = locInfo.getClassName();
+        const std::string& className = locInfo.getClassName();
         if (!className.empty()) {
             writer.String(CLASS_NAME);
             writer.String(className);
         }
 
-        const std::string &methodName = locInfo.getMethodName();
+        const std::string& methodName = locInfo.getMethodName();
         if (!methodName.empty()) {
             writer.String(METHOD_NAME);
             writer.String(methodName);
@@ -147,15 +157,15 @@ void CJsonLogLayout::format(LogString &output,
     }
 
     if (m_Properties) {
-        const spi::LoggingEvent::KeySet &propertySet = event->getPropertyKeySet();
-        const spi::LoggingEvent::KeySet &keySet = event->getMDCKeySet();
+        const spi::LoggingEvent::KeySet& propertySet = event->getPropertyKeySet();
+        const spi::LoggingEvent::KeySet& keySet = event->getMDCKeySet();
         if (!(keySet.empty() && propertySet.empty())) {
             writer.String(PROPERTIES_NAME);
             writer.StartObject();
 
             for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin(); i != keySet.end();
                  ++i) {
-                const LogString &key = *i;
+                const LogString& key = *i;
                 LogString value;
                 if (event->getMDC(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
@@ -167,7 +177,7 @@ void CJsonLogLayout::format(LogString &output,
             for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin();
                  i != propertySet.end();
                  ++i) {
-                const LogString &key = *i;
+                const LogString& key = *i;
                 LogString value;
                 if (event->getProperty(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
@@ -187,9 +197,11 @@ void CJsonLogLayout::format(LogString &output,
     output.append(LOG4CXX_EOL);
 }
 
-bool CJsonLogLayout::ignoresThrowable(void) const { return false; }
+bool CJsonLogLayout::ignoresThrowable(void) const {
+    return false;
+}
 
-std::string CJsonLogLayout::cropPath(const std::string &filename) {
+std::string CJsonLogLayout::cropPath(const std::string& filename) {
     boost::filesystem::path p(filename);
     return p.filename().string();
 }

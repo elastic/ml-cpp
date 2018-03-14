@@ -60,26 +60,26 @@ public:
     static const std::string KILL;
 
 public:
-    CCommandProcessor(const TStrVec &permittedProcessPaths);
+    CCommandProcessor(const TStrVec& permittedProcessPaths);
 
     //! Action commands read from the supplied \p stream until end-of-file
     //! is reached.
-    void processCommands(std::istream &stream);
+    void processCommands(std::istream& stream);
 
     //! Parse and handle a single command.
-    bool handleCommand(const std::string &command);
+    bool handleCommand(const std::string& command);
 
 private:
     //! Handle a start command.
     //! \param tokens Tokens to the command excluding the verb.  Passed
     //!               non-const so that this method can manipulate the
     //!               tokens without having to copy.
-    bool handleStart(TStrVec &tokens);
+    bool handleStart(TStrVec& tokens);
 
     //! Handle a kill command.
     //! \param tokens Expected to contain one element, namely the process
     //!               ID of the process to be killed.
-    bool handleKill(TStrVec &tokens);
+    bool handleKill(TStrVec& tokens);
 
 private:
     //! Used to spawn/kill the requested processes.
@@ -88,4 +88,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_controller_CCommandProcessor_h
+#endif // INCLUDED_ml_controller_CCommandProcessor_h

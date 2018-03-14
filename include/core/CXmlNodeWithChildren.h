@@ -46,31 +46,31 @@ public:
 public:
     CXmlNodeWithChildren(void);
 
-    CXmlNodeWithChildren(const std::string &name);
+    CXmlNodeWithChildren(const std::string& name);
 
-    CXmlNodeWithChildren(const std::string &name, const std::string &value);
+    CXmlNodeWithChildren(const std::string& name, const std::string& value);
 
-    CXmlNodeWithChildren(const std::string &name,
-                         const std::string &value,
-                         const CXmlNode::TStrStrMap &attributes);
+    CXmlNodeWithChildren(const std::string& name,
+                         const std::string& value,
+                         const CXmlNode::TStrStrMap& attributes);
 
-    CXmlNodeWithChildren(const CXmlNodeWithChildren &arg);
+    CXmlNodeWithChildren(const CXmlNodeWithChildren& arg);
 
     virtual ~CXmlNodeWithChildren(void);
 
-    CXmlNodeWithChildren &operator=(const CXmlNodeWithChildren &rhs);
+    CXmlNodeWithChildren& operator=(const CXmlNodeWithChildren& rhs);
 
     //! Add a child with no children of its own
-    void addChild(const CXmlNode &child);
+    void addChild(const CXmlNode& child);
 
     //! Add a child
-    void addChild(const CXmlNodeWithChildren &child);
+    void addChild(const CXmlNodeWithChildren& child);
 
     //! Add a child wrapped in a shared pointer
-    void addChildP(const TXmlNodeWithChildrenP &childP);
+    void addChildP(const TXmlNodeWithChildrenP& childP);
 
     //! Get children
-    const TChildNodePVec &children(void) const;
+    const TChildNodePVec& children(void) const;
 
     //! Debug dump of hierarchy
     virtual std::string dump(void) const;
@@ -87,4 +87,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CXmlNodeWithChildren_h
+#endif // INCLUDED_ml_core_CXmlNodeWithChildren_h

@@ -77,10 +77,10 @@ public:
     static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520;// 20MB
+    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520; // 20MB
 
     //! minimum time between stat updates to prevent to many updates in a short time
-    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000;// 3s
+    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000; // 3s
 
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -116,9 +116,9 @@ public:
     //! Initialize and start the forecast runner thread
     //! \p jobId The job ID
     //! \p strmOut The output stream to write forecast results to
-    CForecastRunner(const std::string &jobId,
-                    core::CJsonOutputStreamWrapper &strmOut,
-                    model::CResourceMonitor &resourceMonitor);
+    CForecastRunner(const std::string& jobId,
+                    core::CJsonOutputStreamWrapper& strmOut,
+                    model::CResourceMonitor& resourceMonitor);
 
     //! Destructor, cancels all queued forecast requests, finishes a running forecast.
     //! To finish all remaining forecasts call finishForecasts() first.
@@ -137,8 +137,8 @@ public:
     //! \param controlMessage The control message retrieved.
     //! \param detectors vector of detectors (shallow copy)
     //! \return true if the forecast request passed validation
-    bool pushForecastJob(const std::string &controlMessage,
-                         const TAnomalyDetectorPtrVec &detectors,
+    bool pushForecastJob(const std::string& controlMessage,
+                         const TAnomalyDetectorPtrVec& detectors,
                          const core_t::TTime lastResultsTime);
 
     //! Blocks and waits until all queued forecasts are done
@@ -151,11 +151,11 @@ private:
     struct API_EXPORT SForecast {
         SForecast();
 
-        SForecast(SForecast &&other);
-        SForecast &operator=(SForecast &&other);
+        SForecast(SForecast&& other);
+        SForecast& operator=(SForecast&& other);
 
-        SForecast(const SForecast &that) = delete;
-        SForecast &operator=(const SForecast &) = delete;
+        SForecast(const SForecast& that) = delete;
+        SForecast& operator=(const SForecast&) = delete;
 
         //! reset the struct, important to e.g. clean up reference counts
         void reset();
@@ -202,47 +202,47 @@ private:
 
 private:
     using TErrorFunc =
-        std::function<void(const SForecast &forecastJob, const std::string &message)>;
+        std::function<void(const SForecast& forecastJob, const std::string& message)>;
 
 private:
     //! The worker loop
     void forecastWorker();
 
     //! Check for new jobs, blocks while waiting
-    bool tryGetJob(SForecast &forecastJob);
+    bool tryGetJob(SForecast& forecastJob);
 
     //! pushes new jobs into the internal 'queue' (thread boundary)
-    bool push(SForecast &forecastJob);
+    bool push(SForecast& forecastJob);
 
     //! send a scheduled message
-    void sendScheduledMessage(const SForecast &forecastJob) const;
+    void sendScheduledMessage(const SForecast& forecastJob) const;
 
     //! send an error message
-    void sendErrorMessage(const SForecast &forecastJob, const std::string &message) const;
+    void sendErrorMessage(const SForecast& forecastJob, const std::string& message) const;
 
     //! send a final message
-    void sendFinalMessage(const SForecast &forecastJob, const std::string &message) const;
+    void sendFinalMessage(const SForecast& forecastJob, const std::string& message) const;
 
     //! send a message using \p write
     template <typename WRITE>
-    void sendMessage(WRITE write, const SForecast &forecastJob, const std::string &message) const;
+    void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool parseAndValidateForecastRequest(const std::string &controlMessage,
-                                                SForecast &forecastJob,
+    static bool parseAndValidateForecastRequest(const std::string& controlMessage,
+                                                SForecast& forecastJob,
                                                 const core_t::TTime lastResultsTime,
-                                                const TErrorFunc &errorFunction = TErrorFunc());
+                                                const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID
     std::string m_JobId;
 
     //! the output stream to write results to
-    core::CJsonOutputStreamWrapper &m_ConcurrentOutputStream;
+    core::CJsonOutputStreamWrapper& m_ConcurrentOutputStream;
 
     //! The resource monitor by reference (owned by CAnomalyJob)
     //! note: we use the resource monitor only for checks at the moment
-    model::CResourceMonitor &m_ResourceMonitor;
+    model::CResourceMonitor& m_ResourceMonitor;
 
     //! thread for the worker
     std::thread m_Worker;
@@ -267,4 +267,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CForecastRunner_h
+#endif // INCLUDED_ml_api_CForecastRunner_h

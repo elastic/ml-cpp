@@ -47,24 +47,24 @@ public:
 
 public:
     CCategoryExamplesCollector(std::size_t maxExamples);
-    CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser &traverser);
+    CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser& traverser);
 
     //! Adds the example to the category if the example is a new
     //! distinct example and if there are less than the maximum
     //! number of examples for the given category.
     //! Returns true if the example was added or false otherwise.
-    bool add(std::size_t category, const std::string &example);
+    bool add(std::size_t category, const std::string& example);
 
     //! Returns the number of examples currently stored for a given category.
     std::size_t numberOfExamplesForCategory(std::size_t category) const;
 
-    const TStrSet &examples(std::size_t category) const;
+    const TStrSet& examples(std::size_t category) const;
 
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Populate the object from part of a state document
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Clear all examples
     void clear(void);
@@ -74,9 +74,9 @@ private:
 
 private:
     void persistExamples(std::size_t category,
-                         const TStrSet &examples,
-                         core::CStatePersistInserter &inserter) const;
-    bool restoreExamples(core::CStateRestoreTraverser &traverser);
+                         const TStrSet& examples,
+                         core::CStatePersistInserter& inserter) const;
+    bool restoreExamples(core::CStateRestoreTraverser& traverser);
 
     //! Truncate long examples to MAX_EXAMPLE_LENGTH bytes, appending an
     //! ellipsis to those that are truncated.
@@ -92,4 +92,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CCategoryExamplesCollector_h
+#endif // INCLUDED_ml_api_CCategoryExamplesCollector_h

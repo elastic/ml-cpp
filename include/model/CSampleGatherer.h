@@ -60,7 +60,8 @@ namespace model {
 //!
 //! \tparam STATISTIC This must satisfy the requirements imposed
 //! by CMetricPartialStatistic.
-template <typename STATISTIC, model_t::EFeature FEATURE> class CSampleGatherer {
+template <typename STATISTIC, model_t::EFeature FEATURE>
+class CSampleGatherer {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TStrVec = std::vector<std::string>;
@@ -89,7 +90,7 @@ public:
     static const std::string DIMENSION_TAG;
 
 public:
-    CSampleGatherer(const SModelParams &params,
+    CSampleGatherer(const SModelParams& params,
                     std::size_t dimension,
                     core_t::TTime startTime,
                     core_t::TTime bucketLength,
@@ -105,49 +106,51 @@ public:
                         bucketLength,
                         startTime,
                         TMetricPartialStatistic(dimension)),
-          m_InfluencerBucketStats(
-              std::distance(beginInfluencers, endInfluencers),
-              TStoredStringPtrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
-                                                  bucketLength,
-                                                  startTime,
-                                                  TStoredStringPtrStatUMap(1))) {}
+          m_InfluencerBucketStats(std::distance(beginInfluencers, endInfluencers),
+                                  TStoredStringPtrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
+                                                                      bucketLength,
+                                                                      startTime,
+                                                                      TStoredStringPtrStatUMap(
+                                                                          1))) {}
 
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(DIMENSION_TAG, m_Dimension);
-        inserter.insertLevel(
-            CLASSIFIER_TAG,
-            boost::bind(&CDataClassifier::acceptPersistInserter, &m_Classifier, _1));
+        inserter.insertLevel(CLASSIFIER_TAG,
+                             boost::bind(&CDataClassifier::acceptPersistInserter,
+                                         &m_Classifier,
+                                         _1));
         if (m_SampleStats.size() > 0) {
-            inserter.insertLevel(
-                SAMPLE_STATS_TAG,
-                boost::bind(&TSampleQueue::acceptPersistInserter, &m_SampleStats, _1));
+            inserter.insertLevel(SAMPLE_STATS_TAG,
+                                 boost::bind(&TSampleQueue::acceptPersistInserter,
+                                             &m_SampleStats,
+                                             _1));
         }
         if (m_BucketStats.size() > 0) {
-            inserter.insertLevel(
-                BUCKET_STATS_TAG,
-                boost::bind<void>(TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
-                                  boost::cref(m_BucketStats),
-                                  _1));
+            inserter.insertLevel(BUCKET_STATS_TAG,
+                                 boost::bind<void>(TStatBucketQueueSerializer(
+                                                       TMetricPartialStatistic(m_Dimension)),
+                                                   boost::cref(m_BucketStats),
+                                                   _1));
         }
-        for (const auto &stats : m_InfluencerBucketStats) {
-            inserter.insertLevel(
-                INFLUENCER_BUCKET_STATS_TAG,
-                boost::bind<void>(TStoredStringPtrStatUMapBucketQueueSerializer(
-                                      TStoredStringPtrStatUMap(1),
-                                      CStoredStringPtrStatUMapSerializer(m_Dimension)),
-                                  boost::cref(stats),
-                                  _1));
+        for (const auto& stats : m_InfluencerBucketStats) {
+            inserter.insertLevel(INFLUENCER_BUCKET_STATS_TAG,
+                                 boost::bind<void>(TStoredStringPtrStatUMapBucketQueueSerializer(
+                                                       TStoredStringPtrStatUMap(1),
+                                                       CStoredStringPtrStatUMapSerializer(
+                                                           m_Dimension)),
+                                                   boost::cref(stats),
+                                                   _1));
         }
     }
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         std::size_t i = 0u;
         do {
-            const std::string &name = traverser.name();
+            const std::string& name = traverser.name();
             TMetricPartialStatistic stat(m_Dimension);
             RESTORE_BUILT_IN(DIMENSION_TAG, m_Dimension)
             RESTORE(CLASSIFIER_TAG,
@@ -157,10 +160,11 @@ public:
                     traverser.traverseSubLevel(
                         boost::bind(&TSampleQueue::acceptRestoreTraverser, &m_SampleStats, _1)))
             RESTORE(BUCKET_STATS_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        TStatBucketQueueSerializer(TMetricPartialStatistic(m_Dimension)),
-                        boost::ref(m_BucketStats),
-                        _1)))
+                    traverser.traverseSubLevel(
+                        boost::bind<bool>(TStatBucketQueueSerializer(
+                                              TMetricPartialStatistic(m_Dimension)),
+                                          boost::ref(m_BucketStats),
+                                          _1)))
             RESTORE(INFLUENCER_BUCKET_STATS_TAG,
                     i < m_InfluencerBucketStats.size() &&
                         traverser.traverseSubLevel(
@@ -186,7 +190,7 @@ public:
     SMetricFeatureData featureData(core_t::TTime time,
                                    core_t::TTime /*bucketLength*/,
                                    double effectiveSampleCount) const {
-        const TMetricPartialStatistic &bucketPartial = m_BucketStats.get(time);
+        const TMetricPartialStatistic& bucketPartial = m_BucketStats.get(time);
         double count = bucketPartial.count();
         if (count > 0.0) {
             core_t::TTime bucketTime = bucketPartial.time();
@@ -194,14 +198,16 @@ public:
             if (bucketValue.size() > 0) {
                 TStrCRefDouble1VecDoublePrPrVecVec influenceValues(m_InfluencerBucketStats.size());
                 for (std::size_t i = 0u; i < m_InfluencerBucketStats.size(); ++i) {
-                    const TStoredStringPtrStatUMap &influencerStats =
+                    const TStoredStringPtrStatUMap& influencerStats =
                         m_InfluencerBucketStats[i].get(time);
                     influenceValues[i].reserve(influencerStats.size());
-                    for (const auto &stat : influencerStats) {
-                        influenceValues[i].emplace_back(
-                            boost::cref(*stat.first),
-                            std::make_pair(CMetricStatisticWrappers::influencerValue(stat.second),
-                                           CMetricStatisticWrappers::count(stat.second)));
+                    for (const auto& stat : influencerStats) {
+                        influenceValues[i]
+                            .emplace_back(boost::cref(*stat.first),
+                                          std::make_pair(CMetricStatisticWrappers::influencerValue(
+                                                             stat.second),
+                                                         CMetricStatisticWrappers::count(
+                                                             stat.second)));
                     }
                 }
                 return {bucketTime,
@@ -240,9 +246,9 @@ public:
     //! \param[in] influences The influencing field values which
     //! label \p value.
     inline void add(core_t::TTime time,
-                    const TDouble1Vec &value,
+                    const TDouble1Vec& value,
                     unsigned int sampleCount,
-                    const TStoredStringPtrVec &influences) {
+                    const TStoredStringPtrVec& influences) {
         this->add(time, value, 1, sampleCount, influences);
     }
 
@@ -255,10 +261,10 @@ public:
     //! \param[in] influences The influencing field values which
     //! label \p value.
     void add(core_t::TTime time,
-             const TDouble1Vec &statistic,
+             const TDouble1Vec& statistic,
              unsigned int count,
              unsigned int sampleCount,
-             const TStoredStringPtrVec &influences) {
+             const TStoredStringPtrVec& influences) {
         if (sampleCount > 0) {
             m_SampleStats.add(time, statistic, count, sampleCount);
         }
@@ -269,7 +275,7 @@ public:
             if (!influences[i]) {
                 continue;
             }
-            TStoredStringPtrStatUMap &stats = m_InfluencerBucketStats[i].get(time);
+            TStoredStringPtrStatUMap& stats = m_InfluencerBucketStats[i].get(time);
             auto j = stats
                          .emplace(influences[i],
                                   CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension))
@@ -281,7 +287,7 @@ public:
     //! Update the state to represent the start of a new bucket.
     void startNewBucket(core_t::TTime time) {
         m_BucketStats.push(TMetricPartialStatistic(m_Dimension), time);
-        for (auto &&stats : m_InfluencerBucketStats) {
+        for (auto&& stats : m_InfluencerBucketStats) {
             stats.push(TStoredStringPtrStatUMap(1), time);
         }
         m_Samples.clear();
@@ -290,7 +296,7 @@ public:
     //! Reset the bucket state for the bucket containing \p bucketStart.
     void resetBucket(core_t::TTime bucketStart) {
         m_BucketStats.get(bucketStart) = TMetricPartialStatistic(m_Dimension);
-        for (auto &&stats : m_InfluencerBucketStats) {
+        for (auto&& stats : m_InfluencerBucketStats) {
             stats.get(bucketStart) = TStoredStringPtrStatUMap(1);
         }
         m_SampleStats.resetBucket(bucketStart);
@@ -301,7 +307,7 @@ public:
         if (m_SampleStats.latestEnd() >= samplingCutoffTime) {
             return false;
         }
-        for (const auto &bucket : m_BucketStats) {
+        for (const auto& bucket : m_BucketStats) {
             if (bucket.count() > 0.0) {
                 return false;
             }
@@ -352,13 +358,13 @@ private:
 private:
     //! \brief Manages persistence of bucket statistics.
     struct SStatSerializer {
-        void operator()(const TMetricPartialStatistic &stat,
-                        core::CStatePersistInserter &inserter) const {
+        void operator()(const TMetricPartialStatistic& stat,
+                        core::CStatePersistInserter& inserter) const {
             stat.persist(inserter);
         }
 
-        bool operator()(TMetricPartialStatistic &stat,
-                        core::CStateRestoreTraverser &traverser) const {
+        bool operator()(TMetricPartialStatistic& stat,
+                        core::CStateRestoreTraverser& traverser) const {
             return stat.restore(traverser);
         }
     };
@@ -371,34 +377,35 @@ private:
         CStoredStringPtrStatUMapSerializer(std::size_t dimension)
             : m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
-        void operator()(const TStoredStringPtrStatUMap &map,
-                        core::CStatePersistInserter &inserter) const {
+        void operator()(const TStoredStringPtrStatUMap& map,
+                        core::CStatePersistInserter& inserter) const {
             using TStatCRef = boost::reference_wrapper<const STATISTIC>;
             using TStrCRefStatCRefPr = std::pair<TStrCRef, TStatCRef>;
             using TStrCRefStatCRefPrVec = std::vector<TStrCRefStatCRefPr>;
             TStrCRefStatCRefPrVec ordered;
             ordered.reserve(map.size());
-            for (const auto &stat : map) {
+            for (const auto& stat : map) {
                 ordered.emplace_back(TStrCRef(*stat.first), TStatCRef(stat.second));
             }
             std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
-            for (const auto &stat : ordered) {
+            for (const auto& stat : ordered) {
                 inserter.insertValue(MAP_KEY_TAG, stat.first);
                 CMetricStatisticWrappers::persist(stat.second.get(), MAP_VALUE_TAG, inserter);
             }
         }
 
-        bool operator()(TStoredStringPtrStatUMap &map,
-                        core::CStateRestoreTraverser &traverser) const {
+        bool operator()(TStoredStringPtrStatUMap& map,
+                        core::CStateRestoreTraverser& traverser) const {
             std::string key;
             do {
-                const std::string &name = traverser.name();
+                const std::string& name = traverser.name();
                 RESTORE_NO_ERROR(MAP_KEY_TAG, key = traverser.value())
                 RESTORE(MAP_VALUE_TAG,
-                        CMetricStatisticWrappers::restore(
-                            traverser,
-                            map.insert({CStringStore::influencers().get(key), m_Initial})
-                                .first->second))
+                        CMetricStatisticWrappers::restore(traverser,
+                                                          map.insert({CStringStore::influencers()
+                                                                          .get(key),
+                                                                      m_Initial})
+                                                              .first->second))
             } while (traverser.next());
             return true;
         }
@@ -451,10 +458,10 @@ const std::string CSampleGatherer<STATISTIC, FEATURE>::MAP_VALUE_TAG("b");
 
 //! Overload print operator for feature data.
 MODEL_EXPORT
-inline std::ostream &operator<<(std::ostream &o, const SMetricFeatureData &fd) {
+inline std::ostream& operator<<(std::ostream& o, const SMetricFeatureData& fd) {
     return o << fd.print();
 }
 }
 }
 
-#endif// INCLUDED_ml_model_CSampleGatherer_h
+#endif // INCLUDED_ml_model_CSampleGatherer_h

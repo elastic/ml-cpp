@@ -40,7 +40,7 @@ namespace core {
 class CORE_EXPORT CCompressOStream : public std::ostream {
 public:
     //! Constructor
-    CCompressOStream(CStateCompressor::CChunkFilter &filter);
+    CCompressOStream(CStateCompressor::CChunkFilter& filter);
 
     //! Destructor will close the stream
     virtual ~CCompressOStream(void);
@@ -51,9 +51,9 @@ public:
 private:
     class CCompressThread : public CThread {
     public:
-        CCompressThread(CCompressOStream &stream,
-                        CDualThreadStreamBuf &streamBuf,
-                        CStateCompressor::CChunkFilter &filter);
+        CCompressThread(CCompressOStream& stream,
+                        CDualThreadStreamBuf& streamBuf,
+                        CStateCompressor::CChunkFilter& filter);
 
     protected:
         //! Implementation of inherited interface
@@ -62,15 +62,15 @@ private:
 
     public:
         //! Reference to the owning stream
-        CCompressOStream &m_Stream;
+        CCompressOStream& m_Stream;
 
         //! Reference to the owning stream's buffer
-        CDualThreadStreamBuf &m_StreamBuf;
+        CDualThreadStreamBuf& m_StreamBuf;
 
     private:
         //! Reference to the output sink - this handles
         //! downstream writing to datastore
-        CStateCompressor::CChunkFilter &m_FilterSink;
+        CStateCompressor::CChunkFilter& m_FilterSink;
 
         //! The gzip filter to live within the new thread
         CStateCompressor::TFilteredOutput m_OutFilter;
@@ -84,7 +84,7 @@ private:
     CCompressThread m_UploadThread;
 };
 
-}// core
-}// ml
+} // core
+} // ml
 
-#endif// INCLUDED_ml_core_CCompressOStream_h
+#endif // INCLUDED_ml_core_CCompressOStream_h

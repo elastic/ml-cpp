@@ -25,7 +25,7 @@ public:
     void testJaccard(void);
     void testOverlap(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CSetToolsTest_h
+#endif // INCLUDED_CSetToolsTest_h

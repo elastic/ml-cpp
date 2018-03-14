@@ -40,14 +40,14 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
             // heuristics in crossref.py worked
             return CWordDictionary::E_UnknownPart;
         case 'N':
-        case 'h':// Currently don't distinguish noun phrases
-        case 'o':// Currently don't distinguish nominative nouns
+        case 'h': // Currently don't distinguish noun phrases
+        case 'o': // Currently don't distinguish nominative nouns
             return CWordDictionary::E_Noun;
         case 'p':
             return CWordDictionary::E_Plural;
         case 'V':
-        case 't':// Currently don't distinguish transitive verbs
-        case 'i':// Currently don't distinguish intransitive verbs
+        case 't': // Currently don't distinguish transitive verbs
+        case 'i': // Currently don't distinguish intransitive verbs
             return CWordDictionary::E_Verb;
         case 'A':
             return CWordDictionary::E_Adjective;
@@ -74,12 +74,12 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 }
 }
 
-const char *CWordDictionary::DICTIONARY_FILE("ml-en.dict");
+const char* CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
 CFastMutex CWordDictionary::ms_LoadMutex;
-volatile CWordDictionary *CWordDictionary::ms_Instance(0);
+volatile CWordDictionary* CWordDictionary::ms_Instance(0);
 
-const CWordDictionary &CWordDictionary::instance(void) {
+const CWordDictionary& CWordDictionary::instance(void) {
     if (ms_Instance == 0) {
         CScopedFastLock lock(ms_LoadMutex);
 
@@ -93,14 +93,14 @@ const CWordDictionary &CWordDictionary::instance(void) {
     }
 
     // Need to explicitly cast away volatility
-    return *const_cast<const CWordDictionary *>(ms_Instance);
+    return *const_cast<const CWordDictionary*>(ms_Instance);
 }
 
-bool CWordDictionary::isInDictionary(const std::string &str) const {
+bool CWordDictionary::isInDictionary(const std::string& str) const {
     return m_DictionaryWords.find(str) != m_DictionaryWords.end();
 }
 
-CWordDictionary::EPartOfSpeech CWordDictionary::partOfSpeech(const std::string &str) const {
+CWordDictionary::EPartOfSpeech CWordDictionary::partOfSpeech(const std::string& str) const {
     TStrUMapCItr iter = m_DictionaryWords.find(str);
     if (iter == m_DictionaryWords.end()) {
         return E_NotInDictionary;
@@ -153,9 +153,11 @@ CWordDictionary::CWordDictionary(void) {
     }
 }
 
-CWordDictionary::~CWordDictionary(void) { ms_Instance = 0; }
+CWordDictionary::~CWordDictionary(void) {
+    ms_Instance = 0;
+}
 
-size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) const {
+size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string& str) const {
     size_t hash(0);
 
     for (std::string::const_iterator iter = str.begin(); iter != str.end(); ++iter) {
@@ -166,8 +168,8 @@ size_t CWordDictionary::CStrHashIgnoreCase::operator()(const std::string &str) c
     return hash;
 }
 
-bool CWordDictionary::CStrEqualIgnoreCase::operator()(const std::string &lhs,
-                                                      const std::string &rhs) const {
+bool CWordDictionary::CStrEqualIgnoreCase::operator()(const std::string& lhs,
+                                                      const std::string& rhs) const {
     return lhs.length() == rhs.length() && CStrCaseCmp::strCaseCmp(lhs.c_str(), rhs.c_str()) == 0;
 }
 }

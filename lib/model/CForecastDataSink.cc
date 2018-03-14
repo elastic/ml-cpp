@@ -31,7 +31,7 @@ const std::string STATUS_STARTED("started");
 const std::string STATUS_FINISHED("finished");
 const std::string STATUS_FAILED("failed");
 
-}// unnamed
+} // unnamed
 
 // JSON field names
 const std::string CForecastDataSink::JOB_ID("job_id");
@@ -62,11 +62,11 @@ const std::string CForecastDataSink::PROGRESS("forecast_progress");
 const std::string CForecastDataSink::STATUS("forecast_status");
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
-                                                                TMathsModelPtr &&forecastModel,
-                                                                const std::string &byFieldValue)
+                                                                TMathsModelPtr&& forecastModel,
+                                                                const std::string& byFieldValue)
     : s_Feature(feature), s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {}
 
-CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper &&other)
+CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
     : s_Feature(other.s_Feature),
       s_ForecastModel(std::move(other.s_ForecastModel)),
       s_ByFieldValue(std::move(other.s_ByFieldValue)) {}
@@ -74,22 +74,22 @@ CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWr
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries()
     : s_DetectorIndex(), s_ToForecast(), s_PartitionFieldValue(), s_ByFieldName() {}
 
-CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries &&other)
+CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries&& other)
     : s_DetectorIndex(other.s_DetectorIndex),
       s_ToForecast(std::move(other.s_ToForecast)),
       s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
       s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
       s_ByFieldName(std::move(other.s_ByFieldName)) {}
 
-CForecastDataSink::CForecastDataSink(const std::string &jobId,
-                                     const std::string &forecastId,
-                                     const std::string &forecastAlias,
+CForecastDataSink::CForecastDataSink(const std::string& jobId,
+                                     const std::string& forecastId,
+                                     const std::string& forecastAlias,
                                      core_t::TTime createTime,
                                      core_t::TTime startTime,
                                      core_t::TTime endTime,
                                      core_t::TTime expiryTime,
                                      size_t memoryUsage,
-                                     core::CJsonOutputStreamWrapper &outStream)
+                                     core::CJsonOutputStreamWrapper& outStream)
     : m_JobId(jobId),
       m_ForecastId(forecastId),
       m_ForecastAlias(forecastAlias),
@@ -103,7 +103,7 @@ CForecastDataSink::CForecastDataSink(const std::string &jobId,
 
 void CForecastDataSink::writeStats(const double progress,
                                    uint64_t runtime,
-                                   const TStrUMap &messages,
+                                   const TStrUMap& messages,
                                    bool successful) {
     rapidjson::Document doc = m_Writer.makeDoc();
 
@@ -136,7 +136,7 @@ void CForecastDataSink::writeScheduledMessage() {
     this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeErrorMessage(const std::string &message) {
+void CForecastDataSink::writeErrorMessage(const std::string& message) {
     rapidjson::Document doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
@@ -145,7 +145,7 @@ void CForecastDataSink::writeErrorMessage(const std::string &message) {
     this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeFinalMessage(const std::string &message) {
+void CForecastDataSink::writeFinalMessage(const std::string& message) {
     rapidjson::Document doc = m_Writer.makeDoc();
     this->writeCommonStatsFields(doc);
     TStrVec messages{message};
@@ -154,7 +154,7 @@ void CForecastDataSink::writeFinalMessage(const std::string &message) {
     this->push(true /*important, therefore flush*/, doc);
 }
 
-void CForecastDataSink::writeCommonStatsFields(rapidjson::Value &doc) {
+void CForecastDataSink::writeCommonStatsFields(rapidjson::Value& doc) {
     m_Writer.addStringFieldReferenceToObj(JOB_ID, m_JobId, doc);
     m_Writer.addStringFieldReferenceToObj(FORECAST_ID, m_ForecastId, doc);
     if (m_ForecastAlias.empty() == false) {
@@ -170,7 +170,7 @@ void CForecastDataSink::writeCommonStatsFields(rapidjson::Value &doc) {
     }
 }
 
-void CForecastDataSink::push(bool flush, rapidjson::Value &doc) {
+void CForecastDataSink::push(bool flush, rapidjson::Value& doc) {
     rapidjson::Document wrapper = m_Writer.makeDoc();
 
     m_Writer.addMember(MODEL_FORECAST_STATS, doc, wrapper);
@@ -181,14 +181,16 @@ void CForecastDataSink::push(bool flush, rapidjson::Value &doc) {
     }
 }
 
-uint64_t CForecastDataSink::numRecordsWritten() const { return m_NumRecordsWritten; }
+uint64_t CForecastDataSink::numRecordsWritten() const {
+    return m_NumRecordsWritten;
+}
 
 void CForecastDataSink::push(const maths::SErrorBar errorBar,
-                             const std::string &feature,
-                             const std::string &partitionFieldName,
-                             const std::string &partitionFieldValue,
-                             const std::string &byFieldName,
-                             const std::string &byFieldValue,
+                             const std::string& feature,
+                             const std::string& partitionFieldName,
+                             const std::string& partitionFieldValue,
+                             const std::string& byFieldName,
+                             const std::string& byFieldValue,
                              int detectorIndex) {
     ++m_NumRecordsWritten;
     rapidjson::Document doc = m_Writer.makeDoc();

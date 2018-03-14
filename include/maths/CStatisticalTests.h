@@ -102,10 +102,10 @@ public:
         CCramerVonMises(std::size_t size);
 
         //! Create by traversing a state document.
-        CCramerVonMises(core::CStateRestoreTraverser &traverser);
+        CCramerVonMises(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Add a value of the cumulative density function.
         void addF(double f);
@@ -122,7 +122,7 @@ public:
 
     private:
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
         //! The scale used to convert doubles in the interval
@@ -144,4 +144,4 @@ public:
 };
 }
 }
-#endif// INCLUDED_ml_maths_CStatisticalTests_h
+#endif // INCLUDED_ml_maths_CStatisticalTests_h

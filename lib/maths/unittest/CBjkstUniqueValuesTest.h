@@ -27,7 +27,7 @@ public:
     void testSmall(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CBjkstUniqueValuesTest_h
+#endif // INCLUDED_CBjkstUniqueValuesTest_h

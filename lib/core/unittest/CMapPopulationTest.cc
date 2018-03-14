@@ -31,11 +31,12 @@ const size_t CMapPopulationTest::TEST_SIZE(200000);
 
 CMapPopulationTest::CMapPopulationTest(void) : m_TestData(0) {}
 
-CppUnit::Test *CMapPopulationTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");
+CppUnit::Test* CMapPopulationTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMapPopulationTest>(
-        "CMapPopulationTest::testMapInsertSpeed", &CMapPopulationTest::testMapInsertSpeed));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMapPopulationTest>("CMapPopulationTest::testMapInsertSpeed",
+                                                    &CMapPopulationTest::testMapInsertSpeed));
 
     return suiteOfTests;
 }
@@ -78,22 +79,22 @@ CMapPopulationTest::CTestData::CTestData(size_t fillSize)
     }
 }
 
-const CMapPopulationTest::CTestData::TStrVec &
+const CMapPopulationTest::CTestData::TStrVec&
 CMapPopulationTest::CTestData::stringKeys(void) const {
     return m_StringKeys;
 }
 
-const CMapPopulationTest::CTestData::TStrVec &
+const CMapPopulationTest::CTestData::TStrVec&
 CMapPopulationTest::CTestData::stringVals(void) const {
     return m_StringVals;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &
+const CMapPopulationTest::CTestData::TCharPVec&
 CMapPopulationTest::CTestData::charPtrKeys(void) const {
     return m_CharPtrKeys;
 }
 
-const CMapPopulationTest::CTestData::TCharPVec &
+const CMapPopulationTest::CTestData::TCharPVec&
 CMapPopulationTest::CTestData::charPtrVals(void) const {
     return m_CharPtrVals;
 }
@@ -260,11 +261,11 @@ void CMapPopulationTest::testUMapOpSqBracCharP(void) {
 }
 
 template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
-void CMapPopulationTest::addInsert(const INPUT_CONTAINER &keys,
-                                   const INPUT_CONTAINER &values,
-                                   MAP_CONTAINER &maps) const {
+void CMapPopulationTest::addInsert(const INPUT_CONTAINER& keys,
+                                   const INPUT_CONTAINER& values,
+                                   MAP_CONTAINER& maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin(); iter != maps.end(); ++iter) {
-        typename MAP_CONTAINER::value_type &map = *iter;
+        typename MAP_CONTAINER::value_type& map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));
         for (size_t index = 0; index < limit; ++index) {
@@ -276,11 +277,11 @@ void CMapPopulationTest::addInsert(const INPUT_CONTAINER &keys,
 }
 
 template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
-void CMapPopulationTest::addOpSqBrac(const INPUT_CONTAINER &keys,
-                                     const INPUT_CONTAINER &values,
-                                     MAP_CONTAINER &maps) const {
+void CMapPopulationTest::addOpSqBrac(const INPUT_CONTAINER& keys,
+                                     const INPUT_CONTAINER& values,
+                                     MAP_CONTAINER& maps) const {
     for (typename MAP_CONTAINER::iterator iter = maps.begin(); iter != maps.end(); ++iter) {
-        typename MAP_CONTAINER::value_type &map = *iter;
+        typename MAP_CONTAINER::value_type& map = *iter;
 
         size_t limit(std::min(keys.size(), values.size()));
         for (size_t index = 0; index < limit; ++index) {

@@ -44,28 +44,28 @@ class CReportWriter;
 //! automatic configuration commands.
 class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor {
 public:
-    CAutoconfigurer(const CAutoconfigurerParams &params, CReportWriter &reportWriter);
+    CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter);
 
     //! We're going to be writing to a new output stream.
     virtual void newOutputStream(void);
 
     //! Receive a single record to be processed.
-    virtual bool handleRecord(const TStrStrUMap &fieldValues);
+    virtual bool handleRecord(const TStrStrUMap& fieldValues);
 
     //! Generate the report.
     virtual void finalise(void);
 
     //! No-op.
-    virtual bool restoreState(core::CDataSearcher &restoreSearcher, core_t::TTime &completeToTime);
+    virtual bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
 
     //! No-op.
-    virtual bool persistState(core::CDataAdder &persister);
+    virtual bool persistState(core::CDataAdder& persister);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled(void) const;
 
     //! Access the output handler.
-    virtual api::COutputHandler &outputHandler(void);
+    virtual api::COutputHandler& outputHandler(void);
 
 private:
     typedef boost::shared_ptr<CAutoconfigurerImpl> TImplPtr;
@@ -77,4 +77,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CAutoconfigurer_h
+#endif // INCLUDED_ml_config_CAutoconfigurer_h

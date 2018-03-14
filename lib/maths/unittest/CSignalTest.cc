@@ -31,7 +31,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 
-std::string print(const maths::CSignal::TComplexVec &f) {
+std::string print(const maths::CSignal::TComplexVec& f) {
     std::ostringstream result;
     for (std::size_t i = 0u; i < f.size(); ++i) {
         LOG_DEBUG(f[i].real() << " + " << f[i].imag() << 'i');
@@ -39,7 +39,7 @@ std::string print(const maths::CSignal::TComplexVec &f) {
     return result.str();
 }
 
-void bruteForceDft(maths::CSignal::TComplexVec &f, double sign) {
+void bruteForceDft(maths::CSignal::TComplexVec& f, double sign) {
     maths::CSignal::TComplexVec result(f.size(), maths::CSignal::TComplex(0.0, 0.0));
     for (std::size_t k = 0u; k < f.size(); ++k) {
         for (std::size_t n = 0u; n < f.size(); ++n) {
@@ -131,12 +131,13 @@ void CSignalTest::testFFTVersusOctave(void) {
 
     LOG_DEBUG("*** Arbitrary Length ***");
     {
-        double expected[][2] = {
-            {18042.0, 755.0},    {961.0, 5635.6},    {-5261.8, 7542.2},   {-12814.0, 2250.2},
-            {-8248.5, 6620.5},   {-21626.0, 3570.6}, {6551.5, -12732.0},  {6009.5, 10622.0},
-            {9954.0, -1224.2},   {-2871.5, 7073.6},  {-14409.0, 10939.0}, {13682.0, 25304.0},
-            {-10468.0, -6338.5}, {6506.0, 6283.3},   {32665.0, 5127.7},   {3190.7, 4323.4},
-            {-6988.7, -3865.0},  {-3881.4, 4360.8},  {46434.0, 20556.0},  {-6319.6, -7329.0}};
+        double expected[][2] = {{18042.0, 755.0},    {961.0, 5635.6},     {-5261.8, 7542.2},
+                                {-12814.0, 2250.2},  {-8248.5, 6620.5},   {-21626.0, 3570.6},
+                                {6551.5, -12732.0},  {6009.5, 10622.0},   {9954.0, -1224.2},
+                                {-2871.5, 7073.6},   {-14409.0, 10939.0}, {13682.0, 25304.0},
+                                {-10468.0, -6338.5}, {6506.0, 6283.3},    {32665.0, 5127.7},
+                                {3190.7, 4323.4},    {-6988.7, -3865.0},  {-3881.4, 4360.8},
+                                {46434.0, 20556.0},  {-6319.6, -7329.0}};
 
         maths::CSignal::TComplexVec actual(fx.begin(), fx.end());
         maths::CSignal::fft(actual);
@@ -378,8 +379,8 @@ void CSignalTest::testAutocorrelations(void) {
     }
 }
 
-CppUnit::Test *CSignalTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CSignalTest");
+CppUnit::Test* CSignalTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSignalTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTVersusOctave",
                                                                &CSignalTest::testFFTVersusOctave));
@@ -389,8 +390,9 @@ CppUnit::Test *CSignalTest::suite(void) {
                                                                &CSignalTest::testFFTRandomized));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testIFFTRandomized",
                                                                &CSignalTest::testIFFTRandomized));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testFFTIFFTIdempotency", &CSignalTest::testFFTIFFTIdempotency));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTIFFTIdempotency",
+                                             &CSignalTest::testFFTIFFTIdempotency));
     suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testAutocorrelations",
                                                                &CSignalTest::testAutocorrelations));
 

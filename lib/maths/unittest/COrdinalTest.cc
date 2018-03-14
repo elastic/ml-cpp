@@ -35,7 +35,8 @@ namespace {
 
 typedef std::vector<double> TDoubleVec;
 
-template <typename T> std::string precisePrint(T x) {
+template <typename T>
+std::string precisePrint(T x) {
     std::ostringstream o;
     o << std::setprecision(18) << x;
     return o.str();
@@ -283,8 +284,10 @@ void COrdinalTest::testAsDouble(void) {
 
     // Check some integer values which can't be represented as doubles.
 
-    int64_t s[] = {
-        -179809067369808278, -179809067369808277, 569817345679111267, 569817345679111268};
+    int64_t s[] = {-179809067369808278,
+                   -179809067369808277,
+                   569817345679111267,
+                   569817345679111268};
 
     for (std::size_t i = 0u; i < boost::size(s); ++i) {
         maths::COrdinal o(s[i]);
@@ -332,8 +335,8 @@ void COrdinalTest::testHash(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(100), doubleHashes.size());
 }
 
-CppUnit::Test *COrdinalTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("COrdinalTest");
+CppUnit::Test* COrdinalTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrdinalTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<COrdinalTest>("COrdinalTest::testEqual", &COrdinalTest::testEqual));

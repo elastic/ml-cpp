@@ -24,7 +24,7 @@ public:
     void testSwap(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CCountMinSketchTest_h
+#endif // INCLUDED_CCountMinSketchTest_h

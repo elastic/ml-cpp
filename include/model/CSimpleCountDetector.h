@@ -50,13 +50,13 @@ class MODEL_EXPORT CSimpleCountDetector : public CAnomalyDetector {
 public:
     CSimpleCountDetector(int identifier,
                          model_t::ESummaryMode summaryMode,
-                         const CAnomalyDetectorModelConfig &modelConfig,
-                         CLimits &limits,
-                         const std::string &partitionFieldValue,
+                         const CAnomalyDetectorModelConfig& modelConfig,
+                         CLimits& limits,
+                         const std::string& partitionFieldValue,
                          core_t::TTime firstTime,
-                         const TModelFactoryCPtr &modelFactory);
+                         const TModelFactoryCPtr& modelFactory);
 
-    CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector &other);
+    CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other);
 
     //! Returns true.
     virtual bool isSimpleCount(void) const;
@@ -67,7 +67,7 @@ public:
 private:
     //! This function is called before adding a record allowing
     //! for varied preprocessing.
-    virtual const TStrCPtrVec &preprocessFieldValues(const TStrCPtrVec &fieldValues);
+    virtual const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues);
 
 private:
     //! Field values are strange compared to other anomaly detectors,
@@ -79,4 +79,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CSimpleCountDetector_h
+#endif // INCLUDED_ml_model_CSimpleCountDetector_h

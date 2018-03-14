@@ -42,7 +42,7 @@ CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
     }
 }
 
-CPackedBitVector::CPackedBitVector(const TBoolVec &bits)
+CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
     : m_Dimension(static_cast<uint32_t>(bits.size())),
       m_First(bits.empty() ? false : bits[0]),
       m_Parity(true) {
@@ -108,7 +108,7 @@ void CPackedBitVector::extend(bool bit) {
     }
 }
 
-bool CPackedBitVector::fromDelimited(const std::string &str) {
+bool CPackedBitVector::fromDelimited(const std::string& str) {
     std::size_t last = 0u;
     std::size_t pos = str.find_first_of(core::CPersistUtils::DELIMITER, last);
     if (pos == std::string::npos ||
@@ -156,7 +156,9 @@ std::string CPackedBitVector::toDelimited(void) const {
     return result;
 }
 
-std::size_t CPackedBitVector::dimension(void) const { return m_Dimension; }
+std::size_t CPackedBitVector::dimension(void) const {
+    return m_Dimension;
+}
 
 bool CPackedBitVector::operator()(std::size_t i) const {
     bool parity = true;
@@ -169,12 +171,12 @@ bool CPackedBitVector::operator()(std::size_t i) const {
     return parity ? m_First : !m_First;
 }
 
-bool CPackedBitVector::operator==(const CPackedBitVector &other) const {
+bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
     return m_Dimension == other.m_Dimension && m_First == other.m_First &&
            m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
 }
 
-bool CPackedBitVector::operator<(const CPackedBitVector &rhs) const {
+bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
     return COrderings::lexicographical_compare(m_Dimension,
                                                m_First,
                                                m_Parity,
@@ -191,7 +193,7 @@ CPackedBitVector CPackedBitVector::complement(void) const {
     return result;
 }
 
-double CPackedBitVector::inner(const CPackedBitVector &covector, EOperation op) const {
+double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) const {
     // This is just a line scan over the run lengths keeping
     // track of the parities of both vectors.
 
@@ -303,7 +305,7 @@ std::size_t CPackedBitVector::memoryUsage(void) const {
 
 const uint8_t CPackedBitVector::MAX_RUN_LENGTH = std::numeric_limits<uint8_t>::max();
 
-std::ostream &operator<<(std::ostream &o, const CPackedBitVector &v) {
+std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v) {
     if (v.dimension() == 0) {
         return o << "[]";
     }

@@ -52,11 +52,11 @@ public:
 }
 
 CTokenListType::CTokenListType(bool isDryRun,
-                               const std::string &baseString,
+                               const std::string& baseString,
                                size_t rawStringLen,
-                               const TSizeSizePrVec &baseTokenIds,
+                               const TSizeSizePrVec& baseTokenIds,
                                size_t baseWeight,
-                               const TSizeSizeMap &uniqueTokenIds)
+                               const TSizeSizeMap& uniqueTokenIds)
     : m_BaseString(baseString),
       m_BaseTokenIds(baseTokenIds),
       m_BaseWeight(baseWeight),
@@ -74,7 +74,7 @@ CTokenListType::CTokenListType(bool isDryRun,
     m_OrigUniqueTokenWeight = m_CommonUniqueTokenWeight;
 }
 
-CTokenListType::CTokenListType(core::CStateRestoreTraverser &traverser)
+CTokenListType::CTokenListType(core::CStateRestoreTraverser& traverser)
     : m_BaseWeight(0),
       m_MaxStringLen(0),
       m_OutOfOrderCommonTokenIndex(0),
@@ -84,11 +84,11 @@ CTokenListType::CTokenListType(core::CStateRestoreTraverser &traverser)
     traverser.traverseSubLevel(boost::bind(&CTokenListType::acceptRestoreTraverser, this, _1));
 }
 
-bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     bool expectWeight(false);
 
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == BASE_STRING) {
             m_BaseString = traverser.value();
         } else if (name == BASE_TOKEN_ID) {
@@ -106,7 +106,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
                 return false;
             }
 
-            TSizeSizePr &tokenAndWeight = m_BaseTokenIds.back();
+            TSizeSizePr& tokenAndWeight = m_BaseTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) ==
                 false) {
                 LOG_ERROR("Invalid base token weight in " << traverser.value());
@@ -142,7 +142,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
                 return false;
             }
 
-            TSizeSizePr &tokenAndWeight = m_CommonUniqueTokenIds.back();
+            TSizeSizePr& tokenAndWeight = m_CommonUniqueTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) ==
                 false) {
                 LOG_ERROR("Invalid common unique token weight in " << traverser.value());
@@ -169,10 +169,10 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser &traver
 }
 
 bool CTokenListType::addString(bool isDryRun,
-                               const std::string & /* str */,
+                               const std::string& /* str */,
                                size_t rawStringLen,
-                               const TSizeSizePrVec &tokenIds,
-                               const TSizeSizeMap &uniqueTokenIds,
+                               const TSizeSizePrVec& tokenIds,
+                               const TSizeSizeMap& uniqueTokenIds,
                                double /* similarity */) {
     bool changed(false);
 
@@ -247,23 +247,33 @@ bool CTokenListType::addString(bool isDryRun,
     return changed;
 }
 
-const std::string &CTokenListType::baseString(void) const { return m_BaseString; }
+const std::string& CTokenListType::baseString(void) const {
+    return m_BaseString;
+}
 
-const CTokenListType::TSizeSizePrVec &CTokenListType::baseTokenIds(void) const {
+const CTokenListType::TSizeSizePrVec& CTokenListType::baseTokenIds(void) const {
     return m_BaseTokenIds;
 }
 
-size_t CTokenListType::baseWeight(void) const { return m_BaseWeight; }
+size_t CTokenListType::baseWeight(void) const {
+    return m_BaseWeight;
+}
 
-const CTokenListType::TSizeSizePrVec &CTokenListType::commonUniqueTokenIds(void) const {
+const CTokenListType::TSizeSizePrVec& CTokenListType::commonUniqueTokenIds(void) const {
     return m_CommonUniqueTokenIds;
 }
 
-size_t CTokenListType::commonUniqueTokenWeight(void) const { return m_CommonUniqueTokenWeight; }
+size_t CTokenListType::commonUniqueTokenWeight(void) const {
+    return m_CommonUniqueTokenWeight;
+}
 
-size_t CTokenListType::origUniqueTokenWeight(void) const { return m_OrigUniqueTokenWeight; }
+size_t CTokenListType::origUniqueTokenWeight(void) const {
+    return m_OrigUniqueTokenWeight;
+}
 
-size_t CTokenListType::maxStringLen(void) const { return m_MaxStringLen; }
+size_t CTokenListType::maxStringLen(void) const {
+    return m_MaxStringLen;
+}
 
 size_t CTokenListType::outOfOrderCommonTokenIndex(void) const {
     return m_OutOfOrderCommonTokenIndex;
@@ -274,7 +284,7 @@ size_t CTokenListType::maxMatchingStringLen(void) const {
     return (m_MaxStringLen * 11) / 10;
 }
 
-size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenIds) const {
+size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
     size_t presentWeight(0);
 
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
@@ -290,7 +300,7 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenI
             ++testIter;
         } else if (commonIter->first < testIter->first) {
             ++commonIter;
-        } else// if (commonIter->first > testIter->first)
+        } else // if (commonIter->first > testIter->first)
         {
             ++testIter;
         }
@@ -302,7 +312,7 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenI
     return m_CommonUniqueTokenWeight - presentWeight;
 }
 
-bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTokenIds) const {
+bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const {
     // This method could be implemented as:
     // return this->missingCommonTokenWeight(uniqueTokenIds) == 0;
     //
@@ -330,7 +340,7 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTo
     return commonIter == m_CommonUniqueTokenIds.end();
 }
 
-bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec &tokenIds) const {
+bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
     TSizeSizePrVecCItr testIter = tokenIds.begin();
     for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin(); baseIter != m_BaseTokenIds.end();
          ++baseIter) {
@@ -356,9 +366,11 @@ bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec &tokenIds)
     return true;
 }
 
-size_t CTokenListType::numMatches(void) const { return m_NumMatches; }
+size_t CTokenListType::numMatches(void) const {
+    return m_NumMatches;
+}
 
-void CTokenListType::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CTokenListType::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BASE_STRING, m_BaseString);
 
     for (TSizeSizePrVecCItr iter = m_BaseTokenIds.begin(); iter != m_BaseTokenIds.end(); ++iter) {
@@ -380,7 +392,7 @@ void CTokenListType::acceptPersistInserter(core::CStatePersistInserter &inserter
     inserter.insertValue(NUM_MATCHES, m_NumMatches);
 }
 
-bool CTokenListType::cachedReverseSearch(std::string &part1, std::string &part2) const {
+bool CTokenListType::cachedReverseSearch(std::string& part1, std::string& part2) const {
     part1 = m_ReverseSearchPart1;
     part2 = m_ReverseSearchPart2;
 
@@ -396,7 +408,7 @@ bool CTokenListType::cachedReverseSearch(std::string &part1, std::string &part2)
     return !missed;
 }
 
-void CTokenListType::cacheReverseSearch(const std::string &part1, const std::string &part2) {
+void CTokenListType::cacheReverseSearch(const std::string& part1, const std::string& part2) {
     m_ReverseSearchPart1 = part1;
     m_ReverseSearchPart2 = part2;
 }

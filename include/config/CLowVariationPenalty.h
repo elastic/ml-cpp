@@ -37,55 +37,55 @@ class CByOverAndPartitionDataCountStatistics;
 //! count anomalies.
 class CONFIG_EXPORT CLowVariationPenalty : public CPenalty {
 public:
-    CLowVariationPenalty(const CAutoconfigurerParams &params);
+    CLowVariationPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CLowVariationPenalty *clone(void) const;
+    virtual CLowVariationPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
 
 private:
     //! Apply a penalty for features with very little variation.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with optionally a partition.
-    void penaltiesForCount(const CPartitionDataCountStatistics &stats,
-                           CDetectorSpecification &spec) const;
+    void penaltiesForCount(const CPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with a by field and optionally a partition.
-    void penaltiesForCount(const CByAndPartitionDataCountStatistics &stats,
-                           CDetectorSpecification &spec) const;
+    void penaltiesForCount(const CByAndPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for count with a by, over and optionally a partition field.
-    void penaltiesForCount(const CByOverAndPartitionDataCountStatistics &stats,
-                           CDetectorSpecification &spec) const;
+    void penaltiesForCount(const CByOverAndPartitionDataCountStatistics& stats,
+                           CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with optionally a partition.
-    void penaltyForDistinctCount(const CPartitionDataCountStatistics &stats,
-                                 CDetectorSpecification &spec) const;
+    void penaltyForDistinctCount(const CPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with by and optionally a partition.
-    void penaltyForDistinctCount(const CByAndPartitionDataCountStatistics &stats,
-                                 CDetectorSpecification &spec) const;
+    void penaltyForDistinctCount(const CByAndPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for distinct count with by, over and optionally a partition.
-    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics &stats,
-                                 CDetectorSpecification &spec) const;
+    void penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats,
+                                 CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with optionally a partition.
-    void penaltyForInfoContent(const CPartitionDataCountStatistics &stats,
-                               CDetectorSpecification &spec) const;
+    void penaltyForInfoContent(const CPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with a by field and optionally a partition.
-    void penaltyForInfoContent(const CByAndPartitionDataCountStatistics &stats,
-                               CDetectorSpecification &spec) const;
+    void penaltyForInfoContent(const CByAndPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 
     //! Apply the penalty for info content with a by, over and optionally a partition field.
-    void penaltyForInfoContent(const CByOverAndPartitionDataCountStatistics &stats,
-                               CDetectorSpecification &spec) const;
+    void penaltyForInfoContent(const CByOverAndPartitionDataCountStatistics& stats,
+                               CDetectorSpecification& spec) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CLowVariationPenalty_h
+#endif // INCLUDED_ml_config_CLowVariationPenalty_h

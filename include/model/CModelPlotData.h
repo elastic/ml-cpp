@@ -43,9 +43,9 @@ public:
         SByFieldData(void);
         SByFieldData(double lowerBound, double upperBound, double median);
 
-        void addValue(const std::string &personName, double value);
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        void addValue(const std::string& personName, double value);
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         double s_LowerBound;
         double s_UpperBound;
@@ -66,21 +66,21 @@ public:
 public:
     CModelPlotData(void);
     CModelPlotData(core_t::TTime time,
-                   const std::string &partitionFieldName,
-                   const std::string &partitionFieldValue,
-                   const std::string &overFieldName,
-                   const std::string &byFieldName,
+                   const std::string& partitionFieldName,
+                   const std::string& partitionFieldValue,
+                   const std::string& overFieldName,
+                   const std::string& byFieldName,
                    core_t::TTime bucketSpan,
                    int detectorIndex);
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     TFeatureStrByFieldDataUMapUMapCItr begin(void) const;
     TFeatureStrByFieldDataUMapUMapCItr end(void) const;
-    SByFieldData &get(const model_t::EFeature &feature, const std::string &byFieldValue);
-    const std::string &partitionFieldName(void) const;
-    const std::string &partitionFieldValue(void) const;
-    const std::string &overFieldName(void) const;
-    const std::string &byFieldName(void) const;
+    SByFieldData& get(const model_t::EFeature& feature, const std::string& byFieldValue);
+    const std::string& partitionFieldName(void) const;
+    const std::string& partitionFieldValue(void) const;
+    const std::string& overFieldName(void) const;
+    const std::string& byFieldName(void) const;
     core_t::TTime time(void) const;
     core_t::TTime bucketSpan(void) const;
     int detectorIndex(void) const;
@@ -99,4 +99,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CModelPlotData_h
+#endif // INCLUDED_ml_model_CModelPlotData_h

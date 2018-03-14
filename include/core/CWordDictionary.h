@@ -80,7 +80,8 @@ public:
 
 public:
     //! Functor for weighting all dictionary words by a certain amount
-    template <size_t DEFAULT_EXTRA_WEIGHT> class CWeightAll {
+    template <size_t DEFAULT_EXTRA_WEIGHT>
+    class CWeightAll {
     public:
         size_t operator()(EPartOfSpeech partOfSpeech) {
             return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT;
@@ -128,20 +129,20 @@ public:
 
 public:
     //! Get the singleton instance
-    static const CWordDictionary &instance(void);
+    static const CWordDictionary& instance(void);
 
     //! Check if a word is in the dictionary.  Don't call this as well as
     //! partOfSpeech().  Instead simply call partOfSpeech(), noting that
     //! it will return E_NotInDictionary in cases where this method will
     //! return false.
-    bool isInDictionary(const std::string &str) const;
+    bool isInDictionary(const std::string& str) const;
 
     //! Check what part of speech a word is primarily used for.  Note that
     //! many words can be used in different parts of speech and this method
     //! only returns what Grady Ward thought was the primary use when he
     //! created Moby.  This method returns E_NotInDictionary for words that
     //! aren't in the dictionary.
-    EPartOfSpeech partOfSpeech(const std::string &str) const;
+    EPartOfSpeech partOfSpeech(const std::string& str) const;
 
 private:
     //! Constructor for a singleton is private
@@ -151,17 +152,17 @@ private:
 private:
     class CStrHashIgnoreCase : std::unary_function<std::string, bool> {
     public:
-        size_t operator()(const std::string &str) const;
+        size_t operator()(const std::string& str) const;
     };
 
     class CStrEqualIgnoreCase : std::binary_function<std::string, std::string, bool> {
     public:
-        bool operator()(const std::string &lhs, const std::string &rhs) const;
+        bool operator()(const std::string& lhs, const std::string& rhs) const;
     };
 
 private:
     //! Name of the file to load that contains the dictionary words.
-    static const char *DICTIONARY_FILE;
+    static const char* DICTIONARY_FILE;
 
     //! The constructor loads a file, and hence may take a while.  This
     //! mutex prevents the singleton object being constructed simultaneously
@@ -172,7 +173,7 @@ private:
     //! and avoids the need to lock the mutex on subsequent calls of the
     //! instance() method (once the updated value of this variable has made
     //! its way into every thread).
-    static volatile CWordDictionary *ms_Instance;
+    static volatile CWordDictionary* ms_Instance;
 
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.
@@ -188,4 +189,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CWordDictionary_h
+#endif // INCLUDED_ml_core_CWordDictionary_h

@@ -23,12 +23,14 @@ namespace domain_name_entropy {
 
 CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized) {}
 
-CCompressUtils::~CCompressUtils(void) { ::deflateEnd(&m_ZlibStrm); }
+CCompressUtils::~CCompressUtils(void) {
+    ::deflateEnd(&m_ZlibStrm);
+}
 
 // --
 // COMPRESS INTERFACE
 // --
-bool CCompressUtils::compressString(bool finish, const std::string &str) {
+bool CCompressUtils::compressString(bool finish, const std::string& str) {
     int level = Z_DEFAULT_COMPRESSION;
 
     switch (m_State) {
@@ -59,7 +61,7 @@ bool CCompressUtils::compressString(bool finish, const std::string &str) {
         }
     }
 
-    m_ZlibStrm.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(str.data()));
+    m_ZlibStrm.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(str.data()));
     m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
 
     static const size_t CHUNK = 16384;
@@ -73,7 +75,7 @@ bool CCompressUtils::compressString(bool finish, const std::string &str) {
     do {
         m_ZlibStrm.next_out = out;
         m_ZlibStrm.avail_out = CHUNK;
-        int ret = ::deflate(&m_ZlibStrm, flush);// no bad return value
+        int ret = ::deflate(&m_ZlibStrm, flush); // no bad return value
         if (ret == Z_STREAM_ERROR) {
             LOG_ERROR("Error writing Z stream: " << ::zError(ret));
             return false;
@@ -92,10 +94,10 @@ bool CCompressUtils::compressString(bool finish, const std::string &str) {
     return true;
 }
 
-bool CCompressUtils::compressedString(bool finish, std::string &buffer) {
+bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
     if ((finish == true && m_State == E_IsFinished) ||
         (finish == false && m_State == E_Compressing)) {
-        buffer.insert(0, reinterpret_cast<const char *>(&m_Buffer[0]), m_Buffer.size());
+        buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
         return true;
     }
 
@@ -103,11 +105,11 @@ bool CCompressUtils::compressedString(bool finish, std::string &buffer) {
         return false;
     }
 
-    buffer.insert(0, reinterpret_cast<const char *>(&m_Buffer[0]), m_Buffer.size());
+    buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
     return true;
 }
 
-bool CCompressUtils::compressedStringLength(bool finish, size_t &length) {
+bool CCompressUtils::compressedStringLength(bool finish, size_t& length) {
     if ((finish == true && m_State == E_IsFinished) ||
         (finish == false && m_State == E_Compressing)) {
         length = m_Buffer.size();

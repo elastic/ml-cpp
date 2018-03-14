@@ -42,10 +42,10 @@ public:
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
-                      const char *const *argv,
-                      std::string &csvFileName,
-                      std::string &domainNameField,
-                      std::string &timeField);
+                      const char* const* argv,
+                      std::string& csvFileName,
+                      std::string& domainNameField,
+                      std::string& timeField);
 
 private:
     static const std::string DESCRIPTION;
@@ -53,4 +53,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_domain_name_entropy_CCmdLineParser_h
+#endif // INCLUDED_ml_domain_name_entropy_CCmdLineParser_h

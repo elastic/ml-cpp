@@ -63,29 +63,29 @@ public:
 public:
     //! Create a new type
     CTokenListType(bool isDryRun,
-                   const std::string &baseString,
+                   const std::string& baseString,
                    size_t rawStringLen,
-                   const TSizeSizePrVec &baseTokenIds,
+                   const TSizeSizePrVec& baseTokenIds,
                    size_t baseWeight,
-                   const TSizeSizeMap &uniqueTokenIds);
+                   const TSizeSizeMap& uniqueTokenIds);
 
     //! Constructor used when restoring from XML
-    CTokenListType(core::CStateRestoreTraverser &traverser);
+    CTokenListType(core::CStateRestoreTraverser& traverser);
 
     //! Add string to this type with a double indicating
     //! how well matched the string is
     bool addString(bool isDryRun,
-                   const std::string &str,
+                   const std::string& str,
                    size_t rawStringLen,
-                   const TSizeSizePrVec &tokenIds,
-                   const TSizeSizeMap &uniqueTokenIds,
+                   const TSizeSizePrVec& tokenIds,
+                   const TSizeSizeMap& uniqueTokenIds,
                    double similarity);
 
     //! Accessors
-    const std::string &baseString(void) const;
-    const TSizeSizePrVec &baseTokenIds(void) const;
+    const std::string& baseString(void) const;
+    const TSizeSizePrVec& baseTokenIds(void) const;
     size_t baseWeight(void) const;
-    const TSizeSizePrVec &commonUniqueTokenIds(void) const;
+    const TSizeSizePrVec& commonUniqueTokenIds(void) const;
     size_t commonUniqueTokenWeight(void) const;
     size_t origUniqueTokenWeight(void) const;
     size_t maxStringLen(void) const;
@@ -97,33 +97,33 @@ public:
 
     //! What is the weight of tokens in a given map that are missing from
     //! this type's common unique tokens?
-    size_t missingCommonTokenWeight(const TSizeSizeMap &uniqueTokenIds) const;
+    size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
 
     //! Is the weight of tokens in a given map that are missing from this
     //! type's common unique tokens equal to zero?  It is possible to test:
     //!     if (type.missingCommonTokenWeight(uniqueTokenIds) == 0)
     //! instead of calling this method.  However, this method is much faster
     //! as it can return false as soon as a mismatch occurs.
-    bool isMissingCommonTokenWeightZero(const TSizeSizeMap &uniqueTokenIds) const;
+    bool isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const;
 
     //! Does the supplied token vector contain all our common tokens in the
     //! same order as our base token vector?
-    bool containsCommonTokensInOrder(const TSizeSizePrVec &tokenIds) const;
+    bool containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const;
 
     //! How many matching strings are there?
     size_t numMatches(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Attempt to get cached reverse search
-    bool cachedReverseSearch(std::string &part1, std::string &part2) const;
+    bool cachedReverseSearch(std::string& part1, std::string& part2) const;
 
     //! Set the cached reverse search
-    void cacheReverseSearch(const std::string &part1, const std::string &part2);
+    void cacheReverseSearch(const std::string& part1, const std::string& part2);
 
 private:
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! The string and tokens we base this type on
@@ -167,4 +167,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CTokenListType_h
+#endif // INCLUDED_ml_api_CTokenListType_h

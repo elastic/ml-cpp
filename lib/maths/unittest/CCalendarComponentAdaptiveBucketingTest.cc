@@ -66,7 +66,7 @@ void CCalendarComponentAdaptiveBucketingTest::testInitialize(void) {
                                      "133200, 140400, 147600, 154800, 162000, 169200, 129600]"};
 
     CPPUNIT_ASSERT(bucketing.initialize(12));
-    const TFloatVec &endpoints{bucketing.endpoints()};
+    const TFloatVec& endpoints{bucketing.endpoints()};
     CPPUNIT_ASSERT_EQUAL(expectedEndpoints, core::CContainerPrinter::print(endpoints));
 
     for (core_t::TTime t = 86400 + 3600; t < 172800; t += 7200) {
@@ -181,7 +181,7 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void) {
 
     TMeanAccumulator meanError1;
     TMaxAccumulator maxError1;
-    const TFloatVec &endpoints1{bucketing1.endpoints()};
+    const TFloatVec& endpoints1{bucketing1.endpoints()};
     TDoubleVec values1{bucketing1.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{
@@ -199,7 +199,7 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void) {
 
     TMeanAccumulator meanError2;
     TMaxAccumulator maxError2;
-    const TFloatVec &endpoints2{bucketing2.endpoints()};
+    const TFloatVec& endpoints2{bucketing2.endpoints()};
     TDoubleVec values2{bucketing2.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{
@@ -287,8 +287,8 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength(void) {
         bucketing1.refine(86400);
         bucketing2.refine(86400);
 
-        const TFloatVec &endpoints1{bucketing1.endpoints()};
-        const TFloatVec &endpoints2{bucketing2.endpoints()};
+        const TFloatVec& endpoints1{bucketing1.endpoints()};
+        const TFloatVec& endpoints2{bucketing2.endpoints()};
 
         CPPUNIT_ASSERT_EQUAL(endpoints1.size(), endpoints2.size());
         TMinAccumulator minimumBucketLength1;
@@ -501,8 +501,9 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist(void) {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
-    maths::CCalendarComponentAdaptiveBucketing restoredBucketing{
-        decayRate + 0.1, minimumBucketLength, traverser};
+    maths::CCalendarComponentAdaptiveBucketing restoredBucketing{decayRate + 0.1,
+                                                                 minimumBucketLength,
+                                                                 traverser};
 
     LOG_DEBUG("orig checksum = " << checksum
                                  << " restored checksum = " << restoredBucketing.checksum());
@@ -519,8 +520,8 @@ void CCalendarComponentAdaptiveBucketingTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test *CCalendarComponentAdaptiveBucketingTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests =
+CppUnit::Test* CCalendarComponentAdaptiveBucketingTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CCalendarComponentAdaptiveBucketingTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarComponentAdaptiveBucketingTest>(

@@ -17,14 +17,20 @@
 namespace ml {
 namespace core {
 
-CFastMutex::CFastMutex(void) { InitializeSRWLock(&m_Mutex); }
+CFastMutex::CFastMutex(void) {
+    InitializeSRWLock(&m_Mutex);
+}
 
 CFastMutex::~CFastMutex(void) {
     // There is no function to destroy the read/write lock on Windows
 }
 
-void CFastMutex::lock(void) { AcquireSRWLockExclusive(&m_Mutex); }
+void CFastMutex::lock(void) {
+    AcquireSRWLockExclusive(&m_Mutex);
+}
 
-void CFastMutex::unlock(void) { ReleaseSRWLockExclusive(&m_Mutex); }
+void CFastMutex::unlock(void) {
+    ReleaseSRWLockExclusive(&m_Mutex);
+}
 }
 }

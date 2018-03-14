@@ -23,14 +23,14 @@ namespace core {
 
 const std::string CWordExtractor::PUNCT_CHARS("!\"'(),-./:;?[]`");
 
-void CWordExtractor::extractWordsFromMessage(const std::string &message,
-                                             std::string &messageWords) {
+void CWordExtractor::extractWordsFromMessage(const std::string& message,
+                                             std::string& messageWords) {
     CWordExtractor::extractWordsFromMessage(1, message, messageWords);
 }
 
 void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
-                                             const std::string &message,
-                                             std::string &messageWords) {
+                                             const std::string& message,
+                                             std::string& messageWords) {
     // Words are taken to be sub-strings of 1 or more letters, all lower case
     // except possibly the first, preceded by a space, and followed by 0 or 1
     // punctuation characters and then a space (or the end of the string).
@@ -51,7 +51,7 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
     size_t punctCount(0);
     bool inWord(false);
     std::string curWord;
-    const CWordDictionary &dict = CWordDictionary::instance();
+    const CWordDictionary& dict = CWordDictionary::instance();
     for (size_t messagePos = 0; messagePos < messageLen; ++messagePos) {
         char thisChar(message[messagePos]);
         bool rollback(false);
@@ -59,8 +59,9 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
         if (::isspace(static_cast<unsigned char>(thisChar))) {
             if (inWord && punctCount <= 1) {
                 if (dict.isInDictionary(curWord)) {
-                    messageWords.append(
-                        message, wordStartPos, messagePos - spaceCount - punctCount - wordStartPos);
+                    messageWords.append(message,
+                                        wordStartPos,
+                                        messagePos - spaceCount - punctCount - wordStartPos);
                     messageWords += ' ';
 
                     ++consecutive;
@@ -122,8 +123,9 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
     if (inWord && punctCount <= 1 && dict.isInDictionary(curWord)) {
         ++consecutive;
         if (consecutive >= minConsecutive) {
-            messageWords.append(
-                message, wordStartPos, message.length() - wordStartPos - punctCount);
+            messageWords.append(message,
+                                wordStartPos,
+                                message.length() - wordStartPos - punctCount);
             messageWords += ' ';
 
             rollbackPos = messageWords.length();

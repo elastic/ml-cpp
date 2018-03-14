@@ -47,7 +47,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::k(dou
 
 template <typename LOGF>
 bool CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::
-operator()(double x, double &result) const {
+operator()(double x, double& result) const {
     // We use the fact that if:
     //   1 + exp(-k(f(x)/f0 - 1)) < (1 + eps) * exp(-k(f(x)/f0 - 1))
     //
@@ -80,16 +80,16 @@ operator()(double x, double &result) const {
 }
 
 template <typename LOGF, typename EQUAL>
-bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF &logf,
+bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
                                                              std::size_t iterations,
-                                                             const EQUAL &equal,
-                                                             double &result) const {
+                                                             const EQUAL& equal,
+                                                             double& result) const {
     if (m_X <= m_A) {
         result = m_X;
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF &, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
 
     try {
         double xr = m_A;
@@ -113,7 +113,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF &logf,
         }
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to find left root: "
                   << e.what() << ", a = " << m_A << ", logf(x) = " << m_LogFx
                   << ", logf(a) = " << logf(m_A) << ", max deviation = "
@@ -124,16 +124,16 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF &logf,
 }
 
 template <typename LOGF, typename EQUAL>
-bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF &logf,
+bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
                                                               std::size_t iterations,
-                                                              const EQUAL &equal,
-                                                              double &result) const {
+                                                              const EQUAL& equal,
+                                                              double& result) const {
     if (m_X >= m_B) {
         result = m_X;
         return true;
     }
 
-    CCompositeFunctions::CMinusConstant<const LOGF &, double> f(logf, m_LogFx);
+    CCompositeFunctions::CMinusConstant<const LOGF&, double> f(logf, m_LogFx);
 
     try {
         double xl = m_B;
@@ -157,7 +157,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF &logf,
         }
         n = iterations - n;
         CSolvers::solve(xl, xr, fl, fr, f, n, equal, result);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to find right root: " << e.what() << ",b = " << m_B << ", logf(x) = "
                                                 << m_LogFx << ", logf(b) = " << logf(m_B));
         return false;
@@ -166,16 +166,18 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF &logf,
 }
 
 template <typename LOGF>
-double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF &logf, double pTails) {
+double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf, double pTails) {
     TDoubleDoublePrVec intervals;
     this->intervals(intervals);
 
     double p = 0.0;
     TDoubleVec pIntervals(intervals.size(), 0.0);
-    CSmoothedKernel<const LOGF &> kernel(logf, m_LogFx, 3.0);
+    CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
     for (std::size_t i = 0u; i < intervals.size(); ++i) {
-        if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
-                kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
+        if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(kernel,
+                                                                  intervals[i].first,
+                                                                  intervals[i].second,
+                                                                  pIntervals[i])) {
             LOG_ERROR("Couldn't integrate kernel over "
                       << core::CContainerPrinter::print(intervals[i]));
         }
@@ -186,21 +188,22 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF &logf
     CIntegration::adaptiveGaussLegendre<CIntegration::OrderTwo>(kernel,
                                                                 intervals,
                                                                 pIntervals,
-                                                                2,   // refinements
-                                                                3,   // splits
-                                                                1e-2,// tolerance
+                                                                2,    // refinements
+                                                                3,    // splits
+                                                                1e-2, // tolerance
                                                                 p);
     return truncate(p - pTails, 0.0, 1.0);
 }
 
-template <typename T> double CTools::differentialEntropy(const CMixtureDistribution<T> &mixture) {
+template <typename T>
+double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     static const double EPS = 1e-5;
     static const std::size_t INTERVALS = 8u;
 
-    const TDoubleVec &weights = mixture.weights();
-    const TModeVec &modes = mixture.modes();
+    const TDoubleVec& weights = mixture.weights();
+    const TModeVec& modes = mixture.modes();
 
     if (weights.empty()) {
         return 0.0;
@@ -243,7 +246,8 @@ template <typename T> double CTools::differentialEntropy(const CMixtureDistribut
     return result;
 }
 
-template <typename T> void CTools::spread(double a, double b, double separation, T &points) {
+template <typename T>
+void CTools::spread(double a, double b, double separation, T& points) {
     if (points.empty()) {
         return;
     }
@@ -307,4 +311,4 @@ template <typename T> void CTools::spread(double a, double b, double separation,
 }
 }
 
-#endif// INCLUDED_ml_maths_CToolsDetail_h
+#endif // INCLUDED_ml_maths_CToolsDetail_h

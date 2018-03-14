@@ -81,16 +81,16 @@ public:
     //! \brief Represents the result of multiplying penalties.
     class CClosure {
     public:
-        CClosure(const CPenalty &penalty);
+        CClosure(const CPenalty& penalty);
 
         //! Create a penalty on the heap from this closure.
-        CPenalty *clone(void) const;
+        CPenalty* clone(void) const;
 
         //! Add a penalty to the closure.
-        CClosure &add(const CPenalty &penalty);
+        CClosure& add(const CPenalty& penalty);
 
         //! Get the closure's penalties.
-        TPenaltyCPtrVec &penalties(void);
+        TPenaltyCPtrVec& penalties(void);
 
     private:
         //! The penalties in the closure.
@@ -98,34 +98,34 @@ public:
     };
 
 public:
-    CPenalty(const CAutoconfigurerParams &params);
-    CPenalty(const CPenalty &other);
+    CPenalty(const CAutoconfigurerParams& params);
+    CPenalty(const CPenalty& other);
     explicit CPenalty(CClosure other);
     virtual ~CPenalty(void);
 
     //! Create a copy on the heap.
-    virtual CPenalty *clone(void) const;
+    virtual CPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
 
     //! Get the product penalty of this and \p rhs.
-    const CPenalty &operator*=(const CPenalty &rhs);
+    const CPenalty& operator*=(const CPenalty& rhs);
 
     //! Get the product of this and the closure \p rhs.
-    const CPenalty &operator*=(CClosure rhs);
+    const CPenalty& operator*=(CClosure rhs);
 
     //! Compute the penalty to apply for the first property.
-    void penalty(const CFieldStatistics &stats, double &penalty) const {
+    void penalty(const CFieldStatistics& stats, double& penalty) const {
         std::string ignore;
         this->penalty(stats, penalty, ignore);
     }
 
     //! Compute the penalty to apply for the first property.
-    void penalty(const CFieldStatistics &stats, double &penalty, std::string &description) const;
+    void penalty(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 
     //! Update the penalties of \p detector.
-    void penalize(CDetectorSpecification &spec) const;
+    void penalize(CDetectorSpecification& spec) const;
 
     //! Compute the score for \p penalty.
     static double score(double penalty);
@@ -138,22 +138,22 @@ protected:
 
 protected:
     //! Get the parameters.
-    const CAutoconfigurerParams &params(void) const;
+    const CAutoconfigurerParams& params(void) const;
 
 private:
     //! Not assignable.
-    const CPenalty &operator=(const CPenalty &other);
+    const CPenalty& operator=(const CPenalty& other);
 
     //! Compute the penalty based on a detector's field's statistics.
     //!
     //! \note No-op unless a derived class overrides it.
     virtual void
-    penaltyFromMe(const CFieldStatistics &stats, double &penalty, std::string &description) const;
+    penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const;
 
     //! Compute a penalty based a complete detector specification.
     //!
     //! \note No-op unless a derived class overrides it.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
 private:
     //! The parameters.
@@ -165,14 +165,14 @@ private:
 
 //! Multiply a two penalties.
 CONFIG_EXPORT
-CPenalty::CClosure operator*(const CPenalty &lhs, const CPenalty &rhs);
+CPenalty::CClosure operator*(const CPenalty& lhs, const CPenalty& rhs);
 //! Multiply a closure by a penalty.
 CONFIG_EXPORT
-CPenalty::CClosure operator*(CPenalty::CClosure lhs, const CPenalty &rhs);
+CPenalty::CClosure operator*(CPenalty::CClosure lhs, const CPenalty& rhs);
 //! Multiply a penalty by a closure.
 CONFIG_EXPORT
-CPenalty::CClosure operator*(const CPenalty &lhs, CPenalty::CClosure rhs);
+CPenalty::CClosure operator*(const CPenalty& lhs, CPenalty::CClosure rhs);
 }
 }
 
-#endif// INCLUDED_ml_config_CPenalty_h
+#endif // INCLUDED_ml_config_CPenalty_h

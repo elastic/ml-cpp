@@ -34,7 +34,7 @@ std::size_t CDataAdder::maxDocumentSize(void) const {
     return std::numeric_limits<std::size_t>::max();
 }
 
-std::string CDataAdder::makeCurrentDocId(const std::string &baseId, size_t currentDocNum) {
+std::string CDataAdder::makeCurrentDocId(const std::string& baseId, size_t currentDocNum) {
     std::ostringstream strm;
     if (!baseId.empty()) {
         strm << baseId << '#';

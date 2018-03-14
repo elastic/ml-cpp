@@ -70,16 +70,16 @@ public:
     void type(ERuleConditionType ruleType);
 
     //! Set the field name. Empty means it is not specified.
-    void fieldName(const std::string &fieldName);
+    void fieldName(const std::string& fieldName);
 
     //! Set the field value. Empty means it is not specified.
-    void fieldValue(const std::string &fieldValue);
+    void fieldValue(const std::string& fieldValue);
 
     //! Get the numerical condition.
-    SCondition &condition(void);
+    SCondition& condition(void);
 
     //! Set the value filter (used for categorical only).
-    void valueFilter(const core::CPatternSet &valueFilter);
+    void valueFilter(const core::CPatternSet& valueFilter);
 
     //! Is the condition categorical?
     bool isCategorical(void) const;
@@ -91,16 +91,16 @@ public:
     std::string print(void) const;
 
     //! Test the condition against a series.
-    bool test(const CAnomalyDetectorModel &model,
+    bool test(const CAnomalyDetectorModel& model,
               model_t::EFeature feature,
-              const model_t::CResultType &resultType,
+              const model_t::CResultType& resultType,
               bool isScoped,
               std::size_t pid,
               std::size_t cid,
               core_t::TTime time) const;
 
 private:
-    bool checkCondition(const CAnomalyDetectorModel &model,
+    bool checkCondition(const CAnomalyDetectorModel& model,
                         model_t::EFeature feature,
                         model_t::CResultType resultType,
                         std::size_t pid,
@@ -127,4 +127,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CRuleCondition_h
+#endif // INCLUDED_ml_model_CRuleCondition_h

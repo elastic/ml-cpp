@@ -33,7 +33,7 @@ public:
     void testDetectorEqualizing(void);
     void testShouldWritePartition(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CHierarchicalResultsTest_h
+#endif // INCLUDED_CHierarchicalResultsTest_h

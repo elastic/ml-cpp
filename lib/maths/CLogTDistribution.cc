@@ -28,23 +28,31 @@ namespace maths {
 
 namespace {
 
-inline double square(double x) { return x * x; }
+inline double square(double x) {
+    return x * x;
+}
 }
 
 CLogTDistribution::CLogTDistribution(double degreesFreedom, double location, double scale)
     : m_DegreesFreedom(degreesFreedom), m_Location(location), m_Scale(scale) {}
 
-double CLogTDistribution::degreesFreedom(void) const { return m_DegreesFreedom; }
+double CLogTDistribution::degreesFreedom(void) const {
+    return m_DegreesFreedom;
+}
 
-double CLogTDistribution::location(void) const { return m_Location; }
+double CLogTDistribution::location(void) const {
+    return m_Location;
+}
 
-double CLogTDistribution::scale(void) const { return m_Scale; }
+double CLogTDistribution::scale(void) const {
+    return m_Scale;
+}
 
-CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution & /*distribution*/) {
+CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution& /*distribution*/) {
     return CLogTDistribution::TDoubleDoublePr(0.0, boost::numeric::bounds<double>::highest());
 }
 
-double mode(const CLogTDistribution &distribution) {
+double mode(const CLogTDistribution& distribution) {
     // The mode of a log t distribution is found by taking the derivative
     // of the p.d.f. In particular,
     //   f(x) ~ 1 / x * (1 + 1 / (n * s^2) * (log(x) - m)^2) ^ -((n+1)/2)
@@ -86,7 +94,7 @@ double mode(const CLogTDistribution &distribution) {
                  ::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
-CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution &distribution) {
+CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution) {
     // The distribution has a local minimum at:
     //   x = exp(m - (n+1) / 2 - ((n+1)^2 / 4 - n*s^2) ^ (1/2))
     //
@@ -108,7 +116,7 @@ CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution &distrib
                  ::sqrt(square(degreesFreedom + 1.0) / 4.0 - degreesFreedom * squareScale));
 }
 
-double pdf(const CLogTDistribution &distribution, double x) {
+double pdf(const CLogTDistribution& distribution, double x) {
     // It can be shown that the p.d.f. is related to the student's t
     // p.d.f. by:
     //   f(x) = 1 / (s * x) * f((log(x) - m) / s | n)
@@ -144,7 +152,7 @@ double pdf(const CLogTDistribution &distribution, double x) {
     return CTools::safePdf(students, value) / scale / x;
 }
 
-double cdf(const CLogTDistribution &distribution, double x) {
+double cdf(const CLogTDistribution& distribution, double x) {
     // It can be shown that the c.d.f. is related to the student's t
     // c.d.f. by:
     //   F(x) = F((log(x) - m) / s | n)
@@ -171,7 +179,7 @@ double cdf(const CLogTDistribution &distribution, double x) {
     return CTools::safeCdf(students, value);
 }
 
-double cdfComplement(const CLogTDistribution &distribution, double x) {
+double cdfComplement(const CLogTDistribution& distribution, double x) {
     // This is just 1 - F(x) but uses boost::math::complement to
     // avoid cancellation errors.
 
@@ -192,7 +200,7 @@ double cdfComplement(const CLogTDistribution &distribution, double x) {
     return CTools::safeCdfComplement(students, value);
 }
 
-double quantile(const CLogTDistribution &distribution, double q) {
+double quantile(const CLogTDistribution& distribution, double q) {
     // The distribution describes X = exp(s * Y + m) where Y is student's
     // t. This implies that the quantile's are obtained from the student's t
     // distribution by the transformation x_q = exp(s * y_q + m).

@@ -66,7 +66,8 @@ public:
     //! will ascend back to the element at the higher level.  The supplied
     //! should return a bool and this will be passed on as the return value
     //! of this method.
-    template <typename FUNC> bool traverseSubLevel(FUNC f) {
+    template <typename FUNC>
+    bool traverseSubLevel(FUNC f) {
         if (!this->hasSubLevel()) {
             return false;
         }
@@ -74,7 +75,7 @@ public:
         CAutoLevel level(*this);
         try {
             return f(*this);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Restoration failed: " << e.what());
             level.setBadState();
             return false;
@@ -83,12 +84,12 @@ public:
 
     //! Get the name of the current element - the returned reference is only
     //! valid for as long as the traverser is pointing at the same element
-    virtual const std::string &name(void) const = 0;
+    virtual const std::string& name(void) const = 0;
 
     //! Get the value of the current element - the returned reference is
     //! only valid for as long as the traverser is pointing at the same
     //! element
-    virtual const std::string &value(void) const = 0;
+    virtual const std::string& value(void) const = 0;
 
     //! Has the end of the inputstream been reached?
     virtual bool isEof(void) const = 0;
@@ -113,7 +114,7 @@ private:
     //! Class to implement RAII for traversing the next level down
     class CORE_EXPORT CAutoLevel : private CNonCopyable {
     public:
-        CAutoLevel(CStateRestoreTraverser &traverser);
+        CAutoLevel(CStateRestoreTraverser& traverser);
         ~CAutoLevel(void);
 
         //! Set the bad state flag, called from an exception handler
@@ -122,7 +123,7 @@ private:
         void setBadState(void);
 
     private:
-        CStateRestoreTraverser &m_Traverser;
+        CStateRestoreTraverser& m_Traverser;
 
         //! Remember whether descent on construction succeeded
         bool m_Descended;
@@ -139,4 +140,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CStateRestoreTraverser_h
+#endif // INCLUDED_ml_core_CStateRestoreTraverser_h

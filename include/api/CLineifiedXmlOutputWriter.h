@@ -43,27 +43,27 @@ class API_EXPORT CLineifiedXmlOutputWriter : public COutputHandler {
 public:
     //! Constructor that causes output to be written to the internal string
     //! stream
-    CLineifiedXmlOutputWriter(const std::string &rootName);
+    CLineifiedXmlOutputWriter(const std::string& rootName);
 
     //! Constructor that causes output to be written to the specified stream
-    CLineifiedXmlOutputWriter(const std::string &rootName, std::ostream &strmOut);
+    CLineifiedXmlOutputWriter(const std::string& rootName, std::ostream& strmOut);
 
     //! Destructor flushes the stream
     virtual ~CLineifiedXmlOutputWriter(void);
 
     //! Set field names - this function has no affect it always
     //! returns true
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     //! Returns an empty vector
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Write the data row fields as an XML document
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -82,7 +82,7 @@ private:
     std::ostringstream m_StringOutputBuf;
 
     //! Reference to the stream we're going to write to
-    std::ostream &m_OutStream;
+    std::ostream& m_OutStream;
 
     //! XML node pool for efficiency
     core::CXmlNodeWithChildrenPool m_Pool;
@@ -90,4 +90,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CLineifiedXmlOutputWriter_h
+#endif // INCLUDED_ml_api_CLineifiedXmlOutputWriter_h

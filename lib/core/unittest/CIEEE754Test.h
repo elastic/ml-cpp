@@ -22,7 +22,7 @@ class CIEEE754Test : public CppUnit::TestFixture {
 public:
     void testRound(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CIEEE754Test_h
+#endif // INCLUDED_CIEEE754Test_h

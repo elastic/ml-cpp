@@ -24,7 +24,7 @@ public:
     void testCalendarCyclic(void);
     void testPersist(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CTrendTestsTest_h
+#endif // INCLUDED_CTrendTestsTest_h

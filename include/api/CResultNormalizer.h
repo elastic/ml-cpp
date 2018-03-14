@@ -84,37 +84,37 @@ public:
     typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
 public:
-    CResultNormalizer(const model::CAnomalyDetectorModelConfig &modelConfig,
-                      COutputHandler &outputHandler);
+    CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
+                      COutputHandler& outputHandler);
 
     //! Initialise the system change normalizer
-    bool initNormalizer(const std::string &stateFileName);
+    bool initNormalizer(const std::string& stateFileName);
 
     //! Handle a record to be normalized
-    bool handleRecord(const TStrStrUMap &dataRowFields);
+    bool handleRecord(const TStrStrUMap& dataRowFields);
 
 private:
-    bool parseDataFields(const TStrStrUMap &dataRowFields,
-                         std::string &level,
-                         std::string &partition,
-                         std::string &person,
-                         std::string &function,
-                         std::string &valueFieldName,
-                         double &probability);
+    bool parseDataFields(const TStrStrUMap& dataRowFields,
+                         std::string& level,
+                         std::string& partition,
+                         std::string& person,
+                         std::string& function,
+                         std::string& valueFieldName,
+                         double& probability);
 
-    bool parseDataFields(const TStrStrUMap &dataRowFields,
-                         std::string &level,
-                         std::string &partition,
-                         std::string &partitionValue,
-                         std::string &person,
-                         std::string &function,
-                         std::string &valueFieldName,
-                         double &probability);
+    bool parseDataFields(const TStrStrUMap& dataRowFields,
+                         std::string& level,
+                         std::string& partition,
+                         std::string& partitionValue,
+                         std::string& person,
+                         std::string& function,
+                         std::string& valueFieldName,
+                         double& probability);
 
     template <typename T>
-    bool parseDataField(const TStrStrUMap &dataRowFields,
-                        const std::string &fieldName,
-                        T &result) const {
+    bool parseDataField(const TStrStrUMap& dataRowFields,
+                        const std::string& fieldName,
+                        T& result) const {
         TStrStrUMapCItr iter = dataRowFields.find(fieldName);
         if (iter == dataRowFields.end() ||
             core::CStringUtils::stringToType(iter->second, result) == false) {
@@ -127,10 +127,10 @@ private:
 
 private:
     //! Reference to model config
-    const model::CAnomalyDetectorModelConfig &m_ModelConfig;
+    const model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Object to which the output is passed
-    COutputHandler &m_OutputHandler;
+    COutputHandler& m_OutputHandler;
 
     //! Do we need to tell the output handler what our fieldnames are?
     bool m_WriteFieldNames;
@@ -140,7 +140,7 @@ private:
 
     //! References to specific entries in the map to save repeatedly
     //! searching for them
-    std::string &m_OutputFieldNormalizedScore;
+    std::string& m_OutputFieldNormalizedScore;
 
     //! The hierarchical results normalizer
     model::CHierarchicalResultsNormalizer m_Normalizer;
@@ -148,4 +148,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CResultNormalizer_h
+#endif // INCLUDED_ml_api_CResultNormalizer_h

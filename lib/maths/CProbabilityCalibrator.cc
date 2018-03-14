@@ -42,7 +42,7 @@ uint32_t discreteProbability(const double probability) {
 
 //! Convert a discrete probability integer into the
 //! approximate probability which generated it.
-double rawProbability(const uint32_t &discreteProbability) {
+double rawProbability(const uint32_t& discreteProbability) {
     return ::exp(-static_cast<double>(discreteProbability) / DISCRETIZATION_FACTOR);
 }
 
@@ -62,17 +62,18 @@ CProbabilityCalibrator::CProbabilityCalibrator(EStyle style, double cutoffProbab
     }
 }
 
-void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CProbabilityCalibrator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(STYLE_TAG, static_cast<int>(m_Style));
     inserter.insertValue(CUTOFF_PROBABILITY_TAG, m_CutoffProbability);
-    inserter.insertLevel(
-        DISCRETE_PROBABILITY_QUANTILE_TAG,
-        boost::bind(&CQDigest::acceptPersistInserter, m_DiscreteProbabilityQuantiles.get(), _1));
+    inserter.insertLevel(DISCRETE_PROBABILITY_QUANTILE_TAG,
+                         boost::bind(&CQDigest::acceptPersistInserter,
+                                     m_DiscreteProbabilityQuantiles.get(),
+                                     _1));
 }
 
-bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CProbabilityCalibrator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == STYLE_TAG) {
             int style;
             if (core::CStringUtils::stringToType(traverser.value(), style) == false) {

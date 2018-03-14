@@ -25,17 +25,17 @@ namespace api {
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(void)
     : m_OutStream(m_StringOutputBuf), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {}
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet &numericFields)
+CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields)
     : m_NumericFields(numericFields),
       m_OutStream(m_StringOutputBuf),
       m_WriteStream(m_OutStream),
       m_Writer(m_WriteStream) {}
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(std::ostream &strmOut)
+CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(std::ostream& strmOut)
     : m_OutStream(strmOut), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {}
 
-CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet &numericFields,
-                                                       std::ostream &strmOut)
+CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields,
+                                                       std::ostream& strmOut)
     : m_NumericFields(numericFields),
       m_OutStream(strmOut),
       m_WriteStream(m_OutStream),
@@ -52,25 +52,25 @@ CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter(void) {
     core::CSleep::sleep(20);
 }
 
-bool CLineifiedJsonOutputWriter::fieldNames(const TStrVec & /*fieldNames*/,
-                                            const TStrVec & /*extraFieldNames*/) {
+bool CLineifiedJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
+                                            const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
-const CLineifiedJsonOutputWriter::TStrVec &CLineifiedJsonOutputWriter::fieldNames(void) const {
+const CLineifiedJsonOutputWriter::TStrVec& CLineifiedJsonOutputWriter::fieldNames(void) const {
     return EMPTY_FIELD_NAMES;
 }
 
-bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
-                                          const TStrStrUMap &overrideDataRowFields) {
+bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
+                                          const TStrStrUMap& overrideDataRowFields) {
     rapidjson::Document doc = m_Writer.makeDoc();
 
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
     TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
     for (; fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         // Only output fields that aren't overridden
         if (overrideDataRowFields.find(name) == overrideDataRowFields.end()) {
@@ -80,8 +80,8 @@ bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
 
     fieldValueIter = overrideDataRowFields.begin();
     for (; fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
-        const std::string &name = fieldValueIter->first;
-        const std::string &value = fieldValueIter->second;
+        const std::string& name = fieldValueIter->first;
+        const std::string& value = fieldValueIter->second;
 
         this->writeField(name, value, doc);
     }
@@ -93,16 +93,16 @@ bool CLineifiedJsonOutputWriter::writeRow(const TStrStrUMap &dataRowFields,
 }
 
 std::string CLineifiedJsonOutputWriter::internalString(void) const {
-    const_cast<rapidjson::OStreamWrapper &>(m_WriteStream).Flush();
+    const_cast<rapidjson::OStreamWrapper&>(m_WriteStream).Flush();
 
     // This is only of any value if the first constructor was used - it's up to
     // the caller to know this
     return m_StringOutputBuf.str();
 }
 
-void CLineifiedJsonOutputWriter::writeField(const std::string &name,
-                                            const std::string &value,
-                                            rapidjson::Document &doc) const {
+void CLineifiedJsonOutputWriter::writeField(const std::string& name,
+                                            const std::string& value,
+                                            rapidjson::Document& doc) const {
     if (m_NumericFields.find(name) != m_NumericFields.end()) {
         double numericValue(0.0);
         if (core::CStringUtils::stringToType(value, numericValue) == false) {

@@ -24,15 +24,15 @@
 namespace ml {
 namespace maths {
 
-double CBasicStatistics::mean(const TDoubleDoublePr &samples) {
+double CBasicStatistics::mean(const TDoubleDoublePr& samples) {
     return 0.5 * (samples.first + samples.second);
 }
 
-double CBasicStatistics::mean(const TDoubleVec &sample) {
+double CBasicStatistics::mean(const TDoubleVec& sample) {
     return std::accumulate(sample.begin(), sample.end(), 0.0) / static_cast<double>(sample.size());
 }
 
-double CBasicStatistics::median(const TDoubleVec &dataIn) {
+double CBasicStatistics::median(const TDoubleVec& dataIn) {
     if (dataIn.empty()) {
         return 0.0;
     }

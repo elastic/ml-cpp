@@ -43,11 +43,11 @@ namespace api {
 //!
 class API_EXPORT CConfigUpdater {
 public:
-    CConfigUpdater(CFieldConfig &fieldConfig, model::CAnomalyDetectorModelConfig &modelConfig);
+    CConfigUpdater(CFieldConfig& fieldConfig, model::CAnomalyDetectorModelConfig& modelConfig);
 
     //! Update from given config changes
     //! \param config the requested changes in an ini syntax
-    bool update(const std::string &config);
+    bool update(const std::string& config);
 
 private:
     static const std::string MODEL_DEBUG_CONFIG;
@@ -58,10 +58,10 @@ private:
     static const std::string SCHEDULED_EVENTS;
 
 private:
-    CFieldConfig &m_FieldConfig;
-    model::CAnomalyDetectorModelConfig &m_ModelConfig;
+    CFieldConfig& m_FieldConfig;
+    model::CAnomalyDetectorModelConfig& m_ModelConfig;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CConfigUpdater_h
+#endif // INCLUDED_ml_api_CConfigUpdater_h

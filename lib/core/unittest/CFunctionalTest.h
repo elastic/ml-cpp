@@ -23,7 +23,7 @@ public:
     void testIsNull(void);
     void testDereference(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CFunctionalTest_h
+#endif // INCLUDED_CFunctionalTest_h

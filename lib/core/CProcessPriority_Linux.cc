@@ -26,7 +26,7 @@ namespace core {
 
 namespace {
 
-bool writeToSystemFile(const std::string &fileName, const std::string &value) {
+bool writeToSystemFile(const std::string& fileName, const std::string& value) {
     // Use low level functions to write rather than C++ wrappers, as these are
     // system files.
     int fd = ::open(fileName.c_str(), O_WRONLY);

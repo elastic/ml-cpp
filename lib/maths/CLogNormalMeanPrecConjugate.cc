@@ -63,7 +63,9 @@ typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulat
 typedef maths_t::TWeightStyleVec TWeightStyleVec;
 
 //! Compute x * x.
-inline double pow2(double x) { return x * x; }
+inline double pow2(double x) {
+    return x * x;
+}
 
 const double MINIMUM_LOGNORMAL_SHAPE = 100.0;
 
@@ -95,8 +97,8 @@ inline void locationAndScale(double vs,
                              double precision,
                              double rate,
                              double shape,
-                             double &location,
-                             double &scale) {
+                             double& location,
+                             double& scale) {
     double t = vs == 1.0 ? r : r + std::log(s + vs * (1.0 - s));
     double scaledPrecision = t == r ? precision : t / r * precision;
     double scaledRate = t == r ? rate : t / r * rate;
@@ -125,9 +127,9 @@ inline void locationAndScale(double vs,
 //! \param precision The precision of the conditional mean prior.
 //! \param result Filled in with the aggregation of results of \p func.
 template <typename FUNC, typename AGGREGATOR, typename RESULT>
-bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
-                                         const TDouble1Vec &samples,
-                                         const TDouble4Vec1Vec &weights,
+bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
+                                         const TDouble1Vec& samples,
+                                         const TDouble4Vec1Vec& weights,
                                          FUNC func,
                                          AGGREGATOR aggregate,
                                          bool isNonInformative,
@@ -136,7 +138,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                                          double rate,
                                          double mean,
                                          double precision,
-                                         RESULT &result) {
+                                         RESULT& result) {
     result = RESULT();
 
     if (samples.empty()) {
@@ -164,8 +166,9 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
             // of this distribution.)
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 double n = maths_t::count(weightStyles, weights[i]);
-                result = aggregate(
-                    result, func(CTools::SImproperDistribution(), samples[i] + offset), n);
+                result = aggregate(result,
+                                   func(CTools::SImproperDistribution(), samples[i] + offset),
+                                   n);
             }
         } else if (shape > MINIMUM_LOGNORMAL_SHAPE) {
             // For large shape the marginal likelihood is very well approximated
@@ -194,8 +197,15 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                                        maths_t::countVarianceScale(weightStyles, weights[i]);
                 double location;
                 double scale;
-                locationAndScale(
-                    varianceScale, r, s, mean, precision, rate, shape, location, scale);
+                locationAndScale(varianceScale,
+                                 r,
+                                 s,
+                                 mean,
+                                 precision,
+                                 rate,
+                                 shape,
+                                 location,
+                                 scale);
                 boost::math::lognormal_distribution<> lognormal(location, scale);
                 result = aggregate(result, func(lognormal, samples[i] + offset), n);
             }
@@ -212,13 +222,20 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
                                        maths_t::countVarianceScale(weightStyles, weights[i]);
                 double location;
                 double scale;
-                locationAndScale(
-                    varianceScale, r, s, mean, precision, rate, shape, location, scale);
+                locationAndScale(varianceScale,
+                                 r,
+                                 s,
+                                 mean,
+                                 precision,
+                                 rate,
+                                 shape,
+                                 location,
+                                 scale);
                 CLogTDistribution logt(2.0 * shape, location, scale);
                 result = aggregate(result, func(logt, samples[i] + offset), n);
             }
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Error calculating joint c.d.f.: " << e.what());
         return false;
     }
@@ -234,11 +251,12 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec &weightStyles,
 //! This thin wrapper around the evaluateFunctionOnJointDistribution function
 //! so that it can be integrated over the hidden variable representing the
 //! actual value of a discrete datum which we assume is in the interval [n, n+1].
-template <typename F> class CEvaluateOnSamples : core::CNonCopyable {
+template <typename F>
+class CEvaluateOnSamples : core::CNonCopyable {
 public:
-    CEvaluateOnSamples(const TWeightStyleVec &weightStyles,
-                       const TDouble1Vec &samples,
-                       const TDouble4Vec1Vec &weights,
+    CEvaluateOnSamples(const TWeightStyleVec& weightStyles,
+                       const TDouble1Vec& samples,
+                       const TDouble4Vec1Vec& weights,
                        bool isNonInformative,
                        double offset,
                        double mean,
@@ -255,7 +273,7 @@ public:
           m_Shape(shape),
           m_Rate(rate) {}
 
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         return evaluateFunctionOnJointDistribution(m_WeightStyles,
                                                    m_Samples,
                                                    m_Weights,
@@ -271,9 +289,9 @@ public:
     }
 
 private:
-    const TWeightStyleVec &m_WeightStyles;
-    const TDouble1Vec &m_Samples;
-    const TDouble4Vec1Vec &m_Weights;
+    const TWeightStyleVec& m_WeightStyles;
+    const TDouble1Vec& m_Samples;
+    const TDouble4Vec1Vec& m_Weights;
     bool m_IsNonInformative;
     double m_Offset;
     double m_Mean;
@@ -299,13 +317,13 @@ public:
 public:
     CMeanKernel(double m, double p, double a, double b) : m_M(m), m_P(p), m_A(a), m_B(b) {}
 
-    bool operator()(double x, TValue &result) const {
+    bool operator()(double x, TValue& result) const {
         try {
             boost::math::gamma_distribution<> gamma(m_A, 1.0 / m_B);
             double fx = boost::math::pdf(gamma, x);
             result(0) = std::exp(m_M + 0.5 / x * (1.0 / m_P + 1.0)) * fx;
             result(1) = fx;
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate mean kernel: " << e.what() << ", m = " << m_M
                                                           << ", p = " << m_P << ", a = " << m_A
                                                           << ", b = " << m_B << ", x = " << x);
@@ -331,7 +349,7 @@ public:
     CVarianceKernel(double mean, double m, double p, double a, double b)
         : m_Mean(mean), m_M(m), m_P(p), m_A(a), m_B(b) {}
 
-    bool operator()(const TValue &x, TValue &result) const {
+    bool operator()(const TValue& x, TValue& result) const {
         try {
             boost::math::gamma_distribution<> gamma(m_A, 1.0 / m_B);
             boost::math::normal_distribution<> normal(m_M, std::sqrt(1.0 / x(0) / m_P));
@@ -339,7 +357,7 @@ public:
             double m = std::exp(x(1) + 0.5 / x(0));
             result(0) = (m * m * (std::exp(1.0 / x(0)) - 1.0) + pow2(m - m_Mean)) * fx;
             result(1) = fx;
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate mean kernel: " << e.what() << ", m = " << m_M
                                                           << ", p = " << m_P << ", a = " << m_A
                                                           << ", b = " << m_B << ", x = " << x);
@@ -361,9 +379,9 @@ private:
 class CProbabilityOfLessLikelySamples : core::CNonCopyable {
 public:
     CProbabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                    const TWeightStyleVec &weightStyles,
-                                    const TDouble1Vec &samples,
-                                    const TDouble4Vec1Vec &weights,
+                                    const TWeightStyleVec& weightStyles,
+                                    const TDouble1Vec& samples,
+                                    const TDouble4Vec1Vec& weights,
                                     bool isNonInformative,
                                     double offset,
                                     double mean,
@@ -382,7 +400,7 @@ public:
           m_Rate(rate),
           m_Tail(0) {}
 
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         CJointProbabilityOfLessLikelySamples probability;
         maths_t::ETail tail = maths_t::E_UndeterminedTail;
 
@@ -418,9 +436,9 @@ public:
 
 private:
     maths_t::EProbabilityCalculation m_Calculation;
-    const TWeightStyleVec &m_WeightStyles;
-    const TDouble1Vec &m_Samples;
-    const TDouble4Vec1Vec &m_Weights;
+    const TWeightStyleVec& m_WeightStyles;
+    const TDouble1Vec& m_Samples;
+    const TDouble4Vec1Vec& m_Weights;
     bool m_IsNonInformative;
     double m_Offset;
     double m_Mean;
@@ -457,9 +475,9 @@ private:
 //!   a and b are the prior Gamma shape and rate, respectively.
 class CLogMarginalLikelihood : core::CNonCopyable {
 public:
-    CLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                           const TDouble1Vec &samples,
-                           const TDouble4Vec1Vec &weights,
+    CLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                           const TDouble1Vec& samples,
+                           const TDouble4Vec1Vec& weights,
                            double offset,
                            double mean,
                            double precision,
@@ -481,7 +499,7 @@ public:
     }
 
     //! Evaluate the log marginal likelihood at the offset \p x.
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         if (m_ErrorStatus & maths_t::E_FpFailed) {
             return false;
         }
@@ -515,7 +533,7 @@ public:
                 logSamplesSum += n * logSample;
                 logSampleMoments.add(logSample - shift, n * w);
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
             return false;
@@ -586,7 +604,7 @@ private:
                          0.5 * m_NumberSamples * LOG_2_PI - 0.5 * logVarianceScaleSum +
                          boost::math::lgamma(impliedShape) - boost::math::lgamma(m_Shape) +
                          m_Shape * std::log(m_Rate);
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Error calculating marginal likelihood: " << e.what());
             this->addErrorStatus(maths_t::E_FpFailed);
         }
@@ -598,9 +616,9 @@ private:
     }
 
 private:
-    const TWeightStyleVec &m_WeightStyles;
-    const TDouble1Vec &m_Samples;
-    const TDouble4Vec1Vec &m_Weights;
+    const TWeightStyleVec& m_WeightStyles;
+    const TDouble1Vec& m_Samples;
+    const TDouble4Vec1Vec& m_Weights;
     double m_Offset;
     double m_Mean;
     double m_Precision;
@@ -625,13 +643,13 @@ const double CLogMarginalLikelihood::LOG_2_PI = std::log(boost::math::double_con
 //! [n, n+1].
 class CLogSampleSquareDeviation : core::CNonCopyable {
 public:
-    CLogSampleSquareDeviation(const TWeightStyleVec &weightStyles,
-                              const TDouble1Vec &samples,
-                              const TDouble4Vec1Vec &weights,
+    CLogSampleSquareDeviation(const TWeightStyleVec& weightStyles,
+                              const TDouble1Vec& samples,
+                              const TDouble4Vec1Vec& weights,
                               double mean)
         : m_WeightStyles(weightStyles), m_Samples(samples), m_Weights(weights), m_Mean(mean) {}
 
-    bool operator()(double x, double &result) const {
+    bool operator()(double x, double& result) const {
         result = 0.0;
         for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
             double residual = m_Samples[i];
@@ -646,13 +664,13 @@ public:
     }
 
 private:
-    const TWeightStyleVec &m_WeightStyles;
-    const TDouble1Vec &m_Samples;
-    const TDouble4Vec1Vec &m_Weights;
+    const TWeightStyleVec& m_WeightStyles;
+    const TDouble1Vec& m_Samples;
+    const TDouble4Vec1Vec& m_Weights;
     double m_Mean;
 };
 
-}// detail::
+} // detail::
 
 // We use short field names to reduce the state size
 const std::string OFFSET_TAG("a");
@@ -683,8 +701,8 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType data
       m_GammaShape(gammaShape),
       m_GammaRate(gammaRate) {}
 
-CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRestoreParams &params,
-                                                         core::CStateRestoreTraverser &traverser,
+CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRestoreParams& params,
+                                                         core::CStateRestoreTraverser& traverser,
                                                          double offsetMargin)
     : CPrior(params.s_DataType, params.s_DecayRate),
       m_Offset(0.0),
@@ -697,9 +715,9 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
         boost::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser, this, _1));
 }
 
-bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
                                double decayRate,
                                core::CStringUtils::stringToType(traverser.value(), decayRate),
@@ -737,32 +755,40 @@ CLogNormalMeanPrecConjugate::EPrior CLogNormalMeanPrecConjugate::type(void) cons
     return E_LogNormal;
 }
 
-CLogNormalMeanPrecConjugate *CLogNormalMeanPrecConjugate::clone(void) const {
+CLogNormalMeanPrecConjugate* CLogNormalMeanPrecConjugate::clone(void) const {
     return new CLogNormalMeanPrecConjugate(*this);
 }
 
 void CLogNormalMeanPrecConjugate::setToNonInformative(double offset, double decayRate) {
-    *this = nonInformativePrior(
-        this->dataType(), offset + this->offsetMargin(), decayRate, this->offsetMargin());
+    *this = nonInformativePrior(this->dataType(),
+                                offset + this->offsetMargin(),
+                                decayRate,
+                                this->offsetMargin());
 }
 
-double CLogNormalMeanPrecConjugate::offsetMargin(void) const { return m_OffsetMargin; }
+double CLogNormalMeanPrecConjugate::offsetMargin(void) const {
+    return m_OffsetMargin;
+}
 
-bool CLogNormalMeanPrecConjugate::needsOffset(void) const { return true; }
+bool CLogNormalMeanPrecConjugate::needsOffset(void) const {
+    return true;
+}
 
-double CLogNormalMeanPrecConjugate::adjustOffset(const TWeightStyleVec &weightStyles,
-                                                 const TDouble1Vec &samples,
-                                                 const TDouble4Vec1Vec &weights) {
+double CLogNormalMeanPrecConjugate::adjustOffset(const TWeightStyleVec& weightStyles,
+                                                 const TDouble1Vec& samples,
+                                                 const TDouble4Vec1Vec& weights) {
     COffsetCost cost(*this);
     CApplyOffset apply(*this);
     return this->adjustOffsetWithCost(weightStyles, samples, weights, cost, apply);
 }
 
-double CLogNormalMeanPrecConjugate::offset(void) const { return m_Offset; }
+double CLogNormalMeanPrecConjugate::offset(void) const {
+    return m_Offset;
+}
 
-void CLogNormalMeanPrecConjugate::addSamples(const TWeightStyleVec &weightStyles,
-                                             const TDouble1Vec &samples,
-                                             const TDouble4Vec1Vec &weights) {
+void CLogNormalMeanPrecConjugate::addSamples(const TWeightStyleVec& weightStyles,
+                                             const TDouble1Vec& samples,
+                                             const TDouble4Vec1Vec& weights) {
     if (samples.empty()) {
         return;
     }
@@ -876,10 +902,14 @@ void CLogNormalMeanPrecConjugate::addSamples(const TWeightStyleVec &weightStyles
                                                              std::sqrt(scale));
             }
 
-            detail::CLogSampleSquareDeviation deviationFunction(
-                weightStyles, scaledSamples, weights, logSamplesMean);
-            CIntegration::gaussLegendre<CIntegration::OrderFive>(
-                deviationFunction, 0.0, 1.0, logSamplesSquareDeviation);
+            detail::CLogSampleSquareDeviation deviationFunction(weightStyles,
+                                                                scaledSamples,
+                                                                weights,
+                                                                logSamplesMean);
+            CIntegration::gaussLegendre<CIntegration::OrderFive>(deviationFunction,
+                                                                 0.0,
+                                                                 1.0,
+                                                                 logSamplesSquareDeviation);
         } else {
             TMeanVarAccumulator logSamplesMoments;
             for (std::size_t i = 0u; i < samples.size(); ++i) {
@@ -902,7 +932,7 @@ void CLogNormalMeanPrecConjugate::addSamples(const TWeightStyleVec &weightStyles
             logSamplesSquareDeviation =
                 (scaledNumberSamples - 1.0) * CBasicStatistics::variance(logSamplesMoments);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to update likelihood: " << e.what());
         return;
     }
@@ -1017,8 +1047,8 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMean(void) const {
     return this->isInteger() ? this->mean() - 0.5 : this->mean();
 }
 
-double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec &weightStyles,
-                                                           const TDouble4Vec &weights) const {
+double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec& weightStyles,
+                                                           const TDouble4Vec& weights) const {
     if (this->isNonInformative()) {
         return std::exp(m_GaussianMean) - m_Offset;
     }
@@ -1031,7 +1061,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec
     try {
         varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) *
                         maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception &e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
     try {
         double r = m_GammaRate / m_GammaShape;
         double s = std::exp(-r);
@@ -1054,7 +1084,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec
         CLogTDistribution logt(2.0 * m_GammaShape, location, scale);
         double result = mode(logt) - m_Offset - (this->isInteger() ? 0.5 : 0.0);
         return result;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute marginal likelihood mode: "
                   << e.what() << ", gaussian mean = " << m_GaussianMean
                   << ", gaussian precision = " << m_GaussianPrecision
@@ -1067,8 +1097,8 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodMode(const TWeightStyleVec
     return (normalPrecision == 0.0 ? 0.0 : std::exp(normalMean - 1.0 / normalPrecision)) - m_Offset;
 }
 
-double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec &weightStyles,
-                                                               const TDouble4Vec &weights) const {
+double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyleVec& weightStyles,
+                                                               const TDouble4Vec& weights) const {
     if (this->isNonInformative()) {
         return boost::numeric::bounds<double>::highest();
     }
@@ -1097,7 +1127,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyl
     try {
         varianceScale = maths_t::seasonalVarianceScale(weightStyles, weights) *
                         maths_t::countVarianceScale(weightStyles, weights);
-    } catch (const std::exception &e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ERROR("Failed to get variance scale: " << e.what()); }
     double vh = std::exp(2.0 * m_GaussianMean +
                          m_GammaRate / m_GammaShape * (2.0 / m_GaussianPrecision + 1.0)) *
                 (std::exp(m_GammaRate / m_GammaShape) - 1.0);
@@ -1127,7 +1157,7 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyl
                 double alpha = std::min(2.0 * (1.0 - m_GammaShape / MINIMUM_LOGNORMAL_SHAPE), 1.0);
                 return varianceScale * alpha * vl + (1.0 - alpha) * vh;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate variance: " << e.what());
         }
     }
@@ -1137,8 +1167,8 @@ double CLogNormalMeanPrecConjugate::marginalLikelihoodVariance(const TWeightStyl
 CLogNormalMeanPrecConjugate::TDoubleDoublePr
 CLogNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(
     double percentage,
-    const TWeightStyleVec &weightStyles,
-    const TDouble4Vec &weights) const {
+    const TWeightStyleVec& weightStyles,
+    const TDouble4Vec& weights) const {
     if (this->isNonInformative()) {
         return this->marginalLikelihoodSupport();
     }
@@ -1186,7 +1216,7 @@ CLogNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(
                                      : x1;
         LOG_TRACE("x1 = " << x1 << ", x2 = " << x2);
         return std::make_pair(x1, x2);
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute confidence interval: " << e.what());
     }
 
@@ -1194,10 +1224,10 @@ CLogNormalMeanPrecConjugate::marginalLikelihoodConfidenceInterval(
 }
 
 maths_t::EFloatingPointErrorStatus
-CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                                        const TDouble1Vec &samples,
-                                                        const TDouble4Vec1Vec &weights,
-                                                        double &result) const {
+CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                        const TDouble1Vec& samples,
+                                                        const TDouble4Vec1Vec& weights,
+                                                        double& result) const {
     result = 0.0;
 
     if (samples.empty()) {
@@ -1234,8 +1264,10 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TWeightStyleVec &w
                                                          m_GammaShape,
                                                          m_GammaRate);
     if (this->isInteger()) {
-        CIntegration::logGaussLegendre<CIntegration::OrderThree>(
-            logMarginalLikelihood, 0.0, 1.0, result);
+        CIntegration::logGaussLegendre<CIntegration::OrderThree>(logMarginalLikelihood,
+                                                                 0.0,
+                                                                 1.0,
+                                                                 result);
     } else {
         logMarginalLikelihood(0.0, result);
     }
@@ -1255,7 +1287,7 @@ CLogNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TWeightStyleVec &w
 }
 
 void CLogNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
-                                                           TDouble1Vec &samples) const {
+                                                           TDouble1Vec& samples) const {
     samples.clear();
 
     if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -1360,17 +1392,17 @@ void CLogNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSam
                                                         << m_GaussianMean << ", scale = " << scale
                                                         << ", mean = " << mean);
         }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         LOG_ERROR("Failed to sample: " << e.what() << ", gaussianMean " << m_GaussianMean
                                        << ", scale = " << scale);
     }
 }
 
-bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                                   const TDouble1Vec &samples,
-                                                   const TDouble4Vec1Vec &weights,
-                                                   double &lowerBound,
-                                                   double &upperBound) const {
+bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                                   const TDouble1Vec& samples,
+                                                   const TDouble4Vec1Vec& weights,
+                                                   double& lowerBound,
+                                                   double& upperBound) const {
     typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdf> TMinusLogCdf;
 
     lowerBound = upperBound = 0.0;
@@ -1390,8 +1422,10 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weight
         // w.r.t. to the hidden offset of the samples Z, which is uniform
         // on the interval [0,1].
         double value;
-        if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
-                minusLogCdf, 0.0, 1.0, value)) {
+        if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdf,
+                                                                      0.0,
+                                                                      1.0,
+                                                                      value)) {
             LOG_ERROR("Failed computing c.d.f. for " << core::CContainerPrinter::print(samples));
             return false;
         }
@@ -1410,11 +1444,11 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdf(const TWeightStyleVec &weight
     return true;
 }
 
-bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                                             const TDouble1Vec &samples,
-                                                             const TDouble4Vec1Vec &weights,
-                                                             double &lowerBound,
-                                                             double &upperBound) const {
+bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                                             const TDouble1Vec& samples,
+                                                             const TDouble4Vec1Vec& weights,
+                                                             double& lowerBound,
+                                                             double& upperBound) const {
     typedef detail::CEvaluateOnSamples<CTools::SMinusLogCdfComplement> TMinusLogCdfComplement;
 
     lowerBound = upperBound = 0.0;
@@ -1434,8 +1468,10 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleV
         // w.r.t. to the hidden offset of the samples Z, which is uniform
         // on the interval [0,1].
         double value;
-        if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
-                minusLogCdfComplement, 0.0, 1.0, value)) {
+        if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(minusLogCdfComplement,
+                                                                      0.0,
+                                                                      1.0,
+                                                                      value)) {
             LOG_ERROR("Failed computing c.d.f. complement for "
                       << core::CContainerPrinter::print(samples));
             return false;
@@ -1458,12 +1494,12 @@ bool CLogNormalMeanPrecConjugate::minusLogJointCdfComplement(const TWeightStyleV
 
 bool CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples(
     maths_t::EProbabilityCalculation calculation,
-    const TWeightStyleVec &weightStyles,
-    const TDouble1Vec &samples,
-    const TDouble4Vec1Vec &weights,
-    double &lowerBound,
-    double &upperBound,
-    maths_t::ETail &tail) const {
+    const TWeightStyleVec& weightStyles,
+    const TDouble1Vec& samples,
+    const TDouble4Vec1Vec& weights,
+    double& lowerBound,
+    double& upperBound,
+    maths_t::ETail& tail) const {
     lowerBound = upperBound = 0.0;
     tail = maths_t::E_UndeterminedTail;
 
@@ -1511,7 +1547,7 @@ bool CLogNormalMeanPrecConjugate::isNonInformative(void) const {
     return m_GammaRate == NON_INFORMATIVE_RATE || m_GaussianPrecision == NON_INFORMATIVE_PRECISION;
 }
 
-void CLogNormalMeanPrecConjugate::print(const std::string &indent, std::string &result) const {
+void CLogNormalMeanPrecConjugate::print(const std::string& indent, std::string& result) const {
     result += core_t::LINE_ENDING + indent + "log-normal ";
     if (this->isNonInformative()) {
         result += "non-informative";
@@ -1527,7 +1563,7 @@ void CLogNormalMeanPrecConjugate::print(const std::string &indent, std::string &
         result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
                   " sd = " + core::CStringUtils::typeToStringPretty(deviation);
         return;
-    } catch (const std::exception &) {}
+    } catch (const std::exception&) {}
     result += "mean = <unknown> variance = <unknown>";
 }
 
@@ -1575,8 +1611,9 @@ std::string CLogNormalMeanPrecConjugate::printJointDensityFunction(void) const {
         y = yStart;
         for (unsigned int j = 0u; j < POINTS; ++j, y += yIncrement) {
             double conditionalPrecision = m_GaussianPrecision * x;
-            boost::math::normal_distribution<> conditionalGaussian(
-                m_GaussianMean, 1.0 / std::sqrt(conditionalPrecision));
+            boost::math::normal_distribution<> conditionalGaussian(m_GaussianMean,
+                                                                   1.0 / std::sqrt(
+                                                                             conditionalPrecision));
 
             pdf << (CTools::safePdf(gamma, x) * CTools::safePdf(conditionalGaussian, y)) << " ";
         }
@@ -1600,24 +1637,32 @@ void CLogNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUs
     mem->setName("CLogNormalMeanPrecConjugate");
 }
 
-std::size_t CLogNormalMeanPrecConjugate::memoryUsage(void) const { return 0; }
+std::size_t CLogNormalMeanPrecConjugate::memoryUsage(void) const {
+    return 0;
+}
 
-std::size_t CLogNormalMeanPrecConjugate::staticSize(void) const { return sizeof(*this); }
+std::size_t CLogNormalMeanPrecConjugate::staticSize(void) const {
+    return sizeof(*this);
+}
 
 void CLogNormalMeanPrecConjugate::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(OFFSET_TAG, m_Offset, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(
-        GAUSSIAN_PRECISION_TAG, m_GaussianPrecision, core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(GAUSSIAN_PRECISION_TAG,
+                         m_GaussianPrecision,
+                         core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(GAMMA_SHAPE_TAG, m_GammaShape, core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(
-        NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_TAG,
+                         this->numberSamples(),
+                         core::CIEEE754::E_SinglePrecision);
 }
 
-double CLogNormalMeanPrecConjugate::normalMean(void) const { return m_GaussianMean; }
+double CLogNormalMeanPrecConjugate::normalMean(void) const {
+    return m_GaussianMean;
+}
 
 double CLogNormalMeanPrecConjugate::normalPrecision(void) const {
     if (this->isNonInformative()) {
@@ -1627,7 +1672,7 @@ double CLogNormalMeanPrecConjugate::normalPrecision(void) const {
     try {
         boost::math::gamma_distribution<> gamma(m_GammaShape, 1.0 / m_GammaRate);
         return boost::math::mean(gamma);
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         LOG_ERROR("Failed to create prior: " << e.what() << " shape = " << m_GammaShape
                                              << ", rate = " << m_GammaRate);
     }
@@ -1695,8 +1740,8 @@ CLogNormalMeanPrecConjugate::confidenceIntervalNormalPrecision(double percentage
                           boost::math::quantile(gamma, upperPercentile));
 }
 
-bool CLogNormalMeanPrecConjugate::equalTolerance(const CLogNormalMeanPrecConjugate &rhs,
-                                                 const TEqualWithTolerance &equal) const {
+bool CLogNormalMeanPrecConjugate::equalTolerance(const CLogNormalMeanPrecConjugate& rhs,
+                                                 const TEqualWithTolerance& equal) const {
     LOG_DEBUG(m_GaussianMean << " " << rhs.m_GaussianMean << ", " << m_GaussianPrecision << " "
                              << rhs.m_GaussianPrecision << ", " << m_GammaShape << " "
                              << rhs.m_GammaShape << ", " << m_GammaRate << " " << rhs.m_GammaRate);
@@ -1739,7 +1784,7 @@ double CLogNormalMeanPrecConjugate::mean(void) const {
             if (CIntegration::gaussLegendre<CIntegration::OrderSeven>(f, a, b, result)) {
                 return result(0) / result(1) - m_Offset;
             }
-        } catch (const std::exception &e) { LOG_ERROR("Failed to calculate mean: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ERROR("Failed to calculate mean: " << e.what()); }
     }
     return std::exp(m_GaussianMean +
                     0.5 * m_GammaRate / m_GammaShape * (1.0 / m_GaussianPrecision + 1.0)) -

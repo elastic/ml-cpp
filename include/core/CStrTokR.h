@@ -33,9 +33,9 @@ namespace core {
 //!
 class CORE_EXPORT CStrTokR : private CNonInstantiatable {
 public:
-    static char *strTokR(char *str, const char *sep, char **lasts);
+    static char* strTokR(char* str, const char* sep, char** lasts);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CStrTokR_h
+#endif // INCLUDED_ml_core_CStrTokR_h

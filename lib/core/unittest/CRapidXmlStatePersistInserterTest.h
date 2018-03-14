@@ -21,7 +21,7 @@ class CRapidXmlStatePersistInserterTest : public CppUnit::TestFixture {
 public:
     void testPersist(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRapidXmlStatePersistInserterTest_h
+#endif // INCLUDED_CRapidXmlStatePersistInserterTest_h

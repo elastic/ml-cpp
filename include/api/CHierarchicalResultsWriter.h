@@ -66,24 +66,24 @@ public:
         //! Construct for population results
         SResults(bool isAllTimeResult,
                  bool isOverallResult,
-                 const std::string &partitionFieldName,
-                 const std::string &partitionFieldValue,
-                 const std::string &overFieldName,
-                 const std::string &overFieldValue,
-                 const std::string &byFieldName,
-                 const std::string &byFieldValue,
-                 const std::string &correlatedByFieldValue,
+                 const std::string& partitionFieldName,
+                 const std::string& partitionFieldValue,
+                 const std::string& overFieldName,
+                 const std::string& overFieldValue,
+                 const std::string& byFieldName,
+                 const std::string& byFieldValue,
+                 const std::string& correlatedByFieldValue,
                  core_t::TTime bucketStartTime,
-                 const std::string &functionName,
-                 const std::string &functionDescription,
-                 const TDouble1Vec &functionValue,
-                 const TDouble1Vec &populationAverage,
+                 const std::string& functionName,
+                 const std::string& functionDescription,
+                 const TDouble1Vec& functionValue,
+                 const TDouble1Vec& populationAverage,
                  double rawAnomalyScore,
                  double normalizedAnomalyScore,
                  double probability,
-                 const TOptionalUInt64 &currentRate,
-                 const std::string &metricValueField,
-                 const TStoredStringPtrStoredStringPtrPrDoublePrVec &influences,
+                 const TOptionalUInt64& currentRate,
+                 const std::string& metricValueField,
+                 const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
                  bool useNull,
                  bool metric,
                  int identifier,
@@ -91,23 +91,23 @@ public:
 
         //! Construct for other results
         SResults(EResultType resultType,
-                 const std::string &partitionFieldName,
-                 const std::string &partitionFieldValue,
-                 const std::string &byFieldName,
-                 const std::string &byFieldValue,
-                 const std::string &correlatedByFieldValue,
+                 const std::string& partitionFieldName,
+                 const std::string& partitionFieldValue,
+                 const std::string& byFieldName,
+                 const std::string& byFieldValue,
+                 const std::string& correlatedByFieldValue,
                  core_t::TTime bucketStartTime,
-                 const std::string &functionName,
-                 const std::string &functionDescription,
-                 const TOptionalDouble &baselineRate,
-                 const TOptionalUInt64 &currentRate,
-                 const TDouble1Vec &baselineMean,
-                 const TDouble1Vec &currentMean,
+                 const std::string& functionName,
+                 const std::string& functionDescription,
+                 const TOptionalDouble& baselineRate,
+                 const TOptionalUInt64& currentRate,
+                 const TDouble1Vec& baselineMean,
+                 const TDouble1Vec& currentMean,
                  double rawAnomalyScore,
                  double normalizedAnomalyScore,
                  double probability,
-                 const std::string &metricValueField,
-                 const TStoredStringPtrStoredStringPtrPrDoublePrVec &influences,
+                 const std::string& metricValueField,
+                 const TStoredStringPtrStoredStringPtrPrDoublePrVec& influences,
                  bool useNull,
                  bool metric,
                  int identifier,
@@ -119,18 +119,18 @@ public:
         bool s_IsOverallResult;
         bool s_UseNull;
         bool s_IsMetric;
-        const std::string &s_PartitionFieldName;
-        const std::string &s_PartitionFieldValue;
-        const std::string &s_ByFieldName;
-        const std::string &s_ByFieldValue;
-        const std::string &s_CorrelatedByFieldValue;
-        const std::string &s_OverFieldName;
-        const std::string &s_OverFieldValue;
-        const std::string &s_MetricValueField;
+        const std::string& s_PartitionFieldName;
+        const std::string& s_PartitionFieldValue;
+        const std::string& s_ByFieldName;
+        const std::string& s_ByFieldValue;
+        const std::string& s_CorrelatedByFieldValue;
+        const std::string& s_OverFieldName;
+        const std::string& s_OverFieldValue;
+        const std::string& s_MetricValueField;
         core_t::TTime s_BucketStartTime;
         core_t::TTime s_BucketSpan;
-        const std::string &s_FunctionName;
-        const std::string &s_FunctionDescription;
+        const std::string& s_FunctionName;
+        const std::string& s_FunctionDescription;
         TDouble1Vec s_FunctionValue;
         TDouble1Vec s_PopulationAverage;
         TOptionalDouble s_BaselineRate;
@@ -140,7 +140,7 @@ public:
         double s_RawAnomalyScore;
         double s_NormalizedAnomalyScore;
         double s_Probability;
-        const TStoredStringPtrStoredStringPtrPrDoublePrVec &s_Influences;
+        const TStoredStringPtrStoredStringPtrPrDoublePrVec& s_Influences;
         int s_Identifier;
         TStr1Vec s_ScheduledEventDescriptions;
     };
@@ -151,46 +151,46 @@ public:
     typedef std::function<bool(core_t::TTime, TNode, bool)> TPivotWriterFunc;
 
 public:
-    CHierarchicalResultsWriter(const model::CLimits &limits,
-                               const model::CAnomalyDetectorModelConfig &modelConfig,
-                               const TResultWriterFunc &resultWriter,
-                               const TPivotWriterFunc &pivotsWriterFunc);
+    CHierarchicalResultsWriter(const model::CLimits& limits,
+                               const model::CAnomalyDetectorModelConfig& modelConfig,
+                               const TResultWriterFunc& resultWriter,
+                               const TPivotWriterFunc& pivotsWriterFunc);
 
     //! Write \p node.
-    virtual void visit(const model::CHierarchicalResults &results, const TNode &node, bool pivot);
+    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot);
 
 private:
     //! Write out a population person result if \p node is a
     //! member a population.
-    void writePopulationResult(const model::CHierarchicalResults &results, const TNode &node);
+    void writePopulationResult(const model::CHierarchicalResults& results, const TNode& node);
 
     //! Write out an individual person result if \p node is
     //! an individual time series result.
-    void writeIndividualResult(const model::CHierarchicalResults &results, const TNode &node);
+    void writeIndividualResult(const model::CHierarchicalResults& results, const TNode& node);
 
     //! Write out the pivot (influencer) result if \p node is a
     //! pivot.
-    void writePivotResult(const model::CHierarchicalResults &results, const TNode &node);
+    void writePivotResult(const model::CHierarchicalResults& results, const TNode& node);
 
     //! Write partition result if \p node is a partition level result
-    void writePartitionResult(const model::CHierarchicalResults &results, const TNode &node);
+    void writePartitionResult(const model::CHierarchicalResults& results, const TNode& node);
 
     //! Write out a simple count result if \p node is simple
     //! count.
-    void writeSimpleCountResult(const TNode &node);
+    void writeSimpleCountResult(const TNode& node);
 
     //! Given a leaf node, search upwards to find the most appropriate
     //! values for person and partition probability results.
-    static void findParentProbabilities(const TNode &node,
-                                        double &personProbability,
-                                        double &partitionProbability);
+    static void findParentProbabilities(const TNode& node,
+                                        double& personProbability,
+                                        double& partitionProbability);
 
 private:
     //! The various limits.
-    const model::CLimits &m_Limits;
+    const model::CLimits& m_Limits;
 
     //! Config options
-    const model::CAnomalyDetectorModelConfig &m_ModelConfig;
+    const model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! The results writer.
     TResultWriterFunc m_ResultWriterFunc;
@@ -204,4 +204,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CHierarchicalResultsWriter_h
+#endif // INCLUDED_ml_api_CHierarchicalResultsWriter_h

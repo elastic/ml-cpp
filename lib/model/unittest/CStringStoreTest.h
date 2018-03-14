@@ -25,7 +25,7 @@ public:
     void testStringStore(void);
     void testMemUsage(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CStringStoreTest_h
+#endif // INCLUDED_CStringStoreTest_h

@@ -21,28 +21,28 @@
 namespace ml {
 namespace vfprog {
 
-size_t CLooper::inlinedProgramCallLoop(CIncrementer &incrementer, size_t count, size_t val) {
+size_t CLooper::inlinedProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.inlinedIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::nonVirtualProgramCallLoop(CIncrementer &incrementer, size_t count, size_t val) {
+size_t CLooper::nonVirtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.nonVirtualIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::virtualProgramCallLoop(CIncrementer &incrementer, size_t count, size_t val) {
+size_t CLooper::virtualProgramCallLoop(CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.virtualIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::inlinedLibraryCallLoop(vflib::CIncrementer &incrementer, size_t count, size_t val) {
+size_t CLooper::inlinedLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.inlinedIncrement(val);
     }
@@ -50,14 +50,14 @@ size_t CLooper::inlinedLibraryCallLoop(vflib::CIncrementer &incrementer, size_t 
 }
 
 size_t
-CLooper::nonVirtualLibraryCallLoop(vflib::CIncrementer &incrementer, size_t count, size_t val) {
+CLooper::nonVirtualLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.nonVirtualIncrement(val);
     }
     return val;
 }
 
-size_t CLooper::virtualLibraryCallLoop(vflib::CIncrementer &incrementer, size_t count, size_t val) {
+size_t CLooper::virtualLibraryCallLoop(vflib::CIncrementer& incrementer, size_t count, size_t val) {
     for (size_t i = 0; i < count; ++i) {
         val = incrementer.virtualIncrement(val);
     }

@@ -24,7 +24,7 @@ public:
     void testPersist(void);
     void testMultithreaded(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CStateMachineTest_h
+#endif // INCLUDED_CStateMachineTest_h

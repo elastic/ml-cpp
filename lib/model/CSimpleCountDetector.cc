@@ -23,11 +23,11 @@ namespace model {
 
 CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
                                            model_t::ESummaryMode summaryMode,
-                                           const CAnomalyDetectorModelConfig &modelConfig,
-                                           CLimits &limits,
-                                           const std::string &partitionFieldValue,
+                                           const CAnomalyDetectorModelConfig& modelConfig,
+                                           CLimits& limits,
+                                           const std::string& partitionFieldValue,
                                            core_t::TTime firstTime,
-                                           const TModelFactoryCPtr &modelFactory)
+                                           const TModelFactoryCPtr& modelFactory)
     : CAnomalyDetector(detectorIndex,
                        limits,
                        modelConfig,
@@ -42,15 +42,19 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
     this->initSimpleCounting();
 }
 
-CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector &other)
+CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other)
     : CAnomalyDetector(isForPersistence, other) {}
 
-bool CSimpleCountDetector::isSimpleCount(void) const { return true; }
+bool CSimpleCountDetector::isSimpleCount(void) const {
+    return true;
+}
 
-void CSimpleCountDetector::pruneModels(void) { return; }
+void CSimpleCountDetector::pruneModels(void) {
+    return;
+}
 
-const CAnomalyDetector::TStrCPtrVec &
-CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec &fieldValues) {
+const CAnomalyDetector::TStrCPtrVec&
+CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
     // The first field value is always the magic word "count", but for
     // summarised input we need to pass on the true value of the second field
     if (m_FieldValues.size() > 1) {

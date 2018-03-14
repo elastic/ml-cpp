@@ -34,8 +34,10 @@ void CModelTest::testAll(void) {
         double learnRate{0.5};
         double decayRate{0.001};
         double minimumSeasonalVarianceScale{0.3};
-        maths::CModelParams params(
-            bucketLength, learnRate, decayRate, minimumSeasonalVarianceScale);
+        maths::CModelParams params(bucketLength,
+                                   learnRate,
+                                   decayRate,
+                                   minimumSeasonalVarianceScale);
         CPPUNIT_ASSERT_EQUAL(bucketLength, params.bucketLength());
         CPPUNIT_ASSERT_EQUAL(learnRate, params.learnRate());
         CPPUNIT_ASSERT_EQUAL(decayRate, params.decayRate());
@@ -59,9 +61,9 @@ void CModelTest::testAll(void) {
             .priorWeights(priorWeights);
         CPPUNIT_ASSERT_EQUAL(maths_t::E_IntegerData, params.type());
         CPPUNIT_ASSERT_EQUAL(1.5, params.propagationInterval());
-        CPPUNIT_ASSERT_EQUAL(
-            core::CContainerPrinter::print(maths::CConstantWeights::SEASONAL_VARIANCE),
-            core::CContainerPrinter::print(params.weightStyles()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(
+                                 maths::CConstantWeights::SEASONAL_VARIANCE),
+                             core::CContainerPrinter::print(params.weightStyles()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(trendWeights),
                              core::CContainerPrinter::print(params.trendWeights()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(priorWeights),
@@ -92,9 +94,9 @@ void CModelTest::testAll(void) {
         CPPUNIT_ASSERT_EQUAL(50.0, params.seasonalConfidenceInterval());
         CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"),
                              core::CContainerPrinter::print(params.bucketEmpty()));
-        CPPUNIT_ASSERT_EQUAL(
-            core::CContainerPrinter::print(maths::CConstantWeights::COUNT_VARIANCE),
-            core::CContainerPrinter::print(params.weightStyles()));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(
+                                 maths::CConstantWeights::COUNT_VARIANCE),
+                             core::CContainerPrinter::print(params.weightStyles()));
         CPPUNIT_ASSERT_EQUAL(std::string("[[[0.4, 0.4]], [[0.7, 0.7]]]"),
                              core::CContainerPrinter::print(params.weights()));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
@@ -103,8 +105,8 @@ void CModelTest::testAll(void) {
     }
 }
 
-CppUnit::Test *CModelTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelTest");
+CppUnit::Test* CModelTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CModelTest>("CModelTest::testAll", &CModelTest::testAll));

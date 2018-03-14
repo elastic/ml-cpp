@@ -57,13 +57,13 @@ public:
     //! Leave \p inputFileName/\p outputFileName empty to indicate
     //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to
     //! indicate no state restore or persist.
-    CIoManager(const std::string &inputFileName,
+    CIoManager(const std::string& inputFileName,
                bool isInputFileNamedPipe,
-               const std::string &outputFileName,
+               const std::string& outputFileName,
                bool isOutputFileNamedPipe,
-               const std::string &restoreFileName = std::string(),
+               const std::string& restoreFileName = std::string(),
                bool isRestoreFileNamedPipe = true,
-               const std::string &persistFileName = std::string(),
+               const std::string& persistFileName = std::string(),
                bool isPersistFileNamedPipe = true);
 
     //! This will close any streams and unlink named pipes.  All
@@ -75,10 +75,10 @@ public:
     bool initIo(void);
 
     //! Get the stream to get input data from.
-    std::istream &inputStream(void);
+    std::istream& inputStream(void);
 
     //! Get the stream to write output to.
-    std::ostream &outputStream(void);
+    std::ostream& outputStream(void);
 
     //! Get the stream to restore state from.  If NULL then don't restore state.
     core::CNamedPipeFactory::TIStreamP restoreStream(void);
@@ -135,4 +135,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CIoManager_h
+#endif // INCLUDED_ml_api_CIoManager_h

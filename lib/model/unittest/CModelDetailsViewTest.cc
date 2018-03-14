@@ -37,7 +37,7 @@ namespace {
 
 const std::string EMPTY_STRING;
 
-}// unnamed
+} // unnamed
 
 void CModelDetailsViewTest::testModelPlot() {
     LOG_DEBUG("*** CModelDetailsViewTest::testModelPlot ***");
@@ -102,22 +102,25 @@ void CModelDetailsViewTest::testModelPlot() {
         {
             std::size_t pid{0};
             for (auto value : values) {
-                model->mockAddBucketValue(
-                    model_t::E_IndividualSumByBucketAndPerson, pid++, 0, 0, {value});
+                model->mockAddBucketValue(model_t::E_IndividualSumByBucketAndPerson,
+                                          pid++,
+                                          0,
+                                          0,
+                                          {value});
             }
         }
 
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
         CPPUNIT_ASSERT(plotData.begin() != plotData.end());
-        for (const auto &featureByFieldData : plotData) {
+        for (const auto& featureByFieldData : plotData) {
             CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
-            for (const auto &byFieldData : featureByFieldData.second) {
+            for (const auto& byFieldData : featureByFieldData.second) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                      byFieldData.second.s_ValuesPerOverField.size());
-                for (const auto &currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
+                for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
                 }
             }
@@ -133,22 +136,25 @@ void CModelDetailsViewTest::testModelPlot() {
         {
             std::size_t pid{0};
             for (auto value : values) {
-                model->mockAddBucketValue(
-                    model_t::E_IndividualCountByBucketAndPerson, pid++, 0, 0, {value});
+                model->mockAddBucketValue(model_t::E_IndividualCountByBucketAndPerson,
+                                          pid++,
+                                          0,
+                                          0,
+                                          {value});
             }
         }
 
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
         CPPUNIT_ASSERT(plotData.begin() != plotData.end());
-        for (const auto &featureByFieldData : plotData) {
+        for (const auto& featureByFieldData : plotData) {
             CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
-            for (const auto &byFieldData : featureByFieldData.second) {
+            for (const auto& byFieldData : featureByFieldData.second) {
                 std::size_t pid;
                 CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
                 CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                                      byFieldData.second.s_ValuesPerOverField.size());
-                for (const auto &currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
+                for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
                     CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
                 }
             }
@@ -156,11 +162,12 @@ void CModelDetailsViewTest::testModelPlot() {
     }
 }
 
-CppUnit::Test *CModelDetailsViewTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
+CppUnit::Test* CModelDetailsViewTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelDetailsViewTest>(
-        "CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CModelDetailsViewTest>("CModelDetailsViewTest::testModelPlot",
+                                                       &CModelDetailsViewTest::testModelPlot));
 
     return suiteOfTests;
 }

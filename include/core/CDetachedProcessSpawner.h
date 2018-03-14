@@ -82,7 +82,7 @@ public:
     //! /usr/bin/grep is permitted then you cannot invoke it as ./grep
     //! while the current working directory is /usr/bin.  On Windows,
     //! the supplied names should NOT have the .exe extension.
-    CDetachedProcessSpawner(const TStrVec &permittedProcessPaths);
+    CDetachedProcessSpawner(const TStrVec& permittedProcessPaths);
 
     ~CDetachedProcessSpawner(void);
 
@@ -91,11 +91,11 @@ public:
     //! itself crashes this will not be detected as a failure by this
     //! method.  On Windows, the supplied process path should NOT have the
     //! .exe extension.
-    bool spawn(const std::string &processPath, const TStrVec &args);
+    bool spawn(const std::string& processPath, const TStrVec& args);
 
     //! As above, but, on success, returns the PID of the process that was
     //! started.
-    bool spawn(const std::string &processPath, const TStrVec &args, CProcess::TPid &childPid);
+    bool spawn(const std::string& processPath, const TStrVec& args, CProcess::TPid& childPid);
 
     //! Kill the child process with the specified PID.  If there is a
     //! process running with the specified PID that was not spawned by this
@@ -117,4 +117,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CDetachedProcessSpawner_h
+#endif // INCLUDED_ml_core_CDetachedProcessSpawner_h

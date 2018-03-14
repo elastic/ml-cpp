@@ -79,7 +79,7 @@ public:
     bool operator<(CHashIterator other) const { return m_Itr < other.m_Itr; }
 
     uint16_t operator*(void)const { return from8Bit(*m_Itr, *(m_Itr + 1)); }
-    const CHashIterator &operator++(void) {
+    const CHashIterator& operator++(void) {
         m_Itr += 3;
         return *this;
     }
@@ -88,7 +88,7 @@ public:
         m_Itr += 3;
         return result;
     }
-    const CHashIterator &operator--(void) {
+    const CHashIterator& operator--(void) {
         m_Itr -= 3;
         return *this;
     }
@@ -101,21 +101,21 @@ public:
         TUInt8VecCItr itr = m_Itr + 3 * n;
         return from8Bit(*itr, *(itr + 1));
     }
-    const CHashIterator &operator+=(ptrdiff_t n) {
+    const CHashIterator& operator+=(ptrdiff_t n) {
         m_Itr += 3 * n;
         return *this;
     }
-    const CHashIterator &operator-=(ptrdiff_t n) {
+    const CHashIterator& operator-=(ptrdiff_t n) {
         m_Itr -= 3 * n;
         return *this;
     }
-    ptrdiff_t operator-(const CHashIterator &other) const { return (m_Itr - other.m_Itr) / 3; }
+    ptrdiff_t operator-(const CHashIterator& other) const { return (m_Itr - other.m_Itr) / 3; }
 
 private:
     TUInt8VecItr m_Itr;
 };
 
-bool insert(TUInt8Vec &b, uint16_t g, uint8_t zeros) {
+bool insert(TUInt8Vec& b, uint16_t g, uint8_t zeros) {
     // This uses the fact that the set "b" is laid out as follows:
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
@@ -148,7 +148,7 @@ bool insert(TUInt8Vec &b, uint16_t g, uint8_t zeros) {
     return true;
 }
 
-void remove(TUInt8Vec &b, uint16_t g) {
+void remove(TUInt8Vec& b, uint16_t g) {
     // This uses the fact that the set "b" is laid out as follows:
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
@@ -160,7 +160,7 @@ void remove(TUInt8Vec &b, uint16_t g) {
     }
 }
 
-void prune(TUInt8Vec &b, uint8_t z) {
+void prune(TUInt8Vec& b, uint8_t z) {
     // This uses the fact that the set "b" is laid out as follows:
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
@@ -181,7 +181,7 @@ void prune(TUInt8Vec &b, uint8_t z) {
     b.erase(b.begin() + j, b.end());
 }
 
-}// detail::
+} // detail::
 
 typedef boost::optional<std::size_t> TOptionalSize;
 
@@ -199,17 +199,21 @@ const std::string Z_TAG("c");
 const std::string B_TAG("d");
 
 //! Casting conversion to a string.
-template <typename U> class CToString {
+template <typename U>
+class CToString {
 public:
-    template <typename V> std::string operator()(V value) const {
+    template <typename V>
+    std::string operator()(V value) const {
         return core::CStringUtils::typeToString(static_cast<U>(value));
     }
 };
 
 //! Casting initialization from string.
-template <typename U> class CFromString {
+template <typename U>
+class CFromString {
 public:
-    template <typename V> bool operator()(const std::string &token, V &value) const {
+    template <typename V>
+    bool operator()(const std::string& token, V& value) const {
         U value_;
         if (core::CStringUtils::stringToType(token, value_)) {
             value = static_cast<V>(value_);
@@ -249,12 +253,12 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
 CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t maxSize)
     : m_MaxSize(maxSize), m_NumberHashes(numberHashes), m_Sketch(TUInt32Vec()) {}
 
-CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser &traverser)
+CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
     : m_MaxSize(0), m_NumberHashes(0) {
     traverser.traverseSubLevel(boost::bind(&CBjkstUniqueValues::acceptRestoreTraverser, this, _1));
 }
 
-void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
+void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) {
     if (this == &other) {
         return;
     }
@@ -263,13 +267,13 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
     std::swap(m_NumberHashes, other.m_NumberHashes);
 
     try {
-        TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+        TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
         if (values) {
-            TUInt32Vec *otherValues = boost::get<TUInt32Vec>(&other.m_Sketch);
+            TUInt32Vec* otherValues = boost::get<TUInt32Vec>(&other.m_Sketch);
             if (otherValues) {
                 values->swap(*otherValues);
             } else {
-                SSketch &otherSketch = boost::get<SSketch>(other.m_Sketch);
+                SSketch& otherSketch = boost::get<SSketch>(other.m_Sketch);
                 TUInt32Vec tmp;
                 tmp.swap(*values);
                 m_Sketch = SSketch();
@@ -278,12 +282,12 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
                 boost::get<TUInt32Vec>(other.m_Sketch).swap(tmp);
             }
         } else {
-            SSketch &sketch = boost::get<SSketch>(m_Sketch);
-            SSketch *otherSketch = boost::get<SSketch>(&other.m_Sketch);
+            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch* otherSketch = boost::get<SSketch>(&other.m_Sketch);
             if (otherSketch) {
                 sketch.swap(*otherSketch);
             } else {
-                TUInt32Vec &otherValues = boost::get<TUInt32Vec>(other.m_Sketch);
+                TUInt32Vec& otherValues = boost::get<TUInt32Vec>(other.m_Sketch);
                 TUInt32Vec tmp;
                 tmp.swap(otherValues);
                 other.m_Sketch = SSketch();
@@ -292,17 +296,17 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
                 boost::get<TUInt32Vec>(m_Sketch).swap(tmp);
             }
         }
-    } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+    } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
 }
 
-bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(MAX_SIZE_TAG, m_MaxSize)
         RESTORE_BUILT_IN(NUMBER_HASHES_TAG, m_NumberHashes)
         if (name == VALUES_TAG) {
             m_Sketch = TUInt32Vec();
-            TUInt32Vec &values = boost::get<TUInt32Vec>(m_Sketch);
+            TUInt32Vec& values = boost::get<TUInt32Vec>(m_Sketch);
             if (core::CPersistUtils::fromString(traverser.value(), values, DELIMITER) == false) {
                 return false;
             }
@@ -310,13 +314,14 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser &tr
         }
         if (name == SKETCH_TAG) {
             m_Sketch = SSketch();
-            SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = boost::get<SSketch>(m_Sketch);
             sketch.s_G.reserve(m_NumberHashes);
             sketch.s_H.reserve(m_NumberHashes);
             sketch.s_Z.reserve(m_NumberHashes);
             sketch.s_B.reserve(m_NumberHashes);
-            if (traverser.traverseSubLevel(boost::bind(
-                    &SSketch::acceptRestoreTraverser, &sketch, _1, m_NumberHashes)) == false) {
+            if (traverser.traverseSubLevel(
+                    boost::bind(&SSketch::acceptRestoreTraverser, &sketch, _1, m_NumberHashes)) ==
+                false) {
                 return false;
             }
             continue;
@@ -326,24 +331,24 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser &tr
     return true;
 }
 
-void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAX_SIZE_TAG, m_MaxSize);
     inserter.insertValue(NUMBER_HASHES_TAG, m_NumberHashes);
 
-    const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         inserter.insertValue(VALUES_TAG, core::CPersistUtils::toString(*values, DELIMITER));
     } else {
         try {
-            const SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             inserter.insertLevel(SKETCH_TAG,
                                  boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
 }
 
 void CBjkstUniqueValues::add(uint32_t value) {
-    TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         TUInt32VecItr i = std::lower_bound(values->begin(), values->end(), value);
         if (i == values->end() || *i != value) {
@@ -352,14 +357,14 @@ void CBjkstUniqueValues::add(uint32_t value) {
         this->sketch();
     } else {
         try {
-            SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = boost::get<SSketch>(m_Sketch);
             sketch.add(m_MaxSize, value);
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
 }
 
 void CBjkstUniqueValues::remove(uint32_t value) {
-    TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         TUInt32VecItr i = std::lower_bound(values->begin(), values->end(), value);
         if (i != values->end() && *i == value) {
@@ -367,19 +372,19 @@ void CBjkstUniqueValues::remove(uint32_t value) {
         }
     } else {
         try {
-            SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = boost::get<SSketch>(m_Sketch);
             sketch.remove(value);
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
 }
 
 uint32_t CBjkstUniqueValues::number(void) const {
-    const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values == 0) {
         try {
-            const SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             return sketch.number();
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
     return static_cast<uint32_t>(values->size());
 }
@@ -387,50 +392,50 @@ uint32_t CBjkstUniqueValues::number(void) const {
 uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_NumberHashes);
-    const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values == 0) {
         try {
-            const SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             seed = CChecksum::calculate(seed, sketch.s_G);
             seed = CChecksum::calculate(seed, sketch.s_H);
             seed = CChecksum::calculate(seed, sketch.s_Z);
             return CChecksum::calculate(seed, sketch.s_B);
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
     return CChecksum::calculate(seed, *values);
 }
 
 void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CBjkstUniqueValues");
-    const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         core::CMemoryDebug::dynamicSize("values", *values, mem);
     } else {
         try {
-            const SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
             core::CMemoryDebug::dynamicSize("sketch.s_G", sketch.s_G, mem);
             core::CMemoryDebug::dynamicSize("sketch.s_H", sketch.s_H, mem);
             core::CMemoryDebug::dynamicSize("sketch.s_Z", sketch.s_Z, mem);
             core::CMemoryDebug::dynamicSize("sketch.s_B", sketch.s_B, mem);
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
 }
 
 std::size_t CBjkstUniqueValues::memoryUsage(void) const {
     std::size_t mem = 0;
-    const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         mem += core::CMemory::dynamicSize(*values);
     } else {
         try {
-            const SSketch &sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
             mem += core::CMemory::dynamicSize(sketch.s_G);
             mem += core::CMemory::dynamicSize(sketch.s_H);
             mem += core::CMemory::dynamicSize(sketch.s_Z);
             mem += core::CMemory::dynamicSize(sketch.s_B);
-        } catch (const std::exception &e) { LOG_ABORT("Unexpected exception: " << e.what()); }
+        } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
     return mem;
 }
@@ -444,7 +449,7 @@ void CBjkstUniqueValues::sketch(void) {
     static const std::size_t VEC32_SIZE = sizeof(TUInt32Vec);
     static const std::size_t SKETCH_SIZE = sizeof(SSketch);
 
-    TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         std::size_t valuesSize = VEC32_SIZE + UINT32_SIZE * values->capacity();
         std::size_t sketchSize =
@@ -481,43 +486,51 @@ CBjkstUniqueValues::SSketch::SSketch(std::size_t numberHashes) {
     s_B.resize(numberHashes, TUInt8Vec());
 }
 
-void CBjkstUniqueValues::SSketch::swap(SSketch &other) {
+void CBjkstUniqueValues::SSketch::swap(SSketch& other) {
     s_G.swap(other.s_G);
     s_H.swap(other.s_H);
     s_Z.swap(other.s_Z);
     s_B.swap(other.s_B);
 }
 
-bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser,
+bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
                                                          std::size_t numberHashes) {
     core::CHashing::CUniversalHash::CFromString hashFromString(PAIR_DELIMITER);
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == HASH_G_TAG) {
-            if (core::CPersistUtils::fromString(
-                    traverser.value(), hashFromString, s_G, DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(),
+                                                hashFromString,
+                                                s_G,
+                                                DELIMITER) == false ||
                 s_G.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
         } else if (name == HASH_H_TAG) {
-            if (core::CPersistUtils::fromString(
-                    traverser.value(), hashFromString, s_H, DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(),
+                                                hashFromString,
+                                                s_H,
+                                                DELIMITER) == false ||
                 s_H.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
         } else if (name == Z_TAG) {
-            if (core::CPersistUtils::fromString(
-                    traverser.value(), CFromString<int>(), s_Z, DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(),
+                                                CFromString<int>(),
+                                                s_Z,
+                                                DELIMITER) == false ||
                 s_Z.size() != numberHashes) {
                 LOG_ERROR("Invalid zeros in " << traverser.value());
                 return false;
             }
         } else if (name == B_TAG) {
             s_B.push_back(TUInt8Vec());
-            if (core::CPersistUtils::fromString(
-                    traverser.value(), CFromString<int>(), s_B.back(), DELIMITER) == false) {
+            if (core::CPersistUtils::fromString(traverser.value(),
+                                                CFromString<int>(),
+                                                s_B.back(),
+                                                DELIMITER) == false) {
                 LOG_ERROR("Invalid values in " << traverser.value());
                 return false;
             }
@@ -533,7 +546,7 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
 }
 
 void CBjkstUniqueValues::SSketch::acceptPersistInserter(
-    core::CStatePersistInserter &inserter) const {
+    core::CStatePersistInserter& inserter) const {
     core::CHashing::CUniversalHash::CToString hashToString(PAIR_DELIMITER);
     inserter.insertValue(HASH_G_TAG, core::CPersistUtils::toString(s_G, hashToString, DELIMITER));
     inserter.insertValue(HASH_H_TAG, core::CPersistUtils::toString(s_H, hashToString, DELIMITER));
@@ -549,7 +562,7 @@ void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
     for (std::size_t i = 0u; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
-            TUInt8Vec &b = s_B[i];
+            TUInt8Vec& b = s_B[i];
             uint16_t g = static_cast<uint16_t>((s_G[i])(value));
             LOG_TRACE("g = " << g << ", zeros = " << static_cast<uint32_t>(zeros));
             if (detail::insert(b, g, zeros)) {
@@ -573,7 +586,7 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
     for (std::size_t i = 0u; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
-            TUInt8Vec &b = s_B[i];
+            TUInt8Vec& b = s_B[i];
             uint16_t g = static_cast<uint16_t>((s_G[i])(value));
             LOG_TRACE("g = " << g << ", zeros = " << static_cast<uint32_t>(zeros));
             detail::remove(b, g);

@@ -64,20 +64,20 @@ public:
     void conditionsConnective(EConditionsConnective connective);
 
     //! Add a condition.
-    void addCondition(const CRuleCondition &condition);
+    void addCondition(const CRuleCondition& condition);
 
     //! Set the target field name.
-    void targetFieldName(const std::string &targetFieldName);
+    void targetFieldName(const std::string& targetFieldName);
 
     //! Set the target field value.
-    void targetFieldValue(const std::string &targetFieldValue);
+    void targetFieldValue(const std::string& targetFieldValue);
 
     //! Check whether the rule applies on a series.
     //! \p action is bitwise and'ed with the m_Action member
     bool apply(ERuleAction action,
-               const CAnomalyDetectorModel &model,
+               const CAnomalyDetectorModel& model,
                model_t::EFeature feature,
-               const model_t::CResultType &resultType,
+               const model_t::CResultType& resultType,
                std::size_t pid,
                std::size_t cid,
                core_t::TTime time) const;
@@ -88,7 +88,7 @@ public:
 private:
     //! Check whether the given series is in the scope
     //! of the rule's target.
-    bool isInScope(const CAnomalyDetectorModel &model, std::size_t pid, std::size_t cid) const;
+    bool isInScope(const CAnomalyDetectorModel& model, std::size_t pid, std::size_t cid) const;
 
     std::string printAction(void) const;
     std::string printConditionsConnective(void) const;
@@ -114,4 +114,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CDetectionRule_h
+#endif // INCLUDED_ml_model_CDetectionRule_h

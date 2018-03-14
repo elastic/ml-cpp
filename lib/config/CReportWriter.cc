@@ -35,16 +35,19 @@ typedef std::vector<std::string> TStrVec;
 typedef std::vector<TStrVec> TStrVecVec;
 
 //! Pad \p value.
-inline std::string pad(std::size_t padTo, const std::string &value) {
+inline std::string pad(std::size_t padTo, const std::string& value) {
     return std::string((padTo - value.length()) / 2, ' ') + value +
            std::string((padTo - value.length() + 1) / 2, ' ');
 }
 
 //! Pass the string back.
-const std::string &print(const std::string &s) { return s; }
+const std::string& print(const std::string& s) {
+    return s;
+}
 
 //! Convert to a string.
-template <typename T> inline std::string print(const T &t) {
+template <typename T>
+inline std::string print(const T& t) {
     return core::CStringUtils::typeToString(t);
 }
 
@@ -55,7 +58,7 @@ inline std::string print(double t) {
 
 //! Write out a pair space delimited.
 template <typename U, typename V>
-inline std::string print(const std::pair<U, V> &p, std::size_t padTo = 0) {
+inline std::string print(const std::pair<U, V>& p, std::size_t padTo = 0) {
     std::string first = print(p.first);
     std::string second = print(p.second);
     return (padTo > 0 ? pad(padTo, first) : first) + " " +
@@ -64,7 +67,7 @@ inline std::string print(const std::pair<U, V> &p, std::size_t padTo = 0) {
 
 //! Write out a vector of pairs new line delimited.
 template <typename U, typename V>
-inline std::string print(const std::vector<std::pair<U, V>> &v, std::size_t padTo = 0) {
+inline std::string print(const std::vector<std::pair<U, V>>& v, std::size_t padTo = 0) {
     std::string result;
     for (std::size_t i = 0u; i < v.size(); ++i) {
         result += print(v[i], padTo) + "\n";
@@ -73,7 +76,7 @@ inline std::string print(const std::vector<std::pair<U, V>> &v, std::size_t padT
 }
 
 //!
-TStrVec splitMultifields(const std::string &field) {
+TStrVec splitMultifields(const std::string& field) {
     TStrVec fields;
     std::string remainder;
     core::CStringUtils::tokenise("\n", field, fields, remainder);
@@ -82,7 +85,7 @@ TStrVec splitMultifields(const std::string &field) {
 }
 
 //! Compute the length of the longest field for \p statistic.
-std::size_t longest(const TStrVecVec &fields, std::size_t statistic) {
+std::size_t longest(const TStrVecVec& fields, std::size_t statistic) {
     std::size_t longest = 0u;
     for (std::size_t i = 0u; i < fields.size(); ++i) {
         TStrVec fi = splitMultifields(fields[i][statistic]);
@@ -95,10 +98,10 @@ std::size_t longest(const TStrVecVec &fields, std::size_t statistic) {
 
 //! Write a row of the summary statistic table.
 template <std::size_t N, typename ROW>
-void writeTableRow(std::ostream &o,
-                   const TSizeVec &padTo,
+void writeTableRow(std::ostream& o,
+                   const TSizeVec& padTo,
                    const std::size_t (&stats)[N],
-                   const ROW &row) {
+                   const ROW& row) {
     TStrVecVec columnFields;
     columnFields.reserve(N);
     std::size_t height = 1u;
@@ -117,15 +120,15 @@ void writeTableRow(std::ostream &o,
 
 //! Write the summary statistic table.
 template <std::size_t M, std::size_t N>
-void writeTable(std::ostream &o,
+void writeTable(std::ostream& o,
                 const std::string (&labels)[M],
                 const std::size_t (&stats)[N],
-                const TStrVecVec &values) {
+                const TStrVecVec& values) {
     // Compute the table pads.
     TSizeVec padTo(N, 0);
     std::size_t tableWidth = 0;
     for (std::size_t i = 0u; i < N; ++i) {
-        const std::string &label = labels[stats[i]];
+        const std::string& label = labels[stats[i]];
         padTo[i] = std::max(longest(values, stats[i]), label.length()) + 4;
         tableWidth += padTo[i];
     }
@@ -141,27 +144,32 @@ void writeTable(std::ostream &o,
 const TStrVec NO_STRINGS;
 }
 
-CReportWriter::CReportWriter(std::ostream &writeStream) : m_WriteStream(writeStream) {}
+CReportWriter::CReportWriter(std::ostream& writeStream) : m_WriteStream(writeStream) {}
 
-bool CReportWriter::fieldNames(const TStrVec & /*fieldNames*/,
-                               const TStrVec & /*extraFieldNames*/) {
+bool CReportWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) {
     return true;
 }
 
-const CReportWriter::TStrVec &CReportWriter::fieldNames(void) const { return NO_STRINGS; }
+const CReportWriter::TStrVec& CReportWriter::fieldNames(void) const {
+    return NO_STRINGS;
+}
 
-bool CReportWriter::writeRow(const TStrStrUMap & /*dataRowFields*/,
-                             const TStrStrUMap & /*overrideDataRowFields*/) {
+bool CReportWriter::writeRow(const TStrStrUMap& /*dataRowFields*/,
+                             const TStrStrUMap& /*overrideDataRowFields*/) {
     return true;
 }
 
-void CReportWriter::addTotalRecords(uint64_t n) { m_TotalRecords = print(n); }
+void CReportWriter::addTotalRecords(uint64_t n) {
+    m_TotalRecords = print(n);
+}
 
-void CReportWriter::addInvalidRecords(uint64_t n) { m_InvalidRecords = print(n); }
+void CReportWriter::addInvalidRecords(uint64_t n) {
+    m_InvalidRecords = print(n);
+}
 
-void CReportWriter::addFieldStatistics(const std::string &field,
+void CReportWriter::addFieldStatistics(const std::string& field,
                                        config_t::EDataType type,
-                                       const CDataSummaryStatistics &summary) {
+                                       const CDataSummaryStatistics& summary) {
     std::size_t n = m_UnclassifiedFields.size();
     m_UnclassifiedFields.push_back(TStrVec(NUMBER_STATISTICS));
     m_UnclassifiedFields[n][FIELD_NAME] = field;
@@ -171,9 +179,9 @@ void CReportWriter::addFieldStatistics(const std::string &field,
     m_UnclassifiedFields[n][MEAN_RATE] = CTools::prettyPrint(summary.meanRate());
 }
 
-void CReportWriter::addFieldStatistics(const std::string &field,
+void CReportWriter::addFieldStatistics(const std::string& field,
                                        config_t::EDataType type,
-                                       const CCategoricalDataSummaryStatistics &summary) {
+                                       const CCategoricalDataSummaryStatistics& summary) {
     std::size_t n = m_CategoricalFields.size();
     m_CategoricalFields.push_back(TStrVec(NUMBER_STATISTICS));
     m_CategoricalFields[n][FIELD_NAME] = field;
@@ -187,9 +195,9 @@ void CReportWriter::addFieldStatistics(const std::string &field,
     m_CategoricalFields[n][CATEGORICAL_TOP_N_COUNTS] = print(topn);
 }
 
-void CReportWriter::addFieldStatistics(const std::string &field,
+void CReportWriter::addFieldStatistics(const std::string& field,
                                        config_t::EDataType type,
-                                       const CNumericDataSummaryStatistics &summary) {
+                                       const CNumericDataSummaryStatistics& summary) {
     std::size_t n = m_NumericFields.size();
     m_NumericFields.push_back(TStrVec(NUMBER_STATISTICS));
     m_NumericFields[n][FIELD_NAME] = field;
@@ -205,7 +213,7 @@ void CReportWriter::addFieldStatistics(const std::string &field,
     m_NumericFields[n][NUMERIC_DENSITY_CHART] = print(densitychart, 15);
 }
 
-void CReportWriter::addDetector(const CDetectorSpecification &spec) {
+void CReportWriter::addDetector(const CDetectorSpecification& spec) {
     std::size_t n = m_Detectors.size();
     m_Detectors.push_back(TStrVecVecVec(NUMBER_ATTRIBUTES));
     m_Detectors[n][DESCRIPTION].push_back(TStrVec(1, spec.description()));
@@ -288,24 +296,24 @@ void CReportWriter::write(void) const {
     }
 }
 
-const std::string CReportWriter::STATISTIC_LABELS[NUMBER_STATISTICS] = {
-    std::string("Field Name"),
-    std::string("Data Type"),
-    std::string("Earliest Time"),
-    std::string("Latest Time"),
-    std::string("Mean Rate"),
-    std::string("Distinct Categories"),
-    std::string("Most Frequent Categories"),
-    std::string("Minimum"),
-    std::string("Median"),
-    std::string("Maximum"),
-    std::string("Probability Density Chart")};
+const std::string CReportWriter::STATISTIC_LABELS[NUMBER_STATISTICS] =
+    {std::string("Field Name"),
+     std::string("Data Type"),
+     std::string("Earliest Time"),
+     std::string("Latest Time"),
+     std::string("Mean Rate"),
+     std::string("Distinct Categories"),
+     std::string("Most Frequent Categories"),
+     std::string("Minimum"),
+     std::string("Median"),
+     std::string("Maximum"),
+     std::string("Probability Density Chart")};
 
-const std::string CReportWriter::PARAMETER_LABELS[NUMBER_PARAMETERS] = {
-    std::string("Bucket Length"),
-    std::string("Ignore Empty"),
-    std::string("Score"),
-    std::string("Explanation")};
+const std::string CReportWriter::PARAMETER_LABELS[NUMBER_PARAMETERS] = {std::string(
+                                                                            "Bucket Length"),
+                                                                        std::string("Ignore Empty"),
+                                                                        std::string("Score"),
+                                                                        std::string("Explanation")};
 
 const std::size_t CReportWriter::UNCLASSIFIED_STATISTICS[] = {FIELD_NAME,
                                                               DATA_TYPE,

@@ -41,7 +41,7 @@ CCompressUtils::~CCompressUtils(void) {
     }
 }
 
-bool CCompressUtils::addString(const std::string &str) {
+bool CCompressUtils::addString(const std::string& str) {
     if (m_State == E_Finished) {
         // If the previous compression has finished and we're adding a new
         // string then we need to reset the stream so that a new compression
@@ -52,7 +52,7 @@ bool CCompressUtils::addString(const std::string &str) {
     return this->doCompress(false, str);
 }
 
-bool CCompressUtils::compressedData(bool finish, TByteVec &result) {
+bool CCompressUtils::compressedData(bool finish, TByteVec& result) {
     if (m_LengthOnly) {
         LOG_ERROR("Cannot get compressed data from length-only compressor");
         return false;
@@ -75,7 +75,7 @@ bool CCompressUtils::compressedData(bool finish, TByteVec &result) {
     return true;
 }
 
-bool CCompressUtils::compressedLength(bool finish, size_t &length) {
+bool CCompressUtils::compressedLength(bool finish, size_t& length) {
     if (m_State == E_Unused) {
         LOG_ERROR("Cannot get compressed data - no strings added");
         return false;
@@ -106,14 +106,14 @@ void CCompressUtils::reset(void) {
     m_State = E_Unused;
 }
 
-bool CCompressUtils::doCompress(bool finish, const std::string &str) {
+bool CCompressUtils::doCompress(bool finish, const std::string& str) {
     if (str.empty() && m_State == E_Compressing && !finish) {
         return true;
     }
 
     m_State = E_Compressing;
 
-    m_ZlibStrm.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(str.data()));
+    m_ZlibStrm.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(str.data()));
     m_ZlibStrm.avail_in = static_cast<uInt>(str.size());
 
     static const size_t CHUNK_SIZE = 4096;

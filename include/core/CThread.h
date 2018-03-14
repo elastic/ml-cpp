@@ -46,7 +46,7 @@ public:
     typedef unsigned int TThreadRet;
 #else
     typedef pthread_t TThreadId;
-    typedef void *TThreadRet;
+    typedef void* TThreadRet;
 #endif
 
 public:
@@ -59,7 +59,7 @@ public:
 
     //! Start the thread, retrieving the thread ID.  It's an error to call
     //! this if the thread is already running.
-    bool start(TThreadId &threadId);
+    bool start(TThreadId& threadId);
 
     //! Stop the thread.  It's an error to call this if the thread is
     //! already stopped.  Only call one of stop() and waitForFinish(); do
@@ -95,7 +95,7 @@ protected:
 private:
     //! This method is used as a thread start function, hence it must be
     //! static so that we can take its address like a free function
-    static TThreadRet STDCALL threadFunc(void *obj);
+    static TThreadRet STDCALL threadFunc(void* obj);
 
 private:
     //! ID of the most recently started thread
@@ -112,4 +112,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CThread_h
+#endif // INCLUDED_ml_core_CThread_h

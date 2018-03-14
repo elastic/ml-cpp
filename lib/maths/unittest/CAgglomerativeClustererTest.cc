@@ -44,9 +44,9 @@ class CCluster {
 public:
     explicit CCluster(std::size_t p) : m_Height(0.0), m_Points(1, p) {}
 
-    void swap(CCluster &other) { m_Points.swap(other.m_Points); }
+    void swap(CCluster& other) { m_Points.swap(other.m_Points); }
 
-    static CCluster merge(double height, const CCluster &lhs, const CCluster &rhs) {
+    static CCluster merge(double height, const CCluster& lhs, const CCluster& rhs) {
         CCluster result;
         result.m_Height = height;
         result.m_Points.reserve(lhs.m_Points.size() + rhs.m_Points.size());
@@ -56,11 +56,11 @@ public:
         return result;
     }
 
-    void add(TDoubleSizeVecPrVec &result) {
+    void add(TDoubleSizeVecPrVec& result) {
         result.push_back(TDoubleSizeVecPr(m_Height, m_Points));
     }
 
-    const TSizeVec &points(void) const { return m_Points; }
+    const TSizeVec& points(void) const { return m_Points; }
 
 private:
     explicit CCluster(void) : m_Height(0.0) {}
@@ -74,12 +74,12 @@ typedef std::vector<CCluster> TClusterVec;
 
 class CSlinkObjective {
 public:
-    CSlinkObjective(const TDoubleVecVec &distanceMatrix) : m_DistanceMatrix(&distanceMatrix) {}
+    CSlinkObjective(const TDoubleVecVec& distanceMatrix) : m_DistanceMatrix(&distanceMatrix) {}
 
-    double operator()(const CCluster &lhs, const CCluster &rhs) {
+    double operator()(const CCluster& lhs, const CCluster& rhs) {
         double result = std::numeric_limits<double>::max();
-        const TSizeVec &lp = lhs.points();
-        const TSizeVec &rp = rhs.points();
+        const TSizeVec& lp = lhs.points();
+        const TSizeVec& rp = rhs.points();
         for (std::size_t i = 0u; i < lp.size(); ++i) {
             for (std::size_t j = 0u; j < rp.size(); ++j) {
                 std::size_t pi = lp[i];
@@ -94,17 +94,17 @@ public:
     }
 
 private:
-    const TDoubleVecVec *m_DistanceMatrix;
+    const TDoubleVecVec* m_DistanceMatrix;
 };
 
 class CClinkObjective {
 public:
-    CClinkObjective(const TDoubleVecVec &distanceMatrix) : m_DistanceMatrix(&distanceMatrix) {}
+    CClinkObjective(const TDoubleVecVec& distanceMatrix) : m_DistanceMatrix(&distanceMatrix) {}
 
-    double operator()(const CCluster &lhs, const CCluster &rhs) {
+    double operator()(const CCluster& lhs, const CCluster& rhs) {
         double result = -std::numeric_limits<double>::max();
-        const TSizeVec &lp = lhs.points();
-        const TSizeVec &rp = rhs.points();
+        const TSizeVec& lp = lhs.points();
+        const TSizeVec& rp = rhs.points();
         for (std::size_t i = 0u; i < lp.size(); ++i) {
             for (std::size_t j = 0u; j < rp.size(); ++j) {
                 std::size_t pi = lp[i];
@@ -119,11 +119,11 @@ public:
     }
 
 private:
-    const TDoubleVecVec *m_DistanceMatrix;
+    const TDoubleVecVec* m_DistanceMatrix;
 };
 
 template <typename OBJECTIVE>
-TClusterVec agglomerativeCluster(const TDoubleVecVec &distanceMatrix) {
+TClusterVec agglomerativeCluster(const TDoubleVecVec& distanceMatrix) {
     std::size_t n = distanceMatrix.size();
 
     TClusterVec clusters;
@@ -193,16 +193,16 @@ void CAgglomerativeClustererTest::testNode(void) {
 
     double heights[] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.5, 1.9, 4.0};
 
-    maths::CAgglomerativeClusterer::CNode nodes[] = {
-        maths::CAgglomerativeClusterer::CNode(0, heights[0]),
-        maths::CAgglomerativeClusterer::CNode(1, heights[1]),
-        maths::CAgglomerativeClusterer::CNode(2, heights[2]),
-        maths::CAgglomerativeClusterer::CNode(3, heights[3]),
-        maths::CAgglomerativeClusterer::CNode(4, heights[4]),
-        maths::CAgglomerativeClusterer::CNode(5, heights[5]),
-        maths::CAgglomerativeClusterer::CNode(6, heights[6]),
-        maths::CAgglomerativeClusterer::CNode(7, heights[7]),
-        maths::CAgglomerativeClusterer::CNode(8, heights[8])};
+    maths::CAgglomerativeClusterer::CNode nodes[] =
+        {maths::CAgglomerativeClusterer::CNode(0, heights[0]),
+         maths::CAgglomerativeClusterer::CNode(1, heights[1]),
+         maths::CAgglomerativeClusterer::CNode(2, heights[2]),
+         maths::CAgglomerativeClusterer::CNode(3, heights[3]),
+         maths::CAgglomerativeClusterer::CNode(4, heights[4]),
+         maths::CAgglomerativeClusterer::CNode(5, heights[5]),
+         maths::CAgglomerativeClusterer::CNode(6, heights[6]),
+         maths::CAgglomerativeClusterer::CNode(7, heights[7]),
+         maths::CAgglomerativeClusterer::CNode(8, heights[8])};
 
     nodes[5].addChild(nodes[0]);
     nodes[5].addChild(nodes[1]);
@@ -213,7 +213,7 @@ void CAgglomerativeClustererTest::testNode(void) {
     nodes[8].addChild(nodes[5]);
     nodes[8].addChild(nodes[7]);
 
-    const maths::CAgglomerativeClusterer::CNode &root = nodes[8];
+    const maths::CAgglomerativeClusterer::CNode& root = nodes[8];
 
     LOG_DEBUG("tree = \n" << root.print());
 
@@ -262,12 +262,12 @@ void CAgglomerativeClustererTest::testSimplePermutations(void) {
     double x[] = {1.0, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
-    maths::CAgglomerativeClusterer::EObjective objectives[] = {
-        maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
+    maths::CAgglomerativeClusterer::EObjective objectives[] =
+        {maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
 
-    std::string expected[] = {
-        std::string("[(3.3, [0, 1, 2, 3]), (2.2, [0, 1, 2]), (1.3, [1, 2])]"),
-        std::string("[(6.8, [0, 1, 2, 3]), (3.5, [0, 1, 2]), (1.3, [1, 2])]")};
+    std::string expected[] = {std::string("[(3.3, [0, 1, 2, 3]), (2.2, [0, 1, 2]), (1.3, [1, 2])]"),
+                              std::string(
+                                  "[(6.8, [0, 1, 2, 3]), (3.5, [0, 1, 2]), (1.3, [1, 2])]")};
 
     for (std::size_t o = 0u; o < boost::size(objectives); ++o) {
         LOG_DEBUG("****** " << print(objectives[o]) << " ******");
@@ -318,22 +318,28 @@ void CAgglomerativeClustererTest::testDegenerate(void) {
     double x[] = {1.0, 3.2, 3.2, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
-    maths::CAgglomerativeClusterer::EObjective objectives[] = {
-        maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
+    maths::CAgglomerativeClusterer::EObjective objectives[] =
+        {maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
 
-    std::string expected[][3] = {
-        {std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [1, 2])]"),
-         std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [1, 3])]"),
-         std::string("[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [2, 3])]")},
-        {std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [1, 2])]"),
-         std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [1, 3])]"),
-         std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
-                     "[1, 2, 3]), (0, [2, 3])]")}};
+    std::string expected[][3] =
+        {{std::string(
+              "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [1, 2])]"),
+          std::string(
+              "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [1, 3])]"),
+          std::string(
+              "[(3.3, [0, 1, 2, 3, 4, 5]), (2.2, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [2, 3])]")},
+         {std::string(
+              "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [1, 2])]"),
+          std::string(
+              "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [1, 3])]"),
+          std::string(
+              "[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, "
+              "[1, 2, 3]), (0, [2, 3])]")}};
 
     for (std::size_t o = 0u, count = 0u; o < boost::size(objectives); ++o) {
         LOG_DEBUG("****** " << print(objectives[o]) << " ******");
@@ -396,8 +402,8 @@ void CAgglomerativeClustererTest::testRandom(void) {
 
     std::size_t n = 20u;
 
-    maths::CAgglomerativeClusterer::EObjective objectives[] = {
-        maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
+    maths::CAgglomerativeClusterer::EObjective objectives[] =
+        {maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
 
     for (std::size_t o = 0u; o < boost::size(objectives); ++o) {
         LOG_DEBUG("*** " << print(objectives[o]) << " ***");
@@ -460,19 +466,23 @@ void CAgglomerativeClustererTest::testRandom(void) {
     }
 }
 
-CppUnit::Test *CAgglomerativeClustererTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
+CppUnit::Test* CAgglomerativeClustererTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testNode", &CAgglomerativeClustererTest::testNode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testSimplePermutations",
-        &CAgglomerativeClustererTest::testSimplePermutations));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testDegenerate",
-        &CAgglomerativeClustererTest::testDegenerate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testRandom", &CAgglomerativeClustererTest::testRandom));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testNode",
+                                                       &CAgglomerativeClustererTest::testNode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testSimplePermutations",
+                                         &CAgglomerativeClustererTest::testSimplePermutations));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testDegenerate",
+                                         &CAgglomerativeClustererTest::testDegenerate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CAgglomerativeClustererTest>("CAgglomerativeClustererTest::testRandom",
+                                                       &CAgglomerativeClustererTest::testRandom));
 
     return suiteOfTests;
 }

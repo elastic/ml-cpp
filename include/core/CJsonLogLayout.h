@@ -58,13 +58,13 @@ public:
     bool properties(void) const;
 
     //! No options to activate.
-    void activateOptions(Pool &p);
+    void activateOptions(Pool& p);
 
     //! Set options.
-    virtual void setOption(const LogString &option, const LogString &value);
+    virtual void setOption(const LogString& option, const LogString& value);
 
     //! Formats a LoggingEvent as JSON.
-    virtual void format(LogString &output, const spi::LoggingEventPtr &event, Pool &p) const;
+    virtual void format(LogString& output, const spi::LoggingEventPtr& event, Pool& p) const;
 
     //! The CJsonLogLayout prints and does not ignore exceptions.
     virtual bool ignoresThrowable(void) const;
@@ -74,7 +74,7 @@ private:
     bool m_LocationInfo;
     bool m_Properties;
 
-    static std::string cropPath(const std::string &filename);
+    static std::string cropPath(const std::string& filename);
 
     // For unit testing
     friend class ::CJsonLogLayoutTest;
@@ -82,12 +82,12 @@ private:
 
 LOG4CXX_PTR_DEF(CJsonLogLayout);
 
-}// end helpers
+} // end helpers
 
 namespace classes {
-extern const helpers::ClassRegistration &CJsonLogLayoutRegistration;
+extern const helpers::ClassRegistration& CJsonLogLayoutRegistration;
 }
 
-}// end log4cxx
+} // end log4cxx
 
-#endif// INCLUDED_ml_core_CJsonLogLayout_h
+#endif // INCLUDED_ml_core_CJsonLogLayout_h

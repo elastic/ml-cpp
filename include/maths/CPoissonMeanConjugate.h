@@ -73,8 +73,8 @@ public:
     CPoissonMeanConjugate(double offset, double shape, double rate, double decayRate = 0.0);
 
     //! Construct from part of a state document.
-    CPoissonMeanConjugate(const SDistributionRestoreParams &params,
-                          core::CStateRestoreTraverser &traverser);
+    CPoissonMeanConjugate(const SDistributionRestoreParams& params,
+                          core::CStateRestoreTraverser& traverser);
 
     // Default copy constructor and assignment operator work.
     //@}
@@ -96,7 +96,7 @@ public:
     //!
     //! \return A pointer to a newly allocated clone of this prior.
     //! \warning The caller owns the object returned.
-    virtual CPoissonMeanConjugate *clone(void) const;
+    virtual CPoissonMeanConjugate* clone(void) const;
 
     //! Reset the prior to non-informative.
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
@@ -118,9 +118,9 @@ public:
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec &weightStyles,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights);
 
     //! Get the current offset.
     virtual double offset(void) const;
@@ -133,9 +133,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec &weightStyles,
-                            const TDouble1Vec &samples,
-                            const TDouble4Vec1Vec &weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -154,13 +154,13 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     virtual double
-    marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -177,8 +177,8 @@ public:
     //! \note \p percentage should be in the range [0.0, 100.0).
     virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
-        const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec &weights = TWeights::UNIT) const;
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the Poisson mean.
@@ -192,10 +192,10 @@ public:
     //! \note The samples are assumed to be independent and identically
     //! distributed.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble1Vec &samples,
-                               const TDouble4Vec1Vec &weights,
-                               double &result) const;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -204,7 +204,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec &samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
     //! at \p samples.
@@ -218,11 +218,11 @@ public:
     //! where \f$F(.)\f$ is the c.d.f. and \f$\{x_i\}\f$ are the samples.
     //! \param[out] upperBound Equal to \p lowerBound.
     //! \note The samples are assumed to be independent.
-    virtual bool minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                  const TDouble1Vec &samples,
-                                  const TDouble4Vec1Vec &weights,
-                                  double &lowerBound,
-                                  double &upperBound) const;
+    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                  const TDouble1Vec& samples,
+                                  const TDouble4Vec1Vec& weights,
+                                  double& lowerBound,
+                                  double& upperBound) const;
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
     //! marginal likelihood at \p samples without losing precision due to
@@ -230,11 +230,11 @@ public:
     //! can return is the minimum double rather than epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                            const TDouble1Vec &samples,
-                                            const TDouble4Vec1Vec &weights,
-                                            double &lowerBound,
-                                            double &upperBound) const;
+    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                            const TDouble1Vec& samples,
+                                            const TDouble4Vec1Vec& weights,
+                                            double& lowerBound,
+                                            double& upperBound) const;
 
     //! Compute the probability of a less likely collection of independent
     //! samples from the variable.
@@ -254,12 +254,12 @@ public:
     //! are in or neither.
     //! \note The samples are assumed to be independent.
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec &weightStyles,
-                                                const TDouble1Vec &samples,
-                                                const TDouble4Vec1Vec &weights,
-                                                double &lowerBound,
-                                                double &upperBound,
-                                                maths_t::ETail &tail) const;
+                                                const TWeightStyleVec& weightStyles,
+                                                const TDouble1Vec& samples,
+                                                const TDouble4Vec1Vec& weights,
+                                                double& lowerBound,
+                                                double& upperBound,
+                                                maths_t::ETail& tail) const;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const;
@@ -268,7 +268,7 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &indent, std::string &result) const;
+    virtual void print(const std::string& indent, std::string& result) const;
 
     //! Print the prior density function in a specified format.
     //!
@@ -288,7 +288,7 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! Compute the mean of the prior distribution.
@@ -303,12 +303,12 @@ public:
     TDoubleDoublePr meanConfidenceInterval(double percentage) const;
 
     //! Check if two priors are equal to the specified tolerance.
-    bool equalTolerance(const CPoissonMeanConjugate &rhs, const TEqualWithTolerance &equal) const;
+    bool equalTolerance(const CPoissonMeanConjugate& rhs, const TEqualWithTolerance& equal) const;
     //@}
 
 private:
     //! Read parameters from \p traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     //! The shape parameter of a non-informative prior.
@@ -333,4 +333,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CPoissonMeanConjugate_h
+#endif // INCLUDED_ml_maths_CPoissonMeanConjugate_h

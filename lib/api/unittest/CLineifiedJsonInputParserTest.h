@@ -22,10 +22,10 @@ public:
     void testThroughputArbitrary(void);
     void testThroughputCommon(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     void runTest(bool allDocsSameStructure);
 };
 
-#endif// INCLUDED_CLineifiedJsonInputParserTest_h
+#endif // INCLUDED_CLineifiedJsonInputParserTest_h

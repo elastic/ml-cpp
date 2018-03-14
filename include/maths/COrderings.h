@@ -57,21 +57,24 @@ public:
 
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator <.
-        template <typename U, typename V> inline bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return less(lhs, rhs);
         }
 
         template <typename T>
-        static inline bool less(const boost::optional<T> &lhs, const boost::optional<T> &rhs) {
+        static inline bool less(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) < boost::unwrap_ref(*rhs)
                                                 : rInitialized < lInitialized;
         }
-        template <typename T> static inline bool less(const T &lhs, const boost::optional<T> &rhs) {
+        template <typename T>
+        static inline bool less(const T& lhs, const boost::optional<T>& rhs) {
             return !rhs ? true : boost::unwrap_ref(lhs) < boost::unwrap_ref(*rhs);
         }
-        template <typename T> static inline bool less(const boost::optional<T> &lhs, const T &rhs) {
+        template <typename T>
+        static inline bool less(const boost::optional<T>& lhs, const T& rhs) {
             return !lhs ? false : boost::unwrap_ref(*lhs) < boost::unwrap_ref(rhs);
         }
     };
@@ -84,23 +87,24 @@ public:
 
         //! \note U and V must be convertible to T or optional<T>
         //! for some type T and T must support operator >.
-        template <typename U, typename V> inline bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return greater(lhs, rhs);
         }
 
         template <typename T>
-        static inline bool greater(const boost::optional<T> &lhs, const boost::optional<T> &rhs) {
+        static inline bool greater(const boost::optional<T>& lhs, const boost::optional<T>& rhs) {
             bool lInitialized(lhs);
             bool rInitialized(rhs);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) > boost::unwrap_ref(*rhs)
                                                 : rInitialized > lInitialized;
         }
         template <typename T>
-        static inline bool greater(const T &lhs, const boost::optional<T> &rhs) {
+        static inline bool greater(const T& lhs, const boost::optional<T>& rhs) {
             return !rhs ? false : boost::unwrap_ref(lhs) > boost::unwrap_ref(*rhs);
         }
         template <typename T>
-        static inline bool greater(const boost::optional<T> &lhs, const T &rhs) {
+        static inline bool greater(const boost::optional<T>& lhs, const T& rhs) {
             return !lhs ? true : boost::unwrap_ref(*lhs) > boost::unwrap_ref(rhs);
         }
     };
@@ -111,11 +115,13 @@ public:
     struct SPtrLess {
         typedef bool result_type;
 
-        template <typename T> inline bool operator()(const T *lhs, const T *rhs) const {
+        template <typename T>
+        inline bool operator()(const T* lhs, const T* rhs) const {
             return less(lhs, rhs);
         }
 
-        template <typename T> static inline bool less(const T *lhs, const T *rhs) {
+        template <typename T>
+        static inline bool less(const T* lhs, const T* rhs) {
             bool lInitialized(lhs != 0);
             bool rInitialized(rhs != 0);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) < boost::unwrap_ref(*rhs)
@@ -129,11 +135,13 @@ public:
     struct SPtrGreater {
         typedef bool result_type;
 
-        template <typename T> inline bool operator()(const T *lhs, const T *rhs) const {
+        template <typename T>
+        inline bool operator()(const T* lhs, const T* rhs) const {
             return greater(lhs, rhs);
         }
 
-        template <typename T> static inline bool greater(const T *lhs, const T *rhs) {
+        template <typename T>
+        static inline bool greater(const T* lhs, const T* rhs) {
             bool lInitialized(lhs != 0);
             bool rInitialized(rhs != 0);
             return lInitialized && rInitialized ? boost::unwrap_ref(*lhs) > boost::unwrap_ref(*rhs)
@@ -146,11 +154,13 @@ public:
     struct SReferenceLess {
         typedef bool result_type;
 
-        template <typename U, typename V> inline bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return less(lhs, rhs);
         }
 
-        template <typename U, typename V> static inline bool less(const U &lhs, const V &rhs) {
+        template <typename U, typename V>
+        static inline bool less(const U& lhs, const V& rhs) {
             return boost::unwrap_ref(lhs) < boost::unwrap_ref(rhs);
         }
     };
@@ -160,11 +170,13 @@ public:
     struct SReferenceGreater {
         typedef bool result_type;
 
-        template <typename U, typename V> inline bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        inline bool operator()(const U& lhs, const V& rhs) const {
             return greater(lhs, rhs);
         }
 
-        template <typename U, typename V> static inline bool greater(const U &lhs, const V &rhs) {
+        template <typename U, typename V>
+        static inline bool greater(const U& lhs, const V& rhs) {
             return boost::unwrap_ref(lhs) > boost::unwrap_ref(rhs);
         }
     };
@@ -177,10 +189,11 @@ public:
     //@{
     //! Lexicographical comparison of \p l1 and \p r1.
     template <typename T1, typename COMP>
-    static bool lexicographical_compare(const T1 &l1, const T1 &r1, COMP comp) {
+    static bool lexicographical_compare(const T1& l1, const T1& r1, COMP comp) {
         return comp(l1, r1);
     }
-    template <typename T1> static bool lexicographical_compare(const T1 &l1, const T1 &r1) {
+    template <typename T1>
+    static bool lexicographical_compare(const T1& l1, const T1& r1) {
         return lexicographical_compare(l1, r1, SReferenceLess());
     }
 #define COMPARE(l, r)                                                                              \
@@ -192,47 +205,47 @@ public:
     //! Lexicographical comparison of (\p l1, \p l2) and (\p r1, \p r2).
     template <typename T1, typename T2, typename COMP>
     static bool
-    lexicographical_compare(const T1 &l1, const T2 &l2, const T1 &r1, const T2 &r2, COMP comp) {
+    lexicographical_compare(const T1& l1, const T2& l2, const T1& r1, const T2& r2, COMP comp) {
         COMPARE(l1, r1);
         return comp(l2, r2);
     }
     template <typename T1, typename T2>
-    static bool lexicographical_compare(const T1 &l1, const T2 &l2, const T1 &r1, const T2 &r2) {
+    static bool lexicographical_compare(const T1& l1, const T2& l2, const T1& r1, const T2& r2) {
         return lexicographical_compare(l1, l2, r1, r2, SReferenceLess());
     }
     //! Lexicographical comparison of (\p l1, \p l2, \p l3) and (\p r1, \p r2, \p r3).
     template <typename T1, typename T2, typename T3, typename COMP>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3,
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3,
                                         COMP comp) {
         COMPARE(l1, r1);
         COMPARE(l2, r2);
         return comp(l3, r3);
     }
     template <typename T1, typename T2, typename T3>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3) {
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3) {
         return lexicographical_compare(l1, l2, l3, r1, r2, r3, SReferenceLess());
     }
     //! Lexicographical comparison of (\p l1, \p l2, \p l3, \p l4) and
     //! (\p r1, \p r2, \p r3, \p r4).
     template <typename T1, typename T2, typename T3, typename T4, typename COMP>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T4 &l4,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3,
-                                        const T4 &r4,
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T4& l4,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3,
+                                        const T4& r4,
                                         COMP comp) {
         COMPARE(l1, r1);
         COMPARE(l2, r2);
@@ -240,29 +253,29 @@ public:
         return comp(l4, r4);
     }
     template <typename T1, typename T2, typename T3, typename T4>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T4 &l4,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3,
-                                        const T4 &r4) {
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T4& l4,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3,
+                                        const T4& r4) {
         return lexicographical_compare(l1, l2, l3, l4, r1, r2, r3, r4, SReferenceLess());
     }
     //! Lexicographical comparison of (\p l1, \p l2, \p l3, \p l4, \p l5) and
     //! (\p r1, \p r2, \p r3, \p r4, \p r5).
     template <typename T1, typename T2, typename T3, typename T4, typename T5, typename COMP>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T4 &l4,
-                                        const T5 &l5,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3,
-                                        const T4 &r4,
-                                        const T5 &r5,
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T4& l4,
+                                        const T5& l5,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3,
+                                        const T4& r4,
+                                        const T5& r5,
                                         COMP comp) {
         COMPARE(l1, r1);
         COMPARE(l2, r2);
@@ -271,16 +284,16 @@ public:
         return comp(l5, r5);
     }
     template <typename T1, typename T2, typename T3, typename T4, typename T5>
-    static bool lexicographical_compare(const T1 &l1,
-                                        const T2 &l2,
-                                        const T3 &l3,
-                                        const T4 &l4,
-                                        const T5 &l5,
-                                        const T1 &r1,
-                                        const T2 &r2,
-                                        const T3 &r3,
-                                        const T4 &r4,
-                                        const T5 &r5) {
+    static bool lexicographical_compare(const T1& l1,
+                                        const T2& l2,
+                                        const T3& l3,
+                                        const T4& l4,
+                                        const T5& l5,
+                                        const T1& r1,
+                                        const T2& r2,
+                                        const T3& r3,
+                                        const T4& r4,
+                                        const T5& r5) {
         return lexicographical_compare(l1, l2, l3, l4, l5, r1, r2, r3, r4, r5, SReferenceLess());
     }
 #undef COMPARE
@@ -291,33 +304,36 @@ public:
         typedef bool result_type;
 
         template <typename T>
-        bool operator()(const boost::optional<T> &lhs, const boost::optional<T> &rhs) const {
+        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
             return SOptionalLess::less(lhs, rhs);
         }
 
-        template <typename T> bool operator()(const T *lhs, const T *rhs) const {
+        template <typename T>
+        bool operator()(const T* lhs, const T* rhs) const {
             return SPtrLess::less(lhs, rhs);
         }
 
-        template <typename T> bool operator()(T *lhs, T *rhs) const {
+        template <typename T>
+        bool operator()(T* lhs, T* rhs) const {
             return SPtrLess::less(lhs, rhs);
         }
 
-        template <typename U, typename V> bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        bool operator()(const U& lhs, const V& rhs) const {
             return SReferenceLess::less(lhs, rhs);
         }
 
-        bool operator()(const core::CStoredStringPtr &lhs, const core::CStoredStringPtr &rhs) {
+        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) {
             return SPtrLess::less(lhs.get(), rhs.get());
         }
 
         template <typename T>
-        bool operator()(const boost::shared_ptr<T> &lhs, const boost::shared_ptr<T> &rhs) {
+        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
             return SPtrLess::less(lhs.get(), rhs.get());
         }
 
         template <typename U, typename V>
-        bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return lexicographical_compare(lhs.first, lhs.second, rhs.first, rhs.second, *this);
         }
         SReferenceLess s_Less;
@@ -328,33 +344,36 @@ public:
         typedef bool result_type;
 
         template <typename T>
-        bool operator()(const boost::optional<T> &lhs, const boost::optional<T> &rhs) const {
+        bool operator()(const boost::optional<T>& lhs, const boost::optional<T>& rhs) const {
             return SOptionalGreater::greater(lhs, rhs);
         }
 
-        template <typename T> bool operator()(const T *lhs, const T *rhs) const {
+        template <typename T>
+        bool operator()(const T* lhs, const T* rhs) const {
             return SPtrGreater::greater(lhs, rhs);
         }
 
-        template <typename T> bool operator()(T *lhs, T *rhs) const {
+        template <typename T>
+        bool operator()(T* lhs, T* rhs) const {
             return SPtrGreater::greater(lhs, rhs);
         }
 
-        template <typename U, typename V> bool operator()(const U &lhs, const V &rhs) const {
+        template <typename U, typename V>
+        bool operator()(const U& lhs, const V& rhs) const {
             return SReferenceGreater::greater(lhs, rhs);
         }
 
-        bool operator()(const core::CStoredStringPtr &lhs, const core::CStoredStringPtr &rhs) {
+        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) {
             return SPtrGreater::greater(lhs.get(), rhs.get());
         }
 
         template <typename T>
-        bool operator()(const boost::shared_ptr<T> &lhs, const boost::shared_ptr<T> &rhs) {
+        bool operator()(const boost::shared_ptr<T>& lhs, const boost::shared_ptr<T>& rhs) {
             return SPtrGreater::greater(lhs.get(), rhs.get());
         }
 
         template <typename U, typename V>
-        bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return lexicographical_compare(lhs.first, lhs.second, rhs.first, rhs.second, *this);
         }
 
@@ -368,13 +387,13 @@ public:
     //! This also tuples of handles reference wrapped types.
     struct SLexicographicalCompare {
         template <typename T1, typename T2>
-        inline bool operator()(const std::pair<T1, T2> &lhs, const std::pair<T1, T2> &rhs) const {
+        inline bool operator()(const std::pair<T1, T2>& lhs, const std::pair<T1, T2>& rhs) const {
             return lexicographical_compare(lhs.first, lhs.second, rhs.first, rhs.second, s_Less);
         }
 
         template <typename T1, typename T2, typename T3>
-        inline bool operator()(const boost::tuple<T1, T2, T3> &lhs,
-                               const boost::tuple<T1, T2, T3> &rhs) const {
+        inline bool operator()(const boost::tuple<T1, T2, T3>& lhs,
+                               const boost::tuple<T1, T2, T3>& rhs) const {
             return lexicographical_compare(lhs.template get<0>(),
                                            lhs.template get<1>(),
                                            lhs.template get<2>(),
@@ -385,8 +404,8 @@ public:
         }
 
         template <typename T1, typename T2, typename T3, typename T4>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4> &lhs,
-                               const boost::tuple<T1, T2, T3, T4> &rhs) const {
+        inline bool operator()(const boost::tuple<T1, T2, T3, T4>& lhs,
+                               const boost::tuple<T1, T2, T3, T4>& rhs) const {
             return lexicographical_compare(lhs.template get<0>(),
                                            lhs.template get<1>(),
                                            lhs.template get<2>(),
@@ -399,8 +418,8 @@ public:
         }
 
         template <typename T1, typename T2, typename T3, typename T4, typename T5>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4, T5> &lhs,
-                               const boost::tuple<T1, T2, T3, T4, T5> &rhs) const {
+        inline bool operator()(const boost::tuple<T1, T2, T3, T4, T5>& lhs,
+                               const boost::tuple<T1, T2, T3, T4, T5>& rhs) const {
             return lexicographical_compare(lhs.template get<0>(),
                                            lhs.template get<1>(),
                                            lhs.template get<2>(),
@@ -425,32 +444,32 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SFirstLess {
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.first, rhs.first);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const U &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const U& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs, rhs.first);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const U &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const U& rhs) const {
             return s_Less(lhs.first, rhs);
         }
 
 #define TUPLE_FIRST_LESS                                                                           \
     template <TEMPLATE_ARGS_DECL>                                                                  \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS> &lhs,                                 \
-                           const boost::tuple<TEMPLATE_ARGS> &rhs) const {                         \
+    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs,                                 \
+                           const boost::tuple<TEMPLATE_ARGS>& rhs) const {                         \
         return s_Less(lhs.template get<0>(), rhs.template get<0>());                               \
     }                                                                                              \
     template <TEMPLATE_ARGS_DECL>                                                                  \
-    inline bool operator()(const T1 &lhs, const boost::tuple<TEMPLATE_ARGS> &rhs) const {          \
+    inline bool operator()(const T1& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const {          \
         return s_Less(lhs, rhs.template get<0>());                                                 \
     }                                                                                              \
     template <TEMPLATE_ARGS_DECL>                                                                  \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS> &lhs, const T1 &rhs) const {          \
+    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const T1& rhs) const {          \
         return s_Less(lhs.template get<0>(), rhs);                                                 \
     }
 
@@ -482,17 +501,17 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SFirstGreater {
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.first, rhs.first);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const U &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const U& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs, rhs.first);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const U &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const U& rhs) const {
             return s_Greater(lhs.first, rhs);
         }
 
@@ -506,17 +525,17 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SSecondLess {
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs.second, rhs.second);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const V &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const V& lhs, const std::pair<U, V>& rhs) const {
             return s_Less(lhs, rhs.second);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const V &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const V& rhs) const {
             return s_Less(lhs.second, rhs);
         }
 
@@ -530,17 +549,17 @@ public:
     //! code is more than an order of magnitude slower than this version.
     struct SSecondGreater {
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs.second, rhs.second);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const V &lhs, const std::pair<U, V> &rhs) const {
+        inline bool operator()(const V& lhs, const std::pair<U, V>& rhs) const {
             return s_Greater(lhs, rhs.second);
         }
 
         template <typename U, typename V>
-        inline bool operator()(const std::pair<U, V> &lhs, const V &rhs) const {
+        inline bool operator()(const std::pair<U, V>& lhs, const V& rhs) const {
             return s_Greater(lhs.second, rhs);
         }
 
@@ -592,7 +611,7 @@ private:
     template <typename KEY_VECTOR, typename COMP = std::less<typename KEY_VECTOR::value_type>>
     class CIndexLess {
     public:
-        CIndexLess(const KEY_VECTOR &keys, const COMP &comp = COMP())
+        CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
             : m_Keys(&keys), m_Comp(comp) {}
 
         bool operator()(std::size_t lhs, std::size_t rhs) {
@@ -600,7 +619,7 @@ private:
         }
 
     private:
-        const KEY_VECTOR *m_Keys;
+        const KEY_VECTOR* m_Keys;
         COMP m_Comp;
     };
 
@@ -650,7 +669,7 @@ public:
     //! Simultaneously sort \p keys and \p values using the \p comp
     //! order of \p keys.
     template <typename KEY_VECTOR, typename VALUE_VECTOR, typename COMP>
-    static bool simultaneousSort(KEY_VECTOR &keys, VALUE_VECTOR &values, const COMP &comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values, const COMP& comp) {
         if (keys.size() != values.size()) {
             return false;
         }
@@ -659,13 +678,13 @@ public:
 #undef CUSTOM_SWAP_VALUES
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR, typename VALUE_VECTOR>
-    static bool simultaneousSort(KEY_VECTOR &keys, VALUE_VECTOR &values) {
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE_VECTOR& values) {
         return simultaneousSort(keys, values, std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR, typename VALUE_VECTOR>
-    static bool simultaneousSort(core::CVectorRange<KEY_VECTOR> &keys,
-                                 core::CVectorRange<VALUE_VECTOR> &values) {
+    static bool simultaneousSort(core::CVectorRange<KEY_VECTOR>& keys,
+                                 core::CVectorRange<VALUE_VECTOR>& values) {
         return simultaneousSort(keys, values, std::less<typename KEY_VECTOR::value_type>());
     }
 
@@ -675,10 +694,10 @@ public:
     //! Simultaneously sort \p keys, \p values1 and \p values2
     //! using the \p comp order of \p keys.
     template <typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
-    static bool simultaneousSort(KEY_VECTOR &keys,
-                                 VALUE1_VECTOR &values1,
-                                 VALUE2_VECTOR &values2,
-                                 const COMP &comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys,
+                                 VALUE1_VECTOR& values1,
+                                 VALUE2_VECTOR& values2,
+                                 const COMP& comp) {
         if (keys.size() != values1.size() || values1.size() != values2.size()) {
             return false;
         }
@@ -687,17 +706,21 @@ public:
 #undef CUSTOM_SWAP_VALUES
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
-    static bool simultaneousSort(KEY_VECTOR &keys, VALUE1_VECTOR &values1, VALUE2_VECTOR &values2) {
-        return simultaneousSort(
-            keys, values1, values2, std::less<typename KEY_VECTOR::value_type>());
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE1_VECTOR& values1, VALUE2_VECTOR& values2) {
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
     static bool simultaneousSort(core::CVectorRange<KEY_VECTOR> keys,
                                  core::CVectorRange<VALUE1_VECTOR> values1,
                                  core::CVectorRange<VALUE2_VECTOR> values2) {
-        return simultaneousSort(
-            keys, values1, values2, std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
 
 #define CUSTOM_SWAP_VALUES                                                                         \
@@ -711,11 +734,11 @@ public:
               typename VALUE2_VECTOR,
               typename VALUE3_VECTOR,
               typename COMP>
-    static bool simultaneousSort(KEY_VECTOR &keys,
-                                 VALUE1_VECTOR &values1,
-                                 VALUE2_VECTOR &values2,
-                                 VALUE3_VECTOR &values3,
-                                 const COMP &comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys,
+                                 VALUE1_VECTOR& values1,
+                                 VALUE2_VECTOR& values2,
+                                 VALUE3_VECTOR& values3,
+                                 const COMP& comp) {
         if (keys.size() != values1.size() || values1.size() != values2.size() ||
             values2.size() != values3.size()) {
             return false;
@@ -728,12 +751,15 @@ public:
               typename VALUE1_VECTOR,
               typename VALUE2_VECTOR,
               typename VALUE3_VECTOR>
-    static bool simultaneousSort(KEY_VECTOR &keys,
-                                 VALUE1_VECTOR &values1,
-                                 VALUE2_VECTOR &values2,
-                                 VALUE3_VECTOR &values3) {
-        return simultaneousSort(
-            keys, values1, values2, values3, std::less<typename KEY_VECTOR::value_type>());
+    static bool simultaneousSort(KEY_VECTOR& keys,
+                                 VALUE1_VECTOR& values1,
+                                 VALUE2_VECTOR& values2,
+                                 VALUE3_VECTOR& values3) {
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                values3,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR,
@@ -744,8 +770,11 @@ public:
                                  core::CVectorRange<VALUE1_VECTOR> values1,
                                  core::CVectorRange<VALUE2_VECTOR> values2,
                                  core::CVectorRange<VALUE3_VECTOR> values3) {
-        return simultaneousSort(
-            keys, values1, values2, values3, std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                values3,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
 
 #define CUSTOM_SWAP_VALUES                                                                         \
@@ -762,12 +791,12 @@ public:
               typename VALUE3_VECTOR,
               typename VALUE4_VECTOR,
               typename COMP>
-    static bool simultaneousSort(KEY_VECTOR &keys,
-                                 VALUE1_VECTOR &values1,
-                                 VALUE2_VECTOR &values2,
-                                 VALUE3_VECTOR &values3,
-                                 VALUE4_VECTOR &values4,
-                                 const COMP &comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys,
+                                 VALUE1_VECTOR& values1,
+                                 VALUE2_VECTOR& values2,
+                                 VALUE3_VECTOR& values3,
+                                 VALUE4_VECTOR& values4,
+                                 const COMP& comp) {
         if (keys.size() != values1.size() || values1.size() != values2.size() ||
             values2.size() != values3.size() || values3.size() != values4.size()) {
             return false;
@@ -781,13 +810,17 @@ public:
               typename VALUE2_VECTOR,
               typename VALUE3_VECTOR,
               typename VALUE4_VECTOR>
-    static bool simultaneousSort(KEY_VECTOR &keys,
-                                 VALUE1_VECTOR &values1,
-                                 VALUE2_VECTOR &values2,
-                                 VALUE3_VECTOR &values3,
-                                 VALUE4_VECTOR &values4) {
-        return simultaneousSort(
-            keys, values1, values2, values3, values4, std::less<typename KEY_VECTOR::value_type>());
+    static bool simultaneousSort(KEY_VECTOR& keys,
+                                 VALUE1_VECTOR& values1,
+                                 VALUE2_VECTOR& values2,
+                                 VALUE3_VECTOR& values3,
+                                 VALUE4_VECTOR& values4) {
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                values3,
+                                values4,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template <typename KEY_VECTOR,
@@ -800,8 +833,12 @@ public:
                                  core::CVectorRange<VALUE2_VECTOR> values2,
                                  core::CVectorRange<VALUE3_VECTOR> values3,
                                  core::CVectorRange<VALUE4_VECTOR> values4) {
-        return simultaneousSort(
-            keys, values1, values2, values3, values4, std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys,
+                                values1,
+                                values2,
+                                values3,
+                                values4,
+                                std::less<typename KEY_VECTOR::value_type>());
     }
 
 #undef SIMULTANEOUS_SORT_IMPL
@@ -810,4 +847,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_COrderings_h
+#endif // INCLUDED_ml_maths_COrderings_h

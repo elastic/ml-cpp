@@ -62,7 +62,7 @@ public:
         CNode(std::size_t index, double height);
 
         //! Add a child node and update connectivity.
-        bool addChild(CNode &child);
+        bool addChild(CNode& child);
 
         //! Get the unique index of this node.
         std::size_t index(void) const;
@@ -74,28 +74,28 @@ public:
         //!
         //! \note This is the root of the tree unless it is
         //! under construction.
-        CNode &root(void);
+        CNode& root(void);
 
         //! Get the points in this node's cluster.
-        void points(TSizeVec &result) const;
+        void points(TSizeVec& result) const;
 
         //! Get the joins and their heights.
-        void clusters(TDoubleSizeVecPrVec &result) const;
+        void clusters(TDoubleSizeVecPrVec& result) const;
 
         //! Get the clustering at the specified height.
-        void clusteringAt(double height, TSizeVecVec &result) const;
+        void clusteringAt(double height, TSizeVecVec& result) const;
 
         //! Get a debug representation of the branch rooted at
         //! this node.
-        std::string print(const std::string &indent = std::string("  ")) const;
+        std::string print(const std::string& indent = std::string("  ")) const;
 
     private:
         //! The parent cluster.
-        CNode *m_Parent;
+        CNode* m_Parent;
         //! The left child cluster.
-        CNode *m_LeftChild;
+        CNode* m_LeftChild;
         //! The right child cluster.
-        CNode *m_RightChild;
+        CNode* m_RightChild;
         //! The unique index of this cluster.
         std::size_t m_Index;
         //! The height of this cluster, i.e. the value of the
@@ -112,11 +112,11 @@ public:
 public:
     //! Setup the distance matrix from which to compute the
     //! agglomerative clustering.
-    bool initialize(TDoubleVecVec &distanceMatrix);
+    bool initialize(TDoubleVecVec& distanceMatrix);
 
     //! Run agglomerative clustering targeting \p objective
     //! and build the cluster tree.
-    void run(EObjective objective, TNodeVec &tree);
+    void run(EObjective objective, TNodeVec& tree);
 
 private:
     //! The distance matrix on the points to cluster.
@@ -134,4 +134,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CAgglomerativeClusterer_h
+#endif // INCLUDED_ml_maths_CAgglomerativeClusterer_h

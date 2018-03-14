@@ -22,8 +22,8 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
-CppUnit::Test *CHierarchicalResultsLevelSetTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
+CppUnit::Test* CHierarchicalResultsLevelSetTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
         "CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation",
@@ -33,7 +33,7 @@ CppUnit::Test *CHierarchicalResultsLevelSetTest::suite(void) {
 }
 
 struct TestNode {
-    TestNode(const std::string &name) : s_Name(name) {}
+    TestNode(const std::string& name) : s_Name(name) {}
 
     std::string s_Name;
 };
@@ -42,36 +42,38 @@ class CTestNodeFactory {
 public:
     CTestNodeFactory() {}
 
-    TestNode make(const std::string &name1,
-                  const std::string &name2,
-                  const std::string &name3,
-                  const std::string &name4) const {
+    TestNode make(const std::string& name1,
+                  const std::string& name2,
+                  const std::string& name3,
+                  const std::string& name4) const {
         return make(name1 + ' ' + name2 + ' ' + name3 + ' ' + name4);
     }
 
-    TestNode make(const std::string &name1, const std::string &name2) const {
+    TestNode make(const std::string& name1, const std::string& name2) const {
         return make(name1 + ' ' + name2);
     }
 
-    TestNode make(const std::string &name) const { return TestNode(name); }
+    TestNode make(const std::string& name) const { return TestNode(name); }
 };
 
 class CConcreteHierarchicalResultsLevelSet
     : public ml::model::CHierarchicalResultsLevelSet<TestNode> {
 public:
-    CConcreteHierarchicalResultsLevelSet(const TestNode &root)
+    CConcreteHierarchicalResultsLevelSet(const TestNode& root)
         : ml::model::CHierarchicalResultsLevelSet<TestNode>(root) {}
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
-                       const TNode & /*node*/,
+    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
+                       const TNode& /*node*/,
                        bool /*pivot*/) {}
 
     // make public
     using ml::model::CHierarchicalResultsLevelSet<TestNode>::elements;
 };
 
-void print(const TestNode *node) { std::cout << "'" << node->s_Name << "'" << std::endl; }
+void print(const TestNode* node) {
+    std::cout << "'" << node->s_Name << "'" << std::endl;
+}
 
 void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation(void) {
     // This is intentionally NOT an empty string from the string store, but
@@ -103,7 +105,7 @@ void CHierarchicalResultsLevelSetTest::testElementsWithPerPartitionNormalisation
     node.s_Parent = &parent;
     node.s_Children.push_back(&child);
 
-    std::vector<TestNode *> result;
+    std::vector<TestNode*> result;
 
     // without per partition normalization
     {

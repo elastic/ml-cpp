@@ -18,21 +18,25 @@
 
 #include <sstream>
 
-CppUnit::Test *CJsonStateRestoreTraverserTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CJsonStateRestoreTraverserTest");
+CppUnit::Test* CJsonStateRestoreTraverserTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStateRestoreTraverserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
-        "CJsonStateRestoreTraverserTest::testRestore1",
-        &CJsonStateRestoreTraverserTest::testRestore1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
-        "CJsonStateRestoreTraverserTest::testRestore2",
-        &CJsonStateRestoreTraverserTest::testRestore2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
-        "CJsonStateRestoreTraverserTest::testRestore3",
-        &CJsonStateRestoreTraverserTest::testRestore3));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
-        "CJsonStateRestoreTraverserTest::testRestore4",
-        &CJsonStateRestoreTraverserTest::testRestore4));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CJsonStateRestoreTraverserTest>("CJsonStateRestoreTraverserTest::testRestore1",
+                                            &CJsonStateRestoreTraverserTest::testRestore1));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CJsonStateRestoreTraverserTest>("CJsonStateRestoreTraverserTest::testRestore2",
+                                            &CJsonStateRestoreTraverserTest::testRestore2));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CJsonStateRestoreTraverserTest>("CJsonStateRestoreTraverserTest::testRestore3",
+                                            &CJsonStateRestoreTraverserTest::testRestore3));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CJsonStateRestoreTraverserTest>("CJsonStateRestoreTraverserTest::testRestore4",
+                                            &CJsonStateRestoreTraverserTest::testRestore4));
     suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStateRestoreTraverserTest>(
         "CJsonStateRestoreTraverserTest::testParsingBooleanFields",
         &CJsonStateRestoreTraverserTest::testParsingBooleanFields));
@@ -48,7 +52,7 @@ CppUnit::Test *CJsonStateRestoreTraverserTest::suite() {
 
 namespace {
 
-bool traverse2ndLevel(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse2ndLevel(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level2A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("3.14"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -61,7 +65,7 @@ bool traverse2ndLevel(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse1stLevel1(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse1stLevel1(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level1A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -78,7 +82,7 @@ bool traverse1stLevel1(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse1stLevel2(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse1stLevel2(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level1A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -99,7 +103,7 @@ bool traverse1stLevel2(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse2ndLevelEmpty(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse2ndLevelEmpty(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT(traverser.name().empty());
     CPPUNIT_ASSERT(traverser.value().empty());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -108,7 +112,7 @@ bool traverse2ndLevelEmpty(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse1stLevel3(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse1stLevel3(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level1A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());
@@ -129,7 +133,7 @@ bool traverse1stLevel3(ml::core::CStateRestoreTraverser &traverser) {
     return true;
 }
 
-bool traverse1stLevel4(ml::core::CStateRestoreTraverser &traverser) {
+bool traverse1stLevel4(ml::core::CStateRestoreTraverser& traverser) {
     CPPUNIT_ASSERT_EQUAL(std::string("level1A"), traverser.name());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), traverser.value());
     CPPUNIT_ASSERT(!traverser.hasSubLevel());

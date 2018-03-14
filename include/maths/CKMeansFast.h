@@ -39,7 +39,7 @@ typedef std::vector<std::size_t> TSizeVec;
 
 //! Get the closest filtered centre to \p point.
 template <typename POINT, typename ITR>
-std::size_t closest(const std::vector<POINT> &centres, ITR filter, ITR end, const POINT &point) {
+std::size_t closest(const std::vector<POINT>& centres, ITR filter, ITR end, const POINT& point) {
     std::size_t result = *filter;
     double d = (point - centres[result]).euclidean();
     for (++filter; filter != end; ++filter) {
@@ -54,7 +54,7 @@ std::size_t closest(const std::vector<POINT> &centres, ITR filter, ITR end, cons
 
 //! Get the closest filtered centre to \p point.
 template <typename POINT>
-std::size_t closest(const std::vector<POINT> &centres, const TSizeVec &filter, const POINT &point) {
+std::size_t closest(const std::vector<POINT>& centres, const TSizeVec& filter, const POINT& point) {
     return closest(centres, filter.begin(), filter.end(), point);
 }
 }
@@ -79,7 +79,8 @@ std::size_t closest(const std::vector<POINT> &centres, const TSizeVec &filter, c
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template <typename POINT> class CKMeansFast {
+template <typename POINT>
+class CKMeansFast {
 public:
     typedef std::vector<std::size_t> TSizeVec;
     typedef std::pair<POINT, POINT> TPointPointPr;
@@ -98,13 +99,13 @@ public:
 
         //! Check for equality using checksum and then points if the
         //! checksum is ambiguous.
-        bool operator==(const CCluster &other) const {
+        bool operator==(const CCluster& other) const {
             return m_Checksum == other.m_Checksum && m_Points == other.m_Points;
         }
 
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
-        bool operator<(const CCluster &rhs) const {
+        bool operator<(const CCluster& rhs) const {
             return m_Checksum < rhs.m_Checksum ||
                    (m_Checksum == rhs.m_Checksum && m_Points < rhs.m_Points);
         }
@@ -113,18 +114,18 @@ public:
         std::size_t size(void) const { return m_Points.size(); }
 
         //! Set the cluster centre.
-        void centre(const POINT &centre) { m_Centre = centre; }
+        void centre(const POINT& centre) { m_Centre = centre; }
         //! Get the cluster centre.
-        const POINT &centre(void) const { return m_Centre; }
+        const POINT& centre(void) const { return m_Centre; }
 
         //! Swap the points into place and recalculate the checksum.
-        void points(TPointVec &points) {
+        void points(TPointVec& points) {
             m_Points.swap(points);
             std::sort(m_Points.begin(), m_Points.end());
             m_Checksum = CChecksum::calculate(0, m_Points);
         }
         //! Get the cluster points.
-        const TPointVec &points(void) const { return m_Points; }
+        const TPointVec& points(void) const { return m_Points; }
 
         //! Get the cluster checksum.
         uint64_t checksum(void) const { return m_Checksum; }
@@ -160,24 +161,24 @@ protected:
     class CKdTreeNodeData {
     public:
         CKdTreeNodeData(void) {}
-        explicit CKdTreeNodeData(const POINT &x) : m_BoundingBox(x), m_Centroid() {
+        explicit CKdTreeNodeData(const POINT& x) : m_BoundingBox(x), m_Centroid() {
             m_Centroid.add(x);
         }
 
         //! Get the bounding box.
-        const TBoundingBox &boundingBox(void) const { return m_BoundingBox; }
+        const TBoundingBox& boundingBox(void) const { return m_BoundingBox; }
 
         //! Get the centroid.
-        const TMeanAccumulator &centroid(void) const { return m_Centroid; }
+        const TMeanAccumulator& centroid(void) const { return m_Centroid; }
 
         //! Combine the bounding boxes and centroids.
-        void add(const CKdTreeNodeData &other) const {
+        void add(const CKdTreeNodeData& other) const {
             m_BoundingBox.add(other.m_BoundingBox);
             m_Centroid += other.m_Centroid;
         }
 
         //! Add \p x to the bounding box and centroid.
-        void add(const POINT &x) const {
+        void add(const POINT& x) const {
             m_BoundingBox.add(x);
             m_Centroid.add(x);
         }
@@ -206,7 +207,7 @@ protected:
     //! the data onto the k-d tree nodes.
     struct SDataPropagator {
         //! Propagate the data to \p node.
-        bool operator()(const TNode &node) const {
+        bool operator()(const TNode& node) const {
             node.clear();
             node.add(node.s_Point);
             this->propagate(node.s_LeftChild, node);
@@ -215,7 +216,7 @@ protected:
         }
 
         //! Update \p data with the data from \p child.
-        void propagate(const TNode *child, const CKdTreeNodeData &data) const {
+        void propagate(const TNode* child, const CKdTreeNodeData& data) const {
             if (child) {
                 data.add(*child);
             }
@@ -239,7 +240,7 @@ protected:
         //! of points than a specified point.
         class CFurtherFrom {
         public:
-            CFurtherFrom(const TBoundingBox &bb_, std::size_t x_, const TPointVec &centres_)
+            CFurtherFrom(const TBoundingBox& bb_, std::size_t x_, const TPointVec& centres_)
                 : bb(&bb_), x(x_), centres(&centres_) {}
 
             bool operator()(std::size_t y) const {
@@ -247,22 +248,22 @@ protected:
             }
 
         private:
-            const TBoundingBox *bb;
+            const TBoundingBox* bb;
             std::size_t x;
-            const TPointVec *centres;
+            const TPointVec* centres;
         };
 
     public:
-        explicit CCentreFilter(const TPointVec &centres)
+        explicit CCentreFilter(const TPointVec& centres)
             : m_Centres(&centres),
               m_Filter(boost::counting_iterator<std::size_t>(0),
                        boost::counting_iterator<std::size_t>(centres.size())) {}
 
         //! Get the centres.
-        const TPointVec &centres(void) const { return *m_Centres; }
+        const TPointVec& centres(void) const { return *m_Centres; }
 
         //! Get the filter.
-        const TSizeVec &filter(void) const { return m_Filter; }
+        const TSizeVec& filter(void) const { return m_Filter; }
 
         //! Update the filter with to remove all centres which
         //! are further from \p bb than one of the current centres
@@ -281,7 +282,7 @@ protected:
         //! closer to the bounding box of the points in a branch
         //! the traversal can terminate and update the centre with
         //! their centroid.
-        void prune(const TBoundingBox &bb) {
+        void prune(const TBoundingBox& bb) {
             namespace detail = kmeans_fast_detail;
 
             if (m_Filter.size() > 1) {
@@ -295,7 +296,7 @@ protected:
 
     private:
         //! The current centres.
-        const TPointVec *m_Centres;
+        const TPointVec* m_Centres;
 
         //! The centres which could be closer to one of the points
         //! in the current branch of the k-d tree.
@@ -313,23 +314,23 @@ protected:
     //! of its assigned points.
     class CCentroidComputer {
     public:
-        CCentroidComputer(const TPointVec &centres, TMeanAccumulatorVec &centroids)
+        CCentroidComputer(const TPointVec& centres, TMeanAccumulatorVec& centroids)
             : m_Centres(centres), m_Centroids(&centroids) {}
 
         //! Update the centres with \p node.
         //!
         //! \return True if we need to recurse and false otherwise.
-        bool operator()(const TNode &node) {
+        bool operator()(const TNode& node) {
             namespace detail = kmeans_fast_detail;
 
             m_Centres.prune(node.boundingBox());
-            const TSizeVec &filter = m_Centres.filter();
+            const TSizeVec& filter = m_Centres.filter();
             if (filter.size() == 1) {
                 (*m_Centroids)[filter[0]] += node.centroid();
                 return false;
             } else {
-                const TPointVec &centres = m_Centres.centres();
-                const POINT &point = node.s_Point;
+                const TPointVec& centres = m_Centres.centres();
+                const POINT& point = node.s_Point;
                 (*m_Centroids)[detail::closest(centres, filter, point)].add(point);
             }
             return true;
@@ -340,7 +341,7 @@ protected:
         CCentreFilter m_Centres;
 
         //! Compute the new cluster centres.
-        TMeanAccumulatorVec *m_Centroids;
+        TMeanAccumulatorVec* m_Centroids;
     };
 
     //! \brief Extracts the closest points to each centre from a
@@ -353,8 +354,8 @@ protected:
     class CClosestPointsCollector {
     public:
         CClosestPointsCollector(std::size_t numberPoints,
-                                const TPointVec &centres,
-                                TPointVecVec &closestPoints)
+                                const TPointVec& centres,
+                                TPointVecVec& closestPoints)
             : m_Centres(&centres), m_ClosestPoints(&closestPoints) {
             m_ClosestPoints->resize(centres.size());
             for (std::size_t i = 0u; i < m_ClosestPoints->size(); ++i) {
@@ -365,10 +366,10 @@ protected:
 
         //! Add \p node's point to the closest centre's nearest
         //! point collection.
-        void operator()(const TNode &node) {
+        void operator()(const TNode& node) {
             namespace detail = kmeans_fast_detail;
             std::size_t n = m_Centres->size();
-            const POINT &point = node.s_Point;
+            const POINT& point = node.s_Point;
             (*m_ClosestPoints)[detail::closest(*m_Centres,
                                                boost::counting_iterator<std::size_t>(0),
                                                boost::counting_iterator<std::size_t>(n),
@@ -377,8 +378,8 @@ protected:
         }
 
     private:
-        const TPointVec *m_Centres;
-        TPointVecVec *m_ClosestPoints;
+        const TPointVec* m_Centres;
+        TPointVecVec* m_ClosestPoints;
     };
 
 public:
@@ -388,11 +389,11 @@ public:
     //! Set the points to cluster.
     //!
     //! \note \p points are reordered by this operation.
-    bool setPoints(TPointVec &points) {
+    bool setPoints(TPointVec& points) {
         m_Points.build(points);
         try {
             m_Points.postorderDepthFirst(SDataPropagator());
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to set up k-d tree state: " << e.what());
             return false;
         }
@@ -402,7 +403,7 @@ public:
     //! Set the initial centres to use.
     //!
     //! \note These are swapped in to place.
-    void setCentres(TPointVec &centres) { m_Centres.swap(centres); }
+    void setCentres(TPointVec& centres) { m_Centres.swap(centres); }
 
     //! A run of the k-means algorithm using at most \p maxIterations
     //! of Lloyd's algorithm.
@@ -423,7 +424,7 @@ public:
     //! Get the clusters.
     //!
     //! \param[out] result Filled in with the k clusters.
-    void clusters(TClusterVec &result) const {
+    void clusters(TClusterVec& result) const {
         result.clear();
         if (m_Centres.empty()) {
             return;
@@ -441,7 +442,7 @@ public:
     //!
     //! \param[out] result Filled in with the closest point to each
     //! of the k centres.
-    void clusters(TPointVecVec &result) const {
+    void clusters(TPointVecVec& result) const {
         result.clear();
         if (m_Centres.empty()) {
             return;
@@ -451,7 +452,7 @@ public:
     }
 
     //! Get the cluster centres.
-    const TPointVec &centres(void) const { return m_Centres; }
+    const TPointVec& centres(void) const { return m_Centres; }
 
 private:
     //! Single iteration of Lloyd's algorithm to update \p centres.
@@ -494,14 +495,14 @@ public:
     typedef std::vector<POINT> TPointVec;
 
 public:
-    CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {}
+    CKMeansPlusPlusInitialization(RNG& rng) : m_Rng(rng) {}
 
     //! Run the k-means++ centre selection algorithm on \p points.
     //!
     //! \param[in] points The points to cluster.
     //! \param[in] k The number of seed centres to generate.
     //! \param[out] result Filled in with the seed centres.
-    void run(const TPointVec &points, std::size_t k, TPointVec &result) const {
+    void run(const TPointVec& points, std::size_t k, TPointVec& result) const {
         result.clear();
         if (points.empty() || k == 0) {
             return;
@@ -531,7 +532,7 @@ public:
             centres.build(centres_);
 
             for (std::size_t j = 0u; j < n; ++j) {
-                const POINT *nn = centres.nearestNeighbour(points[j]);
+                const POINT* nn = centres.nearestNeighbour(points[j]);
                 distances[j] = nn ? square((points[j] - *nn).euclidean()) : 0.0;
             }
 
@@ -549,9 +550,9 @@ private:
 
 private:
     //! The random number generator.
-    RNG &m_Rng;
+    RNG& m_Rng;
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CKMeansFast_h
+#endif // INCLUDED_ml_maths_CKMeansFast_h

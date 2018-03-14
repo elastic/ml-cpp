@@ -35,15 +35,15 @@
 using namespace ml;
 
 namespace {
-size_t countBuckets(const std::string &key, const std::string &output) {
+size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT(doc.IsArray());
 
-    const rapidjson::Value &allRecords = doc.GetArray();
-    for (auto &r : allRecords.GetArray()) {
+    const rapidjson::Value& allRecords = doc.GetArray();
+    for (auto& r : allRecords.GetArray()) {
         rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
         if (recordsIt != r.GetObject().MemberEnd()) {
             ++count;
@@ -59,9 +59,9 @@ core_t::TTime playData(core_t::TTime start,
                        int numPeople,
                        int numPartitions,
                        int anomaly,
-                       api::CAnomalyJob &job) {
-    std::string people[] = {
-        "Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
+                       api::CAnomalyJob& job) {
+    std::string people[] =
+        {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
         LOG_ERROR("Too many people: " << numPeople);
         return start;
@@ -97,24 +97,24 @@ core_t::TTime playData(core_t::TTime start,
 
 //! Helper class to look up a string in core::CStoredStringPtr set
 struct SLookup {
-    std::size_t operator()(const std::string &key) const {
+    std::size_t operator()(const std::string& key) const {
         boost::hash<std::string> hasher;
         return hasher(key);
     }
 
-    bool operator()(const std::string &lhs, const core::CStoredStringPtr &rhs) const {
+    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const {
         return lhs == *rhs;
     }
 };
 
-}// namespace
+} // namespace
 
-bool CStringStoreTest::nameExists(const std::string &string) {
+bool CStringStoreTest::nameExists(const std::string& string) {
     model::CStringStore::TStoredStringPtrUSet names = model::CStringStore::names().m_Strings;
     return names.find(string, ::SLookup(), ::SLookup()) != names.end();
 }
 
-bool CStringStoreTest::influencerExists(const std::string &string) {
+bool CStringStoreTest::influencerExists(const std::string& string) {
     model::CStringStore::TStoredStringPtrUSet names = model::CStringStore::influencers().m_Strings;
     return names.find(string, ::SLookup(), ::SLookup()) != names.end();
 }
@@ -638,11 +638,12 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
     }
 }
 
-CppUnit::Test *CStringStoreTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
+CppUnit::Test* CStringStoreTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
-        "CStringStoreTest::testPersonStringPruning", &CStringStoreTest::testPersonStringPruning));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning",
+                                                  &CStringStoreTest::testPersonStringPruning));
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testAttributeStringPruning",
                                                   &CStringStoreTest::testAttributeStringPruning));

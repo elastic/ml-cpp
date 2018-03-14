@@ -38,10 +38,10 @@ class CDataCountStatistics;
 //! for which this behavior has been observed.
 class CONFIG_EXPORT CPolledDataPenalty : public CPenalty {
 public:
-    CPolledDataPenalty(const CAutoconfigurerParams &params);
+    CPolledDataPenalty(const CAutoconfigurerParams& params);
 
     //! Create a copy on the heap.
-    virtual CPolledDataPenalty *clone(void) const;
+    virtual CPolledDataPenalty* clone(void) const;
 
     //! Get the name of this penalty.
     virtual std::string name(void) const;
@@ -51,12 +51,12 @@ private:
 
 private:
     //! Compute a penalty for rare detectors.
-    virtual void penaltyFromMe(CDetectorSpecification &spec) const;
+    virtual void penaltyFromMe(CDetectorSpecification& spec) const;
 
     //! Get the interval at which the data are polled if there is one.
-    TOptionalTime pollingInterval(const CDataCountStatistics &stats) const;
+    TOptionalTime pollingInterval(const CDataCountStatistics& stats) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_config_CPolledDataPenalty_h
+#endif // INCLUDED_ml_config_CPolledDataPenalty_h

@@ -58,7 +58,7 @@ class MATHS_EXPORT COneOfNPrior : public CPrior {
 public:
     typedef boost::shared_ptr<CPrior> TPriorPtr;
     typedef std::vector<TPriorPtr> TPriorPtrVec;
-    typedef std::vector<const CPrior *> TPriorCPtrVec;
+    typedef std::vector<const CPrior*> TPriorCPtrVec;
     typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
     typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
 
@@ -81,7 +81,7 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
-    COneOfNPrior(const TPriorPtrVec &models, maths_t::EDataType dataType, double decayRate = 0.0);
+    COneOfNPrior(const TPriorPtrVec& models, maths_t::EDataType dataType, double decayRate = 0.0);
 
     //! Create with a weighted collection of models.
     //!
@@ -91,15 +91,15 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which we revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
-    COneOfNPrior(const TDoublePriorPtrPrVec &models,
+    COneOfNPrior(const TDoublePriorPtrPrVec& models,
                  maths_t::EDataType dataType,
                  double decayRate = 0.0);
 
     //! Construct from part of a state document.
-    COneOfNPrior(const SDistributionRestoreParams &params, core::CStateRestoreTraverser &traverser);
+    COneOfNPrior(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Implements value semantics for copy construction.
-    COneOfNPrior(const COneOfNPrior &other);
+    COneOfNPrior(const COneOfNPrior& other);
 
     //! Implements value semantics for assignment.
     //!
@@ -107,10 +107,10 @@ public:
     //! \return The newly updated model.
     //! \note That this class has value semantics: this overwrites the current
     //! collection of models.
-    COneOfNPrior &operator=(const COneOfNPrior &rhs);
+    COneOfNPrior& operator=(const COneOfNPrior& rhs);
 
     //! Efficient swap of the contents of this prior and \p other.
-    void swap(COneOfNPrior &other);
+    void swap(COneOfNPrior& other);
     //@}
 
     //! \name Prior Contract
@@ -122,7 +122,7 @@ public:
     //!
     //! \return A pointer to a newly allocated clone of this model.
     //! \warning The caller owns the object returned.
-    virtual COneOfNPrior *clone(void) const;
+    virtual COneOfNPrior* clone(void) const;
 
     //! Set the data type.
     virtual void dataType(maths_t::EDataType value);
@@ -134,7 +134,7 @@ public:
     virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
 
     //! Remove models marked by \p filter.
-    virtual void removeModels(CModelFilter &filter);
+    virtual void removeModels(CModelFilter& filter);
 
     //! Check if any of the models needs an offset to be applied.
     virtual bool needsOffset(void) const;
@@ -142,9 +142,9 @@ public:
     //! Forward the offset to the model priors.
     //!
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec &weightStyles,
-                                const TDouble1Vec &samples,
-                                const TDouble4Vec1Vec &weights);
+    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
+                                const TDouble1Vec& samples,
+                                const TDouble4Vec1Vec& weights);
 
     //! Get the maximum model offset.
     virtual double offset(void) const;
@@ -157,9 +157,9 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec &weightStyles,
-                            const TDouble1Vec &samples,
-                            const TDouble4Vec1Vec &weights);
+    virtual void addSamples(const TWeightStyleVec& weightStyles,
+                            const TDouble1Vec& samples,
+                            const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -182,13 +182,13 @@ public:
 
     //! Get the mode of the marginal likelihood function.
     virtual double
-    marginalLikelihoodMode(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                           const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec &weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                               const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -205,8 +205,8 @@ public:
     //! \note \p percentage should be in the range (0.0, 100.0].
     virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
-        const TWeightStyleVec &weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec &weights = TWeights::UNIT) const;
+        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+        const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.
@@ -220,10 +220,10 @@ public:
     //! \note The samples are assumed to be independent and identically
     //! distributed.
     virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                               const TDouble1Vec &samples,
-                               const TDouble4Vec1Vec &weights,
-                               double &result) const;
+    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                               const TDouble1Vec& samples,
+                               const TDouble4Vec1Vec& weights,
+                               double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -235,16 +235,16 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec &samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
 
 private:
     //! The common c.d.f. implementation.
     bool minusLogJointCdfImpl(bool complement,
-                              const TWeightStyleVec &weightStyles,
-                              const TDouble1Vec &samples,
-                              const TDouble4Vec1Vec &weights,
-                              double &lowerBound,
-                              double &upperBound) const;
+                              const TWeightStyleVec& weightStyles,
+                              const TDouble1Vec& samples,
+                              const TDouble4Vec1Vec& weights,
+                              double& lowerBound,
+                              double& upperBound) const;
 
 public:
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
@@ -265,11 +265,11 @@ public:
     //! \warning The variance scales must be in the range \f$(0,\infty)\f$,
     //! i.e. a value of zero is not well defined and a value of infinity is
     //! not well handled. (Very large values are handled though.)
-    virtual bool minusLogJointCdf(const TWeightStyleVec &weightStyles,
-                                  const TDouble1Vec &samples,
-                                  const TDouble4Vec1Vec &weights,
-                                  double &lowerBound,
-                                  double &upperBound) const;
+    virtual bool minusLogJointCdf(const TWeightStyleVec& weightStyles,
+                                  const TDouble1Vec& samples,
+                                  const TDouble4Vec1Vec& weights,
+                                  double& lowerBound,
+                                  double& upperBound) const;
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
     //! marginal likelihood at \p samples without losing precision due to
@@ -277,11 +277,11 @@ public:
     //! can return is the minimum double rather than epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TWeightStyleVec &weightStyles,
-                                            const TDouble1Vec &samples,
-                                            const TDouble4Vec1Vec &weights,
-                                            double &lowerBound,
-                                            double &upperBound) const;
+    virtual bool minusLogJointCdfComplement(const TWeightStyleVec& weightStyles,
+                                            const TDouble1Vec& samples,
+                                            const TDouble4Vec1Vec& weights,
+                                            double& lowerBound,
+                                            double& upperBound) const;
 
     //! Compute the probability of a less likely, i.e. lower likelihood,
     //! collection of independent samples from the variable.
@@ -304,12 +304,12 @@ public:
     //! i.e. a value of zero is not well defined and a value of infinity is
     //! not well handled. (Very large values are handled though.)
     virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TWeightStyleVec &weightStyles,
-                                                const TDouble1Vec &samples,
-                                                const TDouble4Vec1Vec &weights,
-                                                double &lowerBound,
-                                                double &upperBound,
-                                                maths_t::ETail &tail) const;
+                                                const TWeightStyleVec& weightStyles,
+                                                const TDouble1Vec& samples,
+                                                const TDouble4Vec1Vec& weights,
+                                                double& lowerBound,
+                                                double& upperBound,
+                                                maths_t::ETail& tail) const;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const;
@@ -318,7 +318,7 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string &indent, std::string &result) const;
+    virtual void print(const std::string& indent, std::string& result) const;
 
     //! Print the prior density function in a specified format.
     //!
@@ -338,7 +338,7 @@ public:
     virtual std::size_t staticSize(void) const;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
     //@}
 
     //! \name Test Functions
@@ -362,12 +362,12 @@ private:
 
 private:
     //! Read parameters from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser);
 
     //! Add a model vector entry reading parameters from \p traverser.
-    bool modelAcceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                     core::CStateRestoreTraverser &traverser);
+    bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                     core::CStateRestoreTraverser& traverser);
 
     //! Get the normalized model weights.
     TDoubleSizePr5Vec normalizedLogWeights(void) const;
@@ -388,4 +388,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_COneOfNPrior_h
+#endif // INCLUDED_ml_maths_COneOfNPrior_h

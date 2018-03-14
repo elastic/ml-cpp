@@ -58,15 +58,15 @@ public:
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken for
     //! a general purpose copy constructor.
-    CSampleCounts(bool isForPersistence, const CSampleCounts &other);
+    CSampleCounts(bool isForPersistence, const CSampleCounts& other);
 
-    CSampleCounts *cloneForPersistence(void) const;
+    CSampleCounts* cloneForPersistence(void) const;
 
     //! Persist the sample counts to a state document.
-    void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore some sample counts from a state document traverser.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the sample count identified by \p id.
     unsigned int count(std::size_t id) const;
@@ -75,7 +75,7 @@ public:
     double effectiveSampleCount(std::size_t id) const;
 
     //! Reset the sample count identified by \p id.
-    void resetSampleCount(const CDataGatherer &gatherer, std::size_t id);
+    void resetSampleCount(const CDataGatherer& gatherer, std::size_t id);
 
     //! Update the effective sample variances to reflect new sample for \p id.
     void updateSampleVariance(std::size_t id);
@@ -84,10 +84,10 @@ public:
     void updateMeanNonZeroBucketCount(std::size_t id, double count, double alpha);
 
     //! Refresh the sample count identified by \p id.
-    void refresh(const CDataGatherer &gatherer);
+    void refresh(const CDataGatherer& gatherer);
 
     //! Recycle the sample counts identified by \p idsToRemove.
-    void recycle(const TSizeVec &idsToRemove);
+    void recycle(const TSizeVec& idsToRemove);
 
     //! Remove all traces of attributes whose identifiers are
     //! greater than or equal to \p lowestIdToRemove.
@@ -97,7 +97,7 @@ public:
     void resize(std::size_t id);
 
     //! Get the sample counts checksum.
-    uint64_t checksum(const CDataGatherer &gatherer) const;
+    uint64_t checksum(const CDataGatherer& gatherer) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -113,7 +113,7 @@ private:
 
 private:
     //! Get the name of the entity identified by \p id.
-    const std::string &name(const CDataGatherer &gatherer, std::size_t id) const;
+    const std::string& name(const CDataGatherer& gatherer, std::size_t id) const;
 
 private:
     //! This overrides the sample counts if non-zero.
@@ -133,7 +133,7 @@ private:
     TMeanAccumulatorVec m_EffectiveSampleVariances;
 };
 
-}// model
-}// ml
+} // model
+} // ml
 
-#endif// INCLUDED_ml_model_CSampleCounts_h
+#endif // INCLUDED_ml_model_CSampleCounts_h

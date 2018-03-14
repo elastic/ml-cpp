@@ -86,18 +86,18 @@ public:
     //!
     //! \note This can fail if the supplied data are inconsistent in
     //! which case the state is set to bad.
-    static CStateMachine create(const TStrVec &alphabet,
-                                const TStrVec &states,
-                                const TSizeVecVec &transitionFunction,
+    static CStateMachine create(const TStrVec& alphabet,
+                                const TStrVec& states,
+                                const TSizeVecVec& transitionFunction,
                                 std::size_t state);
 
     //! \name Persistence
     //@{
     //! Initialize by reading state from \p traverser.
-    bool acceptRestoreTraverser(CStateRestoreTraverser &traverser);
+    bool acceptRestoreTraverser(CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter.
-    void acceptPersistInserter(CStatePersistInserter &inserter) const;
+    void acceptPersistInserter(CStatePersistInserter& inserter) const;
     //@}
 
     //! Check if the machine is bad, i.e. not a valid state machine.
@@ -128,10 +128,10 @@ protected:
 private:
     //! \brief The state of a single machine.
     struct CORE_EXPORT SMachine {
-        SMachine(const TStrVec &alphabet,
-                 const TStrVec &states,
-                 const TSizeVecVec &transitionFunction);
-        SMachine(const SMachine &other);
+        SMachine(const TStrVec& alphabet,
+                 const TStrVec& states,
+                 const TSizeVecVec& transitionFunction);
+        SMachine(const SMachine& other);
 
         //! The alphabet of action symbols \f$\Sigma\f$.
         TStrVec s_Alphabet;
@@ -143,19 +143,19 @@ private:
 
     //! \brief A lightweight object to lookup a single machine.
     struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine> {
-        SLookupMachine(const TStrVec &alphabet,
-                       const TStrVec &states,
-                       const TSizeVecVec &transitionFunction);
+        SLookupMachine(const TStrVec& alphabet,
+                       const TStrVec& states,
+                       const TSizeVecVec& transitionFunction);
 
         //! Test if two machines are equal.
-        bool operator==(const SMachine &rhs) const;
+        bool operator==(const SMachine& rhs) const;
 
         //! The alphabet of action symbols \f$\Sigma\f$.
-        const TStrVec &s_Alphabet;
+        const TStrVec& s_Alphabet;
         //! The possible states \f$S\f$.
-        const TStrVec &s_States;
+        const TStrVec& s_States;
         //! The transition table \f$\delta : \Sigma \times S \rightarrow S\f$.
-        const TSizeVecVec &s_TransitionFunction;
+        const TSizeVecVec& s_TransitionFunction;
     };
 
     //! \brief A custom paired down std::deque like container.
@@ -189,13 +189,13 @@ private:
         void capacity(std::size_t capacity);
 
         //! Access the element at \p pos.
-        const SMachine &operator[](std::size_t pos) const;
+        const SMachine& operator[](std::size_t pos) const;
 
         //! Get the number of elements in this container.
         std::size_t size(void) const;
 
         //! Add a new element to the back of the collection.
-        void push_back(const SMachine &machine);
+        void push_back(const SMachine& machine);
 
         //! Remove all elements.
         void clear(void);
@@ -223,7 +223,7 @@ private:
     CStateMachine(void);
 
     //! Try to find \p machine in the range [\p begin, \p end).
-    static std::size_t find(std::size_t begin, std::size_t end, const SLookupMachine &machine);
+    static std::size_t find(std::size_t begin, std::size_t end, const SLookupMachine& machine);
 
 private:
     //! The machine identifier.
@@ -236,4 +236,4 @@ private:
 }
 }
 
-#endif// INCLUDE_CORE_CSTATEMACHINE_H_
+#endif // INCLUDE_CORE_CSTATEMACHINE_H_

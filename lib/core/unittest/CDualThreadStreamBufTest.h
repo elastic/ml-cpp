@@ -24,7 +24,7 @@ public:
     void testPutback(void);
     void testFatal(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CDualThreadStreamBufTest_h
+#endif // INCLUDED_CDualThreadStreamBufTest_h

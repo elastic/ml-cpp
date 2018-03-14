@@ -167,8 +167,11 @@ void CIntegerToolsTest::testGcd(void) {
                               indices.begin() + 6,
                               std::back_inserter(cf));
         TSizeVec tmp;
-        std::set_intersection(
-            cf.begin(), cf.end(), indices.begin() + 6, indices.end(), std::back_inserter(tmp));
+        std::set_intersection(cf.begin(),
+                              cf.end(),
+                              indices.begin() + 6,
+                              indices.end(),
+                              std::back_inserter(tmp));
         cf.swap(tmp);
         std::size_t gcd = 1;
         for (std::size_t j = 0u; j < cf.size(); ++j) {
@@ -220,17 +223,20 @@ void CIntegerToolsTest::testBinomial(void) {
     }
 }
 
-CppUnit::Test *CIntegerToolsTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
+CppUnit::Test* CIntegerToolsTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testNextPow2", &CIntegerToolsTest::testNextPow2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testReverseBits", &CIntegerToolsTest::testReverseBits));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testNextPow2",
+                                                   &CIntegerToolsTest::testNextPow2));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testReverseBits",
+                                                   &CIntegerToolsTest::testReverseBits));
     suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testGcd",
                                                                      &CIntegerToolsTest::testGcd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testBinomial", &CIntegerToolsTest::testBinomial));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CIntegerToolsTest>("CIntegerToolsTest::testBinomial",
+                                                   &CIntegerToolsTest::testBinomial));
 
     return suiteOfTests;
 }

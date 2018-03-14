@@ -27,7 +27,7 @@ namespace {
 const std::string EMPTY_STRING;
 }
 
-CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream &inputStream)
+CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream)
     : m_ReadStream(inputStream),
       m_Handler(),
       m_Started(false),
@@ -84,7 +84,7 @@ bool CJsonStateRestoreTraverser::nextObject(void) {
 
 bool CJsonStateRestoreTraverser::hasSubLevel(void) const {
     if (!m_Started) {
-        if (const_cast<CJsonStateRestoreTraverser *>(this)->start() == false) {
+        if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return false;
         }
     }
@@ -92,9 +92,9 @@ bool CJsonStateRestoreTraverser::hasSubLevel(void) const {
     return this->currentLevel() == 1 + m_DesiredLevel;
 }
 
-const std::string &CJsonStateRestoreTraverser::name(void) const {
+const std::string& CJsonStateRestoreTraverser::name(void) const {
     if (!m_Started) {
-        if (const_cast<CJsonStateRestoreTraverser *>(this)->start() == false) {
+        if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
         }
     }
@@ -102,9 +102,9 @@ const std::string &CJsonStateRestoreTraverser::name(void) const {
     return this->currentName();
 }
 
-const std::string &CJsonStateRestoreTraverser::value(void) const {
+const std::string& CJsonStateRestoreTraverser::value(void) const {
     if (!m_Started) {
-        if (const_cast<CJsonStateRestoreTraverser *>(this)->start() == false) {
+        if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
         }
     }
@@ -176,11 +176,11 @@ bool CJsonStateRestoreTraverser::currentIsEndOfLevel(void) const {
     return m_Handler.s_IsEndOfLevel[1 - m_Handler.s_NextIndex];
 }
 
-const std::string &CJsonStateRestoreTraverser::currentName(void) const {
+const std::string& CJsonStateRestoreTraverser::currentName(void) const {
     return m_Handler.s_Name[1 - m_Handler.s_NextIndex];
 }
 
-const std::string &CJsonStateRestoreTraverser::currentValue(void) const {
+const std::string& CJsonStateRestoreTraverser::currentValue(void) const {
     return m_Handler.s_Value[1 - m_Handler.s_NextIndex];
 }
 
@@ -192,11 +192,11 @@ bool CJsonStateRestoreTraverser::nextIsEndOfLevel(void) const {
     return m_Handler.s_IsEndOfLevel[m_Handler.s_NextIndex];
 }
 
-const std::string &CJsonStateRestoreTraverser::nextName(void) const {
+const std::string& CJsonStateRestoreTraverser::nextName(void) const {
     return m_Handler.s_Name[m_Handler.s_NextIndex];
 }
 
-const std::string &CJsonStateRestoreTraverser::nextValue(void) const {
+const std::string& CJsonStateRestoreTraverser::nextValue(void) const {
     return m_Handler.s_Value[m_Handler.s_NextIndex];
 }
 
@@ -295,7 +295,7 @@ bool CJsonStateRestoreTraverser::advance() {
 }
 
 void CJsonStateRestoreTraverser::logError(void) {
-    const char *error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
+    const char* error(rapidjson::GetParseError_En(m_Reader.GetParseErrorCode()));
     LOG_ERROR("Error parsing JSON at offset " << m_Reader.GetErrorOffset() << ": "
                                               << ((error != 0) ? error : "No message"));
     this->setBadState();
@@ -367,13 +367,13 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::Double(double d) {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::RawNumber(const char *,
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::RawNumber(const char*,
                                                               rapidjson::SizeType,
                                                               bool) {
     return false;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::String(const char *str,
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::String(const char* str,
                                                            rapidjson::SizeType length,
                                                            bool) {
     s_Type = E_TokenString;
@@ -393,7 +393,7 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::StartObject() {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::Key(const char *str,
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::Key(const char* str,
                                                         rapidjson::SizeType length,
                                                         bool) {
     s_Type = E_TokenKey;

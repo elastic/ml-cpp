@@ -43,10 +43,10 @@ class CInputParser;
 //!
 class API_EXPORT CCmdSkeleton : private core::CNonCopyable {
 public:
-    CCmdSkeleton(core::CDataSearcher *restoreSearcher,
-                 core::CDataAdder *persister,
-                 CInputParser &inputParser,
-                 CDataProcessor &processor);
+    CCmdSkeleton(core::CDataSearcher* restoreSearcher,
+                 core::CDataAdder* persister,
+                 CInputParser& inputParser,
+                 CDataProcessor& processor);
 
     //! Pass input to the processor until it's consumed as much as it can.
     bool ioLoop(void);
@@ -57,19 +57,19 @@ private:
 
 private:
     //! NULL if state restoration is not required.
-    core::CDataSearcher *m_RestoreSearcher;
+    core::CDataSearcher* m_RestoreSearcher;
 
     //! NULL if state persistence is not required.
-    core::CDataAdder *m_Persister;
+    core::CDataAdder* m_Persister;
 
     //! Input data parser.
-    CInputParser &m_InputParser;
+    CInputParser& m_InputParser;
 
     //! Reference to the object that's going to do the command-specific
     //! processing of the data.
-    CDataProcessor &m_Processor;
+    CDataProcessor& m_Processor;
 };
 }
 }
 
-#endif// INCLUDED_ml_api_CCmdSkeleton_h
+#endif // INCLUDED_ml_api_CCmdSkeleton_h

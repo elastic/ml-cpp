@@ -22,7 +22,7 @@ public:
     void testMinMatchingWeights(void);
     void testMaxMatchingWeights(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CBaseTokenListDataTyperTest_h
+#endif // INCLUDED_CBaseTokenListDataTyperTest_h

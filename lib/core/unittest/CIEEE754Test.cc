@@ -89,8 +89,8 @@ void CIEEE754Test::testRound(void) {
     }
 }
 
-CppUnit::Test *CIEEE754Test::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
+CppUnit::Test* CIEEE754Test::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CIEEE754Test>("CIEEE754Test::testRound", &CIEEE754Test::testRound));

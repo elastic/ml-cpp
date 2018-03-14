@@ -32,27 +32,27 @@ CRapidXmlParser::CRapidXmlParser(void) : m_XmlBufSize(0), m_NavigatedNode(0) {}
 
 CRapidXmlParser::~CRapidXmlParser(void) {}
 
-bool CRapidXmlParser::parseString(const std::string &xml) {
+bool CRapidXmlParser::parseString(const std::string& xml) {
     return this->parseBufferNonDestructive<rapidxml::parse_no_string_terminators>(xml.c_str(),
                                                                                   xml.length());
 }
 
-bool CRapidXmlParser::parseBuffer(const char *begin, size_t length) {
+bool CRapidXmlParser::parseBuffer(const char* begin, size_t length) {
     return this->parseBufferNonDestructive<rapidxml::parse_no_string_terminators>(begin, length);
 }
 
-bool CRapidXmlParser::parseBufferInSitu(char *begin, size_t length) {
+bool CRapidXmlParser::parseBufferInSitu(char* begin, size_t length) {
     return this->parseBufferDestructive<rapidxml::parse_no_string_terminators>(begin, length);
 }
 
-bool CRapidXmlParser::parseStringIgnoreCdata(const std::string &xml) {
+bool CRapidXmlParser::parseStringIgnoreCdata(const std::string& xml) {
     return this->parseBufferNonDestructive<rapidxml::parse_no_string_terminators |
                                            rapidxml::parse_no_data_nodes>(xml.c_str(),
                                                                           xml.length());
 }
 
 std::string CRapidXmlParser::rootElementName(void) const {
-    const TCharRapidXmlNode *root(m_Doc.first_node());
+    const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return std::string();
@@ -61,16 +61,16 @@ std::string CRapidXmlParser::rootElementName(void) const {
     return std::string(root->name(), root->name_size());
 }
 
-bool CRapidXmlParser::rootElementAttributes(TStrStrMap &rootAttributes) const {
+bool CRapidXmlParser::rootElementAttributes(TStrStrMap& rootAttributes) const {
     rootAttributes.clear();
 
-    const TCharRapidXmlNode *root(m_Doc.first_node());
+    const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
     }
 
-    for (const TCharRapidXmlAttribute *attr = root->first_attribute(); attr != 0;
+    for (const TCharRapidXmlAttribute* attr = root->first_attribute(); attr != 0;
          attr = attr->next_attribute()) {
         // NB: where there are multiple attributes with the same name this keeps
         //     the last one (only keeping one attribute with a given name is a
@@ -90,7 +90,7 @@ std::string CRapidXmlParser::dumpToString(void) const {
 }
 
 bool CRapidXmlParser::toNodeHierarchy(
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     // Because both the pool and the nodes use shared pointers, it doesn't
     // matter if the pool that originally allocates the nodes is destroyed
     // before the nodes themselves.  Hence we can get away with implementing
@@ -101,8 +101,8 @@ bool CRapidXmlParser::toNodeHierarchy(
 }
 
 bool CRapidXmlParser::toNodeHierarchy(
-    CStringCache &cache,
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+    CStringCache& cache,
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     // Because both the pool and the nodes use shared pointers, it doesn't
     // matter if the pool that originally allocates the nodes is destroyed
     // before the nodes themselves.  Hence we can get away with implementing
@@ -113,11 +113,11 @@ bool CRapidXmlParser::toNodeHierarchy(
 }
 
 bool CRapidXmlParser::toNodeHierarchy(
-    CXmlNodeWithChildrenPool &pool,
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+    CXmlNodeWithChildrenPool& pool,
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     rootNodePtr.reset();
 
-    const TCharRapidXmlNode *root(m_Doc.first_node());
+    const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
@@ -132,12 +132,12 @@ bool CRapidXmlParser::toNodeHierarchy(
 }
 
 bool CRapidXmlParser::toNodeHierarchy(
-    CXmlNodeWithChildrenPool &pool,
-    CStringCache &cache,
-    CXmlNodeWithChildren::TXmlNodeWithChildrenP &rootNodePtr) const {
+    CXmlNodeWithChildrenPool& pool,
+    CStringCache& cache,
+    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     rootNodePtr.reset();
 
-    const TCharRapidXmlNode *root(m_Doc.first_node());
+    const TCharRapidXmlNode* root(m_Doc.first_node());
     if (root == 0) {
         LOG_ERROR("Error getting root element");
         return false;
@@ -150,15 +150,15 @@ bool CRapidXmlParser::toNodeHierarchy(
 
     // Only use the cache if the current platform employs copy-on-write strings.
     // If all strings are distinct then the cache is pointless.
-    CStringCache *cachePtr(cache.haveCopyOnWriteStrings() ? &cache : 0);
+    CStringCache* cachePtr(cache.haveCopyOnWriteStrings() ? &cache : 0);
 
     return this->toNodeHierarchy(*root, pool, cachePtr, rootNodePtr);
 }
 
-bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
-                                      CXmlNodeWithChildrenPool &pool,
-                                      CStringCache *cache,
-                                      CXmlNodeWithChildren::TXmlNodeWithChildrenP &nodePtr) const {
+bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode& parentNode,
+                                      CXmlNodeWithChildrenPool& pool,
+                                      CStringCache* cache,
+                                      CXmlNodeWithChildren::TXmlNodeWithChildrenP& nodePtr) const {
     // Create the parent node
     nodePtr = pool.newNode();
 
@@ -181,7 +181,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     nodePtr->m_Value.assign(parentNode.value(), parentNode.value_size());
 
     size_t numAttributes(0);
-    const TCharRapidXmlAttribute *attr(parentNode.first_attribute());
+    const TCharRapidXmlAttribute* attr(parentNode.first_attribute());
     while (attr != 0) {
         ++numAttributes;
         attr = attr->next_attribute();
@@ -212,7 +212,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     }
 
     // Recursively add the children to the parent
-    const TCharRapidXmlNode *childNode(parentNode.first_node());
+    const TCharRapidXmlNode* childNode(parentNode.first_node());
     while (childNode != 0) {
         if (childNode->type() == rapidxml::node_element) {
             CXmlNodeWithChildren::TXmlNodeWithChildrenP childPtr;
@@ -244,7 +244,7 @@ bool CRapidXmlParser::navigateFirstChild(void) {
         return false;
     }
 
-    TCharRapidXmlNode *childNode(m_NavigatedNode->first_node());
+    TCharRapidXmlNode* childNode(m_NavigatedNode->first_node());
     while (childNode != 0) {
         if (childNode->type() == rapidxml::node_element) {
             m_NavigatedNode = childNode;
@@ -262,7 +262,7 @@ bool CRapidXmlParser::navigateNext(void) {
         return false;
     }
 
-    TCharRapidXmlNode *nextNode(m_NavigatedNode->next_sibling());
+    TCharRapidXmlNode* nextNode(m_NavigatedNode->next_sibling());
     while (nextNode != 0) {
         if (nextNode->type() == rapidxml::node_element) {
             m_NavigatedNode = nextNode;
@@ -280,7 +280,7 @@ bool CRapidXmlParser::navigateParent(void) {
         return false;
     }
 
-    TCharRapidXmlNode *parentNode(m_NavigatedNode->parent());
+    TCharRapidXmlNode* parentNode(m_NavigatedNode->parent());
     while (parentNode != 0) {
         if (parentNode->type() == rapidxml::node_element) {
             m_NavigatedNode = parentNode;
@@ -293,7 +293,7 @@ bool CRapidXmlParser::navigateParent(void) {
     return false;
 }
 
-bool CRapidXmlParser::currentNodeName(std::string &name) {
+bool CRapidXmlParser::currentNodeName(std::string& name) {
     if (m_NavigatedNode == 0) {
         return false;
     }
@@ -303,7 +303,7 @@ bool CRapidXmlParser::currentNodeName(std::string &name) {
     return true;
 }
 
-bool CRapidXmlParser::currentNodeValue(std::string &value) {
+bool CRapidXmlParser::currentNodeValue(std::string& value) {
     if (m_NavigatedNode == 0) {
         return false;
     }
@@ -317,7 +317,7 @@ bool CRapidXmlParser::currentNodeValue(std::string &value) {
     value.assign(m_NavigatedNode->value(), m_NavigatedNode->value_size());
 
     // Add any CDATA children to the value
-    const TCharRapidXmlNode *childNode(m_NavigatedNode->first_node());
+    const TCharRapidXmlNode* childNode(m_NavigatedNode->first_node());
     while (childNode != 0) {
         if (childNode->type() == rapidxml::node_cdata) {
             // Append CDATA text to the value - see comment above regarding
@@ -331,11 +331,11 @@ bool CRapidXmlParser::currentNodeValue(std::string &value) {
     return true;
 }
 
-void CRapidXmlParser::convert(const CXmlNodeWithChildren &root, std::string &result) {
+void CRapidXmlParser::convert(const CXmlNodeWithChildren& root, std::string& result) {
     CRapidXmlParser::convert(true, root, result);
 }
 
-void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren &root, std::string &result) {
+void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren& root, std::string& result) {
     // Create a temporary document
     TCharRapidXmlDocument doc;
 
@@ -344,21 +344,21 @@ void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren &root, std
     size_t approxLen(12 + nameLen * 2 + valueLen);
 
     // Root node
-    TCharRapidXmlNode *rootNode(doc.allocate_node(rapidxml::node_element,
+    TCharRapidXmlNode* rootNode(doc.allocate_node(rapidxml::node_element,
                                                   root.name().c_str(),
                                                   root.value().empty() ? 0 : root.value().c_str(),
                                                   nameLen,
                                                   valueLen));
     doc.append_node(rootNode);
 
-    const CXmlNode::TStrStrPrVec &attrs = root.attributes();
+    const CXmlNode::TStrStrPrVec& attrs = root.attributes();
 
     for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end(); ++attrIter) {
         nameLen = attrIter->first.length();
         valueLen = attrIter->second.length();
         approxLen += 5 + nameLen + valueLen;
 
-        TCharRapidXmlAttribute *attr(
+        TCharRapidXmlAttribute* attr(
             doc.allocate_attribute(attrIter->first.c_str(),
                                    attrIter->second.empty() ? 0 : attrIter->second.c_str(),
                                    nameLen,
@@ -379,16 +379,16 @@ void CRapidXmlParser::convert(bool indent, const CXmlNodeWithChildren &root, std
     }
 }
 
-void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
-                                      TCharRapidXmlDocument &doc,
-                                      TCharRapidXmlNode &xmlNode,
-                                      size_t &approxLen) {
-    const CXmlNodeWithChildren::TChildNodePVec &childVec = current.children();
+void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren& current,
+                                      TCharRapidXmlDocument& doc,
+                                      TCharRapidXmlNode& xmlNode,
+                                      size_t& approxLen) {
+    const CXmlNodeWithChildren::TChildNodePVec& childVec = current.children();
 
     // If a node has both children and a value, RapidXML requires that we add a
     // data node containing the value
     if (xmlNode.value_size() > 0 && !childVec.empty()) {
-        TCharRapidXmlNode *dataNode(
+        TCharRapidXmlNode* dataNode(
             doc.allocate_node(rapidxml::node_data, 0, xmlNode.value(), 0, xmlNode.value_size()));
         xmlNode.append_node(dataNode);
     }
@@ -396,13 +396,13 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
     for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin();
          childIter != childVec.end();
          ++childIter) {
-        const CXmlNodeWithChildren *child = childIter->get();
+        const CXmlNodeWithChildren* child = childIter->get();
         if (child != 0) {
             size_t nameLen(child->name().length());
             size_t valueLen(child->value().length());
             approxLen += 10 + nameLen * 2 + valueLen;
 
-            TCharRapidXmlNode *childNode(
+            TCharRapidXmlNode* childNode(
                 doc.allocate_node(rapidxml::node_element,
                                   child->name().c_str(),
                                   child->value().empty() ? 0 : child->value().c_str(),
@@ -410,7 +410,7 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
                                   valueLen));
             xmlNode.append_node(childNode);
 
-            const CXmlNode::TStrStrPrVec &attrs = child->attributes();
+            const CXmlNode::TStrStrPrVec& attrs = child->attributes();
 
             for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end();
                  ++attrIter) {
@@ -418,7 +418,7 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
                 valueLen = attrIter->second.length();
                 approxLen += 5 + nameLen + valueLen;
 
-                TCharRapidXmlAttribute *attr(
+                TCharRapidXmlAttribute* attr(
                     doc.allocate_attribute(attrIter->first.c_str(),
                                            attrIter->second.empty() ? 0 : attrIter->second.c_str(),
                                            nameLen,
@@ -432,7 +432,7 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren &current,
 }
 
 template <int FLAGS>
-bool CRapidXmlParser::parseBufferNonDestructive(const char *begin, size_t length) {
+bool CRapidXmlParser::parseBufferNonDestructive(const char* begin, size_t length) {
     if (m_XmlBufSize <= length) {
         m_XmlBufSize = length + 1;
         m_XmlBuf.reset(new char[m_XmlBufSize]);
@@ -449,12 +449,13 @@ bool CRapidXmlParser::parseBufferNonDestructive(const char *begin, size_t length
     return true;
 }
 
-template <int FLAGS> bool CRapidXmlParser::parseBufferDestructive(char *begin, size_t length) {
+template <int FLAGS>
+bool CRapidXmlParser::parseBufferDestructive(char* begin, size_t length) {
     m_Doc.clear();
     m_NavigatedNode = 0;
     try {
         m_Doc.parse<FLAGS>(begin);
-    } catch (rapidxml::parse_error &e) {
+    } catch (rapidxml::parse_error& e) {
         LOG_ERROR("Unable to parse XML of length " << length << ": " << e.what());
         return false;
     }

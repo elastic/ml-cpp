@@ -95,18 +95,22 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     return maths::CModelParams{bucketLength, learnRate, 0.0, minimumSeasonalVarianceScale};
 }
 
-std::size_t dimension(double) { return 1; }
-std::size_t dimension(const TDoubleVec &sample) { return sample.size(); }
+std::size_t dimension(double) {
+    return 1;
+}
+std::size_t dimension(const TDoubleVec& sample) {
+    return sample.size();
+}
 
 TTimeDouble2VecSizeTr sample(core_t::TTime time, double sample) {
     return core::make_triple(time, TDouble2Vec{sample}, std::size_t{0});
 }
-TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec &sample) {
+TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec& sample) {
     return core::make_triple(time, TDouble2Vec(sample), std::size_t{0});
 }
 
 template <typename SAMPLES>
-core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES &samples, maths::CModel &model) {
+core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::CModel& model) {
     TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(dimension(samples[0]))};
     maths::CModelAddSamplesParams params;
     params.integer(false)
@@ -115,7 +119,7 @@ core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES &samples, mat
         .trendWeights(weights)
         .priorWeights(weights);
     core_t::TTime time{0};
-    for (const auto &sample_ : samples) {
+    for (const auto& sample_ : samples) {
         model.addSamples(params, TTimeDouble2VecSizeTrVec{sample(time, sample_)});
         time += bucketLength;
     }
@@ -124,10 +128,10 @@ core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES &samples, mat
 
 void computeProbability(core_t::TTime time,
                         maths_t::EProbabilityCalculation calculation,
-                        const TDouble2Vec &sample,
-                        const maths::CModel &model,
-                        double &probablity,
-                        TTail2Vec &tail) {
+                        const TDouble2Vec& sample,
+                        const maths::CModel& model,
+                        double& probablity,
+                        TTail2Vec& tail) {
     TDouble2Vec4Vec weight{model.seasonalWeight(0.0, time)};
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation)
@@ -152,17 +156,17 @@ const std::string i3("i3");
 const std::string EMPTY_STRING;
 
 template <typename CALCULATOR>
-void computeInfluences(CALCULATOR &calculator,
+void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
-                       const maths::CModel &model,
+                       const maths::CModel& model,
                        core_t::TTime time,
                        double value,
                        double count,
                        double probability,
-                       const TTail2Vec &tail,
-                       const std::string &influencerName,
-                       const TStrCRefDouble1VecDoublePrPrVec &influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result) {
+                       const TTail2Vec& tail,
+                       const std::string& influencerName,
+                       const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
+                       TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
@@ -185,17 +189,17 @@ void computeInfluences(CALCULATOR &calculator,
 }
 
 template <typename CALCULATOR>
-void computeInfluences(CALCULATOR &calculator,
+void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
-                       const maths::CModel &model,
+                       const maths::CModel& model,
                        const core_t::TTime (&times)[2],
                        const double (&values)[2],
                        const double (&counts)[2],
                        double probability,
-                       const TTail2Vec &tail,
-                       const std::string &influencerName,
-                       const TStrCRefDouble1VecDouble1VecPrPrVec &influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result) {
+                       const TTail2Vec& tail,
+                       const std::string& influencerName,
+                       const TStrCRefDouble1VecDouble1VecPrPrVec& influencerValues,
+                       TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
@@ -227,11 +231,11 @@ void computeInfluences(CALCULATOR &calculator,
 }
 
 void testProbabilityAndGetInfluences(model_t::EFeature feature,
-                                     const maths::CModel &model,
+                                     const maths::CModel& model,
                                      core_t::TTime time_,
-                                     const TDoubleVecVec &values,
-                                     const TStrCRefDouble1VecDoublePrPrVecVec &influencerValues,
-                                     TStoredStringPtrStoredStringPtrPrDoublePrVec &influences) {
+                                     const TDoubleVecVec& values,
+                                     const TStrCRefDouble1VecDoublePrPrVecVec& influencerValues,
+                                     TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
@@ -252,7 +256,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
         TDouble2Vec1Vec value{TDouble2Vec(&values[i][0], &values[i][dimension])};
         TDouble2Vec4Vec weight(2, TDouble2Vec(dimension, values[i][dimension]));
         double count{0.0};
-        for (const auto &influence : influencerValues[i]) {
+        for (const auto& influence : influencerValues[i]) {
             count += influence.second.second;
         }
 
@@ -483,7 +487,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples) {
+                for (auto&& sample : samples) {
                     sample +=
                         100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
@@ -523,8 +527,9 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
                 for (std::size_t j = 0u; j < influences.size(); ++j) {
                     CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedInfluences[i][j], influences[j].second, 0.06);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j],
+                                                 influences[j].second,
+                                                 0.06);
                 }
             }
         }
@@ -806,10 +811,12 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void) {
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{12.5}, model, p, tail);
 
-                TStrCRefDouble1VecDoublePrPrVec influencerValues{
-                    {TStrCRef(i1), make_pair(20.0, 5.0)},
-                    {TStrCRef(i2), make_pair(10.0, 7.0)},
-                    {TStrCRef(i3), make_pair(10.0, 8.0)}};
+                TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1),
+                                                                  make_pair(20.0, 5.0)},
+                                                                 {TStrCRef(i2),
+                                                                  make_pair(10.0, 7.0)},
+                                                                 {TStrCRef(i3),
+                                                                  make_pair(10.0, 8.0)}};
 
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
@@ -835,8 +842,10 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void) {
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{15.0}, model, p, tail);
 
-                TStrCRefDouble1VecDoublePrPrVec influencerValues{
-                    {TStrCRef(i1), make_pair(15.0, 5.0)}, {TStrCRef(i2), make_pair(15.0, 6.0)}};
+                TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1),
+                                                                  make_pair(15.0, 5.0)},
+                                                                 {TStrCRef(i2),
+                                                                  make_pair(15.0, 6.0)}};
 
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
@@ -861,8 +870,10 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void) {
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{5.0}, model, p, tail);
 
-                TStrCRefDouble1VecDoublePrPrVec influencerValues{
-                    {TStrCRef(i1), make_pair(5.0, 5.0)}, {TStrCRef(i2), make_pair(5.0, 6.0)}};
+                TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1),
+                                                                  make_pair(5.0, 5.0)},
+                                                                 {TStrCRef(i2),
+                                                                  make_pair(5.0, 6.0)}};
 
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
@@ -887,10 +898,12 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void) {
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{8.0}, model, p, tail);
 
-                TStrCRefDouble1VecDoublePrPrVec influencerValues{
-                    {TStrCRef(i1), make_pair(5.0, 9.0)},
-                    {TStrCRef(i2), make_pair(11.0, 20.0)},
-                    {TStrCRef(i3), make_pair(5.0, 11.0)}};
+                TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1),
+                                                                  make_pair(5.0, 9.0)},
+                                                                 {TStrCRef(i2),
+                                                                  make_pair(11.0, 20.0)},
+                                                                 {TStrCRef(i3),
+                                                                  make_pair(5.0, 11.0)}};
 
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
@@ -1229,7 +1242,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples) {
+                for (auto&& sample : samples) {
                     sample +=
                         100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
@@ -1270,8 +1283,9 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                 std::sort(influences.begin(), influences.end(), maths::COrderings::SFirstLess());
                 for (std::size_t j = 0u; j < influences.size(); ++j) {
                     CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        expectedInfluences[i][j], influences[j].second, 0.03);
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j],
+                                                 influences[j].second,
+                                                 0.03);
                 }
             }
         }
@@ -1580,8 +1594,9 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     maths::CMultivariateNormalConjugate<2> multivariatePrior =
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
     maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0, trend, prior);
-    maths::CMultivariateTimeSeriesModel multivariateModel(
-        params(bucketLength), trend, multivariatePrior);
+    maths::CMultivariateTimeSeriesModel multivariateModel(params(bucketLength),
+                                                          trend,
+                                                          multivariatePrior);
 
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -1595,7 +1610,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
 
     model_t::TFeatureVec features{model_t::E_IndividualSumByBucketAndPerson,
                                   model_t::E_IndividualMeanLatLongByPerson};
-    const maths::CModel *models[]{&univariateModel, &multivariateModel};
+    const maths::CModel* models[]{&univariateModel, &multivariateModel};
 
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
@@ -1619,17 +1634,17 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                              {7.0, 12.0, 1.5},
                              {15.0, 10.0, 1.0},
                              {17.0, 22.0, 2.0}};
-        TStrCRefDouble1VecDoublePrPrVec influencerValues{
-            {TStrCRef(i2), make_pair(12.0, 1.0)},
-            {TStrCRef(i1), make_pair(15.0, 1.0)},
-            {TStrCRef(i2), make_pair(7.0, 1.0)},
-            {TStrCRef(i2), make_pair(9.0, 1.0)},
-            {TStrCRef(i1), make_pair(17.0, 1.0)},
-            {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)},
-            {TStrCRef(i1), make_pair(15.0, 20.0, 1.0)},
-            {TStrCRef(i2), make_pair(7.0, 12.0, 1.0)},
-            {TStrCRef(i2), make_pair(9.0, 14.0, 1.0)},
-            {TStrCRef(i1), make_pair(17.0, 22.0, 1.0)}};
+        TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i2), make_pair(12.0, 1.0)},
+                                                         {TStrCRef(i1), make_pair(15.0, 1.0)},
+                                                         {TStrCRef(i2), make_pair(7.0, 1.0)},
+                                                         {TStrCRef(i2), make_pair(9.0, 1.0)},
+                                                         {TStrCRef(i1), make_pair(17.0, 1.0)},
+                                                         {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)},
+                                                         {TStrCRef(i1), make_pair(15.0, 20.0, 1.0)},
+                                                         {TStrCRef(i2), make_pair(7.0, 12.0, 1.0)},
+                                                         {TStrCRef(i2), make_pair(9.0, 14.0, 1.0)},
+                                                         {TStrCRef(i1),
+                                                          make_pair(17.0, 22.0, 1.0)}};
 
         maths::CJointProbabilityOfLessLikelySamples pJoint;
         maths::CProbabilityOfExtremeSample pExtreme;
@@ -1673,8 +1688,9 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                 params.s_ComputeProbabilityParams = params_;
                 params.s_Probability = p;
                 params.s_Tail = tail;
-                calculator.addInfluences(
-                    I, TStrCRefDouble1VecDoublePrPrVec{influencerValues[i]}, params);
+                calculator.addInfluences(I,
+                                         TStrCRefDouble1VecDoublePrPrVec{influencerValues[i]},
+                                         params);
             }
         }
 
@@ -1697,30 +1713,42 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     {
         LOG_DEBUG("influencing joint probability");
 
-        TDoubleVecVec values[]{
-            TDoubleVecVec{{12.0, 1.0}, {15.0, 1.0}, {7.0, 1.5}, {9.0, 1.0}, {17.0, 2.0}},
-            TDoubleVecVec{{12.0, 17.0, 1.0},
-                          {15.0, 20.0, 1.0},
-                          {7.0, 12.0, 1.5},
-                          {9.0, 14.0, 1.0},
-                          {17.0, 22.0, 2.0}}};
-        TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(7.0, 1.5)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(9.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 2.0)}}},
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 20.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(7.0, 12.0, 1.5)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(9.0, 14.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
+        TDoubleVecVec
+            values[]{TDoubleVecVec{{12.0, 1.0}, {15.0, 1.0}, {7.0, 1.5}, {9.0, 1.0}, {17.0, 2.0}},
+                     TDoubleVecVec{{12.0, 17.0, 1.0},
+                                   {15.0, 20.0, 1.0},
+                                   {7.0, 12.0, 1.5},
+                                   {9.0, 14.0, 1.0},
+                                   {17.0, 22.0, 2.0}}};
+        TStrCRefDouble1VecDoublePrPrVecVec influencerValues
+            []{TStrCRefDouble1VecDoublePrPrVecVec{TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(12.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(15.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(7.0, 1.5)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(9.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(17.0, 2.0)}}},
+               TStrCRefDouble1VecDoublePrPrVecVec{TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(15.0, 20.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(7.0, 12.0, 1.5)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(9.0, 14.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
         for (std::size_t i = 0u; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-            testProbabilityAndGetInfluences(
-                features[i], *models[i], now, values[i], influencerValues[i], influences);
+            testProbabilityAndGetInfluences(features[i],
+                                            *models[i],
+                                            now,
+                                            values[i],
+                                            influencerValues[i],
+                                            influences);
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
@@ -1730,31 +1758,43 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     {
         LOG_DEBUG("influencing extreme probability");
 
-        TDoubleVecVec values[]{
-            TDoubleVecVec{{11.0, 1.0}, {10.5, 1.0}, {8.5, 1.5}, {10.8, 1.5}, {19.0, 1.0}},
-            TDoubleVecVec{{11.0, 16.0, 1.0},
-                          {10.5, 15.5, 1.0},
-                          {8.5, 13.5, 1.5},
-                          {10.8, 15.8, 1.5},
-                          {19.0, 24.0, 1.0}}};
-        TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(8.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 1.0)}}},
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(8.5, 13.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
+        TDoubleVecVec
+            values[]{TDoubleVecVec{{11.0, 1.0}, {10.5, 1.0}, {8.5, 1.5}, {10.8, 1.5}, {19.0, 1.0}},
+                     TDoubleVecVec{{11.0, 16.0, 1.0},
+                                   {10.5, 15.5, 1.0},
+                                   {8.5, 13.5, 1.5},
+                                   {10.8, 15.8, 1.5},
+                                   {19.0, 24.0, 1.0}}};
+        TStrCRefDouble1VecDoublePrPrVecVec influencerValues
+            []{TStrCRefDouble1VecDoublePrPrVecVec{TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(11.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(10.5, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(8.5, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(10.8, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(19.0, 1.0)}}},
+               TStrCRefDouble1VecDoublePrPrVecVec{TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(11.0, 16.0, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(10.5, 15.5, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(8.5, 13.5, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
+                                                  TStrCRefDouble1VecDoublePrPrVec{
+                                                      {TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
 
         for (std::size_t i = 0u; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-            testProbabilityAndGetInfluences(
-                features[i], *models[i], now, values[i], influencerValues[i], influences);
+            testProbabilityAndGetInfluences(features[i],
+                                            *models[i],
+                                            now,
+                                            values[i],
+                                            influencerValues[i],
+                                            influences);
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
             CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
             CPPUNIT_ASSERT_EQUAL(i2, *influences[0].first.second);
@@ -1764,36 +1804,36 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     {
         LOG_DEBUG("marginal influence");
 
-        TDoubleVecVec values[]{
-            TDoubleVecVec{{11.0, 1.0}, {10.5, 1.0}, {8.0, 1.0}, {10.8, 1.0}, {14.0, 1.0}},
-            TDoubleVecVec{{11.0, 16.0, 1.0},
-                          {10.5, 15.5, 1.0},
-                          {8.0, 13.0, 1.0},
-                          {10.8, 15.8, 1.0},
-                          {14.0, 19.0, 1.0}}};
-        TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(9.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(7.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.6, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(12.0, 1.0)}}},
-            TStrCRefDouble1VecDoublePrPrVecVec{
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 17.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.0, 15.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.5, 15.5, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(9.0, 14.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(7.0, 12.0, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(10.6, 15.6, 1.0)}},
-                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 21.0, 1.0)},
-                                                {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}}}};
+        TDoubleVecVec
+            values[]{TDoubleVecVec{{11.0, 1.0}, {10.5, 1.0}, {8.0, 1.0}, {10.8, 1.0}, {14.0, 1.0}},
+                     TDoubleVecVec{{11.0, 16.0, 1.0},
+                                   {10.5, 15.5, 1.0},
+                                   {8.0, 13.0, 1.0},
+                                   {10.8, 15.8, 1.0},
+                                   {14.0, 19.0, 1.0}}};
+        TStrCRefDouble1VecDoublePrPrVecVec influencerValues
+            []{TStrCRefDouble1VecDoublePrPrVecVec{
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.0, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.5, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(9.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(7.0, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.6, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(12.0, 1.0)}}},
+               TStrCRefDouble1VecDoublePrPrVecVec{
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 17.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.0, 15.0, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.5, 15.5, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(9.0, 14.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(7.0, 12.0, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(10.6, 15.6, 1.0)}},
+                   TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 21.0, 1.0)},
+                                                   {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}}}};
 
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
@@ -1826,8 +1866,8 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     }
 }
 
-CppUnit::Test *CProbabilityAndInfluenceCalculatorTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests =
+CppUnit::Test* CProbabilityAndInfluenceCalculatorTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CProbabilityAndInfluenceCalculatorTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(

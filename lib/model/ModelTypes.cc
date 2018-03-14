@@ -115,7 +115,7 @@ std::size_t dimension(EFeature feature) {
     return 1;
 }
 
-TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec &values) {
+TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec& values) {
     switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return values;
@@ -145,7 +145,7 @@ TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec &va
         case E_IndividualHighVarianceByPerson: {
             TDouble2Vec1Vec result;
             result.reserve(values.size());
-            for (const auto &value : values) {
+            for (const auto& value : values) {
                 result.push_back(TDouble2Vec(value.begin(), value.begin() + value.size() / 2));
             }
             return result;
@@ -176,7 +176,7 @@ TDouble2Vec1Vec stripExtraStatistics(EFeature feature, const TDouble2Vec1Vec &va
         case E_PopulationHighVarianceByPersonAndAttribute: {
             TDouble2Vec1Vec result;
             result.reserve(values.size());
-            for (const auto &value : values) {
+            for (const auto& value : values) {
                 result.push_back(TDouble2Vec(value.begin(), value.begin() + value.size() / 2));
             }
             return result;
@@ -651,7 +651,7 @@ double offsetCountToZero(EFeature feature, double count) {
     return count;
 }
 
-void offsetCountToZero(EFeature feature, TDouble1Vec &count) {
+void offsetCountToZero(EFeature feature, TDouble1Vec& count) {
     for (std::size_t i = 0u; i < count.size(); ++i) {
         count[i] = offsetCountToZero(feature, count[i]);
     }
@@ -699,7 +699,7 @@ double inverseOffsetCountToZero(EFeature feature, double count) {
     return count;
 }
 
-void inverseOffsetCountToZero(EFeature feature, TDouble1Vec &count) {
+void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
     for (std::size_t i = 0u; i < count.size(); ++i) {
         count[i] = inverseOffsetCountToZero(feature, count[i]);
     }
@@ -779,7 +779,7 @@ double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff)
     return 1.0;
 }
 
-double learnRate(EFeature feature, const model::SModelParams &params) {
+double learnRate(EFeature feature, const model::SModelParams& params) {
     return isDiurnal(feature) || isLatLong(feature) ? 1.0 : params.s_LearnRate;
 }
 
@@ -1460,7 +1460,7 @@ bool requiresInterimResultAdjustment(EFeature feature) {
     return false;
 }
 
-const std::string &outputFunctionName(EFeature feature) {
+const std::string& outputFunctionName(EFeature feature) {
     switch (feature) {
         // Individual event rate features
         case E_IndividualCountByBucketAndPerson:
@@ -1807,7 +1807,7 @@ std::string print(EFeature feature) {
     return "-";
 }
 
-bool metricCategory(EFeature feature, EMetricCategory &result) {
+bool metricCategory(EFeature feature, EMetricCategory& result) {
     switch (feature) {
     CASE_INDIVIDUAL_COUNT:
         return false;

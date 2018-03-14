@@ -45,7 +45,7 @@ double CEntropySketch::calculate(void) const {
     return -::log(h / static_cast<double>(m_Yi.size()));
 }
 
-void CEntropySketch::generateProjection(std::size_t category, TDoubleVec &projection) {
+void CEntropySketch::generateProjection(std::size_t category, TDoubleVec& projection) {
     CPRNG::CXorOShiro128Plus rng(category);
     CSampling::uniformSample(rng, 0.0, 1.0, 2 * m_Yi.size(), projection);
     for (std::size_t i = 0u; i < projection.size(); i += 2) {

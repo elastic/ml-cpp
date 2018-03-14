@@ -21,9 +21,11 @@
 namespace ml {
 namespace test {
 
-void CTestTimer::startTest(CppUnit::Test * /* test */) { m_StopWatch.reset(true); }
+void CTestTimer::startTest(CppUnit::Test* /* test */) {
+    m_StopWatch.reset(true);
+}
 
-void CTestTimer::endTest(CppUnit::Test *test) {
+void CTestTimer::endTest(CppUnit::Test* test) {
     if (test == 0) {
         LOG_ERROR("Unexpected NULL pointer");
         return;
@@ -31,13 +33,13 @@ void CTestTimer::endTest(CppUnit::Test *test) {
 
     uint64_t duration(m_StopWatch.stop());
 
-    const std::string &testName = test->getName();
+    const std::string& testName = test->getName();
     m_TestTimes[testName] = duration;
 
     LOG_INFO("Unit test timing - " << testName << " took " << duration << "ms");
 }
 
-uint64_t CTestTimer::timeForTest(const std::string &testName) const {
+uint64_t CTestTimer::timeForTest(const std::string& testName) const {
     TStrUInt64MapCItr iter = m_TestTimes.find(testName);
     if (iter == m_TestTimes.end()) {
         LOG_WARN("No timing for test named " << testName);

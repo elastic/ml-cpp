@@ -41,7 +41,7 @@ class CMutex;
 //!
 class CORE_EXPORT CCondition : private CNonCopyable {
 public:
-    CCondition(CMutex &);
+    CCondition(CMutex&);
     ~CCondition(void);
 
     //! Wait in current thread for signal - blocks.  The wait may be
@@ -65,12 +65,12 @@ public:
 private:
 #ifndef Windows
     //! Convert milliseconds to timespec
-    static bool convert(uint32_t, timespec &);
+    static bool convert(uint32_t, timespec&);
 #endif
 
 private:
     //! Reference to associated mutex
-    CMutex &m_Mutex;
+    CMutex& m_Mutex;
 
     //! The condition variable
 #ifdef Windows
@@ -82,4 +82,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CCondition_h
+#endif // INCLUDED_ml_core_CCondition_h

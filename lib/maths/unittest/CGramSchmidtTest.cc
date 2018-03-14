@@ -38,7 +38,7 @@ typedef std::vector<TVector4> TVector4Vec;
 namespace {
 
 template <typename T>
-void generate(test::CRandomNumbers &rng, std::size_t n, std::size_t d, std::vector<T> &x) {
+void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vector<T>& x) {
     LOG_DEBUG("n = " << n << ", d = " << d);
 
     TDoubleVec components;
@@ -50,21 +50,21 @@ void generate(test::CRandomNumbers &rng, std::size_t n, std::size_t d, std::vect
     }
 }
 
-void debug(const TDoubleVecVec &x) {
+void debug(const TDoubleVecVec& x) {
     LOG_DEBUG("x =");
     for (std::size_t i = 0u; i < x.size(); ++i) {
         LOG_DEBUG("  " << core::CContainerPrinter::print(x[i]));
     }
 }
 
-void debug(const TVector4Vec &x) {
+void debug(const TVector4Vec& x) {
     LOG_DEBUG("x =");
     for (std::size_t i = 0u; i < x.size(); ++i) {
         LOG_DEBUG("  " << x[i]);
     }
 }
 
-double inner(const TDoubleVec &x, const TDoubleVec &y) {
+double inner(const TDoubleVec& x, const TDoubleVec& y) {
     CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -73,7 +73,7 @@ double inner(const TDoubleVec &x, const TDoubleVec &y) {
     return result;
 }
 
-TDoubleVec multiply(const TDoubleVec &x, double s) {
+TDoubleVec multiply(const TDoubleVec& x, double s) {
     TDoubleVec result = x;
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result[i] *= s;
@@ -81,7 +81,7 @@ TDoubleVec multiply(const TDoubleVec &x, double s) {
     return result;
 }
 
-const TDoubleVec &add(TDoubleVec &x, const TDoubleVec &y) {
+const TDoubleVec& add(TDoubleVec& x, const TDoubleVec& y) {
     CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] += y[i];
@@ -89,7 +89,7 @@ const TDoubleVec &add(TDoubleVec &x, const TDoubleVec &y) {
     return x;
 }
 
-const TDoubleVec &subtract(TDoubleVec &x, const TDoubleVec &y) {
+const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
     CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] -= y[i];
@@ -301,8 +301,9 @@ void CGramSchmidtTest::testEdgeCases(void) {
     {
         LOG_DEBUG("*** Test zero vector ***");
 
-        double x_[][5] = {
-            {0.0, 0.0, 0.0, 0.0, 0.0}, {1.0, 3.0, 4.0, 0.0, 6.0}, {0.4, 0.3, 0.6, 1.0, 7.0}};
+        double x_[][5] = {{0.0, 0.0, 0.0, 0.0, 0.0},
+                          {1.0, 3.0, 4.0, 0.0, 6.0},
+                          {0.4, 0.3, 0.6, 1.0, 7.0}};
         std::size_t p[] = {0, 1, 2};
 
         do {
@@ -348,17 +349,20 @@ void CGramSchmidtTest::testEdgeCases(void) {
     }
 }
 
-CppUnit::Test *CGramSchmidtTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
+CppUnit::Test* CGramSchmidtTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>(
-        "CGramSchmidtTest::testOrthogonality", &CGramSchmidtTest::testOrthogonality));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>(
-        "CGramSchmidtTest::testNormalisation", &CGramSchmidtTest::testNormalisation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testOrthogonality",
+                                                  &CGramSchmidtTest::testOrthogonality));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testNormalisation",
+                                                  &CGramSchmidtTest::testNormalisation));
     suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testSpan",
                                                                     &CGramSchmidtTest::testSpan));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>(
-        "CGramSchmidtTest::testEdgeCases", &CGramSchmidtTest::testEdgeCases));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testEdgeCases",
+                                                  &CGramSchmidtTest::testEdgeCases));
 
     return suiteOfTests;
 }

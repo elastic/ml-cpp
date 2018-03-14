@@ -35,14 +35,14 @@ using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 //! Scale \p f by \p scale.
-void scale(double scale, TComplexVec &f) {
+void scale(double scale, TComplexVec& f) {
     for (std::size_t i = 0u; i < f.size(); ++i) {
         f[i] *= scale;
     }
 }
 
 //! Compute the radix 2 FFT of \p f in-place.
-void radix2fft(TComplexVec &f) {
+void radix2fft(TComplexVec& f) {
     // Perform the appropriate permutation of f(x) by swapping
     // each i in [0, N] with its bit reversal.
 
@@ -75,19 +75,19 @@ void radix2fft(TComplexVec &f) {
 }
 }
 
-void CSignal::conj(TComplexVec &f) {
+void CSignal::conj(TComplexVec& f) {
     for (std::size_t i = 0u; i < f.size(); ++i) {
         f[i] = std::conj(f[i]);
     }
 }
 
-void CSignal::hadamard(const TComplexVec &fx, TComplexVec &fy) {
+void CSignal::hadamard(const TComplexVec& fx, TComplexVec& fy) {
     for (std::size_t i = 0u; i < fx.size(); ++i) {
         fy[i] *= fx[i];
     }
 }
 
-void CSignal::fft(TComplexVec &f) {
+void CSignal::fft(TComplexVec& f) {
     std::size_t n = f.size();
     std::size_t p = CIntegerTools::nextPow2(n);
     std::size_t m = 1 << p;
@@ -133,14 +133,14 @@ void CSignal::fft(TComplexVec &f) {
     }
 }
 
-void CSignal::ifft(TComplexVec &f) {
+void CSignal::ifft(TComplexVec& f) {
     conj(f);
     fft(f);
     conj(f);
     scale(1.0 / static_cast<double>(f.size()), f);
 }
 
-double CSignal::autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec &values) {
+double CSignal::autocorrelation(std::size_t offset, const TFloatMeanAccumulatorVec& values) {
     return autocorrelation(offset, TFloatMeanAccumulatorCRng(values, 0, values.size()));
 }
 
@@ -148,7 +148,7 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
     std::size_t n = values.size();
 
     TMeanVarAccumulator moments;
-    for (const auto &value : values) {
+    for (const auto& value : values) {
         if (CBasicStatistics::count(value) > 0.0) {
             moments.add(CBasicStatistics::mean(value));
         }
@@ -173,7 +173,7 @@ double CSignal::autocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng va
     return a == v ? 1.0 : a / v;
 }
 
-void CSignal::autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVec &result) {
+void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result) {
     if (values.empty()) {
         return;
     }
@@ -181,7 +181,7 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec &values, TDoubleVe
     std::size_t n = values.size();
 
     TMeanVarAccumulator moments;
-    for (const auto &value : values) {
+    for (const auto& value : values) {
         if (CBasicStatistics::count(value) > 0.0) {
             moments.add(CBasicStatistics::mean(value));
         }

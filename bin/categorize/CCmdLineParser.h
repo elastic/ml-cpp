@@ -38,23 +38,23 @@ public:
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
-                      const char *const *argv,
-                      std::string &limitConfigFile,
-                      std::string &jobId,
-                      std::string &logProperties,
-                      std::string &logPipe,
-                      char &delimiter,
-                      bool &lengthEncodedInput,
-                      core_t::TTime &persistInterval,
-                      std::string &inputFileName,
-                      bool &isInputFileNamedPipe,
-                      std::string &outputFileName,
-                      bool &isOutputFileNamedPipe,
-                      std::string &restoreFileName,
-                      bool &isRestoreFileNamedPipe,
-                      std::string &persistFileName,
-                      bool &isPersistFileNamedPipe,
-                      std::string &categorizationFieldName);
+                      const char* const* argv,
+                      std::string& limitConfigFile,
+                      std::string& jobId,
+                      std::string& logProperties,
+                      std::string& logPipe,
+                      char& delimiter,
+                      bool& lengthEncodedInput,
+                      core_t::TTime& persistInterval,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe,
+                      std::string& restoreFileName,
+                      bool& isRestoreFileNamedPipe,
+                      std::string& persistFileName,
+                      bool& isPersistFileNamedPipe,
+                      std::string& categorizationFieldName);
 
 private:
     static const std::string DESCRIPTION;
@@ -62,4 +62,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_categorize_CCmdLineParser_h
+#endif // INCLUDED_ml_categorize_CCmdLineParser_h

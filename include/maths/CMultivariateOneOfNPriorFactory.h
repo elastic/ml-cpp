@@ -43,15 +43,15 @@ public:
     static TPriorPtr nonInformative(std::size_t dimension,
                                     maths_t::EDataType dataType,
                                     double decayRate,
-                                    const TPriorPtrVec &models);
+                                    const TPriorPtrVec& models);
 
     //! Create reading state from its state document representation.
     static bool restore(std::size_t dimension,
-                        const SDistributionRestoreParams &params,
-                        TPriorPtr &ptr,
-                        core::CStateRestoreTraverser &traverser);
+                        const SDistributionRestoreParams& params,
+                        TPriorPtr& ptr,
+                        core::CStateRestoreTraverser& traverser);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_CMultivariateOneOfNPriorFactory_h
+#endif // INCLUDED_ml_maths_CMultivariateOneOfNPriorFactory_h

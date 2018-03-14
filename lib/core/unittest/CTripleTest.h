@@ -22,7 +22,7 @@ public:
     void testOperators(void);
     void testBoostHashReady(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CTripleTest_h
+#endif // INCLUDED_CTripleTest_h

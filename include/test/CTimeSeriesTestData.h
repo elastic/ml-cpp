@@ -67,68 +67,68 @@ public:
 
 public:
     //! Initialise from a text file
-    static bool parse(const std::string &fileName,
-                      TTimeDoublePrVec &results,
-                      const std::string &regex = DEFAULT_REGEX,
-                      const std::string &dateFormat = DEFAULT_DATE_FORMAT);
+    static bool parse(const std::string& fileName,
+                      TTimeDoublePrVec& results,
+                      const std::string& regex = DEFAULT_REGEX,
+                      const std::string& dateFormat = DEFAULT_DATE_FORMAT);
 
     //! Initialise from a text file (return min/max time)
-    static bool parse(const std::string &fileName,
-                      TTimeDoublePrVec &results,
-                      core_t::TTime &minTime,
-                      core_t::TTime &maxTime,
-                      const std::string &regex = DEFAULT_REGEX,
-                      const std::string &dateFormat = DEFAULT_DATE_FORMAT);
+    static bool parse(const std::string& fileName,
+                      TTimeDoublePrVec& results,
+                      core_t::TTime& minTime,
+                      core_t::TTime& maxTime,
+                      const std::string& regex = DEFAULT_REGEX,
+                      const std::string& dateFormat = DEFAULT_DATE_FORMAT);
 
     //! Initialise multivalued from a text file
-    static bool parse(const std::string &fileName,
-                      TTimeDoubleVecPrVec &results,
-                      const std::string &regex = DEFAULT_BIVALUED_REGEX,
-                      const std::string &dateFormat = DEFAULT_DATE_FORMAT);
+    static bool parse(const std::string& fileName,
+                      TTimeDoubleVecPrVec& results,
+                      const std::string& regex = DEFAULT_BIVALUED_REGEX,
+                      const std::string& dateFormat = DEFAULT_DATE_FORMAT);
 
     //! Initialise multivalued from a text file (return min/max time)
-    static bool parse(const std::string &fileName,
-                      TTimeDoubleVecPrVec &results,
-                      core_t::TTime &minTime,
-                      core_t::TTime &maxTime,
-                      const std::string &regex = DEFAULT_BIVALUED_REGEX,
-                      const std::string &dateFormat = DEFAULT_DATE_FORMAT);
+    static bool parse(const std::string& fileName,
+                      TTimeDoubleVecPrVec& results,
+                      core_t::TTime& minTime,
+                      core_t::TTime& maxTime,
+                      const std::string& regex = DEFAULT_BIVALUED_REGEX,
+                      const std::string& dateFormat = DEFAULT_DATE_FORMAT);
 
     //! Initialise from a text file and parse to counter
-    static bool parseCounter(const std::string &fileName, TTimeDoublePrVec &results);
+    static bool parseCounter(const std::string& fileName, TTimeDoublePrVec& results);
 
     //! Transform results just to 'value'
-    static void transform(const TTimeDoublePrVec &data, TDoubleVec &results);
+    static void transform(const TTimeDoublePrVec& data, TDoubleVec& results);
 
     //! 1st derivative
-    static void derive(const TTimeDoublePrVec &data, TTimeDoublePrVec &results);
+    static void derive(const TTimeDoublePrVec& data, TTimeDoublePrVec& results);
 
     //! Pad a vector from minTime to maxTime with zeros
-    static bool pad(const TTimeDoublePrVec &data,
+    static bool pad(const TTimeDoublePrVec& data,
                     core_t::TTime minTime,
                     core_t::TTime maxTime,
-                    TTimeDoublePrVec &results);
+                    TTimeDoublePrVec& results);
 
 private:
     template <typename T>
-    static bool parse(const std::string &fileName,
-                      const std::string &regex,
-                      const std::string &dateFormat,
-                      std::vector<std::pair<core_t::TTime, T>> &results,
-                      core_t::TTime &minTime,
-                      core_t::TTime &maxTime);
+    static bool parse(const std::string& fileName,
+                      const std::string& regex,
+                      const std::string& dateFormat,
+                      std::vector<std::pair<core_t::TTime, T>>& results,
+                      core_t::TTime& minTime,
+                      core_t::TTime& maxTime);
 
     template <typename T>
-    static bool parseLine(const core::CRegex &tokenRegex,
-                          const std::string &dateFormat,
-                          const std::string &line,
-                          std::vector<std::pair<core_t::TTime, T>> &results);
+    static bool parseLine(const core::CRegex& tokenRegex,
+                          const std::string& dateFormat,
+                          const std::string& line,
+                          std::vector<std::pair<core_t::TTime, T>>& results);
 
     //! Prevent construction of this static class
     CTimeSeriesTestData(void);
-    CTimeSeriesTestData(const CTimeSeriesTestData &);
+    CTimeSeriesTestData(const CTimeSeriesTestData&);
 };
 }
 }
 
-#endif// INCLUDED_ml_test_CTimeSeriesTestData_h
+#endif // INCLUDED_ml_test_CTimeSeriesTestData_h

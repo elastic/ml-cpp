@@ -17,19 +17,20 @@
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 
-CppUnit::Test *CRapidXmlStatePersistInserterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
+CppUnit::Test* CRapidXmlStatePersistInserterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidXmlStatePersistInserterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidXmlStatePersistInserterTest>(
-        "CRapidXmlStatePersistInserterTest::testPersist",
-        &CRapidXmlStatePersistInserterTest::testPersist));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CRapidXmlStatePersistInserterTest>("CRapidXmlStatePersistInserterTest::testPersist",
+                                               &CRapidXmlStatePersistInserterTest::testPersist));
 
     return suiteOfTests;
 }
 
 namespace {
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter) {
+void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
     inserter.insertValue("level2A", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
 }

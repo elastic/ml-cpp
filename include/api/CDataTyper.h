@@ -55,10 +55,10 @@ public:
     typedef boost::shared_ptr<CDataTyper> TDataTyperP;
 
     //! Shared pointer to an instance of this class
-    typedef std::function<void(core::CStatePersistInserter &)> TPersistFunc;
+    typedef std::function<void(core::CStatePersistInserter&)> TPersistFunc;
 
 public:
-    CDataTyper(const std::string &fieldName);
+    CDataTyper(const std::string& fieldName);
 
     //! Virtual destructor for an abstract base class
     virtual ~CDataTyper(void);
@@ -69,12 +69,12 @@ public:
     //! Compute a type from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.
-    int computeType(bool isDryRun, const std::string &str, size_t rawStringLen);
+    int computeType(bool isDryRun, const std::string& str, size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
     virtual int computeType(bool isDryRun,
-                            const TStrStrUMap &fields,
-                            const std::string &str,
+                            const TStrStrUMap& fields,
+                            const std::string& str,
                             size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
@@ -83,25 +83,25 @@ public:
     //! only approximate - it may select more records than have actually
     //! been classified as the returned type.
     virtual bool createReverseSearch(int type,
-                                     std::string &part1,
-                                     std::string &part2,
-                                     size_t &maxMatchingLength,
-                                     bool &wasCached) = 0;
+                                     std::string& part1,
+                                     std::string& part2,
+                                     size_t& maxMatchingLength,
+                                     bool& wasCached) = 0;
 
     //! Has the data typer's state changed?
     virtual bool hasChanged(void) const = 0;
 
     //! Populate the object from part of a state document
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) = 0;
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! Make a function that can be called later to persist state
     virtual TPersistFunc makePersistFunc(void) const = 0;
 
     //! Access to the field name
-    const std::string &fieldName(void) const;
+    const std::string& fieldName(void) const;
 
     //! Access to last persistence time
     core_t::TTime lastPersistTime(void) const;
@@ -123,4 +123,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CDataTyper_h
+#endif // INCLUDED_ml_api_CDataTyper_h

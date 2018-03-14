@@ -27,7 +27,7 @@ public:
     void testHandleControlMessages(void);
     void testRestoreStateFailsWithEmptyState(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CFieldDataTyperTest_h
+#endif // INCLUDED_CFieldDataTyperTest_h

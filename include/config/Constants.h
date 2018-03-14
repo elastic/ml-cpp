@@ -68,9 +68,9 @@ public:
 };
 
 //! The field name for \p index.
-CONFIG_EXPORT const std::string &name(std::size_t index);
+CONFIG_EXPORT const std::string& name(std::size_t index);
 }
 }
 }
 
-#endif// INCLUDED_ml_config_Constants_h
+#endif // INCLUDED_ml_config_Constants_h

@@ -79,23 +79,23 @@ public:
     //! Initialise and open a named pipe for reading, returning a C++ stream
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TIStreamP openPipeStreamRead(const std::string &fileName);
+    static TIStreamP openPipeStreamRead(const std::string& fileName);
 
     //! Initialise and open a named pipe for writing, returning a C++ stream
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TOStreamP openPipeStreamWrite(const std::string &fileName);
+    static TOStreamP openPipeStreamWrite(const std::string& fileName);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TFileP openPipeFileRead(const std::string &fileName);
+    static TFileP openPipeFileRead(const std::string& fileName);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TFileP openPipeFileWrite(const std::string &fileName);
+    static TFileP openPipeFileWrite(const std::string& fileName);
 
     //! Does the supplied file name refer to a named pipe?
-    static bool isNamedPipe(const std::string &fileName);
+    static bool isNamedPipe(const std::string& fileName);
 
     //! Default path for named pipes.
     static std::string defaultPath(void);
@@ -112,9 +112,9 @@ private:
     //! file descriptor that can be used to access it.  This is the core
     //! implementation of the higher level encapsulations that the public
     //! interface provides.
-    static TPipeHandle initPipeHandle(const std::string &fileName, bool forWrite);
+    static TPipeHandle initPipeHandle(const std::string& fileName, bool forWrite);
 };
 }
 }
 
-#endif// INCLUDED_ml_core_CNamedPipeFactory_h
+#endif // INCLUDED_ml_core_CNamedPipeFactory_h

@@ -22,15 +22,18 @@
 #include <string>
 #include <utility>
 
-CppUnit::Test *CStoredStringPtrTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
+CppUnit::Test* CStoredStringPtrTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStoredStringPtrTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
-        "CStoredStringPtrTest::testPointerSemantics", &CStoredStringPtrTest::testPointerSemantics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
-        "CStoredStringPtrTest::testMemoryUsage", &CStoredStringPtrTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStoredStringPtrTest>(
-        "CStoredStringPtrTest::testHash", &CStoredStringPtrTest::testHash));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testPointerSemantics",
+                                                      &CStoredStringPtrTest::testPointerSemantics));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testMemoryUsage",
+                                                      &CStoredStringPtrTest::testMemoryUsage));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CStoredStringPtrTest>("CStoredStringPtrTest::testHash",
+                                                      &CStoredStringPtrTest::testHash));
 
     return suiteOfTests;
 }

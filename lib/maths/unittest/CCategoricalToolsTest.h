@@ -26,7 +26,7 @@ public:
     void testLogBinomialProbability(void);
     void testLogMultinomialProbability(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CCategoricalToolsTest_h
+#endif // INCLUDED_CCategoricalToolsTest_h

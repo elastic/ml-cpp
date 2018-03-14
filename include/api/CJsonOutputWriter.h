@@ -47,7 +47,8 @@ namespace model {
 class CHierarchicalResultsNormalizer;
 }
 namespace core {
-template <typename> class CScopedRapidJsonPoolAllocator;
+template <typename>
+class CScopedRapidJsonPoolAllocator;
 }
 namespace api {
 
@@ -253,11 +254,11 @@ private:
 
     struct SModelSnapshotReport {
         SModelSnapshotReport(core_t::TTime snapshotTimestamp,
-                             const std::string &description,
-                             const std::string &snapshotId,
+                             const std::string& description,
+                             const std::string& snapshotId,
                              size_t numDocs,
-                             const model::CResourceMonitor::SResults &modelSizeStats,
-                             const std::string &normalizerState,
+                             const model::CResourceMonitor::SResults& modelSizeStats,
+                             const std::string& normalizerState,
                              core_t::TTime latestRecordTime,
                              core_t::TTime latestFinalResultTime);
 
@@ -275,24 +276,24 @@ private:
 
 public:
     //! Constructor that causes output to be written to the specified wrapped stream
-    CJsonOutputWriter(const std::string &jobId, core::CJsonOutputStreamWrapper &strmOut);
+    CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
     //! Destructor flushes the stream
     virtual ~CJsonOutputWriter(void);
 
     //! Set field names.  In this class this function has no effect and it
     //! always returns true
-    virtual bool fieldNames(const TStrVec &fieldNames, const TStrVec &extraFieldNames);
+    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Returns an empty vector
-    virtual const TStrVec &fieldNames(void) const;
+    virtual const TStrVec& fieldNames(void) const;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap &dataRowFields,
-                          const TStrStrUMap &overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields);
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -315,11 +316,11 @@ public:
 
     //! Accept a result from the anomaly detector
     //! Virtual for testing mocks
-    virtual bool acceptResult(const CHierarchicalResultsWriter::TResults &results);
+    virtual bool acceptResult(const CHierarchicalResultsWriter::TResults& results);
 
     //! Accept the influencer
     bool acceptInfluencer(core_t::TTime time,
-                          const model::CHierarchicalResults::TNode &node,
+                          const model::CHierarchicalResults::TNode& node,
                           bool isBucketInfluencer);
 
     //! Creates a time bucket influencer.
@@ -339,42 +340,43 @@ public:
 
     //! Report the current levels of resource usage, as given to us
     //! from the CResourceMonitor via a callback
-    void reportMemoryUsage(const model::CResourceMonitor::SResults &results);
+    void reportMemoryUsage(const model::CResourceMonitor::SResults& results);
 
     //! Report information about completion of model persistence.
     //! This method can be called in a thread other than the one
     //! receiving the majority of results, so reporting is done
     //! asynchronously.
     void reportPersistComplete(core_t::TTime snapshotTimestamp,
-                               const std::string &description,
-                               const std::string &snapshotId,
+                               const std::string& description,
+                               const std::string& snapshotId,
                                size_t numDocs,
-                               const model::CResourceMonitor::SResults &modelSizeStats,
-                               const std::string &normalizerState,
+                               const model::CResourceMonitor::SResults& modelSizeStats,
+                               const std::string& normalizerState,
                                core_t::TTime latestRecordTime,
                                core_t::TTime latestFinalResultTime);
 
     //! Acknowledge a flush request by echoing back the flush ID
-    void acknowledgeFlush(const std::string &flushId, core_t::TTime lastFinalizedBucketEnd);
+    void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);
 
     //! Write a category definition
     void writeCategoryDefinition(int categoryId,
-                                 const std::string &terms,
-                                 const std::string &regex,
+                                 const std::string& terms,
+                                 const std::string& regex,
                                  std::size_t maxMatchingFieldLength,
-                                 const TStrSet &examples);
+                                 const TStrSet& examples);
 
     //! Persist a normalizer by writing its state to the output
-    void persistNormalizer(const model::CHierarchicalResultsNormalizer &normalizer,
-                           core_t::TTime &persistTime);
+    void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
+                           core_t::TTime& persistTime);
 
 private:
-    template <typename> friend class core::CScopedRapidJsonPoolAllocator;
+    template <typename>
+    friend class core::CScopedRapidJsonPoolAllocator;
     // hooks for the CScopedRapidJsonPoolAllocator interface
 
     //! use a new allocator for JSON output processing
     //! \p allocatorName A unique identifier for the allocator
-    void pushAllocator(const std::string &allocatorName);
+    void pushAllocator(const std::string& allocatorName);
 
     //! revert to using the previous allocator for JSON output processing
     void popAllocator();
@@ -384,38 +386,38 @@ private:
     //! a particular bucket
     void writeBucket(bool isInterim,
                      core_t::TTime bucketTime,
-                     SBucketData &bucketData,
+                     SBucketData& bucketData,
                      uint64_t bucketProcessingTime);
 
     //! Add the fields for a metric detector
-    void addMetricFields(const CHierarchicalResultsWriter::TResults &results,
+    void addMetricFields(const CHierarchicalResultsWriter::TResults& results,
                          TDocumentWeakPtr weakDoc);
 
     //! Write the fields for a population detector
-    void addPopulationFields(const CHierarchicalResultsWriter::TResults &results,
+    void addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
                              TDocumentWeakPtr weakDoc);
 
     //! Write the fields for a population detector cause
-    void addPopulationCauseFields(const CHierarchicalResultsWriter::TResults &results,
+    void addPopulationCauseFields(const CHierarchicalResultsWriter::TResults& results,
                                   TDocumentWeakPtr weakDoc);
 
     //! Write the fields for an event rate detector
-    void addEventRateFields(const CHierarchicalResultsWriter::TResults &results,
+    void addEventRateFields(const CHierarchicalResultsWriter::TResults& results,
                             TDocumentWeakPtr weakDoc);
 
     //! Add the influencer fields to the doc
     void addInfluencerFields(bool isBucketInfluencer,
-                             const model::CHierarchicalResults::TNode &node,
+                             const model::CHierarchicalResults::TNode& node,
                              TDocumentWeakPtr weakDoc);
 
     //! Write the influence results.
     void
-    addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec
-                      &influenceResults,
+    addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec&
+                      influenceResults,
                   TDocumentWeakPtr weakDoc);
 
     //! Write partition score & probability
-    void addPartitionScores(const CHierarchicalResultsWriter::TResults &results,
+    void addPartitionScores(const CHierarchicalResultsWriter::TResults& results,
                             TDocumentWeakPtr weakDoc);
 
     //! Write any model snapshot reports that are queuing up.
@@ -423,10 +425,10 @@ private:
 
     //! Write the JSON object showing current levels of resource usage, as
     //! given to us from the CResourceMonitor via a callback
-    void writeMemoryUsageObject(const model::CResourceMonitor::SResults &results);
+    void writeMemoryUsageObject(const model::CResourceMonitor::SResults& results);
 
     //! Write the quantile's state
-    void writeQuantileState(const std::string &state, core_t::TTime timestamp);
+    void writeQuantileState(const std::string& state, core_t::TTime timestamp);
 
 private:
     //! The job ID
@@ -465,4 +467,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CJsonOutputWriter_h
+#endif // INCLUDED_ml_api_CJsonOutputWriter_h

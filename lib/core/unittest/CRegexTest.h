@@ -27,7 +27,7 @@ public:
     void testEscape(void);
     void testLiteralCount(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRegexTest_h
+#endif // INCLUDED_CRegexTest_h

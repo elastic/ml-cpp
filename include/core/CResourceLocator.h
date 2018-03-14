@@ -55,4 +55,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CResourceLocator_h
+#endif // INCLUDED_ml_core_CResourceLocator_h

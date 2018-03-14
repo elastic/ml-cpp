@@ -83,22 +83,22 @@ public:
 
 public:
     //! Constructor that causes to be written to the specified stream
-    explicit CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper &outStream);
+    explicit CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream);
 
-    void writeFlat(const std::string &jobId, const model::CModelPlotData &data);
+    void writeFlat(const std::string& jobId, const model::CModelPlotData& data);
 
 private:
     void writeFlatRow(core_t::TTime time,
-                      const std::string &jobId,
+                      const std::string& jobId,
                       int detectorIndex,
-                      const std::string &partitionFieldName,
-                      const std::string &partitionFieldValue,
-                      const std::string &feature,
-                      const std::string &byFieldName,
-                      const std::string &byFieldValue,
-                      const TByFieldData &byData,
+                      const std::string& partitionFieldName,
+                      const std::string& partitionFieldValue,
+                      const std::string& feature,
+                      const std::string& byFieldName,
+                      const std::string& byFieldValue,
+                      const TByFieldData& byData,
                       core_t::TTime bucketSpan,
-                      rapidjson::Value &doc);
+                      rapidjson::Value& doc);
 
 private:
     //! JSON line writer
@@ -107,4 +107,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_api_CModelPlotDataJsonWriter_h
+#endif // INCLUDED_ml_api_CModelPlotDataJsonWriter_h

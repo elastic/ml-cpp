@@ -20,15 +20,23 @@
 namespace ml {
 namespace maths {
 
-bool CGramSchmidt::basis(TDoubleVecVec &x) { return basisImpl(x); }
+bool CGramSchmidt::basis(TDoubleVecVec& x) {
+    return basisImpl(x);
+}
 
-bool CGramSchmidt::basis(TVectorVec &x) { return basisImpl(x); }
+bool CGramSchmidt::basis(TVectorVec& x) {
+    return basisImpl(x);
+}
 
-void CGramSchmidt::swap(TDoubleVec &x, TDoubleVec &y) { x.swap(y); }
+void CGramSchmidt::swap(TDoubleVec& x, TDoubleVec& y) {
+    x.swap(y);
+}
 
-void CGramSchmidt::swap(TVector &x, TVector &y) { x.swap(y); }
+void CGramSchmidt::swap(TVector& x, TVector& y) {
+    x.swap(y);
+}
 
-const CGramSchmidt::TDoubleVec &CGramSchmidt::minusProjection(TDoubleVec &x, const TDoubleVec &e) {
+const CGramSchmidt::TDoubleVec& CGramSchmidt::minusProjection(TDoubleVec& x, const TDoubleVec& e) {
     sameDimension(x, e);
     double n = inner(x, e);
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -37,25 +45,31 @@ const CGramSchmidt::TDoubleVec &CGramSchmidt::minusProjection(TDoubleVec &x, con
     return x;
 }
 
-const CGramSchmidt::TVector &CGramSchmidt::minusProjection(TVector &x, const TVector &e) {
+const CGramSchmidt::TVector& CGramSchmidt::minusProjection(TVector& x, const TVector& e) {
     double n = e.inner(x);
     return x -= n * e;
 }
 
-const CGramSchmidt::TDoubleVec &CGramSchmidt::divide(TDoubleVec &x, double s) {
+const CGramSchmidt::TDoubleVec& CGramSchmidt::divide(TDoubleVec& x, double s) {
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] /= s;
     }
     return x;
 }
 
-const CGramSchmidt::TVector &CGramSchmidt::divide(TVector &x, double s) { return x /= s; }
+const CGramSchmidt::TVector& CGramSchmidt::divide(TVector& x, double s) {
+    return x /= s;
+}
 
-double CGramSchmidt::norm(const TDoubleVec &x) { return ::sqrt(inner(x, x)); }
+double CGramSchmidt::norm(const TDoubleVec& x) {
+    return ::sqrt(inner(x, x));
+}
 
-double CGramSchmidt::norm(const TVector &x) { return x.euclidean(); }
+double CGramSchmidt::norm(const TVector& x) {
+    return x.euclidean();
+}
 
-double CGramSchmidt::inner(const TDoubleVec &x, const TDoubleVec &y) {
+double CGramSchmidt::inner(const TDoubleVec& x, const TDoubleVec& y) {
     sameDimension(x, y);
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -64,12 +78,12 @@ double CGramSchmidt::inner(const TDoubleVec &x, const TDoubleVec &y) {
     return result;
 }
 
-double CGramSchmidt::inner(const TVector &x, const TVector &y) {
+double CGramSchmidt::inner(const TVector& x, const TVector& y) {
     sameDimension(x, y);
     return x.inner(y);
 }
 
-void CGramSchmidt::sameDimension(const TDoubleVec &x, const TDoubleVec &y) {
+void CGramSchmidt::sameDimension(const TDoubleVec& x, const TDoubleVec& y) {
     if (x.size() != y.size()) {
         throw std::runtime_error(
             "Mismatching dimensions: " + core::CStringUtils::typeToString(x.size()) +
@@ -77,7 +91,7 @@ void CGramSchmidt::sameDimension(const TDoubleVec &x, const TDoubleVec &y) {
     }
 }
 
-void CGramSchmidt::sameDimension(const TVector &x, const TVector &y) {
+void CGramSchmidt::sameDimension(const TVector& x, const TVector& y) {
     if (x.dimension() != y.dimension()) {
         throw std::runtime_error(
             "Mismatching dimensions: " + core::CStringUtils::typeToString(x.dimension()) +
@@ -85,17 +99,21 @@ void CGramSchmidt::sameDimension(const TVector &x, const TVector &y) {
     }
 }
 
-void CGramSchmidt::zero(TDoubleVec &x) { std::fill(x.begin(), x.end(), 0.0); }
+void CGramSchmidt::zero(TDoubleVec& x) {
+    std::fill(x.begin(), x.end(), 0.0);
+}
 
-void CGramSchmidt::zero(TVector &x) {
+void CGramSchmidt::zero(TVector& x) {
     for (std::size_t i = 0u; i < x.dimension(); ++i) {
         x(i) = 0.0;
     }
 }
 
-std::string CGramSchmidt::print(const TDoubleVec &x) { return core::CContainerPrinter::print(x); }
+std::string CGramSchmidt::print(const TDoubleVec& x) {
+    return core::CContainerPrinter::print(x);
+}
 
-std::string CGramSchmidt::print(const TVector &x) {
+std::string CGramSchmidt::print(const TVector& x) {
     std::ostringstream result;
     result << x;
     return result.str();

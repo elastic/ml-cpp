@@ -24,7 +24,7 @@ public:
     void testXorOShiro128Plus(void);
     void testXorShift1024Mult(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CPRNGTest_h
+#endif // INCLUDED_CPRNGTest_h

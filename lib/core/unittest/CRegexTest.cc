@@ -17,8 +17,8 @@
 #include <core/CLogger.h>
 #include <core/CRegex.h>
 
-CppUnit::Test *CRegexTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CRegexTest");
+CppUnit::Test* CRegexTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegexTest");
 
     suiteOfTests->addTest(
         new CppUnit::TestCaller<CRegexTest>("CRegexTest::testInit", &CRegexTest::testInit));

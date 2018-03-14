@@ -48,10 +48,11 @@ namespace core {
 //! IMPLMENTATION:\n
 //! This uses murmur hash 2 behind the scenes because its distributions
 //! are good enough and it is very fast to compute.
-template <std::size_t N> class CCompressedDictionary {
+template <std::size_t N>
+class CCompressedDictionary {
 public:
     typedef boost::array<uint64_t, N> TUInt64Array;
-    typedef const std::string *TStrCPtr;
+    typedef const std::string* TStrCPtr;
 
     //! \brief A hash representation of a string in the dictionary
     //! with low probability of collision even for relatively large
@@ -89,13 +90,13 @@ public:
 
     public:
         CWord(void) { std::fill(m_Hash.begin(), m_Hash.end(), 0); }
-        CWord(const TUInt64Array &hash) : m_Hash(hash) {}
+        CWord(const TUInt64Array& hash) : m_Hash(hash) {}
 
-        bool operator==(const CWord &other) const { return m_Hash == other.m_Hash; }
+        bool operator==(const CWord& other) const { return m_Hash == other.m_Hash; }
 
-        bool operator<(const CWord &rhs) const { return m_Hash < rhs.m_Hash; }
+        bool operator<(const CWord& rhs) const { return m_Hash < rhs.m_Hash; }
 
-        bool fromDelimited(const std::string &str) {
+        bool fromDelimited(const std::string& str) {
             // expect N strings, separated by commas
             std::size_t n = 0;
             std::size_t pos = 0;
@@ -132,7 +133,7 @@ public:
     //! \brief A fast hash of a dictionary word.
     class CHash : public std::unary_function<CWord, uint64_t> {
     public:
-        inline std::size_t operator()(const CWord &word) const { return word.hash(); }
+        inline std::size_t operator()(const CWord& word) const { return word.hash(); }
     };
 
     //! The type of an ordered set of words.
@@ -143,14 +144,16 @@ public:
 
     //! A "template typedef" of an ordered map from words to
     //! objects of type T.
-    template <typename T> class CWordMap {
+    template <typename T>
+    class CWordMap {
     public:
         typedef std::map<CWord, T> Type;
     };
 
     //! A "template typedef" of an unordered map from words to
     //! objects of type T.
-    template <typename T> class CWordUMap {
+    template <typename T>
+    class CWordUMap {
     public:
         typedef boost::unordered_map<CWord, T, CHash> Type;
     };
@@ -170,7 +173,7 @@ public:
     }
 
     //! Extract the dictionary word corresponding to \p word.
-    CWord word(const std::string &word) const {
+    CWord word(const std::string& word) const {
         TUInt64Array hash;
         for (std::size_t i = 0u; i < N; ++i) {
             hash[i] =
@@ -180,22 +183,22 @@ public:
     }
 
     //! Extract the dictionary word corresponding to (\p word1, \p word2).
-    CWord word(const std::string &word1, const std::string &word2) const {
+    CWord word(const std::string& word1, const std::string& word2) const {
         TStrCPtr words[] = {&word1, &word2};
         return this->word(words);
     }
 
     //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3).
-    CWord word(const std::string &word1, const std::string &word2, const std::string &word3) const {
+    CWord word(const std::string& word1, const std::string& word2, const std::string& word3) const {
         TStrCPtr words[] = {&word1, &word2, &word3};
         return this->word(words);
     }
 
     //! Extract the dictionary word corresponding to (\p word1, \p word2, \p word3, \p word4).
-    CWord word(const std::string &word1,
-               const std::string &word2,
-               const std::string &word3,
-               const std::string &word4) const {
+    CWord word(const std::string& word1,
+               const std::string& word2,
+               const std::string& word3,
+               const std::string& word4) const {
         TStrCPtr words[] = {&word1, &word2, &word3, &word4};
         return this->word(words);
     }
@@ -205,9 +208,9 @@ private:
     CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
         TUInt64Array hashes;
         for (std::size_t i = 0u; i < N; ++i) {
-            uint64_t &hash = hashes[i];
+            uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
-                const std::string &word = *words[wordIndex];
+                const std::string& word = *words[wordIndex];
                 hash = CHashing::safeMurmurHash64(word.c_str(),
                                                   static_cast<int>(word.size()),
                                                   (wordIndex) == 0 ? m_Seeds[i] : hash);
@@ -220,8 +223,9 @@ private:
     TUInt64Array m_Seeds;
 };
 
-template <std::size_t N> const char CCompressedDictionary<N>::CWord::DELIMITER(',');
+template <std::size_t N>
+const char CCompressedDictionary<N>::CWord::DELIMITER(',');
 }
 }
 
-#endif// INCLUDED_ml_core_CCompressedDictionary_h
+#endif // INCLUDED_ml_core_CCompressedDictionary_h

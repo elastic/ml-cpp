@@ -28,21 +28,23 @@
 #include <string>
 #include <thread>
 
-CppUnit::Test *CJsonOutputStreamWrapperTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
+CppUnit::Test* CJsonOutputStreamWrapperTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testConcurrentWrites",
-        &CJsonOutputStreamWrapperTest::testConcurrentWrites));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testShrink", &CJsonOutputStreamWrapperTest::testShrink));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testConcurrentWrites",
+                                          &CJsonOutputStreamWrapperTest::testConcurrentWrites));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CJsonOutputStreamWrapperTest>("CJsonOutputStreamWrapperTest::testShrink",
+                                                        &CJsonOutputStreamWrapperTest::testShrink));
 
     return suiteOfTests;
 }
 
 namespace {
 
-void task(ml::core::CJsonOutputStreamWrapper &wrapper, int id, int documents) {
+void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
     ml::core::CRapidJsonConcurrentLineWriter writer(wrapper);
     for (int i = 0; i < documents; ++i) {
         writer.StartObject();
@@ -79,7 +81,7 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites(void) {
 
     // check that the document isn't malformed (like wrongly interleaved buffers)
     CPPUNIT_ASSERT(!doc.HasParseError());
-    const rapidjson::Value &allRecords = doc.GetArray();
+    const rapidjson::Value& allRecords = doc.GetArray();
 
     // check number of documents
     CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER), allRecords.Size());
@@ -91,7 +93,7 @@ void CJsonOutputStreamWrapperTest::testShrink(void) {
 
     size_t memoryUsageBase = wrapper.memoryUsage();
     ml::core::CJsonOutputStreamWrapper::TGenericLineWriter writer;
-    rapidjson::StringBuffer *stringBuffer;
+    rapidjson::StringBuffer* stringBuffer;
 
     wrapper.acquireBuffer(writer, stringBuffer);
 
@@ -113,7 +115,7 @@ void CJsonOutputStreamWrapperTest::testShrink(void) {
     CPPUNIT_ASSERT(wrapper.memoryUsage() > stringBuffer->stack_.GetCapacity());
 
     // save the original pointer as flushBuffer returns a new buffer
-    rapidjson::StringBuffer *stringBufferOriginal = stringBuffer;
+    rapidjson::StringBuffer* stringBufferOriginal = stringBuffer;
     wrapper.flushBuffer(writer, stringBuffer);
     wrapper.syncFlush();
 

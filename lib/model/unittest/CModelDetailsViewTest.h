@@ -24,10 +24,10 @@ class CModelDetailsViewTest : public CppUnit::TestFixture {
 public:
     void testModelPlot();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 
 private:
     ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
-#endif// INCLUDED_CModelDetailsViewTest_h
+#endif // INCLUDED_CModelDetailsViewTest_h

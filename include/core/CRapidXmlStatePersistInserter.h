@@ -44,26 +44,26 @@ public:
 
 public:
     //! Root node has no attributes
-    CRapidXmlStatePersistInserter(const std::string &rootName);
+    CRapidXmlStatePersistInserter(const std::string& rootName);
 
     //! Root node has attributes
-    CRapidXmlStatePersistInserter(const std::string &rootName, const TStrStrMap &rootAttributes);
+    CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes);
 
     //! Store a name/value
-    virtual void insertValue(const std::string &name, const std::string &value);
+    virtual void insertValue(const std::string& name, const std::string& value);
 
     // Bring extra base class overloads into scope
     using CStatePersistInserter::insertValue;
 
     //! Convert to UTF-8 XML representation
-    void toXml(std::string &xml) const;
+    void toXml(std::string& xml) const;
 
     //! Convert to UTF-8 XML representation, optionally without indentation
-    void toXml(bool indent, std::string &xml) const;
+    void toXml(bool indent, std::string& xml) const;
 
 protected:
     //! Start a new level with the given name
-    virtual void newLevel(const std::string &name);
+    virtual void newLevel(const std::string& name);
 
     //! End the current level
     virtual void endLevel(void);
@@ -71,7 +71,7 @@ protected:
 private:
     //! Get a const char * version of a string that will last at least as
     //! long as the RapidXml document
-    const char *nameFromCache(const std::string &name);
+    const char* nameFromCache(const std::string& name);
 
 private:
     //! XML documents are likely to contain the same node names many times,
@@ -85,7 +85,7 @@ private:
     TCharRapidXmlDocument m_Doc;
 
     //! Parent of the level we're currently inserting to
-    TCharRapidXmlNode *m_LevelParent;
+    TCharRapidXmlNode* m_LevelParent;
 
     //! Approximate size of final string - used to reserve memory to
     //! minimise reallocations during conversion to string representation
@@ -94,4 +94,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CRapidXmlStatePersistInserter_h
+#endif // INCLUDED_ml_core_CRapidXmlStatePersistInserter_h

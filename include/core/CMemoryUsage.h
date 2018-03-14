@@ -44,10 +44,10 @@ public:
     //! A collection of data to record memory usage information for
     //! arbitrary components
     struct CORE_EXPORT SMemoryUsage {
-        SMemoryUsage(const std::string &name, std::size_t memory)
+        SMemoryUsage(const std::string& name, std::size_t memory)
             : s_Name(name), s_Memory(memory), s_Unused(0) {}
 
-        SMemoryUsage(const std::string &name, std::size_t memory, std::size_t unused)
+        SMemoryUsage(const std::string& name, std::size_t memory, std::size_t unused)
             : s_Name(name), s_Memory(memory), s_Unused(unused) {}
 
         //! Name of the component
@@ -61,7 +61,7 @@ public:
         std::size_t s_Unused;
     };
 
-    typedef CMemoryUsage *TMemoryUsagePtr;
+    typedef CMemoryUsage* TMemoryUsagePtr;
     typedef std::list<TMemoryUsagePtr> TMemoryUsagePtrList;
     typedef TMemoryUsagePtrList::const_iterator TMemoryUsagePtrListCItr;
     typedef TMemoryUsagePtrList::iterator TMemoryUsagePtrListItr;
@@ -83,19 +83,19 @@ public:
     TMemoryUsagePtr addChild(std::size_t initialAmount);
 
     //! Create a memory usage member item
-    void addItem(const SMemoryUsage &item);
+    void addItem(const SMemoryUsage& item);
 
     // Create a memory usage member item
-    void addItem(const std::string &name, std::size_t memory);
+    void addItem(const std::string& name, std::size_t memory);
 
     //! Set the name and size of this node
-    void setName(const SMemoryUsage &item);
+    void setName(const SMemoryUsage& item);
 
     // Set the name and size of this node
-    void setName(const std::string &name, std::size_t memory);
+    void setName(const std::string& name, std::size_t memory);
 
     // Set the name and size of this node
-    void setName(const std::string &name);
+    void setName(const std::string& name);
 
     //! Get the memory used by this node and all child nodes
     std::size_t usage(void) const;
@@ -105,14 +105,14 @@ public:
 
     //! Format the memory used by this node and all child nodes
     //! into a JSON stream
-    void print(std::ostream &outStream) const;
+    void print(std::ostream& outStream) const;
 
     //! Aggregate big collections of child items together
     void compress(void);
 
 private:
     //! Give out data to the JSON writer to format, recursively
-    void summary(CMemoryUsageJsonWriter &writer) const;
+    void summary(CMemoryUsageJsonWriter& writer) const;
 
     //! Collection of child items
     TMemoryUsagePtrList m_Children;
@@ -127,8 +127,8 @@ private:
     friend class memory_detail::CMemoryUsageComparisonTwo;
 };
 
-}// core
+} // core
 
-}// ml
+} // ml
 
-#endif// INCLUDED_ml_core_CMemoryUsage_h
+#endif // INCLUDED_ml_core_CMemoryUsage_h

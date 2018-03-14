@@ -63,10 +63,10 @@ public:
         CIndexGenerator(void);
 
         //! Restore by traversing a state document
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Deep copy this index generator.
         CIndexGenerator deepCopy(void) const;
@@ -132,7 +132,8 @@ public:
 //! This defines an object to generate unique cluster indices, which
 //! supports recycling indices to avoid overflowing std::size_t, since
 //! this is requirement for all implementations.
-template <typename POINT> class CClusterer : public CClustererTypes {
+template <typename POINT>
+class CClusterer : public CClustererTypes {
 public:
     typedef boost::shared_ptr<CClusterer> TClustererPtr;
     typedef std::vector<POINT> TPointVec;
@@ -148,8 +149,8 @@ public:
     //!
     //! \param splitFunc Optional callback for when a cluster is split.
     //! \param mergeFunc Optional callback for when two clusters are merged.
-    explicit CClusterer(const TSplitFunc &splitFunc = CDoNothing(),
-                        const TMergeFunc &mergeFunc = CDoNothing())
+    explicit CClusterer(const TSplitFunc& splitFunc = CDoNothing(),
+                        const TMergeFunc& mergeFunc = CDoNothing())
         : m_SplitFunc(splitFunc), m_MergeFunc(mergeFunc) {}
 
     virtual ~CClusterer(void) {}
@@ -162,10 +163,10 @@ public:
     //! Creates a copy of the clusterer.
     //!
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! \warning Caller owns returned object.
-    virtual CClusterer *clone(void) const = 0;
+    virtual CClusterer* clone(void) const = 0;
 
     //! Clear the current clusterer state.
     virtual void clear(void) = 0;
@@ -183,18 +184,18 @@ public:
     virtual bool hasCluster(std::size_t index) const = 0;
 
     //! Get the centre of the cluster identified by \p index.
-    virtual bool clusterCentre(std::size_t index, TPointPrecise &result) const = 0;
+    virtual bool clusterCentre(std::size_t index, TPointPrecise& result) const = 0;
 
     //! Get the spread of the cluster identified by \p index.
-    virtual bool clusterSpread(std::size_t index, double &result) const = 0;
+    virtual bool clusterSpread(std::size_t index, double& result) const = 0;
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factors.
     virtual void
-    cluster(const TPointPrecise &point, TSizeDoublePr2Vec &result, double count = 1.0) const = 0;
+    cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const = 0;
 
     //! Add a point without caring about its cluster.
-    void add(const TPointPrecise &point, double count = 1.0) {
+    void add(const TPointPrecise& point, double count = 1.0) {
         TSizeDoublePr2Vec clusters;
         this->add(point, clusters, count);
     }
@@ -202,10 +203,10 @@ public:
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factors.
     virtual void
-    add(const TPointPrecise &point, TSizeDoublePr2Vec &clusters, double count = 1.0) = 0;
+    add(const TPointPrecise& point, TSizeDoublePr2Vec& clusters, double count = 1.0) = 0;
 
     //! Update the clustering with \p points.
-    void add(const TPointPreciseVec &points) {
+    void add(const TPointPreciseVec& points) {
         TPointPreciseDoublePrVec weightedPoints;
         weightedPoints.reserve(points.size());
         for (std::size_t i = 0u; i < points.size(); ++i) {
@@ -215,7 +216,7 @@ public:
     }
 
     //! Update the clustering with \p points.
-    virtual void add(const TPointPreciseDoublePrVec &points) = 0;
+    virtual void add(const TPointPreciseDoublePrVec& points) = 0;
 
     //! Propagate the clustering forwards by \p time.
     //!
@@ -233,7 +234,7 @@ public:
     //! \param samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
     virtual bool
-    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec &samples) const = 0;
+    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const = 0;
 
     //! Get the probability of the cluster with the index \p index.
     //!
@@ -255,20 +256,20 @@ public:
     //@}
 
     //! Get the callback function to invoke when a cluster is split.
-    const TSplitFunc &splitFunc(void) const { return m_SplitFunc; }
+    const TSplitFunc& splitFunc(void) const { return m_SplitFunc; }
 
     //! Set the callback function to invoke when a cluster is split.
-    void splitFunc(const TSplitFunc &value) { m_SplitFunc = value; }
+    void splitFunc(const TSplitFunc& value) { m_SplitFunc = value; }
 
     //! Get the callback function to invoke when two clusters are merged.
-    const TMergeFunc &mergeFunc(void) const { return m_MergeFunc; }
+    const TMergeFunc& mergeFunc(void) const { return m_MergeFunc; }
 
     //! Set the callback function to invoke when two clusters are merged.
-    void mergeFunc(const TSplitFunc &value) { m_MergeFunc = value; }
+    void mergeFunc(const TSplitFunc& value) { m_MergeFunc = value; }
 
 protected:
     //! Swap the CClusterer state of two derived objects.
-    void swap(CClusterer &other) {
+    void swap(CClusterer& other) {
         boost::swap(m_SplitFunc, other.m_SplitFunc);
         boost::swap(m_MergeFunc, other.m_MergeFunc);
     }
@@ -285,4 +286,4 @@ typedef CClusterer<double> CClusterer1d;
 }
 }
 
-#endif// INCLUDED_ml_maths_CClusterer_h
+#endif // INCLUDED_ml_maths_CClusterer_h

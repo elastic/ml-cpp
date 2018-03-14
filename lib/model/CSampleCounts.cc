@@ -47,7 +47,7 @@ using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SRefer
 CSampleCounts::CSampleCounts(unsigned int sampleCountOverride)
     : m_SampleCountOverride(sampleCountOverride) {}
 
-CSampleCounts::CSampleCounts(bool isForPersistence, const CSampleCounts &other)
+CSampleCounts::CSampleCounts(bool isForPersistence, const CSampleCounts& other)
     : m_SampleCountOverride(other.m_SampleCountOverride),
       m_SampleCounts(other.m_SampleCounts),
       m_MeanNonZeroBucketCounts(other.m_MeanNonZeroBucketCounts),
@@ -57,24 +57,26 @@ CSampleCounts::CSampleCounts(bool isForPersistence, const CSampleCounts &other)
     }
 }
 
-CSampleCounts *CSampleCounts::cloneForPersistence(void) const {
+CSampleCounts* CSampleCounts::cloneForPersistence(void) const {
     return new CSampleCounts(true, *this);
 }
 
-void CSampleCounts::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CSampleCounts::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Note m_SampleCountOverride is only for unit tests at present,
     // hence not persisted or restored.
 
     core::CPersistUtils::persist(SAMPLE_COUNT_TAG, m_SampleCounts, inserter);
-    core::CPersistUtils::persist(
-        MEAN_NON_ZERO_BUCKET_COUNT_TAG, m_MeanNonZeroBucketCounts, inserter);
-    core::CPersistUtils::persist(
-        EFFECTIVE_SAMPLE_VARIANCE_TAG, m_EffectiveSampleVariances, inserter);
+    core::CPersistUtils::persist(MEAN_NON_ZERO_BUCKET_COUNT_TAG,
+                                 m_MeanNonZeroBucketCounts,
+                                 inserter);
+    core::CPersistUtils::persist(EFFECTIVE_SAMPLE_VARIANCE_TAG,
+                                 m_EffectiveSampleVariances,
+                                 inserter);
 }
 
-bool CSampleCounts::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CSampleCounts::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         if (name == SAMPLE_COUNT_TAG) {
             if (core::CPersistUtils::restore(name, m_SampleCounts, traverser) == false) {
                 LOG_ERROR("Invalid sample counts");
@@ -111,7 +113,7 @@ double CSampleCounts::effectiveSampleCount(std::size_t id) const {
     return 0.0;
 }
 
-void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer, std::size_t id) {
+void CSampleCounts::resetSampleCount(const CDataGatherer& gatherer, std::size_t id) {
     if (m_SampleCountOverride > 0) {
         return;
     }
@@ -121,10 +123,10 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer, std::size_t 
         return;
     }
 
-    const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
+    const TMeanAccumulator& count_ = m_MeanNonZeroBucketCounts[id];
     if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
         unsigned sampleCountThreshold = 0;
-        const CDataGatherer::TFeatureVec &features = gatherer.features();
+        const CDataGatherer::TFeatureVec& features = gatherer.features();
         for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
             sampleCountThreshold = std::max(sampleCountThreshold, model_t::minimumSampleCount(*i));
         }
@@ -135,19 +137,19 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer, std::size_t 
     }
 }
 
-void CSampleCounts::refresh(const CDataGatherer &gatherer) {
+void CSampleCounts::refresh(const CDataGatherer& gatherer) {
     if (m_SampleCountOverride > 0) {
         return;
     }
 
     unsigned sampleCountThreshold = 0;
-    const CDataGatherer::TFeatureVec &features = gatherer.features();
+    const CDataGatherer::TFeatureVec& features = gatherer.features();
     for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
         sampleCountThreshold = std::max(sampleCountThreshold, model_t::minimumSampleCount(*i));
     }
 
     for (std::size_t id = 0u; id < m_MeanNonZeroBucketCounts.size(); ++id) {
-        const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
+        const TMeanAccumulator& count_ = m_MeanNonZeroBucketCounts[id];
         if (m_SampleCounts[id] > 0) {
             if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
                 double count = maths::CBasicStatistics::mean(count_);
@@ -189,7 +191,7 @@ void CSampleCounts::updateMeanNonZeroBucketCount(std::size_t id, double count, d
     m_EffectiveSampleVariances[id].age(alpha);
 }
 
-void CSampleCounts::recycle(const TSizeVec &idsToRemove) {
+void CSampleCounts::recycle(const TSizeVec& idsToRemove) {
     for (std::size_t i = 0u; i < idsToRemove.size(); ++i) {
         std::size_t id = idsToRemove[i];
         if (id >= m_SampleCounts.size()) {
@@ -229,12 +231,12 @@ void CSampleCounts::resize(std::size_t id) {
     }
 }
 
-uint64_t CSampleCounts::checksum(const CDataGatherer &gatherer) const {
+uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     TStrCRefUInt64Map hashes;
     for (std::size_t id = 0u; id < m_SampleCounts.size(); ++id) {
         if (gatherer.isPopulation() ? gatherer.isAttributeActive(id)
                                     : gatherer.isPersonActive(id)) {
-            uint64_t &hash = hashes[TStrCRef(this->name(gatherer, id))];
+            uint64_t& hash = hashes[TStrCRef(this->name(gatherer, id))];
             hash = maths::CChecksum::calculate(hash, m_SampleCounts[id]);
             hash = maths::CChecksum::calculate(hash, m_MeanNonZeroBucketCounts[id]);
             hash = maths::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
@@ -264,9 +266,9 @@ void CSampleCounts::clear(void) {
     m_EffectiveSampleVariances.clear();
 }
 
-const std::string &CSampleCounts::name(const CDataGatherer &gatherer, std::size_t id) const {
+const std::string& CSampleCounts::name(const CDataGatherer& gatherer, std::size_t id) const {
     return gatherer.isPopulation() ? gatherer.attributeName(id) : gatherer.personName(id);
 }
 
-}// model
-}// ml
+} // model
+} // ml

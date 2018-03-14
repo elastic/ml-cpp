@@ -38,9 +38,10 @@ namespace core {
 //! can be added in one thread (addMessage) and
 //! flushed and processed in another (flush) and (process)
 //!
-template <typename MESSAGE, typename BUFFER> class CMessageBuffer {
+template <typename MESSAGE, typename BUFFER>
+class CMessageBuffer {
 public:
-    CMessageBuffer(BUFFER &buffer) : m_Thread(*this), m_Condition(m_Mutex), m_Buffer(buffer) {}
+    CMessageBuffer(BUFFER& buffer) : m_Thread(*this), m_Condition(m_Mutex), m_Buffer(buffer) {}
 
     virtual ~CMessageBuffer(void) {}
 
@@ -65,7 +66,7 @@ public:
         return true;
     }
 
-    void addMessage(const MESSAGE &msg) {
+    void addMessage(const MESSAGE& msg) {
         CScopedLock lock(m_Mutex);
 
         m_Buffer.addMessage(msg);
@@ -74,7 +75,7 @@ public:
 private:
     class CMessageBufferThread : public CThread {
     public:
-        CMessageBufferThread(CMessageBuffer<MESSAGE, BUFFER> &messageBuffer)
+        CMessageBufferThread(CMessageBuffer<MESSAGE, BUFFER>& messageBuffer)
             : m_MessageBuffer(messageBuffer), m_Shutdown(false), m_IsRunning(false) {}
 
         //! The queue must have the mutex for this to be called
@@ -124,7 +125,7 @@ private:
         }
 
     private:
-        CMessageBuffer<MESSAGE, BUFFER> &m_MessageBuffer;
+        CMessageBuffer<MESSAGE, BUFFER>& m_MessageBuffer;
         bool m_Shutdown;
         bool m_IsRunning;
     };
@@ -132,11 +133,11 @@ private:
     CMessageBufferThread m_Thread;
     CMutex m_Mutex;
     CCondition m_Condition;
-    BUFFER &m_Buffer;
+    BUFFER& m_Buffer;
 
     friend class CMessageBufferThread;
 };
 }
 }
 
-#endif// INCLUDED_ml_learn_CMessageBuffer_h
+#endif // INCLUDED_ml_learn_CMessageBuffer_h

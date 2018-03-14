@@ -35,9 +35,9 @@ namespace ml {
 namespace api {
 
 // Initialise statics
-const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192);// 8kB
+const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
 
-CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream &strmIn)
+CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     : CInputParser(),
       m_StrmIn(strmIn),
       m_WorkBuffer(0),
@@ -58,11 +58,11 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream &strmIn)
     }
 }
 
-bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc) {
+bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
-    TStrVec &fieldNames = this->fieldNames();
+    TStrVec& fieldNames = this->fieldNames();
 
     if (!this->gotFieldNames()) {
         if (this->parseRecordFromStream<true>(fieldNames) == false) {
@@ -112,7 +112,7 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc &readerFunc) {
 }
 
 template <bool RESIZE_ALLOWED, typename STR_VEC>
-bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results) {
+bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster
     // than the naive approach of checking and copying one character at a time.
@@ -192,7 +192,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC &results) {
     return true;
 }
 
-bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t &num) {
+bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t& num) {
     size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
     if (avail < sizeof(uint32_t)) {
         avail = this->refillBuffer();
@@ -212,7 +212,7 @@ bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t &num) {
     return true;
 }
 
-bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string &str) {
+bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string& str) {
     if (length == 0) {
         str.clear();
         return true;

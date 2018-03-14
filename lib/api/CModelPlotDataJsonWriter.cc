@@ -38,26 +38,26 @@ const std::string CModelPlotDataJsonWriter::MEDIAN("model_median");
 const std::string CModelPlotDataJsonWriter::ACTUAL("actual");
 const std::string CModelPlotDataJsonWriter::BUCKET_SPAN("bucket_span");
 
-CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper &outStream)
+CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream)
     : m_Writer(outStream) {}
 
-void CModelPlotDataJsonWriter::writeFlat(const std::string &jobId,
-                                         const model::CModelPlotData &data) {
-    const std::string &partitionFieldName = data.partitionFieldName();
-    const std::string &partitionFieldValue = data.partitionFieldValue();
-    const std::string &overFieldName = data.overFieldName();
-    const std::string &byFieldName = data.byFieldName();
+void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
+                                         const model::CModelPlotData& data) {
+    const std::string& partitionFieldName = data.partitionFieldName();
+    const std::string& partitionFieldValue = data.partitionFieldValue();
+    const std::string& overFieldName = data.overFieldName();
+    const std::string& byFieldName = data.byFieldName();
     core_t::TTime time = data.time();
     int detectorIndex = data.detectorIndex();
 
     for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin(); featureItr != data.end();
          ++featureItr) {
         std::string feature = model_t::print(featureItr->first);
-        const TStrByFieldDataUMap &byDataMap = featureItr->second;
+        const TStrByFieldDataUMap& byDataMap = featureItr->second;
         for (TStrByFieldDataUMapCItr byItr = byDataMap.begin(); byItr != byDataMap.end(); ++byItr) {
-            const std::string &byFieldValue = byItr->first;
-            const TByFieldData &byData = byItr->second;
-            const TStrDoublePrVec &values = byData.s_ValuesPerOverField;
+            const std::string& byFieldValue = byItr->first;
+            const TByFieldData& byData = byItr->second;
+            const TStrDoublePrVec& values = byData.s_ValuesPerOverField;
             if (values.empty()) {
                 rapidjson::Value doc = m_Writer.makeObject();
                 this->writeFlatRow(time,
@@ -77,7 +77,7 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string &jobId,
                 m_Writer.write(wrapper);
             } else {
                 for (std::size_t valueIndex = 0; valueIndex < values.size(); ++valueIndex) {
-                    const TStrDoublePr &keyValue = values[valueIndex];
+                    const TStrDoublePr& keyValue = values[valueIndex];
                     rapidjson::Value doc = m_Writer.makeObject();
                     this->writeFlatRow(time,
                                        jobId,
@@ -92,8 +92,10 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string &jobId,
                                        doc);
                     if (!overFieldName.empty()) {
                         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, overFieldName, doc);
-                        m_Writer.addStringFieldCopyToObj(
-                            OVER_FIELD_VALUE, keyValue.first, doc, true);
+                        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
+                                                         keyValue.first,
+                                                         doc,
+                                                         true);
                     }
                     m_Writer.addDoubleFieldToObj(ACTUAL, keyValue.second, doc);
 
@@ -109,16 +111,16 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string &jobId,
 }
 
 void CModelPlotDataJsonWriter::writeFlatRow(core_t::TTime time,
-                                            const std::string &jobId,
+                                            const std::string& jobId,
                                             int detectorIndex,
-                                            const std::string &partitionFieldName,
-                                            const std::string &partitionFieldValue,
-                                            const std::string &feature,
-                                            const std::string &byFieldName,
-                                            const std::string &byFieldValue,
-                                            const TByFieldData &byData,
+                                            const std::string& partitionFieldName,
+                                            const std::string& partitionFieldValue,
+                                            const std::string& feature,
+                                            const std::string& byFieldName,
+                                            const std::string& byFieldValue,
+                                            const TByFieldData& byData,
                                             core_t::TTime bucketSpan,
-                                            rapidjson::Value &doc) {
+                                            rapidjson::Value& doc) {
     m_Writer.addStringFieldCopyToObj(JOB_ID, jobId, doc, true);
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);

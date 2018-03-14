@@ -27,7 +27,7 @@ namespace {
 //! seconds.  A FILETIME structure stores the number of 100ns ticks since
 //! midnight on 1/1/1601 UTC (Gregorian Calendar even though many countries were
 //! still using the Julian Calendar then).
-__time64_t fileTimeToTimeT(const FILETIME &fileTime) {
+__time64_t fileTimeToTimeT(const FILETIME& fileTime) {
     static const ULONGLONG TICKS_PER_SECOND = 10000000ull;
     static const __time64_t SECONDS_1601_TO_1970 = 11644473600ll;
     ULARGE_INTEGER largeInt;
@@ -60,11 +60,13 @@ const int COsFileFuncs::WRITABLE(2);
 // For Windows, consider "executable" the same as "readable" for the time being
 const int COsFileFuncs::EXECUTABLE(4);
 
-const char *COsFileFuncs::NULL_FILENAME("nul");
+const char* COsFileFuncs::NULL_FILENAME("nul");
 
-int COsFileFuncs::open(const char *path, int oflag) { return COsFileFuncs::open(path, oflag, 0); }
+int COsFileFuncs::open(const char* path, int oflag) {
+    return COsFileFuncs::open(path, oflag, 0);
+}
 
-int COsFileFuncs::open(const char *path, int oflag, TMode pmode) {
+int COsFileFuncs::open(const char* path, int oflag, TMode pmode) {
     // To allow the underlying file to be renamed, we have to resort to using
     // the Windows API file functions.  Otherwise we can use the POSIX
     // compatibility layer.
@@ -156,25 +158,31 @@ int COsFileFuncs::open(const char *path, int oflag, TMode pmode) {
     return ::_open_osfhandle(reinterpret_cast<intptr_t>(handle), filteredFlags);
 }
 
-int COsFileFuncs::dup(int fildes) { return ::_dup(fildes); }
+int COsFileFuncs::dup(int fildes) {
+    return ::_dup(fildes);
+}
 
-int COsFileFuncs::dup2(int fildes, int fildes2) { return ::_dup2(fildes, fildes2); }
+int COsFileFuncs::dup2(int fildes, int fildes2) {
+    return ::_dup2(fildes, fildes2);
+}
 
 COsFileFuncs::TOffset COsFileFuncs::lseek(int fildes, TOffset offset, int whence) {
     return ::_lseeki64(fildes, offset, whence);
 }
 
-COsFileFuncs::TSignedSize COsFileFuncs::read(int fildes, void *buf, size_t nbyte) {
+COsFileFuncs::TSignedSize COsFileFuncs::read(int fildes, void* buf, size_t nbyte) {
     return ::_read(fildes, buf, static_cast<unsigned int>(nbyte));
 }
 
-COsFileFuncs::TSignedSize COsFileFuncs::write(int fildes, const void *buf, size_t nbyte) {
+COsFileFuncs::TSignedSize COsFileFuncs::write(int fildes, const void* buf, size_t nbyte) {
     return ::_write(fildes, buf, static_cast<unsigned int>(nbyte));
 }
 
-int COsFileFuncs::close(int fildes) { return ::_close(fildes); }
+int COsFileFuncs::close(int fildes) {
+    return ::_close(fildes);
+}
 
-int COsFileFuncs::fstat(int fildes, TStat *buf) {
+int COsFileFuncs::fstat(int fildes, TStat* buf) {
     struct _stati64 tmpBuf;
     int res(::_fstati64(fildes, &tmpBuf));
     if (res != 0) {
@@ -214,7 +222,7 @@ int COsFileFuncs::fstat(int fildes, TStat *buf) {
     return 0;
 }
 
-int COsFileFuncs::stat(const char *path, TStat *buf) {
+int COsFileFuncs::stat(const char* path, TStat* buf) {
     struct _stati64 tmpBuf;
     int res(::_stati64(path, &tmpBuf));
     if (res != 0) {
@@ -242,7 +250,7 @@ int COsFileFuncs::stat(const char *path, TStat *buf) {
 
     // To set st_ino, we have to briefly open the file
     HANDLE handle = CreateFile(path,
-                               0,// Open for neither read nor write
+                               0, // Open for neither read nor write
                                FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                0,
                                OPEN_EXISTING,
@@ -269,7 +277,7 @@ int COsFileFuncs::stat(const char *path, TStat *buf) {
     return 0;
 }
 
-int COsFileFuncs::lstat(const char *path, TStat *buf) {
+int COsFileFuncs::lstat(const char* path, TStat* buf) {
     // Windows has no lstat() function, but it's only different to stat() in the
     // case where the path points at a symlink, so often we can simply call
     // stat()
@@ -304,14 +312,20 @@ int COsFileFuncs::lstat(const char *path, TStat *buf) {
     return 0;
 }
 
-int COsFileFuncs::access(const char *path, int amode) { return ::_access(path, amode); }
+int COsFileFuncs::access(const char* path, int amode) {
+    return ::_access(path, amode);
+}
 
-char *COsFileFuncs::getcwd(char *buf, size_t size) {
+char* COsFileFuncs::getcwd(char* buf, size_t size) {
     return ::_getcwd(buf, static_cast<int>(size));
 }
 
-int COsFileFuncs::chdir(const char *path) { return ::_chdir(path); }
+int COsFileFuncs::chdir(const char* path) {
+    return ::_chdir(path);
+}
 
-int COsFileFuncs::mkdir(const char *path) { return ::_mkdir(path); }
+int COsFileFuncs::mkdir(const char* path) {
+    return ::_mkdir(path);
+}
 }
 }

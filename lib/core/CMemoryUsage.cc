@@ -29,9 +29,9 @@ namespace memory_detail {
 //! their description
 class CMemoryUsageComparison : public std::unary_function<std::string, bool> {
 public:
-    explicit CMemoryUsageComparison(const std::string &baseline) : m_Baseline(baseline) {}
+    explicit CMemoryUsageComparison(const std::string& baseline) : m_Baseline(baseline) {}
 
-    bool operator()(const CMemoryUsage *rhs) { return m_Baseline == rhs->m_Description.s_Name; }
+    bool operator()(const CMemoryUsage* rhs) { return m_Baseline == rhs->m_Description.s_Name; }
 
 private:
     std::string m_Baseline;
@@ -39,18 +39,18 @@ private:
 
 //! Comparison function class to compare CMemoryUsage objects by
 //! their description, but ignoring the first in the collection
-class CMemoryUsageComparisonTwo : public std::binary_function<std::string, CMemoryUsage *, bool> {
+class CMemoryUsageComparisonTwo : public std::binary_function<std::string, CMemoryUsage*, bool> {
 public:
-    explicit CMemoryUsageComparisonTwo(const std::string &baseline, const CMemoryUsage *firstItem)
+    explicit CMemoryUsageComparisonTwo(const std::string& baseline, const CMemoryUsage* firstItem)
         : m_Baseline(baseline), m_FirstItem(firstItem) {}
 
-    bool operator()(const CMemoryUsage *rhs) {
+    bool operator()(const CMemoryUsage* rhs) {
         return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name);
     }
 
 private:
     std::string m_Baseline;
-    const CMemoryUsage *m_FirstItem;
+    const CMemoryUsage* m_FirstItem;
 };
 }
 
@@ -75,25 +75,27 @@ CMemoryUsage::TMemoryUsagePtr CMemoryUsage::addChild(std::size_t initialAmount) 
     return child;
 }
 
-void CMemoryUsage::addItem(const SMemoryUsage &item) { m_Items.push_back(item); }
+void CMemoryUsage::addItem(const SMemoryUsage& item) {
+    m_Items.push_back(item);
+}
 
-void CMemoryUsage::addItem(const std::string &name, std::size_t memory) {
+void CMemoryUsage::addItem(const std::string& name, std::size_t memory) {
     SMemoryUsage item(name, memory);
     this->addItem(item);
 }
 
-void CMemoryUsage::setName(const SMemoryUsage &item) {
+void CMemoryUsage::setName(const SMemoryUsage& item) {
     std::size_t initialAmount = m_Description.s_Memory;
     m_Description = item;
     m_Description.s_Memory += initialAmount;
 }
 
-void CMemoryUsage::setName(const std::string &name, std::size_t memory) {
+void CMemoryUsage::setName(const std::string& name, std::size_t memory) {
     SMemoryUsage item(name, memory);
     this->setName(item);
 }
 
-void CMemoryUsage::setName(const std::string &name) {
+void CMemoryUsage::setName(const std::string& name) {
     SMemoryUsage item(name, 0);
     this->setName(item);
 }
@@ -122,7 +124,7 @@ std::size_t CMemoryUsage::unusage(void) const {
     return mem;
 }
 
-void CMemoryUsage::summary(CMemoryUsageJsonWriter &writer) const {
+void CMemoryUsage::summary(CMemoryUsageJsonWriter& writer) const {
     writer.startObject();
     writer.addItem(m_Description);
 
@@ -191,12 +193,12 @@ void CMemoryUsage::compress(void) {
     }
 }
 
-void CMemoryUsage::print(std::ostream &outStream) const {
+void CMemoryUsage::print(std::ostream& outStream) const {
     CMemoryUsageJsonWriter writer(outStream);
     this->summary(writer);
     writer.finalise();
 }
 
-}// core
+} // core
 
-}// ml
+} // ml

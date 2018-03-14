@@ -22,7 +22,7 @@ public:
     void testStringOutput(void);
     void testNumericOutput(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CLineifiedJsonOutputWriterTest_h
+#endif // INCLUDED_CLineifiedJsonOutputWriterTest_h

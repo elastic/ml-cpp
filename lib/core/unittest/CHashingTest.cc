@@ -115,8 +115,9 @@ void CHashingTest::testUniversalHash(void) {
         boost::random::uniform_int_distribution<uint32_t> uniform(0u, 10000000u);
 
         TUInt32Vec samples;
-        std::generate_n(
-            std::back_inserter(samples), 1000u, boost::bind(uniform, boost::ref(generator)));
+        std::generate_n(std::back_inserter(samples),
+                        1000u,
+                        boost::bind(uniform, boost::ref(generator)));
 
         CHashing::CUniversalHash::TUInt32HashVec hashes;
         CHashing::CUniversalHash::generateHashes(100u, 10000u, hashes);
@@ -449,8 +450,8 @@ void CHashingTest::testConstructors(void) {
     }
 }
 
-CppUnit::Test *CHashingTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CHashingTest");
+CppUnit::Test* CHashingTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHashingTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CHashingTest>("CHashingTest::testUniversalHash",
                                                                 &CHashingTest::testUniversalHash));

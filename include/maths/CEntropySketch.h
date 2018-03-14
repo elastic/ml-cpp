@@ -52,7 +52,7 @@ private:
 
 private:
     //! Generate the projection of the category counts.
-    void generateProjection(std::size_t category, TDoubleVec &projection);
+    void generateProjection(std::size_t category, TDoubleVec& projection);
 
 private:
     //! The overall count.
@@ -64,4 +64,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_maths_CEntropySketch_h
+#endif // INCLUDED_ml_maths_CEntropySketch_h

@@ -127,7 +127,7 @@ CDataSemantics::CDataSemantics(TOptionalUserDataType override)
       m_IntegerProportion(0.0),
       m_EmpiricalDistributionOverflowed(false) {}
 
-void CDataSemantics::add(const std::string &example) {
+void CDataSemantics::add(const std::string& example) {
     m_Count += 1.0;
 
     maths::COrdinal value;
@@ -203,7 +203,9 @@ void CDataSemantics::computeType(void) {
     m_Type = this->isInteger() ? this->integerType() : this->realType();
 }
 
-config_t::EDataType CDataSemantics::type(void) const { return m_Type; }
+config_t::EDataType CDataSemantics::type(void) const {
+    return m_Type;
+}
 
 config_t::EDataType CDataSemantics::categoricalType(void) const {
     return m_DistinctValues.size() == 2 ? config_t::E_Binary : config_t::E_Categorical;
@@ -307,7 +309,7 @@ bool CDataSemantics::GMMGoodFit(void) const {
             if (std::min(lightGmmBIC, heavyGmmBIC) < categoricalBIC) {
                 return true;
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception& e) {
             LOG_ERROR("Failed to compute BIC for " << m << " modes: " << e.what());
         }
     }
@@ -315,19 +317,22 @@ bool CDataSemantics::GMMGoodFit(void) const {
     return false;
 }
 
-template <typename INT> maths::COrdinal CDataSemantics::addInteger(INT value) {
+template <typename INT>
+maths::COrdinal CDataSemantics::addInteger(INT value) {
     m_NumericProportion = (m_NumericProportion * (m_Count - 1.0) + 1.0) / m_Count;
     m_IntegerProportion = (m_IntegerProportion * (m_Count - 1.0) + 1.0) / m_Count;
     return maths::COrdinal(static_cast<int64_t>(value));
 }
 
-template <typename UINT> maths::COrdinal CDataSemantics::addPositiveInteger(UINT value) {
+template <typename UINT>
+maths::COrdinal CDataSemantics::addPositiveInteger(UINT value) {
     m_NumericProportion = (m_NumericProportion * (m_Count - 1.0) + 1.0) / m_Count;
     m_IntegerProportion = (m_IntegerProportion * (m_Count - 1.0) + 1.0) / m_Count;
     return maths::COrdinal(static_cast<uint64_t>(value));
 }
 
-template <typename REAL> maths::COrdinal CDataSemantics::addReal(REAL value) {
+template <typename REAL>
+maths::COrdinal CDataSemantics::addReal(REAL value) {
     m_NumericProportion = (m_NumericProportion * (m_Count - 1.0) + 1.0) / m_Count;
     return maths::COrdinal(static_cast<double>(value));
 }

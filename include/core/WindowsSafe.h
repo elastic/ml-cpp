@@ -46,4 +46,4 @@
 
 #endif
 
-#endif// INCLUDED_ml_core_WindowsSafe_h
+#endif // INCLUDED_ml_core_WindowsSafe_h

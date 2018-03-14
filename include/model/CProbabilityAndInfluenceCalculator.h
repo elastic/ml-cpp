@@ -90,7 +90,7 @@ public:
 
     //! \brief Wraps up the parameters to the influence calculation.
     struct MODEL_EXPORT SParams : private core::CNonCopyable {
-        SParams(const CPartitioningFields &partitioningFields);
+        SParams(const CPartitioningFields& partitioningFields);
 
         //! Helper to print a description of the parameters.
         std::string describe(void) const;
@@ -98,7 +98,7 @@ public:
         //! The feature of s_Value.
         model_t::EFeature s_Feature;
         //! The model of s_Value.
-        const maths::CModel *s_Model;
+        const maths::CModel* s_Model;
         //! The time after the creation of the prior.
         core_t::TTime s_ElapsedTime;
         //! The time of s_Value.
@@ -120,7 +120,7 @@ public:
         //! records to those influencer field values.
         TStrCRefDouble1VecDoublePrPrVec s_InfluencerValues;
         //! The partitioning field (name, value) pairs.
-        const CPartitioningFields &s_PartitioningFields;
+        const CPartitioningFields& s_PartitioningFields;
         //! The level at which influence occurs.
         double s_Cutoff;
         //! If true then add in influences greater than the cutoff.
@@ -132,7 +132,7 @@ public:
     //! \brief Wraps up the parameters to the influence calculation
     //! for correlates.
     struct MODEL_EXPORT SCorrelateParams : private core::CNonCopyable {
-        SCorrelateParams(const CPartitioningFields &partitioningFields);
+        SCorrelateParams(const CPartitioningFields& partitioningFields);
 
         //! Helper to print a description of the parameters.
         std::string describe(void) const;
@@ -140,7 +140,7 @@ public:
         //! The feature of s_Values.
         model_t::EFeature s_Feature;
         //! The model of s_Values.
-        const maths::CModel *s_Model;
+        const maths::CModel* s_Model;
         //! The time after the creation of the s_Priors.
         core_t::TTime s_ElapsedTime;
         //! The times of s_Values.
@@ -171,7 +171,7 @@ public:
         //! records to those influencer field values.
         TStrCRefDouble1VecDouble1VecPrPrVec s_InfluencerValues;
         //! The partitioning field (name, value) pairs.
-        const CPartitioningFields &s_PartitioningFields;
+        const CPartitioningFields& s_PartitioningFields;
         //! The level at which influence occurs.
         double s_Cutoff;
         //! If true then add in influences greater than the cutoff.
@@ -191,19 +191,19 @@ public:
     double cutoff(void) const;
 
     //! Plug-in the influence calculation to use.
-    void plugin(const CInfluenceCalculator &influence);
+    void plugin(const CInfluenceCalculator& influence);
 
     //! Add the joint probability aggregation style.
-    void addAggregator(const maths::CJointProbabilityOfLessLikelySamples &aggregator);
+    void addAggregator(const maths::CJointProbabilityOfLessLikelySamples& aggregator);
 
     //! Add the extreme probability aggregation style.
-    void addAggregator(const maths::CProbabilityOfExtremeSample &aggregator);
+    void addAggregator(const maths::CProbabilityOfExtremeSample& aggregator);
 
     //! Add a cache for the two probability calculations.
-    void addCache(CModelTools::CProbabilityCache &cache);
+    void addCache(CModelTools::CProbabilityCache& cache);
 
     //! Add the probabilities and influences from \p other.
-    void add(const CProbabilityAndInfluenceCalculator &other, double weight = 1.0);
+    void add(const CProbabilityAndInfluenceCalculator& other, double weight = 1.0);
 
     //! Add an attribute probability for \p value of the univariate
     //! feature \p feature.
@@ -219,20 +219,20 @@ public:
     //! \p value is added to this builder if it can be computed.
     //! \param[in] weight The weight to use when updating the aggregate
     //! probabilities.
-    bool addAttributeProbability(const core::CStoredStringPtr &attribute,
+    bool addAttributeProbability(const core::CStoredStringPtr& attribute,
                                  std::size_t cid,
                                  double pAttribute,
-                                 SParams &params,
-                                 CAnnotatedProbabilityBuilder &builder,
+                                 SParams& params,
+                                 CAnnotatedProbabilityBuilder& builder,
                                  double weight = 1.0);
 
     //! Add an attribute probability for \p values of the correlates
     //! of the univariate feature \p feature.
-    bool addAttributeProbability(const core::CStoredStringPtr &attribute,
+    bool addAttributeProbability(const core::CStoredStringPtr& attribute,
                                  std::size_t cid,
                                  double pAttribute,
-                                 SCorrelateParams &params,
-                                 CAnnotatedProbabilityBuilder &builder,
+                                 SCorrelateParams& params,
+                                 CAnnotatedProbabilityBuilder& builder,
                                  double weight = 1.0);
 
     //! Compute and add the probability for \p value of the univariate
@@ -259,15 +259,15 @@ public:
     //! probabilities.
     bool addProbability(model_t::EFeature feature,
                         std::size_t id,
-                        const maths::CModel &model,
+                        const maths::CModel& model,
                         core_t::TTime elapsedTime,
-                        const maths::CModelProbabilityParams &params,
-                        const TTime2Vec1Vec &time,
-                        const TDouble2Vec1Vec &value,
-                        double &probability,
-                        TTail2Vec &tail,
-                        model_t::CResultType &type,
-                        TSize1Vec &mostAnomalousCorrelate,
+                        const maths::CModelProbabilityParams& params,
+                        const TTime2Vec1Vec& time,
+                        const TDouble2Vec1Vec& value,
+                        double& probability,
+                        TTail2Vec& tail,
+                        model_t::CResultType& type,
+                        TSize1Vec& mostAnomalousCorrelate,
                         double weight = 1.0);
 
     //! Add the probability to the overall aggregate probability and
@@ -288,23 +288,23 @@ public:
     //! \param[in,out] params The parameters used in the probability calculation.
     //! \param[in] weight The weight to use when updating the aggregate
     //! probabilities.
-    void addInfluences(const std::string &influencerName,
-                       const TStrCRefDouble1VecDoublePrPrVec &influencerValues,
-                       SParams &params,
+    void addInfluences(const std::string& influencerName,
+                       const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
+                       SParams& params,
                        double weight = 1.0);
 
     //! Compute and add the influences from \p influencerValues for
     //! the correlates of a univariate feature.
-    void addInfluences(const std::string &influencerName,
-                       const TStrCRefDouble1VecDouble1VecPrPrVecVec &influencerValues,
-                       SCorrelateParams &params,
+    void addInfluences(const std::string& influencerName,
+                       const TStrCRefDouble1VecDouble1VecPrPrVecVec& influencerValues,
+                       SCorrelateParams& params,
                        double weight = 1.0);
 
     //! Calculate the overall probability of all values added.
     //!
     //! \param[out] probability Filled in with the overall probability
     //! of all values added via addProbability.
-    bool calculate(double &probability) const;
+    bool calculate(double& probability) const;
 
     //! Calculate the overall probability of all values added and
     //! any influences and their weights.
@@ -313,8 +313,8 @@ public:
     //! of all values added via addProbability.
     //! \param[out] influences Filled in with all influences of the
     //! overall probability.
-    bool calculate(double &probability,
-                   TStoredStringPtrStoredStringPtrPrDoublePrVec &influences) const;
+    bool calculate(double& probability,
+                   TStoredStringPtrStoredStringPtrPrDoublePrVec& influences) const;
 
 private:
     //! Actually commit any influences we've found.
@@ -327,7 +327,7 @@ private:
 
     //! The plug-in used to adapt the influence calculation for
     //! different features.
-    const CInfluenceCalculator *m_InfluenceCalculator;
+    const CInfluenceCalculator* m_InfluenceCalculator;
 
     //! The template probability calculator.
     CModelTools::CProbabilityAggregator m_ProbabilityTemplate;
@@ -336,7 +336,7 @@ private:
     CModelTools::CProbabilityAggregator m_Probability;
 
     //! The probability calculation cache if there is one.
-    CModelTools::CProbabilityCache *m_ProbabilityCache;
+    CModelTools::CProbabilityCache* m_ProbabilityCache;
 
     //! The influence probability calculator.
     CModelTools::TStoredStringPtrStoredStringPtrPrProbabilityAggregatorUMap
@@ -387,26 +387,26 @@ public:
     static double complementInfluence(double logp, double logpi);
 
     //! Compute the influences on a univariate value.
-    virtual void computeInfluences(TParams &params) const = 0;
+    virtual void computeInfluences(TParams& params) const = 0;
 
     //! Compute the influences on a correlate value.
-    virtual void computeInfluences(TCorrelateParams &params) const = 0;
+    virtual void computeInfluences(TCorrelateParams& params) const = 0;
 };
 
 //! \brief A stub implementation for the case that the influence
 //! can't be calculated.
 class MODEL_EXPORT CInfluenceUnavailableCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 
 //! \brief A stub implementation for the case that every influence
 //! is 1, irrespective of the feature value and influence values.
 class MODEL_EXPORT CIndicatorInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 
 //! \brief Computes the influences for sum like features.
@@ -432,8 +432,8 @@ public:
 //! know what its typical count is and we don't have this information.
 class MODEL_EXPORT CLogProbabilityComplementInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 
 //! \brief Computes the influences for minimum like features.
@@ -463,8 +463,8 @@ public:
 //! the left or right tail.
 class MODEL_EXPORT CLogProbabilityInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 
 //! \brief Computes the influences for the mean feature.
@@ -484,8 +484,8 @@ public:
 //! on the calculation.
 class MODEL_EXPORT CMeanInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 
 //! \brief Computes the influences for the mean feature.
@@ -505,10 +505,10 @@ public:
 //! on the calculation.
 class MODEL_EXPORT CVarianceInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams &params) const;
-    virtual void computeInfluences(TCorrelateParams &params) const;
+    virtual void computeInfluences(TParams& params) const;
+    virtual void computeInfluences(TCorrelateParams& params) const;
 };
 }
 }
 
-#endif// INCLUDED_ml_model_CProbabilityAndInfluenceCalculator_h
+#endif // INCLUDED_ml_model_CProbabilityAndInfluenceCalculator_h

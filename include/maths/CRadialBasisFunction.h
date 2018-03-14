@@ -42,7 +42,7 @@ public:
     //! Create a copy of this object.
     //!
     //! \warning The caller owns this copy.
-    virtual CRadialBasisFunction *clone(void) const = 0;
+    virtual CRadialBasisFunction* clone(void) const = 0;
 
     //! \brief Evaluate the basis function with centre \p centre
     //! at the point \p x.
@@ -61,7 +61,7 @@ public:
     //! </pre>
     //!
     //! \note That \p value must be in the range (0, 1).
-    virtual bool scale(double distance, double value, double &result) const = 0;
+    virtual bool scale(double distance, double value, double& result) const = 0;
 
     //! \brief Get the mean value of this function on the interval
     //! [\p a, \p b], i.e. the result of:
@@ -113,7 +113,7 @@ public:
     //! Create a copy of this object.
     //!
     //! \warning The caller owns this copy.
-    virtual CGaussianBasisFunction *clone(void) const;
+    virtual CGaussianBasisFunction* clone(void) const;
 
     //! \brief Evaluate the basis function with centre \p centre
     //! at the point \p x.
@@ -127,7 +127,7 @@ public:
     //! \brief Solves for the scale that gives the \p value at a
     //! distance \p distance from the centre of the radial basis
     //! function.
-    virtual bool scale(double distance, double value, double &result) const;
+    virtual bool scale(double distance, double value, double& result) const;
 
     //! \brief Get the mean value of this function on the specified
     //! interval [\p a, \p b].
@@ -163,7 +163,7 @@ public:
     //! Create a copy of this object.
     //!
     //! \warning The caller owns this copy.
-    CInverseQuadraticBasisFunction *clone(void) const;
+    CInverseQuadraticBasisFunction* clone(void) const;
 
     //! \brief Evaluate the basis function with centre \p centre
     //! at the point \p x.
@@ -177,7 +177,7 @@ public:
     //! \brief Solves for the scale that gives the \p value at a
     //! distance \p distance from the centre of the radial basis
     //! function.
-    virtual bool scale(double distance, double value, double &result) const;
+    virtual bool scale(double distance, double value, double& result) const;
 
     //! \brief Get the mean value of this function on the specified
     //! interval [\p a, \p b].
@@ -200,4 +200,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CRadialBasisFunction_h
+#endif // INCLUDED_ml_maths_CRadialBasisFunction_h

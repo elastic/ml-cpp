@@ -25,20 +25,21 @@ namespace maths {
 
 namespace {
 
-template <std::size_t N> class CFactory {
+template <std::size_t N>
+class CFactory {
 public:
-    static CMultivariateMultimodalPrior<N> *make(const SDistributionRestoreParams &params,
-                                                 core::CStateRestoreTraverser &traverser) {
+    static CMultivariateMultimodalPrior<N>* make(const SDistributionRestoreParams& params,
+                                                 core::CStateRestoreTraverser& traverser) {
         return new CMultivariateMultimodalPrior<N>(params, traverser);
     }
 
-    static CMultivariateMultimodalPrior<N> *make(maths_t::EDataType dataType,
+    static CMultivariateMultimodalPrior<N>* make(maths_t::EDataType dataType,
                                                  double decayRate,
                                                  maths_t::EClusterWeightCalc weightCalc,
                                                  double minimumClusterFraction,
                                                  double minimumClusterCount,
                                                  double minimumCategoryCount,
-                                                 const CMultivariatePrior &seedPrior) {
+                                                 const CMultivariatePrior& seedPrior) {
         boost::scoped_ptr<CClusterer<CVectorNx1<CFloatStorage, N>>> clusterer(
             CXMeansOnlineFactory::make<CFloatStorage, N>(dataType,
                                                          weightCalc,
@@ -78,7 +79,7 @@ CMultivariateMultimodalPriorFactory::nonInformative(std::size_t dimension,
                                                     double minimumClusterFraction,
                                                     double minimumClusterCount,
                                                     double minimumCategoryCount,
-                                                    const CMultivariatePrior &seedPrior) {
+                                                    const CMultivariatePrior& seedPrior) {
     TPriorPtr ptr;
 #define FACTORY_ARGS                                                                               \
     dataType, decayRate, weightCalc, minimumClusterFraction, minimumClusterCount,                  \
@@ -89,9 +90,9 @@ CMultivariateMultimodalPriorFactory::nonInformative(std::size_t dimension,
 }
 
 bool CMultivariateMultimodalPriorFactory::restore(std::size_t dimension,
-                                                  const SDistributionRestoreParams &params,
-                                                  TPriorPtr &ptr,
-                                                  core::CStateRestoreTraverser &traverser) {
+                                                  const SDistributionRestoreParams& params,
+                                                  TPriorPtr& ptr,
+                                                  core::CStateRestoreTraverser& traverser) {
     ptr.reset();
 #define FACTORY_ARGS params, traverser
     CREATE_PRIOR(dimension)

@@ -19,10 +19,12 @@
 namespace ml {
 namespace core {
 
-CScopedWriteLock::CScopedWriteLock(CReadWriteLock &readWriteLock) : m_ReadWriteLock(readWriteLock) {
+CScopedWriteLock::CScopedWriteLock(CReadWriteLock& readWriteLock) : m_ReadWriteLock(readWriteLock) {
     m_ReadWriteLock.writeLock();
 }
 
-CScopedWriteLock::~CScopedWriteLock(void) { m_ReadWriteLock.writeUnlock(); }
+CScopedWriteLock::~CScopedWriteLock(void) {
+    m_ReadWriteLock.writeUnlock();
+}
 }
 }

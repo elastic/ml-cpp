@@ -27,7 +27,7 @@ public:
     void testThreadsLowCapacity(void);
     void testMemoryDebug(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
 #endif /* INCLUDED_CConcurrentWrapperTest_h */

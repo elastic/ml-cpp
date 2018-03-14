@@ -48,7 +48,8 @@ namespace model {
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
-template <class STATISTIC> class CMetricMultivariateStatistic {
+template <class STATISTIC>
+class CMetricMultivariateStatistic {
 public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
 
@@ -59,17 +60,17 @@ public:
     CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {}
 
     //! Persist to a state document.
-    void persist(core::CStatePersistInserter &inserter) const {
+    void persist(core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0u; i < m_Values.size(); ++i) {
             CMetricStatisticWrappers::persist(m_Values[i], VALUE_TAG, inserter);
         }
     }
 
     //! Restore from the supplied state document traverser.
-    bool restore(core::CStateRestoreTraverser &traverser) {
+    bool restore(core::CStateRestoreTraverser& traverser) {
         std::size_t i = 0u;
         do {
-            const std::string &name = traverser.name();
+            const std::string& name = traverser.name();
             if (name == VALUE_TAG) {
                 if (CMetricStatisticWrappers::restore(traverser, m_Values[i++]) == false) {
                     LOG_ERROR("Invalid statistic in " << traverser.value());
@@ -84,7 +85,7 @@ public:
     //!
     //! \param[in] value The value of the statistic.
     //! \param[in] count The number of measurements in the statistic.
-    void add(const TDouble1Vec &value, unsigned int count) {
+    void add(const TDouble1Vec& value, unsigned int count) {
         if (value.size() != m_Values.size()) {
             LOG_ERROR("Inconsistent input data:"
                       << " # values = " << value.size() << ", expected " << m_Values.size());
@@ -132,7 +133,7 @@ public:
     double count(void) const { return CMetricStatisticWrappers::count(m_Values[0]); }
 
     //! Combine two partial statistics.
-    const CMetricMultivariateStatistic &operator+=(const CMetricMultivariateStatistic &rhs) {
+    const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
         for (std::size_t i = 0u; i < m_Values.size(); ++i) {
             m_Values[i] += rhs.m_Values[i];
         }
@@ -171,11 +172,11 @@ template <class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
 template <class STATISTIC>
-std::ostream &operator<<(std::ostream &o,
-                         const CMetricMultivariateStatistic<STATISTIC> &statistic) {
+std::ostream& operator<<(std::ostream& o,
+                         const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();
 }
 }
 }
 
-#endif// INCLUDED_ml_model_CMetricMultivariateStatistic_h
+#endif // INCLUDED_ml_model_CMetricMultivariateStatistic_h

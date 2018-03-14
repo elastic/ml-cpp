@@ -26,8 +26,8 @@ namespace model {
 
 template <typename T>
 void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
-                                              const T &featureData,
-                                              TSizeVec &result) const {
+                                              const T& featureData,
+                                              TSizeVec& result) const {
     typedef boost::unordered_set<std::size_t> TSizeUSet;
 
     result.clear();
@@ -39,8 +39,8 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
     }
 
     TSizeUSet people;
-    for (const auto &feature : featureData) {
-        for (const auto &data : feature.second) {
+    for (const auto& feature : featureData) {
+        for (const auto& data : feature.second) {
             people.insert(data.first);
         }
     }
@@ -49,20 +49,22 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
 }
 
 template <typename T>
-const T *CIndividualModel::featureData(
+const T* CIndividualModel::featureData(
     model_t::EFeature feature,
     std::size_t pid,
     core_t::TTime time,
-    const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>
-        &featureData) const {
+    const std::vector<std::pair<model_t::EFeature, std::vector<std::pair<std::size_t, T>>>>&
+        featureData) const {
     if (!this->bucketStatsAvailable(time)) {
         LOG_ERROR("No statistics at " << time
                                       << ", current bucket = " << this->printCurrentBucket());
         return 0;
     }
 
-    auto i = std::lower_bound(
-        featureData.begin(), featureData.end(), feature, maths::COrderings::SFirstLess());
+    auto i = std::lower_bound(featureData.begin(),
+                              featureData.end(),
+                              feature,
+                              maths::COrderings::SFirstLess());
     if (i == featureData.end() || i->first != feature) {
         LOG_ERROR("No data for feature " << model_t::print(feature));
         return 0;
@@ -77,10 +79,10 @@ template <typename T, typename FILTER>
 void CIndividualModel::sampleBucketStatistics(
     core_t::TTime startTime,
     core_t::TTime endTime,
-    const FILTER &filter,
-    std::vector<std::pair<model_t::EFeature, T>> &featureData,
-    CResourceMonitor &resourceMonitor) {
-    CDataGatherer &gatherer = this->dataGatherer();
+    const FILTER& filter,
+    std::vector<std::pair<model_t::EFeature, T>>& featureData,
+    CResourceMonitor& resourceMonitor) {
+    CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {
         return;
@@ -91,8 +93,8 @@ void CIndividualModel::sampleBucketStatistics(
         this->CIndividualModel::sampleBucketStatistics(time, time + bucketLength, resourceMonitor);
 
         gatherer.featureData(time, bucketLength, featureData);
-        for (auto &&feature_ : featureData) {
-            T &data = feature_.second;
+        for (auto&& feature_ : featureData) {
+            T& data = feature_.second;
             LOG_TRACE(model_t::print(feature_.first)
                       << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, false, filter, data);
@@ -102,13 +104,13 @@ void CIndividualModel::sampleBucketStatistics(
 
 template <typename PARAMS, typename INFLUENCES>
 bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
-                                                   PARAMS &params,
-                                                   const INFLUENCES &influences,
-                                                   CProbabilityAndInfluenceCalculator &pJoint,
-                                                   CAnnotatedProbabilityBuilder &builder) const {
+                                                   PARAMS& params,
+                                                   const INFLUENCES& influences,
+                                                   CProbabilityAndInfluenceCalculator& pJoint,
+                                                   CAnnotatedProbabilityBuilder& builder) const {
     if (!pJoint.addAttributeProbability(CStringStore::names().get(EMPTY_STRING),
                                         model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                                        1.0,// attribute probability
+                                        1.0, // attribute probability
                                         params,
                                         builder)) {
         LOG_ERROR("Failed to compute P(" << params.describe()
@@ -120,9 +122,9 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
     }
 
     if (!influences.empty()) {
-        const CDataGatherer &gatherer = this->dataGatherer();
+        const CDataGatherer& gatherer = this->dataGatherer();
         for (std::size_t j = 0u; j < influences.size(); ++j) {
-            if (const CInfluenceCalculator *influenceCalculator =
+            if (const CInfluenceCalculator* influenceCalculator =
                     this->influenceCalculator(params.s_Feature, j)) {
                 pJoint.plugin(*influenceCalculator);
                 pJoint.addInfluences(*(gatherer.beginInfluencers() + j), influences[j], params);
@@ -134,4 +136,4 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
 }
 }
 
-#endif// INCLUDED_ml_model_CIndividualModelDetail_h
+#endif // INCLUDED_ml_model_CIndividualModelDetail_h

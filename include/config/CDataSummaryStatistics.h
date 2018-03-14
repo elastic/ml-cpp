@@ -97,12 +97,12 @@ public:
 public:
     explicit CCategoricalDataSummaryStatistics(std::size_t n,
                                                std::size_t toApproximate = TO_APPROXIMATE);
-    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics &other,
+    CCategoricalDataSummaryStatistics(const CDataSummaryStatistics& other,
                                       std::size_t n,
                                       std::size_t toApproximate = TO_APPROXIMATE);
 
     //! Add an example at \p time.
-    void add(core_t::TTime time, const std::string &example);
+    void add(core_t::TTime time, const std::string& example);
 
     //! Get the distinct count of categories.
     std::size_t distinctCount(void) const;
@@ -117,7 +117,7 @@ public:
     double entropy(void) const;
 
     //! Get the top-n most frequent categories and their counts.
-    void topN(TStrSizePrVec &result) const;
+    void topN(TStrSizePrVec& result) const;
 
     //! Get the mean count in the remaining categories.
     double meanCountInRemainders(void) const;
@@ -143,7 +143,7 @@ private:
 
 private:
     //! Extract the \p n grams and update the relevant statistics.
-    void addNGrams(std::size_t n, const std::string &example);
+    void addNGrams(std::size_t n, const std::string& example);
 
     //! If the cardinality is too high approximate the statistics.
     void approximateIfCardinalityTooHigh(void);
@@ -158,7 +158,7 @@ private:
     void findLowestTopN(void);
 
     //! Get the top-n most frequent categories.
-    void topN(TStrUInt64UMapCItrVec &result) const;
+    void topN(TStrUInt64UMapCItrVec& result) const;
 
 private:
     //! A pseudo r.n.g. for deciding whether to sample the n-grams.
@@ -227,10 +227,10 @@ public:
 
 public:
     CNumericDataSummaryStatistics(bool integer);
-    CNumericDataSummaryStatistics(const CDataSummaryStatistics &other, bool integer);
+    CNumericDataSummaryStatistics(const CDataSummaryStatistics& other, bool integer);
 
     //! Add an example at \p time.
-    void add(core_t::TTime time, const std::string &example);
+    void add(core_t::TTime time, const std::string& example);
 
     //! Get the minimum value.
     double minimum(void) const;
@@ -242,7 +242,7 @@ public:
     double maximum(void) const;
 
     //! Get a chart of the density function we have estimated.
-    bool densityChart(TDoubleDoublePrVec &result) const;
+    bool densityChart(TDoubleDoublePrVec& result) const;
 
 private:
     //! The count of non-numeric values.
@@ -258,4 +258,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_config_CDataSummaryStatistics_h
+#endif // INCLUDED_ml_config_CDataSummaryStatistics_h

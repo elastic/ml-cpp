@@ -45,4 +45,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CSetMode_h
+#endif // INCLUDED_ml_core_CSetMode_h

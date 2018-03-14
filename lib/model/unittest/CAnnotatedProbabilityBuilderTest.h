@@ -30,7 +30,7 @@ public:
     void testPersonFrequencyGivenIndividualRare(void);
     void testPersonFrequencyGivenPopulationRare(void);
 
-    static CppUnit::Test *suite(void);
+    static CppUnit::Test* suite(void);
 };
 
-#endif// INCLUDED_CAnnotatedProbabilityBuilderTest_h
+#endif // INCLUDED_CAnnotatedProbabilityBuilderTest_h

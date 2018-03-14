@@ -35,7 +35,7 @@ class CIpAddressTest {
 public:
     CIpAddressTest(void);
 
-    bool isIpAddress(const std::string &) const;
+    bool isIpAddress(const std::string&) const;
 
 private:
     core::CRegex m_Ipv4Regex;
@@ -44,4 +44,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_domain_name_entropy_CIpAddressTest_h
+#endif // INCLUDED_ml_domain_name_entropy_CIpAddressTest_h

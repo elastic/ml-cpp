@@ -22,7 +22,7 @@ public:
     void testBulkIndexHeaderRemoval();
     void testBulkIndexHeaderRemovalZerobyte();
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CRestoreStreamFilterTest_h
+#endif // INCLUDED_CRestoreStreamFilterTest_h

@@ -19,7 +19,7 @@
 namespace ml {
 namespace core {
 
-FILE *CPOpen::pOpen(const char *command, const char *mode) {
+FILE* CPOpen::pOpen(const char* command, const char* mode) {
     if (command == 0) {
         return 0;
     }
@@ -48,6 +48,8 @@ FILE *CPOpen::pOpen(const char *command, const char *mode) {
     return ::_popen(quoted.c_str(), mode);
 }
 
-int CPOpen::pClose(FILE *stream) { return ::_pclose(stream); }
+int CPOpen::pClose(FILE* stream) {
+    return ::_pclose(stream);
+}
 }
 }

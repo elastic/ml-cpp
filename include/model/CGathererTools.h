@@ -120,10 +120,10 @@ public:
         //! \name Persistence
         //@{
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Create from part of an XML document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         //@}
 
         //! Get the checksum of this gatherer.
@@ -237,7 +237,7 @@ public:
         typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 
     public:
-        CSumGatherer(const SModelParams &params,
+        CSumGatherer(const SModelParams& params,
                      std::size_t dimension,
                      core_t::TTime startTime,
                      core_t::TTime bucketLength,
@@ -250,7 +250,7 @@ public:
         //! Get the feature data for the current bucketing interval.
         SMetricFeatureData featureData(core_t::TTime time,
                                        core_t::TTime bucketLength,
-                                       const TSampleVec &emptySample) const;
+                                       const TSampleVec& emptySample) const;
 
         //! Returns false.
         bool sample(core_t::TTime time, unsigned int sampleCount);
@@ -262,15 +262,17 @@ public:
         //! \param[in] influences The influencing field values which
         //! label \p value.
         void add(core_t::TTime time,
-                 const TDouble1Vec &value,
+                 const TDouble1Vec& value,
                  unsigned int count,
                  unsigned int /*sampleCount*/,
-                 const TStoredStringPtrVec &influences) {
-            TSampleVec &sum = m_BucketSums.get(time);
+                 const TStoredStringPtrVec& influences) {
+            TSampleVec& sum = m_BucketSums.get(time);
             if (sum.empty()) {
                 core_t::TTime bucketLength = m_BucketSums.bucketLength();
-                sum.push_back(CSample(
-                    maths::CIntegerTools::floor(time, bucketLength), TDoubleVec(1, 0.0), 1.0, 0.0));
+                sum.push_back(CSample(maths::CIntegerTools::floor(time, bucketLength),
+                                      TDoubleVec(1, 0.0),
+                                      1.0,
+                                      0.0));
             }
             (sum[0].value())[0] += value[0];
             sum[0].count() += static_cast<double>(count);
@@ -278,7 +280,7 @@ public:
                 if (!influences[i]) {
                     continue;
                 }
-                TStoredStringPtrDoubleUMap &sums = m_InfluencerBucketSums[i].get(time);
+                TStoredStringPtrDoubleUMap& sums = m_InfluencerBucketSums[i].get(time);
                 sums[influences[i]] += value[0];
             }
         }
@@ -292,10 +294,10 @@ public:
         //! \name Persistence
         //@{
         //! Persist state by passing information to the supplied inserter
-        void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Create from part of a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         //@}
 
         //! Get the checksum of this gatherer.
@@ -328,4 +330,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_model_CGathererTools_h
+#endif // INCLUDED_ml_model_CGathererTools_h

@@ -381,21 +381,27 @@ void CBjkstUniqueValuesTest::testPersist(void) {
     }
 }
 
-CppUnit::Test *CBjkstUniqueValuesTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBjkstUniqueValuesTest");
+CppUnit::Test* CBjkstUniqueValuesTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBjkstUniqueValuesTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testTrailingZeros", &CBjkstUniqueValuesTest::testTrailingZeros));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testNumber", &CBjkstUniqueValuesTest::testNumber));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testRemove", &CBjkstUniqueValuesTest::testRemove));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testSwap", &CBjkstUniqueValuesTest::testSwap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testSmall", &CBjkstUniqueValuesTest::testSmall));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBjkstUniqueValuesTest>(
-        "CBjkstUniqueValuesTest::testPersist", &CBjkstUniqueValuesTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<
+                          CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testTrailingZeros",
+                                                  &CBjkstUniqueValuesTest::testTrailingZeros));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testNumber",
+                                                        &CBjkstUniqueValuesTest::testNumber));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testRemove",
+                                                        &CBjkstUniqueValuesTest::testRemove));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSwap",
+                                                        &CBjkstUniqueValuesTest::testSwap));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testSmall",
+                                                        &CBjkstUniqueValuesTest::testSmall));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBjkstUniqueValuesTest>("CBjkstUniqueValuesTest::testPersist",
+                                                        &CBjkstUniqueValuesTest::testPersist));
 
     return suiteOfTests;
 }

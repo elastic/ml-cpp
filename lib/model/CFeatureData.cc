@@ -32,7 +32,8 @@ namespace {
 using TSizeVec = std::vector<std::size_t>;
 
 //! Get the sequence [0, N).
-template <std::size_t N> const TSizeVec &sequence() {
+template <std::size_t N>
+const TSizeVec& sequence() {
     static const TSizeVec result(boost::counting_iterator<std::size_t>(0),
                                  boost::counting_iterator<std::size_t>(N));
     return result;
@@ -41,7 +42,7 @@ template <std::size_t N> const TSizeVec &sequence() {
 
 ////// CFeatureDataIndexing //////
 
-const TSizeVec &CFeatureDataIndexing::valueIndices(std::size_t dimension) {
+const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
     switch (dimension) {
         case 1:
             return sequence<1>();
@@ -73,7 +74,7 @@ const TSizeVec &CFeatureDataIndexing::valueIndices(std::size_t dimension) {
 
 SEventRateFeatureData::SEventRateFeatureData(uint64_t count) : s_Count(count) {}
 
-void SEventRateFeatureData::swap(SEventRateFeatureData &other) {
+void SEventRateFeatureData::swap(SEventRateFeatureData& other) {
     std::swap(s_Count, other.s_Count);
     s_InfluenceValues.swap(other.s_InfluenceValues);
 }
@@ -101,13 +102,13 @@ void SEventRateFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr
 ////// SMetricFeatureData //////
 
 SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
-                                       const TDouble1Vec &bucketValue,
+                                       const TDouble1Vec& bucketValue,
                                        double bucketVarianceScale,
                                        double bucketCount,
-                                       TStrCRefDouble1VecDoublePrPrVecVec &influenceValues,
+                                       TStrCRefDouble1VecDoublePrPrVecVec& influenceValues,
                                        bool isInteger,
                                        bool isNonNegative,
-                                       const TSampleVec &samples)
+                                       const TSampleVec& samples)
     : s_BucketValue(boost::in_place(bucketTime, bucketValue, bucketVarianceScale, bucketCount)),
       s_IsInteger(isInteger),
       s_IsNonNegative(isNonNegative),
@@ -117,7 +118,7 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
 
 SMetricFeatureData::SMetricFeatureData(bool isInteger,
                                        bool isNonNegative,
-                                       const TSampleVec &samples)
+                                       const TSampleVec& samples)
     : s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {}
 
 std::string SMetricFeatureData::print() const {

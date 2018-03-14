@@ -62,7 +62,7 @@ private:
         E_Integer,
         E_PositiveInteger,
         E_Real,
-        E_Nan// Semantics are same as Nan.
+        E_Nan // Semantics are same as Nan.
     };
 
     union Value {
@@ -86,9 +86,9 @@ private:
     Value m_Value;
 
     MATHS_EXPORT
-    friend std::ostream &operator<<(std::ostream &o, COrdinal ord);
+    friend std::ostream& operator<<(std::ostream& o, COrdinal ord);
 };
 }
 }
 
-#endif// INCLUDED_ml_maths_COrdinal_h
+#endif // INCLUDED_ml_maths_COrdinal_h

@@ -25,18 +25,21 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-CppUnit::Test *CStringSimilarityTesterTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
+CppUnit::Test* CStringSimilarityTesterTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testStringSimilarity",
-        &CStringSimilarityTesterTest::testStringSimilarity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance",
-        &CStringSimilarityTesterTest::testLevensteinDistance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance2",
-        &CStringSimilarityTesterTest::testLevensteinDistance2));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testStringSimilarity",
+                                         &CStringSimilarityTesterTest::testStringSimilarity));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance",
+                                         &CStringSimilarityTesterTest::testLevensteinDistance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testLevensteinDistance2",
+                                         &CStringSimilarityTesterTest::testLevensteinDistance2));
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
         "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
         &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
@@ -46,9 +49,10 @@ CppUnit::Test *CStringSimilarityTesterTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
         "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
         &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testWeightedEditDistance",
-        &CStringSimilarityTesterTest::testWeightedEditDistance));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<
+            CStringSimilarityTesterTest>("CStringSimilarityTesterTest::testWeightedEditDistance",
+                                         &CStringSimilarityTesterTest::testWeightedEditDistance));
 
     return suiteOfTests;
 }

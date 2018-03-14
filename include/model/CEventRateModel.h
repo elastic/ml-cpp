@@ -103,48 +103,48 @@ public:
     //! of seeing the people we are modeling.
     //! \param[in] influenceCalculators The influence calculators to use
     //! for each feature.
-    CEventRateModel(const SModelParams &params,
-                    const TDataGathererPtr &dataGatherer,
-                    const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                    const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-                    const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-                    const maths::CMultinomialConjugate &probabilityPrior,
-                    const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators);
+    CEventRateModel(const SModelParams& params,
+                    const TDataGathererPtr& dataGatherer,
+                    const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                    const maths::CMultinomialConjugate& probabilityPrior,
+                    const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Constructor used for restoring persisted models.
     //!
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CEventRateModel(const SModelParams &params,
-                    const TDataGathererPtr &dataGatherer,
-                    const TFeatureMathsModelPtrPrVec &newFeatureModels,
-                    const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-                    const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-                    const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators,
-                    core::CStateRestoreTraverser &traverser);
+    CEventRateModel(const SModelParams& params,
+                    const TDataGathererPtr& dataGatherer,
+                    const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                    const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                    core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
     //! copy that's only valid for a single purpose.  The boolean flag is
     //! redundant except to create a signature that will not be mistaken
     //! for a general purpose copy constructor.
-    CEventRateModel(bool isForPersistence, const CEventRateModel &other);
+    CEventRateModel(bool isForPersistence, const CEventRateModel& other);
     //@}
 
     //! \name Persistence
     //@{
     //! Persist state by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Restore reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Create a clone of this model that will result in the same persisted
     //! state.  The clone may be incomplete in ways that do not affect the
     //! persisted representation, and must not be used for any other
     //! purpose.
     //! \warning The caller owns the object returned.
-    virtual CAnomalyDetectorModel *cloneForPersistence(void) const;
+    virtual CAnomalyDetectorModel* cloneForPersistence(void) const;
     //@}
 
     //! Get the model category.
@@ -189,7 +189,7 @@ public:
                                            std::size_t pid,
                                            std::size_t cid,
                                            model_t::CResultType type,
-                                           const TSizeDoublePr1Vec &correlated,
+                                           const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const;
 
     //@}
@@ -198,7 +198,7 @@ public:
     //@{
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec &result) const;
+    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
     //@}
 
     //! \name Update
@@ -211,7 +211,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     virtual void sampleBucketStatistics(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CResourceMonitor &resourceMonitor);
+                                        CResourceMonitor& resourceMonitor);
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -220,7 +220,7 @@ public:
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
     virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor &resourceMonitor);
+    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Probability
@@ -241,9 +241,9 @@ public:
     virtual bool computeProbability(std::size_t pid,
                                     core_t::TTime startTime,
                                     core_t::TTime endTime,
-                                    CPartitioningFields &partitioningFields,
+                                    CPartitioningFields& partitioningFields,
                                     std::size_t numberAttributeProbabilities,
-                                    SAnnotatedProbability &result) const;
+                                    SAnnotatedProbability& result) const;
     //@}
 
     //! Get the checksum of this model.
@@ -271,7 +271,7 @@ public:
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
-    const TFeatureData *
+    const TFeatureData*
     featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
 
 private:
@@ -282,10 +282,10 @@ private:
     virtual void currentBucketStartTime(core_t::TTime time);
 
     //! Get the person counts in the current bucket.
-    virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
+    virtual const TSizeUInt64PrVec& currentBucketPersonCounts(void) const;
 
     //! Get writable person counts in the current bucket.
-    virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
+    virtual TSizeUInt64PrVec& currentBucketPersonCounts(void);
 
     //! Set the current bucket total count.
     virtual void currentBucketTotalCount(uint64_t totalCount);
@@ -294,7 +294,7 @@ private:
     uint64_t currentBucketTotalCount(void) const;
 
     //! Get the interim corrections of the current bucket.
-    TFeatureSizeSizeTripleDouble1VecUMap &currentBucketInterimCorrections(void) const;
+    TFeatureSizeSizeTripleDouble1VecUMap& currentBucketInterimCorrections(void) const;
 
     //! Create the time series models for "n" newly observed people.
     virtual void createNewModels(std::size_t n, std::size_t m);
@@ -303,7 +303,7 @@ private:
     virtual void updateRecycledModels(void);
 
     //! Clear out large state objects for people that are pruned.
-    virtual void clearPrunedResources(const TSizeVec &people, const TSizeVec &attributes);
+    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
 
     //! Check if there are correlates for \p feature and the person
     //! identified by \p pid.
@@ -315,7 +315,7 @@ private:
               std::size_t pid,
               core_t::TTime bucketTime,
               bool interim,
-              CProbabilityAndInfluenceCalculator::SParams &params) const;
+              CProbabilityAndInfluenceCalculator::SParams& params) const;
 
     //! Fill in the probability calculation parameters for the correlates
     //! of \p feature and the person identified by \p pid.
@@ -323,8 +323,8 @@ private:
               std::size_t pid,
               core_t::TTime bucketTime,
               bool interim,
-              CProbabilityAndInfluenceCalculator::SCorrelateParams &params,
-              TStrCRefDouble1VecDouble1VecPrPrVecVecVec &correlateInfluenceValues) const;
+              CProbabilityAndInfluenceCalculator::SCorrelateParams& params,
+              TStrCRefDouble1VecDouble1VecPrPrVecVecVec& correlateInfluenceValues) const;
 
 private:
     //! The statistics we maintain about the bucket.
@@ -345,4 +345,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_model_CEventRateModel_h
+#endif // INCLUDED_ml_model_CEventRateModel_h

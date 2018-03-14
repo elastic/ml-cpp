@@ -21,16 +21,28 @@ CInputParser::CInputParser(void) : m_GotFieldNames(false), m_GotData(false) {}
 
 CInputParser::~CInputParser(void) {}
 
-bool CInputParser::gotFieldNames(void) const { return m_GotFieldNames; }
+bool CInputParser::gotFieldNames(void) const {
+    return m_GotFieldNames;
+}
 
-bool CInputParser::gotData(void) const { return m_GotData; }
+bool CInputParser::gotData(void) const {
+    return m_GotData;
+}
 
-const CInputParser::TStrVec &CInputParser::fieldNames(void) const { return m_FieldNames; }
+const CInputParser::TStrVec& CInputParser::fieldNames(void) const {
+    return m_FieldNames;
+}
 
-void CInputParser::gotFieldNames(bool gotFieldNames) { m_GotFieldNames = gotFieldNames; }
+void CInputParser::gotFieldNames(bool gotFieldNames) {
+    m_GotFieldNames = gotFieldNames;
+}
 
-void CInputParser::gotData(bool gotData) { m_GotData = gotData; }
+void CInputParser::gotData(bool gotData) {
+    m_GotData = gotData;
+}
 
-CInputParser::TStrVec &CInputParser::fieldNames(void) { return m_FieldNames; }
+CInputParser::TStrVec& CInputParser::fieldNames(void) {
+    return m_FieldNames;
+}
 }
 }

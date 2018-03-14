@@ -65,7 +65,7 @@ public:
     CPackedBitVector(void);
     explicit CPackedBitVector(bool bit);
     CPackedBitVector(std::size_t dimension, bool bit);
-    CPackedBitVector(const TBoolVec &bits);
+    CPackedBitVector(const TBoolVec& bits);
 
     //! Contract the vector by popping a component from the start.
     void contract(void);
@@ -76,7 +76,7 @@ public:
     //! \name Persistence
     //@{
     //! Create from delimited values.
-    bool fromDelimited(const std::string &str);
+    bool fromDelimited(const std::string& str);
 
     //! Persist state to delimited values.
     std::string toDelimited(void) const;
@@ -89,16 +89,16 @@ public:
     bool operator()(std::size_t i) const;
 
     //! Check if two vectors are identically equal.
-    bool operator==(const CPackedBitVector &other) const;
+    bool operator==(const CPackedBitVector& other) const;
 
     //! Lexicographical total ordering.
-    bool operator<(const CPackedBitVector &rhs) const;
+    bool operator<(const CPackedBitVector& rhs) const;
 
     //! Get the complement vector, i.e. the vector whose bits are negated.
     CPackedBitVector complement(void) const;
 
     //! Inner product.
-    double inner(const CPackedBitVector &covector, EOperation op = E_AND) const;
+    double inner(const CPackedBitVector& covector, EOperation op = E_AND) const;
 
     //! Euclidean norm.
     double euclidean(void) const { return ::sqrt(this->inner(*this)); }
@@ -148,8 +148,8 @@ private:
 
 //! Output for debug.
 MATHS_EXPORT
-std::ostream &operator<<(std::ostream &o, const CPackedBitVector &v);
+std::ostream& operator<<(std::ostream& o, const CPackedBitVector& v);
 }
 }
 
-#endif// INCLUDED_ml_maths_CPackedBitVector_h
+#endif // INCLUDED_ml_maths_CPackedBitVector_h

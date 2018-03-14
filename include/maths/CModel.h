@@ -53,8 +53,8 @@ using TForecastPushDatapointFunc = std::function<void(SErrorBar)>;
 class MATHS_EXPORT CModelParams {
 public:
     CModelParams(core_t::TTime bucketLength,
-                 const double &learnRate,
-                 const double &decayRate,
+                 const double& learnRate,
+                 const double& decayRate,
                  double minimumSeasonalVarianceScale);
 
     //! Get the bucket length.
@@ -100,38 +100,38 @@ public:
 
 public:
     CModelAddSamplesParams(void);
-    CModelAddSamplesParams(const CModelAddSamplesParams &) = delete;
-    const CModelAddSamplesParams &operator=(const CModelAddSamplesParams &) = delete;
+    CModelAddSamplesParams(const CModelAddSamplesParams&) = delete;
+    const CModelAddSamplesParams& operator=(const CModelAddSamplesParams&) = delete;
 
     //! Set whether or not the data are integer valued.
-    CModelAddSamplesParams &integer(bool integer);
+    CModelAddSamplesParams& integer(bool integer);
     //! Get the data type.
     maths_t::EDataType type(void) const;
 
     //! Set whether or not the data are non-negative.
-    CModelAddSamplesParams &nonNegative(bool nonNegative);
+    CModelAddSamplesParams& nonNegative(bool nonNegative);
     //! Get the whether the data are non-negative.
     bool isNonNegative(void) const;
 
     //! Set the model propagation interval.
-    CModelAddSamplesParams &propagationInterval(double interval);
+    CModelAddSamplesParams& propagationInterval(double interval);
     //! Get the model propagation interval.
     double propagationInterval(void) const;
 
     //! Set the weight styles.
-    CModelAddSamplesParams &weightStyles(const maths_t::TWeightStyleVec &styles);
+    CModelAddSamplesParams& weightStyles(const maths_t::TWeightStyleVec& styles);
     //! Get the weight styles.
-    const maths_t::TWeightStyleVec &weightStyles(void) const;
+    const maths_t::TWeightStyleVec& weightStyles(void) const;
 
     //! Set the trend samples weights.
-    CModelAddSamplesParams &trendWeights(const TDouble2Vec4VecVec &weights);
+    CModelAddSamplesParams& trendWeights(const TDouble2Vec4VecVec& weights);
     //! Get the trend sample weights.
-    const TDouble2Vec4VecVec &trendWeights(void) const;
+    const TDouble2Vec4VecVec& trendWeights(void) const;
 
     //! Set the prior samples weights.
-    CModelAddSamplesParams &priorWeights(const TDouble2Vec4VecVec &weights);
+    CModelAddSamplesParams& priorWeights(const TDouble2Vec4VecVec& weights);
     //! Get the prior sample weights.
-    const TDouble2Vec4VecVec &priorWeights(void) const;
+    const TDouble2Vec4VecVec& priorWeights(void) const;
 
 private:
     //! The data type.
@@ -141,11 +141,11 @@ private:
     //! The propagation interval.
     double m_PropagationInterval;
     //! Controls the interpretation of the weights.
-    const maths_t::TWeightStyleVec *m_WeightStyles;
+    const maths_t::TWeightStyleVec* m_WeightStyles;
     //! The trend sample weights.
-    const TDouble2Vec4VecVec *m_TrendWeights;
+    const TDouble2Vec4VecVec* m_TrendWeights;
     //! The prior sample weights.
-    const TDouble2Vec4VecVec *m_PriorWeights;
+    const TDouble2Vec4VecVec* m_PriorWeights;
 };
 
 //! \brief The extra parameters needed by CModel::probability.
@@ -162,57 +162,57 @@ public:
 
 public:
     CModelProbabilityParams(void);
-    CModelProbabilityParams(const CModelAddSamplesParams &) = delete;
-    const CModelProbabilityParams &operator=(const CModelAddSamplesParams &) = delete;
+    CModelProbabilityParams(const CModelAddSamplesParams&) = delete;
+    const CModelProbabilityParams& operator=(const CModelAddSamplesParams&) = delete;
 
     //! Set the tag for the entity for which to compute the probability.
-    CModelProbabilityParams &tag(std::size_t tag);
+    CModelProbabilityParams& tag(std::size_t tag);
     //! Get the tag for the entity for which to compute the probability.
     std::size_t tag(void) const;
 
     //! Add a coordinate's calculation style.
-    CModelProbabilityParams &addCalculation(maths_t::EProbabilityCalculation calculation);
+    CModelProbabilityParams& addCalculation(maths_t::EProbabilityCalculation calculation);
     //! Get the number of calculations.
     std::size_t calculations(void) const;
     //! Get the \p i'th coordinate's calculation style.
     maths_t::EProbabilityCalculation calculation(std::size_t i) const;
 
     //! Set the confidence interval to use when detrending.
-    CModelProbabilityParams &seasonalConfidenceInterval(double confidence);
+    CModelProbabilityParams& seasonalConfidenceInterval(double confidence);
     //! Get the confidence interval to use when detrending.
     double seasonalConfidenceInterval(void) const;
 
     //! Add whether a value's bucket is empty.
-    CModelProbabilityParams &addBucketEmpty(const TBool2Vec &empty);
+    CModelProbabilityParams& addBucketEmpty(const TBool2Vec& empty);
     //! Get whether the values' bucket is empty.
-    const TBool2Vec1Vec &bucketEmpty(void) const;
+    const TBool2Vec1Vec& bucketEmpty(void) const;
 
     //! Set the weight styles.
-    CModelProbabilityParams &weightStyles(const maths_t::TWeightStyleVec &styles);
+    CModelProbabilityParams& weightStyles(const maths_t::TWeightStyleVec& styles);
     //! Get the weight styles.
-    const maths_t::TWeightStyleVec &weightStyles(void) const;
+    const maths_t::TWeightStyleVec& weightStyles(void) const;
 
     //! Add a value's weights.
-    CModelProbabilityParams &addWeights(const TDouble2Vec4Vec &weights);
+    CModelProbabilityParams& addWeights(const TDouble2Vec4Vec& weights);
     //! Set the values' weights.
-    CModelProbabilityParams &weights(const TDouble2Vec4Vec1Vec &weights);
+    CModelProbabilityParams& weights(const TDouble2Vec4Vec1Vec& weights);
     //! Get the values' weights.
-    const TDouble2Vec4Vec1Vec &weights(void) const;
+    const TDouble2Vec4Vec1Vec& weights(void) const;
     //! Get writable values' weights.
-    TDouble2Vec4Vec1Vec &weights(void);
+    TDouble2Vec4Vec1Vec& weights(void);
 
     //! Add a coordinate for which to compute probability.
-    CModelProbabilityParams &addCoordinate(std::size_t coordinate);
+    CModelProbabilityParams& addCoordinate(std::size_t coordinate);
     //! Get the coordinates for which to compute probability.
-    const TSize2Vec &coordinates(void) const;
+    const TSize2Vec& coordinates(void) const;
 
     //! Set the most anomalous correlate.
-    CModelProbabilityParams &mostAnomalousCorrelate(std::size_t correlate);
+    CModelProbabilityParams& mostAnomalousCorrelate(std::size_t correlate);
     //! Get the most anomalous correlate if there is one.
     TOptionalSize mostAnomalousCorrelate(void) const;
 
     //! Set whether or not to update the anomaly model.
-    CModelProbabilityParams &updateAnomalyModel(bool update);
+    CModelProbabilityParams& updateAnomalyModel(bool update);
     //! Get whether or not to update the anomaly model.
     bool updateAnomalyModel(void) const;
 
@@ -226,7 +226,7 @@ private:
     //! True if the bucket is empty and false otherwise.
     TBool2Vec1Vec m_BucketEmpty;
     //! Controls the interpretation of the weights.
-    const maths_t::TWeightStyleVec *m_WeightStyles;
+    const maths_t::TWeightStyleVec* m_WeightStyles;
     //! The sample weights.
     TDouble2Vec4Vec1Vec m_Weights;
     //! The coordinates for which to compute the probability.
@@ -273,17 +273,17 @@ public:
 
     //! Possible statuses for updating a model.
     enum EUpdateResult {
-        E_Failure,//!< Update failed.
-        E_Success,//!< Update succeeded.
-        E_Reset   //!< Model reset.
+        E_Failure, //!< Update failed.
+        E_Success, //!< Update succeeded.
+        E_Reset    //!< Model reset.
     };
 
 public:
-    CModel(const CModelParams &params);
+    CModel(const CModelParams& params);
     virtual ~CModel(void) = default;
 
     //! These don't need to be and shouldn't be copied.
-    const CModel &operator=(const CModel &) = delete;
+    const CModel& operator=(const CModel&) = delete;
 
     //! Get the effective count per correlate model for calibrating aggregation.
     static double effectiveCount(std::size_t n);
@@ -292,28 +292,28 @@ public:
     virtual std::size_t identifier(void) const = 0;
 
     //! Create a copy of this model passing ownership to the caller.
-    virtual CModel *clone(std::size_t id) const = 0;
+    virtual CModel* clone(std::size_t id) const = 0;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    virtual CModel *cloneForPersistence(void) const = 0;
+    virtual CModel* cloneForPersistence(void) const = 0;
 
     //! Create a copy of the state we need to run forecasting.
-    virtual CModel *cloneForForecast(void) const = 0;
+    virtual CModel* cloneForForecast(void) const = 0;
 
     //! Return true if forecast is currently possible for this model.
     virtual bool isForecastPossible(void) const = 0;
 
     //! Tell this to model correlations.
-    virtual void modelCorrelations(CTimeSeriesCorrelations &model) = 0;
+    virtual void modelCorrelations(CTimeSeriesCorrelations& model) = 0;
 
     //! Get the correlated time series identifier pairs if any.
     virtual TSize2Vec1Vec correlates(void) const = 0;
 
     //! Update the model with the bucket \p value.
-    virtual void addBucketValue(const TTimeDouble2VecSizeTrVec &value) = 0;
+    virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value) = 0;
 
     //! Update the model with new samples.
-    virtual EUpdateResult addSamples(const CModelAddSamplesParams &params,
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
                                      TTimeDouble2VecSizeTrVec samples) = 0;
 
     //! Advance time by \p gap.
@@ -321,34 +321,34 @@ public:
 
     //! Get the most likely value for the time series at \p time.
     virtual TDouble2Vec mode(core_t::TTime time,
-                             const maths_t::TWeightStyleVec &weightStyles,
-                             const TDouble2Vec4Vec &weights) const = 0;
+                             const maths_t::TWeightStyleVec& weightStyles,
+                             const TDouble2Vec4Vec& weights) const = 0;
 
     //! Get the most likely value for each correlate time series at
     //! \p time, if there are any.
     virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec &weightStyles,
-                                           const TDouble2Vec4Vec1Vec &weights) const = 0;
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble2Vec4Vec1Vec& weights) const = 0;
 
     //! Get the local maxima of the residual distribution.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec &weightStyles,
-                                          const TDouble2Vec4Vec &weights) const = 0;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
+                                          const TDouble2Vec4Vec& weights) const = 0;
 
     //! Remove any trend components from \p value.
     virtual void
-    detrend(const TTime2Vec1Vec &time, double confidenceInterval, TDouble2Vec1Vec &value) const = 0;
+    detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const = 0;
 
     //! Get the best (least MSE) predicted value at \p time.
     virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec &correlated = TSizeDoublePr1Vec(),
+                                const TSizeDoublePr1Vec& correlated = TSizeDoublePr1Vec(),
                                 TDouble2Vec hint = TDouble2Vec()) const = 0;
 
     //! Get the prediction and \p confidenceInterval percentage
     //! confidence interval for the time series at \p time.
     virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
                                                double confidenceInterval,
-                                               const maths_t::TWeightStyleVec &weightStyles,
-                                               const TDouble2Vec4Vec &weights) const = 0;
+                                               const maths_t::TWeightStyleVec& weightStyles,
+                                               const TDouble2Vec4Vec& weights) const = 0;
 
     //! Forecast the time series and get its \p confidenceInterval
     //! percentage confidence interval between \p startTime and
@@ -359,24 +359,24 @@ public:
     virtual bool forecast(core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
-                          const TDouble2Vec &minimum,
-                          const TDouble2Vec &maximum,
-                          const TForecastPushDatapointFunc &forecastPushDataPointFunc,
-                          std::string &messageOut) = 0;
+                          const TDouble2Vec& minimum,
+                          const TDouble2Vec& maximum,
+                          const TForecastPushDatapointFunc& forecastPushDataPointFunc,
+                          std::string& messageOut) = 0;
 
     //! Compute the probability of drawing \p value at \p time.
-    virtual bool probability(const CModelProbabilityParams &params,
-                             const TTime2Vec1Vec &time,
-                             const TDouble2Vec1Vec &value,
-                             double &probability,
-                             TTail2Vec &tail,
-                             bool &conditional,
-                             TSize1Vec &mostAnomalousCorrelate) const = 0;
+    virtual bool probability(const CModelProbabilityParams& params,
+                             const TTime2Vec1Vec& time,
+                             const TDouble2Vec1Vec& value,
+                             double& probability,
+                             TTail2Vec& tail,
+                             bool& conditional,
+                             TSize1Vec& mostAnomalousCorrelate) const = 0;
 
     //! Get the Winsorisation weight to apply to \p value,
     //! if appropriate.
     virtual TDouble2Vec
-    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec &value) const = 0;
+    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const = 0;
 
     //! Get the seasonal variance scale at \p time.
     virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const = 0;
@@ -391,39 +391,40 @@ public:
     virtual std::size_t memoryUsage(void) const = 0;
 
     //! Persist by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const = 0;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType(void) const = 0;
 
     //! Get read only model parameters.
-    const CModelParams &params(void) const;
+    const CModelParams& params(void) const;
 
     //! Get writable model parameters.
-    CModelParams &params(void);
+    CModelParams& params(void);
 
 protected:
-    CModel(const CModel &) = default;
-
-    //! Get the nearest mean of \p prior to \p detrended.
-    template <typename VECTOR> static VECTOR marginalLikelihoodMean(const CPrior &prior);
+    CModel(const CModel&) = default;
 
     //! Get the nearest mean of \p prior to \p detrended.
     template <typename VECTOR>
-    static VECTOR marginalLikelihoodMean(const CMultivariatePrior &prior);
+    static VECTOR marginalLikelihoodMean(const CPrior& prior);
+
+    //! Get the nearest mean of \p prior to \p detrended.
+    template <typename VECTOR>
+    static VECTOR marginalLikelihoodMean(const CMultivariatePrior& prior);
 
     //! Get the error in the trend prediction for \p sample.
     template <typename TREND, typename VECTOR>
-    static boost::optional<VECTOR> predictionError(const TREND &trend, const VECTOR &sample);
+    static boost::optional<VECTOR> predictionError(const TREND& trend, const VECTOR& sample);
 
     //! Get the error in the prior prediction for \p sample.
     template <typename PRIOR, typename VECTOR>
     static boost::optional<VECTOR>
-    predictionError(double propagationInterval, const PRIOR &prior, const VECTOR &sample);
+    predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
     static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                        const TDouble2Vec &value,
+                                        const TDouble2Vec& value,
                                         bool bucketEmpty,
                                         double probabilityBucketEmpty,
                                         double probability);
@@ -431,8 +432,8 @@ protected:
     //! Correct \p probability with \p probabilityEmptyBucket.
     static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
                                         double value,
-                                        const TBool2Vec &bucketEmpty,
-                                        const TDouble2Vec &probabilityEmptyBucket,
+                                        const TBool2Vec& bucketEmpty,
+                                        const TDouble2Vec& probabilityEmptyBucket,
                                         double probability);
 
 private:
@@ -449,28 +450,28 @@ public:
     virtual std::size_t identifier(void) const;
 
     //! Create a copy of this model passing ownership to the caller.
-    virtual CModelStub *clone(std::size_t id) const;
+    virtual CModelStub* clone(std::size_t id) const;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    virtual CModelStub *cloneForPersistence(void) const;
+    virtual CModelStub* cloneForPersistence(void) const;
 
     //! Create a copy of the state we need to run forecasting.
-    virtual CModelStub *cloneForForecast(void) const;
+    virtual CModelStub* cloneForForecast(void) const;
 
     //! Return false;
     virtual bool isForecastPossible(void) const;
 
     //! No-op.
-    virtual void modelCorrelations(CTimeSeriesCorrelations &model);
+    virtual void modelCorrelations(CTimeSeriesCorrelations& model);
 
     //! Returns empty.
     virtual TSize2Vec1Vec correlates(void) const;
 
     //! No-op.
-    virtual void addBucketValue(const TTimeDouble2VecSizeTrVec &value);
+    virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
 
     //! No-op.
-    virtual EUpdateResult addSamples(const CModelAddSamplesParams &params,
+    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
                                      TTimeDouble2VecSizeTrVec samples);
 
     //! No-op.
@@ -478,53 +479,53 @@ public:
 
     //! Returns empty.
     virtual TDouble2Vec mode(core_t::TTime time,
-                             const maths_t::TWeightStyleVec &weightStyles,
-                             const TDouble2Vec4Vec &weights) const;
+                             const maths_t::TWeightStyleVec& weightStyles,
+                             const TDouble2Vec4Vec& weights) const;
 
     //! Returns empty.
     virtual TDouble2Vec1Vec correlateModes(core_t::TTime time,
-                                           const maths_t::TWeightStyleVec &weightStyles,
-                                           const TDouble2Vec4Vec1Vec &weights) const;
+                                           const maths_t::TWeightStyleVec& weightStyles,
+                                           const TDouble2Vec4Vec1Vec& weights) const;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec &weightStyles,
-                                          const TDouble2Vec4Vec &weights) const;
+    virtual TDouble2Vec1Vec residualModes(const maths_t::TWeightStyleVec& weightStyles,
+                                          const TDouble2Vec4Vec& weights) const;
 
     //! No-op.
     virtual void
-    detrend(const TTime2Vec1Vec &time, double confidenceInterval, TDouble2Vec1Vec &value) const;
+    detrend(const TTime2Vec1Vec& time, double confidenceInterval, TDouble2Vec1Vec& value) const;
 
     //! Returns empty.
     virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec &correlated,
+                                const TSizeDoublePr1Vec& correlated,
                                 TDouble2Vec hint = TDouble2Vec()) const;
 
     //! Returns empty.
     virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
                                                double confidenceInterval,
-                                               const maths_t::TWeightStyleVec &weightStyles,
-                                               const TDouble2Vec4Vec &weights) const;
+                                               const maths_t::TWeightStyleVec& weightStyles,
+                                               const TDouble2Vec4Vec& weights) const;
     //! Returns empty.
     virtual bool forecast(core_t::TTime startTime,
                           core_t::TTime endTime,
                           double confidenceInterval,
-                          const TDouble2Vec &minimum,
-                          const TDouble2Vec &maximum,
-                          const TForecastPushDatapointFunc &forecastPushDataPointFunc,
-                          std::string &messageOut);
+                          const TDouble2Vec& minimum,
+                          const TDouble2Vec& maximum,
+                          const TForecastPushDatapointFunc& forecastPushDataPointFunc,
+                          std::string& messageOut);
 
     //! Returns 1.0.
-    virtual bool probability(const CModelProbabilityParams &params,
-                             const TTime2Vec1Vec &time,
-                             const TDouble2Vec1Vec &value,
-                             double &probability,
-                             TTail2Vec &tail,
-                             bool &conditional,
-                             TSize1Vec &mostAnomalousCorrelate) const;
+    virtual bool probability(const CModelProbabilityParams& params,
+                             const TTime2Vec1Vec& time,
+                             const TDouble2Vec1Vec& value,
+                             double& probability,
+                             TTail2Vec& tail,
+                             bool& conditional,
+                             TSize1Vec& mostAnomalousCorrelate) const;
 
     //! Returns empty.
     virtual TDouble2Vec
-    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec &value) const;
+    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
 
     //! Returns empty.
     virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const;
@@ -539,7 +540,7 @@ public:
     virtual std::size_t memoryUsage(void) const;
 
     //! No-op.
-    virtual void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Returns mixed data type since we don't know.
     virtual maths_t::EDataType dataType(void) const;
@@ -547,4 +548,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_maths_CModel_h
+#endif // INCLUDED_ml_maths_CModel_h

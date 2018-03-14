@@ -47,7 +47,7 @@ namespace core {
 //!
 class CORE_EXPORT CJsonStateRestoreTraverser : public CStateRestoreTraverser {
 public:
-    CJsonStateRestoreTraverser(std::istream &inputStream);
+    CJsonStateRestoreTraverser(std::istream& inputStream);
 
     //! Navigate to the next element at the current level, or return false
     //! if there isn't one
@@ -63,12 +63,12 @@ public:
 
     //! Get the name of the current element - the returned reference is only
     //! valid for as long as the traverser is pointing at the same element
-    virtual const std::string &name(void) const;
+    virtual const std::string& name(void) const;
 
     //! Get the value of the current element - the returned reference is
     //! only valid for as long as the traverser is pointing at the same
     //! element
-    virtual const std::string &value(void) const;
+    virtual const std::string& value(void) const;
 
     //! Is the traverser at the end of the inputstream?
     virtual bool isEof(void) const;
@@ -89,12 +89,12 @@ private:
     //! Accessors for alternating state variables
     size_t currentLevel(void) const;
     bool currentIsEndOfLevel(void) const;
-    const std::string &currentName(void) const;
-    const std::string &currentValue(void) const;
+    const std::string& currentName(void) const;
+    const std::string& currentValue(void) const;
     size_t nextLevel(void) const;
     bool nextIsEndOfLevel(void) const;
-    const std::string &nextName(void) const;
-    const std::string &nextValue(void) const;
+    const std::string& nextName(void) const;
+    const std::string& nextValue(void) const;
 
     //! Start off the parsing process
     bool start(void);
@@ -124,10 +124,10 @@ private:
         bool Int64(int64_t i);
         bool Uint64(uint64_t u);
         bool Double(double d);
-        bool RawNumber(const char *, rapidjson::SizeType, bool);
-        bool String(const char *str, rapidjson::SizeType length, bool);
+        bool RawNumber(const char*, rapidjson::SizeType, bool);
+        bool String(const char* str, rapidjson::SizeType length, bool);
         bool StartObject();
-        bool Key(const char *str, rapidjson::SizeType length, bool);
+        bool Key(const char* str, rapidjson::SizeType length, bool);
         bool EndObject(rapidjson::SizeType);
         bool StartArray();
         bool EndArray(rapidjson::SizeType);
@@ -183,4 +183,4 @@ private:
 }
 }
 
-#endif// INCLUDED_ml_core_CJsonStateRestoreTraverser_h
+#endif // INCLUDED_ml_core_CJsonStateRestoreTraverser_h

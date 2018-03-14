@@ -19,11 +19,12 @@
 
 #include <vector>
 
-CppUnit::Test *CMessageBufferTest::suite() {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMessageBufferTest");
+CppUnit::Test* CMessageBufferTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageBufferTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageBufferTest>(
-        "CMessageBufferTest::testAll", &CMessageBufferTest::testAll));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMessageBufferTest>("CMessageBufferTest::testAll",
+                                                    &CMessageBufferTest::testAll));
 
     return suiteOfTests;
 }
@@ -36,7 +37,7 @@ public:
 public:
     CBuffer(uint32_t flushInterval) : m_FlushInterval(flushInterval) {}
 
-    void addMessage(const std::string &str) {
+    void addMessage(const std::string& str) {
         if ((m_Buffer.size() % 1000) == 0) {
             LOG_DEBUG("Received " << m_Buffer.size() << " strings");
         }
@@ -45,7 +46,7 @@ public:
 
     uint32_t flushInterval(void) const { return m_FlushInterval; }
 
-    ml::core_t::TTime flushMessages(TStrVec &messages) {
+    ml::core_t::TTime flushMessages(TStrVec& messages) {
         LOG_DEBUG("Flush messages " << m_Buffer.size());
 
         messages = m_Buffer;
@@ -58,9 +59,9 @@ public:
         return 0;
     }
 
-    void flushAllMessages(TStrVec &messages) { this->flushMessages(messages); }
+    void flushAllMessages(TStrVec& messages) { this->flushMessages(messages); }
 
-    void processMessages(const TStrVec &messages, ml::core_t::TTime) {
+    void processMessages(const TStrVec& messages, ml::core_t::TTime) {
         m_Results.insert(m_Results.end(), messages.begin(), messages.end());
 
         LOG_DEBUG("Processed " << messages.size() << " " << m_Results.size() << " messages");

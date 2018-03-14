@@ -45,7 +45,7 @@
 using namespace ml;
 using namespace domain_name_entropy;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     // Read command line options
     std::string csvFileName;
     std::string domainNameFieldName;
@@ -70,8 +70,11 @@ int main(int argc, char **argv) {
     LOG_DEBUG("tldDb.init() done");
 
     // Read in a CSV file
-    CAddRegisteredDomainAndEntropyToCsv csvReader(
-        tldDb, csvFileName, domainNameFieldName, timeFieldName, "entropy");
+    CAddRegisteredDomainAndEntropyToCsv csvReader(tldDb,
+                                                  csvFileName,
+                                                  domainNameFieldName,
+                                                  timeFieldName,
+                                                  "entropy");
 
     LOG_DEBUG("csvReader.init()");
     if (csvReader.init() == false) {

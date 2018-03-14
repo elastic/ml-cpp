@@ -25,7 +25,7 @@ public:
     void testExcelQuoting(void);
     void testNonExcelQuoting(void);
 
-    static CppUnit::Test *suite();
+    static CppUnit::Test* suite();
 };
 
-#endif// INCLUDED_CCsvOutputWriterTest_h
+#endif // INCLUDED_CCsvOutputWriterTest_h

@@ -127,10 +127,10 @@ void CDecayRateController::reset(void) {
     m_Multiplier.add(m_Target);
 }
 
-bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_Multiplier = TMeanAccumulator();
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_BUILT_IN(TARGET_TAG, m_Target)
         RESTORE(MULTIPLIER_TAG, m_Multiplier.fromDelimited(traverser.value()))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
@@ -139,9 +139,10 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser &
         RESTORE(BIAS_TAG, core::CPersistUtils::restore(BIAS_TAG, m_Bias, traverser))
         RESTORE(RECENT_ABS_ERROR_TAG,
                 core::CPersistUtils::restore(RECENT_ABS_ERROR_TAG, m_RecentAbsError, traverser))
-        RESTORE(
-            HISTORICAL_ABS_ERROR_TAG,
-            core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG, m_HistoricalAbsError, traverser))
+        RESTORE(HISTORICAL_ABS_ERROR_TAG,
+                core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG,
+                                             m_HistoricalAbsError,
+                                             traverser))
     } while (traverser.next());
     if (CBasicStatistics::count(m_Multiplier) == 0.0) {
         m_Multiplier.add(m_Target);
@@ -149,7 +150,7 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser &
     return true;
 }
 
-void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(TARGET_TAG, m_Target);
     inserter.insertValue(MULTIPLIER_TAG, m_Multiplier.toDelimited());
     inserter.insertValue(RNG_TAG, m_Rng.toString());
@@ -159,8 +160,8 @@ void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter &in
     core::CPersistUtils::persist(HISTORICAL_ABS_ERROR_TAG, m_HistoricalAbsError, inserter);
 }
 
-double CDecayRateController::multiplier(const TDouble1Vec &prediction,
-                                        const TDouble1VecVec &predictionErrors,
+double CDecayRateController::multiplier(const TDouble1Vec& prediction,
+                                        const TDouble1VecVec& predictionErrors,
                                         core_t::TTime bucketLength,
                                         double learnRate,
                                         double decayRate) {
@@ -176,7 +177,7 @@ double CDecayRateController::multiplier(const TDouble1Vec &prediction,
 
     std::size_t dimension{m_PredictionMean.size()};
     double count{this->count()};
-    TMeanAccumulator1Vec *stats_[]{&m_Bias, &m_RecentAbsError, &m_HistoricalAbsError};
+    TMeanAccumulator1Vec* stats_[]{&m_Bias, &m_RecentAbsError, &m_HistoricalAbsError};
     double numberPredictionErrors{static_cast<double>(predictionErrors.size())};
 
     for (auto predictionError : predictionErrors) {
@@ -219,11 +220,11 @@ double CDecayRateController::multiplier(const TDouble1Vec &prediction,
         double factors[]{std::exp(-FAST_DECAY_RATE * decayRate),
                          std::exp(-FAST_DECAY_RATE * decayRate),
                          std::exp(-SLOW_DECAY_RATE * decayRate)};
-        for (auto &component : m_PredictionMean) {
+        for (auto& component : m_PredictionMean) {
             component.age(factors[2]);
         }
         for (std::size_t i = 0u; i < 3; ++i) {
-            for (auto &component : *stats_[i]) {
+            for (auto& component : *stats_[i]) {
                 component.age(factors[i]);
             }
         }
@@ -264,9 +265,13 @@ double CDecayRateController::multiplier(const TDouble1Vec &prediction,
     return result;
 }
 
-double CDecayRateController::multiplier(void) const { return CBasicStatistics::mean(m_Multiplier); }
+double CDecayRateController::multiplier(void) const {
+    return CBasicStatistics::mean(m_Multiplier);
+}
 
-std::size_t CDecayRateController::dimension(void) const { return m_PredictionMean.size(); }
+std::size_t CDecayRateController::dimension(void) const {
+    return m_PredictionMean.size();
+}
 
 void CDecayRateController::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CDecayRateController");

@@ -52,4 +52,4 @@ public:
 }
 }
 
-#endif// INCLUDED_ml_core_CProcessPriority_h
+#endif // INCLUDED_ml_core_CProcessPriority_h

@@ -88,10 +88,10 @@ double lassoStep(double beta, double lambda, double n, double d) {
 //! \note That this should decrease monotonically in each iteration
 //! of the inner solver loop.
 template <typename MATRIX>
-double logLikelihood(const MATRIX &x,
-                     const TDoubleVec &y,
-                     const TDoubleVec &lambda,
-                     const TDoubleVec &beta) {
+double logLikelihood(const MATRIX& x,
+                     const TDoubleVec& y,
+                     const TDoubleVec& lambda,
+                     const TDoubleVec& beta) {
     typedef typename MATRIX::iterator iterator;
 
     double result = 0.0;
@@ -119,12 +119,12 @@ double logLikelihood(const MATRIX &x,
 template <typename MATRIX>
 void CLG(std::size_t maxIterations,
          double eps,
-         const MATRIX &x,
-         const TDoubleVec &y,
-         const TDoubleVec &lambda,
-         TDoubleVec &beta,
-         TDoubleVec &r,
-         std::size_t &numberIterations) {
+         const MATRIX& x,
+         const TDoubleVec& y,
+         const TDoubleVec& lambda,
+         TDoubleVec& beta,
+         TDoubleVec& r,
+         std::size_t& numberIterations) {
     typedef typename MATRIX::iterator iterator;
 
     std::size_t d = x.columns();
@@ -175,8 +175,8 @@ void CLG(std::size_t maxIterations,
                 }
 
                 std::size_t jPlus1 = (j + 1) % d;
-                double &numjPlus1 = num[jPlus1];
-                double &denjPlus1 = den[jPlus1];
+                double& numjPlus1 = num[jPlus1];
+                double& denjPlus1 = den[jPlus1];
                 double DjPlus1 = delta[jPlus1];
                 numjPlus1 = denjPlus1 = 0.0;
                 for (iterator itr = x.beginRows(jPlus1); itr != x.endRows(jPlus1); ++itr) {
@@ -211,7 +211,7 @@ void CLG(std::size_t maxIterations,
     }
 }
 
-}// unnamed::
+} // unnamed::
 
 namespace lasso_logistic_regression_detail {
 
@@ -219,9 +219,13 @@ namespace lasso_logistic_regression_detail {
 
 CDenseMatrix::CDenseMatrix(void) {}
 
-CDenseMatrix::CDenseMatrix(TDoubleVecVec &elements) { m_Elements.swap(elements); }
+CDenseMatrix::CDenseMatrix(TDoubleVecVec& elements) {
+    m_Elements.swap(elements);
+}
 
-void CDenseMatrix::swap(CDenseMatrix &other) { m_Elements.swap(other.m_Elements); }
+void CDenseMatrix::swap(CDenseMatrix& other) {
+    m_Elements.swap(other.m_Elements);
+}
 
 ////// CSparseMatrix //////
 
@@ -229,13 +233,13 @@ CSparseMatrix::CSparseMatrix(void) : m_Rows(0), m_Columns(0) {}
 
 CSparseMatrix::CSparseMatrix(std::size_t rows,
                              std::size_t columns,
-                             TSizeSizePrDoublePrVec &elements)
+                             TSizeSizePrDoublePrVec& elements)
     : m_Rows(rows), m_Columns(columns) {
     m_Elements.swap(elements);
     std::sort(m_Elements.begin(), m_Elements.end(), COrderings::SFirstLess());
 }
 
-void CSparseMatrix::swap(CSparseMatrix &other) {
+void CSparseMatrix::swap(CSparseMatrix& other) {
     std::swap(m_Rows, other.m_Rows);
     std::swap(m_Columns, other.m_Columns);
     m_Elements.swap(other.m_Elements);
@@ -247,9 +251,9 @@ CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, do
     : m_MaxIterations(maxIterations), m_Eps(eps) {}
 
 template <typename MATRIX>
-bool CCyclicCoordinateDescent::checkInputs(const MATRIX &x,
-                                           const TDoubleVec &y,
-                                           const TDoubleVec &lambda) {
+bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x,
+                                           const TDoubleVec& y,
+                                           const TDoubleVec& lambda) {
     if (x.rows() == 0) {
         LOG_ERROR("No training data");
         return false;
@@ -265,11 +269,11 @@ bool CCyclicCoordinateDescent::checkInputs(const MATRIX &x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::run(const CDenseMatrix &x,
-                                   const TDoubleVec &y,
-                                   const TDoubleVec &lambda,
-                                   TDoubleVec &beta,
-                                   std::size_t &numberIterations) {
+bool CCyclicCoordinateDescent::run(const CDenseMatrix& x,
+                                   const TDoubleVec& y,
+                                   const TDoubleVec& lambda,
+                                   TDoubleVec& beta,
+                                   std::size_t& numberIterations) {
     beta.clear();
     numberIterations = 0;
     if (!checkInputs(x, y, lambda)) {
@@ -280,11 +284,11 @@ bool CCyclicCoordinateDescent::run(const CDenseMatrix &x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::run(const CSparseMatrix &x,
-                                   const TDoubleVec &y,
-                                   const TDoubleVec &lambda,
-                                   TDoubleVec &beta,
-                                   std::size_t &numberIterations) {
+bool CCyclicCoordinateDescent::run(const CSparseMatrix& x,
+                                   const TDoubleVec& y,
+                                   const TDoubleVec& lambda,
+                                   TDoubleVec& beta,
+                                   std::size_t& numberIterations) {
     beta.clear();
     numberIterations = 0;
     if (!checkInputs(x, y, lambda)) {
@@ -295,11 +299,11 @@ bool CCyclicCoordinateDescent::run(const CSparseMatrix &x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix &x,
-                                              const TDoubleVec &y,
-                                              const TDoubleVec &lambda,
-                                              TDoubleVec &beta,
-                                              std::size_t &numberIterations) {
+bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
+                                              const TDoubleVec& y,
+                                              const TDoubleVec& lambda,
+                                              TDoubleVec& beta,
+                                              std::size_t& numberIterations) {
     numberIterations = 0;
     if (!checkInputs(x, y, lambda)) {
         return false;
@@ -324,11 +328,11 @@ bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix &x,
     return true;
 }
 
-bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix &x,
-                                              const TDoubleVec &y,
-                                              const TDoubleVec &lambda,
-                                              TDoubleVec &beta,
-                                              std::size_t &numberIterations) {
+bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
+                                              const TDoubleVec& y,
+                                              const TDoubleVec& lambda,
+                                              TDoubleVec& beta,
+                                              std::size_t& numberIterations) {
     numberIterations = 0;
     if (!checkInputs(x, y, lambda)) {
         return false;
@@ -353,23 +357,23 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix &x,
     return true;
 }
 
-}// lasso_logistic_regression_detail::
+} // lasso_logistic_regression_detail::
 
 ////// CLogisticRegressionModel //////
 
 CLogisticRegressionModel::CLogisticRegressionModel(void) : m_Beta0(0.0), m_Beta() {}
 
-CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVec &beta)
+CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta)
     : m_Beta0(beta0), m_Beta() {
     m_Beta.swap(beta);
 }
 
-void CLogisticRegressionModel::swap(CLogisticRegressionModel &other) {
+void CLogisticRegressionModel::swap(CLogisticRegressionModel& other) {
     std::swap(m_Beta0, other.m_Beta0);
     m_Beta.swap(other.m_Beta);
 }
 
-bool CLogisticRegressionModel::operator()(const TDoubleVec &x, double &probability) const {
+bool CLogisticRegressionModel::operator()(const TDoubleVec& x, double& probability) const {
     probability = 0.5;
     if (m_Beta.empty()) {
         return true;
@@ -388,7 +392,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec &x, double &probabili
     return true;
 }
 
-double CLogisticRegressionModel::operator()(const TSizeDoublePrVec &x) const {
+double CLogisticRegressionModel::operator()(const TSizeDoublePrVec& x) const {
     if (m_Beta.empty()) {
         return 0.5;
     }
@@ -424,11 +428,11 @@ typedef boost::unordered_set<std::size_t> TSizeUSet;
 //! \param[in] mask The indices of the feature vectors to remove.
 //! \param[out] xMasked The training matrix corresponding to \p x.
 //! \param[out] yMasked The training labels corresponding to \p y.
-void setupTrainingData(const TDoubleVecVec &x,
-                       const TDoubleVec &y,
-                       const TSizeUSet &mask,
-                       CDenseMatrix &xMasked,
-                       TDoubleVec &yMasked) {
+void setupTrainingData(const TDoubleVecVec& x,
+                       const TDoubleVec& y,
+                       const TSizeUSet& mask,
+                       CDenseMatrix& xMasked,
+                       TDoubleVec& yMasked) {
     xMasked = CDenseMatrix();
     yMasked.clear();
 
@@ -457,11 +461,11 @@ void setupTrainingData(const TDoubleVecVec &x,
 }
 
 //! Overload for sparse feature vectors.
-void setupTrainingData(const TSizeDoublePrVecVec &x,
-                       const TDoubleVec &y,
-                       const TSizeUSet &mask,
-                       CSparseMatrix &xMasked,
-                       TDoubleVec &yMasked) {
+void setupTrainingData(const TSizeDoublePrVecVec& x,
+                       const TDoubleVec& y,
+                       const TSizeUSet& mask,
+                       CSparseMatrix& xMasked,
+                       TDoubleVec& yMasked) {
     xMasked = CSparseMatrix();
     yMasked.clear();
 
@@ -505,7 +509,7 @@ void setupTrainingData(const TSizeDoublePrVecVec &x,
 //! \param[in] lambda The precision of the Laplace prior.
 //! \param[out] beta Filled in with the learned regression parameters.
 template <typename MATRIX>
-bool learn(const MATRIX &x, const TDoubleVec &y, const TDoubleVec &lambda, TDoubleVec &beta) {
+bool learn(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta) {
     using namespace lasso_logistic_regression_detail;
 
     // TODO parameters.
@@ -530,10 +534,14 @@ bool learn(const MATRIX &x, const TDoubleVec &y, const TDoubleVec &lambda, TDoub
 }
 
 //! Extract a matrix element from dense storage.
-double element(double xij) { return xij; }
+double element(double xij) {
+    return xij;
+}
 
 //! Extract a matrix element from sparse storage.
-double element(const TSizeDoublePr &xij) { return xij.second; }
+double element(const TSizeDoublePr& xij) {
+    return xij.second;
+}
 
 //! Not strictly speaking the square \f$L_{2,2}\f$ norm, but closely
 //! related. In particular, this is defined as:
@@ -543,7 +551,8 @@ double element(const TSizeDoublePr &xij) { return xij.second; }
 //!
 //! Here, \f$n\f$ is the number of rows and \f$d\f$ is the number
 //! of columns.
-template <typename STORAGE> double l22Norm(const STORAGE &x) {
+template <typename STORAGE>
+double l22Norm(const STORAGE& x) {
     typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
     TMeanAccumulator result;
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -571,7 +580,8 @@ template <typename STORAGE> double l22Norm(const STORAGE &x) {
 //! for example by ensuring that both subsets contain both positive
 //! and negative examples. This can be achieved by randomly splitting
 //! these sets independently.
-template <typename MATRIX> class C2FoldCrossValidatedLogLikelihood {
+template <typename MATRIX>
+class C2FoldCrossValidatedLogLikelihood {
 public:
     typedef double result_type;
 
@@ -579,7 +589,7 @@ public:
     C2FoldCrossValidatedLogLikelihood(std::size_t d) : m_D(d + 1), m_Splits(0) {}
 
     //! Add a 2-split of the training data.
-    void addSplit(MATRIX &xTrain, TDoubleVec &yTrain, MATRIX &xTest, TDoubleVec &yTest) {
+    void addSplit(MATRIX& xTrain, TDoubleVec& yTrain, MATRIX& xTest, TDoubleVec& yTest) {
         if (xTrain.rows() != m_D || xTest.rows() != m_D) {
             LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = "
                                                       << xTest.rows() << ", D = " << m_D);
@@ -631,7 +641,7 @@ private:
     mutable TDoubleVec m_Beta;
 };
 
-}// unnamed::
+} // unnamed::
 
 ////// CLassoLogisticRegression //////
 
@@ -710,7 +720,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     }
     LOG_TRACE("log(L) = " << core::CContainerPrinter::print(logLikelihoods));
 
-    double *max = std::max_element(boost::begin(logLikelihoods), boost::end(logLikelihoods));
+    double* max = std::max_element(boost::begin(logLikelihoods), boost::end(logLikelihoods));
     ptrdiff_t a = std::max(max - logLikelihoods - 1, ptrdiff_t(0));
     ptrdiff_t b = std::min(max - logLikelihoods + 1, ptrdiff_t(7));
     LOG_TRACE("a = " << a << ", b = " << b);
@@ -733,7 +743,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
 
 template <typename STORAGE>
 template <typename MATRIX>
-bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel &result) {
+bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result) {
     result = CLogisticRegressionModel();
 
     if (!this->sanityChecks()) {
@@ -766,7 +776,8 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel &result
     return true;
 }
 
-template <typename STORAGE> bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
+template <typename STORAGE>
+bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
     if (m_Y.empty()) {
         LOG_WARN("No training data");
         return false;
@@ -787,7 +798,7 @@ template <typename STORAGE> bool CLassoLogisticRegression<STORAGE>::sanityChecks
 
 ////// CLassoLogisticRegressionDense //////
 
-void CLassoLogisticRegressionDense::addTrainingData(const TDoubleVec &x, bool interesting) {
+void CLassoLogisticRegressionDense::addTrainingData(const TDoubleVec& x, bool interesting) {
     if (this->x().empty()) {
         this->d() = x.size();
     }
@@ -804,13 +815,13 @@ void CLassoLogisticRegressionDense::learnHyperparameter(EHyperparametersStyle st
     this->doLearnHyperparameter<CDenseMatrix>(style);
 }
 
-bool CLassoLogisticRegressionDense::learn(CLogisticRegressionModel &result) {
+bool CLassoLogisticRegressionDense::learn(CLogisticRegressionModel& result) {
     return this->doLearn<CDenseMatrix>(result);
 }
 
 ////// CLassoLogisticRegressionSparse //////
 
-void CLassoLogisticRegressionSparse::addTrainingData(const TSizeDoublePrVec &x, bool interesting) {
+void CLassoLogisticRegressionSparse::addTrainingData(const TSizeDoublePrVec& x, bool interesting) {
     for (std::size_t i = 0u; i < x.size(); ++i) {
         this->d() = std::max(this->d(), x[i].first);
     }
@@ -822,7 +833,7 @@ void CLassoLogisticRegressionSparse::learnHyperparameter(EHyperparametersStyle s
     this->doLearnHyperparameter<CSparseMatrix>(style);
 }
 
-bool CLassoLogisticRegressionSparse::learn(CLogisticRegressionModel &result) {
+bool CLassoLogisticRegressionSparse::learn(CLogisticRegressionModel& result) {
     return this->doLearn<CSparseMatrix>(result);
 }
 }

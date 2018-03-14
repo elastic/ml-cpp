@@ -51,12 +51,12 @@ typedef std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLess> TStrCRef
 
 //! Update \p hashes with the hashes of the active people in \p values.
 template <typename T>
-void hashActive(const CDataGatherer &gatherer,
-                const std::vector<T> &values,
-                TStrCRefUInt64Map &hashes) {
+void hashActive(const CDataGatherer& gatherer,
+                const std::vector<T>& values,
+                TStrCRefUInt64Map& hashes) {
     for (std::size_t pid = 0u; pid < values.size(); ++pid) {
         if (gatherer.isPersonActive(pid)) {
-            uint64_t &hash = hashes[boost::cref(gatherer.personName(pid))];
+            uint64_t& hash = hashes[boost::cref(gatherer.personName(pid))];
             hash = maths::CChecksum::calculate(hash, values[pid]);
         }
     }
@@ -81,20 +81,20 @@ const std::string MEMORY_ESTIMATOR_TAG("i");
 }
 
 CIndividualModel::CIndividualModel(
-    const SModelParams &params,
-    const TDataGathererPtr &dataGatherer,
-    const TFeatureMathsModelPtrPrVec &newFeatureModels,
-    const TFeatureMultivariatePriorPtrPrVec &newFeatureCorrelateModelPriors,
-    const TFeatureCorrelationsPtrPrVec &featureCorrelatesModels,
-    const TFeatureInfluenceCalculatorCPtrPrVecVec &influenceCalculators)
+    const SModelParams& params,
+    const TDataGathererPtr& dataGatherer,
+    const TFeatureMathsModelPtrPrVec& newFeatureModels,
+    const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+    const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+    const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators) {
     m_FeatureModels.reserve(newFeatureModels.size());
-    for (const auto &model : newFeatureModels) {
+    for (const auto& model : newFeatureModels) {
         m_FeatureModels.emplace_back(model.first, model.second);
     }
     std::sort(m_FeatureModels.begin(),
               m_FeatureModels.end(),
-              [](const SFeatureModels &lhs, const SFeatureModels &rhs) {
+              [](const SFeatureModels& lhs, const SFeatureModels& rhs) {
                   return lhs.s_Feature < rhs.s_Feature;
               });
 
@@ -107,13 +107,13 @@ CIndividualModel::CIndividualModel(
         }
         std::sort(m_FeatureCorrelatesModels.begin(),
                   m_FeatureCorrelatesModels.end(),
-                  [](const SFeatureCorrelateModels &lhs, const SFeatureCorrelateModels &rhs) {
+                  [](const SFeatureCorrelateModels& lhs, const SFeatureCorrelateModels& rhs) {
                       return lhs.s_Feature < rhs.s_Feature;
                   });
     }
 }
 
-CIndividualModel::CIndividualModel(bool isForPersistence, const CIndividualModel &other)
+CIndividualModel::CIndividualModel(bool isForPersistence, const CIndividualModel& other)
     : CAnomalyDetectorModel(isForPersistence, other),
       m_FirstBucketTimes(other.m_FirstBucketTimes),
       m_LastBucketTimes(other.m_LastBucketTimes),
@@ -123,24 +123,26 @@ CIndividualModel::CIndividualModel(bool isForPersistence, const CIndividualModel
     }
 
     m_FeatureModels.reserve(m_FeatureModels.size());
-    for (const auto &feature : other.m_FeatureModels) {
+    for (const auto& feature : other.m_FeatureModels) {
         m_FeatureModels.emplace_back(feature.s_Feature, feature.s_NewModel);
         m_FeatureModels.back().s_Models.reserve(feature.s_Models.size());
-        for (const auto &model : feature.s_Models) {
+        for (const auto& model : feature.s_Models) {
             m_FeatureModels.back().s_Models.emplace_back(model->cloneForPersistence());
         }
     }
 
     m_FeatureCorrelatesModels.reserve(other.m_FeatureCorrelatesModels.size());
-    for (const auto &feature : other.m_FeatureCorrelatesModels) {
-        m_FeatureCorrelatesModels.emplace_back(
-            feature.s_Feature,
-            feature.s_ModelPrior,
-            TCorrelationsPtr(feature.s_Models->cloneForPersistence()));
+    for (const auto& feature : other.m_FeatureCorrelatesModels) {
+        m_FeatureCorrelatesModels.emplace_back(feature.s_Feature,
+                                               feature.s_ModelPrior,
+                                               TCorrelationsPtr(
+                                                   feature.s_Models->cloneForPersistence()));
     }
 }
 
-bool CIndividualModel::isPopulation(void) const { return false; }
+bool CIndividualModel::isPopulation(void) const {
+    return false;
+}
 
 CIndividualModel::TOptionalUInt64 CIndividualModel::currentBucketCount(std::size_t pid,
                                                                        core_t::TTime time) const {
@@ -167,8 +169,8 @@ bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
 
 void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
                                               core_t::TTime endTime,
-                                              CResourceMonitor &resourceMonitor) {
-    CDataGatherer &gatherer = this->dataGatherer();
+                                              CResourceMonitor& resourceMonitor) {
+    CDataGatherer& gatherer = this->dataGatherer();
 
     if (!gatherer.dataAvailable(startTime)) {
         return;
@@ -176,12 +178,13 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength(); time < endTime;
          time += bucketLength) {
-        this->CAnomalyDetectorModel::sampleBucketStatistics(
-            time, time + bucketLength, resourceMonitor);
+        this->CAnomalyDetectorModel::sampleBucketStatistics(time,
+                                                            time + bucketLength,
+                                                            resourceMonitor);
 
         // Currently, we only remember one bucket.
         this->currentBucketStartTime(time);
-        TSizeUInt64PrVec &personCounts = this->currentBucketPersonCounts();
+        TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
         gatherer.personNonZeroCounts(time, personCounts);
         this->applyFilter(model_t::E_XF_By, false, this->personFilter(), personCounts);
     }
@@ -189,8 +192,8 @@ void CIndividualModel::sampleBucketStatistics(core_t::TTime startTime,
 
 void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime,
                                         core_t::TTime endTime,
-                                        CResourceMonitor &resourceMonitor) {
-    CDataGatherer &gatherer = this->dataGatherer();
+                                        CResourceMonitor& resourceMonitor) {
+    CDataGatherer& gatherer = this->dataGatherer();
     if (!gatherer.dataAvailable(startTime)) {
         return;
     }
@@ -204,17 +207,17 @@ void CIndividualModel::sampleOutOfPhase(core_t::TTime startTime,
 
 void CIndividualModel::sample(core_t::TTime startTime,
                               core_t::TTime endTime,
-                              CResourceMonitor &resourceMonitor) {
-    const CDataGatherer &gatherer = this->dataGatherer();
+                              CResourceMonitor& resourceMonitor) {
+    const CDataGatherer& gatherer = this->dataGatherer();
 
     for (core_t::TTime time = startTime, bucketLength = gatherer.bucketLength(); time < endTime;
          time += bucketLength) {
         this->CAnomalyDetectorModel::sample(time, time + bucketLength, resourceMonitor);
 
         this->currentBucketStartTime(time);
-        TSizeUInt64PrVec &personCounts = this->currentBucketPersonCounts();
+        TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
         gatherer.personNonZeroCounts(time, personCounts);
-        for (const auto &count : personCounts) {
+        for (const auto& count : personCounts) {
             std::size_t pid = count.first;
             if (CAnomalyDetectorModel::isTimeUnset(m_FirstBucketTimes[pid])) {
                 m_FirstBucketTimes[pid] = time;
@@ -232,7 +235,7 @@ void CIndividualModel::prune(std::size_t maximumAge) {
         return;
     }
 
-    CDataGatherer &gatherer = this->dataGatherer();
+    CDataGatherer& gatherer = this->dataGatherer();
 
     TSizeVec peopleToRemove;
     for (std::size_t pid = 0u; pid < m_LastBucketTimes.size(); ++pid) {
@@ -262,10 +265,10 @@ void CIndividualModel::prune(std::size_t maximumAge) {
 }
 
 bool CIndividualModel::computeTotalProbability(
-    const std::string & /*person*/,
+    const std::string& /*person*/,
     std::size_t /*numberAttributeProbabilities*/,
-    TOptionalDouble &probability,
-    TAttributeProbability1Vec &attributeProbabilities) const {
+    TOptionalDouble& probability,
+    TAttributeProbability1Vec& attributeProbabilities) const {
     probability = TOptionalDouble();
     attributeProbabilities.clear();
     return true;
@@ -276,20 +279,20 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
 
     TStrCRefUInt64Map hashes1;
 
-    const CDataGatherer &gatherer = this->dataGatherer();
+    const CDataGatherer& gatherer = this->dataGatherer();
     hashActive(gatherer, m_FirstBucketTimes, hashes1);
     hashActive(gatherer, m_LastBucketTimes, hashes1);
-    for (const auto &feature : m_FeatureModels) {
+    for (const auto& feature : m_FeatureModels) {
         hashActive(gatherer, feature.s_Models, hashes1);
     }
 
     TStrCRefStrCRefPrUInt64Map hashes2;
 
-    for (const auto &feature : m_FeatureCorrelatesModels) {
-        for (const auto &prior : feature.s_Models->correlatePriors()) {
+    for (const auto& feature : m_FeatureCorrelatesModels) {
+        for (const auto& prior : feature.s_Models->correlatePriors()) {
             std::size_t pids[]{prior.first.first, prior.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
-                uint64_t &hash = hashes2[{boost::cref(this->personName(pids[0])),
+                uint64_t& hash = hashes2[{boost::cref(this->personName(pids[0])),
                                           boost::cref(this->personName(pids[1]))}];
                 hash = maths::CChecksum::calculate(hash, prior.second);
             }
@@ -298,9 +301,9 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
 
     if (includeCurrentBucketStats) {
         seed = maths::CChecksum::calculate(seed, this->currentBucketStartTime());
-        const TSizeUInt64PrVec &personCounts = this->currentBucketPersonCounts();
-        for (const auto &count : personCounts) {
-            uint64_t &hash = hashes1[boost::cref(this->personName(count.first))];
+        const TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
+        for (const auto& count : personCounts) {
+            uint64_t& hash = hashes1[boost::cref(this->personName(count.first))];
             hash = maths::CChecksum::calculate(hash, count.second);
         }
     }
@@ -324,7 +327,7 @@ void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 }
 
 std::size_t CIndividualModel::memoryUsage(void) const {
-    const CDataGatherer &gatherer = this->dataGatherer();
+    const CDataGatherer& gatherer = this->dataGatherer();
     TOptionalSize estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
                                                        gatherer.numberActiveAttributes(),
                                                        this->numberCorrelations());
@@ -341,35 +344,39 @@ std::size_t CIndividualModel::computeMemoryUsage(void) const {
     return mem;
 }
 
-CMemoryUsageEstimator *CIndividualModel::memoryUsageEstimator(void) const {
+CMemoryUsageEstimator* CIndividualModel::memoryUsageEstimator(void) const {
     return &m_MemoryEstimator;
 }
 
-std::size_t CIndividualModel::staticSize(void) const { return sizeof(*this); }
+std::size_t CIndividualModel::staticSize(void) const {
+    return sizeof(*this);
+}
 
-void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter &inserter) const {
-    inserter.insertValue(
-        WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(), core::CIEEE754::E_SinglePrecision);
+void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(WINDOW_BUCKET_COUNT_TAG,
+                         this->windowBucketCount(),
+                         core::CIEEE754::E_SinglePrecision);
     core::CPersistUtils::persist(PERSON_BUCKET_COUNT_TAG, this->personBucketCounts(), inserter);
     core::CPersistUtils::persist(FIRST_BUCKET_TIME_TAG, m_FirstBucketTimes, inserter);
     core::CPersistUtils::persist(LAST_BUCKET_TIME_TAG, m_LastBucketTimes, inserter);
-    for (const auto &feature : m_FeatureModels) {
+    for (const auto& feature : m_FeatureModels) {
         inserter.insertLevel(FEATURE_MODELS_TAG,
                              boost::bind(&SFeatureModels::acceptPersistInserter, &feature, _1));
     }
-    for (const auto &feature : m_FeatureCorrelatesModels) {
-        inserter.insertLevel(
-            FEATURE_CORRELATE_MODELS_TAG,
-            boost::bind(&SFeatureCorrelateModels::acceptPersistInserter, &feature, _1));
+    for (const auto& feature : m_FeatureCorrelatesModels) {
+        inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
+                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter,
+                                         &feature,
+                                         _1));
     }
     this->interimBucketCorrectorAcceptPersistInserter(INTERIM_BUCKET_CORRECTOR_TAG, inserter);
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
 
-bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     std::size_t i = 0u, j = 0u;
     do {
-        const std::string &name = traverser.name();
+        const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(WINDOW_BUCKET_COUNT_TAG,
                                double count,
                                core::CStringUtils::stringToType(traverser.value(), count),
@@ -399,9 +406,9 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser &tr
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
 
-    for (auto &&feature : m_FeatureModels) {
-        for (auto &&model : feature.s_Models) {
-            for (const auto &correlates : m_FeatureCorrelatesModels) {
+    for (auto&& feature : m_FeatureModels) {
+        for (auto&& model : feature.s_Models) {
+            for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
                     model->modelCorrelations(*correlates.s_Models);
                 }
@@ -413,17 +420,17 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser &tr
 }
 
 void CIndividualModel::createUpdateNewModels(core_t::TTime time,
-                                             CResourceMonitor &resourceMonitor) {
+                                             CResourceMonitor& resourceMonitor) {
     this->updateRecycledModels();
 
-    CDataGatherer &gatherer = this->dataGatherer();
+    CDataGatherer& gatherer = this->dataGatherer();
 
     std::size_t numberExistingPeople = m_FirstBucketTimes.size();
     std::size_t numberCorrelations = this->numberCorrelations();
 
     TOptionalSize usageEstimate =
         this->estimateMemoryUsage(std::min(numberExistingPeople, gatherer.numberActivePeople()),
-                                  0,// # attributes
+                                  0, // # attributes
                                   numberCorrelations);
     std::size_t ourUsage = usageEstimate ? usageEstimate.get() : this->computeMemoryUsage();
     std::size_t resourceLimit = ourUsage + resourceMonitor.allocationLimit();
@@ -443,8 +450,9 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
         numberExistingPeople += numberToCreate;
         numberNewPeople -= numberToCreate;
         if (numberNewPeople > 0 && resourceMonitor.haveNoLimit() == false) {
-            ourUsage = this->estimateMemoryUsageOrComputeAndUpdate(
-                numberExistingPeople, 0, numberCorrelations);
+            ourUsage = this->estimateMemoryUsageOrComputeAndUpdate(numberExistingPeople,
+                                                                   0,
+                                                                   numberCorrelations);
         }
     }
 
@@ -464,15 +472,17 @@ void CIndividualModel::createUpdateNewModels(core_t::TTime time,
 void CIndividualModel::createNewModels(std::size_t n, std::size_t m) {
     if (n > 0) {
         std::size_t newN = m_FirstBucketTimes.size() + n;
-        core::CAllocationStrategy::resize(
-            m_FirstBucketTimes, newN, CAnomalyDetectorModel::TIME_UNSET);
-        core::CAllocationStrategy::resize(
-            m_LastBucketTimes, newN, CAnomalyDetectorModel::TIME_UNSET);
-        for (auto &&feature : m_FeatureModels) {
+        core::CAllocationStrategy::resize(m_FirstBucketTimes,
+                                          newN,
+                                          CAnomalyDetectorModel::TIME_UNSET);
+        core::CAllocationStrategy::resize(m_LastBucketTimes,
+                                          newN,
+                                          CAnomalyDetectorModel::TIME_UNSET);
+        for (auto&& feature : m_FeatureModels) {
             core::CAllocationStrategy::reserve(feature.s_Models, newN);
             for (std::size_t pid = feature.s_Models.size(); pid < newN; ++pid) {
                 feature.s_Models.emplace_back(feature.s_NewModel->clone(pid));
-                for (const auto &correlates : m_FeatureCorrelatesModels) {
+                for (const auto& correlates : m_FeatureCorrelatesModels) {
                     if (feature.s_Feature == correlates.s_Feature) {
                         feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
                     }
@@ -487,9 +497,9 @@ void CIndividualModel::updateRecycledModels(void) {
     for (auto pid : this->dataGatherer().recycledPersonIds()) {
         m_FirstBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
         m_LastBucketTimes[pid] = CAnomalyDetectorModel::TIME_UNSET;
-        for (auto &&feature : m_FeatureModels) {
+        for (auto&& feature : m_FeatureModels) {
             feature.s_Models[pid].reset(feature.s_NewModel->clone(pid));
-            for (const auto &correlates : m_FeatureCorrelatesModels) {
+            for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
                     feature.s_Models.back()->modelCorrelations(*correlates.s_Models);
                 }
@@ -500,7 +510,7 @@ void CIndividualModel::updateRecycledModels(void) {
 }
 
 void CIndividualModel::refreshCorrelationModels(std::size_t resourceLimit,
-                                                CResourceMonitor &resourceMonitor) {
+                                                CResourceMonitor& resourceMonitor) {
     std::size_t n = this->numberOfPeople();
     double maxNumberCorrelations =
         this->params().s_CorrelationModelsOverhead * static_cast<double>(n);
@@ -510,16 +520,16 @@ void CIndividualModel::refreshCorrelationModels(std::size_t resourceLimit,
                                                  memoryUsage,
                                                  resourceLimit,
                                                  static_cast<std::size_t>(maxNumberCorrelations));
-    for (auto &&feature : m_FeatureCorrelatesModels) {
+    for (auto&& feature : m_FeatureCorrelatesModels) {
         allocator.prototypePrior(feature.s_ModelPrior);
         feature.s_Models->refresh(allocator);
     }
 }
 
-void CIndividualModel::clearPrunedResources(const TSizeVec &people,
-                                            const TSizeVec & /*attributes*/) {
+void CIndividualModel::clearPrunedResources(const TSizeVec& people,
+                                            const TSizeVec& /*attributes*/) {
     for (auto pid : people) {
-        for (auto &&feature : m_FeatureModels) {
+        for (auto&& feature : m_FeatureModels) {
             feature.s_Models[pid].reset(this->tinyModel());
         }
     }
@@ -533,8 +543,9 @@ double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
         TOptionalUInt64 count = this->currentBucketCount(pid, time);
         if (!count || *count == 0) {
             double frequency = this->personFrequency(pid);
-            result = model_t::emptyBucketCountWeight(
-                feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
+            result = model_t::emptyBucketCountWeight(feature,
+                                                     frequency,
+                                                     this->params().s_CutoffToModelEmptyBuckets);
         }
     }
     return result;
@@ -544,27 +555,29 @@ double CIndividualModel::probabilityBucketEmpty(model_t::EFeature feature, std::
     double result = 0.0;
     if (model_t::countsEmptyBuckets(feature)) {
         double frequency = this->personFrequency(pid);
-        double emptyBucketWeight = model_t::emptyBucketCountWeight(
-            feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
+        double emptyBucketWeight =
+            model_t::emptyBucketCountWeight(feature,
+                                            frequency,
+                                            this->params().s_CutoffToModelEmptyBuckets);
         result = (1.0 - frequency) * (1.0 - emptyBucketWeight);
     }
     return result;
 }
 
-const maths::CModel *CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {
-    return const_cast<CIndividualModel *>(this)->model(feature, pid);
+const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {
+    return const_cast<CIndividualModel*>(this)->model(feature, pid);
 }
 
-maths::CModel *CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
+maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
     auto i =
         std::find_if(m_FeatureModels.begin(),
                      m_FeatureModels.end(),
-                     [feature](const SFeatureModels &model) { return model.s_Feature == feature; });
+                     [feature](const SFeatureModels& model) { return model.s_Feature == feature; });
     return i != m_FeatureModels.end() && pid < i->s_Models.size() ? i->s_Models[pid].get() : 0;
 }
 
-void CIndividualModel::sampleCorrelateModels(const maths_t::TWeightStyleVec &weightStyles) {
-    for (const auto &feature : m_FeatureCorrelatesModels) {
+void CIndividualModel::sampleCorrelateModels(const maths_t::TWeightStyleVec& weightStyles) {
+    for (const auto& feature : m_FeatureCorrelatesModels) {
         feature.s_Models->processSamples(weightStyles);
     }
 }
@@ -573,9 +586,9 @@ void CIndividualModel::correctBaselineForInterim(
     model_t::EFeature feature,
     std::size_t pid,
     model_t::CResultType type,
-    const TSizeDoublePr1Vec &correlated,
-    const TFeatureSizeSizeTripleDouble1VecUMap &corrections,
-    TDouble1Vec &result) const {
+    const TSizeDoublePr1Vec& correlated,
+    const TFeatureSizeSizeTripleDouble1VecUMap& corrections,
+    TDouble1Vec& result) const {
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
         TFeatureSizeSizeTriple key(feature, pid, pid);
         switch (type.asConditionalOrUnconditional()) {
@@ -594,11 +607,11 @@ void CIndividualModel::correctBaselineForInterim(
     }
 }
 
-const CIndividualModel::TTimeVec &CIndividualModel::firstBucketTimes(void) const {
+const CIndividualModel::TTimeVec& CIndividualModel::firstBucketTimes(void) const {
     return m_FirstBucketTimes;
 }
 
-const CIndividualModel::TTimeVec &CIndividualModel::lastBucketTimes(void) const {
+const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes(void) const {
     return m_LastBucketTimes;
 }
 
@@ -617,25 +630,27 @@ std::string CIndividualModel::printCurrentBucket(void) const {
 
 std::size_t CIndividualModel::numberCorrelations(void) const {
     std::size_t result = 0u;
-    for (const auto &feature : m_FeatureCorrelatesModels) {
+    for (const auto& feature : m_FeatureCorrelatesModels) {
         result += feature.s_Models->correlatePriors().size();
     }
     return result;
 }
 
-double CIndividualModel::attributeFrequency(std::size_t /*cid*/) const { return 1.0; }
+double CIndividualModel::attributeFrequency(std::size_t /*cid*/) const {
+    return 1.0;
+}
 
 void CIndividualModel::doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) {
     core_t::TTime gap = endTime - startTime;
 
-    for (auto &&time : m_LastBucketTimes) {
+    for (auto&& time : m_LastBucketTimes) {
         if (!CAnomalyDetectorModel::isTimeUnset(time)) {
             time = time + gap;
         }
     }
 
-    for (auto &&feature : m_FeatureModels) {
-        for (auto &model : feature.s_Models) {
+    for (auto&& feature : m_FeatureModels) {
+        for (auto& model : feature.s_Models) {
             model->skipTime(gap);
         }
     }

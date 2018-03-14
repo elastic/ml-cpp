@@ -37,15 +37,15 @@ namespace test {
 void CRandomNumbers::generateNormalSamples(double mean,
                                            double variance,
                                            std::size_t numberSamples,
-                                           TDoubleVec &samples) {
+                                           TDoubleVec& samples) {
     boost::random::normal_distribution<> normal(mean, ::sqrt(variance));
     generateSamples(m_Generator, normal, numberSamples, samples);
 }
 
-void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec &mean,
-                                                       const TDoubleVecVec &covariances_,
+void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec& mean,
+                                                       const TDoubleVecVec& covariances_,
                                                        std::size_t numberSamples,
-                                                       TDoubleVecVec &samples) {
+                                                       TDoubleVecVec& samples) {
     samples.clear();
 
     std::size_t d = covariances_.size();
@@ -83,14 +83,14 @@ void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec &mean,
 
 void CRandomNumbers::generatePoissonSamples(double rate,
                                             std::size_t numberSamples,
-                                            TUIntVec &samples) {
+                                            TUIntVec& samples) {
     boost::random::poisson_distribution<> poisson(rate);
     generateSamples(m_Generator, poisson, numberSamples, samples);
 }
 
 void CRandomNumbers::generateStudentsSamples(double degreesFreedom,
                                              std::size_t numberSamples,
-                                             TDoubleVec &samples) {
+                                             TDoubleVec& samples) {
     boost::random::student_t_distribution<> students(degreesFreedom);
     generateSamples(m_Generator, students, numberSamples, samples);
 }
@@ -98,7 +98,7 @@ void CRandomNumbers::generateStudentsSamples(double degreesFreedom,
 void CRandomNumbers::generateLogNormalSamples(double location,
                                               double squareScale,
                                               std::size_t numberSamples,
-                                              TDoubleVec &samples) {
+                                              TDoubleVec& samples) {
     boost::random::lognormal_distribution<> logNormal(location, ::sqrt(squareScale));
     generateSamples(m_Generator, logNormal, numberSamples, samples);
 }
@@ -106,7 +106,7 @@ void CRandomNumbers::generateLogNormalSamples(double location,
 void CRandomNumbers::generateUniformSamples(double a,
                                             double b,
                                             std::size_t numberSamples,
-                                            TDoubleVec &samples) {
+                                            TDoubleVec& samples) {
     boost::random::uniform_real_distribution<> uniform(a, b);
     generateSamples(m_Generator, uniform, numberSamples, samples);
 }
@@ -114,7 +114,7 @@ void CRandomNumbers::generateUniformSamples(double a,
 void CRandomNumbers::generateUniformSamples(std::size_t a,
                                             std::size_t b,
                                             std::size_t numberSamples,
-                                            TSizeVec &samples) {
+                                            TSizeVec& samples) {
     boost::random::uniform_int_distribution<std::size_t> uniform(a, b - 1);
     generateSamples(m_Generator, uniform, numberSamples, samples);
 }
@@ -122,15 +122,15 @@ void CRandomNumbers::generateUniformSamples(std::size_t a,
 void CRandomNumbers::generateGammaSamples(double shape,
                                           double scale,
                                           std::size_t numberSamples,
-                                          TDoubleVec &samples) {
+                                          TDoubleVec& samples) {
     boost::random::gamma_distribution<> gamma(shape, scale);
     generateSamples(m_Generator, gamma, numberSamples, samples);
 }
 
-void CRandomNumbers::generateMultinomialSamples(const TDoubleVec &categories,
-                                                const TDoubleVec &probabilities,
+void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
+                                                const TDoubleVec& probabilities,
                                                 std::size_t numberSamples,
-                                                TDoubleVec &samples) {
+                                                TDoubleVec& samples) {
     if (categories.size() != probabilities.size()) {
         LOG_ERROR("categories and probabilities must be one-to-one.");
     }
@@ -159,9 +159,9 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec &categories,
     }
 }
 
-void CRandomNumbers::generateDirichletSamples(const TDoubleVec &concentrations,
+void CRandomNumbers::generateDirichletSamples(const TDoubleVec& concentrations,
                                               std::size_t numberSamples,
-                                              TDoubleVecVec &samples) {
+                                              TDoubleVecVec& samples) {
     samples.resize(numberSamples);
     for (std::size_t i = 0; i < concentrations.size(); ++i) {
         TDoubleVec raw;
@@ -185,7 +185,7 @@ void CRandomNumbers::generateDirichletSamples(const TDoubleVec &concentrations,
 
 void CRandomNumbers::generateWords(std::size_t length,
                                    std::size_t numberSamples,
-                                   TStrVec &samples) {
+                                   TStrVec& samples) {
     const char characterSet[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                                  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z', '-',
                                  '_', ' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
@@ -194,7 +194,7 @@ void CRandomNumbers::generateWords(std::size_t length,
 
     samples.resize(numberSamples);
     for (std::size_t i = 0u; i < numberSamples; ++i) {
-        std::string &word = samples[i];
+        std::string& word = samples[i];
         word.resize(length);
         for (std::size_t j = 0u; j < length; ++j) {
             word[j] = characterSet[uniform(m_Generator)];
@@ -206,9 +206,11 @@ CRandomNumbers::CUniform0nGenerator CRandomNumbers::uniformGenerator(void) {
     return CUniform0nGenerator(m_Generator);
 }
 
-void CRandomNumbers::discard(std::size_t n) { m_Generator.discard(n); }
+void CRandomNumbers::discard(std::size_t n) {
+    m_Generator.discard(n);
+}
 
-CRandomNumbers::CUniform0nGenerator::CUniform0nGenerator(const TGenerator &generator)
+CRandomNumbers::CUniform0nGenerator::CUniform0nGenerator(const TGenerator& generator)
     : m_Generator(new TGenerator(generator)) {}
 
 std::size_t CRandomNumbers::CUniform0nGenerator::operator()(std::size_t n) const {

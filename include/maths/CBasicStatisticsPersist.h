@@ -30,15 +30,16 @@ namespace ml {
 namespace maths {
 namespace basic_statistics_detail {
 //! Function to do conversion from string.
-template <typename T> bool stringToType(const std::string &str, T &value) {
+template <typename T>
+bool stringToType(const std::string& str, T& value) {
     return core::CStringUtils::stringToType(str, value);
 }
 //! Function to do conversion from string to float storage.
-inline bool stringToType(const std::string &str, CFloatStorage &value) {
+inline bool stringToType(const std::string& str, CFloatStorage& value) {
     return value.fromString(str);
 }
 //! Function to do conversion from string to double storage.
-inline bool stringToType(const std::string &str, CDoublePrecisionStorage &value) {
+inline bool stringToType(const std::string& str, CDoublePrecisionStorage& value) {
     double d;
     if (core::CStringUtils::stringToType<double>(str, d) == false) {
         return false;
@@ -48,40 +49,43 @@ inline bool stringToType(const std::string &str, CDoublePrecisionStorage &value)
 }
 //! Function to do conversion from string to a vector.
 template <typename T, std::size_t N>
-bool stringToType(const std::string &str, CVectorNx1<T, N> &value) {
+bool stringToType(const std::string& str, CVectorNx1<T, N>& value) {
     return value.fromDelimited(str);
 }
 //! Function to do conversion from string to a symmetric matrix.
 template <typename T, std::size_t N>
-bool stringToType(const std::string &str, CSymmetricMatrixNxN<T, N> &value) {
+bool stringToType(const std::string& str, CSymmetricMatrixNxN<T, N>& value) {
     return value.fromDelimited(str);
 }
 
 //! Function to do conversion to a string.
-template <typename T> inline std::string typeToString(const T &value) {
+template <typename T>
+inline std::string typeToString(const T& value) {
     return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_SinglePrecision);
 }
 //! Function to do conversion to a string from float storage.
-inline std::string typeToString(const CFloatStorage &value) { return value.toString(); }
+inline std::string typeToString(const CFloatStorage& value) {
+    return value.toString();
+}
 //! Function to do conversion to a string from double storage.
-inline std::string typeToString(const CDoublePrecisionStorage &value) {
+inline std::string typeToString(const CDoublePrecisionStorage& value) {
     return core::CStringUtils::typeToStringPrecise(double(value),
                                                    core::CIEEE754::E_DoublePrecision);
 }
 //! Function to do conversion to a string from a vector.
 template <typename T, std::size_t N>
-inline std::string typeToString(const CVectorNx1<T, N> &value) {
+inline std::string typeToString(const CVectorNx1<T, N>& value) {
     return value.toDelimited();
 }
 //! Function to do conversion to a string from a symmetric matrix.
 template <typename T, std::size_t N>
-inline std::string typeToString(const CSymmetricMatrixNxN<T, N> &value) {
+inline std::string typeToString(const CSymmetricMatrixNxN<T, N>& value) {
     return value.toDelimited();
 }
 }
 
 template <typename T, unsigned int ORDER>
-bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std::string &str) {
+bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std::string& str) {
     if (str.empty()) {
         LOG_ERROR("Empty accumulator representation");
         return false;
@@ -202,7 +206,7 @@ uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum(void) const {
 
 template <typename T, typename CONTAINER, typename LESS>
 bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
-    const std::string &value) {
+    const std::string& value) {
     this->clear();
 
     if (value.empty()) {
@@ -280,4 +284,4 @@ uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(ui
 }
 }
 
-#endif// INCLUDED_ml_maths_CBasicStatisticsPersist_h
+#endif // INCLUDED_ml_maths_CBasicStatisticsPersist_h

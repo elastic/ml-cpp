@@ -40,35 +40,41 @@ using TDoubleDoublePr = std::pair<double, double>;
 
 ////////// CModelDetailsView Implementation //////////
 
-bool CModelDetailsView::personId(const std::string &name, std::size_t &result) const {
+bool CModelDetailsView::personId(const std::string& name, std::size_t& result) const {
     return this->base().dataGatherer().personId(name, result);
 }
 
-bool CModelDetailsView::categoryId(const std::string &attribute, std::size_t &result) const {
+bool CModelDetailsView::categoryId(const std::string& attribute, std::size_t& result) const {
     return this->base().dataGatherer().attributeId(attribute, result);
 }
 
-const CModelDetailsView::TFeatureVec &CModelDetailsView::features(void) const {
+const CModelDetailsView::TFeatureVec& CModelDetailsView::features(void) const {
     return this->base().dataGatherer().features();
 }
 
 void CModelDetailsView::modelPlot(core_t::TTime time,
                                   double boundsPercentile,
-                                  const TStrSet &terms,
-                                  CModelPlotData &modelPlotData) const {
+                                  const TStrSet& terms,
+                                  CModelPlotData& modelPlotData) const {
     for (auto feature : this->features()) {
         if (!model_t::isConstant(feature) && !model_t::isCategorical(feature)) {
             if (terms.empty() || !this->hasByField()) {
                 for (std::size_t byFieldId = 0; byFieldId < this->maxByFieldId(); ++byFieldId) {
-                    this->modelPlotForByFieldId(
-                        time, boundsPercentile, feature, byFieldId, modelPlotData);
+                    this->modelPlotForByFieldId(time,
+                                                boundsPercentile,
+                                                feature,
+                                                byFieldId,
+                                                modelPlotData);
                 }
             } else {
-                for (const auto &term : terms) {
+                for (const auto& term : terms) {
                     std::size_t byFieldId(0);
                     if (this->byFieldId(term, byFieldId)) {
-                        this->modelPlotForByFieldId(
-                            time, boundsPercentile, feature, byFieldId, modelPlotData);
+                        this->modelPlotForByFieldId(time,
+                                                    boundsPercentile,
+                                                    feature,
+                                                    byFieldId,
+                                                    modelPlotData);
                     }
                 }
             }
@@ -81,14 +87,14 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
                                               double boundsPercentile,
                                               model_t::EFeature feature,
                                               std::size_t byFieldId,
-                                              CModelPlotData &modelPlotData) const {
+                                              CModelPlotData& modelPlotData) const {
     using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2Vec3Vec = core::CSmallVector<TDouble2Vec, 3>;
     using TDouble2Vec4Vec = core::CSmallVector<TDouble2Vec, 4>;
 
     if (this->isByFieldIdActive(byFieldId)) {
-        const maths::CModel *model = this->model(feature, byFieldId);
+        const maths::CModel* model = this->model(feature, byFieldId);
         if (!model) {
             return;
         }
@@ -120,9 +126,9 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
 
 void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
                                                model_t::EFeature feature,
-                                               const TStrSet &terms,
-                                               CModelPlotData &modelPlotData) const {
-    const CDataGatherer &gatherer = this->base().dataGatherer();
+                                               const TStrSet& terms,
+                                               CModelPlotData& modelPlotData) const {
+    const CDataGatherer& gatherer = this->base().dataGatherer();
     if (!gatherer.dataAvailable(time)) {
         return;
     }
@@ -130,11 +136,11 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
     bool isPopulation{gatherer.isPopulation()};
 
     auto addCurrentBucketValue = [&](std::size_t pid, std::size_t cid) {
-        const std::string &byFieldValue{this->byFieldValue(pid, cid)};
+        const std::string& byFieldValue{this->byFieldValue(pid, cid)};
         if (this->contains(terms, byFieldValue)) {
             TDouble1Vec value(this->base().currentBucketValue(feature, pid, cid, time));
             if (!value.empty()) {
-                const std::string &overFieldValue{isPopulation ? this->base().personName(pid)
+                const std::string& overFieldValue{isPopulation ? this->base().personName(pid)
                                                                : EMPTY_STRING};
                 modelPlotData.get(feature, byFieldValue).addValue(overFieldValue, value[0]);
             }
@@ -156,7 +162,7 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
             }
         }
     } else {
-        for (const auto &count : gatherer.bucketCounts(time)) {
+        for (const auto& count : gatherer.bucketCounts(time)) {
             std::size_t pid{gatherer.extractPersonId(count)};
             std::size_t cid{gatherer.extractAttributeId(count)};
             addCurrentBucketValue(pid, cid);
@@ -164,7 +170,7 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
     }
 }
 
-bool CModelDetailsView::contains(const TStrSet &terms, const std::string &key) {
+bool CModelDetailsView::contains(const TStrSet& terms, const std::string& key) {
     return terms.empty() || key.empty() || terms.find(key) != terms.end();
 }
 
@@ -179,18 +185,18 @@ std::size_t CModelDetailsView::maxByFieldId(void) const {
                                        : this->base().dataGatherer().numberPeople();
 }
 
-bool CModelDetailsView::byFieldId(const std::string &byFieldValue, std::size_t &result) const {
+bool CModelDetailsView::byFieldId(const std::string& byFieldValue, std::size_t& result) const {
     return this->base().isPopulation()
                ? this->base().dataGatherer().attributeId(byFieldValue, result)
                : this->base().dataGatherer().personId(byFieldValue, result);
 }
 
-const std::string &CModelDetailsView::byFieldValue(std::size_t byFieldId) const {
+const std::string& CModelDetailsView::byFieldValue(std::size_t byFieldId) const {
     return this->base().isPopulation() ? this->base().attributeName(byFieldId)
                                        : this->base().personName(byFieldId);
 }
 
-const std::string &CModelDetailsView::byFieldValue(std::size_t pid, std::size_t cid) const {
+const std::string& CModelDetailsView::byFieldValue(std::size_t pid, std::size_t cid) const {
     return this->base().isPopulation() ? this->base().attributeName(cid)
                                        : this->base().personName(pid);
 }
@@ -202,15 +208,17 @@ bool CModelDetailsView::isByFieldIdActive(std::size_t byFieldId) const {
 
 ////////// CEventRateModelDetailsView Implementation //////////
 
-CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel &model)
+CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel& model)
     : m_Model(&model) {}
 
-const maths::CModel *CEventRateModelDetailsView::model(model_t::EFeature feature,
+const maths::CModel* CEventRateModelDetailsView::model(model_t::EFeature feature,
                                                        std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CEventRateModelDetailsView::base(void) const { return *m_Model; }
+const CAnomalyDetectorModel& CEventRateModelDetailsView::base(void) const {
+    return *m_Model;
+}
 
 double CEventRateModelDetailsView::countVarianceScale(model_t::EFeature /*feature*/,
                                                       std::size_t /*byFieldId*/,
@@ -221,15 +229,15 @@ double CEventRateModelDetailsView::countVarianceScale(model_t::EFeature /*featur
 ////////// CEventRatePopulationModelDetailsView Implementation //////////
 
 CEventRatePopulationModelDetailsView::CEventRatePopulationModelDetailsView(
-    const CEventRatePopulationModel &model)
+    const CEventRatePopulationModel& model)
     : m_Model(&model) {}
 
-const maths::CModel *CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
+const maths::CModel* CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
                                                                  std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CEventRatePopulationModelDetailsView::base(void) const {
+const CAnomalyDetectorModel& CEventRatePopulationModelDetailsView::base(void) const {
     return *m_Model;
 }
 
@@ -241,14 +249,16 @@ double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeatur
 
 ////////// CMetricModelDetailsView Implementation //////////
 
-CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel &model) : m_Model(&model) {}
+CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel& model) : m_Model(&model) {}
 
-const maths::CModel *CMetricModelDetailsView::model(model_t::EFeature feature,
+const maths::CModel* CMetricModelDetailsView::model(model_t::EFeature feature,
                                                     std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CMetricModelDetailsView::base(void) const { return *m_Model; }
+const CAnomalyDetectorModel& CMetricModelDetailsView::base(void) const {
+    return *m_Model;
+}
 
 double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
                                                    std::size_t byFieldId,
@@ -265,15 +275,15 @@ double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
 ////////// CMetricPopulationModelDetailsView Implementation //////////
 
 CMetricPopulationModelDetailsView::CMetricPopulationModelDetailsView(
-    const CMetricPopulationModel &model)
+    const CMetricPopulationModel& model)
     : m_Model(&model) {}
 
-const maths::CModel *CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
+const maths::CModel* CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
                                                               std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
-const CAnomalyDetectorModel &CMetricPopulationModelDetailsView::base(void) const {
+const CAnomalyDetectorModel& CMetricPopulationModelDetailsView::base(void) const {
     return *m_Model;
 }
 

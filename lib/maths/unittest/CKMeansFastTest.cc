@@ -30,7 +30,8 @@ using namespace ml;
 namespace {
 
 //! \brief Expose internals of k-means for testing.
-template <typename POINT> class CKMeansFastForTest : maths::CKMeansFast<POINT> {
+template <typename POINT>
+class CKMeansFastForTest : maths::CKMeansFast<POINT> {
 public:
     typedef typename maths::CKMeansFast<POINT>::TBoundingBox TBoundingBox;
     typedef typename maths::CKMeansFast<POINT>::CKdTreeNodeData TKdTreeNodeData;
@@ -56,12 +57,13 @@ typedef std::vector<TMean4Accumulator> TMean4AccumulatorVec;
 
 namespace {
 
-template <typename POINT> struct SKdTreeDataInvariantsChecker {
+template <typename POINT>
+struct SKdTreeDataInvariantsChecker {
     typedef typename CKMeansFastForTest<POINT>::TKdTreeNodeData TData;
     typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
     typedef typename CKMeansFastForTest<POINT>::TBoundingBox TBoundingBox;
 
-    void operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const {
+    void operator()(const typename maths::CKdTree<POINT, TData>::SNode& node) const {
         TMeanAccumulator centroid;
 
         TBoundingBox bb(node.s_Point);
@@ -82,7 +84,8 @@ template <typename POINT> struct SKdTreeDataInvariantsChecker {
     }
 };
 
-template <typename POINT> class CCentreFilterChecker {
+template <typename POINT>
+class CCentreFilterChecker {
 public:
     typedef std::vector<std::size_t> TSizeVec;
     typedef std::vector<POINT> TPointVec;
@@ -90,14 +93,14 @@ public:
     typedef typename CKMeansFastForTest<POINT>::TCentreFilter TCentreFilter;
 
 public:
-    CCentreFilterChecker(const TPointVec &centres, std::size_t &numberAdmitted)
+    CCentreFilterChecker(const TPointVec& centres, std::size_t& numberAdmitted)
         : m_Centres(centres), m_CentreFilter(centres), m_NumberAdmitted(numberAdmitted) {}
 
-    bool operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const {
+    bool operator()(const typename maths::CKdTree<POINT, TData>::SNode& node) const {
         typedef std::pair<double, std::size_t> TDoubleSizePr;
 
         m_CentreFilter.prune(node.boundingBox());
-        const TSizeVec &filtered = m_CentreFilter.filter();
+        const TSizeVec& filtered = m_CentreFilter.filter();
         maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> closest;
         for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
             closest.add(TDoubleSizePr((m_Centres[i] - node.s_Point).euclidean(), i));
@@ -117,11 +120,11 @@ public:
 private:
     TPointVec m_Centres;
     mutable TCentreFilter m_CentreFilter;
-    std::size_t &m_NumberAdmitted;
+    std::size_t& m_NumberAdmitted;
 };
 
 template <typename POINT>
-std::pair<std::size_t, double> closest(const std::vector<POINT> &y, const POINT &x) {
+std::pair<std::size_t, double> closest(const std::vector<POINT>& y, const POINT& x) {
     std::size_t closest = 0u;
     double dmin = (x - y[0]).euclidean();
     for (std::size_t i = 1u; i < y.size(); ++i) {
@@ -135,7 +138,7 @@ std::pair<std::size_t, double> closest(const std::vector<POINT> &y, const POINT 
 }
 
 template <typename POINT>
-bool kmeans(const std::vector<POINT> &points, std::size_t iterations, std::vector<POINT> &centres) {
+bool kmeans(const std::vector<POINT>& points, std::size_t iterations, std::vector<POINT>& centres) {
     typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumlator;
 
     std::vector<TMeanAccumlator> centroids;
@@ -164,9 +167,11 @@ bool kmeans(const std::vector<POINT> &points, std::size_t iterations, std::vecto
     return false;
 }
 
-double square(double x) { return x * x; }
+double square(double x) {
+    return x * x;
+}
 
-double sumSquareResiduals(const TVector2VecVec &points) {
+double sumSquareResiduals(const TVector2VecVec& points) {
     double result = 0.0;
     for (std::size_t i = 0u; i < points.size(); ++i) {
         TMean2Accumulator m_;
@@ -400,8 +405,9 @@ void CKMeansFastTest::testClosestPoints(void) {
             tree.postorderDepthFirst(CKMeansFastForTest<TVector2>::TDataPropagator());
 
             TVector2VecVec closestPoints;
-            CKMeansFastForTest<TVector2>::TClosestPointsCollector collector(
-                points.size(), centres, closestPoints);
+            CKMeansFastForTest<TVector2>::TClosestPointsCollector collector(points.size(),
+                                                                            centres,
+                                                                            closestPoints);
             tree.postorderDepthFirst(collector);
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
@@ -425,8 +431,9 @@ void CKMeansFastTest::testClosestPoints(void) {
             tree.postorderDepthFirst(CKMeansFastForTest<TVector4>::TDataPropagator());
 
             TVector4VecVec closestPoints;
-            CKMeansFastForTest<TVector4>::TClosestPointsCollector collector(
-                points.size(), centres, closestPoints);
+            CKMeansFastForTest<TVector4>::TClosestPointsCollector collector(points.size(),
+                                                                            centres,
+                                                                            closestPoints);
             tree.postorderDepthFirst(collector);
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
@@ -684,17 +691,20 @@ void CKMeansFastTest::testPlusPlus(void) {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
 
-CppUnit::Test *CKMeansFastTest::suite(void) {
-    CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CKMeansFastTest");
+CppUnit::Test* CKMeansFastTest::suite(void) {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansFastTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>(
-        "CKMeansFastTest::testDataPropagation", &CKMeansFastTest::testDataPropagation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CKMeansFastTest>("CKMeansFastTest::testDataPropagation",
+                                                 &CKMeansFastTest::testDataPropagation));
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>("CKMeansFastTest::testFilter",
                                                                    &CKMeansFastTest::testFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>(
-        "CKMeansFastTest::testCentroids", &CKMeansFastTest::testCentroids));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>(
-        "CKMeansFastTest::testClosestPoints", &CKMeansFastTest::testClosestPoints));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CKMeansFastTest>("CKMeansFastTest::testCentroids",
+                                                 &CKMeansFastTest::testCentroids));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CKMeansFastTest>("CKMeansFastTest::testClosestPoints",
+                                                 &CKMeansFastTest::testClosestPoints));
     suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansFastTest>("CKMeansFastTest::testRun",
                                                                    &CKMeansFastTest::testRun));
     suiteOfTests->addTest(

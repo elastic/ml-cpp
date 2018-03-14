@@ -27,23 +27,23 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: categorize [options]\n"
                                                 "Options:";
 
 bool CCmdLineParser::parse(int argc,
-                           const char *const *argv,
-                           std::string &limitConfigFile,
-                           std::string &jobId,
-                           std::string &logProperties,
-                           std::string &logPipe,
-                           char &delimiter,
-                           bool &lengthEncodedInput,
-                           core_t::TTime &persistInterval,
-                           std::string &inputFileName,
-                           bool &isInputFileNamedPipe,
-                           std::string &outputFileName,
-                           bool &isOutputFileNamedPipe,
-                           std::string &restoreFileName,
-                           bool &isRestoreFileNamedPipe,
-                           std::string &persistFileName,
-                           bool &isPersistFileNamedPipe,
-                           std::string &categorizationFieldName) {
+                           const char* const* argv,
+                           std::string& limitConfigFile,
+                           std::string& jobId,
+                           std::string& logProperties,
+                           std::string& logPipe,
+                           char& delimiter,
+                           bool& lengthEncodedInput,
+                           core_t::TTime& persistInterval,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           std::string& restoreFileName,
+                           bool& isRestoreFileNamedPipe,
+                           std::string& persistFileName,
+                           bool& isPersistFileNamedPipe,
+                           std::string& categorizationFieldName) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -142,7 +142,7 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("categorizationfield") > 0) {
             categorizationFieldName = vm["categorizationfield"].as<std::string>();
         }
-    } catch (std::exception &e) {
+    } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
     }
