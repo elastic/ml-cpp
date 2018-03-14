@@ -1371,17 +1371,20 @@ bool CAnomalyJob::persistState(const std::string &descriptionPrefix,
 
             if (m_PersistCompleteFunc)
             {
-                m_PersistCompleteFunc(snapshotTimestamp,
-                                      descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
-                                      snapShotId,
-                                      compressor.numCompressedDocs(),
-                                      modelSizeStats,
-                                      normalizerState,
-                                      latestRecordTime,
-                                      // This needs to be the last final result time as it serves
-                                      // as the time after which all results are deleted when a
-                                      // model snapshot is reverted
-                                      lastFinalisedBucketEnd - m_ModelConfig.bucketLength());
+                CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
+                        snapshotTimestamp,
+                        descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
+                        snapShotId,
+                        compressor.numCompressedDocs(),
+                        modelSizeStats,
+                        normalizerState,
+                        latestRecordTime,
+                        // This needs to be the last final result time as it serves
+                        // as the time after which all results are deleted when a
+                        // model snapshot is reverted
+                        lastFinalisedBucketEnd - m_ModelConfig.bucketLength()};
+
+                m_PersistCompleteFunc(modelSnapshotReport);
             }
         }
     }
