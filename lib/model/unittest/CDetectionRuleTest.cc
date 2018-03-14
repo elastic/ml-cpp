@@ -36,7 +36,7 @@ using namespace model;
 namespace {
 
 typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::vector<std::string> TStrVec;
+typedef std::vector<std::string>       TStrVec;
 
 const std::string EMPTY_STRING;
 }

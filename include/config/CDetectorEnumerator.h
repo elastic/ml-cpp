@@ -78,9 +78,9 @@ class CONFIG_EXPORT CDetectorEnumerator {
         void generate(TDetectorSpecificationVec &result);
 
     private:
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<std::string> TOptionalStr;
-        typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
+        typedef std::vector<std::string>                              TStrVec;
+        typedef boost::optional<std::string>                          TOptionalStr;
+        typedef std::vector<config_t::EFunctionCategory>              TFunctionCategoryVec;
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
     private:

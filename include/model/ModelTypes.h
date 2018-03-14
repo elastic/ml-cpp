@@ -48,10 +48,10 @@ struct SModelParams;
 
 namespace model_t {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<TDouble2Vec, 1> TDouble2Vec1Vec;
-typedef std::pair<TDouble1Vec, TDouble1Vec> TDouble1VecDouble1VecPr;
+typedef core::CSmallVector<double, 1>                        TDouble1Vec;
+typedef core::CSmallVector<double, 2>                        TDouble2Vec;
+typedef core::CSmallVector<TDouble2Vec, 1>                   TDouble2Vec1Vec;
+typedef std::pair<TDouble1Vec, TDouble1Vec>                  TDouble1VecDouble1VecPr;
 typedef boost::shared_ptr<const model::CInfluenceCalculator> TInfluenceCalculatorCPtr;
 
 //! The types of model available.

@@ -30,7 +30,7 @@ using namespace test;
 void CCompressedDictionaryTest::testAll(void) {
     typedef std::vector<std::string> TStrVec;
     typedef CCompressedDictionary<2> TDictionary;
-    typedef TDictionary::TWordUSet TWordUSet;
+    typedef TDictionary::TWordUSet   TWordUSet;
 
     // Don't set this too high as it slows down every build - it can be
     // temporarily set high in uncommitted code for a thorough soak test

@@ -45,8 +45,8 @@ class CORE_EXPORT CStringUtils : private CNonInstantiatable {
 
     public:
         typedef std::vector<std::string>    TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator           TStrVecItr;
+        typedef TStrVec::const_iterator     TStrVecCItr;
 
     public:
         //! If \p c is the start of a UTF-8 character, return the number of

@@ -157,7 +157,7 @@ void CQDigest::propagateForwardsByTime(double time) {
 
 bool CQDigest::scale(double factor) {
     typedef boost::tuple<uint32_t, uint32_t, uint64_t> TUInt32UInt32UInt64Tr;
-    typedef std::vector<TUInt32UInt32UInt64Tr> TUInt32UInt32UInt64TrVec;
+    typedef std::vector<TUInt32UInt32UInt64Tr>         TUInt32UInt32UInt64TrVec;
 
     if (factor <= 0.0) {
         LOG_ERROR("Scaling factor must be positive");

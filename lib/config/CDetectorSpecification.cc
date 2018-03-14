@@ -36,7 +36,7 @@ namespace config {
 namespace {
 
 typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 
 //! \brief Checks if the name of some statistics matches a specified value.
 class CNameEquals {

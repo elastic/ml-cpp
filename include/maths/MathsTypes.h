@@ -32,14 +32,14 @@ class CSeasonalComponent;
 }
 namespace maths_t {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<double, 10> TDouble10Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef core::CSmallVector<TDouble10Vec, 4> TDouble10Vec4Vec;
+typedef std::pair<double, double>               TDoubleDoublePr;
+typedef core::CSmallVector<double, 4>           TDouble4Vec;
+typedef core::CSmallVector<double, 10>          TDouble10Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>      TDouble4Vec1Vec;
+typedef core::CSmallVector<TDouble10Vec, 4>     TDouble10Vec4Vec;
 typedef core::CSmallVector<TDouble10Vec4Vec, 1> TDouble10Vec4Vec1Vec;
-typedef std::vector<maths::CSeasonalComponent> TSeasonalComponentVec;
-typedef std::vector<maths::CCalendarComponent> TCalendarComponentVec;
+typedef std::vector<maths::CSeasonalComponent>  TSeasonalComponentVec;
+typedef std::vector<maths::CCalendarComponent>  TCalendarComponentVec;
 
 //! An enumeration of the types of data which can be modeled.
 //!

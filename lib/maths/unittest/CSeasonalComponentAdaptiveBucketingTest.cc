@@ -36,12 +36,12 @@
 using namespace ml;
 
 namespace {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<maths::CFloatStorage> TFloatVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<double>                                           TDoubleVec;
+typedef std::vector<maths::CFloatStorage>                             TFloatVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-typedef maths::CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+typedef maths::CBasicStatistics::SMin<double>::TAccumulator           TMinAccumulator;
+typedef maths::CBasicStatistics::SMax<double>::TAccumulator           TMaxAccumulator;
 }
 
 void CSeasonalComponentAdaptiveBucketingTest::testInitialize(void) {

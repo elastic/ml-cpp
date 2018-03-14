@@ -61,7 +61,7 @@ class MATHS_EXPORT CNormalMeanPrecConjugate : public CPrior {
         }
 
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef CEqualWithTolerance<double> TEqualWithTolerance;
+        typedef CEqualWithTolerance<double>                            TEqualWithTolerance;
 
         //! Lift the overloads of addSamples into scope.
         using CPrior::addSamples;

@@ -34,7 +34,7 @@ namespace ml {
 namespace maths {
 
 namespace {
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>       TDoubleVec;
 typedef std::pair<double, double> TDoubleDoublePr;
 
 //! Compute \f$x^2\f$.

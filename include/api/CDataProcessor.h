@@ -55,12 +55,12 @@ class API_EXPORT CDataProcessor : private core::CNonCopyable {
 
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator                              TStrVecItr;
+        typedef TStrVec::const_iterator                        TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
 
     public:
         CDataProcessor(void);

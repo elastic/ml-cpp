@@ -227,11 +227,11 @@ class CThreadFarm : private CNonCopyable {
         typedef CThreadFarmReceiver<TThreadFarm, PROCESSOR, MESSAGE, RESULT> TReceiver;
         typedef boost::shared_ptr<TReceiver>                                 TReceiverP;
         typedef std::vector<TReceiverP>                                      TReceiverPVec;
-        typedef typename TReceiverPVec::iterator TReceiverPVecItr;
+        typedef typename TReceiverPVec::iterator                             TReceiverPVecItr;
 
         typedef boost::shared_ptr< CMessageQueue<MESSAGE, TReceiver> >       TMessageQueueP;
         typedef std::vector<TMessageQueueP>                                  TMessageQueuePVec;
-        typedef typename TMessageQueuePVec::iterator TMessageQueuePVecItr;
+        typedef typename TMessageQueuePVec::iterator                         TMessageQueuePVecItr;
 
         TReceiverPVec     m_Receivers;
 

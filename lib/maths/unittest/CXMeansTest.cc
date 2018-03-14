@@ -34,24 +34,24 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef TVector2Vec::const_iterator TVector2VecCItr;
-typedef std::vector<TVector2Vec> TVector2VecVec;
+typedef std::vector<double>                                             TDoubleVec;
+typedef std::vector<std::size_t>                                        TSizeVec;
+typedef std::vector<TSizeVec>                                           TSizeVecVec;
+typedef std::vector<uint64_t>                                           TUInt64Vec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator      TMeanAccumulator;
+typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator   TMeanVarAccumulator;
+typedef maths::CVectorNx1<double, 2>                                    TVector2;
+typedef std::vector<TVector2>                                           TVector2Vec;
+typedef TVector2Vec::const_iterator                                     TVector2VecCItr;
+typedef std::vector<TVector2Vec>                                        TVector2VecVec;
 typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
-typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
+typedef maths::CSymmetricMatrixNxN<double, 2>                           TMatrix2;
+typedef std::vector<TMatrix2>                                           TMatrix2Vec;
+typedef maths::CVectorNx1<double, 4>                                    TVector4;
+typedef std::vector<TVector4>                                           TVector4Vec;
 typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar4Accumulator;
-typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
-typedef std::vector<TMatrix4> TMatrix4Vec;
+typedef maths::CSymmetricMatrixNxN<double, 4>                           TMatrix4;
+typedef std::vector<TMatrix4>                                           TMatrix4Vec;
 
 //! \brief Expose internals of x-means for testing.
 template<typename POINT,

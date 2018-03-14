@@ -89,13 +89,13 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
         return;
     }
 
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef CBucketCountStatistics::TSizeSizePrQuantileUMap TSizeSizePrQuantileUMap;
-    typedef TSizeSizePrQuantileUMap::const_iterator TSizeSizePrQuantileUMapCItr;
-    typedef std::vector<const TSizeSizePrQuantileUMap *> TSizeSizePrQuantileUMapCPtrVec;
+    typedef std::vector<TDoubleVec>                                             TDoubleVecVec;
+    typedef CBucketCountStatistics::TSizeSizePrQuantileUMap                     TSizeSizePrQuantileUMap;
+    typedef TSizeSizePrQuantileUMap::const_iterator                             TSizeSizePrQuantileUMapCItr;
+    typedef std::vector<const TSizeSizePrQuantileUMap *>                        TSizeSizePrQuantileUMapCPtrVec;
     typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap *> TSizeSizePrMomentsUMapCPtrVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator          TMeanAccumulator;
+    typedef std::vector<TMeanAccumulator>                                       TMeanAccumulatorVec;
 
     if (const CDataCountStatistics *stats = spec.countStatistics()) {
         const CAutoconfigurerParams::TTimeVec &candidates = this->params().candidateBucketLengths();

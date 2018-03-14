@@ -583,7 +583,7 @@ void CStringUtilsTest::testJoin(void) {
     using namespace ml;
     using namespace core;
     typedef std::vector<std::string> TStrVec;
-    typedef std::set<std::string> TStrSet;
+    typedef std::set<std::string>    TStrSet;
 
     TStrVec strVec;
 

@@ -47,7 +47,7 @@ struct function_result_type<R (*)(A1, A2)> {
     typedef typename boost::remove_reference<A2>::type type;
 };
 
-typedef boost::true_type true_;
+typedef boost::true_type  true_;
 typedef boost::false_type false_;
 
 //! \brief Auxiliary type used by has_result_type to test for
@@ -130,7 +130,7 @@ class MATHS_EXPORT CCompositeFunctions {
         class CMinusConstant {
             public:
                 typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                typedef T                                          result_type;
 
             public:
                 CMinusConstant(const F &f, double offset) :
@@ -163,7 +163,7 @@ class MATHS_EXPORT CCompositeFunctions {
         class CMinus {
             public:
                 typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                typedef T                                          result_type;
 
             public:
                 explicit CMinus(const F &f = F()) : m_F(f) {
@@ -193,7 +193,7 @@ class MATHS_EXPORT CCompositeFunctions {
         class CExp {
             public:
                 typedef typename boost::remove_reference<F_>::type F;
-                typedef T result_type;
+                typedef T                                          result_type;
 
             public:
                 explicit CExp(const F &f = F()) : m_F(f) {
@@ -231,7 +231,7 @@ class MATHS_EXPORT CCompositeFunctions {
             public:
                 typedef typename boost::remove_reference<F_>::type F;
                 typedef typename boost::remove_reference<G_>::type G;
-                typedef U result_type;
+                typedef U                                          result_type;
 
             public:
                 explicit CProduct(const F &f = F(),

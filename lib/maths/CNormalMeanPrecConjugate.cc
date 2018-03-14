@@ -57,12 +57,12 @@ const double MINIMUM_GAUSSIAN_SHAPE = 100.0;
 
 namespace detail {
 
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
+typedef maths_t::TWeightStyleVec           TWeightStyleVec;
+typedef core::CSmallVector<double, 1>      TDouble1Vec;
+typedef core::CSmallVector<double, 4>      TDouble4Vec;
 typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+typedef std::pair<double, double>          TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>       TDoubleDoublePrVec;
 
 //! Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight {

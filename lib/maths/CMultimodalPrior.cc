@@ -55,10 +55,10 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<std::size_t, double> TSizeDoublePr;
+typedef std::pair<std::size_t, double>       TSizeDoublePr;
 typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::set<std::size_t> TSizeSet;
+typedef std::pair<double, double>            TDoubleDoublePr;
+typedef std::set<std::size_t>                TSizeSet;
 
 const std::size_t MODE_SPLIT_NUMBER_SAMPLES(50u);
 const std::size_t MODE_MERGE_NUMBER_SAMPLES(25u);

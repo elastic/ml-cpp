@@ -34,7 +34,7 @@ using namespace ml;
 namespace {
 
 typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
+typedef std::vector<TSizeVec>    TSizeVecVec;
 typedef std::vector<std::string> TStrVec;
 
 class CStateMachineClearer : core::CStateMachine {
@@ -231,7 +231,7 @@ void CStateMachineTest::testMultithreaded(void) {
     machines.erase(std::unique(machines.begin(), machines.end()), machines.end());
 
     typedef boost::shared_ptr<CTestThread> TThreadPtr;
-    typedef std::vector<TThreadPtr> TThreadVec;
+    typedef std::vector<TThreadPtr>        TThreadVec;
     TThreadVec threads;
     for (std::size_t i = 0u; i < 20; ++i) {
         threads.push_back(TThreadPtr(new CTestThread(machines)));

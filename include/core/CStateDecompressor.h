@@ -51,7 +51,7 @@ namespace core {
 class CORE_EXPORT CStateDecompressor : public CDataSearcher {
     public:
         typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
-        typedef boost::shared_ptr<TFilteredInput> TFilteredInputP;
+        typedef boost::shared_ptr<TFilteredInput>                           TFilteredInputP;
 
         static const std::string EMPTY_DATA;
 

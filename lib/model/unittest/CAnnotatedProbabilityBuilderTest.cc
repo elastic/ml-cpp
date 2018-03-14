@@ -29,11 +29,11 @@ using namespace ml;
 using namespace model;
 
 namespace {
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
+typedef core::CSmallVector<double, 1>                 TDouble1Vec;
+typedef core::CSmallVector<double, 4>                 TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>            TDouble4Vec1Vec;
+typedef std::pair<std::size_t, double>                TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 1>          TSizeDoublePr1Vec;
 typedef core::CSmallVector<core::CStoredStringPtr, 1> TStoredStringPtr1Vec;
 
 const std::string            EMPTY_STRING;

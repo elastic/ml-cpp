@@ -29,13 +29,13 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>          TDoubleVec;
 typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::pair<double, TVector2> TDoubleVector2Pr;
-typedef std::vector<TVector2> TVector2Vec;
+typedef std::pair<double, TVector2>  TDoubleVector2Pr;
+typedef std::vector<TVector2>        TVector2Vec;
 typedef maths::CVectorNx1<double, 5> TVector5;
-typedef std::pair<double, TVector5> TDoubleVector5Pr;
-typedef std::vector<TVector5> TVector5Vec;
+typedef std::pair<double, TVector5>  TDoubleVector5Pr;
+typedef std::vector<TVector5>        TVector5Vec;
 
 template<typename T>
 std::string print(const T &t) {

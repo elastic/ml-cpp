@@ -539,8 +539,8 @@ bool isForecastSupported(EFunction function) {
 namespace {
 
 typedef std::map<model_t::EFeature, TFunctionVec> TFeatureFunctionVecMap;
-typedef TFeatureFunctionVecMap::iterator TFeatureFunctionVecMapItr;
-typedef TFeatureFunctionVecMap::const_iterator TFeatureFunctionVecMapCItr;
+typedef TFeatureFunctionVecMap::iterator          TFeatureFunctionVecMapItr;
+typedef TFeatureFunctionVecMap::const_iterator    TFeatureFunctionVecMapCItr;
 
 namespace detail {
 

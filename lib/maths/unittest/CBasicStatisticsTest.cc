@@ -36,15 +36,15 @@
 
 namespace {
 
-typedef ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+typedef ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator        TMeanAccumulator;
+typedef ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator     TMeanVarAccumulator;
 typedef ml::maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMeanVarSkewAccumulator;
-typedef ml::core::CSmallVector<TMeanAccumulator, 2> TMeanAccumulator2Vec;
-typedef ml::core::CSmallVector<TMeanVarAccumulator, 2> TMeanVarAccumulator2Vec;
-typedef ml::core::CSmallVector<TMeanVarSkewAccumulator, 2> TMeanVarSkewAccumulator2Vec;
-typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-typedef std::vector<TMeanVarSkewAccumulator> TMeanVarSkewAccumulatorVec;
+typedef ml::core::CSmallVector<TMeanAccumulator, 2>                           TMeanAccumulator2Vec;
+typedef ml::core::CSmallVector<TMeanVarAccumulator, 2>                        TMeanVarAccumulator2Vec;
+typedef ml::core::CSmallVector<TMeanVarSkewAccumulator, 2>                    TMeanVarSkewAccumulator2Vec;
+typedef std::vector<TMeanAccumulator>                                         TMeanAccumulatorVec;
+typedef std::vector<TMeanVarAccumulator>                                      TMeanVarAccumulatorVec;
+typedef std::vector<TMeanVarSkewAccumulator>                                  TMeanVarSkewAccumulatorVec;
 
 const std::string TAG("a");
 
@@ -465,8 +465,8 @@ void CBasicStatisticsTest::testCentralMoments(void) {
     }
 
     LOG_DEBUG("test vector") {
-        typedef ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4> >::TAccumulator TVectorMeanAccumulator;
-        typedef ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4> >::TAccumulator TVectorMeanVarAccumulator;
+        typedef ml::maths::CBasicStatistics::SSampleMean<ml::maths::CVectorNx1<double, 4> >::TAccumulator        TVectorMeanAccumulator;
+        typedef ml::maths::CBasicStatistics::SSampleMeanVar<ml::maths::CVectorNx1<double, 4> >::TAccumulator     TVectorMeanVarAccumulator;
         typedef ml::maths::CBasicStatistics::SSampleMeanVarSkew<ml::maths::CVectorNx1<double, 4> >::TAccumulator TVectorMeanVarSkewAccumulator;
 
         ml::test::CRandomNumbers rng;
@@ -730,7 +730,7 @@ void CBasicStatisticsTest::testVectorCentralMoments(void) {
     LOG_DEBUG("+--------------------------------------------------+");
 
     typedef ml::core::CSmallVector<double, 2> TDouble2Vec;
-    typedef std::vector<double> TDoubleVec;
+    typedef std::vector<double>               TDoubleVec;
 
     {
         TMeanAccumulator2Vec moments1(2);
@@ -972,10 +972,10 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf(void) {
     LOG_DEBUG("|  CBasicStatisticsTest::testCovariancesLedoitWolf  |");
     LOG_DEBUG("+---------------------------------------------------+");
 
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef ml::maths::CVectorNx1<double, 2> TVector2;
-    typedef std::vector<TVector2> TVector2Vec;
+    typedef std::vector<double>                       TDoubleVec;
+    typedef std::vector<TDoubleVec>                   TDoubleVecVec;
+    typedef ml::maths::CVectorNx1<double, 2>          TVector2;
+    typedef std::vector<TVector2>                     TVector2Vec;
     typedef ml::maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
 
     ml::test::CRandomNumbers rng;
@@ -1120,10 +1120,10 @@ void CBasicStatisticsTest::testOrderStatistics(void) {
     // Test that the order statistics accumulators work for finding min and max
     // elements of a collection.
 
-    typedef ml::maths::CBasicStatistics::COrderStatisticsStack<double, 2u> TMinStatsStack;
+    typedef ml::maths::CBasicStatistics::COrderStatisticsStack<double, 2u>                        TMinStatsStack;
     typedef ml::maths::CBasicStatistics::COrderStatisticsStack<double, 3u, std::greater<double> > TMaxStatsStack;
-    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double> TMinStatsHeap;
-    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double> > TMaxStatsHeap;
+    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double>                             TMinStatsHeap;
+    typedef ml::maths::CBasicStatistics::COrderStatisticsHeap<double, std::greater<double> >      TMaxStatsHeap;
 
     {
         // Test on the stack min, max, combine and persist and restore.

@@ -35,9 +35,9 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<std::size_t>                                   TSizeVec;
+typedef std::vector<std::string>                                   TStrVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 void CDataSummaryStatisticsTest::testRate(void) {

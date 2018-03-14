@@ -80,7 +80,7 @@ namespace model {
 //!
 class MODEL_EXPORT CSearchKey {
     public:
-        typedef std::vector<std::string> TStrVec;
+        typedef std::vector<std::string>            TStrVec;
         typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 
         //! The type of a search key which mixes in the partition field

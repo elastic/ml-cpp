@@ -31,7 +31,7 @@ namespace ml {
 namespace config {
 namespace {
 
-typedef core::CFunctional::SDereference<maths::COrderings::SSecondLess> TDerefSecondLess;
+typedef core::CFunctional::SDereference<maths::COrderings::SSecondLess>    TDerefSecondLess;
 typedef core::CFunctional::SDereference<maths::COrderings::SSecondGreater> TDerefSecondGreater;
 
 std::size_t topNSize(std::size_t n) {
@@ -346,8 +346,8 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
         return true;
     }
 
-    typedef std::vector<double> TDoubleVec;
-    typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
+    typedef std::vector<double>                                              TDoubleVec;
+    typedef std::vector<boost::math::normal_distribution<> >                 TNormalVec;
     typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
 
     const maths::CXMeansOnline1d::TClusterVec &clusters = m_Clusters.clusters();

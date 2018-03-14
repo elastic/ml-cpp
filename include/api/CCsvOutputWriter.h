@@ -144,7 +144,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler {
 
         typedef std::pair<std::string, std::string > TStrStrPr;
         typedef std::set<TStrStrPr>                  TStrStrPrSet;
-        typedef TStrStrPrSet::const_iterator TStrStrPrSetCItr;
+        typedef TStrStrPrSet::const_iterator         TStrStrPrSetCItr;
 
         //! Messages to be printed before the next lot of output
         TStrStrPrSet m_Messages;

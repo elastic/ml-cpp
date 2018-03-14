@@ -842,7 +842,7 @@ class MATHS_EXPORT CSolvers {
                                    const F &f,
                                    double &x,
                                    double &fx) {
-            typedef std::pair<double, std::size_t> TDoubleSizePr;
+            typedef std::pair<double, std::size_t>                            TDoubleSizePr;
             typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
 
             std::size_t n = p.size();

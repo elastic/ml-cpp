@@ -54,19 +54,19 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef model::CHierarchicalResults::TAttributeProbabilityVec TAttributeProbabilityVec;
-typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
+typedef std::vector<double>                                                       TDoubleVec;
+typedef model::CHierarchicalResults::TAttributeProbabilityVec                     TAttributeProbabilityVec;
+typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPr            TStoredStringPtrStoredStringPtrPr;
+typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr    TStoredStringPtrStoredStringPtrPrDoublePr;
 typedef model::CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef std::vector<std::string> TStrVec;
+typedef std::vector<std::string>                                                  TStrVec;
 
 const std::string EMPTY_STRING;
 
 //! \brief Checks that we visit the nodes in decreasing depth order.
 class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
     public:
-        typedef std::set<const TNode*> TNodeCPtrSet;
+        typedef std::set<const TNode*>    TNodeCPtrSet;
         typedef std::vector<TNodeCPtrSet> TNodeCPtrSetVec;
 
     public:
@@ -311,7 +311,7 @@ class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
         const model::CLimits &m_Limits;
 };
 
-typedef std::map<int, TDoubleVec> TIntDoubleVecMap;
+typedef std::map<int, TDoubleVec>        TIntDoubleVecMap;
 typedef TIntDoubleVecMap::const_iterator TIntDoubleVecMapCItr;
 
 //! \brief Node probability container.
@@ -327,7 +327,7 @@ struct SNodeProbabilities {
 class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodeProbabilities> {
     public:
         typedef model::CHierarchicalResultsLevelSet<SNodeProbabilities> TBase;
-        typedef TBase::TTypePtrVec TNodeProbabilitiesPtrVec;
+        typedef TBase::TTypePtrVec                                      TNodeProbabilitiesPtrVec;
 
         class CFactory {
             public:
@@ -1452,9 +1452,9 @@ void CHierarchicalResultsTest::testWriter(void) {
 void CHierarchicalResultsTest::testNormalizer(void) {
     LOG_DEBUG("*** testNormalizer ***");
 
-    typedef boost::shared_ptr<model::CAnomalyScore::CNormalizer> TNormalizerPtr;
-    typedef std::map<std::string, TNormalizerPtr> TStrNormalizerPtrMap;
-    typedef TStrNormalizerPtrMap::iterator TStrNormalizerPtrMapItr;
+    typedef boost::shared_ptr<model::CAnomalyScore::CNormalizer>       TNormalizerPtr;
+    typedef std::map<std::string, TNormalizerPtr>                      TStrNormalizerPtrMap;
+    typedef TStrNormalizerPtrMap::iterator                             TStrNormalizerPtrMapItr;
     typedef std::set<const model::CHierarchicalResultsVisitor::TNode*> TNodeCPtrSet;
 
     model::CAnomalyDetectorModelConfig              modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();

@@ -64,10 +64,10 @@ struct SStaticCast {
 
 namespace detail {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
+typedef core::CSmallVector<double, 1>      TDouble1Vec;
+typedef core::CSmallVector<double, 4>      TDouble4Vec;
 typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+typedef maths_t::TWeightStyleVec           TWeightStyleVec;
 
 //! Adds "weight" x "right operand" to the "left operand".
 struct SPlusWeight {

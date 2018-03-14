@@ -122,17 +122,17 @@ const std::string &overField(bool population, const TStrVec &fieldNames) {
 }
 
 template<model_t::EMetricCategory> struct SDataType {};
-template<> struct SDataType<model_t::E_Mean>             { typedef TSizeSizeMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Median>           { typedef TSizeSizeMedianGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Min>              { typedef TSizeSizeMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Max>              { typedef TSizeSizeMaxGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Sum>              { typedef TSizeSizeSumGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_Variance>         { typedef TSizeSizeVarianceGathererUMapUMap Type; };
+template<> struct SDataType<model_t::E_Mean>             { typedef TSizeSizeMeanGathererUMapUMap             Type; };
+template<> struct SDataType<model_t::E_Median>           { typedef TSizeSizeMedianGathererUMapUMap           Type; };
+template<> struct SDataType<model_t::E_Min>              { typedef TSizeSizeMinGathererUMapUMap              Type; };
+template<> struct SDataType<model_t::E_Max>              { typedef TSizeSizeMaxGathererUMapUMap              Type; };
+template<> struct SDataType<model_t::E_Sum>              { typedef TSizeSizeSumGathererUMapUMap              Type; };
+template<> struct SDataType<model_t::E_Variance>         { typedef TSizeSizeVarianceGathererUMapUMap         Type; };
 template<> struct SDataType<model_t::E_MultivariateMean> { typedef TSizeSizeMultivariateMeanGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMin>  { typedef TSizeSizeMultivariateMinGathererUMapUMap Type; };
-template<> struct SDataType<model_t::E_MultivariateMax>  { typedef TSizeSizeMultivariateMaxGathererUMapUMap Type; };
+template<> struct SDataType<model_t::E_MultivariateMin>  { typedef TSizeSizeMultivariateMinGathererUMapUMap  Type; };
+template<> struct SDataType<model_t::E_MultivariateMax>  { typedef TSizeSizeMultivariateMaxGathererUMapUMap  Type; };
 template<typename ITR, typename T> struct SMaybeConst {};
-template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { typedef T Type; };
+template<typename T> struct SMaybeConst<TCategorySizePrAnyMapItr, T> { typedef T        Type; };
 template<typename T> struct SMaybeConst<TCategorySizePrAnyMapCItr, T> { typedef const T Type; };
 
 //! Register the callbacks for computing the size of feature data gatherers

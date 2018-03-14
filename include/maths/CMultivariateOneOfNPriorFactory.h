@@ -36,7 +36,7 @@ struct SDistributionRestoreParams;
 class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
     public:
         typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
+        typedef std::vector<TPriorPtr>                TPriorPtrVec;
 
     public:
         //! Create a new non-informative multivariate normal prior.

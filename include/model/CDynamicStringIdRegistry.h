@@ -46,13 +46,13 @@ class CResourceMonitor;
 //! in order to reuse IDs whose mapped string is no longer relevant.
 class MODEL_EXPORT CDynamicStringIdRegistry {
     public:
-        typedef core::CCompressedDictionary<2> TDictionary;
+        typedef core::CCompressedDictionary<2>            TDictionary;
         typedef TDictionary::CWordUMap<std::size_t>::Type TWordSizeUMap;
-        typedef TWordSizeUMap::iterator TWordSizeUMapItr;
-        typedef TWordSizeUMap::const_iterator TWordSizeUMapCItr;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+        typedef TWordSizeUMap::iterator                   TWordSizeUMapItr;
+        typedef TWordSizeUMap::const_iterator             TWordSizeUMapCItr;
+        typedef std::vector<std::size_t>                  TSizeVec;
+        typedef std::vector<std::string>                  TStrVec;
+        typedef std::vector<core::CStoredStringPtr>       TStoredStringPtrVec;
 
     public:
         //! An identifier which will never be used for a real string.

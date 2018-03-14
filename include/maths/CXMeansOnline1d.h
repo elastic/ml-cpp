@@ -116,11 +116,11 @@ class MATHS_EXPORT CAvailableModeDistributions {
 class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
     public:
         class CCluster;
-        typedef CClusterer1d::TPointPreciseVec TDoubleVec;
+        typedef CClusterer1d::TPointPreciseVec         TDoubleVec;
         typedef CClusterer1d::TPointPreciseDoublePrVec TDoubleDoublePrVec;
-        typedef std::pair<CCluster, CCluster> TClusterClusterPr;
-        typedef boost::optional<TClusterClusterPr> TOptionalClusterClusterPr;
-        typedef std::pair<double, double> TDoubleDoublePr;
+        typedef std::pair<CCluster, CCluster>          TClusterClusterPr;
+        typedef boost::optional<TClusterClusterPr>     TOptionalClusterClusterPr;
+        typedef std::pair<double, double>              TDoubleDoublePr;
         using CClusterer1d::add;
 
         //! \brief Represents a cluster.
@@ -235,8 +235,8 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
                 CNaturalBreaksClassifier m_Structure;
         };
 
-        typedef std::vector<CCluster> TClusterVec;
-        typedef TClusterVec::iterator TClusterVecItr;
+        typedef std::vector<CCluster>       TClusterVec;
+        typedef TClusterVec::iterator       TClusterVecItr;
         typedef TClusterVec::const_iterator TClusterVecCItr;
 
     public:
@@ -394,7 +394,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
         CIndexGenerator &indexGenerator(void);
 
     private:
-        typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
+        typedef CBasicStatistics::COrderStatisticsStack<double, 1>                        TMinAccumulator;
         typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double> > TMaxAccumulator;
 
     private:

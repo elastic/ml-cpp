@@ -42,17 +42,17 @@ using namespace model;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<std::string, std::string> TStrStrPr;
-typedef std::map<TStrStrPr, double> TStrStrPrDoubleMap;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, SMetricFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
+typedef std::vector<double>                                       TDoubleVec;
+typedef std::vector<model_t::EFeature>                            TFeatureVec;
+typedef std::vector<std::string>                                  TStrVec;
+typedef std::pair<std::string, std::string>                       TStrStrPr;
+typedef std::map<TStrStrPr, double>                               TStrStrPrDoubleMap;
+typedef boost::optional<std::string>                              TOptionalStr;
+typedef std::pair<std::size_t, std::size_t>                       TSizeSizePr;
+typedef std::pair<TSizeSizePr, SMetricFeatureData>                TSizeSizePrFeatureDataPr;
+typedef std::vector<TSizeSizePrFeatureDataPr>                     TSizeSizePrFeatureDataPrVec;
 typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
+typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>         TFeatureSizeSizePrFeatureDataPrVecPrVec;
 
 struct SMessage {
     SMessage(const core_t::TTime &time,
@@ -150,8 +150,8 @@ void CMetricPopulationDataGathererTest::testMean(void) {
     // Test that we correctly sample the bucket means.
 
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::map<TStrStrPr, TMeanAccumulator> TStrStrPrMeanAccumulatorMap;
-    typedef TStrStrPrMeanAccumulatorMap::const_iterator TStrStrPrMeanAccumulatorMapCItr;
+    typedef std::map<TStrStrPr, TMeanAccumulator>                      TStrStrPrMeanAccumulatorMap;
+    typedef TStrStrPrMeanAccumulatorMap::const_iterator                TStrStrPrMeanAccumulatorMapCItr;
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -217,8 +217,8 @@ void CMetricPopulationDataGathererTest::testMin(void) {
     // Test that we correctly sample the bucket minimums.
 
     typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-    typedef std::map<TStrStrPr, TMinAccumulator> TStrStrPrMinAccumulatorMap;
-    typedef TStrStrPrMinAccumulatorMap::const_iterator TStrStrPrMinAccumulatorMapCItr;
+    typedef std::map<TStrStrPr, TMinAccumulator>                       TStrStrPrMinAccumulatorMap;
+    typedef TStrStrPrMinAccumulatorMap::const_iterator                 TStrStrPrMinAccumulatorMapCItr;
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -283,8 +283,8 @@ void CMetricPopulationDataGathererTest::testMax(void) {
     // Test that we correctly sample the bucket maximums.
 
     typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-    typedef std::map<TStrStrPr, TMaxAccumulator> TStrStrPrMaxAccumulatorMap;
-    typedef TStrStrPrMaxAccumulatorMap::const_iterator TStrStrPrMaxAccumulatorMapCItr;
+    typedef std::map<TStrStrPr, TMaxAccumulator>                                              TStrStrPrMaxAccumulatorMap;
+    typedef TStrStrPrMaxAccumulatorMap::const_iterator                                        TStrStrPrMaxAccumulatorMapCItr;
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -478,16 +478,16 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
 
     // Test we correctly sample the mean, minimum and maximum statistics.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef std::map<TStrStrPr, TMeanAccumulator> TStrStrPrMeanAccumulatorMap;
-    typedef TStrStrPrMeanAccumulatorMap::const_iterator TStrStrPrMeanAccumulatorMapCItr;
-    typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
-    typedef std::map<TStrStrPr, TMinAccumulator> TStrStrPrMinAccumulatorMap;
-    typedef TStrStrPrMinAccumulatorMap::const_iterator TStrStrPrMinAccumulatorMapCItr;
+    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator                        TMeanAccumulator;
+    typedef std::map<TStrStrPr, TMeanAccumulator>                                             TStrStrPrMeanAccumulatorMap;
+    typedef TStrStrPrMeanAccumulatorMap::const_iterator                                       TStrStrPrMeanAccumulatorMapCItr;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u>                        TMinAccumulator;
+    typedef std::map<TStrStrPr, TMinAccumulator>                                              TStrStrPrMinAccumulatorMap;
+    typedef TStrStrPrMinAccumulatorMap::const_iterator                                        TStrStrPrMinAccumulatorMapCItr;
     typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-    typedef std::map<TStrStrPr, TMaxAccumulator> TStrStrPrMaxAccumulatorMap;
-    typedef TStrStrPrMaxAccumulatorMap::const_iterator TStrStrPrMaxAccumulatorMapCItr;
-    typedef std::map<TStrStrPr, TDoubleVec> TStrStrPrDoubleVecMap;
+    typedef std::map<TStrStrPr, TMaxAccumulator>                                              TStrStrPrMaxAccumulatorMap;
+    typedef TStrStrPrMaxAccumulatorMap::const_iterator                                        TStrStrPrMaxAccumulatorMapCItr;
+    typedef std::map<TStrStrPr, TDoubleVec>                                                   TStrStrPrDoubleVecMap;
 
     const core_t::TTime startTime = 1373932800;
     const core_t::TTime bucketLength = 3600;
@@ -664,13 +664,13 @@ void CMetricPopulationDataGathererTest::testRemovePeople(void) {
     // Check that all the state is correctly updated when some
     // people are removed.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<std::string> TStrVec;
-    typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-    typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
+    typedef std::vector<std::size_t>                   TSizeVec;
+    typedef std::vector<std::string>                   TStrVec;
+    typedef std::pair<std::size_t, uint64_t>           TSizeUInt64Pr;
+    typedef std::vector<TSizeUInt64Pr>                 TSizeUInt64PrVec;
     typedef std::pair<std::string, SMetricFeatureData> TStrFeatureDataPr;
-    typedef std::vector<TStrFeatureDataPr> TStrFeatureDataPrVec;
-    typedef std::map<std::string, uint64_t> TStrSizeMap;
+    typedef std::vector<TStrFeatureDataPr>             TStrFeatureDataPrVec;
+    typedef std::map<std::string, uint64_t>            TStrSizeMap;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -810,10 +810,10 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes(void) {
     // Check that all the state is correctly updated when some
     // attributes are removed.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<std::string> TStrVec;
+    typedef std::vector<std::size_t>                   TSizeVec;
+    typedef std::vector<std::string>                   TStrVec;
     typedef std::pair<std::string, SMetricFeatureData> TStrFeatureDataPr;
-    typedef std::vector<TStrFeatureDataPr> TStrFeatureDataPrVec;
+    typedef std::vector<TStrFeatureDataPr>             TStrFeatureDataPrVec;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -933,9 +933,9 @@ void CMetricPopulationDataGathererTest::testRemoveAttributes(void) {
 void CMetricPopulationDataGathererTest::testInfluenceStatistics(void) {
     LOG_DEBUG("*** CMetricPopulationDataGathererTest::testInfluenceStatistics ***");
 
-    typedef std::pair<double, double> TDoubleDoublePr;
+    typedef std::pair<double, double>               TDoubleDoublePr;
     typedef std::pair<std::string, TDoubleDoublePr> TStrDoubleDoublePrPr;
-    typedef std::vector<TStrDoubleDoublePrPr> TStrDoubleDoublePrPrVec;
+    typedef std::vector<TStrDoubleDoublePrPr>       TStrDoubleDoublePrPrVec;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;

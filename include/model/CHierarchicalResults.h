@@ -48,11 +48,11 @@ class CLimits;
 
 namespace hierarchical_results_detail {
 
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+typedef std::vector<core::CStoredStringPtr>                       TStoredStringPtrVec;
 typedef std::pair<core::CStoredStringPtr, core::CStoredStringPtr> TStoredStringPtrStoredStringPtrPr;
-typedef std::pair<TStoredStringPtrStoredStringPtrPr, double> TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr> TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef core::CSmallVector<std::string, 1> TStr1Vec;
+typedef std::pair<TStoredStringPtrStoredStringPtrPr, double>      TStoredStringPtrStoredStringPtrPrDoublePr;
+typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>    TStoredStringPtrStoredStringPtrPrDoublePrVec;
+typedef core::CSmallVector<std::string, 1>                        TStr1Vec;
 
 //! \brief The data fully describing a result node.
 //!
@@ -139,9 +139,9 @@ struct MODEL_EXPORT SResultSpec {
 //!
 //! \see buildHierarchicalResults for more details.
 struct MODEL_EXPORT SNode {
-    typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-    typedef const SNode *TNodeCPtr;
-    typedef std::vector<TNodeCPtr> TNodeCPtrVec;
+    typedef std::vector<SAttributeProbability>           TAttributeProbabilityVec;
+    typedef const SNode *                                TNodeCPtr;
+    typedef std::vector<TNodeCPtr>                       TNodeCPtrVec;
     typedef boost::unordered_map<TNodeCPtr, std::size_t> TNodePtrSizeUMap;
     typedef boost::unordered_map<std::size_t, TNodeCPtr> TSizeNodePtrUMap;
 
@@ -257,19 +257,19 @@ class CHierarchicalResultsVisitor;
 //! results (to minimize both runtime and transient memory usage).
 class MODEL_EXPORT CHierarchicalResults {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
-        typedef hierarchical_results_detail::SResultSpec TResultSpec;
-        typedef core::CStoredStringPtr TStoredStringPtr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
-        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-        typedef hierarchical_results_detail::SNode TNode;
-        typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap TNodePtrSizeUMap;
-        typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap TSizeNodePtrUMap;
-        typedef std::deque<TNode> TNodeDeque;
+        typedef std::vector<double>                                                                            TDoubleVec;
+        typedef std::vector<SAttributeProbability>                                                             TAttributeProbabilityVec;
+        typedef hierarchical_results_detail::SResultSpec                                                       TResultSpec;
+        typedef core::CStoredStringPtr                                                                         TStoredStringPtr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr                                 TStoredStringPtrStoredStringPtrPr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr                         TStoredStringPtrStoredStringPtrPrDoublePr;
+        typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec                      TStoredStringPtrStoredStringPtrPrDoublePrVec;
+        typedef hierarchical_results_detail::SNode                                                             TNode;
+        typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap                                           TNodePtrSizeUMap;
+        typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap                                           TSizeNodePtrUMap;
+        typedef std::deque<TNode>                                                                              TNodeDeque;
         typedef std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare> TStoredStringPtrStoredStringPtrPrNodeMap;
-        typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess> TStoredStringPtrNodeMap;
+        typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>                                    TStoredStringPtrNodeMap;
 
     public:
         CHierarchicalResults(void);

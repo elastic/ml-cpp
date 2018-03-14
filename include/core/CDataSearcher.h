@@ -44,7 +44,7 @@ namespace core {
 class CORE_EXPORT CDataSearcher : private CNonCopyable {
     public:
         typedef std::vector<std::string>         TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::const_iterator          TStrVecCItr;
 
         typedef boost::shared_ptr<std::istream>  TIStreamP;
 

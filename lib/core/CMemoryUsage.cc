@@ -160,7 +160,7 @@ void CMemoryUsage::summary(CMemoryUsageJsonWriter &writer) const {
 
 void CMemoryUsage::compress(void) {
     typedef std::map<std::string, std::size_t> TStrSizeMap;
-    typedef TStrSizeMap::const_iterator TStrSizeMapCItr;
+    typedef TStrSizeMap::const_iterator        TStrSizeMapCItr;
 
     if (!m_Children.empty()) {
         // Find out which of the children occur the most

@@ -59,20 +59,20 @@ using namespace model;
 
 namespace {
 
-typedef boost::optional<double> TOptionalDouble;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef std::vector<TDoubleStrPr> TDoubleStrPrVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
+typedef boost::optional<double>              TOptionalDouble;
+typedef std::pair<std::size_t, std::size_t>  TSizeSizePr;
+typedef std::vector<std::string>             TStrVec;
+typedef std::vector<unsigned int>            TUIntVec;
+typedef std::vector<double>                  TDoubleVec;
+typedef std::vector<TDoubleVec>              TDoubleVecVec;
+typedef std::pair<double, double>            TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>         TDoubleDoublePrVec;
+typedef std::vector<std::size_t>             TSizeVec;
+typedef std::vector<TSizeVec>                TSizeVecVec;
+typedef std::pair<double, std::string>       TDoubleStrPr;
+typedef std::vector<TDoubleStrPr>            TDoubleStrPrVec;
+typedef core::CSmallVector<double, 1>        TDouble1Vec;
+typedef std::pair<std::size_t, double>       TSizeDoublePr;
 typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
 
 const std::string EMPTY_STRING;
@@ -238,12 +238,12 @@ void CEventRatePopulationModelTest::testBasicAccessors(void) {
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
-    typedef boost::optional<uint64_t> TOptionalUInt64;
-    typedef std::map<std::string, uint64_t> TStrUInt64Map;
-    typedef TStrUInt64Map::const_iterator TStrUInt64MapCItr;
+    typedef boost::optional<uint64_t>           TOptionalUInt64;
+    typedef std::map<std::string, uint64_t>     TStrUInt64Map;
+    typedef TStrUInt64Map::const_iterator       TStrUInt64MapCItr;
     typedef std::pair<std::string, std::string> TStrStrPr;
-    typedef std::map<TStrStrPr, double> TStrStrPrDoubleMap;
-    typedef TStrStrPrDoubleMap::const_iterator TStrStrPrDoubleMapCItr;
+    typedef std::map<TStrStrPr, double>         TStrStrPrDoubleMap;
+    typedef TStrStrPrDoubleMap::const_iterator  TStrStrPrDoubleMapCItr;
 
     core_t::TTime       startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -349,21 +349,21 @@ void CEventRatePopulationModelTest::testFeatures(void) {
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
-    typedef core::CSmallVector<double, 2> TDouble2Vec;
-    typedef std::vector<TDouble2Vec> TDouble2VecVec;
-    typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-    typedef std::vector<TDouble2Vec4Vec> TDouble2Vec4VecVec;
-    typedef std::set<std::size_t> TSizeSet;
-    typedef std::map<std::size_t, TSizeSet> TSizeSizeSetMap;
-    typedef std::pair<std::string, std::string> TStrStrPr;
-    typedef std::map<TStrStrPr, uint64_t> TStrStrPrUint64Map;
-    typedef SEventRateFeatureData TFeatureData;
-    typedef CEventRatePopulationModel::TSizeSizePrFeatureDataPr TSizeSizePrFeatureDataPr;
-    typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-    typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-    typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-    typedef std::map<std::size_t, TMathsModelPtr> TSizeMathsModelPtrMap;
-    typedef std::pair<TDouble2VecVec, TDouble2Vec4VecVec> TDouble2VecVecDouble2Vec4VecVecPr;
+    typedef core::CSmallVector<double, 2>                            TDouble2Vec;
+    typedef std::vector<TDouble2Vec>                                 TDouble2VecVec;
+    typedef core::CSmallVector<TDouble2Vec, 4>                       TDouble2Vec4Vec;
+    typedef std::vector<TDouble2Vec4Vec>                             TDouble2Vec4VecVec;
+    typedef std::set<std::size_t>                                    TSizeSet;
+    typedef std::map<std::size_t, TSizeSet>                          TSizeSizeSetMap;
+    typedef std::pair<std::string, std::string>                      TStrStrPr;
+    typedef std::map<TStrStrPr, uint64_t>                            TStrStrPrUint64Map;
+    typedef SEventRateFeatureData                                    TFeatureData;
+    typedef CEventRatePopulationModel::TSizeSizePrFeatureDataPr      TSizeSizePrFeatureDataPr;
+    typedef std::vector<TSizeSizePrFeatureDataPr>                    TSizeSizePrFeatureDataPrVec;
+    typedef std::map<TSizeSizePr, uint64_t>                          TSizeSizePrUInt64Map;
+    typedef boost::shared_ptr<maths::CModel>                         TMathsModelPtr;
+    typedef std::map<std::size_t, TMathsModelPtr>                    TSizeMathsModelPtrMap;
+    typedef std::pair<TDouble2VecVec, TDouble2Vec4VecVec>            TDouble2VecVecDouble2Vec4VecVecPr;
     typedef std::map<std::size_t, TDouble2VecVecDouble2Vec4VecVecPr> TSizeDouble2VecVecDouble2Vec4VecVecPrMap;
 
     static const maths_t::TWeightStyleVec WEIGHT_STYLES{maths_t::E_SampleCountWeight,
@@ -500,7 +500,7 @@ void CEventRatePopulationModelTest::testComputeProbability(void) {
 
     // Check that we get the probabilities we expect.
 
-    typedef std::vector<SAnomaly> TAnomalyVec;
+    typedef std::vector<SAnomaly>       TAnomalyVec;
     typedef std::pair<double, SAnomaly> TDoubleAnomalyPr;
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr,
                                                           maths::COrderings::SFirstLess> TAnomalyAccumulator;
@@ -590,8 +590,8 @@ void CEventRatePopulationModelTest::testPrune(void) {
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
     typedef std::pair<std::string, std::size_t> TStrSizePr;
-    typedef std::vector<TStrSizePr> TStrSizePrVec;
-    typedef std::vector<TStrSizePrVec> TStrSizePrVecVec;
+    typedef std::vector<TStrSizePr>             TStrSizePrVec;
+    typedef std::vector<TStrSizePrVec>          TStrSizePrVecVec;
 
     core_t::TTime       startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

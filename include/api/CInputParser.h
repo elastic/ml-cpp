@@ -45,19 +45,19 @@ namespace api {
 class API_EXPORT CInputParser : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator                              TStrVecItr;
+        typedef TStrVec::const_iterator                        TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
 
         //! For fast access to the field values without repeatedly computing the
         //! hash, we maintain references to the values in the hash map
         typedef boost::reference_wrapper<std::string>          TStrRef;
         typedef std::vector<TStrRef>                           TStrRefVec;
-        typedef TStrRefVec::iterator TStrRefVecItr;
-        typedef TStrRefVec::const_iterator TStrRefVecCItr;
+        typedef TStrRefVec::iterator                           TStrRefVecItr;
+        typedef TStrRefVec::const_iterator                     TStrRefVecCItr;
 
         //! Callback function prototype that gets called for each record
         //! read from the input stream.  Return false to exit reader loop.

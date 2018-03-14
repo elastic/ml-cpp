@@ -43,8 +43,8 @@ using namespace test;
 namespace {
 
 typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<double, bool> TDoubleBoolPr;
-typedef std::vector<double> TDoubleVec;
+typedef std::pair<double, bool>   TDoubleBoolPr;
+typedef std::vector<double>       TDoubleVec;
 
 namespace adapters {
 

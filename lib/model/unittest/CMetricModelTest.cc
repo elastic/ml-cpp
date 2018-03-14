@@ -62,36 +62,36 @@ using namespace model;
 
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::pair<double, std::size_t> TDoubleSizePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef boost::optional<TTimeDoublePr> TOptionalTimeDoublePr;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u> TMinAccumulator;
+typedef std::pair<double, double>                                                         TDoubleDoublePr;
+typedef std::pair<std::size_t, double>                                                    TSizeDoublePr;
+typedef std::pair<double, std::size_t>                                                    TDoubleSizePr;
+typedef std::vector<double>                                                               TDoubleVec;
+typedef std::vector<TDoubleVec>                                                           TDoubleVecVec;
+typedef std::vector<TDoubleDoublePr>                                                      TDoubleDoublePrVec;
+typedef std::vector<std::string>                                                          TStrVec;
+typedef std::vector<TStrVec>                                                              TStrVecVec;
+typedef boost::optional<uint64_t>                                                         TOptionalUInt64;
+typedef boost::optional<double>                                                           TOptionalDouble;
+typedef std::vector<TOptionalDouble>                                                      TOptionalDoubleVec;
+typedef boost::optional<std::string>                                                      TOptionalStr;
+typedef std::pair<core_t::TTime, double>                                                  TTimeDoublePr;
+typedef boost::optional<TTimeDoublePr>                                                    TOptionalTimeDoublePr;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator                        TMeanAccumulator;
+typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u>                        TMinAccumulator;
 typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double> > TMaxAccumulator;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef boost::shared_ptr<maths::CMultivariatePrior> TMultivariatePriorPtr;
-typedef std::pair<double, std::string> TDoubleStrPr;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<core_t::TTime, TStrVec> TTimeStrVecPr;
-typedef std::vector<TTimeStrVecPr> TTimeStrVecPrVec;
+typedef boost::shared_ptr<maths::CModel>                                                  TMathsModelPtr;
+typedef boost::shared_ptr<maths::CPrior>                                                  TPriorPtr;
+typedef boost::shared_ptr<maths::CMultivariatePrior>                                      TMultivariatePriorPtr;
+typedef std::pair<double, std::string>                                                    TDoubleStrPr;
+typedef core::CSmallVector<double, 1>                                                     TDouble1Vec;
+typedef core::CSmallVector<double, 2>                                                     TDouble2Vec;
+typedef core::CSmallVector<double, 4>                                                     TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>                                                TDouble4Vec1Vec;
+typedef std::pair<std::size_t, double>                                                    TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 1>                                              TSizeDoublePr1Vec;
+typedef std::vector<std::string>                                                          TStrVec;
+typedef std::pair<core_t::TTime, TStrVec>                                                 TTimeStrVecPr;
+typedef std::vector<TTimeStrVecPr>                                                        TTimeStrVecPrVec;
 
 const std::string EMPTY_STRING;
 
@@ -531,11 +531,11 @@ void CMetricModelTest::testSample(void) {
 void CMetricModelTest::testMultivariateSample(void) {
     LOG_DEBUG("*** testMultivariateSample ***");
 
-    typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-    typedef maths::CVectorNx1<double, 2> TVector2;
+    typedef std::vector<TDoubleVecVec>                                   TDoubleVecVecVec;
+    typedef maths::CVectorNx1<double, 2>                                 TVector2;
     typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-    typedef std::pair<core_t::TTime, boost::array<double, 2> > TTimeDouble2AryPr;
-    typedef std::vector<TTimeDouble2AryPr> TTimeDouble2AryPrVec;
+    typedef std::pair<core_t::TTime, boost::array<double, 2> >           TTimeDouble2AryPr;
+    typedef std::vector<TTimeDouble2AryPr>                               TTimeDouble2AryPrVec;
 
     core_t::TTime startTime(45);
     core_t::TTime bucketLength(5);
@@ -1353,9 +1353,9 @@ void CMetricModelTest::testPrune(void) {
 
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef std::vector<CEventData> TEventDataVec;
+    typedef std::vector<std::size_t>           TSizeVec;
+    typedef std::vector<TSizeVec>              TSizeVecVec;
+    typedef std::vector<CEventData>            TEventDataVec;
     typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
 
     const core_t::TTime startTime = 1346968800;
@@ -2037,7 +2037,7 @@ void CMetricModelTest::testInterimCorrectionsWithCorrelations(void) {
 void CMetricModelTest::testCorrelatePersist(void) {
     LOG_DEBUG("*** testCorrelatePersist ***");
 
-    typedef maths::CVectorNx1<double, 2> TVector2;
+    typedef maths::CVectorNx1<double, 2>          TVector2;
     typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
 
     const core_t::TTime startTime = 0;

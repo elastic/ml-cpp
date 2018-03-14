@@ -67,11 +67,11 @@ namespace model {
 //! state can be maintained.
 class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
     public:
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-        typedef std::vector<maths::CCountMinSketch> TCountMinSketchVec;
-        typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
+        typedef std::vector<core_t::TTime>                       TTimeVec;
+        typedef std::pair<std::size_t, uint64_t>                 TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                       TSizeUInt64PrVec;
+        typedef std::vector<maths::CCountMinSketch>              TCountMinSketchVec;
+        typedef std::vector<maths::CBjkstUniqueValues>           TBjkstUniqueValuesVec;
         typedef boost::unordered_map<std::size_t, core_t::TTime> TSizeTimeUMap;
 
         //! Lift the overloads of baselineBucketMean into the class scope.

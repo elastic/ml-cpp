@@ -143,7 +143,7 @@ class CORE_EXPORT CLogger : private CNonCopyable {
         void massageProperties(log4cxx::helpers::Properties &props) const;
 
         typedef std::map<log4cxx::logchar, log4cxx::LogString> TLogCharLogStrMap;
-        typedef TLogCharLogStrMap::const_iterator TLogCharLogStrMapCItr;
+        typedef TLogCharLogStrMap::const_iterator              TLogCharLogStrMapCItr;
 
         //! Replace Ml specific mappings in a single string
         void massageString(const TLogCharLogStrMap &mappings,

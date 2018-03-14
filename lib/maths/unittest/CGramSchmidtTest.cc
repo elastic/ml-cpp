@@ -30,10 +30,10 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
+typedef std::vector<double>          TDoubleVec;
+typedef std::vector<TDoubleVec>      TDoubleVecVec;
 typedef maths::CVectorNx1<double, 4> TVector4;
-typedef std::vector<TVector4> TVector4Vec;
+typedef std::vector<TVector4>        TVector4Vec;
 
 namespace {
 

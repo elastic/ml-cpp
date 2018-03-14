@@ -56,9 +56,9 @@ namespace core {
 //! and so on.
 class CORE_EXPORT CFlatPrefixTree {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
-        typedef std::string::const_iterator TStrCItr;
+        typedef std::vector<std::string>            TStrVec;
+        typedef TStrVec::const_iterator             TStrVecCItr;
+        typedef std::string::const_iterator         TStrCItr;
         typedef std::string::const_reverse_iterator TStrCRItr;
 
     private:
@@ -86,8 +86,8 @@ class CORE_EXPORT CFlatPrefixTree {
         };
 
     private:
-        typedef std::vector<SNode> TNodeVec;
-        typedef TNodeVec::const_iterator TNodeVecCItr;
+        typedef std::vector<SNode>         TNodeVec;
+        typedef TNodeVec::const_iterator   TNodeVecCItr;
         typedef std::vector<SDistinctChar> TDistinctCharVec;
 
     public:

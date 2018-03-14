@@ -47,8 +47,8 @@ namespace maths {
 
 namespace {
 
-typedef core::CSmallVector<bool, 5> TBool5Vec;
-typedef core::CSmallVector<double, 5> TDouble5Vec;
+typedef core::CSmallVector<bool, 5>                         TBool5Vec;
+typedef core::CSmallVector<double, 5>                       TDouble5Vec;
 typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 //! Compute the log of \p n.
@@ -866,7 +866,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     //   from the m'th model and
     //   P(m) is the prior probability the data are from the m'th model.
 
-    typedef std::pair<double, maths_t::ETail> TDoubleTailPr;
+    typedef std::pair<double, maths_t::ETail>                   TDoubleTailPr;
     typedef CBasicStatistics::SMax<TDoubleTailPr>::TAccumulator TMaxAccumulator;
 
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();

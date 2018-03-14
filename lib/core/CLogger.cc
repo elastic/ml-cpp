@@ -398,7 +398,7 @@ void CLogger::massageProperties(log4cxx::helpers::Properties &props) const {
 
     // Map the properties
     typedef std::vector<log4cxx::LogString> TLogStringVec;
-    typedef TLogStringVec::const_iterator TLogStringVecCItr;
+    typedef TLogStringVec::const_iterator   TLogStringVecCItr;
 
     TLogStringVec propNames(props.propertyNames());
     for (TLogStringVecCItr iter = propNames.begin();

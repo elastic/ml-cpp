@@ -51,10 +51,10 @@ class MODEL_EXPORT CResourceMonitor {
         };
 
     public:
-        typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
-        typedef std::map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeMap;
+        typedef std::pair<CAnomalyDetectorModel*, std::size_t>          TModelPtrSizePr;
+        typedef std::map<CAnomalyDetectorModel*, std::size_t>           TModelPtrSizeMap;
         typedef std::function<void (const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
-        typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
+        typedef std::map<core_t::TTime, std::size_t>                    TTimeSizeMap;
 
         //! The minimum time between prunes
         static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;

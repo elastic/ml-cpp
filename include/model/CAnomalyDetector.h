@@ -82,8 +82,8 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
         typedef std::vector<const std::string*>                 TStrCPtrVec;
         typedef std::vector<CModelPlotData>                     TModelPlotDataVec;
 
-        typedef boost::shared_ptr<CDataGatherer> TDataGathererPtr;
-        typedef boost::shared_ptr<const CModelFactory> TModelFactoryCPtr;
+        typedef boost::shared_ptr<CDataGatherer>         TDataGathererPtr;
+        typedef boost::shared_ptr<const CModelFactory>   TModelFactoryCPtr;
         typedef boost::shared_ptr<CAnomalyDetectorModel> TModelPtr;
 
         //! A shared pointer to an instance of this class

@@ -54,8 +54,8 @@ class CLimits;
 class MODEL_EXPORT CAnomalyScore {
     public:
         typedef std::vector<double>          TDoubleVec;
-        typedef TDoubleVec::iterator TDoubleVecItr;
-        typedef TDoubleVec::const_iterator TDoubleVecCItr;
+        typedef TDoubleVec::iterator         TDoubleVecItr;
+        typedef TDoubleVec::const_iterator   TDoubleVecCItr;
         typedef boost::optional<double>      TOptionalDouble;
         typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
         typedef std::vector<std::string>     TStrVec;
@@ -180,10 +180,10 @@ class MODEL_EXPORT CAnomalyScore {
                 uint64_t checksum(void) const;
 
             private:
-                typedef std::pair<double, double> TDoubleDoublePr;
-                typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-                typedef TDoubleDoublePrVec::const_iterator TDoubleDoublePrVecCItr;
-                typedef std::greater<double> TGreaterDouble;
+                typedef std::pair<double, double>                                                  TDoubleDoublePr;
+                typedef std::vector<TDoubleDoublePr>                                               TDoubleDoublePrVec;
+                typedef TDoubleDoublePrVec::const_iterator                                         TDoubleDoublePrVecCItr;
+                typedef std::greater<double>                                                       TGreaterDouble;
                 typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble> TMaxValueAccumulator;
 
             private:

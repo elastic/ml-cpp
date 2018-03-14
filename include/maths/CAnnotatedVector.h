@@ -32,7 +32,7 @@ namespace maths {
 template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector : public VECTOR {
     public:
-        typedef ANNOTATION TAnnotation;
+        typedef ANNOTATION                         TAnnotation;
         typedef typename SCoordinate<VECTOR>::Type TCoordinate;
 
         //! See core::CMemory.

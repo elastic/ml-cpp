@@ -50,15 +50,15 @@ using namespace handy_typedefs;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
+typedef std::vector<double>                                          TDoubleVec;
+typedef std::pair<double, double>                                    TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                                 TDoubleDoublePrVec;
+typedef boost::shared_ptr<maths::CPrior>                             TPriorPtr;
+typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate>         CGammaRateConjugate;
 typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior> CMultimodalPrior;
-typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
+typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>    CNormalMeanPrecConjugate;
+typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior>            CMultimodalPrior;
+typedef CPriorTestInterfaceMixin<maths::COneOfNPrior>                COneOfNPrior;
 
 //! Make the default mode prior.
 COneOfNPrior makeModePrior(const double &decayRate = 0.0) {
@@ -1170,8 +1170,8 @@ void CMultimodalPriorTest::testSampleMarginalLikelihood(void) {
     // jointLogMarginalLikelihood and minusLogJointCdf so use these
     // to compute the mean and percentiles.
 
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
+    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator        TMeanAccumulator;
+    typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator     TMeanVarAccumulator;
     typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMeanVarSkewAccumulator;
 
     const double eps = 1e-3;
@@ -1349,9 +1349,9 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples(void) {
     LOG_DEBUG("|  CMultimodalPriorTest::testProbabilityOfLessLikelySamples  |");
     LOG_DEBUG("+------------------------------------------------------------+");
 
-    typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
+    typedef std::vector<boost::math::normal_distribution<> >    TNormalVec;
     typedef std::vector<boost::math::lognormal_distribution<> > TLogNormalVec;
-    typedef std::vector<boost::math::gamma_distribution<> > TGammaVec;
+    typedef std::vector<boost::math::gamma_distribution<> >     TGammaVec;
 
     test::CRandomNumbers rng;
 

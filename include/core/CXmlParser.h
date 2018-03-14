@@ -73,19 +73,19 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf {
 
     public:
         typedef std::vector<std::string>           TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator                  TStrVecItr;
+        typedef TStrVec::const_iterator            TStrVecCItr;
 
         typedef std::set<std::string>              TStrSet;
-        typedef TStrSet::iterator TStrSetItr;
-        typedef TStrSet::const_iterator TStrSetCItr;
+        typedef TStrSet::iterator                  TStrSetItr;
+        typedef TStrSet::const_iterator            TStrSetCItr;
 
         typedef std::vector<CXmlNode>              TXmlNodeVec;
-        typedef TXmlNodeVec::iterator TXmlNodeVecItr;
-        typedef TXmlNodeVec::const_iterator TXmlNodeVecCItr;
+        typedef TXmlNodeVec::iterator              TXmlNodeVecItr;
+        typedef TXmlNodeVec::const_iterator        TXmlNodeVecCItr;
 
         typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator TStrStrMapCItr;
+        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
 
     public:
         CXmlParser(void);

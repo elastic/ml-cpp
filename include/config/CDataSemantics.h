@@ -87,9 +87,9 @@ class CONFIG_EXPORT CDataSemantics {
                     return value.hash();
                 }
         };
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
+        typedef std::vector<std::string>                                                                           TStrVec;
+        typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal>                                   TOrdinalSizeUMap;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1>                                 TMinAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal> > TMaxAccumulator;
 
     private:

@@ -74,7 +74,7 @@ class CONFIG_EXPORT CFieldStatistics {
 
     private:
         typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
-        typedef std::vector<TTimeStrPr> TTimeStrPrVec;
+        typedef std::vector<TTimeStrPr>               TTimeStrPrVec;
         typedef boost::variant<CDataSummaryStatistics,
                                CCategoricalDataSummaryStatistics,
                                CNumericDataSummaryStatistics> TDataSummaryStatistics;

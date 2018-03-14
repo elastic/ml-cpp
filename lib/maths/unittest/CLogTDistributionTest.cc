@@ -29,8 +29,8 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef TDoubleVec::iterator TDoubleVecItr;
+typedef std::vector<double>        TDoubleVec;
+typedef TDoubleVec::iterator       TDoubleVecItr;
 typedef TDoubleVec::const_iterator TDoubleVecCItr;
 
 void CLogTDistributionTest::testMode(void) {

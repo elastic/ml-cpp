@@ -46,12 +46,12 @@ using namespace handy_typedefs;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<double>                                           TDoubleVec;
+typedef std::pair<double, double>                                     TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                                  TDoubleDoublePrVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>     CNormalMeanPrecConjugate;
 
 CNormalMeanPrecConjugate makePrior(maths_t::EDataType dataType = maths_t::E_ContinuousData,
                                    const double &decayRate = 0.0) {

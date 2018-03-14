@@ -50,7 +50,7 @@ class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty {
         virtual std::string name(void) const;
 
     private:
-        typedef std::vector<uint64_t> TUInt64Vec;
+        typedef std::vector<uint64_t>               TUInt64Vec;
         typedef std::vector<CBucketCountStatistics> TBucketCountStatisticsVec;
 
     private:

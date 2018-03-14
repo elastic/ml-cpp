@@ -36,10 +36,10 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<CSample> TSampleVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<CSample>                                       TSampleVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef CSampleQueue<TMeanAccumulator> TTestSampleQueue;
+typedef CSampleQueue<TMeanAccumulator>                             TTestSampleQueue;
 
 void CSampleQueueTest::testSampleToString(void) {
     CSample sample(10, {3.0}, 0.8, 1.0);

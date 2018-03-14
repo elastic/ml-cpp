@@ -22,10 +22,10 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/generator_iterator.hpp>
 
-typedef boost::mt19937 TRandom;
-typedef boost::uniform_int<> TDistribution;
+typedef boost::mt19937                                            TRandom;
+typedef boost::uniform_int<>                                      TDistribution;
 typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
-typedef boost::generator_iterator<TGenerator> TGeneratorItr;
+typedef boost::generator_iterator<TGenerator>                     TGeneratorItr;
 
 using namespace ml;
 using namespace core;
@@ -33,7 +33,7 @@ using namespace core;
 namespace {
 
 typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-typedef boost::iostreams::filtering_stream<boost::iostreams::input> TFilteredInput;
+typedef boost::iostreams::filtering_stream<boost::iostreams::input>  TFilteredInput;
 
 // Implements the boost::iostreams Source template interface
 class CMockSource {

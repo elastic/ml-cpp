@@ -99,7 +99,7 @@ void CPriorTest::testExpectation(void) {
     LOG_DEBUG("+-------------------------------+");
 
     typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
+    typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>     CNormalMeanPrecConjugate;
 
     test::CRandomNumbers rng;
 

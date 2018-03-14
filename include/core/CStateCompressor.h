@@ -55,8 +55,8 @@ class CORE_EXPORT CStateCompressor : public CDataAdder {
 
     public:
         typedef boost::iostreams::filtering_stream<boost::iostreams::output> TFilteredOutput;
-        typedef boost::shared_ptr<TFilteredOutput> TFilteredOutputP;
-        typedef boost::shared_ptr<CCompressOStream> TCompressOStreamP;
+        typedef boost::shared_ptr<TFilteredOutput>                           TFilteredOutputP;
+        typedef boost::shared_ptr<CCompressOStream>                          TCompressOStreamP;
 
         // Implements the boost::iostreams Sink template interface
         class CChunkFilter {

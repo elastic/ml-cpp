@@ -25,12 +25,12 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CVector<double> TVector;
-typedef maths::CVectorNx1<double, 5> TVector5;
+typedef std::vector<double>                                    TDoubleVec;
+typedef std::vector<TDoubleVec>                                TDoubleVecVec;
+typedef std::vector<std::size_t>                               TSizeVec;
+typedef std::vector<TSizeVec>                                  TSizeVecVec;
+typedef maths::CVector<double>                                 TVector;
+typedef maths::CVectorNx1<double, 5>                           TVector5;
 typedef maths::CBasicStatistics::SSampleCovariances<double, 5> TCovariances;
 
 struct SFirstLess {
@@ -42,11 +42,11 @@ struct SFirstLess {
 template<std::size_t N>
 class CRandomProjectionClustererForTest : public maths::CRandomProjectionClustererBatch<N> {
     public:
-        typedef typename maths::CRandomProjectionClustererBatch<N>::TVectorArrayVec TVectorArrayVec;
-        typedef typename maths::CRandomProjectionClustererBatch<N>::TDoubleVecVec TDoubleVecVec;
-        typedef typename maths::CRandomProjectionClustererBatch<N>::TVectorNx1VecVec TVectorNx1VecVec;
-        typedef typename maths::CRandomProjectionClustererBatch<N>::TSvdNxNVecVec TSvdNxNVecVec;
-        typedef typename maths::CRandomProjectionClustererBatch<N>::TSizeUSet TSizeUSet;
+        typedef typename maths::CRandomProjectionClustererBatch<N>::TVectorArrayVec        TVectorArrayVec;
+        typedef typename maths::CRandomProjectionClustererBatch<N>::TDoubleVecVec          TDoubleVecVec;
+        typedef typename maths::CRandomProjectionClustererBatch<N>::TVectorNx1VecVec       TVectorNx1VecVec;
+        typedef typename maths::CRandomProjectionClustererBatch<N>::TSvdNxNVecVec          TSvdNxNVecVec;
+        typedef typename maths::CRandomProjectionClustererBatch<N>::TSizeUSet              TSizeUSet;
         typedef typename maths::CRandomProjectionClustererBatch<N>::TMeanAccumulatorVecVec TMeanAccumulatorVecVec;
 
     public:
@@ -97,8 +97,8 @@ void CRandomProjectionClustererTest::testGenerateProjections(void) {
     LOG_DEBUG("|  CRandomProjectionClustererTest::testGenerateProjections  |");
     LOG_DEBUG("+-----------------------------------------------------------+");
 
-    typedef CRandomProjectionClustererForTest<5>::TVectorArrayVec TVectorArrayVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    typedef CRandomProjectionClustererForTest<5>::TVectorArrayVec         TVectorArrayVec;
+    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
     typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 
     // Test corner case when projected dimension is greater
@@ -281,7 +281,7 @@ void CRandomProjectionClustererTest::testNeighbourhoods(void) {
     // computing distances projections.
 
     typedef maths::CVector<double> TVector;
-    typedef std::vector<TVector> TVectorVec;
+    typedef std::vector<TVector>   TVectorVec;
 
     test::CRandomNumbers rng;
 

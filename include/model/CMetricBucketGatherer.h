@@ -49,9 +49,9 @@ class CResourceMonitor;
 class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer {
     public:
         typedef std::pair<model_t::EMetricCategory, std::size_t> TCategorySizePr;
-        typedef std::map<TCategorySizePr, boost::any> TCategorySizePrAnyMap;
-        typedef TCategorySizePrAnyMap::iterator TCategorySizePrAnyMapItr;
-        typedef TCategorySizePrAnyMap::const_iterator TCategorySizePrAnyMapCItr;
+        typedef std::map<TCategorySizePr, boost::any>            TCategorySizePrAnyMap;
+        typedef TCategorySizePrAnyMap::iterator                  TCategorySizePrAnyMapItr;
+        typedef TCategorySizePrAnyMap::const_iterator            TCategorySizePrAnyMapCItr;
 
     public:
         //! \name Life-cycle

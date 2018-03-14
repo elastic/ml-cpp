@@ -112,11 +112,11 @@ enum EInfoCriterionType {
 template<typename POINT, EInfoCriterionType TYPE>
 class CSphericalGaussianInfoCriterion {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
+        typedef std::vector<POINT>                                                         TPointVec;
+        typedef std::vector<TPointVec>                                                     TPointVecVec;
+        typedef typename SStripped<POINT>::Type                                            TBarePoint;
+        typedef typename SFloatingPoint<TBarePoint, double>::Type                          TBarePointPrecise;
+        typedef typename SCoordinate<TBarePointPrecise>::Type                              TCoordinate;
         typedef typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator TMeanVarAccumulator;
 
     public:
@@ -229,13 +229,13 @@ class CSphericalGaussianInfoCriterion {
 template<typename POINT, EInfoCriterionType TYPE>
 class CGaussianInfoCriterion {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
-        typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
+        typedef std::vector<POINT>                                                                TPointVec;
+        typedef std::vector<TPointVec>                                                            TPointVecVec;
+        typedef typename SStripped<POINT>::Type                                                   TBarePoint;
+        typedef typename SFloatingPoint<TBarePoint, double>::Type                                 TBarePointPrecise;
+        typedef typename SCoordinate<TBarePointPrecise>::Type                                     TCoordinate;
         typedef typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type TCovariances;
-        typedef typename SConformableMatrix<TBarePointPrecise>::Type TMatrix;
+        typedef typename SConformableMatrix<TBarePointPrecise>::Type                              TMatrix;
 
     public:
         CGaussianInfoCriterion(void) :

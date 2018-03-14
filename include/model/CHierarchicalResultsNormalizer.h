@@ -92,11 +92,11 @@ class MODEL_EXPORT CHierarchicalResultsNormalizer :
     private core::CNonCopyable {
     public:
         typedef CHierarchicalResultsLevelSet<hierarchical_results_normalizer_detail::SNormalizer> TBase;
-        typedef TBase::Type TNormalizer;
-        typedef TBase::TTypePtrVec TNormalizerPtrVec;
-        typedef TBase::TWordTypePr TWordNormalizerPr;
-        typedef TBase::TWordTypePrVec TWordNormalizerPrVec;
-        typedef std::vector<std::string> TStrVec;
+        typedef TBase::Type                                                                       TNormalizer;
+        typedef TBase::TTypePtrVec                                                                TNormalizerPtrVec;
+        typedef TBase::TWordTypePr                                                                TWordNormalizerPr;
+        typedef TBase::TWordTypePrVec                                                             TWordNormalizerPrVec;
+        typedef std::vector<std::string>                                                          TStrVec;
 
         //! Enumeration of the possible jobs that the normalizer can
         //! perform when invoked.

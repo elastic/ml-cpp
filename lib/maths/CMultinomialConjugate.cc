@@ -50,8 +50,8 @@ namespace ml {
 namespace maths {
 
 namespace {
-typedef std::vector<double> TDoubleVec;
-typedef TDoubleVec::const_iterator TDoubleVecCItr;
+typedef std::vector<double>           TDoubleVec;
+typedef TDoubleVec::const_iterator    TDoubleVecCItr;
 typedef core::CSmallVector<double, 7> TDouble7Vec;
 
 namespace detail {
@@ -264,10 +264,10 @@ void generateBetaSamples(double a,
 
 } // detail::
 
-typedef std::map<double, double> TDoubleDoubleMap;
-typedef TDoubleDoubleMap::const_iterator TDoubleDoubleMapCItr;
-typedef boost::tuples::tuple<double, double, std::size_t> TDoubleDoubleSizeTr;
-typedef std::vector<TDoubleDoubleSizeTr> TDoubleDoubleSizeTrVec;
+typedef std::map<double, double>                            TDoubleDoubleMap;
+typedef TDoubleDoubleMap::const_iterator                    TDoubleDoubleMapCItr;
+typedef boost::tuples::tuple<double, double, std::size_t>   TDoubleDoubleSizeTr;
+typedef std::vector<TDoubleDoubleSizeTr>                    TDoubleDoubleSizeTrVec;
 typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 // We use short field names to reduce the state size

@@ -36,7 +36,7 @@ namespace core {
 
 namespace printer_detail {
 
-typedef boost::true_type true_;
+typedef boost::true_type  true_;
 typedef boost::false_type false_;
 
 //! Auxiliary type used by has_const_iterator to test for a nested

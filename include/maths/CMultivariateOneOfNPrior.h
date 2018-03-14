@@ -63,15 +63,15 @@ struct SDistributionRestoreParams;
 //! functions to support value semantics and manage the heap.
 class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
     public:
-        typedef core::CSmallVector<double, 3> TDouble3Vec;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
-        typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
+        typedef core::CSmallVector<double, 3>                    TDouble3Vec;
+        typedef std::vector<TPriorPtr>                           TPriorPtrVec;
+        typedef std::pair<double, TPriorPtr>                     TDoublePriorPtrPr;
+        typedef std::vector<TDoublePriorPtrPr>                   TDoublePriorPtrPrVec;
+        typedef std::pair<CModelWeight, TPriorPtr>               TWeightPriorPtrPr;
+        typedef std::vector<TWeightPriorPtrPr>                   TWeightPriorPtrPrVec;
         typedef core::CSmallVector<const CMultivariatePrior*, 3> TPriorCPtr3Vec;
-        typedef CBasicStatistics::SMin<double>::TAccumulator TMinAccumulator;
-        typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
+        typedef CBasicStatistics::SMin<double>::TAccumulator     TMinAccumulator;
+        typedef CBasicStatistics::SMax<double>::TAccumulator     TMaxAccumulator;
 
         // Lift all overloads of into scope.
         //{

@@ -28,7 +28,7 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>     TDoubleVec;
 typedef std::vector<TDoubleVec> TDoubleVecVec;
 
 void CLinearAlgebraTest::testSymmetricMatrixNxN(void) {

@@ -50,8 +50,8 @@ class CORE_EXPORT CXmlNode {
         typedef std::map<std::string, std::string>  TStrStrMap;
         typedef std::pair<std::string, std::string> TStrStrPr;
         typedef std::vector<TStrStrPr>              TStrStrPrVec;
-        typedef TStrStrPrVec::iterator TStrStrPrVecItr;
-        typedef TStrStrPrVec::const_iterator TStrStrPrVecCItr;
+        typedef TStrStrPrVec::iterator              TStrStrPrVecItr;
+        typedef TStrStrPrVec::const_iterator        TStrStrPrVecCItr;
 
     private:
         class CFirstElementEquals {

@@ -31,10 +31,10 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<TDoubleVec>                                    TDoubleVecVec;
+typedef std::pair<double, double>                                  TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                               TDoubleDoublePrVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 namespace {
@@ -1007,7 +1007,7 @@ void CMultivariateNormalConjugateTest::calibrationExperiment(void) {
     LOG_DEBUG("|  CMultivariateNormalConjugateTest::calibrationExperiment  |");
     LOG_DEBUG("+-----------------------------------------------------------+");
 
-    typedef maths::CVectorNx1<double, 10> TVector10;
+    typedef maths::CVectorNx1<double, 10>          TVector10;
     typedef maths::CSymmetricMatrixNxN<double, 10> TMatrix10;
 
     double    means[] = { 10.0, 10.0, 20.0, 20.0, 30.0, 20.0, 10.0, 40.0, 30.0, 20.0 };

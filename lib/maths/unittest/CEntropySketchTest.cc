@@ -35,9 +35,9 @@ void CEntropySketchTest::testAll(void) {
     LOG_DEBUG("|  CBjkstUniqueValuesTest::testPersist  |");
     LOG_DEBUG("+---------------------------------------+");
 
-    typedef std::vector<std::size_t> TSizeVec;
+    typedef std::vector<std::size_t>                  TSizeVec;
     typedef boost::unordered_map<std::size_t, double> TSizeDoubleUMap;
-    typedef TSizeDoubleUMap::const_iterator TSizeDoubleUMapCItr;
+    typedef TSizeDoubleUMap::const_iterator           TSizeDoubleUMapCItr;
 
     test::CRandomNumbers rng;
 

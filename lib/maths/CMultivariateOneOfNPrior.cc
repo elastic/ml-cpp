@@ -45,16 +45,16 @@ namespace ml {
 namespace maths {
 namespace {
 
-typedef core::CSmallVector<bool, 3> TBool3Vec;
-typedef CMultivariateOneOfNPrior::TDouble3Vec TDouble3Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec TDouble10Vec;
+typedef core::CSmallVector<bool, 3>                         TBool3Vec;
+typedef CMultivariateOneOfNPrior::TDouble3Vec               TDouble3Vec;
+typedef CMultivariateOneOfNPrior::TDouble10Vec              TDouble10Vec;
 typedef CMultivariateOneOfNPrior::TDouble10VecDouble10VecPr TDouble10VecDouble10VecPr;
-typedef CMultivariateOneOfNPrior::TDouble10Vec1Vec TDouble10Vec1Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec10Vec TDouble10Vec10Vec;
-typedef CMultivariateOneOfNPrior::TDouble10Vec4Vec1Vec TDouble10Vec4Vec1Vec;
-typedef CMultivariateOneOfNPrior::TPriorPtr TPriorPtr;
-typedef CMultivariateOneOfNPrior::TWeightPriorPtrPr TWeightPriorPtrPr;
-typedef CMultivariateOneOfNPrior::TWeightPriorPtrPrVec TWeightPriorPtrPrVec;
+typedef CMultivariateOneOfNPrior::TDouble10Vec1Vec          TDouble10Vec1Vec;
+typedef CMultivariateOneOfNPrior::TDouble10Vec10Vec         TDouble10Vec10Vec;
+typedef CMultivariateOneOfNPrior::TDouble10Vec4Vec1Vec      TDouble10Vec4Vec1Vec;
+typedef CMultivariateOneOfNPrior::TPriorPtr                 TPriorPtr;
+typedef CMultivariateOneOfNPrior::TWeightPriorPtrPr         TWeightPriorPtrPr;
+typedef CMultivariateOneOfNPrior::TWeightPriorPtrPrVec      TWeightPriorPtrPrVec;
 
 // We use short field names to reduce the state size
 const std::string MODEL_TAG("a");

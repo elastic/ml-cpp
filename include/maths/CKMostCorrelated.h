@@ -66,14 +66,14 @@ class MATHS_EXPORT CKMostCorrelated {
         static const std::size_t NUMBER_PROJECTIONS = 10u;
 
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS> TVector;
-        typedef std::vector<TVector> TVectorVec;
-        typedef boost::unordered_map<std::size_t, TVector> TSizeVectorUMap;
-        typedef std::pair<TVector, CPackedBitVector> TVectorPackedBitVectorPr;
+        typedef std::vector<double>                                         TDoubleVec;
+        typedef std::vector<std::size_t>                                    TSizeVec;
+        typedef std::pair<std::size_t, std::size_t>                         TSizeSizePr;
+        typedef std::vector<TSizeSizePr>                                    TSizeSizePrVec;
+        typedef CVectorNx1<maths::CFloatStorage, NUMBER_PROJECTIONS>        TVector;
+        typedef std::vector<TVector>                                        TVectorVec;
+        typedef boost::unordered_map<std::size_t, TVector>                  TSizeVectorUMap;
+        typedef std::pair<TVector, CPackedBitVector>                        TVectorPackedBitVectorPr;
         typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr> TSizeVectorPackedBitVectorPrUMap;
 
     public:
@@ -134,10 +134,10 @@ class MATHS_EXPORT CKMostCorrelated {
 
     protected:
         typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::vector<TMeanVarAccumulator> TMeanVarAccumulatorVec;
-        typedef TSizeVectorUMap::const_iterator TSizeVectorUMapCItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::iterator TSizeVectorPackedBitVectorPrUMapItr;
-        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator TSizeVectorPackedBitVectorPrUMapCItr;
+        typedef std::vector<TMeanVarAccumulator>                       TMeanVarAccumulatorVec;
+        typedef TSizeVectorUMap::const_iterator                        TSizeVectorUMapCItr;
+        typedef TSizeVectorPackedBitVectorPrUMap::iterator             TSizeVectorPackedBitVectorPrUMapItr;
+        typedef TSizeVectorPackedBitVectorPrUMap::const_iterator       TSizeVectorPackedBitVectorPrUMapCItr;
 
         //! \brief A pair of variables and their correlation.
         //!

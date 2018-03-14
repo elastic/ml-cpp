@@ -35,9 +35,9 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>           TDoubleVec;
 typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+typedef std::vector<TUInt32UInt64Pr>  TUInt32UInt64PrVec;
 
 void CQDigestTest::testAdd(void) {
     LOG_DEBUG("+-------------------------+");

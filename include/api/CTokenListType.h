@@ -53,13 +53,13 @@ class API_EXPORT CTokenListType {
 
         //! Used for storing token ID sequences
         typedef std::vector<TSizeSizePr>       TSizeSizePrVec;
-        typedef TSizeSizePrVec::iterator TSizeSizePrVecItr;
+        typedef TSizeSizePrVec::iterator       TSizeSizePrVecItr;
         typedef TSizeSizePrVec::const_iterator TSizeSizePrVecCItr;
 
         //! Used for storing distinct token IDs mapped to weightings
         typedef std::map<size_t, size_t>       TSizeSizeMap;
-        typedef TSizeSizeMap::iterator TSizeSizeMapItr;
-        typedef TSizeSizeMap::const_iterator TSizeSizeMapCItr;
+        typedef TSizeSizeMap::iterator         TSizeSizeMapItr;
+        typedef TSizeSizeMap::const_iterator   TSizeSizeMapCItr;
 
     public:
         //! Create a new type

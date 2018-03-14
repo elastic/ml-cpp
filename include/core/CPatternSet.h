@@ -46,8 +46,8 @@ namespace core {
 //!   - the start of any of its substrings ending at its end matches a contains pattern
 class CORE_EXPORT CPatternSet {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef std::vector<std::string>    TStrVec;
+        typedef TStrVec::const_iterator     TStrVecCItr;
         typedef std::string::const_iterator TStrCItr;
 
     public:

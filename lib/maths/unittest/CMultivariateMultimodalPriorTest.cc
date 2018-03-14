@@ -36,13 +36,13 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<TDoubleVecVec> TDoubleVecVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<double>                                          TDoubleVec;
+typedef std::vector<TDoubleVec>                                      TDoubleVecVec;
+typedef std::vector<TDoubleVecVec>                                   TDoubleVecVecVec;
+typedef std::vector<std::size_t>                                     TSizeVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator   TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
-typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
+typedef maths::CBasicStatistics::SSampleCovariances<double, 2>       TCovariances2;
 
 namespace {
 
@@ -55,7 +55,7 @@ template<std::size_t N>
 class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimodalPrior<N> {
     public:
         typedef typename maths::CMultivariateMultimodalPrior<N>::TClusterer TClusterer;
-        typedef typename maths::CMultivariateMultimodalPrior<N>::TModeVec TModeVec;
+        typedef typename maths::CMultivariateMultimodalPrior<N>::TModeVec   TModeVec;
 
     public:
         CMultivariateMultimodalPriorForTest(const maths::CMultivariateMultimodalPrior<N> &prior) :
@@ -1065,7 +1065,7 @@ void CMultivariateMultimodalPriorTest::testLatLongData(void) {
     LOG_DEBUG("+-----------------------------------------------------+");
 
     typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-    typedef std::vector<TTimeDoubleVecPr> TTimeDoubleVecPrVec;
+    typedef std::vector<TTimeDoubleVecPr>        TTimeDoubleVecPrVec;
 
     TTimeDoubleVecPrVec timeseries;
     CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/lat_lng.csv",

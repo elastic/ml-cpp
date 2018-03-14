@@ -89,7 +89,7 @@ template<typename PRIOR>
 class CScopeCanonicalizeWeights : private core::CNonCopyable {
     public:
         typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;
-        typedef std::vector<TWeightPriorPr> TWeightPriorPrVec;
+        typedef std::vector<TWeightPriorPr>    TWeightPriorPrVec;
 
     public:
         CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {

@@ -72,7 +72,7 @@ void CTripleTest::testOperators(void) {
 }
 
 void CTripleTest::testBoostHashReady(void) {
-    typedef ml::core::CTriple<std::string, std::size_t, short> TStringSizeShortTriple;
+    typedef ml::core::CTriple<std::string, std::size_t, short>        TStringSizeShortTriple;
     typedef boost::unordered_map<TStringSizeShortTriple, std::size_t> TStringSizeShortTripleSizeMap;
 
     TStringSizeShortTripleSizeMap map;

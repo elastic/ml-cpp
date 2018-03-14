@@ -129,7 +129,7 @@ std::string CDetectorRecord::print(void) const {
 
 void CDetectorRecordDirectAddressTable::build(const TDetectorSpecificationVec &specs) {
     typedef boost::unordered_map<std::string, std::size_t> TStrSizeUMap;
-    typedef TStrSizeUMap::const_iterator TStrSizeUMapCItr;
+    typedef TStrSizeUMap::const_iterator                   TStrSizeUMapCItr;
 
     this->clear();
 

@@ -32,7 +32,7 @@ namespace {
 
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
+typedef std::vector<TStrVec>     TStrVecVec;
 
 //! Pad \p value.
 inline std::string pad(std::size_t padTo, const std::string &value) {

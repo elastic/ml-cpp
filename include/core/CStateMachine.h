@@ -74,7 +74,7 @@ class CStateRestoreTraverser;
 class CORE_EXPORT CStateMachine {
     public:
         typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
+        typedef std::vector<TSizeVec>    TSizeVecVec;
         typedef std::vector<std::string> TStrVec;
 
     public:
@@ -201,7 +201,7 @@ class CORE_EXPORT CStateMachine {
                 void clear(void);
 
             private:
-                typedef std::vector<SMachine> TMachineVec;
+                typedef std::vector<SMachine>  TMachineVec;
                 typedef std::list<TMachineVec> TMachineVecList;
 
             private:

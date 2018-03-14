@@ -45,13 +45,13 @@ using namespace handy_typedefs;
 
 namespace {
 
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<unsigned int>                                     TUIntVec;
+typedef std::vector<double>                                           TDoubleVec;
+typedef std::pair<double, double>                                     TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                                  TDoubleDoublePrVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate> CPoissonMeanConjugate;
+typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate>        CPoissonMeanConjugate;
 
 }
 

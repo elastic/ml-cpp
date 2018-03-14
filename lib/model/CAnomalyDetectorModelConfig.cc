@@ -44,7 +44,7 @@ namespace model {
 
 namespace {
 
-typedef std::vector<std::size_t> TSizeVec;
+typedef std::vector<std::size_t>   TSizeVec;
 typedef std::vector<core_t::TTime> TTimeVec;
 
 const CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMap EMPTY_RULES_MAP;

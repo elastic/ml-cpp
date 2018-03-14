@@ -72,7 +72,7 @@ class CRapidXmlStateRestoreTraverser;
 class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf {
     public:
         typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator TStrStrMapCItr;
+        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
 
     public:
         CRapidXmlParser(void);

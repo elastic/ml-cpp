@@ -37,20 +37,20 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<double>                                           TDoubleVec;
+typedef maths::CVectorNx1<double, 2>                                  TVector2;
+typedef std::vector<TVector2>                                         TVector2Vec;
+typedef maths::CSymmetricMatrixNxN<double, 2>                         TMatrix2;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 
 class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
     public:
-        typedef maths::CKMostCorrelated::SCorrelation TCorrelation;
-        typedef maths::CKMostCorrelated::TCorrelationVec TCorrelationVec;
-        typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap TSizeVectorPackedBitVectorPrUMap;
+        typedef maths::CKMostCorrelated::SCorrelation                         TCorrelation;
+        typedef maths::CKMostCorrelated::TCorrelationVec                      TCorrelationVec;
+        typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap     TSizeVectorPackedBitVectorPrUMap;
         typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMapCItr TSizeVectorPackedBitVectorPrUMapCItr;
-        typedef maths::CKMostCorrelated::TMeanVarAccumulatorVec TMeanVarAccumulatorVec;
+        typedef maths::CKMostCorrelated::TMeanVarAccumulatorVec               TMeanVarAccumulatorVec;
         using maths::CKMostCorrelated::mostCorrelated;
         using maths::CKMostCorrelated::correlations;
 
@@ -119,8 +119,8 @@ void estimateCorrelation(const std::size_t trials,
                          const TVector2 &mean,
                          const TMatrix2 &covariance,
                          TMeanVarAccumulator &correlationEstimate) {
-    typedef maths::CVectorNx1<maths::CFloatStorage, 10> TVector10;
-    typedef std::vector<TVector10> TVector10Vec;
+    typedef maths::CVectorNx1<maths::CFloatStorage, 10>                     TVector10;
+    typedef std::vector<TVector10>                                          TVector10Vec;
     typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
 
     test::CRandomNumbers rng;
@@ -728,7 +728,7 @@ void CKMostCorrelatedTest::testScale(void) {
     // if we look for O(number of variables) correlations.
 
     typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TDoubleVec> TDoubleVecVec;
+    typedef std::vector<TDoubleVec>  TDoubleVecVec;
 
     maths::CSampling::seed();
 

@@ -36,9 +36,9 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef CQuantileSketch::TFloatFloatPr TFloatFloatPr;
+typedef std::pair<double, double>         TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>      TDoubleDoublePrVec;
+typedef CQuantileSketch::TFloatFloatPr    TFloatFloatPr;
 typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
 
 //! \brief Orders two indices of a value vector by increasing value.

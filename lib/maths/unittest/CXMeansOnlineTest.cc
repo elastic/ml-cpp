@@ -32,24 +32,24 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
+typedef std::vector<double>                                    TDoubleVec;
+typedef std::vector<TDoubleVec>                                TDoubleVecVec;
+typedef std::vector<std::size_t>                               TSizeVec;
 typedef maths::CBasicStatistics::SSampleCovariances<double, 2> TCovariances2;
-typedef std::vector<TCovariances2> TCovariances2Vec;
-typedef maths::CXMeansOnline<double, 2> TXMeans2;
-typedef TXMeans2::TPointPrecise TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<TPointVec> TPointVecVec;
-typedef TXMeans2::TMatrixPrecise TMatrix;
-typedef std::vector<TMatrix> TMatrixVec;
+typedef std::vector<TCovariances2>                             TCovariances2Vec;
+typedef maths::CXMeansOnline<double, 2>                        TXMeans2;
+typedef TXMeans2::TPointPrecise                                TPoint;
+typedef std::vector<TPoint>                                    TPointVec;
+typedef std::vector<TPointVec>                                 TPointVecVec;
+typedef TXMeans2::TMatrixPrecise                               TMatrix;
+typedef std::vector<TMatrix>                                   TMatrixVec;
 
 template<typename T, std::size_t N>
 class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N> {
     public:
         typedef typename maths::CXMeansOnline<T, N>::TSizeDoublePr2Vec TSizeDoublePr2Vec;
-        typedef typename maths::CXMeansOnline<T, N>::TPointPrecise TPoint;
-        typedef typename maths::CXMeansOnline<T, N>::TClusterVec TClusterVec;
+        typedef typename maths::CXMeansOnline<T, N>::TPointPrecise     TPoint;
+        typedef typename maths::CXMeansOnline<T, N>::TClusterVec       TClusterVec;
         using maths::CXMeansOnline<T, N>::add;
 
     public:
@@ -70,7 +70,7 @@ class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N> {
         }
 };
 
-typedef CXMeansOnlineForTest<double, 2> TXMeans2ForTest;
+typedef CXMeansOnlineForTest<double, 2>               TXMeans2ForTest;
 typedef CXMeansOnlineForTest<maths::CFloatStorage, 2> TXMeans2FloatForTest;
 
 bool restore(const maths::SDistributionRestoreParams &params,
@@ -739,8 +739,8 @@ void CXMeansOnlineTest::testLatLongData(void) {
     LOG_DEBUG("|  CXMeansOnlineTest::testLatLongData  |");
     LOG_DEBUG("+--------------------------------------+");
 
-    typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
-    typedef std::vector<TTimeDoubleVecPr> TTimeDoubleVecPrVec;
+    typedef std::pair<core_t::TTime, TDoubleVec>                       TTimeDoubleVecPr;
+    typedef std::vector<TTimeDoubleVecPr>                              TTimeDoubleVecPrVec;
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
     TTimeDoubleVecPrVec timeseries;

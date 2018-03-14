@@ -57,11 +57,11 @@ namespace maths {
 template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC> >
 class CXMeans {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
-        typedef boost::unordered_set<uint64_t> TUInt64USet;
-        typedef TUInt64USet::iterator TUInt64USetItr;
+        typedef std::vector<double>                                         TDoubleVec;
+        typedef std::vector<POINT>                                          TPointVec;
+        typedef std::vector<TPointVec>                                      TPointVecVec;
+        typedef boost::unordered_set<uint64_t>                              TUInt64USet;
+        typedef TUInt64USet::iterator                                       TUInt64USetItr;
         typedef typename CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
 
         //! A cluster.
@@ -208,7 +208,7 @@ class CXMeans {
         //! \param[in] kmeansIterations The limit on the number of
         //! iterations of Lloyd's algorithm to use.
         void improveParams(std::size_t kmeansIterations) {
-            typedef const CCluster *TClusterCPtr;
+            typedef const CCluster *          TClusterCPtr;
             typedef std::vector<TClusterCPtr> TClusterCPtrVec;
 
             std::size_t n = m_Clusters.size();

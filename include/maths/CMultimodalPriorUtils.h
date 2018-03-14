@@ -47,13 +47,13 @@ namespace maths {
 //! and mixture priors.
 class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
     public:
-        typedef std::pair<double, double> TDoubleDoublePr;
-        typedef std::vector<double> TDoubleVec;
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef core::CSmallVector<double, 4> TDouble4Vec;
-        typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
+        typedef std::pair<double, double>                           TDoubleDoublePr;
+        typedef std::vector<double>                                 TDoubleVec;
+        typedef core::CSmallVector<double, 1>                       TDouble1Vec;
+        typedef core::CSmallVector<double, 4>                       TDouble4Vec;
+        typedef core::CSmallVector<TDouble4Vec, 1>                  TDouble4Vec1Vec;
         typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef CConstantWeights TWeights;
+        typedef CConstantWeights                                    TWeights;
 
         //! Get the mode of the marginal likelihood function.
         template<typename T>
@@ -339,7 +339,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             // The approximation is increasingly accurate as the prior distribution
             // on each mode narrows.
 
-            typedef std::pair<std::size_t, double> TSizeDoublePr;
+            typedef std::pair<std::size_t, double>       TSizeDoublePr;
             typedef core::CSmallVector<TSizeDoublePr, 5> TSizeDoublePr5Vec;
 
             result = 0.0;

@@ -70,13 +70,13 @@ class CNumericDataSummaryStatistics;
 //! MyPenaltyA and MyPenaltyB.
 class CONFIG_EXPORT CPenalty {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+        typedef std::vector<double>               TDoubleVec;
+        typedef std::vector<std::size_t>          TSizeVec;
+        typedef std::vector<core_t::TTime>        TTimeVec;
+        typedef std::vector<std::string>          TStrVec;
+        typedef boost::shared_ptr<CPenalty>       TPenaltyPtr;
         typedef boost::shared_ptr<const CPenalty> TPenaltyCPtr;
-        typedef std::vector<TPenaltyCPtr> TPenaltyCPtrVec;
+        typedef std::vector<TPenaltyCPtr>         TPenaltyCPtrVec;
 
         //! \brief Represents the result of multiplying penalties.
         class CClosure {

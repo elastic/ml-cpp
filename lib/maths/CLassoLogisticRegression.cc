@@ -432,10 +432,10 @@ double CLogisticRegressionModel::operator()(const TSizeDoublePrVec &x) const {
 namespace {
 
 using namespace lasso_logistic_regression_detail;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
-typedef std::vector<TSizeDoublePrVec> TSizeDoublePrVecVec;
+typedef std::vector<TDoubleVec>           TDoubleVecVec;
+typedef std::pair<std::size_t, double>    TSizeDoublePr;
+typedef std::vector<TSizeDoublePr>        TSizeDoublePrVec;
+typedef std::vector<TSizeDoublePrVec>     TSizeDoublePrVecVec;
 typedef boost::unordered_set<std::size_t> TSizeUSet;
 
 //! Set up the masked training data.

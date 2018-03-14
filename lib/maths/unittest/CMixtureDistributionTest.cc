@@ -28,10 +28,10 @@ using namespace ml;
 using namespace maths;
 using namespace test;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
+typedef std::vector<double>                                 TDoubleVec;
+typedef std::vector<boost::math::normal_distribution<> >    TNormalVec;
 typedef std::vector<boost::math::lognormal_distribution<> > TLogNormalVec;
-typedef std::vector<boost::math::gamma_distribution<> > TGammaVec;
+typedef std::vector<boost::math::gamma_distribution<> >     TGammaVec;
 
 void CMixtureDistributionTest::testSupport(void) {
     LOG_DEBUG("+--------------------------------------+");

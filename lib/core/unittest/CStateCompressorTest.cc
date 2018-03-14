@@ -30,17 +30,17 @@
 using namespace ml;
 using namespace core;
 
-typedef boost::mt19937 TRandom;
-typedef boost::uniform_int<> TDistribution;
+typedef boost::mt19937                                            TRandom;
+typedef boost::uniform_int<>                                      TDistribution;
 typedef boost::random::variate_generator<TRandom&, TDistribution> TGenerator;
-typedef boost::generator_iterator<TGenerator> TGeneratorItr;
+typedef boost::generator_iterator<TGenerator>                     TGeneratorItr;
 
 namespace {
 
 typedef std::map<std::size_t, std::string> TSizeStrMap;
-typedef TSizeStrMap::const_iterator TSizeStrMapCItr;
-typedef core::CDataAdder::TOStreamP TOStreamP;
-typedef core::CDataSearcher::TIStreamP TIStreamP;
+typedef TSizeStrMap::const_iterator        TSizeStrMapCItr;
+typedef core::CDataAdder::TOStreamP        TOStreamP;
+typedef core::CDataSearcher::TIStreamP     TIStreamP;
 
 void insert3rdLevel(ml::core::CStatePersistInserter &inserter) {
     inserter.insertValue("ssdrgad", 99999, ml::core::CIEEE754::E_SinglePrecision);

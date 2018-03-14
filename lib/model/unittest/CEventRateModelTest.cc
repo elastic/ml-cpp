@@ -61,25 +61,25 @@ using namespace model;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::vector<TSizeVecVec> TSizeVecVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 2> TDouble2Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
-typedef boost::optional<std::string> TOptionalStr;
-typedef boost::optional<uint64_t> TOptionalUInt64;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
-typedef boost::shared_ptr<maths::CModel> TMathsModelPtr;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<TDoubleVec>                                    TDoubleVecVec;
+typedef std::pair<double, double>                                  TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                               TDoubleDoublePrVec;
+typedef std::vector<uint64_t>                                      TUInt64Vec;
+typedef std::vector<core_t::TTime>                                 TTimeVec;
+typedef std::vector<std::size_t>                                   TSizeVec;
+typedef std::vector<TSizeVec>                                      TSizeVecVec;
+typedef std::vector<TSizeVecVec>                                   TSizeVecVecVec;
+typedef std::vector<std::string>                                   TStrVec;
+typedef core::CSmallVector<double, 1>                              TDouble1Vec;
+typedef core::CSmallVector<double, 2>                              TDouble2Vec;
+typedef std::pair<std::size_t, double>                             TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 1>                       TSizeDoublePr1Vec;
+typedef boost::optional<std::string>                               TOptionalStr;
+typedef boost::optional<uint64_t>                                  TOptionalUInt64;
+typedef boost::optional<double>                                    TOptionalDouble;
+typedef std::vector<TOptionalDouble>                               TOptionalDoubleVec;
+typedef boost::shared_ptr<maths::CModel>                           TMathsModelPtr;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 const std::string EMPTY_STRING;
@@ -588,7 +588,7 @@ void CEventRateModelTest::testOnlineRare(void) {
 void CEventRateModelTest::testOnlineProbabilityCalculation(void) {
     LOG_DEBUG("*** testOnlineProbabilityCalculation ***");
 
-    typedef std::pair<double, std::size_t> TDoubleSizePr;
+    typedef std::pair<double, std::size_t>                               TDoubleSizePr;
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> TMinAccumulator;
 
     const core_t::TTime startTime = 1346968800;
@@ -752,7 +752,7 @@ void CEventRateModelTest::testOnlineCorrelatedNoTrend(void) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
+    typedef core::CTriple<double, std::size_t, std::string>                 TDoubleSizeStrTr;
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
 
     const core_t::TTime startTime = 1346968800;
@@ -987,7 +987,7 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    typedef core::CTriple<double, std::size_t, std::string> TDoubleSizeStrTr;
+    typedef core::CTriple<double, std::size_t, std::string>                 TDoubleSizeStrTr;
     typedef maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr> TMinAccumulator;
 
     const core_t::TTime startTime = 1346968800;
@@ -1118,8 +1118,8 @@ void CEventRateModelTest::testOnlineCorrelatedTrend(void) {
 void CEventRateModelTest::testPrune(void) {
     LOG_DEBUG("*** testPrune ***");
 
-    typedef std::vector<TUInt64Vec> TUInt64VecVec;
-    typedef std::vector<CEventData> TEventDataVec;
+    typedef std::vector<TUInt64Vec>            TUInt64VecVec;
+    typedef std::vector<CEventData>            TEventDataVec;
     typedef std::map<std::size_t, std::size_t> TSizeSizeMap;
 
     const core_t::TTime startTime = 1346968800;

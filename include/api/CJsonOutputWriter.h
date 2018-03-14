@@ -111,12 +111,12 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler {
         typedef boost::shared_ptr<rapidjson::Document>      TDocumentPtr;
         typedef boost::weak_ptr<rapidjson::Document>        TDocumentWeakPtr;
         typedef std::vector<TDocumentWeakPtr>               TDocumentWeakPtrVec;
-        typedef TDocumentWeakPtrVec::iterator TDocumentWeakPtrVecItr;
-        typedef TDocumentWeakPtrVec::const_iterator TDocumentWeakPtrVecCItr;
+        typedef TDocumentWeakPtrVec::iterator               TDocumentWeakPtrVecItr;
+        typedef TDocumentWeakPtrVec::const_iterator         TDocumentWeakPtrVecCItr;
 
         typedef std::pair<TDocumentWeakPtr, int>            TDocumentWeakPtrIntPr;
         typedef std::vector<TDocumentWeakPtrIntPr>          TDocumentWeakPtrIntPrVec;
-        typedef TDocumentWeakPtrIntPrVec::iterator TDocumentWeakPtrIntPrVecItr;
+        typedef TDocumentWeakPtrIntPrVec::iterator          TDocumentWeakPtrIntPrVecItr;
         typedef std::map<std::string, TDocumentWeakPtrVec>  TStrDocumentPtrVecMap;
 
         typedef std::vector<std::string>                    TStrVec;
@@ -181,8 +181,8 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler {
         };
 
         typedef std::map<core_t::TTime, SBucketData>   TTimeBucketDataMap;
-        typedef TTimeBucketDataMap::iterator TTimeBucketDataMapItr;
-        typedef TTimeBucketDataMap::const_iterator TTimeBucketDataMapCItr;
+        typedef TTimeBucketDataMap::iterator           TTimeBucketDataMapItr;
+        typedef TTimeBucketDataMap::const_iterator     TTimeBucketDataMapCItr;
 
 
         static const std::string JOB_ID;
@@ -251,7 +251,7 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler {
 
     private:
         typedef CCategoryExamplesCollector::TStrSet TStrSet;
-        typedef TStrSet::const_iterator TStrSetCItr;
+        typedef TStrSet::const_iterator             TStrSetCItr;
 
         struct SModelSnapshotReport {
             SModelSnapshotReport(core_t::TTime snapshotTimestamp,

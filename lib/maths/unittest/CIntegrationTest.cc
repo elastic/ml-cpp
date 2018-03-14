@@ -278,16 +278,16 @@ void CIntegrationTest::testAllSingleVariate(void) {
     // Test that "low" order polynomials are integrated exactly
     // (as they should be for a higher order quadrature).
 
-    typedef CPolynomialFunction<0u> TConstant;
-    typedef CPolynomialFunction<1u> TLinear;
-    typedef CPolynomialFunction<2u> TQuadratic;
-    typedef CPolynomialFunction<3u> TCubic;
-    typedef CPolynomialFunction<4u> TQuartic;
-    typedef CPolynomialFunction<5u> TQuintic;
-    typedef CPolynomialFunction<6u> THexic;
-    typedef CPolynomialFunction<7u> THeptic;
-    typedef CPolynomialFunction<8u> TOctic;
-    typedef CPolynomialFunction<9u> TNonic;
+    typedef CPolynomialFunction<0u>  TConstant;
+    typedef CPolynomialFunction<1u>  TLinear;
+    typedef CPolynomialFunction<2u>  TQuadratic;
+    typedef CPolynomialFunction<3u>  TCubic;
+    typedef CPolynomialFunction<4u>  TQuartic;
+    typedef CPolynomialFunction<5u>  TQuintic;
+    typedef CPolynomialFunction<6u>  THexic;
+    typedef CPolynomialFunction<7u>  THeptic;
+    typedef CPolynomialFunction<8u>  TOctic;
+    typedef CPolynomialFunction<9u>  TNonic;
     typedef CPolynomialFunction<10u> TDecic;
 
     static const double EPS = 1e-6;
@@ -820,7 +820,7 @@ void CIntegrationTest::testAdaptive(void) {
     LOG_DEBUG("|  CIntegerToolsTest::testAdaptive  |");
     LOG_DEBUG("+-----------------------------------+");
 
-    typedef std::pair<double, double> TDoubleDoublePr;
+    typedef std::pair<double, double>    TDoubleDoublePr;
     typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
 
     {

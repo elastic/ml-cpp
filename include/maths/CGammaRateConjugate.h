@@ -364,7 +364,7 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior {
     //@}
 
     private:
-        typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
+        typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator    TMeanAccumulator;
         typedef CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator TMeanVarAccumulator;
 
     private:

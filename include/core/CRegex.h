@@ -38,8 +38,8 @@ namespace core {
 class CORE_EXPORT CRegex {
     public:
         typedef std::vector<std::string>    TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator           TStrVecItr;
+        typedef TStrVec::const_iterator     TStrVecCItr;
 
     public:
         CRegex(void);

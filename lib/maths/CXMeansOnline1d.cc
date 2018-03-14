@@ -55,12 +55,12 @@ namespace maths {
 
 namespace {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CNaturalBreaksClassifier::TTuple TTuple;
+typedef core::CSmallVector<double, 1>       TDouble1Vec;
+typedef core::CSmallVector<double, 4>       TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>  TDouble4Vec1Vec;
+typedef std::pair<double, double>           TDoubleDoublePr;
+typedef std::vector<std::size_t>            TSizeVec;
+typedef CNaturalBreaksClassifier::TTuple    TTuple;
 typedef CNaturalBreaksClassifier::TTupleVec TTupleVec;
 
 namespace detail {

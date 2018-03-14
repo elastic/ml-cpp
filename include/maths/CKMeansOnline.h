@@ -61,14 +61,14 @@ namespace maths {
 template<typename POINT>
 class CKMeansOnline {
     public:
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
+        typedef std::vector<std::size_t>                     TSizeVec;
+        typedef std::vector<TSizeVec>                        TSizeVecVec;
         typedef typename SFloatingPoint<POINT, double>::Type TDoublePoint;
-        typedef std::vector<TDoublePoint> TDoublePointVec;
-        typedef typename CSphericalCluster<POINT>::Type TSphericalCluster;
-        typedef std::vector<TSphericalCluster> TSphericalClusterVec;
-        typedef std::vector<TSphericalClusterVec> TSphericalClusterVecVec;
-        typedef std::vector<CKMeansOnline> TKMeansOnlineVec;
+        typedef std::vector<TDoublePoint>                    TDoublePointVec;
+        typedef typename CSphericalCluster<POINT>::Type      TSphericalCluster;
+        typedef std::vector<TSphericalCluster>               TSphericalClusterVec;
+        typedef std::vector<TSphericalClusterVec>            TSphericalClusterVecVec;
+        typedef std::vector<CKMeansOnline>                   TKMeansOnlineVec;
 
     protected:
         //! \brief Checks if a cluster should be deleted based on its count.
@@ -87,14 +87,14 @@ class CKMeansOnline {
                 double m_MinimumCategoryCount;
         };
 
-        typedef typename SFloatingPoint<POINT, CFloatStorage>::Type TFloatPoint;
-        typedef typename SCoordinate<TFloatPoint>::Type TFloatCoordinate;
-        typedef std::pair<TFloatPoint, double> TFloatPointDoublePr;
-        typedef std::vector<TFloatPointDoublePr> TFloatPointDoublePrVec;
-        typedef typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator TFloatMeanAccumulator;
-        typedef std::pair<TFloatMeanAccumulator, double> TFloatMeanAccumulatorDoublePr;
-        typedef std::vector<TFloatMeanAccumulatorDoublePr> TFloatMeanAccumulatorDoublePrVec;
-        typedef typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator TDoubleMeanAccumulator;
+        typedef typename SFloatingPoint<POINT, CFloatStorage>::Type                   TFloatPoint;
+        typedef typename SCoordinate<TFloatPoint>::Type                               TFloatCoordinate;
+        typedef std::pair<TFloatPoint, double>                                        TFloatPointDoublePr;
+        typedef std::vector<TFloatPointDoublePr>                                      TFloatPointDoublePrVec;
+        typedef typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator     TFloatMeanAccumulator;
+        typedef std::pair<TFloatMeanAccumulator, double>                              TFloatMeanAccumulatorDoublePr;
+        typedef std::vector<TFloatMeanAccumulatorDoublePr>                            TFloatMeanAccumulatorDoublePrVec;
+        typedef typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator    TDoubleMeanAccumulator;
         typedef typename CBasicStatistics::SSampleMeanVar<TDoublePoint>::TAccumulator TDoubleMeanVarAccumulator;
 
     protected:
@@ -385,7 +385,7 @@ class CKMeansOnline {
                 return;
             }
 
-            typedef std::vector<double> TDoubleVec;
+            typedef std::vector<double>            TDoubleVec;
             typedef std::pair<double, std::size_t> TDoubleSizePr;
 
             static const double ALMOST_ONE = 0.99999;

@@ -47,7 +47,7 @@ class MATHS_EXPORT CEntropySketch {
         double calculate(void) const;
 
     private:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>   TDoubleVec;
         typedef std::vector<uint64_t> TUInt64Vec;
 
     private:

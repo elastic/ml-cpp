@@ -39,10 +39,10 @@ namespace maths {
 //! DESCRIPTION:\n
 class MATHS_EXPORT CCooccurrences {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<std::size_t> TSizeVec;
+        typedef std::vector<double>                 TDoubleVec;
+        typedef std::vector<std::size_t>            TSizeVec;
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-        typedef std::vector<TSizeSizePr> TSizeSizePrVec;
+        typedef std::vector<TSizeSizePr>            TSizeSizePrVec;
 
     public:
         CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth);
@@ -92,7 +92,7 @@ class MATHS_EXPORT CCooccurrences {
 
     private:
         typedef boost::unordered_set<std::size_t> TSizeUSet;
-        typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+        typedef std::vector<CPackedBitVector>     TPackedBitVectorVec;
 
     private:
         //! The maximum permitted event sequence length.

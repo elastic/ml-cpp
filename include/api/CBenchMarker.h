@@ -50,15 +50,15 @@ class API_EXPORT CBenchMarker {
 
         //! Used for mapping Ml type to count and example
         typedef std::map<int, TSizeStrPr>                  TIntSizeStrPrMap;
-        typedef TIntSizeStrPrMap::iterator TIntSizeStrPrMapItr;
-        typedef TIntSizeStrPrMap::const_iterator TIntSizeStrPrMapCItr;
+        typedef TIntSizeStrPrMap::iterator                 TIntSizeStrPrMapItr;
+        typedef TIntSizeStrPrMap::const_iterator           TIntSizeStrPrMapCItr;
 
         //! A regex and its corresponding type count map
         typedef std::pair<core::CRegex, TIntSizeStrPrMap>  TRegexIntSizeStrPrMapPr;
 
         //! Vector of regexes with corresponding type count maps
         typedef std::vector<TRegexIntSizeStrPrMapPr>       TRegexIntSizeStrPrMapPrVec;
-        typedef TRegexIntSizeStrPrMapPrVec::iterator TRegexIntSizeStrPrMapPrVecItr;
+        typedef TRegexIntSizeStrPrMapPrVec::iterator       TRegexIntSizeStrPrMapPrVecItr;
         typedef TRegexIntSizeStrPrMapPrVec::const_iterator TRegexIntSizeStrPrMapPrVecCItr;
 
     public:

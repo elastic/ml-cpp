@@ -38,11 +38,11 @@ using namespace ml;
 
 namespace {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<core_t::TTime> TTimeVec;
+typedef std::pair<double, double>        TDoubleDoublePr;
+typedef std::vector<double>              TDoubleVec;
+typedef std::vector<core_t::TTime>       TTimeVec;
 typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
+typedef std::vector<TTimeDoublePr>       TTimeDoublePrVec;
 
 class CTestSeasonalComponent : public maths::CSeasonalComponent {
     public:

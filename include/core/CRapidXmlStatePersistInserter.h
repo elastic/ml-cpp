@@ -42,7 +42,7 @@ namespace core {
 class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
     public:
         typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator TStrStrMapCItr;
+        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
 
     public:
         //! Root node has no attributes

@@ -51,13 +51,13 @@ namespace model {
 template<typename T>
 class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
     protected:
-        typedef T Type;
-        typedef std::vector<Type *> TTypePtrVec;
-        typedef core::CCompressedDictionary<1> TDictionary;
-        typedef TDictionary::CWord TWord;
-        typedef std::pair<TWord, T> TWordTypePr;
-        typedef std::vector<TWordTypePr> TWordTypePrVec;
-        typedef typename TWordTypePrVec::iterator TWordTypePrVecItr;
+        typedef T                                       Type;
+        typedef std::vector<Type *>                     TTypePtrVec;
+        typedef core::CCompressedDictionary<1>          TDictionary;
+        typedef TDictionary::CWord                      TWord;
+        typedef std::pair<TWord, T>                     TWordTypePr;
+        typedef std::vector<TWordTypePr>                TWordTypePrVec;
+        typedef typename TWordTypePrVec::iterator       TWordTypePrVecItr;
         typedef typename TWordTypePrVec::const_iterator TWordTypePrVecCItr;
 
     protected:

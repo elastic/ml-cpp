@@ -55,12 +55,12 @@ namespace maths {
 namespace {
 namespace detail {
 
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
+typedef std::pair<double, double>                                               TDoubleDoublePr;
+typedef maths_t::TWeightStyleVec                                                TWeightStyleVec;
+typedef core::CSmallVector<double, 1>                                           TDouble1Vec;
+typedef core::CSmallVector<double, 4>                                           TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>                                      TDouble4Vec1Vec;
+typedef CBasicStatistics::SSampleMean<CDoublePrecisionStorage>::TAccumulator    TMeanAccumulator;
 typedef CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator TMeanVarAccumulator;
 
 const double NON_INFORMATIVE_COUNT = 3.5;

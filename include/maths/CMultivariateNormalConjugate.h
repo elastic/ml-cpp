@@ -89,12 +89,12 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
             return true;
         }
 
-        typedef std::vector<double> TDoubleVec;
-        typedef CVectorNx1<double, N> TPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
-        typedef CSymmetricMatrixNxN<double, N> TMatrix;
-        typedef std::vector<TMatrix> TMatrixVec;
+        typedef std::vector<double>                                      TDoubleVec;
+        typedef CVectorNx1<double, N>                                    TPoint;
+        typedef std::vector<TPoint>                                      TPointVec;
+        typedef core::CSmallVector<TPoint, 4>                            TPoint4Vec;
+        typedef CSymmetricMatrixNxN<double, N>                           TMatrix;
+        typedef std::vector<TMatrix>                                     TMatrixVec;
         typedef typename CBasicStatistics::SSampleCovariances<double, N> TCovariance;
 
         // Lift all overloads of into scope.
@@ -478,7 +478,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
                 return {TPriorPtr(CMultivariateNormalConjugate<2>::nonInformativePrior(dataType, decayRate).clone()), 0.0};
             }
 
-            typedef CVectorNx1<double, 2> TPoint2;
+            typedef CVectorNx1<double, 2>          TPoint2;
             typedef CSymmetricMatrixNxN<double, 2> TMatrix2;
 
             TPoint2 p;

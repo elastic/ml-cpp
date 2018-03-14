@@ -30,7 +30,7 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 
 void CSetToolsTest::testInplaceSetDifference(void) {

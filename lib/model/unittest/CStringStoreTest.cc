@@ -29,9 +29,9 @@ using namespace ml;
 using namespace model;
 
 namespace {
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
+typedef std::vector<std::size_t>                 TSizeVec;
+typedef std::vector<std::string>                 TStrVec;
+typedef std::vector<core::CStoredStringPtr>      TStoredStringPtrVec;
 typedef boost::unordered_set<const std::string*> TStrCPtrUSet;
 
 class CStringThread : public core::CThread {
@@ -144,7 +144,7 @@ void CStringStoreTest::testStringStore(void) {
         LOG_DEBUG("Testing multi-threaded");
 
         typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        typedef std::vector<TThreadPtr>          TThreadVec;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i, strings));
@@ -185,7 +185,7 @@ void CStringStoreTest::testStringStore(void) {
         }
 
         typedef boost::shared_ptr<CStringThread> TThreadPtr;
-        typedef std::vector<TThreadPtr> TThreadVec;
+        typedef std::vector<TThreadPtr>          TThreadVec;
         TThreadVec threads;
         for (std::size_t i = 0; i < 20; ++i) {
             threads.emplace_back(new CStringThread(i * 50, lotsOfStrings));

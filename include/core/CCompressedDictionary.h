@@ -53,7 +53,7 @@ template<std::size_t N>
 class CCompressedDictionary {
     public:
         typedef boost::array<uint64_t, N> TUInt64Array;
-        typedef const std::string* TStrCPtr;
+        typedef const std::string*        TStrCPtr;
 
         //! \brief A hash representation of a string in the dictionary
         //! with low probability of collision even for relatively large

@@ -62,7 +62,7 @@ class CORE_EXPORT CProcess : private CNonCopyable {
 
         //! Vector of process arguments
         typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::const_iterator  TStrVecCItr;
 
         //! The shutdown function
         typedef std::function<void ()>    TShutdownFunc;

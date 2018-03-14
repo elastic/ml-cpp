@@ -38,7 +38,7 @@ namespace core {
 //!
 class CORE_EXPORT CRegexFilter {
     public:
-        typedef std::vector<CRegex> TRegexVec;
+        typedef std::vector<CRegex>      TRegexVec;
         typedef std::vector<std::string> TStrVec;
 
     public:

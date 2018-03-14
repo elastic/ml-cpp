@@ -271,7 +271,7 @@ class CChecksumImpl<ContainerChecksum> {
         template<typename T>
         static uint64_t dispatch(uint64_t seed, const boost::unordered_set<T> &target) {
             typedef boost::reference_wrapper<const T> TCRef;
-            typedef std::vector<TCRef> TCRefVec;
+            typedef std::vector<TCRef>                TCRefVec;
 
             TCRefVec ordered;
             ordered.reserve(target.size());
@@ -291,8 +291,8 @@ class CChecksumImpl<ContainerChecksum> {
         static uint64_t dispatch(uint64_t seed, const boost::unordered_map<U, V> &target) {
             typedef boost::reference_wrapper<const U> TUCRef;
             typedef boost::reference_wrapper<const V> TVCRef;
-            typedef std::pair<TUCRef, TVCRef> TUCRefVCRefPr;
-            typedef std::vector<TUCRefVCRefPr> TUCRefVCRefPrVec;
+            typedef std::pair<TUCRef, TVCRef>         TUCRefVCRefPr;
+            typedef std::vector<TUCRefVCRefPr>        TUCRefVCRefPrVec;
 
             TUCRefVCRefPrVec ordered;
             ordered.reserve(target.size());

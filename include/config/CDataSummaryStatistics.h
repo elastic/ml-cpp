@@ -61,7 +61,7 @@ class CONFIG_EXPORT CDataSummaryStatistics {
         double meanRate(void) const;
 
     protected:
-        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>                               TMinTimeAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime> > TMaxTimeAccumulator;
 
     private:
@@ -87,7 +87,7 @@ class CONFIG_EXPORT CDataSummaryStatistics {
 class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics {
     public:
         typedef std::pair<std::string, std::size_t> TStrSizePr;
-        typedef std::vector<TStrSizePr> TStrSizePrVec;
+        typedef std::vector<TStrSizePr>             TStrSizePrVec;
 
         //! The smallest cardinality at which we'll approximate the statistics.
         static const std::size_t TO_APPROXIMATE = 5000000;
@@ -124,17 +124,17 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
         static const std::size_t NUMBER_N_GRAMS = 5;
 
     private:
-        typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-        typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
-        typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
-        typedef boost::unordered_map<std::string, uint64_t> TStrUInt64UMap;
-        typedef TStrUInt64UMap::iterator TStrUInt64UMapItr;
-        typedef TStrUInt64UMap::const_iterator TStrUInt64UMapCItr;
-        typedef std::vector<TStrUInt64UMapCItr> TStrUInt64UMapCItrVec;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1> TMinSizeAccumulator;
+        typedef std::pair<uint32_t, uint64_t>                                                              TUInt32UInt64Pr;
+        typedef std::vector<TUInt32UInt64Pr>                                                               TUInt32UInt64PrVec;
+        typedef boost::unordered_map<std::size_t, uint64_t>                                                TSizeUInt64UMap;
+        typedef boost::unordered_map<std::string, uint64_t>                                                TStrUInt64UMap;
+        typedef TStrUInt64UMap::iterator                                                                   TStrUInt64UMapItr;
+        typedef TStrUInt64UMap::const_iterator                                                             TStrUInt64UMapCItr;
+        typedef std::vector<TStrUInt64UMapCItr>                                                            TStrUInt64UMapCItrVec;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1>                             TMinSizeAccumulator;
         typedef maths::CBasicStatistics::COrderStatisticsStack<std::size_t, 1, std::greater<std::size_t> > TMaxSizeAccumulator;
-        typedef std::vector<maths::CBjkstUniqueValues> TBjkstUniqueValuesVec;
-        typedef std::vector<maths::CEntropySketch> TEntropySketchVec;
+        typedef std::vector<maths::CBjkstUniqueValues>                                                     TBjkstUniqueValuesVec;
+        typedef std::vector<maths::CEntropySketch>                                                         TEntropySketchVec;
 
     private:
         //! Extract the \p n grams and update the relevant statistics.
@@ -217,7 +217,7 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
 //! and don't care about over fitting as we do for anomaly detection.
 class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics {
     public:
-        typedef std::pair<double, double> TDoubleDoublePr;
+        typedef std::pair<double, double>    TDoubleDoublePr;
         typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
 
     public:

@@ -34,9 +34,9 @@ using namespace maths;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>              TDoubleVec;
 typedef CNaturalBreaksClassifier::TTuple TTuple;
-typedef std::vector<TTuple> TTupleVec;
+typedef std::vector<TTuple>              TTupleVec;
 
 //! Computes the deviation of a category.mac1Password
 

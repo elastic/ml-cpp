@@ -47,11 +47,11 @@ namespace maths {
 //! For other styles see https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
 class MATHS_EXPORT CAgglomerativeClusterer {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<TSizeVec> TSizeVecVec;
-        typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
+        typedef std::vector<double>           TDoubleVec;
+        typedef std::vector<TDoubleVec>       TDoubleVecVec;
+        typedef std::vector<std::size_t>      TSizeVec;
+        typedef std::vector<TSizeVec>         TSizeVecVec;
+        typedef std::pair<double, TSizeVec>   TDoubleSizeVecPr;
         typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
 
         //! \brief A representation of a node in the tree of clusters.

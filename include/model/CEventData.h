@@ -54,17 +54,17 @@ namespace model {
 class MODEL_EXPORT CEventData {
     public:
         typedef core::CSmallVector<double, 1> TDouble1Vec;
-        typedef boost::optional<std::size_t> TOptionalSize;
-        typedef std::vector<TOptionalSize> TOptionalSizeVec;
-        typedef boost::optional<double> TOptionalDouble;
+        typedef boost::optional<std::size_t>  TOptionalSize;
+        typedef std::vector<TOptionalSize>    TOptionalSizeVec;
+        typedef boost::optional<double>       TOptionalDouble;
         // Fixed size array - one element per metric category
         typedef boost::array<TDouble1Vec, model_t::NUM_METRIC_CATEGORIES> TDouble1VecArray;
         // Second element in pair stores count
-        typedef std::pair<TDouble1VecArray, std::size_t> TDouble1VecArraySizePr;
-        typedef boost::optional<TDouble1VecArraySizePr> TOptionalDouble1VecArraySizePr;
+        typedef std::pair<TDouble1VecArray, std::size_t>    TDouble1VecArraySizePr;
+        typedef boost::optional<TDouble1VecArraySizePr>     TOptionalDouble1VecArraySizePr;
         typedef std::vector<TOptionalDouble1VecArraySizePr> TOptionalDouble1VecArraySizePrVec;
-        typedef boost::optional<std::string> TOptionalStr;
-        typedef std::vector<TOptionalStr> TOptionalStrVec;
+        typedef boost::optional<std::string>                TOptionalStr;
+        typedef std::vector<TOptionalStr>                   TOptionalStrVec;
 
     public:
         //! Create uninitialized event data.

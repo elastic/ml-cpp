@@ -56,7 +56,7 @@ namespace model {
 template<class STATISTIC>
 class CMetricPartialStatistic {
     public:
-        typedef core::CSmallVector<double, 1> TDouble1Vec;
+        typedef core::CSmallVector<double, 1>                                                      TDouble1Vec;
         typedef maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
 
     public:

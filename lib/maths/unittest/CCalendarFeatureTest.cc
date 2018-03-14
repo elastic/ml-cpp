@@ -28,8 +28,8 @@
 
 using namespace ml;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<core_t::TTime> TTimeVec;
+typedef std::vector<std::size_t>             TSizeVec;
+typedef std::vector<core_t::TTime>           TTimeVec;
 typedef std::vector<maths::CCalendarFeature> TCalendarFeatureVec;
 
 namespace {

@@ -42,11 +42,11 @@
 using namespace ml;
 using namespace handy_typedefs;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
+typedef std::vector<double>                                    TDoubleVec;
+typedef std::vector<TDoubleVec>                                TDoubleVecVec;
+typedef std::vector<unsigned int>                              TUIntVec;
+typedef std::pair<double, double>                              TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                           TDoubleDoublePrVec;
 typedef CPriorTestInterfaceMixin<maths::CMultinomialConjugate> CMultinomialConjugate;
 
 void CMultinomialConjugateTest::testMultipleUpdate(void) {
@@ -497,7 +497,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
     LOG_DEBUG("+-----------------------------------------------------------------+");
 
     typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef std::vector<TDoubleSizePr> TDoubleSizePrVec;
+    typedef std::vector<TDoubleSizePr>     TDoubleSizePrVec;
 
     // We test the definition of the various sided calculations:
     //   - one sided below: P(R) = P(y <= x)
@@ -685,9 +685,9 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
             }
         }
         {
-            typedef std::map<double, TDoubleVec> TDoubleDoubleVecMap;
+            typedef std::map<double, TDoubleVec>        TDoubleDoubleVecMap;
             typedef TDoubleDoubleVecMap::const_iterator TDoubleDoubleVecMapCItr;
-            typedef std::map<TDoubleVec, double> TDoubleVecDoubleMap;
+            typedef std::map<TDoubleVec, double>        TDoubleVecDoubleMap;
             typedef TDoubleVecDoubleMap::const_iterator TDoubleVecDoubleMapCItr;
 
             double              categoryProbabilities[] = { 0.10, 0.12, 0.29, 0.39, 0.04, 0.06 };

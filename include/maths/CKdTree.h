@@ -72,11 +72,11 @@ template<typename POINT,
          typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
     public:
-        typedef std::vector<POINT> TPointVec;
-        typedef typename TPointVec::iterator TPointVecItr;
-        typedef typename SCoordinate<POINT>::Type TCoordinate;
-        typedef typename SPromoted<TCoordinate>::Type TCoordinatePrecise;
-        typedef std::pair<TCoordinatePrecise, POINT> TCoordinatePrecisePointPr;
+        typedef std::vector<POINT>                                                TPointVec;
+        typedef typename TPointVec::iterator                                      TPointVecItr;
+        typedef typename SCoordinate<POINT>::Type                                 TCoordinate;
+        typedef typename SPromoted<TCoordinate>::Type                             TCoordinatePrecise;
+        typedef std::pair<TCoordinatePrecise, POINT>                              TCoordinatePrecisePointPr;
         typedef CBasicStatistics::COrderStatisticsHeap<TCoordinatePrecisePointPr> TNearestAccumulator;
 
         //! Less on a specific coordinate of point position vector.

@@ -26,7 +26,7 @@
 
 #include <numeric>
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 
 using namespace ml;
@@ -133,7 +133,7 @@ void CSamplingTest::testMultinomialSample(void) {
     LOG_DEBUG("|  CSamplingTest::testMultinomialSample  |");
     LOG_DEBUG("+----------------------------------------+");
 
-    typedef std::map<TSizeVec, double> TSizeVecDoubleMap;
+    typedef std::map<TSizeVec, double>        TSizeVecDoubleMap;
     typedef TSizeVecDoubleMap::const_iterator TSizeVecDoubleMapCItr;
 
     maths::CSampling::seed();

@@ -37,15 +37,15 @@ namespace maths {
 
 namespace {
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<double, TSizeSizePr> TDoubleSizeSizePrPr;
-typedef std::vector<TDoubleSizeSizePrPr> TDoubleSizeSizePrPrVec;
-typedef CAgglomerativeClusterer::TSizeVec TSizeVec;
-typedef CAgglomerativeClusterer::TDoubleVec TDoubleVec;
+typedef std::pair<std::size_t, std::size_t>    TSizeSizePr;
+typedef std::pair<double, TSizeSizePr>         TDoubleSizeSizePrPr;
+typedef std::vector<TDoubleSizeSizePrPr>       TDoubleSizeSizePrPrVec;
+typedef CAgglomerativeClusterer::TSizeVec      TSizeVec;
+typedef CAgglomerativeClusterer::TDoubleVec    TDoubleVec;
 typedef CAgglomerativeClusterer::TDoubleVecVec TDoubleVecVec;
-typedef CAgglomerativeClusterer::CNode TNode;
-typedef CAgglomerativeClusterer::TNodeVec TNodeVec;
-typedef std::vector<TNode*> TNodePtrVec;
+typedef CAgglomerativeClusterer::CNode         TNode;
+typedef CAgglomerativeClusterer::TNodeVec      TNodeVec;
+typedef std::vector<TNode*>                    TNodePtrVec;
 
 const double INF = boost::numeric::bounds<double>::highest();
 

@@ -50,7 +50,7 @@ class API_EXPORT CDataTyper {
     public:
         //! Used for storing distinct token IDs
         typedef boost::unordered_map<std::string, std::string>        TStrStrUMap;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        typedef TStrStrUMap::const_iterator                           TStrStrUMapCItr;
 
         //! Shared pointer to an instance of this class
         typedef boost::shared_ptr<CDataTyper>                         TDataTyperP;

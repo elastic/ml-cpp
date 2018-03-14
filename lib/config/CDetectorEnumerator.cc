@@ -29,9 +29,9 @@ namespace config {
 
 namespace {
 
-typedef std::vector<std::string> TStrVec;
+typedef std::vector<std::string>                TStrVec;
 typedef boost::reference_wrapper<const TStrVec> TStrVecCRef;
-typedef std::vector<TStrVecCRef> TStrVecCRefVec;
+typedef std::vector<TStrVecCRef>                TStrVecCRefVec;
 
 //! Add detectors for the partitioning fields \p candidates.
 void add(std::size_t p,

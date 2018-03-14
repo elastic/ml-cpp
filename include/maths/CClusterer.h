@@ -91,7 +91,7 @@ class MATHS_EXPORT CClustererTypes {
                 std::string print(void) const;
 
             private:
-                typedef std::vector<std::size_t> TSizeVec;
+                typedef std::vector<std::size_t>    TSizeVec;
                 typedef boost::shared_ptr<TSizeVec> TSizeVecPtr;
 
             private:
@@ -139,13 +139,13 @@ class MATHS_EXPORT CClustererTypes {
 template<typename POINT>
 class CClusterer : public CClustererTypes {
     public:
-        typedef boost::shared_ptr<CClusterer> TClustererPtr;
-        typedef std::vector<POINT> TPointVec;
-        typedef typename SPromoted<POINT>::Type TPointPrecise;
-        typedef std::vector<TPointPrecise> TPointPreciseVec;
-        typedef std::pair<TPointPrecise, double> TPointPreciseDoublePr;
-        typedef std::vector<TPointPreciseDoublePr> TPointPreciseDoublePrVec;
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
+        typedef boost::shared_ptr<CClusterer>        TClustererPtr;
+        typedef std::vector<POINT>                   TPointVec;
+        typedef typename SPromoted<POINT>::Type      TPointPrecise;
+        typedef std::vector<TPointPrecise>           TPointPreciseVec;
+        typedef std::pair<TPointPrecise, double>     TPointPreciseDoublePr;
+        typedef std::vector<TPointPreciseDoublePr>   TPointPreciseDoublePrVec;
+        typedef std::pair<std::size_t, double>       TSizeDoublePr;
         typedef core::CSmallVector<TSizeDoublePr, 2> TSizeDoublePr2Vec;
 
     public:

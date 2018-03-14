@@ -34,8 +34,8 @@ namespace maths {
 namespace {
 namespace detail {
 
-typedef std::vector<uint8_t> TUInt8Vec;
-typedef TUInt8Vec::iterator TUInt8VecItr;
+typedef std::vector<uint8_t>      TUInt8Vec;
+typedef TUInt8Vec::iterator       TUInt8VecItr;
 typedef TUInt8Vec::const_iterator TUInt8VecCItr;
 
 //! Convert the decomposition of the hash into two 8 bit integers

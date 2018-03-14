@@ -56,10 +56,10 @@ struct SDistributionRestoreParams;
 //! value semantics and manage the heap.
 class MATHS_EXPORT COneOfNPrior : public CPrior {
     public:
-        typedef boost::shared_ptr<CPrior> TPriorPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef std::vector<const CPrior*> TPriorCPtrVec;
-        typedef std::pair<double, TPriorPtr> TDoublePriorPtrPr;
+        typedef boost::shared_ptr<CPrior>      TPriorPtr;
+        typedef std::vector<TPriorPtr>         TPriorPtrVec;
+        typedef std::vector<const CPrior*>     TPriorCPtrVec;
+        typedef std::pair<double, TPriorPtr>   TDoublePriorPtrPr;
         typedef std::vector<TDoublePriorPtrPr> TDoublePriorPtrPrVec;
 
         //! Lift all overloads of the dataType into scope.
@@ -356,10 +356,10 @@ class MATHS_EXPORT COneOfNPrior : public CPrior {
     //@}
 
     private:
-        typedef std::pair<double, std::size_t> TDoubleSizePr;
-        typedef core::CSmallVector<TDoubleSizePr, 5> TDoubleSizePr5Vec;
-        typedef std::pair<CModelWeight, TPriorPtr> TWeightPriorPtrPr;
-        typedef std::vector<TWeightPriorPtrPr> TWeightPriorPtrPrVec;
+        typedef std::pair<double, std::size_t>               TDoubleSizePr;
+        typedef core::CSmallVector<TDoubleSizePr, 5>         TDoubleSizePr5Vec;
+        typedef std::pair<CModelWeight, TPriorPtr>           TWeightPriorPtrPr;
+        typedef std::vector<TWeightPriorPtrPr>               TWeightPriorPtrPrVec;
         typedef CBasicStatistics::SMax<double>::TAccumulator TMaxAccumulator;
 
     private:

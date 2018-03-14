@@ -33,11 +33,11 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef std::pair<double, TSizeVec> TDoubleSizeVecPr;
+typedef std::vector<double>           TDoubleVec;
+typedef std::vector<TDoubleVec>       TDoubleVecVec;
+typedef std::vector<std::size_t>      TSizeVec;
+typedef std::vector<TSizeVec>         TSizeVecVec;
+typedef std::pair<double, TSizeVec>   TDoubleSizeVecPr;
 typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
 
 class CCluster {

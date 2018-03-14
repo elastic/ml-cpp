@@ -44,9 +44,9 @@ class CNumericDataSummaryStatistics;
 //! which to create the report.
 class CONFIG_EXPORT CReportWriter : public api::COutputHandler {
     public:
-        typedef std::vector<std::string> TStrVec;
-        typedef std::vector<TStrVec> TStrVecVec;
-        typedef std::vector<TStrVecVec> TStrVecVecVec;
+        typedef std::vector<std::string>   TStrVec;
+        typedef std::vector<TStrVec>       TStrVecVec;
+        typedef std::vector<TStrVecVec>    TStrVecVecVec;
         typedef std::vector<TStrVecVecVec> TStrVecVecVecVec;
 
         //! \name Summary Statistics.

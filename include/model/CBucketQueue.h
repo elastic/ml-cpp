@@ -41,10 +41,10 @@ namespace model {
 template<typename T>
 class CBucketQueue {
     public:
-        typedef boost::circular_buffer<T> TQueue;
-        typedef typename TQueue::value_type value_type;
-        typedef typename TQueue::iterator iterator;
-        typedef typename TQueue::const_iterator const_iterator;
+        typedef boost::circular_buffer<T>               TQueue;
+        typedef typename TQueue::value_type             value_type;
+        typedef typename TQueue::iterator               iterator;
+        typedef typename TQueue::const_iterator         const_iterator;
         typedef typename TQueue::const_reverse_iterator const_reverse_iterator;
 
     public:

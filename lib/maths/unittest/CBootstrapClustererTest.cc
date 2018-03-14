@@ -31,15 +31,15 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<bool> TBoolVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CSymmetricMatrixNxN<double, 2> TMatrix2;
-typedef std::vector<TMatrix2> TMatrix2Vec;
+typedef std::vector<bool>                                          TBoolVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<std::size_t>                                   TSizeVec;
+typedef std::vector<TSizeVec>                                      TSizeVecVec;
+typedef maths::CVectorNx1<double, 2>                               TVector2;
+typedef std::vector<TVector2>                                      TVector2Vec;
+typedef std::vector<TVector2Vec>                                   TVector2VecVec;
+typedef maths::CSymmetricMatrixNxN<double, 2>                      TMatrix2;
+typedef std::vector<TMatrix2>                                      TMatrix2Vec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 struct SVector2Hash {
@@ -52,11 +52,11 @@ typedef boost::unordered_map<TVector2, std::size_t, SVector2Hash> TVector2SizeUM
 template<typename POINT>
 class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
     public:
-        typedef typename maths::CBootstrapClusterer<POINT>::TBoolVec TBoolVec;
-        typedef typename maths::CBootstrapClusterer<POINT>::TSizeVec TSizeVec;
+        typedef typename maths::CBootstrapClusterer<POINT>::TBoolVec       TBoolVec;
+        typedef typename maths::CBootstrapClusterer<POINT>::TSizeVec       TSizeVec;
         typedef typename maths::CBootstrapClusterer<POINT>::TSizeVecVecVec TSizeVecVecVec;
-        typedef typename maths::CBootstrapClusterer<POINT>::TPointVec TPointVec;
-        typedef typename maths::CBootstrapClusterer<POINT>::TGraph TGraph;
+        typedef typename maths::CBootstrapClusterer<POINT>::TPointVec      TPointVec;
+        typedef typename maths::CBootstrapClusterer<POINT>::TGraph         TGraph;
 
     public:
         CBootstrapClustererForTest(double overlapThreshold, double chainingFactor) :
@@ -91,10 +91,10 @@ class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
         }
 };
 
-typedef CBootstrapClustererForTest<TVector2> TBootstrapClustererForTest2;
-typedef TBootstrapClustererForTest2::TGraph TGraph;
-typedef boost::graph_traits<TGraph>::vertex_iterator TVertexItr;
-typedef boost::graph_traits<TGraph>::edge_iterator TEdgeItr;
+typedef CBootstrapClustererForTest<TVector2>            TBootstrapClustererForTest2;
+typedef TBootstrapClustererForTest2::TGraph             TGraph;
+typedef boost::graph_traits<TGraph>::vertex_iterator    TVertexItr;
+typedef boost::graph_traits<TGraph>::edge_iterator      TEdgeItr;
 typedef boost::graph_traits<TGraph>::adjacency_iterator TAdjacencyItr;
 
 void clique(std::size_t a, std::size_t b, TGraph &graph) {

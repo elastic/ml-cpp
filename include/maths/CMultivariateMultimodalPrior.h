@@ -56,13 +56,13 @@ namespace ml {
 namespace maths {
 namespace multivariate_multimodal_prior_detail {
 
-typedef std::pair<size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 3> TSizeDoublePr3Vec;
-typedef boost::shared_ptr<CMultivariatePrior> TPriorPtr;
-typedef CMultivariatePrior::TDouble10Vec1Vec TDouble10Vec1Vec;
-typedef CMultivariatePrior::TDouble10Vec4Vec1Vec TDouble10Vec4Vec1Vec;
+typedef std::pair<size_t, double>                                    TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 3>                         TSizeDoublePr3Vec;
+typedef boost::shared_ptr<CMultivariatePrior>                        TPriorPtr;
+typedef CMultivariatePrior::TDouble10Vec1Vec                         TDouble10Vec1Vec;
+typedef CMultivariatePrior::TDouble10Vec4Vec1Vec                     TDouble10Vec4Vec1Vec;
 typedef SMultimodalPriorMode<boost::shared_ptr<CMultivariatePrior> > TMode;
-typedef std::vector<TMode> TModeVec;
+typedef std::vector<TMode>                                           TModeVec;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
 MATHS_EXPORT
@@ -136,18 +136,18 @@ std::string debugWeights(const TModeVec &modes);
 template<std::size_t N>
 class CMultivariateMultimodalPrior : public CMultivariatePrior {
     public:
-        typedef core::CSmallVector<double, 5> TDouble5Vec;
-        typedef CVectorNx1<double, N> TPoint;
-        typedef CVectorNx1<CFloatStorage, N> TFloatPoint;
-        typedef std::vector<TPoint> TPointVec;
-        typedef core::CSmallVector<TPoint, 4> TPoint4Vec;
+        typedef core::CSmallVector<double, 5>                                TDouble5Vec;
+        typedef CVectorNx1<double, N>                                        TPoint;
+        typedef CVectorNx1<CFloatStorage, N>                                 TFloatPoint;
+        typedef std::vector<TPoint>                                          TPointVec;
+        typedef core::CSmallVector<TPoint, 4>                                TPoint4Vec;
         typedef typename CBasicStatistics::SSampleMean<TPoint>::TAccumulator TMeanAccumulator;
-        typedef CSymmetricMatrixNxN<double, N> TMatrix;
-        typedef std::vector<TMatrix> TMatrixVec;
-        typedef CClusterer<TFloatPoint> TClusterer;
-        typedef boost::shared_ptr<TClusterer> TClustererPtr;
-        typedef std::vector<TPriorPtr> TPriorPtrVec;
-        typedef CConstantWeights TWeights;
+        typedef CSymmetricMatrixNxN<double, N>                               TMatrix;
+        typedef std::vector<TMatrix>                                         TMatrixVec;
+        typedef CClusterer<TFloatPoint>                                      TClusterer;
+        typedef boost::shared_ptr<TClusterer>                                TClustererPtr;
+        typedef std::vector<TPriorPtr>                                       TPriorPtrVec;
+        typedef CConstantWeights                                             TWeights;
 
         // Lift all overloads of into scope.
         //{
@@ -917,7 +917,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
         }
 
     protected:
-        typedef multivariate_multimodal_prior_detail::TMode TMode;
+        typedef multivariate_multimodal_prior_detail::TMode    TMode;
         typedef multivariate_multimodal_prior_detail::TModeVec TModeVec;
 
     protected:

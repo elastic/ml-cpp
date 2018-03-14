@@ -762,9 +762,9 @@ class CPersisterImpl<ContainerPersist> {
         static void dispatch(const std::string &tag,
                              const boost::unordered_set<T, H, P, A> &container,
                              CStatePersistInserter &inserter) {
-            typedef typename std::vector<T> TVec;
+            typedef typename std::vector<T>                                   TVec;
             typedef typename boost::unordered_set<T, H, P, A>::const_iterator TCItr;
-            typedef typename std::vector<TCItr> TCItrVec;
+            typedef typename std::vector<TCItr>                               TCItrVec;
 
             if (boost::is_arithmetic<T>::value) {
                 TVec values(container.begin(), container.end());
@@ -792,7 +792,7 @@ class CPersisterImpl<ContainerPersist> {
                              const boost::unordered_map<K, V, H, P, A> &container,
                              CStatePersistInserter &inserter) {
             typedef typename boost::unordered_map<K, V, H, P, A>::const_iterator TCItr;
-            typedef typename std::vector<TCItr> TCItrVec;
+            typedef typename std::vector<TCItr>                                  TCItrVec;
 
             TCItrVec iterators;
             iterators.reserve(container.size());

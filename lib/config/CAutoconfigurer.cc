@@ -62,9 +62,9 @@ const core_t::TTime UPDATE_SCORE_TIME_INTERVAL       = 172800;
 //! \brief The implementation of automatic configuration.
 class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable {
     public:
-        typedef std::vector<std::string> TStrVec;
+        typedef std::vector<std::string>                       TStrVec;
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
 
     public:
         CAutoconfigurerImpl(const CAutoconfigurerParams &params, CReportWriter &reportWriter);
@@ -82,11 +82,11 @@ class CONFIG_EXPORT CAutoconfigurerImpl : public core::CNonCopyable {
         uint64_t numRecordsHandled(void) const;
 
     private:
-        typedef std::pair<core_t::TTime, TStrStrUMap> TTimeStrStrUMapPr;
-        typedef std::vector<TTimeStrStrUMapPr> TTimeStrStrUMapPrVec;
+        typedef std::pair<core_t::TTime, TStrStrUMap>    TTimeStrStrUMapPr;
+        typedef std::vector<TTimeStrStrUMapPr>           TTimeStrStrUMapPrVec;
         typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
-        typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;
-        typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
+        typedef std::vector<CDetectorSpecification>      TDetectorSpecificationVec;
+        typedef std::vector<CFieldStatistics>            TFieldStatisticsVec;
 
     private:
         //! Extract the time from \p fieldValues.

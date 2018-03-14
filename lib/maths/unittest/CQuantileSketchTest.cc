@@ -34,7 +34,7 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>                                        TDoubleVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 void testSketch(maths::CQuantileSketch::EInterpolation interpolation,

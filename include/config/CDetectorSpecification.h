@@ -53,14 +53,14 @@ class CPenalty;
 class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetectorSpecification,
                                                                          boost::less_than_comparable< CDetectorSpecification > > {
     public:
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<std::string> TOptionalStr;
+        typedef std::vector<double>           TDoubleVec;
+        typedef std::vector<TDoubleVec>       TDoubleVecVec;
+        typedef std::vector<std::size_t>      TSizeVec;
+        typedef std::vector<core_t::TTime>    TTimeVec;
+        typedef std::vector<std::string>      TStrVec;
+        typedef boost::optional<std::string>  TOptionalStr;
         typedef std::vector<CFieldStatistics> TFieldStatisticsVec;
-        typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
+        typedef boost::shared_ptr<CPenalty>   TPenaltyPtr;
 
         //! Ternary boolean type which supports unknown.
         enum EFuzzyBool {
@@ -216,9 +216,9 @@ class CONFIG_EXPORT CDetectorSpecification : boost::equality_comparable< CDetect
         std::string description(void) const;
 
     private:
-        typedef std::vector<TStrVec> TStrVecVec;
-        typedef boost::optional<core_t::TTime> TOptionalTime;
-        typedef boost::array<const TSizeVec*, 2> TSizeVecCPtrAry;
+        typedef std::vector<TStrVec>                                  TStrVecVec;
+        typedef boost::optional<core_t::TTime>                        TOptionalTime;
+        typedef boost::array<const TSizeVec*, 2>                      TSizeVecCPtrAry;
         typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
 
     private:

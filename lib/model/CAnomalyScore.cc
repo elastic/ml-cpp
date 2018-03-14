@@ -572,7 +572,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const TDoubleVec &scores) {
 
 bool CAnomalyScore::CNormalizer::updateQuantiles(double score) {
     typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
-    typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
+    typedef std::vector<TUInt32UInt64Pr>  TUInt32UInt64PrVec;
 
     bool   bigChange(false);
     double oldMaxScore(m_MaxScore.count() == 0 ? 0.0 : m_MaxScore[0]);

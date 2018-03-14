@@ -123,20 +123,20 @@ class API_EXPORT CAnomalyJob : public CDataProcessor {
                                   const std::string &,
                                   core_t::TTime,
                                   core_t::TTime)> TPersistCompleteFunc;
-        typedef model::CAnomalyDetector::TAnomalyDetectorPtr TAnomalyDetectorPtr;
-        typedef std::vector<TAnomalyDetectorPtr> TAnomalyDetectorPtrVec;
-        typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
+        typedef model::CAnomalyDetector::TAnomalyDetectorPtr     TAnomalyDetectorPtr;
+        typedef std::vector<TAnomalyDetectorPtr>                 TAnomalyDetectorPtrVec;
+        typedef std::vector<TAnomalyDetectorPtr>::iterator       TAnomalyDetectorPtrVecItr;
         typedef std::vector<TAnomalyDetectorPtr>::const_iterator TAnomalyDetectorPtrVecCItr;
-        typedef std::vector<model::CSearchKey> TKeyVec;
+        typedef std::vector<model::CSearchKey>                   TKeyVec;
         typedef boost::unordered_map<model::CSearchKey::TStrKeyPr,
                                      TAnomalyDetectorPtr,
                                      model::CStrKeyPrHash,
                                      model::CStrKeyPrEqual> TKeyAnomalyDetectorPtrUMap;
         typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr> TKeyCRefAnomalyDetectorPtrPr;
-        typedef std::vector<TKeyCRefAnomalyDetectorPtrPr>            TKeyCRefAnomalyDetectorPtrPrVec;
-        typedef model::CAnomalyDetector::TModelPlotDataVec TModelPlotDataVec;
-        typedef TModelPlotDataVec::const_iterator TModelPlotDataVecCItr;
-        typedef model::CBucketQueue<TModelPlotDataVec> TModelPlotDataVecQueue;
+        typedef std::vector<TKeyCRefAnomalyDetectorPtrPr>                            TKeyCRefAnomalyDetectorPtrPrVec;
+        typedef model::CAnomalyDetector::TModelPlotDataVec                           TModelPlotDataVec;
+        typedef TModelPlotDataVec::const_iterator                                    TModelPlotDataVecCItr;
+        typedef model::CBucketQueue<TModelPlotDataVec>                               TModelPlotDataVecQueue;
 
         struct API_EXPORT SRestoredStateDetail {
             ERestoreStateStatus s_RestoredStateStatus;

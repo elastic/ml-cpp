@@ -28,12 +28,12 @@
 using namespace ml;
 using namespace model;
 
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, uint64_t> TSizeSizePrUInt64Pr;
-typedef std::vector<TSizeSizePrUInt64Pr> TSizeSizePrUInt64PrVec;
+typedef std::pair<std::size_t, std::size_t>         TSizeSizePr;
+typedef std::pair<TSizeSizePr, uint64_t>            TSizeSizePrUInt64Pr;
+typedef std::vector<TSizeSizePrUInt64Pr>            TSizeSizePrUInt64PrVec;
 typedef boost::unordered_map<TSizeSizePr, uint64_t> TSizeSizePrUInt64UMap;
-typedef model::CBucketQueue<TSizeSizePrUInt64UMap> TSizeSizePrUInt64UMapQueue;
-typedef TSizeSizePrUInt64UMapQueue::const_iterator TSizeSizePrUInt64UMapQueueCItr;
+typedef model::CBucketQueue<TSizeSizePrUInt64UMap>  TSizeSizePrUInt64UMapQueue;
+typedef TSizeSizePrUInt64UMapQueue::const_iterator  TSizeSizePrUInt64UMapQueueCItr;
 
 void CBucketQueueTest::testConstructorFillsQueue(void) {
     CBucketQueue<int> queue(3, 5, 15);

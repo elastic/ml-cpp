@@ -65,18 +65,18 @@ struct SBar {
     uint64_t s_Key;
 };
 
-typedef std::vector<int> TIntVec;
-typedef std::map<std::size_t, EAnEnum> TSizeAnEnumMap;
-typedef std::set<std::string> TStrSet;
-typedef TStrSet::const_iterator TStrSetCItr;
-typedef boost::optional<double> TOptionalDouble;
-typedef std::vector<TOptionalDouble> TOptionalDoubleVec;
+typedef std::vector<int>                                                            TIntVec;
+typedef std::map<std::size_t, EAnEnum>                                              TSizeAnEnumMap;
+typedef std::set<std::string>                                                       TStrSet;
+typedef TStrSet::const_iterator                                                     TStrSetCItr;
+typedef boost::optional<double>                                                     TOptionalDouble;
+typedef std::vector<TOptionalDouble>                                                TOptionalDoubleVec;
 typedef maths::CBasicStatistics::SSampleMeanVar<maths::CFloatStorage>::TAccumulator TMeanVarAccumulator;
-typedef boost::shared_ptr<TMeanVarAccumulator> TMeanVarAccumulatorPtr;
-typedef std::pair<double, TMeanVarAccumulator> TDoubleMeanVarAccumulatorPr;
-typedef std::list<TDoubleMeanVarAccumulatorPr> TDoubleMeanVarAccumulatorPrList;
-typedef std::deque<SFoo> TFooDeque;
-typedef std::vector<SBar> TBarVec;
+typedef boost::shared_ptr<TMeanVarAccumulator>                                      TMeanVarAccumulatorPtr;
+typedef std::pair<double, TMeanVarAccumulator>                                      TDoubleMeanVarAccumulatorPr;
+typedef std::list<TDoubleMeanVarAccumulatorPr>                                      TDoubleMeanVarAccumulatorPrList;
+typedef std::deque<SFoo>                                                            TFooDeque;
+typedef std::vector<SBar>                                                           TBarVec;
 
 }
 

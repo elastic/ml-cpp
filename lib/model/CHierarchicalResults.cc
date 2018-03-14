@@ -178,7 +178,7 @@ void aggregateLayer(ITR beginLayer,
                     CHierarchicalResults &results,
                     FACTORY newNode,
                     std::vector<SNode*> &newLayer) {
-    typedef std::vector<SNode*> TNodePtrVec;
+    typedef std::vector<SNode*>                    TNodePtrVec;
     typedef std::map<TNodeCPtr, TNodePtrVec, LESS> TNodeCPtrNodePtrVecMap;
 
     newLayer.clear();
@@ -778,9 +778,9 @@ model_t::CResultType CHierarchicalResults::resultType(void) const {
 }
 
 void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
-    typedef TStoredStringPtrNodeMap::const_iterator TStoredStringPtrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrNodeMapCItr> TStoredStringPtrNodeMapCItrVec;
-    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator TStoredStringPtrStoredStringPtrPrNodeMapCItr;
+    typedef TStoredStringPtrNodeMap::const_iterator                   TStoredStringPtrNodeMapCItr;
+    typedef std::vector<TStoredStringPtrNodeMapCItr>                  TStoredStringPtrNodeMapCItrVec;
+    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator  TStoredStringPtrStoredStringPtrPrNodeMapCItr;
     typedef std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr> TStoredStringPtrStoredStringPtrPrNodeMapCItrVec;
 
     TNodePtrSizeUMap nodePointers;

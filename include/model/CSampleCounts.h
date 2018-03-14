@@ -48,8 +48,8 @@ class CDataGatherer;
 class MODEL_EXPORT CSampleCounts {
     public:
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-        typedef std::vector<std::size_t> TSizeVec;
+        typedef std::vector<TMeanAccumulator>                              TMeanAccumulatorVec;
+        typedef std::vector<std::size_t>                                   TSizeVec;
 
     public:
         explicit CSampleCounts(unsigned int sampleCountOverride = 0);

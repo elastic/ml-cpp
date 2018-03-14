@@ -42,27 +42,27 @@
 using namespace ml;
 using namespace model;
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef TStrVec::const_iterator TStrVecCItr;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef SEventRateFeatureData TFeatureData;
-typedef std::pair<std::size_t, TFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, TFeatureData> TSizeSizePrFeatureDataPr;
-typedef std::vector<TSizeSizePrFeatureDataPr> TSizeSizePrFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec> TFeatureSizeSizePrFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr> TFeatureSizeSizePrFeatureDataPrVecPrVec;
-typedef CBucketGatherer::TSizeSizePrStoredStringPtrPr TSizeSizePrStoredStringPtrPr;
+typedef std::vector<std::size_t>                                   TSizeVec;
+typedef std::vector<model_t::EFeature>                             TFeatureVec;
+typedef std::pair<std::size_t, uint64_t>                           TSizeUInt64Pr;
+typedef std::vector<TSizeUInt64Pr>                                 TSizeUInt64PrVec;
+typedef std::vector<std::string>                                   TStrVec;
+typedef TStrVec::const_iterator                                    TStrVecCItr;
+typedef std::vector<TStrVec>                                       TStrVecVec;
+typedef SEventRateFeatureData                                      TFeatureData;
+typedef std::pair<std::size_t, TFeatureData>                       TSizeFeatureDataPr;
+typedef std::vector<TSizeFeatureDataPr>                            TSizeFeatureDataPrVec;
+typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec>        TFeatureSizeFeatureDataPrVecPr;
+typedef std::vector<TFeatureSizeFeatureDataPrVecPr>                TFeatureSizeFeatureDataPrVecPrVec;
+typedef std::pair<std::size_t, std::size_t>                        TSizeSizePr;
+typedef std::pair<TSizeSizePr, TFeatureData>                       TSizeSizePrFeatureDataPr;
+typedef std::vector<TSizeSizePrFeatureDataPr>                      TSizeSizePrFeatureDataPrVec;
+typedef std::pair<model_t::EFeature, TSizeSizePrFeatureDataPrVec>  TFeatureSizeSizePrFeatureDataPrVecPr;
+typedef std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>          TFeatureSizeSizePrFeatureDataPrVecPrVec;
+typedef CBucketGatherer::TSizeSizePrStoredStringPtrPr              TSizeSizePrStoredStringPtrPr;
 typedef CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapVec TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-typedef std::vector<core_t::TTime> TTimeVec;
-typedef CBucketGatherer::TStrCPtrVec TStrCPtrVec;
+typedef std::vector<core_t::TTime>                                 TTimeVec;
+typedef CBucketGatherer::TStrCPtrVec                               TStrCPtrVec;
 
 namespace {
 

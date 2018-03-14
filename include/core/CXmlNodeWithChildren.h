@@ -42,8 +42,8 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode {
         typedef boost::shared_ptr<CXmlNodeWithChildren> TXmlNodeWithChildrenP;
 
         typedef std::vector<TXmlNodeWithChildrenP>      TChildNodePVec;
-        typedef TChildNodePVec::iterator TChildNodePVecItr;
-        typedef TChildNodePVec::const_iterator TChildNodePVecCItr;
+        typedef TChildNodePVec::iterator                TChildNodePVecItr;
+        typedef TChildNodePVec::const_iterator          TChildNodePVecCItr;
 
     public:
         CXmlNodeWithChildren(void);

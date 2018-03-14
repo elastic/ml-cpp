@@ -44,9 +44,9 @@ namespace model {
 
 namespace {
 
-typedef boost::reference_wrapper<const std::string> TStrCRef;
-typedef std::map<TStrCRef, uint64_t, maths::COrderings::SLess> TStrCRefUInt64Map;
-typedef std::pair<TStrCRef, TStrCRef> TStrCRefStrCRefPr;
+typedef boost::reference_wrapper<const std::string>                     TStrCRef;
+typedef std::map<TStrCRef, uint64_t, maths::COrderings::SLess>          TStrCRefUInt64Map;
+typedef std::pair<TStrCRef, TStrCRef>                                   TStrCRefStrCRefPr;
 typedef std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLess> TStrCRefStrCRefPrUInt64Map;
 
 //! Update \p hashes with the hashes of the active people in \p values.

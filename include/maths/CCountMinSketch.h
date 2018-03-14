@@ -124,8 +124,8 @@ class MATHS_EXPORT CCountMinSketch {
 
     private:
         typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
-        typedef std::vector<CFloatStorage> TFloatVec;
-        typedef std::vector<TFloatVec> TFloatVecVec;
+        typedef std::vector<CFloatStorage>                                 TFloatVec;
+        typedef std::vector<TFloatVec>                                     TFloatVecVec;
 
         //! Wraps up the sketch data.
         struct MATHS_EXPORT SSketch {
@@ -147,8 +147,8 @@ class MATHS_EXPORT CCountMinSketch {
             TFloatVecVec s_Counts;
         };
 
-        typedef std::pair<uint32_t, CFloatStorage> TUInt32FloatPr;
-        typedef std::vector<TUInt32FloatPr> TUInt32FloatPrVec;
+        typedef std::pair<uint32_t, CFloatStorage>         TUInt32FloatPr;
+        typedef std::vector<TUInt32FloatPr>                TUInt32FloatPrVec;
         typedef boost::variant<TUInt32FloatPrVec, SSketch> TUInt32FloatPrVecOrSketch;
 
         //! Maybe switch to sketching the counts.

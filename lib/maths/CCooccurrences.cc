@@ -34,15 +34,15 @@ namespace maths {
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
+typedef std::vector<double>                 TDoubleVec;
+typedef std::vector<TDoubleVec>             TDoubleVecVec;
+typedef std::vector<std::size_t>            TSizeVec;
+typedef std::vector<TSizeVec>               TSizeVecVec;
 typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
-typedef CVector<double> TPoint;
-typedef std::vector<TPoint> TPointVec;
-typedef std::vector<CPackedBitVector> TPackedBitVectorVec;
+typedef boost::unordered_set<TSizeSizePr>   TSizeSizePrUSet;
+typedef CVector<double>                     TPoint;
+typedef std::vector<TPoint>                 TPointVec;
+typedef std::vector<CPackedBitVector>       TPackedBitVectorVec;
 
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence {

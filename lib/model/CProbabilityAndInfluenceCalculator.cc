@@ -32,30 +32,30 @@ namespace ml {
 namespace model {
 namespace {
 
-typedef CProbabilityAndInfluenceCalculator::TSize1Vec TSize1Vec;
-typedef CProbabilityAndInfluenceCalculator::TSize2Vec TSize2Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble1Vec TDouble1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble2Vec TDouble2Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble4Vec TDouble4Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble2Vec1Vec TDouble2Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble4Vec1Vec TDouble4Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TDouble1VecDoublePr TDouble1VecDoublePr;
-typedef CProbabilityAndInfluenceCalculator::TBool2Vec TBool2Vec;
-typedef CProbabilityAndInfluenceCalculator::TTime2Vec TTime2Vec;
-typedef CProbabilityAndInfluenceCalculator::TTime2Vec1Vec TTime2Vec1Vec;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr TStrCRefDouble1VecDouble1VecPrPr;
-typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec TStrCRefDouble1VecDouble1VecPrPrVec;
-typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
-typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePr TStoredStringPtrStoredStringPtrPrDoublePr;
+typedef CProbabilityAndInfluenceCalculator::TSize1Vec                                    TSize1Vec;
+typedef CProbabilityAndInfluenceCalculator::TSize2Vec                                    TSize2Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble1Vec                                  TDouble1Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble2Vec                                  TDouble2Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble4Vec                                  TDouble4Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble2Vec1Vec                              TDouble2Vec1Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble4Vec1Vec                              TDouble4Vec1Vec;
+typedef CProbabilityAndInfluenceCalculator::TDouble1VecDoublePr                          TDouble1VecDoublePr;
+typedef CProbabilityAndInfluenceCalculator::TBool2Vec                                    TBool2Vec;
+typedef CProbabilityAndInfluenceCalculator::TTime2Vec                                    TTime2Vec;
+typedef CProbabilityAndInfluenceCalculator::TTime2Vec1Vec                                TTime2Vec1Vec;
+typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPr                 TStrCRefDouble1VecDoublePrPr;
+typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDoublePrPrVec              TStrCRefDouble1VecDoublePrPrVec;
+typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPr             TStrCRefDouble1VecDouble1VecPrPr;
+typedef CProbabilityAndInfluenceCalculator::TStrCRefDouble1VecDouble1VecPrPrVec          TStrCRefDouble1VecDouble1VecPrPrVec;
+typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPr            TStoredStringPtrStoredStringPtrPr;
+typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePr    TStoredStringPtrStoredStringPtrPrDoublePr;
 typedef CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec TStoredStringPtrStoredStringPtrPrDoublePrVec;
-typedef core::CSmallVector<maths_t::ETail, 2> TTail2Vec;
-typedef core::CSmallVector<maths_t::EProbabilityCalculation, 2> TProbabilityCalculation2Vec;
-typedef core::CSmallVector<TDouble2Vec, 4> TDouble2Vec4Vec;
-typedef core::CSmallVector<TDouble2Vec4Vec, 1> TDouble2Vec4Vec1Vec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef core::CSmallVector<TSizeDoublePr, 1> TSizeDoublePr1Vec;
+typedef core::CSmallVector<maths_t::ETail, 2>                                            TTail2Vec;
+typedef core::CSmallVector<maths_t::EProbabilityCalculation, 2>                          TProbabilityCalculation2Vec;
+typedef core::CSmallVector<TDouble2Vec, 4>                                               TDouble2Vec4Vec;
+typedef core::CSmallVector<TDouble2Vec4Vec, 1>                                           TDouble2Vec4Vec1Vec;
+typedef std::pair<std::size_t, double>                                                   TSizeDoublePr;
+typedef core::CSmallVector<TSizeDoublePr, 1>                                             TSizeDoublePr1Vec;
 
 //! Get the canonical influence string pointer.
 core::CStoredStringPtr canonical(const std::string &influence) {

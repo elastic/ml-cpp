@@ -115,7 +115,7 @@ class TEST_EXPORT CTestRunner : public CppUnit::TextTestRunner {
 
     private:
         typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::iterator        TStrVecItr;
 
         TStrVec     m_TestCases;
         std::string m_ExeName;

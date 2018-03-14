@@ -30,8 +30,8 @@
 
 using namespace ml;
 
-typedef std::vector<bool> TBoolVec;
-typedef std::vector<std::size_t> TSizeVec;
+typedef std::vector<bool>                    TBoolVec;
+typedef std::vector<std::size_t>             TSizeVec;
 typedef std::vector<maths::CPackedBitVector> TPackedBitVectorVec;
 
 namespace {
@@ -278,7 +278,7 @@ void CPackedBitVectorTest::testInner(void) {
     LOG_DEBUG("+-----------------------------------+");
 
     typedef maths::CVector<double> TVector;
-    typedef std::vector<TVector> TVectorVec;
+    typedef std::vector<TVector>   TVectorVec;
 
     maths::CPackedBitVector test1(10, true);
     maths::CPackedBitVector test2(10, false);

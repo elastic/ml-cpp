@@ -72,10 +72,10 @@ struct SSumSerializer {
 //! \brief Manages persistence of influence bucket sums.
 struct SInfluencerSumSerializer {
     typedef boost::unordered_map<core::CStoredStringPtr, double> TStoredStringPtrDoubleUMap;
-    typedef TStoredStringPtrDoubleUMap::const_iterator TStoredStringPtrDoubleUMapCItr;
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TStrCRef, double> TStrCRefDoublePr;
-    typedef std::vector<TStrCRefDoublePr> TStrCRefDoublePrVec;
+    typedef TStoredStringPtrDoubleUMap::const_iterator           TStoredStringPtrDoubleUMapCItr;
+    typedef boost::reference_wrapper<const std::string>          TStrCRef;
+    typedef std::pair<TStrCRef, double>                          TStrCRefDoublePr;
+    typedef std::vector<TStrCRefDoublePr>                        TStrCRefDoublePrVec;
 
     void operator()(const TStoredStringPtrDoubleUMap &map, core::CStatePersistInserter &inserter) const {
         TStrCRefDoublePrVec ordered;
@@ -189,10 +189,10 @@ std::size_t CGathererTools::CSumGatherer::dimension(void) const
 SMetricFeatureData CGathererTools::CSumGatherer::featureData(core_t::TTime time, core_t::TTime /*bucketLength*/,
                                                              const TSampleVec &emptySample) const
 {
-    typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::pair<TDouble1Vec, double> TDouble1VecDoublePr;
-    typedef std::pair<TStrCRef, TDouble1VecDoublePr> TStrCRefDouble1VecDoublePrPr;
-    typedef std::vector<TStrCRefDouble1VecDoublePrPr> TStrCRefDouble1VecDoublePrPrVec;
+    typedef boost::reference_wrapper<const std::string>  TStrCRef;
+    typedef std::pair<TDouble1Vec, double>               TDouble1VecDoublePr;
+    typedef std::pair<TStrCRef, TDouble1VecDoublePr>     TStrCRefDouble1VecDoublePrPr;
+    typedef std::vector<TStrCRefDouble1VecDoublePrPr>    TStrCRefDouble1VecDoublePrPrVec;
     typedef std::vector<TStrCRefDouble1VecDoublePrPrVec> TStrCRefDouble1VecDoublePrPrVecVec;
 
     const TSampleVec *sum = &m_BucketSums.get(time);

@@ -52,9 +52,9 @@ class CONFIG_EXPORT CAutoconfigurerDetectorPenalties {
         TPenaltyPtr penaltyFor(const CDetectorSpecification &spec);
 
     private:
-        typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
+        typedef boost::reference_wrapper<const CAutoconfigurerParams>             TAutoconfigurerParamsCRef;
         typedef boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties> TAutoconfigurerFieldRolePenaltiesCRef;
-        typedef std::vector<TPenaltyPtr> TPenaltyPtrVec;
+        typedef std::vector<TPenaltyPtr>                                          TPenaltyPtrVec;
 
     private:
         //! Get the penalty for the detector \p spec based on its field roles.

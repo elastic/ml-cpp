@@ -48,8 +48,8 @@ using namespace ml;
 namespace {
 
 typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
-typedef std::vector<TTimeTimePr> TTimeTimePrVec;
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<TTimeTimePr>                TTimeTimePrVec;
+typedef std::vector<double>                     TDoubleVec;
 
 bool doIntersect(const TTimeTimePr &i1, const TTimeTimePr &i2) {
     return !(i2.second <= i1.first || i1.second <= i2.first);

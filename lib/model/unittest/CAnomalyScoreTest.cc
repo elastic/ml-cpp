@@ -44,13 +44,13 @@
 using namespace ml;
 
 namespace {
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 }
 
 void CAnomalyScoreTest::testComputeScores(void) {
-    typedef model::CAnomalyScore TScores;
-    typedef maths::CJointProbabilityOfLessLikelySamples TJointProbabilityCalculator;
+    typedef model::CAnomalyScore                         TScores;
+    typedef maths::CJointProbabilityOfLessLikelySamples  TJointProbabilityCalculator;
     typedef maths::CLogProbabilityOfMFromNExtremeSamples TLogExtremeProbabilityCalculator;
 
     const double      jointProbabilityWeight = 0.5;
@@ -321,7 +321,7 @@ void CAnomalyScoreTest::testNormalizeScoresQuantiles(void) {
 
 void CAnomalyScoreTest::testNormalizeScoresNoisy(void) {
     typedef std::multimap<double, std::size_t> TDoubleSizeMap;
-    typedef TDoubleSizeMap::const_iterator TDoubleSizeMapCItr;
+    typedef TDoubleSizeMap::const_iterator     TDoubleSizeMapCItr;
 
     test::CRandomNumbers rng;
 

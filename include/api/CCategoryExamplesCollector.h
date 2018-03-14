@@ -39,7 +39,7 @@ namespace api {
 //!
 class API_EXPORT CCategoryExamplesCollector {
     public:
-        typedef std::set<std::string> TStrSet;
+        typedef std::set<std::string>   TStrSet;
         typedef TStrSet::const_iterator TStrSetCItr;
 
         //! Truncate examples to be no longer than this

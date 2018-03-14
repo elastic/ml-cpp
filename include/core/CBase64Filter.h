@@ -58,8 +58,8 @@ namespace core {
 class CORE_EXPORT CBase64Encoder {
     public:
         typedef boost::circular_buffer<uint8_t> TUInt8Buf;
-        typedef TUInt8Buf::iterator TUInt8BufItr;
-        typedef TUInt8Buf::const_iterator TUInt8BufCItr;
+        typedef TUInt8Buf::iterator             TUInt8BufItr;
+        typedef TUInt8Buf::const_iterator       TUInt8BufCItr;
 
         typedef char char_type;
 
@@ -110,7 +110,7 @@ class CORE_EXPORT CBase64Encoder {
         //! the converted output into the stream snk
         template<typename SINK>
         void Encode(SINK &snk, bool isFinal) {
-            typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8> TUInt8BufCItrTransformItr;
+            typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>          TUInt8BufCItrTransformItr;
             typedef boost::archive::iterators::base64_from_binary<TUInt8BufCItrTransformItr> TBase64Text;
 
             TUInt8BufItr endItr = m_Buffer.end();
@@ -167,11 +167,11 @@ class CORE_EXPORT CBase64Encoder {
 //!
 class CORE_EXPORT CBase64Decoder {
     public:
-        typedef boost::circular_buffer<uint8_t> TUInt8Buf;
-        typedef TUInt8Buf::iterator TUInt8BufItr;
-        typedef TUInt8Buf::const_iterator TUInt8BufCItr;
+        typedef boost::circular_buffer<uint8_t>   TUInt8Buf;
+        typedef TUInt8Buf::iterator               TUInt8BufItr;
+        typedef TUInt8Buf::const_iterator         TUInt8BufCItr;
         typedef TUInt8Buf::const_reverse_iterator TUInt8BufCRItr;
-        typedef char char_type;
+        typedef char                              char_type;
 
         //! Tell boost::iostreams what this filter is capable of
         struct category :
@@ -266,7 +266,7 @@ class CORE_EXPORT CBase64Decoder {
         //! Perform the conversion from Base64 to raw bytes
         void Decode(bool isFinal) {
             // Base64 turns 4 characters into 3 bytes
-            typedef boost::archive::iterators::binary_from_base64<TUInt8BufCItr> TUInt8BufCItrBinaryBase64Itr;
+            typedef boost::archive::iterators::binary_from_base64<TUInt8BufCItr>                            TUInt8BufCItrBinaryBase64Itr;
             typedef boost::archive::iterators::transform_width<TUInt8BufCItrBinaryBase64Itr, 8, 6, uint8_t> TBase64Binary;
 
             std::size_t inBytes = m_BufferIn.size();

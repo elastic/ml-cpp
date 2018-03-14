@@ -155,7 +155,7 @@ template<typename T>
 class CMixtureDistribution {
     public:
         typedef std::vector<double> TDoubleVec;
-        typedef std::vector<T> TModeVec;
+        typedef std::vector<T>      TModeVec;
 
     public:
         CMixtureDistribution(void) {
@@ -281,7 +281,7 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T> &distribut
 template<typename T>
 double mode(const CMixtureDistribution<T> &distribution) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
     static const std::size_t MAX_ITERATIONS = 20u;
 
@@ -327,7 +327,7 @@ double mode(const CMixtureDistribution<T> &distribution) {
 template<typename T>
 double pdf(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);
@@ -370,7 +370,7 @@ double pdf(const CMixtureDistribution<T> &distribution, double x) {
 template<typename T>
 double cdf(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);
@@ -416,7 +416,7 @@ double cdf(const CMixtureDistribution<T> &distribution, double x) {
 template<typename T>
 double cdfComplement(const CMixtureDistribution<T> &distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
-    typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
+    typedef typename CMixtureDistribution<T>::TModeVec   TModeVec;
 
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR("Bad value x = " << x);

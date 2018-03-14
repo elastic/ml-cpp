@@ -61,7 +61,7 @@ class CDerived4 : public CBase {
 }
 
 void CPolymorphicStackObjectCPtrTest::testAll(void) {
-    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2> TStackPtr12;
+    typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2>                       TStackPtr12;
     typedef core::CPolymorphicStackObjectCPtr<CBase, CDerived1, CDerived2, CDerived3, CDerived4> TStackPtr1234;
 
     TStackPtr12 test1((CDerived1()));

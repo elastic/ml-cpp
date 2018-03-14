@@ -33,18 +33,18 @@
 
 using namespace ml;
 
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<std::size_t, double> TSizeDoublePr;
-typedef std::map<std::size_t, double> TSizeDoubleMap;
-typedef std::set<int> TIntSet;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::vector<TStrVec> TStrVecVec;
-typedef boost::unordered_map<std::string, int> TStrIntUMap;
+typedef std::vector<double>                              TDoubleVec;
+typedef std::pair<std::size_t, double>                   TSizeDoublePr;
+typedef std::map<std::size_t, double>                    TSizeDoubleMap;
+typedef std::set<int>                                    TIntSet;
+typedef std::vector<TDoubleVec>                          TDoubleVecVec;
+typedef std::vector<std::string>                         TStrVec;
+typedef std::vector<TStrVec>                             TStrVecVec;
+typedef boost::unordered_map<std::string, int>           TStrIntUMap;
 typedef boost::unordered_map<std::string, TDoubleVecVec> TStrDoubleVecVecUMap;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
-typedef std::vector<TSizeUSet> TSizeUSetVec;
-typedef boost::circular_buffer<TSizeDoublePr> TSizeDoublePrBuf;
+typedef boost::unordered_set<std::size_t>                TSizeUSet;
+typedef std::vector<TSizeUSet>                           TSizeUSetVec;
+typedef boost::circular_buffer<TSizeDoublePr>            TSizeDoublePrBuf;
 
 namespace {
 

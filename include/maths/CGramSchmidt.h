@@ -39,10 +39,10 @@ namespace maths {
 //! See https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
 class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>     TDoubleVec;
         typedef std::vector<TDoubleVec> TDoubleVecVec;
-        typedef CVector<double> TVector;
-        typedef std::vector<TVector> TVectorVec;
+        typedef CVector<double>         TVector;
+        typedef std::vector<TVector>    TVectorVec;
 
     public:
         //! Compute an orthonormal basis for the vectors in \p x.

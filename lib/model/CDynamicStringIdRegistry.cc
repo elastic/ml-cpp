@@ -219,7 +219,7 @@ void CDynamicStringIdRegistry::clear(void) {
 
 uint64_t CDynamicStringIdRegistry::checksum(void) const {
     typedef boost::reference_wrapper<const std::string> TStrCRef;
-    typedef std::vector<TStrCRef> TStrCRefVec;
+    typedef std::vector<TStrCRef>                       TStrCRefVec;
 
     TStrCRefVec people;
     people.reserve(m_Names.size());

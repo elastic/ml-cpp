@@ -144,7 +144,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
         };
 
     public:
-        typedef SResults TResults;
+        typedef SResults                                             TResults;
         typedef std::function<bool (TResults)>                       TResultWriterFunc;
         typedef std::function<bool (core_t::TTime, TNode, bool)>     TPivotWriterFunc;
 

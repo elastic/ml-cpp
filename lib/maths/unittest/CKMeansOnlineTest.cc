@@ -31,24 +31,24 @@
 using namespace ml;
 
 namespace {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<TSizeVec> TSizeVecVec;
-typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths::CVectorNx1<double, 2> TVector2;
-typedef std::vector<TVector2> TVector2Vec;
-typedef std::vector<TVector2Vec> TVector2VecVec;
-typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
+typedef std::vector<double>                                             TDoubleVec;
+typedef std::vector<std::size_t>                                        TSizeVec;
+typedef std::vector<TSizeVec>                                           TSizeVecVec;
+typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator   TMeanVarAccumulator;
+typedef maths::CVectorNx1<double, 2>                                    TVector2;
+typedef std::vector<TVector2>                                           TVector2Vec;
+typedef std::vector<TVector2Vec>                                        TVector2VecVec;
+typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator    TMean2Accumulator;
 typedef maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator TMeanVar2Accumulator;
-typedef maths::CVectorNx1<double, 5> TVector5;
-typedef std::vector<TVector5> TVector5Vec;
+typedef maths::CVectorNx1<double, 5>                                    TVector5;
+typedef std::vector<TVector5>                                           TVector5Vec;
 typedef maths::CBasicStatistics::SSampleMeanVar<TVector5>::TAccumulator TMeanVar5Accumulator;
 
 template<typename POINT>
 class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT> {
     public:
-        typedef typename maths::CKMeansOnline<POINT>::TSphericalClusterVec TSphericalClusterVec;
-        typedef typename maths::CKMeansOnline<POINT>::TDoubleMeanVarAccumulator TDoubleMeanVarAccumulator;
+        typedef typename maths::CKMeansOnline<POINT>::TSphericalClusterVec          TSphericalClusterVec;
+        typedef typename maths::CKMeansOnline<POINT>::TDoubleMeanVarAccumulator     TDoubleMeanVarAccumulator;
         typedef typename maths::CKMeansOnline<POINT>::TFloatMeanAccumulatorDoublePr TFloatMeanAccumulatorDoublePr;
 
     public:

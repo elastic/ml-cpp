@@ -55,14 +55,14 @@ namespace config {
 //! boost property_tree is copied into separate member variables.
 class CONFIG_EXPORT CAutoconfigurerParams {
     public:
-        typedef std::vector<core_t::TTime> TTimeVec;
-        typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<std::string> TStrVec;
-        typedef boost::optional<TStrVec> TOptionalStrVec;
+        typedef std::vector<core_t::TTime>                      TTimeVec;
+        typedef std::vector<std::size_t>                        TSizeVec;
+        typedef std::vector<std::string>                        TStrVec;
+        typedef boost::optional<TStrVec>                        TOptionalStrVec;
         typedef std::pair<std::string, config_t::EUserDataType> TStrUserDataTypePr;
-        typedef std::vector<TStrUserDataTypePr> TStrUserDataTypePrVec;
-        typedef boost::optional<config_t::EUserDataType> TOptionalUserDataType;
-        typedef std::vector<config_t::EFunctionCategory> TFunctionCategoryVec;
+        typedef std::vector<TStrUserDataTypePr>                 TStrUserDataTypePrVec;
+        typedef boost::optional<config_t::EUserDataType>        TOptionalUserDataType;
+        typedef std::vector<config_t::EFunctionCategory>        TFunctionCategoryVec;
 
     public:
         CAutoconfigurerParams(const std::string &timeFieldName,
@@ -275,7 +275,7 @@ class CONFIG_EXPORT CAutoconfigurerParams {
         std::string print(void) const;
 
     private:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>   TDoubleVec;
         typedef std::vector<TSizeVec> TSizeVecVec;
 
     private:

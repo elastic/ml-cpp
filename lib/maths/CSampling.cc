@@ -766,9 +766,9 @@ void CSampling::weightedSample(std::size_t n,
     // that Sum_i{ w(i) } != 1.0 we round the number of samples to
     // the nearest integer to n * Sum_i{ p(i) }.
 
-    typedef std::vector<unsigned int> TUIntVec;
+    typedef std::vector<unsigned int>      TUIntVec;
     typedef std::pair<double, std::size_t> TDoubleSizePr;
-    typedef std::vector<TDoubleSizePr> TDoubleSizePrVec;
+    typedef std::vector<TDoubleSizePr>     TDoubleSizePrVec;
 
     LOG_TRACE("Number samples = " << n);
 

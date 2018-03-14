@@ -30,12 +30,12 @@ namespace ml {
 namespace config {
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef std::vector<double>                                               TDoubleVec;
+typedef std::vector<std::size_t>                                          TSizeVec;
+typedef std::vector<std::string>                                          TStrVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator        TMeanAccumulator;
 typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMomentsAccumulator;
-typedef boost::unordered_map<std::size_t, TMomentsAccumulator> TSizeMomentsUMap;
+typedef boost::unordered_map<std::size_t, TMomentsAccumulator>            TSizeMomentsUMap;
 
 const double MIN = 0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_DETECTOR_SCORE;
 const double INF = boost::numeric::bounds<double>::highest();

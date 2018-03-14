@@ -37,7 +37,7 @@ namespace model {
 class MODEL_EXPORT CModelPlotData {
     public:
         typedef std::pair<std::string, double> TStrDoublePr;
-        typedef std::vector<TStrDoublePr> TStrDoublePrVec;
+        typedef std::vector<TStrDoublePr>      TStrDoublePrVec;
 
     public:
         struct MODEL_EXPORT SByFieldData {
@@ -57,11 +57,11 @@ class MODEL_EXPORT CModelPlotData {
         };
 
     public:
-        typedef boost::unordered_map<std::string, SByFieldData> TStrByFieldDataUMap;
-        typedef std::pair<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapPr;
+        typedef boost::unordered_map<std::string, SByFieldData>              TStrByFieldDataUMap;
+        typedef std::pair<model_t::EFeature, TStrByFieldDataUMap>            TFeatureStrByFieldDataUMapPr;
         typedef boost::unordered_map<model_t::EFeature, TStrByFieldDataUMap> TFeatureStrByFieldDataUMapUMap;
-        typedef boost::unordered_map<int, TStrByFieldDataUMap> TIntStrByFieldDataUMapUMap;
-        typedef TFeatureStrByFieldDataUMapUMap::const_iterator TFeatureStrByFieldDataUMapUMapCItr;
+        typedef boost::unordered_map<int, TStrByFieldDataUMap>               TIntStrByFieldDataUMapUMap;
+        typedef TFeatureStrByFieldDataUMapUMap::const_iterator               TFeatureStrByFieldDataUMapUMapCItr;
 
     public:
         CModelPlotData(void);

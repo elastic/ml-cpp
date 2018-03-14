@@ -89,9 +89,9 @@ template<typename POINT>
 class CKMeansFast {
     public:
         typedef std::vector<std::size_t> TSizeVec;
-        typedef std::pair<POINT, POINT> TPointPointPr;
-        typedef std::vector<POINT> TPointVec;
-        typedef std::vector<TPointVec> TPointVecVec;
+        typedef std::pair<POINT, POINT>  TPointPointPr;
+        typedef std::vector<POINT>       TPointVec;
+        typedef std::vector<TPointVec>   TPointVecVec;
 
         //! A cluster.
         //!
@@ -160,11 +160,11 @@ class CKMeansFast {
         typedef std::vector<CCluster> TClusterVec;
 
     protected:
-        typedef typename SStripped<POINT>::Type TBarePoint;
-        typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
+        typedef typename SStripped<POINT>::Type                                         TBarePoint;
+        typedef typename SFloatingPoint<TBarePoint, double>::Type                       TBarePointPrecise;
         typedef typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
-        typedef CBoundingBox<TBarePoint> TBoundingBox;
+        typedef std::vector<TMeanAccumulator>                                           TMeanAccumulatorVec;
+        typedef CBoundingBox<TBarePoint>                                                TBoundingBox;
         class CKdTreeNodeData;
         typedef typename CKdTree<POINT, CKdTreeNodeData>::SNode TNode;
 
@@ -533,9 +533,9 @@ class CKMeansFast {
 template<typename POINT, typename RNG>
 class CKMeansPlusPlusInitialization : private core::CNonCopyable {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>      TDoubleVec;
         typedef std::vector<std::size_t> TSizeVec;
-        typedef std::vector<POINT> TPointVec;
+        typedef std::vector<POINT>       TPointVec;
 
     public:
         CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {

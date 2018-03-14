@@ -29,10 +29,10 @@ namespace maths {
 
 namespace lasso_logistic_regression_detail {
 
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>                 TDoubleVec;
 typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
-typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
+typedef std::pair<TSizeSizePr, double>      TSizeSizePrDoublePr;
+typedef std::vector<TSizeSizePrDoublePr>    TSizeSizePrDoublePrVec;
 
 //! Very simple dynamically sized dense matrix.
 //!
@@ -42,7 +42,7 @@ typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
 class MATHS_EXPORT CDenseMatrix {
     public:
         typedef TDoubleVec::const_iterator iterator;
-        typedef std::vector<TDoubleVec> TDoubleVecVec;
+        typedef std::vector<TDoubleVec>    TDoubleVecVec;
 
     public:
         CDenseMatrix(void);
@@ -277,9 +277,9 @@ enum EHyperparametersStyle {
 //! information on fitting this see CLassoLogisticRegression.
 class MATHS_EXPORT CLogisticRegressionModel {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>            TDoubleVec;
         typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::vector<TSizeDoublePr>     TSizeDoublePrVec;
 
     public:
         CLogisticRegressionModel(void);
@@ -334,7 +334,7 @@ class MATHS_EXPORT CLogisticRegressionModel {
 template<typename STORAGE>
 class MATHS_EXPORT CLassoLogisticRegression {
     public:
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>                                     TDoubleVec;
         typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
     protected:
@@ -396,7 +396,7 @@ class MATHS_EXPORT CLassoLogisticRegression {
         TDoubleVec  m_Beta;
 };
 
-typedef std::vector<std::vector<double> > TDenseStorage;
+typedef std::vector<std::vector<double> >                          TDenseStorage;
 typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorage;
 
 //! \brief Lasso logistic regression using dense encoding of the
@@ -411,7 +411,7 @@ typedef std::vector<std::vector<std::pair<std::size_t, double> > > TSparseStorag
 class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegression<TDenseStorage> {
     public:
         typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::vector<TSizeDoublePr>     TSizeDoublePrVec;
 
     public:
         //! Add a labeled feature vector \p x. The label is either
@@ -445,8 +445,8 @@ class MATHS_EXPORT CLassoLogisticRegressionDense : public CLassoLogisticRegressi
 //! that they are high dimensional, but most components are zero.
 class MATHS_EXPORT CLassoLogisticRegressionSparse : CLassoLogisticRegression<TSparseStorage> {
     public:
-        typedef std::pair<std::size_t, double> TSizeDoublePr;
-        typedef std::vector<TSizeDoublePr> TSizeDoublePrVec;
+        typedef std::pair<std::size_t, double>                          TSizeDoublePr;
+        typedef std::vector<TSizeDoublePr>                              TSizeDoublePrVec;
         typedef lasso_logistic_regression_detail::EHyperparametersStyle EHyperparametersStyle;
 
     public:

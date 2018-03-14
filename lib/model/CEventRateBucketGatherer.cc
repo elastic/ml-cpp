@@ -51,23 +51,23 @@ namespace model {
 
 namespace {
 
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::map<std::string, uint64_t> TStrUInt64Map;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<TSizeSizePr> TSizeSizePrVec;
-typedef std::vector<uint64_t> TUInt64Vec;
-typedef boost::unordered_set<std::size_t> TSizeUSet;
-typedef TSizeUSet::const_iterator TSizeUSetCItr;
-typedef std::vector<TSizeUSet> TSizeUSetVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef boost::unordered_map<TSizeSizePr, TMeanAccumulator> TSizeSizePrMeanAccumulatorUMap;
-typedef std::map<TSizeSizePr, uint64_t> TSizeSizePrUInt64Map;
-typedef CBucketQueue<TSizeSizePrMeanAccumulatorUMap> TSizeSizePrMeanAccumulatorUMapQueue;
-typedef CEventRateBucketGatherer::TCategoryAnyMap TCategoryAnyMap;
+typedef std::vector<std::size_t>                                    TSizeVec;
+typedef std::vector<std::string>                                    TStrVec;
+typedef std::map<std::string, uint64_t>                             TStrUInt64Map;
+typedef std::pair<std::size_t, std::size_t>                         TSizeSizePr;
+typedef std::vector<TSizeSizePr>                                    TSizeSizePrVec;
+typedef std::vector<uint64_t>                                       TUInt64Vec;
+typedef boost::unordered_set<std::size_t>                           TSizeUSet;
+typedef TSizeUSet::const_iterator                                   TSizeUSetCItr;
+typedef std::vector<TSizeUSet>                                      TSizeUSetVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator  TMeanAccumulator;
+typedef boost::unordered_map<TSizeSizePr, TMeanAccumulator>         TSizeSizePrMeanAccumulatorUMap;
+typedef std::map<TSizeSizePr, uint64_t>                             TSizeSizePrUInt64Map;
+typedef CBucketQueue<TSizeSizePrMeanAccumulatorUMap>                TSizeSizePrMeanAccumulatorUMapQueue;
+typedef CEventRateBucketGatherer::TCategoryAnyMap                   TCategoryAnyMap;
 typedef boost::unordered_map<TSizeSizePr, CUniqueStringFeatureData> TSizeSizePrStrDataUMap;
-typedef CBucketQueue<TSizeSizePrStrDataUMap> TSizeSizePrStrDataUMapQueue;
-typedef CBucketGatherer::TStoredStringPtrVec TStoredStringPtrVec;
+typedef CBucketQueue<TSizeSizePrStrDataUMap>                        TSizeSizePrStrDataUMapQueue;
+typedef CBucketGatherer::TStoredStringPtrVec                        TStoredStringPtrVec;
 
 // We use short field names to reduce the state size
 const std::string BASE_TAG("a");
@@ -312,7 +312,7 @@ const std::string &overField(bool population, const TStrVec &fieldNames) {
 }
 
 template<typename ITR, typename T> struct SMaybeConst {};
-template<typename T> struct SMaybeConst<TCategoryAnyMap::iterator, T> { typedef T &TRef; };
+template<typename T> struct SMaybeConst<TCategoryAnyMap::iterator, T> { typedef T &            TRef; };
 template<typename T> struct SMaybeConst<TCategoryAnyMap::const_iterator, T> { typedef const T &TRef; };
 
 //! Apply a function \p f to all the data held in [\p begin, \p end).
@@ -470,7 +470,7 @@ struct SChecksum {
                     const CDataGatherer &gatherer,
                     TStrUInt64Map &hashes) const {
         typedef boost::reference_wrapper<const std::string> TStrCRef;
-        typedef std::vector<TStrCRef> TStrCRefVec;
+        typedef std::vector<TStrCRef>                       TStrCRefVec;
 
         for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {

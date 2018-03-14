@@ -596,7 +596,7 @@ bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE> &categ
     double pp = static_cast<double>(p);
 
     typedef std::vector<TDoubleVec> TDoubleVecVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
+    typedef std::vector<TSizeVec>   TSizeVecVec;
 
     std::size_t N = categories.size();
 

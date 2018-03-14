@@ -228,10 +228,10 @@ class MODEL_EXPORT CCountingModel : public CAnomalyDetectorModel {
         virtual const TStr1Vec &scheduledEventDescriptions(core_t::TTime time) const;
 
     public:
-        typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-        typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
+        typedef std::pair<std::size_t, uint64_t>                           TSizeUInt64Pr;
+        typedef std::vector<TSizeUInt64Pr>                                 TSizeUInt64PrVec;
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-        typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
+        typedef std::vector<TMeanAccumulator>                              TMeanAccumulatorVec;
 
     protected:
         //! Get the start time of the current bucket.

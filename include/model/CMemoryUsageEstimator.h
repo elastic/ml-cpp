@@ -56,7 +56,7 @@ class MODEL_EXPORT CMemoryUsageEstimator {
             E_NumberPredictors
         };
         typedef boost::array<std::size_t, E_NumberPredictors> TSizeArray;
-        typedef boost::optional<std::size_t> TOptionalSize;
+        typedef boost::optional<std::size_t>                  TOptionalSize;
 
     public:
         //! Constructor
@@ -87,9 +87,9 @@ class MODEL_EXPORT CMemoryUsageEstimator {
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
 
     private:
-        typedef std::pair<TSizeArray, std::size_t> TSizeArraySizePr;
+        typedef std::pair<TSizeArray, std::size_t>       TSizeArraySizePr;
         typedef boost::circular_buffer<TSizeArraySizePr> TSizeArraySizePrBuf;
-        typedef TSizeArraySizePrBuf::const_iterator TSizeArraySizePrBufCItr;
+        typedef TSizeArraySizePrBuf::const_iterator      TSizeArraySizePrBufCItr;
 
     private:
         //! Get the maximum amount by which we'll extrapolate the memory usage.

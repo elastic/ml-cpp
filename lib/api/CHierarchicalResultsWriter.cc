@@ -25,8 +25,8 @@ namespace ml {
 namespace api {
 
 namespace {
-typedef boost::optional<double> TOptionalDouble;
-typedef boost::optional<uint64_t> TOptionalUInt64;
+typedef boost::optional<double>       TOptionalDouble;
+typedef boost::optional<uint64_t>     TOptionalUInt64;
 typedef core::CSmallVector<double, 1> TDouble1Vec;
 const std::string                          COUNT_NAME("count");
 const std::string                          EMPTY_STRING;

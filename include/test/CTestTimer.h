@@ -68,7 +68,7 @@ class TEST_EXPORT CTestTimer : public CppUnit::TestListener {
         core::CStopWatch m_StopWatch;
 
         typedef std::map<std::string, uint64_t> TStrUInt64Map;
-        typedef TStrUInt64Map::const_iterator TStrUInt64MapCItr;
+        typedef TStrUInt64Map::const_iterator   TStrUInt64MapCItr;
 
         //! Map of test name to time taken (in ms)
         TStrUInt64Map m_TestTimes;

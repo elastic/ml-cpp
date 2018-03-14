@@ -52,20 +52,20 @@ using namespace handy_typedefs;
 
 namespace {
 
-typedef std::vector<unsigned int> TUIntVec;
-typedef std::vector<double> TDoubleVec;
-typedef std::pair<double, double> TDoubleDoublePr;
-typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
-typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
-typedef boost::shared_ptr<maths::CPrior> TPriorPtr;
-typedef std::vector<TPriorPtr> TPriorPtrVec;
-typedef boost::optional<double> TOptionalDouble;
-typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate> CGammaRateConjugate;
+typedef std::vector<unsigned int>                                    TUIntVec;
+typedef std::vector<double>                                          TDoubleVec;
+typedef std::pair<double, double>                                    TDoubleDoublePr;
+typedef std::vector<TDoubleDoublePr>                                 TDoubleDoublePrVec;
+typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator   TMeanAccumulator;
+typedef boost::shared_ptr<maths::CPrior>                             TPriorPtr;
+typedef std::vector<TPriorPtr>                                       TPriorPtrVec;
+typedef boost::optional<double>                                      TOptionalDouble;
+typedef CPriorTestInterfaceMixin<maths::CGammaRateConjugate>         CGammaRateConjugate;
 typedef CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate> CLogNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior> CMultimodalPrior;
-typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate> CNormalMeanPrecConjugate;
-typedef CPriorTestInterfaceMixin<maths::COneOfNPrior> COneOfNPrior;
-typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate> CPoissonMeanConjugate;
+typedef CPriorTestInterfaceMixin<maths::CMultimodalPrior>            CMultimodalPrior;
+typedef CPriorTestInterfaceMixin<maths::CNormalMeanPrecConjugate>    CNormalMeanPrecConjugate;
+typedef CPriorTestInterfaceMixin<maths::COneOfNPrior>                COneOfNPrior;
+typedef CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate>       CPoissonMeanConjugate;
 
 COneOfNPrior::TPriorPtrVec clone(const TPriorPtrVec &models,
                                  const TOptionalDouble &decayRate = TOptionalDouble()) {

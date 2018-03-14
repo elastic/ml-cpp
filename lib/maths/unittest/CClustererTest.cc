@@ -36,10 +36,10 @@ void CClustererTest::testIndexGenerator(void) {
     //   2) The highest index in the set is less than the
     //      maximum set size to date.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<double> TDoubleVec;
+    typedef std::vector<std::size_t>                          TSizeVec;
+    typedef std::vector<double>                               TDoubleVec;
     typedef std::set<std::size_t, std::greater<std::size_t> > TSizeSet;
-    typedef TSizeSet::iterator TSizeSetItr;
+    typedef TSizeSet::iterator                                TSizeSetItr;
 
     test::CRandomNumbers rng;
 

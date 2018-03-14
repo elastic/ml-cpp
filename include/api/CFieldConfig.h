@@ -366,7 +366,7 @@ class API_EXPORT CFieldConfig {
                     >
                 > TFieldOptionsMIndex;
 
-        typedef TFieldOptionsMIndex::iterator TFieldOptionsMIndexItr;
+        typedef TFieldOptionsMIndex::iterator       TFieldOptionsMIndexItr;
         typedef TFieldOptionsMIndex::const_iterator TFieldOptionsMIndexCItr;
 
         //! Used to maintain a list of all unique config keys
@@ -377,15 +377,15 @@ class API_EXPORT CFieldConfig {
 
         //! Used to obtain command line clause tokens
         typedef std::vector<std::string>                   TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::iterator                          TStrVecItr;
 
-        typedef std::vector<model::CDetectionRule> TDetectionRuleVec;
+        typedef std::vector<model::CDetectionRule>           TDetectionRuleVec;
         typedef boost::unordered_map<int, TDetectionRuleVec> TIntDetectionRuleVecUMap;
 
         typedef boost::unordered_map<std::string, core::CPatternSet> TStrPatternSetUMap;
 
         typedef std::pair<std::string, model::CDetectionRule> TStrDetectionRulePr;
-        typedef std::vector<TStrDetectionRulePr> TStrDetectionRulePrVec;
+        typedef std::vector<TStrDetectionRulePr>              TStrDetectionRulePrVec;
 
     public:
         //! Construct empty.  This call should generally be followed by a call to

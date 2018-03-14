@@ -37,7 +37,7 @@ namespace maths {
 class MATHS_EXPORT CStatisticalTests {
     public:
         typedef std::vector<uint16_t> TUInt16Vec;
-        typedef std::vector<double> TDoubleVec;
+        typedef std::vector<double>   TDoubleVec;
 
     public:
         //! Get the significance of a left tail F-test for \p x when

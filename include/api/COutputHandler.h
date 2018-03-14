@@ -57,12 +57,12 @@ class CBackgroundPersister;
 class API_EXPORT COutputHandler : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator TStrVecItr;
-        typedef TStrVec::const_iterator TStrVecCItr;
+        typedef TStrVec::iterator                              TStrVecItr;
+        typedef TStrVec::const_iterator                        TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
 
     public:
         COutputHandler(void);
@@ -135,8 +135,8 @@ class API_EXPORT COutputHandler : private core::CNonCopyable {
         static const TStrStrUMap EMPTY_FIELD_OVERRIDES;
 
         typedef std::vector<CPreComputedHash>                  TPreComputedHashVec;
-        typedef TPreComputedHashVec::iterator TPreComputedHashVecItr;
-        typedef TPreComputedHashVec::const_iterator TPreComputedHashVecCItr;
+        typedef TPreComputedHashVec::iterator                  TPreComputedHashVecItr;
+        typedef TPreComputedHashVec::const_iterator            TPreComputedHashVecCItr;
 };
 
 

@@ -42,10 +42,10 @@ using namespace handy_typedefs;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<TDoubleVec> TDoubleVecVec;
-typedef maths::CMultivariateOneOfNPrior::TPriorPtr TPriorPtr;
-typedef maths::CMultivariateOneOfNPrior::TPriorPtrVec TPriorPtrVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<TDoubleVec>                                    TDoubleVecVec;
+typedef maths::CMultivariateOneOfNPrior::TPriorPtr                 TPriorPtr;
+typedef maths::CMultivariateOneOfNPrior::TPriorPtrVec              TPriorPtrVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
@@ -694,9 +694,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean(void) {
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
-    typedef std::vector<std::size_t> TSizeVec;
-    typedef std::vector<TSizeVec> TSizeVecVec;
-    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+    typedef std::vector<std::size_t>                                     TSizeVec;
+    typedef std::vector<TSizeVec>                                        TSizeVecVec;
+    typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator   TMeanAccumulator;
     typedef maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator TMean2Accumulator;
 
     maths::CSampling::seed();

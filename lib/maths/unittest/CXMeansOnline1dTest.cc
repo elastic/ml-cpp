@@ -37,8 +37,8 @@ using namespace ml;
 
 namespace {
 
-typedef std::vector<double> TDoubleVec;
-typedef maths::CXMeansOnline1d::TClusterVec TClusterVec;
+typedef std::vector<double>                                           TDoubleVec;
+typedef maths::CXMeansOnline1d::TClusterVec                           TClusterVec;
 typedef maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 
 bool restore(const maths::SDistributionRestoreParams &params,
@@ -699,7 +699,7 @@ void CXMeansOnline1dTest::testManyClusters(void) {
     LOG_DEBUG("+-----------------------------------------+");
 
     typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-    typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
+    typedef std::vector<TTimeDoublePr>       TTimeDoublePrVec;
 
     TTimeDoublePrVec timeseries;
     core_t::TTime    startTime;

@@ -45,7 +45,7 @@ class CModelConfig;
 class MODEL_EXPORT CDetectorEqualizer {
     public:
         typedef std::pair<int, maths::CQuantileSketch> TIntQuantileSketchPr;
-        typedef std::vector<TIntQuantileSketchPr> TIntQuantileSketchPrVec;
+        typedef std::vector<TIntQuantileSketchPr>      TIntQuantileSketchPrVec;
 
     public:
         //! Add \p probability to the detector's quantile sketch.

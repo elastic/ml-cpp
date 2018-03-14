@@ -722,10 +722,10 @@ void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredS
 
     typedef std::pair<const char *, double>                                 TCharPtrDoublePr;
     typedef std::vector<TCharPtrDoublePr>                                   TCharPtrDoublePrVec;
-    typedef TCharPtrDoublePrVec::iterator TCharPtrDoublePrVecIter;
+    typedef TCharPtrDoublePrVec::iterator                                   TCharPtrDoublePrVecIter;
     typedef std::pair<const char *, TCharPtrDoublePrVec>                    TCharPtrCharPtrDoublePrVecPr;
     typedef boost::unordered_map<std::string, TCharPtrCharPtrDoublePrVecPr> TStrCharPtrCharPtrDoublePrVecPrUMap;
-    typedef TStrCharPtrCharPtrDoublePrVecPrUMap::iterator TStrCharPtrCharPtrDoublePrVecPrUMapIter;
+    typedef TStrCharPtrCharPtrDoublePrVecPrUMap::iterator                   TStrCharPtrCharPtrDoublePrVecPrUMapIter;
 
 
     TStrCharPtrCharPtrDoublePrVecPrUMap influences;

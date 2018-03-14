@@ -40,22 +40,22 @@ using namespace ml;
 using namespace model;
 
 namespace {
-typedef std::vector<double> TDoubleVec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
-typedef std::vector<model_t::EFeature> TFeatureVec;
-typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
-typedef std::vector<TSizeUInt64Pr> TSizeUInt64PrVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::pair<std::size_t, SMetricFeatureData> TSizeFeatureDataPr;
-typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
-typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec> TFeatureSizeFeatureDataPrVecPr;
-typedef std::vector<TFeatureSizeFeatureDataPrVecPr> TFeatureSizeFeatureDataPrVecPrVec;
-typedef boost::optional<double> TOptionalDouble;
-typedef boost::optional<std::string> TOptionalStr;
-typedef std::pair<core_t::TTime, double> TTimeDoublePr;
-typedef std::vector<TTimeDoublePr> TTimeDoublePrVec;
-typedef std::vector<TTimeDoublePrVec> TTimeDoublePrVecVec;
+typedef std::vector<double>                                        TDoubleVec;
+typedef std::vector<std::size_t>                                   TSizeVec;
+typedef std::pair<std::size_t, std::size_t>                        TSizeSizePr;
+typedef std::vector<model_t::EFeature>                             TFeatureVec;
+typedef std::pair<std::size_t, uint64_t>                           TSizeUInt64Pr;
+typedef std::vector<TSizeUInt64Pr>                                 TSizeUInt64PrVec;
+typedef std::vector<std::string>                                   TStrVec;
+typedef std::pair<std::size_t, SMetricFeatureData>                 TSizeFeatureDataPr;
+typedef std::vector<TSizeFeatureDataPr>                            TSizeFeatureDataPrVec;
+typedef std::pair<model_t::EFeature, TSizeFeatureDataPrVec>        TFeatureSizeFeatureDataPrVecPr;
+typedef std::vector<TFeatureSizeFeatureDataPrVecPr>                TFeatureSizeFeatureDataPrVecPrVec;
+typedef boost::optional<double>                                    TOptionalDouble;
+typedef boost::optional<std::string>                               TOptionalStr;
+typedef std::pair<core_t::TTime, double>                           TTimeDoublePr;
+typedef std::vector<TTimeDoublePr>                                 TTimeDoublePrVec;
+typedef std::vector<TTimeDoublePrVec>                              TTimeDoublePrVecVec;
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 std::size_t addPerson(const std::string &p,
@@ -1467,9 +1467,9 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
     LOG_DEBUG("*** CMetricDataGathererTest::testInfluenceStatistics ***");
 
     typedef boost::tuple<core_t::TTime, double, std::string, std::string> TTimeDoubleStrStrTuple;
-    typedef std::pair<double, double> TDoubleDoublePr;
-    typedef std::pair<std::string, TDoubleDoublePr> TStrDoubleDoublePrPr;
-    typedef std::vector<TStrDoubleDoublePrPr> TStrDoubleDoublePrPrVec;
+    typedef std::pair<double, double>                                     TDoubleDoublePr;
+    typedef std::pair<std::string, TDoubleDoublePr>                       TStrDoubleDoublePrPr;
+    typedef std::vector<TStrDoubleDoublePrPr>                             TStrDoubleDoublePrPrVec;
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -1604,8 +1604,8 @@ void CMetricDataGathererTest::testInfluenceStatistics(void) {
 
 void CMetricDataGathererTest::testMultivariate(void) {
     typedef boost::tuple<core_t::TTime, double, double> TTimeDoubleDoubleTuple;
-    typedef std::vector<TTimeDoubleDoubleTuple> TTimeDoubleDoubleTupleVec;
-    typedef std::vector<TTimeDoubleDoubleTupleVec> TTimeDoubleDoubleTupleVecVec;
+    typedef std::vector<TTimeDoubleDoubleTuple>         TTimeDoubleDoubleTupleVec;
+    typedef std::vector<TTimeDoubleDoubleTupleVec>      TTimeDoubleDoubleTupleVecVec;
 
     static const std::string DELIMITER("__");
 

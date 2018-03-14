@@ -40,12 +40,12 @@
 
 namespace {
 
-typedef std::vector<ml::core_t::TTime> TTimeVec;
-typedef std::vector<std::string> TStrVec;
-typedef std::map<ml::core_t::TTime, double> TTimeDoubleMap;
-typedef TTimeDoubleMap::const_iterator TTimeDoubleMapCItr;
+typedef std::vector<ml::core_t::TTime>            TTimeVec;
+typedef std::vector<std::string>                  TStrVec;
+typedef std::map<ml::core_t::TTime, double>       TTimeDoubleMap;
+typedef TTimeDoubleMap::const_iterator            TTimeDoubleMapCItr;
 typedef std::pair<ml::core_t::TTime, std::string> TTimeStrPr;
-typedef std::set<TTimeStrPr> TTimeStrPrSet;
+typedef std::set<TTimeStrPr>                      TTimeStrPrSet;
 
 const std::string EMPTY_STRING;
 
@@ -141,8 +141,8 @@ void importData(ml::core_t::TTime firstTime,
                 const TStrVec &fileNames,
                 ml::model::CAnomalyDetector &detector) {
     typedef boost::shared_ptr<std::ifstream> TifstreamPtr;
-    typedef std::vector<TifstreamPtr> TifstreamPtrVec;
-    typedef std::vector<ml::core_t::TTime> TTimeVec;
+    typedef std::vector<TifstreamPtr>        TifstreamPtrVec;
+    typedef std::vector<ml::core_t::TTime>   TTimeVec;
 
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {

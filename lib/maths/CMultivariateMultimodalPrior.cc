@@ -24,8 +24,8 @@ namespace ml {
 namespace maths {
 namespace multivariate_multimodal_prior_detail {
 
-typedef std::vector<double> TDoubleVec;
-typedef CMultivariatePrior::TDouble10Vec TDouble10Vec;
+typedef std::vector<double>                  TDoubleVec;
+typedef CMultivariatePrior::TDouble10Vec     TDouble10Vec;
 typedef CMultivariatePrior::TDouble10Vec4Vec TDouble10Vec4Vec;
 
 namespace {

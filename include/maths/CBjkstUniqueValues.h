@@ -124,10 +124,10 @@ class MATHS_EXPORT CBjkstUniqueValues {
         std::size_t memoryUsage(void) const;
 
     private:
-        typedef std::vector<uint8_t> TUInt8Vec;
-        typedef std::vector<TUInt8Vec> TUInt8VecVec;
-        typedef std::vector<uint32_t> TUInt32Vec;
-        typedef TUInt32Vec::iterator TUInt32VecItr;
+        typedef std::vector<uint8_t>       TUInt8Vec;
+        typedef std::vector<TUInt8Vec>     TUInt8VecVec;
+        typedef std::vector<uint32_t>      TUInt32Vec;
+        typedef TUInt32Vec::iterator       TUInt32VecItr;
         typedef TUInt32Vec::const_iterator TUInt32VecCItr;
 
         //! Wraps up the sketch data.

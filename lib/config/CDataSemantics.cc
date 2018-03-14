@@ -26,7 +26,7 @@
 namespace ml {
 namespace config {
 namespace {
-typedef std::vector<double> TDoubleVec;
+typedef std::vector<double>      TDoubleVec;
 typedef std::vector<std::size_t> TSizeVec;
 
 //! \brief Wraps up a mixture model.
@@ -107,7 +107,7 @@ class CMixtureData {
         }
 
     private:
-        typedef std::vector<boost::math::normal_distribution<> > TNormalVec;
+        typedef std::vector<boost::math::normal_distribution<> >                 TNormalVec;
         typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
 
     private:

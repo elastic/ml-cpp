@@ -54,13 +54,13 @@ namespace maths {
 
 namespace {
 
-typedef core::CSmallVector<double, 1> TDouble1Vec;
-typedef core::CSmallVector<double, 4> TDouble4Vec;
-typedef core::CSmallVector<TDouble4Vec, 1> TDouble4Vec1Vec;
-typedef std::vector<std::size_t> TSizeVec;
-typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
+typedef core::CSmallVector<double, 1>                          TDouble1Vec;
+typedef core::CSmallVector<double, 4>                          TDouble4Vec;
+typedef core::CSmallVector<TDouble4Vec, 1>                     TDouble4Vec1Vec;
+typedef std::vector<std::size_t>                               TSizeVec;
+typedef CBasicStatistics::SSampleMean<double>::TAccumulator    TMeanAccumulator;
 typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-typedef maths_t::TWeightStyleVec TWeightStyleVec;
+typedef maths_t::TWeightStyleVec                               TWeightStyleVec;
 
 //! Compute x * x.
 inline double pow2(double x) {
@@ -71,7 +71,7 @@ const double MINIMUM_LOGNORMAL_SHAPE = 100.0;
 
 namespace detail {
 
-typedef std::pair<double, double> TDoubleDoublePr;
+typedef std::pair<double, double>    TDoubleDoublePr;
 typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
 
 //! \brief Adds "weight" x "right operand" to the "left operand".

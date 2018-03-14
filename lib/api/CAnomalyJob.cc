@@ -576,7 +576,7 @@ void CAnomalyJob::doForecast(const std::string &controlMessage) {
 }
 
 void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
-    typedef TKeyAnomalyDetectorPtrUMap::const_iterator TKeyAnomalyDetectorPtrUMapCItr;
+    typedef TKeyAnomalyDetectorPtrUMap::const_iterator  TKeyAnomalyDetectorPtrUMapCItr;
     typedef std::vector<TKeyAnomalyDetectorPtrUMapCItr> TKeyAnomalyDetectorPtrUMapCItrVec;
 
     static uint64_t cumulativeTime = 0;

@@ -81,15 +81,15 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
         typedef std::pair<double, TDoubleDoublePr>      TDoubleDoubleDoublePrPr;
         typedef std::vector<TDoubleDoubleDoublePrPr>    TDoubleDoubleDoublePrPrVec;
         typedef boost::unordered_set<std::string>       TStrUSet;
-        typedef rapidjson::Document TDocument;
-        typedef rapidjson::Value TValue;
+        typedef rapidjson::Document                     TDocument;
+        typedef rapidjson::Value                        TValue;
         typedef boost::weak_ptr<TDocument>              TDocumentWeakPtr;
         typedef boost::shared_ptr<TValue>               TValuePtr;
 
         typedef boost::shared_ptr<CRapidJsonPoolAllocator>              TPoolAllocatorPtr;
         typedef std::stack< TPoolAllocatorPtr >                         TPoolAllocatorPtrStack;
         typedef boost::unordered_map< std::string, TPoolAllocatorPtr>   TStrPoolAllocatorPtrMap;
-        typedef TStrPoolAllocatorPtrMap::iterator TStrPoolAllocatorPtrMapItr;
+        typedef TStrPoolAllocatorPtrMap::iterator                       TStrPoolAllocatorPtrMapItr;
         typedef std::pair<TStrPoolAllocatorPtrMapItr, bool>             TStrPoolAllocatorPtrMapItrBoolPr;
 
 
