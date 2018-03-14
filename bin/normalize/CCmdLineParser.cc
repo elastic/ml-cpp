@@ -43,33 +43,36 @@ bool CCmdLineParser::parse(int argc,
                            bool &perPartitionNormalization) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
-        desc.add_options()("help", "Display this information and exit")(
-            "version", "Display version information and exit")(
-            "modelconfig",
-            boost::program_options::value<std::string>(),
-            "Optional model config file")("logProperties",
-                                          boost::program_options::value<std::string>(),
-                                          "Optional logger properties file")(
-            "logPipe", boost::program_options::value<std::string>(), "Optional log to named pipe")(
-            "bucketspan",
-            boost::program_options::value<core_t::TTime>(),
-            "Optional aggregation bucket span (in seconds) - default is 300")(
-            "lengthEncodedInput", "Take input in length encoded binary format - default is CSV")(
-            "input",
-            boost::program_options::value<std::string>(),
-            "Optional file to read input from - not present means read from STDIN")(
-            "inputIsPipe", "Specified input file is a named pipe")(
-            "output",
-            boost::program_options::value<std::string>(),
-            "Optional file to write output to - not present means write to STDOUT")(
-            "outputIsPipe", "Specified output file is a named pipe")(
-            "quantilesState",
-            boost::program_options::value<std::string>(),
-            "Optional file to initialization data for normalization (in JSON)")(
-            "deleteStateFiles",
-            "If this flag is set then delete the normalizer state files once they have been read")(
-            "writeCsv", "Write the results in CSV format (default is lineified JSON)")(
-            "perPartitionNormalization", "Optional flag to enable per partition normalization");
+        // clang-format off
+        desc.add_options()
+            ("help", "Display this information and exit")
+            ("version", "Display version information and exit")
+            ("modelconfig", boost::program_options::value<std::string>(),
+                        "Optional model config file")
+            ("logProperties", boost::program_options::value<std::string>(),
+                        "Optional logger properties file")
+            ("logPipe", boost::program_options::value<std::string>(),
+                        "Optional log to named pipe")
+            ("bucketspan", boost::program_options::value<core_t::TTime>(),
+                        "Optional aggregation bucket span (in seconds) - default is 300")
+            ("lengthEncodedInput",
+                        "Take input in length encoded binary format - default is CSV")
+            ("input", boost::program_options::value<std::string>(),
+                        "Optional file to read input from - not present means read from STDIN")
+            ("inputIsPipe", "Specified input file is a named pipe")
+            ("output", boost::program_options::value<std::string>(),
+                        "Optional file to write output to - not present means write to STDOUT")
+            ("outputIsPipe", "Specified output file is a named pipe")
+            ("quantilesState", boost::program_options::value<std::string>(),
+                        "Optional file to initialization data for normalization (in JSON)")
+            ("deleteStateFiles",
+                        "If this flag is set then delete the normalizer state files once they have been read")
+            ("writeCsv",
+                        "Write the results in CSV format (default is lineified JSON)")
+            ("perPartitionNormalization",
+                        "Optional flag to enable per partition normalization")
+        ;
+        // clang-format on
 
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc),

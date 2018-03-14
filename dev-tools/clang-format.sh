@@ -22,4 +22,4 @@ if [ -z "$CPP_SRC_HOME" ] ; then
     exit 1
 fi
 
-find $CPP_SRC_HOME -name 3rd_party -prune -o \( -name \*.cc -o -name \*.h \) -exec clang-format -i {} \;
+find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -exec clang-format -i {} \;
