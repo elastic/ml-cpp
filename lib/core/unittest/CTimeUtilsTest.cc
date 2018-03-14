@@ -119,10 +119,10 @@ void CTimeUtilsTest::testToLocal(void)
 
 void CTimeUtilsTest::testToEpochMs(void)
 {
-    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)), int64_t(1000));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)), int64_t(-1000));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)), int64_t(1521035866000));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)), int64_t(-1521035866000));
+    CPPUNIT_ASSERT_EQUAL(int64_t(1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(-1000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(1521035866000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
+    CPPUNIT_ASSERT_EQUAL(int64_t(-1521035866000), ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
 }
 
 void CTimeUtilsTest::testStrptime(void)

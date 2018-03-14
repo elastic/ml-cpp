@@ -552,7 +552,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
 
             for (const auto &value: values)
             {
-                this->pushBack(value * int64_t(1000), array);
+                this->pushBack(CTimeUtils::toEpochMs(value), array);
             }
 
             this->addMember(fieldName, array, obj);
