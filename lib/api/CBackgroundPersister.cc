@@ -232,6 +232,7 @@ CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister 
 
 void CBackgroundPersister::CBackgroundThread::run(void)
 {
+    core::CScopedFastLock lock(m_Owner.m_Mutex);
 
     while (!m_Owner.m_PersistFuncs.empty())
     {
@@ -241,8 +242,6 @@ void CBackgroundPersister::CBackgroundThread::run(void)
         }
         m_Owner.m_PersistFuncs.pop_front();
     }
-
-    core::CScopedFastLock lock(m_Owner.m_Mutex);
 
     m_Owner.m_IsBusy = false;
 }
