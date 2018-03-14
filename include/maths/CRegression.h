@@ -30,24 +30,19 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
-namespace regression_detail
-{
+namespace regression_detail {
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
 template<typename T>
-struct CMaxCondition
-{
+struct CMaxCondition {
     static const double VALUE;
 };
 template<typename T> const double CMaxCondition<T>::VALUE = 1e15;
@@ -55,8 +50,7 @@ template<typename T> const double CMaxCondition<T>::VALUE = 1e15;
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
 template<>
-struct MATHS_EXPORT CMaxCondition<CFloatStorage>
-{
+struct MATHS_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
 
@@ -70,8 +64,7 @@ struct MATHS_EXPORT CMaxCondition<CFloatStorage>
 //! and definition. As such all member functions should be static and it
 //! should be state-less. If your functionality doesn't fit this pattern
 //! just make it a nested class.
-class MATHS_EXPORT CRegression
-{
+class MATHS_EXPORT CRegression {
     public:
         //! DESCRIPTION:\n
         //! A very lightweight online weighted least squares regression to
@@ -112,8 +105,7 @@ class MATHS_EXPORT CRegression
         //!
         //! \tparam N_ The degree of the polynomial.
         template<std::size_t N_, typename T = CFloatStorage>
-        class CLeastSquaresOnline : boost::addable< CLeastSquaresOnline<N_, T> >
-        {
+        class CLeastSquaresOnline : boost::addable< CLeastSquaresOnline<N_, T> > {
             public:
                 static const std::size_t N = N_+1;
                 using TArray = boost::array<double, N>;
@@ -125,11 +117,12 @@ class MATHS_EXPORT CRegression
                 static const std::string STATISTIC_TAG;
 
             public:
-                CLeastSquaresOnline() : m_S() {}
+                CLeastSquaresOnline() : m_S() {
+                }
                 template<typename U>
                 CLeastSquaresOnline(const CLeastSquaresOnline<N_, U> &other) :
-                    m_S(other.statistic())
-                {}
+                    m_S(other.statistic()) {
+                }
 
                 //! Restore by traversing a state document.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -142,17 +135,14 @@ class MATHS_EXPORT CRegression
                 //! \param[in] x The abscissa of the point.
                 //! \param[in] y The ordinate of the point.
                 //! \param[in] weight The residual weight at the point.
-                void add(double x, double y, double weight = 1.0)
-                {
+                void add(double x, double y, double weight = 1.0) {
                     TVector d;
-                    double xi = 1.0;
-                    for (std::size_t i = 0u; i < N; ++i, xi *= x)
-                    {
+                    double  xi = 1.0;
+                    for (std::size_t i = 0u; i < N; ++i, xi *= x) {
                         d(i)       = xi;
                         d(i+2*N-1) = xi * y;
                     }
-                    for (std::size_t i = N; i < 2*N-1; ++i, xi *= x)
-                    {
+                    for (std::size_t i = N; i < 2*N-1; ++i, xi *= x) {
                         d(i)       = xi;
                     }
                     m_S.add(d, weight);
@@ -160,8 +150,7 @@ class MATHS_EXPORT CRegression
 
                 //! Set the statistics from \p rhs.
                 template<typename U>
-                const CLeastSquaresOnline operator=(const CLeastSquaresOnline<N_, U> &rhs)
-                {
+                const CLeastSquaresOnline operator=(const CLeastSquaresOnline<N_, U> &rhs) {
                     m_S = rhs.statistic();
                     return *this;
                 }
@@ -176,8 +165,7 @@ class MATHS_EXPORT CRegression
                 //! origin and the values added to \p rhs are a subset of the
                 //! values add to this.
                 template<typename U>
-                const CLeastSquaresOnline &operator-=(const CLeastSquaresOnline<N_, U> &rhs)
-                {
+                const CLeastSquaresOnline &operator-=(const CLeastSquaresOnline<N_, U> &rhs) {
                     m_S -= rhs.statistic();
                     return *this;
                 }
@@ -191,8 +179,7 @@ class MATHS_EXPORT CRegression
                 //! \note This is only meaningful if they have the same time
                 //! origin.
                 template<typename U>
-                const CLeastSquaresOnline &operator+=(const CLeastSquaresOnline<N_, U> &rhs)
-                {
+                const CLeastSquaresOnline &operator+=(const CLeastSquaresOnline<N_, U> &rhs) {
                     m_S += rhs.statistic();
                     return *this;
                 }
@@ -216,13 +203,10 @@ class MATHS_EXPORT CRegression
                 //!
                 //! \param[in] dy The shift that will subsequently be applied to
                 //! the ordinates.
-                void shiftOrdinate(double dy)
-                {
-                    if (CBasicStatistics::count(m_S) > 0.0)
-                    {
+                void shiftOrdinate(double dy) {
+                    if (CBasicStatistics::count(m_S) > 0.0) {
                         const TVector &s = CBasicStatistics::mean(m_S);
-                        for (std::size_t i = 0u; i < N; ++i)
-                        {
+                        for (std::size_t i = 0u; i < N; ++i) {
                             CBasicStatistics::moment<0>(m_S)(i+2*N-1) += s(i) * dy;
                         }
                     }
@@ -232,28 +216,23 @@ class MATHS_EXPORT CRegression
                 //!
                 //! \param[in] dydx The shift that will subsequently be applied to
                 //! the derivative of the regression w.r.t. the abscissa.
-                void shiftGradient(double dydx)
-                {
-                    if (CBasicStatistics::count(m_S) > 0.0)
-                    {
+                void shiftGradient(double dydx) {
+                    if (CBasicStatistics::count(m_S) > 0.0) {
                         const TVector &s = CBasicStatistics::mean(m_S);
-                        for (std::size_t i = 0u; i < N; ++i)
-                        {
+                        for (std::size_t i = 0u; i < N; ++i) {
                             CBasicStatistics::moment<0>(m_S)(i+2*N-1) += s(i+1) * dydx;
                         }
                     }
                 }
 
                 //! Multiply the statistics' count by \p scale.
-                CLeastSquaresOnline scaled(double scale) const
-                {
+                CLeastSquaresOnline scaled(double scale) const {
                     CLeastSquaresOnline result(*this);
                     return result.scale(scale);
                 }
 
                 //! Scale the statistics' count by \p scale.
-                const CLeastSquaresOnline &scale(double scale)
-                {
+                const CLeastSquaresOnline &scale(double scale) {
                     CBasicStatistics::count(m_S) *= scale;
                     return *this;
                 }
@@ -274,21 +253,17 @@ class MATHS_EXPORT CRegression
                 //! Get the predicted value of the regression parameters at \p x.
                 //!
                 //! \note Returns array of zeros if getting the parameters fails.
-                TArray parameters(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const
-                {
+                TArray parameters(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const {
                     TArray result;
                     TArray params;
-                    if (this->parameters(params, maxCondition))
-                    {
+                    if (this->parameters(params, maxCondition)) {
                         std::ptrdiff_t n = static_cast<std::ptrdiff_t>(params.size());
-                        double xi = x;
-                        for (std::ptrdiff_t i = n - 1; i >= 0; --i)
-                        {
+                        double         xi = x;
+                        for (std::ptrdiff_t i = n - 1; i >= 0; --i) {
                             result[i] = params[i];
-                            for (std::ptrdiff_t j = i + 1; j < n; ++j)
-                            {
+                            for (std::ptrdiff_t j = i + 1; j < n; ++j) {
                                 params[j] *=  static_cast<double>(i + 1)
-                                            / static_cast<double>(j - i) * xi;
+                                             / static_cast<double>(j - i) * xi;
                                 result[i] += params[j];
                             }
                         }
@@ -321,8 +296,7 @@ class MATHS_EXPORT CRegression
 
                 //! Get the safe prediction horizon based on the spread
                 //! of the abscissa added to the model so far.
-                double range() const
-                {
+                double range() const {
                     // The magic 12 comes from assuming the independent
                     // variable X is uniform over the range (for our uses
                     // it typically is). We maintain mean X^2 and X. For
@@ -335,35 +309,29 @@ class MATHS_EXPORT CRegression
                 }
 
                 //! Age out the old points.
-                void age(double factor, bool meanRevert = false)
-                {
-                    if (meanRevert)
-                    {
+                void age(double factor, bool meanRevert = false) {
+                    if (meanRevert) {
                         TVector &s = CBasicStatistics::moment<0>(m_S);
-                        for (std::size_t i = 1u; i < N; ++i)
-                        {
+                        for (std::size_t i = 1u; i < N; ++i) {
                             s(i+2*N-1) =         factor  * s(i+2*N-1)
-                                        + (1.0 - factor) * s(i) * s(2*N-1);
+                                         + (1.0 - factor) * s(i) * s(2*N-1);
                         }
                     }
                     m_S.age(factor);
                 }
 
                 //! Get the effective number of points being fitted.
-                double count() const
-                {
+                double count() const {
                     return CBasicStatistics::count(m_S);
                 }
 
                 //! Get the mean value of the ordinates.
-                double mean() const
-                {
+                double mean() const {
                     return CBasicStatistics::mean(m_S)(2*N-1);
                 }
 
                 //! Get the mean in the interval [\p a, \p b].
-                double mean(double a, double b) const
-                {
+                double mean(double a, double b) const {
                     double result = 0.0;
 
                     double interval = b - a;
@@ -371,25 +339,21 @@ class MATHS_EXPORT CRegression
                     TArray params;
                     this->parameters(params);
 
-                    if (interval == 0.0)
-                    {
+                    if (interval == 0.0) {
                         result = params[0];
                         double xi = a;
-                        for (std::size_t i = 1u; i < params.size(); ++i, xi *= a)
-                        {
+                        for (std::size_t i = 1u; i < params.size(); ++i, xi *= a) {
                             result += params[i] * xi;
                         }
                         return result;
                     }
 
-                    for (std::size_t i = 0u; i < N; ++i)
-                    {
-                        for (std::size_t j = 0u; j <= i; ++j)
-                        {
+                    for (std::size_t i = 0u; i < N; ++i) {
+                        for (std::size_t j = 0u; j <= i; ++j) {
                             result +=  CCategoricalTools::binomialCoefficient(i+1, j+1)
-                                     * params[i] / static_cast<double>(i+1)
-                                     * std::pow(a, static_cast<double>(i-j))
-                                     * std::pow(interval, static_cast<double>(j+1));
+                                      * params[i] / static_cast<double>(i+1)
+                                      * std::pow(a, static_cast<double>(i-j))
+                                      * std::pow(interval, static_cast<double>(j+1));
                         }
                     }
 
@@ -397,14 +361,12 @@ class MATHS_EXPORT CRegression
                 }
 
                 //! Get the vector statistic.
-                const TVectorMeanAccumulator &statistic() const
-                {
+                const TVectorMeanAccumulator &statistic() const {
                     return m_S;
                 }
 
                 //! Get a checksum for this object.
-                std::uint64_t checksum() const
-                {
+                std::uint64_t checksum() const {
                     return m_S.checksum();
                 }
 
@@ -430,13 +392,10 @@ class MATHS_EXPORT CRegression
 
                 //! Get the gramian of the design matrix.
                 template<typename MATRIX>
-                void gramian(std::size_t n, MATRIX &x) const
-                {
-                    for (std::size_t i = 0u; i < n; ++i)
-                    {
+                void gramian(std::size_t n, MATRIX &x) const {
+                    for (std::size_t i = 0u; i < n; ++i) {
                         x(i,i) = CBasicStatistics::mean(m_S)(i+i);
-                        for (std::size_t j = i+1; j < n; ++j)
-                        {
+                        for (std::size_t j = i+1; j < n; ++j) {
                             x(i,j) = CBasicStatistics::mean(m_S)(i+j);
                         }
                     }
@@ -451,12 +410,10 @@ class MATHS_EXPORT CRegression
 
         //! Get the predicted value of \p r at \p x.
         template<std::size_t N>
-        static double predict(const boost::array<double, N> &params, double x)
-        {
+        static double predict(const boost::array<double, N> &params, double x) {
             double result = params[0];
             double xi = x;
-            for (std::size_t i = 1u; i < params.size(); ++i, xi *= x)
-            {
+            for (std::size_t i = 1u; i < params.size(); ++i, xi *= x) {
                 result += params[i] * xi;
             }
             return result;
@@ -465,8 +422,7 @@ class MATHS_EXPORT CRegression
         //! \brief A Wiener process model of the evolution of the parameters
         //! of our online least squares regression model.
         template<std::size_t N, typename T>
-        class CLeastSquaresOnlineParameterProcess
-        {
+        class CLeastSquaresOnlineParameterProcess {
             public:
                 using TVector = CVectorNx1<T, N>;
                 using TMatrix = CSymmetricMatrixNxN<T, N>;
@@ -483,8 +439,7 @@ class MATHS_EXPORT CRegression
 
                 //! Add a new sample of the regression parameters drift over
                 //! \p time.
-                void add(double time, const TVector &sample, const TVector &weight = TVector(1))
-                {
+                void add(double time, const TVector &sample, const TVector &weight = TVector(1)) {
                     // For the Wiener process:
                     //
                     //   P(t(i+1)) - P(t(i)) ~ N(0, (t(i+1) - t(i)) * C)
@@ -499,16 +454,14 @@ class MATHS_EXPORT CRegression
                     // measurement is N(0, T * C) where C is the empirical
                     // covariance matrix of the samples D(t(0)),..., D(t(n)).
 
-                    if (time > 0.0)
-                    {
+                    if (time > 0.0) {
                         TVector sample_ = static_cast<T>(std::sqrt(1.0 / time)) * sample;
                         m_UnitTimeCovariances.add(sample_, weight);
                     }
                 }
 
                 //! Age the covariances.
-                void age(T factor)
-                {
+                void age(T factor) {
                     m_UnitTimeCovariances.age(factor);
                 }
 
@@ -517,23 +470,20 @@ class MATHS_EXPORT CRegression
 
                 //! Compute the variance of the mean zero normal distribution
                 //! due to the drift in the regression parameters over \p time.
-                double predictionVariance(double time) const
-                {
-                    if (time <= 0.0)
-                    {
+                double predictionVariance(double time) const {
+                    if (time <= 0.0) {
                         return 0.0;
                     }
 
                     TVector dT;
-                    T dt = static_cast<T>(std::sqrt(time));
-                    T dTi = dt;
-                    for (std::size_t i = 0u; i < N; ++i, dTi *= dt)
-                    {
+                    T       dt = static_cast<T>(std::sqrt(time));
+                    T       dTi = dt;
+                    for (std::size_t i = 0u; i < N; ++i, dTi *= dt) {
                         dT(i) = dTi;
                     }
 
                     CSymmetricMatrixNxN<T, N> covariance =
-                            CBasicStatistics::covariances(m_UnitTimeCovariances);
+                        CBasicStatistics::covariances(m_UnitTimeCovariances);
 
                     return dT.inner(covariance * dT);
                 }

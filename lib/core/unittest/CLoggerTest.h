@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLoggerTest : public CppUnit::TestFixture
-{
+class CLoggerTest : public CppUnit::TestFixture {
     public:
         void testLogging(void);
         void testReconfiguration(void);

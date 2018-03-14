@@ -24,119 +24,113 @@
 using namespace ml;
 using namespace api;
 
-namespace
-{
+namespace {
 typedef CDetectionRulesJsonParser::TStrPatternSetUMap TStrPatternSetUMap;
 TStrPatternSetUMap EMPTY_VALUE_FILTER_MAP;
 }
 
-CppUnit::Test *CDetectionRulesJsonParserTest::suite()
-{
+CppUnit::Test *CDetectionRulesJsonParserTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CDetectionRulesJsonParserTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDetectionRulesJsonParserTest>(
-           "CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions",
-           &CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions));
+                              "CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions",
+                              &CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions));
     return suiteOfTests;
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenEmptyString(void) {
     LOG_DEBUG("*** testParseRulesGivenEmptyString ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "";
+    std::string                                  rulesJson = "";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
 
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenEmptyArray(void) {
     LOG_DEBUG("*** testParseRulesGivenEmptyArray ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[]";
+    std::string                                  rulesJson = "[]";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules));
 
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenArrayContainsStrings(void) {
     LOG_DEBUG("*** testParseRulesGivenArrayContainsStrings ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[\"a\", \"b\"]";
+    std::string                                  rulesJson = "[\"a\", \"b\"]";
 
     CPPUNIT_ASSERT(parser.parseRules(rulesJson, rules) == false);
 
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction(void) {
     LOG_DEBUG("*** testParseRulesGivenMissingRuleAction ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": [";
@@ -149,13 +143,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleAction(void)
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray(void) {
     LOG_DEBUG("*** testParseRulesGivenRuleActionIsNotArray ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":\"not_array\",";
     rulesJson += "  \"conditions_connective\":\"or\",";
@@ -169,13 +162,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenRuleActionIsNotArray(void
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction(void) {
     LOG_DEBUG("*** testParseRulesGivenInvalidRuleAction ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"something_invalid\"],";
     rulesJson += "  \"conditions_connective\":\"or\",";
@@ -189,13 +181,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidRuleAction(void)
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnective(void) {
     LOG_DEBUG("*** testParseRulesGivenMissingConditionsConnective ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions\": [";
     rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}";
@@ -207,13 +198,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionsConnecti
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnective(void) {
     LOG_DEBUG("*** testParseRulesGivenInvalidConditionsConnective ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions_connective\":\"XOR\",";
     rulesJson += "  \"conditions\": [";
@@ -226,13 +216,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionsConnecti
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions(void) {
     LOG_DEBUG("*** testParseRulesGivenMissingRuleConditions ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "}";
@@ -242,13 +231,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingRuleConditions(voi
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray(void) {
     LOG_DEBUG("*** testParseRulesGivenRuleConditionsIsNotArray ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions_connective\":\"or\",";
     rulesJson += "  \"conditions\": {}";
@@ -259,13 +247,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenRuleConditionsIsNotArray(
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(void) {
     LOG_DEBUG("*** testParseRulesGivenMissingConditionOperator ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions\": [";
     rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"value\":\"5\"}}";
@@ -277,13 +264,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMissingConditionOperator(
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(void) {
     LOG_DEBUG("*** testParseRulesGivenInvalidConditionOperator ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"conditions\": [";
     rulesJson += "    {\"type\":\"numerical_actual\", \"condition\":{\"operator\":\"ha\",\"value\":\"5\"}}";
@@ -295,13 +281,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenInvalidConditionOperator(
     CPPUNIT_ASSERT(rules.empty());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithConnectiveOr(void) {
     LOG_DEBUG("*** testParseRulesGivenNumericalActualRuleWithConnectiveOr ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"or\",";
@@ -318,13 +303,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalActualRuleWithCo
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF ACTUAL < 5.000000 OR ACTUAL(metric) <= 2.300000"), rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd(void) {
     LOG_DEBUG("*** testParseRulesGivenNumericalTypicalAndDiffAbsRuleWithConnectiveAnd ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"and\",";
@@ -341,13 +325,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenNumericalTypicalAndDiffAb
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL > 5.000000 AND DIFF_ABS(metric:cpu) >= 2.300000"), rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules(void) {
     LOG_DEBUG("*** testParseRulesGivenMultipleRules ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"or\",";
@@ -375,18 +358,17 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenMultipleRules(void)
     CPPUNIT_ASSERT_EQUAL(std::string("SKIP_SAMPLING (id:42) IF ACTUAL < 2.000000"), rules[1].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule(void) {
     LOG_DEBUG("*** testParseRulesGivenCategoricalRule ***");
 
     TStrPatternSetUMap filtersById;
-    core::CPatternSet filter;
+    core::CPatternSet  filter;
     filter.initFromJson("[\"b\", \"a\"]");
     filtersById["filter1"] = filter;
 
-    CDetectionRulesJsonParser parser(filtersById);
+    CDetectionRulesJsonParser                    parser(filtersById);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"or\",";
@@ -402,13 +384,12 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenCategoricalRule(void)
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF (foo) IN FILTER"), rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule(void) {
     LOG_DEBUG("*** testParseRulesGivenTimeRule ***");
 
-    CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+    CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
-    std::string rulesJson = "[";
+    std::string                                  rulesJson = "[";
     rulesJson += "{";
     rulesJson += "  \"actions\":[\"filter_results\"],";
     rulesJson += "  \"conditions_connective\":\"and\",";
@@ -424,14 +405,13 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenTimeRule(void)
     CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TIME >= 5000.000000 AND TIME < 10000.000000"), rules[0].print());
 }
 
-void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions(void)
-{
+void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions(void) {
     LOG_DEBUG("*** testParseRulesGivenDifferentActions ***");
 
     {
-        CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+        CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
-        std::string rulesJson = "[";
+        std::string                                  rulesJson = "[";
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"filter_results\"],";
         rulesJson += "  \"conditions_connective\":\"and\",";
@@ -448,9 +428,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions(void)
     }
 
     {
-        CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+        CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
-        std::string rulesJson = "[";
+        std::string                                  rulesJson = "[";
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"skip_sampling\"],";
         rulesJson += "  \"conditions_connective\":\"and\",";
@@ -467,9 +447,9 @@ void CDetectionRulesJsonParserTest::testParseRulesGivenDifferentActions(void)
     }
 
     {
-        CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
+        CDetectionRulesJsonParser                    parser(EMPTY_VALUE_FILTER_MAP);
         CDetectionRulesJsonParser::TDetectionRuleVec rules;
-        std::string rulesJson = "[";
+        std::string                                  rulesJson = "[";
         rulesJson += "{";
         rulesJson += "  \"actions\":[\"skip_sampling\", \"filter_results\"],";
         rulesJson += "  \"conditions_connective\":\"and\",";

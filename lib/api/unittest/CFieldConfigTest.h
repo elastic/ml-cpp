@@ -22,12 +22,11 @@
 #include <functional>
 
 
-class CFieldConfigTest : public CppUnit::TestFixture
-{
+class CFieldConfigTest : public CppUnit::TestFixture {
     public:
         using TInitFromFileFunc = std::function<bool(
-                                 ml::api::CFieldConfig *,
-                                 const std::string &)>;
+                                                    ml::api::CFieldConfig *,
+                                                    const std::string &)>;
 
     public:
         void testTrivial(void);

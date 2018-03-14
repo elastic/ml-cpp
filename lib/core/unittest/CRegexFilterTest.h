@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegexFilterTest : public CppUnit::TestFixture
-{
+class CRegexFilterTest : public CppUnit::TestFixture {
     public:
         void testConfigure_GivenInvalidRegex(void);
         void testApply_GivenEmptyFilter(void);

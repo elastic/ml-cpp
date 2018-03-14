@@ -25,29 +25,25 @@
 #include <unistd.h>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 
-std::string CTestTmpDir::tmpDir(void)
-{
+std::string CTestTmpDir::tmpDir(void) {
     // Try to create a user-specific sub-directory of the temporary directory so
     // that multiple users sharing the same server don't clash.  However, if
     // this fails for any reason drop back to just raw /tmp.
     struct passwd pwd;
     ::memset(&pwd, 0, sizeof(pwd));
     static const size_t BUFSIZE(16384);
-    char buffer[BUFSIZE] = { '\0' };
-    struct passwd *result(0);
+    char                buffer[BUFSIZE] = { '\0' };
+    struct passwd *     result(0);
     ::getpwuid_r(::getuid(),
                  &pwd,
                  buffer,
                  BUFSIZE,
                  &result);
-    if (result == 0 || result->pw_name == 0)
-    {
+    if (result == 0 || result->pw_name == 0) {
         LOG_ERROR("Could not get current user name: " << ::strerror(errno));
         return "/tmp";
     }
@@ -55,15 +51,12 @@ std::string CTestTmpDir::tmpDir(void)
     std::string userSubdir("/tmp/");
     userSubdir += result->pw_name;
 
-    try
-    {
+    try {
         // Prior existence of the directory is not considered an error by
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(userSubdir);
         boost::filesystem::create_directories(directoryPath);
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         LOG_ERROR("Failed to create directory " << userSubdir <<
                   " - " << e.what());
         return "/tmp";

@@ -30,7 +30,7 @@
 
 //! Define a member function that returns a const reference
 #define BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(Class,Type,MemberFunName) \
-::boost::multi_index::const_mem_fun< Class, const Type &, &Class::MemberFunName >
+    ::boost::multi_index::const_mem_fun< Class, const Type &, &Class::MemberFunName >
 
 #endif // INCLUDED_ml_core_BoostMultiIndex_h
 

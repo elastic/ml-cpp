@@ -23,15 +23,12 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 
 //! \brief
 //! The data associated with this Ml 'type'
@@ -47,8 +44,7 @@ namespace api
 //! that created this object knows the mappings between the
 //! token IDs and string tokens.
 //!
-class API_EXPORT CTokenListType
-{
+class API_EXPORT CTokenListType {
     public:
         //! Used to associate tokens with weightings:
         //! first -> token ID
@@ -57,13 +53,13 @@ class API_EXPORT CTokenListType
 
         //! Used for storing token ID sequences
         typedef std::vector<TSizeSizePr>       TSizeSizePrVec;
-        typedef TSizeSizePrVec::iterator       TSizeSizePrVecItr;
+        typedef TSizeSizePrVec::iterator TSizeSizePrVecItr;
         typedef TSizeSizePrVec::const_iterator TSizeSizePrVecCItr;
 
         //! Used for storing distinct token IDs mapped to weightings
         typedef std::map<size_t, size_t>       TSizeSizeMap;
-        typedef TSizeSizeMap::iterator         TSizeSizeMapItr;
-        typedef TSizeSizeMap::const_iterator   TSizeSizeMapCItr;
+        typedef TSizeSizeMap::iterator TSizeSizeMapItr;
+        typedef TSizeSizeMap::const_iterator TSizeSizeMapCItr;
 
     public:
         //! Create a new type
@@ -134,42 +130,42 @@ class API_EXPORT CTokenListType
 
     private:
         //! The string and tokens we base this type on
-        std::string    m_BaseString;
+        std::string m_BaseString;
         TSizeSizePrVec m_BaseTokenIds;
 
         //! Cache the total weight of the base tokens
-        size_t         m_BaseWeight;
+        size_t m_BaseWeight;
 
         //! The maximum original length of all the strings that have been
         //! classified as this type.  The original length may be longer than the
         //! length of the strings in passed to the addString() method, because
         //! it will include the date.
-        size_t         m_MaxStringLen;
+        size_t m_MaxStringLen;
 
         //! The index into the base token IDs that we should stop at when
         //! generating an ordered regex, because subsequent common token IDs are
         //! not in the same order for all strings of this type.
-        size_t         m_OutOfOrderCommonTokenIndex;
+        size_t m_OutOfOrderCommonTokenIndex;
 
         //! The unique token IDs that all strings classified to be this type
         //! contain.  This vector must always be sorted into ascending order.
         TSizeSizePrVec m_CommonUniqueTokenIds;
 
         //! Cache the weight of the common unique tokens
-        size_t         m_CommonUniqueTokenWeight;
+        size_t m_CommonUniqueTokenWeight;
 
         //! What was the weight of the original unique tokens (i.e. when the type
         //! only represented one string)?  Remembering this means we can ensure
         //! that the degree of commonality doesn't fall below a certain level as
         //! the number of strings classified as this type grows.
-        size_t         m_OrigUniqueTokenWeight;
+        size_t m_OrigUniqueTokenWeight;
 
         //! Number of matched strings
-        size_t         m_NumMatches;
+        size_t m_NumMatches;
 
         //! Cache reverse searches to save repeated recalculations
-        std::string    m_ReverseSearchPart1;
-        std::string    m_ReverseSearchPart2;
+        std::string m_ReverseSearchPart1;
+        std::string m_ReverseSearchPart2;
 };
 
 

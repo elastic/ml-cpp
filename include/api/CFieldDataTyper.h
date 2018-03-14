@@ -30,21 +30,17 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CLimits;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CFieldConfig;
 class CJsonOutputWriter;
@@ -58,15 +54,14 @@ class COutputHandler;
 //! Adds a new field called mlcategory and assigns to it
 //! integers that correspond to the various cateogories
 //!
-class API_EXPORT CFieldDataTyper : public CDataProcessor
-{
+class API_EXPORT CFieldDataTyper : public CDataProcessor {
     public:
         //! The index where state is stored
         static const std::string ML_STATE_INDEX;
         //! The name of the field where the category is going to be written
         static const std::string MLCATEGORY_NAME;
 
-        static const double      SIMILARITY_THRESHOLD;
+        static const double SIMILARITY_THRESHOLD;
 
         //! Discriminant for Elasticsearch IDs
         static const std::string STATE_TYPE;
@@ -87,7 +82,7 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
                                     false, // Ignore field names
                                     2,     // Min dictionary word length
                                     core::CWordDictionary::TWeightVerbs5Other2>
-                TTokenListDataTyperKeepsFields;
+            TTokenListDataTyperKeepsFields;
 
     public:
         //! Construct without persistence capability
@@ -164,38 +159,38 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
 
     private:
         //! The job ID
-        std::string                m_JobId;
+        std::string m_JobId;
 
         //! Object to which the output is passed
         COutputHandler             &m_OutputHandler;
 
         //! Cache extra field names to be added
-        TStrVec                    m_ExtraFieldNames;
+        TStrVec m_ExtraFieldNames;
 
         //! Should we write the field names before the next output?
-        bool                       m_WriteFieldNames;
+        bool m_WriteFieldNames;
 
         //! Keep count of how many records we've handled
-        uint64_t                   m_NumRecordsHandled;
+        uint64_t m_NumRecordsHandled;
 
         //! Map holding fields to add/change in the output compared to the input
-        TStrStrUMap                m_Overrides;
+        TStrStrUMap m_Overrides;
 
         //! References to specific entries in the overrides map to save
         //! repeatedly searching for them
         std::string                &m_OutputFieldCategory;
 
         //! Space separated list of search terms for the current category
-        std::string                m_SearchTerms;
+        std::string m_SearchTerms;
 
         //! Regex to match values of the current category
-        std::string                m_SearchTermsRegex;
+        std::string m_SearchTermsRegex;
 
         //! The max matching length of the current category
-        std::size_t                m_MaxMatchingLength;
+        std::size_t m_MaxMatchingLength;
 
         //! Pointer to the actual typer
-        CDataTyper::TDataTyperP    m_DataTyper;
+        CDataTyper::TDataTyperP m_DataTyper;
 
         //! Reference to the json output writer so that examples can be written
         CJsonOutputWriter          &m_JsonOutputWriter;
@@ -204,10 +199,10 @@ class API_EXPORT CFieldDataTyper : public CDataProcessor
         CCategoryExamplesCollector m_ExamplesCollector;
 
         //! Which field name are we categorizing?
-        std::string                m_CategorizationFieldName;
+        std::string m_CategorizationFieldName;
 
         //! The categorization filter
-        core::CRegexFilter         m_CategorizationFilter;
+        core::CRegexFilter m_CategorizationFilter;
 
         //! Pointer to periodic persister that works in the background.  May be
         //! nullptr if this object is not responsible for starting periodic

@@ -36,16 +36,13 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 //! \brief A structure to handle storing unique strings per person,
 //! attribute and influencer, used for the analytic functions
 //! "distinct_count" and "info_content"
-class MODEL_EXPORT CUniqueStringFeatureData
-{
+class MODEL_EXPORT CUniqueStringFeatureData {
     public:
         typedef core::CCompressedDictionary<1> TDictionary1;
         typedef TDictionary1::CWord TWord;
@@ -104,8 +101,7 @@ class MODEL_EXPORT CUniqueStringFeatureData
 //! to model the event rate in an arbitrary time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
-{
+class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer {
     public:
         typedef std::map<model_t::EEventRateCategory, boost::any> TCategoryAnyMap;
         typedef SEventRateFeatureData::TStrCRef TStrCRef;
@@ -284,7 +280,7 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
         //! \param[in] time The time of interest.
         //! \param[out] result Filled in with the feature data at \p time.
         virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec &result) const;
-        //@}
+    //@}
 
     private:
         //! No-op.
@@ -514,14 +510,12 @@ class MODEL_EXPORT CEventRateBucketGatherer : public CBucketGatherer
 }
 }
 
-namespace std
-{
+namespace std {
 
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
 inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &rhs)
-{
+                 ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }
@@ -529,8 +523,7 @@ inline void swap(ml::model::CEventRateBucketGatherer::TSizeFeatureDataPr &lhs,
 //! Overload pair swap so that we use efficient swap of the feature data
 //! when sorting.
 inline void swap(ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &lhs,
-                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &rhs)
-{
+                 ml::model::CEventRateBucketGatherer::TSizeSizePrFeatureDataPr &rhs) {
     swap(lhs.first, rhs.first);
     lhs.second.swap(rhs.second);
 }

@@ -50,13 +50,10 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
-namespace
-{
+namespace {
 
 typedef core::CSmallVector<double, 1> TDouble1Vec;
 typedef core::CSmallVector<double, 4> TDouble4Vec;
@@ -66,40 +63,33 @@ typedef std::vector<std::size_t> TSizeVec;
 typedef CNaturalBreaksClassifier::TTuple TTuple;
 typedef CNaturalBreaksClassifier::TTupleVec TTupleVec;
 
-namespace detail
-{
+namespace detail {
 
 typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
 
 //! \brief Orders two clusters by their centres.
-struct SClusterCentreLess
-{
+struct SClusterCentreLess {
     bool operator()(const CXMeansOnline1d::CCluster &lhs,
-                    const CXMeansOnline1d::CCluster &rhs) const
-    {
+                    const CXMeansOnline1d::CCluster &rhs) const {
         return lhs.centre() < rhs.centre();
     }
     bool operator()(double lhs,
-                    const CXMeansOnline1d::CCluster &rhs) const
-    {
+                    const CXMeansOnline1d::CCluster &rhs) const {
         return lhs < rhs.centre();
     }
     bool operator()(const CXMeansOnline1d::CCluster &lhs,
-                    double rhs) const
-    {
+                    double rhs) const {
         return lhs.centre() < rhs;
     }
 };
 
 //! Get \p x time \p x.
-double pow2(double x)
-{
+double pow2(double x) {
     return x * x;
 }
 
 //! Get the minimum of \p x, \p y and \p z.
-double min(double x, double y, double z)
-{
+double min(double x, double y, double z) {
     return std::min(std::min(x, y), z);
 }
 
@@ -108,8 +98,7 @@ maths_t::EFloatingPointErrorStatus
 logLikelihoodFromCluster(double point,
                          const CNormalMeanPrecConjugate &normal,
                          double probability,
-                         double &result)
-{
+                         double &result) {
     result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
     double likelihood;
@@ -117,13 +106,11 @@ logLikelihoodFromCluster(double point,
     maths_t::EFloatingPointErrorStatus status =
         normal.jointLogMarginalLikelihood(CConstantWeights::COUNT, {point},
                                           CConstantWeights::SINGLE_UNIT, likelihood);
-    if (status & maths_t::E_FpFailed)
-    {
+    if (status & maths_t::E_FpFailed) {
         LOG_ERROR("Unable to compute likelihood for: " << point);
         return status;
     }
-    if (status & maths_t::E_FpOverflowed)
-    {
+    if (status & maths_t::E_FpOverflowed) {
         result = likelihood;
         return status;
     }
@@ -140,20 +127,17 @@ void candidates(const TTupleVec &categories,
                 std::size_t end,
                 TMeanVarAccumulator &mv,
                 TMeanVarAccumulator &mvl,
-                TMeanVarAccumulator &mvr)
-{
+                TMeanVarAccumulator &mvr) {
     LOG_TRACE("categories = "
               << core::CContainerPrinter::print(categories.begin() + start,
                                                 categories.begin() + end));
     LOG_TRACE("split at = " << split);
 
-    for (std::size_t i = start; i < split; ++i)
-    {
+    for (std::size_t i = start; i < split; ++i) {
         mv  += categories[i];
         mvl += categories[i];
     }
-    for (std::size_t i = split; i < end; ++i)
-    {
+    for (std::size_t i = split; i < end; ++i) {
         mv  += categories[i];
         mvr += categories[i];
     }
@@ -162,30 +146,26 @@ void candidates(const TTupleVec &categories,
 }
 
 //! Compute the mean of \p category.
-double mean(maths_t::EDataType dataType, const TTuple &category)
-{
+double mean(maths_t::EDataType dataType, const TTuple &category) {
     double result = CBasicStatistics::mean(category);
-    switch (dataType)
-    {
-    case maths_t::E_DiscreteData:   break;
-    case maths_t::E_IntegerData:    result += 0.5; break;
-    case maths_t::E_ContinuousData: break;
-    case maths_t::E_MixedData:      break;
+    switch (dataType) {
+        case maths_t::E_DiscreteData:   break;
+        case maths_t::E_IntegerData:    result += 0.5; break;
+        case maths_t::E_ContinuousData: break;
+        case maths_t::E_MixedData:      break;
     }
     return result;
 }
 
 //! Compute the variance of \p category.
-double variance(maths_t::EDataType dataType, const TTuple &category)
-{
+double variance(maths_t::EDataType dataType, const TTuple &category) {
     double n = CBasicStatistics::count(category);
     double result = (1.0 + 1.0 / n) * CBasicStatistics::maximumLikelihoodVariance(category);
-    switch (dataType)
-    {
-    case maths_t::E_DiscreteData:   break;
-    case maths_t::E_IntegerData:    result += 1.0 / 12.0; break;
-    case maths_t::E_ContinuousData: break;
-    case maths_t::E_MixedData:      break;
+    switch (dataType) {
+        case maths_t::E_DiscreteData:   break;
+        case maths_t::E_IntegerData:    result += 1.0 / 12.0; break;
+        case maths_t::E_ContinuousData: break;
+        case maths_t::E_MixedData:      break;
     }
     return result;
 }
@@ -210,8 +190,7 @@ void BICGain(maths_t::EDataType dataType,
              std::size_t start,
              std::size_t split,
              std::size_t end,
-             double &distance, double &nl, double &nr)
-{
+             double &distance, double &nl, double &nr) {
     // The basic idea is to compute the difference between the
     // Bayes Information Content (BIC) for one and two clusters
     // for the sketch defined by the categories passed to this
@@ -264,8 +243,7 @@ void BICGain(maths_t::EDataType dataType,
     candidates(categories, start, split, end, mv, mvl, mvr);
     double logNormalOffset = std::max(0.0, GAMMA_OFFSET_MARGIN - smallest);
     double gammaOffset = std::max(0.0, LOG_NORMAL_OFFSET_MARGIN - smallest);
-    for (std::size_t i = start; i < end; ++i)
-    {
+    for (std::size_t i = start; i < end; ++i) {
         double x = mean(dataType, categories[i]);
         logNormalOffset = std::max(logNormalOffset, LOG_NORMAL_OFFSET_MARGIN - x);
         gammaOffset = std::max(gammaOffset, GAMMA_OFFSET_MARGIN - x);
@@ -292,8 +270,7 @@ void BICGain(maths_t::EDataType dataType,
     double n = CBasicStatistics::count(mv);
     double m = mean(dataType, mv);
     double v = variance(dataType, mv);
-    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(m))
-    {
+    if (v <= MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(m)) {
         return;
     }
 
@@ -315,8 +292,7 @@ void BICGain(maths_t::EDataType dataType,
     double mr = mean(dataType, mvr);
     double vr = std::max(variance(dataType, mvr), vmin);
 
-    try
-    {
+    try {
         // Mixture of log-normals (method of moments)
         double sl = ::log(1.0 + vl / pow2(ml + logNormalOffset));
         double ll = ::log(ml + logNormalOffset) - sl / 2.0;
@@ -338,14 +314,12 @@ void BICGain(maths_t::EDataType dataType,
         double loggnl   = boost::math::lgamma(al) - al * ::log(bl) - ::log(wl);
         double loggnr   = boost::math::lgamma(ar) - ar * ::log(br) - ::log(wr);
 
-        for (std::size_t i = start; i < split; ++i)
-        {
+        for (std::size_t i = start; i < split; ++i) {
             double ni = CBasicStatistics::count(categories[i]);
             double mi = mean(dataType, categories[i]);
             double vi = variance(dataType, categories[i]);
 
-            if (vi == 0.0)
-            {
+            if (vi == 0.0) {
                 double li = ::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
@@ -353,9 +327,7 @@ void BICGain(maths_t::EDataType dataType,
                 ll2nl += ni * ((vi + pow2(mi - ml)) / vl + log2pivl);
                 ll2ll += ni * (pow2(li - ll) / sl + 2.0 * li + log2pisl);
                 ll2gl += ni * 2.0 * (bl * (mi + gammaOffset) - (al - 1.0) * li + loggnl);
-            }
-            else
-            {
+            } else {
                 double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
                 double li = ::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
@@ -367,14 +339,12 @@ void BICGain(maths_t::EDataType dataType,
             }
         }
 
-        for (std::size_t i = split; i < end; ++i)
-        {
+        for (std::size_t i = split; i < end; ++i) {
             double ni = CBasicStatistics::count(categories[i]);
             double mi = mean(dataType, categories[i]);
             double vi = variance(dataType, categories[i]);
 
-            if (vi == 0.0)
-            {
+            if (vi == 0.0) {
                 double li = ::log(mi + logNormalOffset);
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
                 ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
@@ -382,9 +352,7 @@ void BICGain(maths_t::EDataType dataType,
                 ll2nr += ni * ((vi + pow2(mi - mr)) / vr + log2pivr);
                 ll2lr += ni * (pow2(li - lr) / sr + 2.0 * li + log2pisr);
                 ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
-            }
-            else
-            {
+            } else {
                 double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
                 double li = ::log(mi + logNormalOffset) - si / 2.0;
                 ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
@@ -395,13 +363,11 @@ void BICGain(maths_t::EDataType dataType,
                 ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
             }
         }
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         LOG_ERROR("Failed to compute BIC gain: " << e.what()
-                  << ", n = " << n << ", m = " << m << ", v = " << v
-                  << ", wl = " << wl << ", ml = " << ml << ", vl = " << vl
-                  << ", wr = " << wr << ", mr = " << mr << ", vr = " << vr);
+                                                 << ", n = " << n << ", m = " << m << ", v = " << v
+                                                 << ", wl = " << wl << ", ml = " << ml << ", vl = " << vl
+                                                 << ", wr = " << wr << ", mr = " << mr << ", vr = " << vr);
         return;
     }
 
@@ -409,14 +375,14 @@ void BICGain(maths_t::EDataType dataType,
     double ll1  =  min(distributions.haveNormal()    ? ll1n : boost::numeric::bounds<double>::highest(),
                        distributions.haveLogNormal() ? ll1l : boost::numeric::bounds<double>::highest(),
                        distributions.haveGamma()     ? ll1g : boost::numeric::bounds<double>::highest())
-                 + distributions.parameters() * logn;
+                  + distributions.parameters() * logn;
     double ll2  =  min(distributions.haveNormal()    ? ll2nl : boost::numeric::bounds<double>::highest(),
                        distributions.haveLogNormal() ? ll2ll : boost::numeric::bounds<double>::highest(),
                        distributions.haveGamma()     ? ll2gl : boost::numeric::bounds<double>::highest())
-                 + min(distributions.haveNormal()    ? ll2nr : boost::numeric::bounds<double>::highest(),
-                       distributions.haveLogNormal() ? ll2lr : boost::numeric::bounds<double>::highest(),
-                       distributions.haveGamma()     ? ll2gr : boost::numeric::bounds<double>::highest())
-                 + (2.0 * distributions.parameters() + 1.0) * logn;
+                  + min(distributions.haveNormal()    ? ll2nr : boost::numeric::bounds<double>::highest(),
+                        distributions.haveLogNormal() ? ll2lr : boost::numeric::bounds<double>::highest(),
+                        distributions.haveGamma()     ? ll2gr : boost::numeric::bounds<double>::highest())
+                  + (2.0 * distributions.parameters() + 1.0) * logn;
 
     LOG_TRACE("BIC(1) = " << ll1 << ", BIC(2) = " << ll2);
 
@@ -440,8 +406,7 @@ void BICGain(maths_t::EDataType dataType,
 //!
 //! \param[in] interval The Winsorisation interval.
 //! \param[in,out] category The category to Winsorise.
-void winsorise(const TDoubleDoublePr &interval, TTuple &category)
-{
+void winsorise(const TDoubleDoublePr &interval, TTuple &category) {
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
@@ -451,16 +416,14 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
     double xa = m - a;
     double xb = b - m;
 
-    if (sigma == 0.0 || (xa > t && xb > t))
-    {
+    if (sigma == 0.0 || (xa > t && xb > t)) {
         return;
     }
 
-    try
-    {
+    try {
         boost::math::normal_distribution<> normal(m, sigma);
-        double pa = xa > t ? 0.0 : CTools::safeCdf(normal, a);
-        double pb = xb > t ? 0.0 : CTools::safeCdfComplement(normal, b);
+        double                             pa = xa > t ? 0.0 : CTools::safeCdf(normal, a);
+        double                             pb = xb > t ? 0.0 : CTools::safeCdfComplement(normal, b);
 
         xa /= sigma;
         xb /= sigma;
@@ -488,9 +451,7 @@ void winsorise(const TDoubleDoublePr &interval, TTuple &category)
 
         category.s_Moments[0] = wm;
         category.s_Moments[1] = std::max((n - 1.0) / n * wv, 0.0);
-    }
-    catch (const std::exception &e)
-    {
+    } catch (const std::exception &e) {
         LOG_ERROR("Bad category = " << category << ": " << e.what());
     }
 }
@@ -519,8 +480,7 @@ bool splitSearch(double minimumCount,
                  CAvailableModeDistributions distributions,
                  double smallest,
                  const TTupleVec &categories,
-                 TSizeVec &result)
-{
+                 TSizeVec &result) {
     typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
 
     LOG_TRACE("begin split search");
@@ -528,7 +488,7 @@ bool splitSearch(double minimumCount,
     result.clear();
 
     TSizeSizePr node(0, categories.size());
-    TTupleVec nodeCategories;
+    TTupleVec   nodeCategories;
     nodeCategories.reserve(categories.size());
     TSizeVec candidate;
     candidate.reserve(2);
@@ -541,8 +501,7 @@ bool splitSearch(double minimumCount,
     // the corresponding full 2-split can be split subject to the
     // same constraints (to avoid merging the split straight away).
 
-    for (;;)
-    {
+    for (;;) {
         LOG_TRACE("node = " << core::CContainerPrinter::print(node));
         LOG_TRACE("categories = " << core::CContainerPrinter::print(categories));
 
@@ -554,13 +513,11 @@ bool splitSearch(double minimumCount,
                                                 candidate);
         LOG_TRACE("candidate = " << core::CContainerPrinter::print(candidate));
 
-        if (candidate.size() != 2)
-        {
+        if (candidate.size() != 2) {
             LOG_ERROR("Expected 2-split: " << core::CContainerPrinter::print(candidate));
             break;
         }
-        if (candidate[0] == 0 || candidate[0] == nodeCategories.size())
-        {
+        if (candidate[0] == 0 || candidate[0] == nodeCategories.size()) {
             // This can happen if all the points are co-located,
             // in which case we can't split this node anyway.
             break;
@@ -578,39 +535,33 @@ bool splitSearch(double minimumCount,
         // Check the count constraint.
         bool satisfiesCount = (std::min(nl, nr) >= minimumCount);
         LOG_TRACE("count = " << std::min(nl, nr)
-                  << " (to split " << minimumCount << ")");
+                             << " (to split " << minimumCount << ")");
 
         // Check the distance constraint.
         bool satisfiesDistance = (distance > minimumDistance);
         LOG_TRACE("max(BIC(1) - BIC(2), 0) = " << distance
-                  << " (to split " << minimumDistance << ")");
+                                               << " (to split " << minimumDistance << ")");
 
-        if (!satisfiesCount)
-        {
+        if (!satisfiesCount) {
             // Recurse to the (one) node with sufficient count.
-            if (nl > minimumCount && candidate[0] - node.first > 1)
-            {
+            if (nl > minimumCount && candidate[0] - node.first > 1) {
                 node = std::make_pair(node.first, candidate[0]);
                 continue;
             }
-            if (nr > minimumCount && node.second - candidate[0] > 1)
-            {
+            if (nr > minimumCount && node.second - candidate[0] > 1) {
                 node = std::make_pair(candidate[0], node.second);
                 continue;
             }
-        }
-        else if (satisfiesDistance)
-        {
+        } else if (satisfiesDistance) {
             LOG_TRACE("Checking full split");
 
             BICGain(dataType, distributions, smallest, categories,
                     0, candidate[0], categories.size(), distance, nl, nr);
 
             LOG_TRACE("max(BIC(1) - BIC(2), 0) = " << distance
-                      << " (to split " << minimumDistance << ")");
+                                                   << " (to split " << minimumDistance << ")");
 
-            if (distance > minimumDistance)
-            {
+            if (distance > minimumDistance) {
                 result.push_back(candidate[0]);
                 result.push_back(categories.size());
             }
@@ -651,46 +602,38 @@ const std::string EMPTY_STRING;
 
 }
 
-CAvailableModeDistributions::CAvailableModeDistributions(int value) : m_Value(value)
-{
+CAvailableModeDistributions::CAvailableModeDistributions(int value) : m_Value(value) {
 }
 
 const CAvailableModeDistributions &
-CAvailableModeDistributions::operator+(const CAvailableModeDistributions &rhs)
-{
+CAvailableModeDistributions::operator+(const CAvailableModeDistributions &rhs) {
     m_Value = m_Value | rhs.m_Value;
     return *this;
 }
 
-double CAvailableModeDistributions::parameters(void) const
-{
-    return  (this->haveNormal()    ? 2.0 : 0.0)
-          + (this->haveGamma()     ? 2.0 : 0.0)
-          + (this->haveLogNormal() ? 2.0 : 0.0);
+double CAvailableModeDistributions::parameters(void) const {
+    return (this->haveNormal()    ? 2.0 : 0.0)
+           + (this->haveGamma()     ? 2.0 : 0.0)
+           + (this->haveLogNormal() ? 2.0 : 0.0);
 }
 
-bool CAvailableModeDistributions::haveNormal(void) const
-{
+bool CAvailableModeDistributions::haveNormal(void) const {
     return (m_Value & NORMAL) != 0;
 }
 
-bool CAvailableModeDistributions::haveGamma(void) const
-{
+bool CAvailableModeDistributions::haveGamma(void) const {
     return (m_Value & GAMMA) != 0;
 }
 
-bool CAvailableModeDistributions::haveLogNormal(void) const
-{
+bool CAvailableModeDistributions::haveLogNormal(void) const {
     return (m_Value & LOG_NORMAL) != 0;
 }
 
-std::string CAvailableModeDistributions::toString(void) const
-{
+std::string CAvailableModeDistributions::toString(void) const {
     return core::CStringUtils::typeToString(m_Value);
 }
 
-bool CAvailableModeDistributions::fromString(const std::string &value)
-{
+bool CAvailableModeDistributions::fromString(const std::string &value) {
     return core::CStringUtils::stringToType(value, m_Value);
 }
 
@@ -704,35 +647,33 @@ CXMeansOnline1d::CXMeansOnline1d(maths_t::EDataType dataType,
                                  double winsorisationConfidenceInterval,
                                  const TSplitFunc &splitFunc,
                                  const TMergeFunc &mergeFunc) :
-        CClusterer1d(splitFunc, mergeFunc),
-        m_DataType(dataType),
-        m_AvailableDistributions(availableDistributions),
-        m_InitialDecayRate(decayRate),
-        m_DecayRate(decayRate),
-        m_HistoryLength(0.0),
-        m_WeightCalc(weightCalc),
-        m_MinimumClusterFraction(minimumClusterFraction),
-        m_MinimumClusterCount(minimumClusterCount),
-        m_MinimumCategoryCount(minimumCategoryCount),
-        m_WinsorisationConfidenceInterval(winsorisationConfidenceInterval),
-        m_Clusters(1, CCluster(*this))
-{
+    CClusterer1d(splitFunc, mergeFunc),
+    m_DataType(dataType),
+    m_AvailableDistributions(availableDistributions),
+    m_InitialDecayRate(decayRate),
+    m_DecayRate(decayRate),
+    m_HistoryLength(0.0),
+    m_WeightCalc(weightCalc),
+    m_MinimumClusterFraction(minimumClusterFraction),
+    m_MinimumClusterCount(minimumClusterCount),
+    m_MinimumCategoryCount(minimumCategoryCount),
+    m_WinsorisationConfidenceInterval(winsorisationConfidenceInterval),
+    m_Clusters(1, CCluster(*this)) {
 }
 
 CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams &params,
                                  core::CStateRestoreTraverser &traverser) :
-        CClusterer1d(CDoNothing(), CDoNothing()),
-        m_DataType(params.s_DataType),
-        m_AvailableDistributions(CAvailableModeDistributions::ALL),
-        m_InitialDecayRate(params.s_DecayRate),
-        m_DecayRate(params.s_DecayRate),
-        m_HistoryLength(),
-        m_WeightCalc(maths_t::E_ClustersEqualWeight),
-        m_MinimumClusterFraction(),
-        m_MinimumClusterCount(),
-        m_MinimumCategoryCount(params.s_MinimumCategoryCount),
-        m_WinsorisationConfidenceInterval()
-{
+    CClusterer1d(CDoNothing(), CDoNothing()),
+    m_DataType(params.s_DataType),
+    m_AvailableDistributions(CAvailableModeDistributions::ALL),
+    m_InitialDecayRate(params.s_DecayRate),
+    m_DecayRate(params.s_DecayRate),
+    m_HistoryLength(),
+    m_WeightCalc(maths_t::E_ClustersEqualWeight),
+    m_MinimumClusterFraction(),
+    m_MinimumClusterCount(),
+    m_MinimumCategoryCount(params.s_MinimumCategoryCount),
+    m_WinsorisationConfidenceInterval() {
     traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
 }
@@ -741,53 +682,48 @@ CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams &params,
                                  const TSplitFunc &splitFunc,
                                  const TMergeFunc &mergeFunc,
                                  core::CStateRestoreTraverser &traverser) :
-        CClusterer1d(splitFunc, mergeFunc),
-        m_DataType(params.s_DataType),
-        m_AvailableDistributions(CAvailableModeDistributions::ALL),
-        m_InitialDecayRate(params.s_DecayRate),
-        m_DecayRate(params.s_DecayRate),
-        m_HistoryLength(),
-        m_WeightCalc(maths_t::E_ClustersEqualWeight),
-        m_MinimumClusterFraction(),
-        m_MinimumClusterCount(),
-        m_MinimumCategoryCount(params.s_MinimumCategoryCount),
-        m_WinsorisationConfidenceInterval()
-{
+    CClusterer1d(splitFunc, mergeFunc),
+    m_DataType(params.s_DataType),
+    m_AvailableDistributions(CAvailableModeDistributions::ALL),
+    m_InitialDecayRate(params.s_DecayRate),
+    m_DecayRate(params.s_DecayRate),
+    m_HistoryLength(),
+    m_WeightCalc(maths_t::E_ClustersEqualWeight),
+    m_MinimumClusterFraction(),
+    m_MinimumClusterCount(),
+    m_MinimumCategoryCount(params.s_MinimumCategoryCount),
+    m_WinsorisationConfidenceInterval() {
     traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
                                            this, boost::cref(params), _1));
 }
 
 CXMeansOnline1d::CXMeansOnline1d(const CXMeansOnline1d &other) :
-        CClusterer1d(other.splitFunc(), other.mergeFunc()),
-        m_DataType(other.m_DataType),
-        m_AvailableDistributions(other.m_AvailableDistributions),
-        m_InitialDecayRate(other.m_InitialDecayRate),
-        m_DecayRate(other.m_DecayRate),
-        m_HistoryLength(other.m_HistoryLength),
-        m_WeightCalc(other.m_WeightCalc),
-        m_MinimumClusterFraction(other.m_MinimumClusterFraction),
-        m_MinimumClusterCount(other.m_MinimumClusterCount),
-        m_MinimumCategoryCount(other.m_MinimumCategoryCount),
-        m_WinsorisationConfidenceInterval(other.m_WinsorisationConfidenceInterval),
-        m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
-        m_Smallest(other.m_Smallest),
-        m_Largest(other.m_Largest),
-        m_Clusters(other.m_Clusters)
-{
+    CClusterer1d(other.splitFunc(), other.mergeFunc()),
+    m_DataType(other.m_DataType),
+    m_AvailableDistributions(other.m_AvailableDistributions),
+    m_InitialDecayRate(other.m_InitialDecayRate),
+    m_DecayRate(other.m_DecayRate),
+    m_HistoryLength(other.m_HistoryLength),
+    m_WeightCalc(other.m_WeightCalc),
+    m_MinimumClusterFraction(other.m_MinimumClusterFraction),
+    m_MinimumClusterCount(other.m_MinimumClusterCount),
+    m_MinimumCategoryCount(other.m_MinimumCategoryCount),
+    m_WinsorisationConfidenceInterval(other.m_WinsorisationConfidenceInterval),
+    m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
+    m_Smallest(other.m_Smallest),
+    m_Largest(other.m_Largest),
+    m_Clusters(other.m_Clusters) {
 }
 
-CXMeansOnline1d &CXMeansOnline1d::operator=(const CXMeansOnline1d &other)
-{
-    if (this != &other)
-    {
+CXMeansOnline1d &CXMeansOnline1d::operator=(const CXMeansOnline1d &other) {
+    if (this != &other) {
         CXMeansOnline1d tmp(other);
         this->swap(tmp);
     }
     return *this;
 }
 
-void CXMeansOnline1d::swap(CXMeansOnline1d &other)
-{
+void CXMeansOnline1d::swap(CXMeansOnline1d &other) {
     this->CClusterer1d::swap(other);
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_AvailableDistributions, other.m_AvailableDistributions);
@@ -805,15 +741,12 @@ void CXMeansOnline1d::swap(CXMeansOnline1d &other)
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag(void) const
-{
+std::string CXMeansOnline1d::persistenceTag(void) const {
     return X_MEANS_ONLINE_1D_TAG;
 }
 
-void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserter) const
-{
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter, &m_Clusters[i], _1));
     }
     inserter.insertValue(AVAILABLE_DISTRIBUTIONS_TAG, m_AvailableDistributions.toString());
@@ -831,13 +764,11 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter &inserte
                                      &m_ClusterIndexGenerator, _1));
 }
 
-CXMeansOnline1d *CXMeansOnline1d::clone(void) const
-{
+CXMeansOnline1d *CXMeansOnline1d::clone(void) const {
     return new CXMeansOnline1d(*this);
 }
 
-void CXMeansOnline1d::clear(void)
-{
+void CXMeansOnline1d::clear(void) {
     *this = CXMeansOnline1d(m_DataType,
                             m_AvailableDistributions,
                             m_WeightCalc,
@@ -850,39 +781,31 @@ void CXMeansOnline1d::clear(void)
                             this->mergeFunc());
 }
 
-std::size_t CXMeansOnline1d::numberClusters(void) const
-{
+std::size_t CXMeansOnline1d::numberClusters(void) const {
     return m_Clusters.size();
 }
 
-void CXMeansOnline1d::dataType(maths_t::EDataType dataType)
-{
+void CXMeansOnline1d::dataType(maths_t::EDataType dataType) {
     m_DataType = dataType;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         m_Clusters[i].dataType(dataType);
     }
 }
 
-void CXMeansOnline1d::decayRate(double decayRate)
-{
+void CXMeansOnline1d::decayRate(double decayRate) {
     m_DecayRate = decayRate;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         m_Clusters[i].decayRate(decayRate);
     }
 }
 
-bool CXMeansOnline1d::hasCluster(std::size_t index) const
-{
+bool CXMeansOnline1d::hasCluster(std::size_t index) const {
     return this->cluster(index) != 0;
 }
 
-bool CXMeansOnline1d::clusterCentre(std::size_t index, double &result) const
-{
+bool CXMeansOnline1d::clusterCentre(std::size_t index, double &result) const {
     const CCluster *cluster = this->cluster(index);
-    if (!cluster)
-    {
+    if (!cluster) {
         LOG_ERROR("Cluster " << index << " doesn't exist");
         return false;
     }
@@ -890,11 +813,9 @@ bool CXMeansOnline1d::clusterCentre(std::size_t index, double &result) const
     return true;
 }
 
-bool CXMeansOnline1d::clusterSpread(std::size_t index, double &result) const
-{
+bool CXMeansOnline1d::clusterSpread(std::size_t index, double &result) const {
     const CCluster *cluster = this->cluster(index);
-    if (!cluster)
-    {
+    if (!cluster) {
         LOG_ERROR("Cluster " << index << " doesn't exist");
         return false;
     }
@@ -904,12 +825,10 @@ bool CXMeansOnline1d::clusterSpread(std::size_t index, double &result) const
 
 void CXMeansOnline1d::cluster(const double &point,
                               TSizeDoublePr2Vec &result,
-                              double count) const
-{
+                              double count) const {
     result.clear();
 
-    if (m_Clusters.empty())
-    {
+    if (m_Clusters.empty()) {
         LOG_ERROR("No clusters");
         return;
     }
@@ -919,17 +838,12 @@ void CXMeansOnline1d::cluster(const double &point,
                                                     point,
                                                     detail::SClusterCentreLess());
 
-    if (rightCluster == m_Clusters.end())
-    {
+    if (rightCluster == m_Clusters.end()) {
         --rightCluster;
         result.emplace_back(rightCluster->index(), count);
-    }
-    else if (rightCluster == m_Clusters.begin())
-    {
+    } else if (rightCluster == m_Clusters.begin()) {
         result.emplace_back(rightCluster->index(), count);
-    }
-    else
-    {
+    } else {
         // This does a soft assignment. Given we are finding a
         // partitioning clustering (as a result of targeting
         // the k-means objective) we only consider the case that
@@ -962,16 +876,11 @@ void CXMeansOnline1d::cluster(const double &point,
         pLeft  /= normalizer;
         pRight /= normalizer;
 
-        if (pLeft < HARD_ASSIGNMENT_THRESHOLD * pRight)
-        {
+        if (pLeft < HARD_ASSIGNMENT_THRESHOLD * pRight) {
             result.emplace_back(rightCluster->index(), count);
-        }
-        else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft)
-        {
+        } else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft) {
             result.emplace_back(leftCluster->index(), count);
-        }
-        else
-        {
+        } else {
             result.emplace_back(leftCluster->index(), pLeft * count);
             result.emplace_back(rightCluster->index(), pRight * count);
         }
@@ -980,8 +889,7 @@ void CXMeansOnline1d::cluster(const double &point,
 
 void CXMeansOnline1d::add(const double &point,
                           TSizeDoublePr2Vec &clusters,
-                          double count)
-{
+                          double count) {
     m_HistoryLength += 1.0;
     m_Smallest.add(point);
     m_Largest.add(point);
@@ -993,47 +901,34 @@ void CXMeansOnline1d::add(const double &point,
                                                    point,
                                                    detail::SClusterCentreLess());
 
-    if (rightCluster == m_Clusters.end())
-    {
+    if (rightCluster == m_Clusters.end()) {
         --rightCluster;
         LOG_TRACE("Adding " << point << " to " << rightCluster->centre());
         rightCluster->add(point, count);
         clusters.emplace_back(rightCluster->index(), count);
-        if (this->maybeSplit(rightCluster))
-        {
+        if (this->maybeSplit(rightCluster)) {
             this->cluster(point, clusters, count);
-        }
-        else if (rightCluster != m_Clusters.begin())
-        {
+        } else if (rightCluster != m_Clusters.begin()) {
             TClusterVecItr leftCluster = rightCluster;
             --leftCluster;
-            if (this->maybeMerge(leftCluster, rightCluster))
-            {
+            if (this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         }
-    }
-    else if (rightCluster == m_Clusters.begin())
-    {
+    } else if (rightCluster == m_Clusters.begin()) {
         LOG_TRACE("Adding " << point << " to " << rightCluster->centre());
         rightCluster->add(point, count);
         clusters.emplace_back(rightCluster->index(), count);
-        if (this->maybeSplit(rightCluster))
-        {
+        if (this->maybeSplit(rightCluster)) {
             this->cluster(point, clusters, count);
-        }
-        else
-        {
+        } else {
             TClusterVecItr leftCluster = rightCluster;
             ++rightCluster;
-            if (this->maybeMerge(leftCluster, rightCluster))
-            {
+            if (this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         }
-    }
-    else
-    {
+    } else {
         // See the cluster member function for more details on
         // soft assignment.
         TClusterVecItr leftCluster = rightCluster;
@@ -1049,90 +944,73 @@ void CXMeansOnline1d::add(const double &point,
         pLeft  /= normalizer;
         pRight /= normalizer;
 
-        if (pLeft < HARD_ASSIGNMENT_THRESHOLD * pRight)
-        {
+        if (pLeft < HARD_ASSIGNMENT_THRESHOLD * pRight) {
             LOG_TRACE("Adding " << point << " to " << rightCluster->centre());
             rightCluster->add(point, count);
             clusters.emplace_back(rightCluster->index(), count);
-            if (   this->maybeSplit(rightCluster)
-                || this->maybeMerge(leftCluster, rightCluster))
-            {
+            if (   this->maybeSplit(rightCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
-        }
-        else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft)
-        {
+        } else if (pRight < HARD_ASSIGNMENT_THRESHOLD * pLeft) {
             LOG_TRACE("Adding " << point << " to " << leftCluster->centre());
             leftCluster->add(point, count);
             clusters.emplace_back(leftCluster->index(), count);
-            if (   this->maybeSplit(leftCluster)
-                || this->maybeMerge(leftCluster, rightCluster))
-            {
+            if (   this->maybeSplit(leftCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
-        }
-        else
-        {
+        } else {
             // Get the weighted counts.
             double countLeft = count * pLeft;
             double countRight = count * pRight;
             LOG_TRACE("Soft adding " << point
-                      << " " << countLeft << " to " << leftCluster->centre()
-                      << " and " << countRight << " to " << rightCluster->centre());
+                                     << " " << countLeft << " to " << leftCluster->centre()
+                                     << " and " << countRight << " to " << rightCluster->centre());
 
             leftCluster->add(point, countLeft);
             rightCluster->add(point, countRight);
             clusters.emplace_back(leftCluster->index(), countLeft);
             clusters.emplace_back(rightCluster->index(), countRight);
-            if (   this->maybeSplit(leftCluster)
-                || this->maybeSplit(rightCluster)
-                || this->maybeMerge(leftCluster, rightCluster))
-            {
+            if (   this->maybeSplit(leftCluster) ||
+                   this->maybeSplit(rightCluster) ||
+                   this->maybeMerge(leftCluster, rightCluster)) {
                 this->cluster(point, clusters, count);
             }
         }
     }
 
-    if (this->prune())
-    {
+    if (this->prune()) {
         this->cluster(point, clusters, count);
     }
 }
 
-void CXMeansOnline1d::add(const TDoubleDoublePrVec &points)
-{
-    if (m_Clusters.empty())
-    {
+void CXMeansOnline1d::add(const TDoubleDoublePrVec &points) {
+    if (m_Clusters.empty()) {
         m_Clusters.push_back(CCluster(*this));
     }
     TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < points.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < points.size(); ++i) {
         this->add(points[i].first, dummy, points[i].second);
     }
 }
 
-void CXMeansOnline1d::propagateForwardsByTime(double time)
-{
-    if (time < 0.0)
-    {
+void CXMeansOnline1d::propagateForwardsByTime(double time) {
+    if (time < 0.0) {
         LOG_ERROR("Can't propagate backwards in time");
         return;
     }
     m_HistoryLength *= ::exp(-m_DecayRate * time);
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         m_Clusters[i].propagateForwardsByTime(time);
     }
 }
 
 bool CXMeansOnline1d::sample(std::size_t index,
                              std::size_t numberSamples,
-                             TDoubleVec &samples) const
-{
+                             TDoubleVec &samples) const {
     const CCluster *cluster = this->cluster(index);
-    if (!cluster)
-    {
+    if (!cluster) {
         LOG_ERROR("Cluster " << index << " doesn't exist");
         return false;
     }
@@ -1140,15 +1018,12 @@ bool CXMeansOnline1d::sample(std::size_t index,
     return true;
 }
 
-double CXMeansOnline1d::probability(std::size_t index) const
-{
+double CXMeansOnline1d::probability(std::size_t index) const {
     double weight = 0.0;
     double weightSum = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         const CCluster &cluster = m_Clusters[i];
-        if (cluster.index() == index)
-        {
+        if (cluster.index() == index) {
             weight = cluster.weight(maths_t::E_ClustersFractionWeight);
         }
         weightSum += cluster.weight(maths_t::E_ClustersFractionWeight);
@@ -1156,27 +1031,23 @@ double CXMeansOnline1d::probability(std::size_t index) const
     return weightSum == 0.0 ? 0.0 : weight / weightSum;
 }
 
-void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CXMeansOnline1d");
     core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
 
-std::size_t CXMeansOnline1d::memoryUsage(void) const
-{
+std::size_t CXMeansOnline1d::memoryUsage(void) const {
     std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
     mem += core::CMemory::dynamicSize(m_Clusters);
     return mem;
 }
 
-std::size_t CXMeansOnline1d::staticSize(void) const
-{
+std::size_t CXMeansOnline1d::staticSize(void) const {
     return sizeof(*this);
 }
 
-uint64_t CXMeansOnline1d::checksum(uint64_t seed) const
-{
+uint64_t CXMeansOnline1d::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_HistoryLength);
@@ -1184,25 +1055,20 @@ uint64_t CXMeansOnline1d::checksum(uint64_t seed) const
     return CChecksum::calculate(seed, m_Clusters);
 }
 
-double CXMeansOnline1d::count(void) const
-{
+double CXMeansOnline1d::count(void) const {
     double result = 0.0;
-    for (std::size_t i = 0; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         result += m_Clusters[i].count();
     }
     return result;
 }
 
-const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters(void) const
-{
+const CXMeansOnline1d::TClusterVec &CXMeansOnline1d::clusters(void) const {
     return m_Clusters;
 }
 
-std::string CXMeansOnline1d::printClusters(void) const
-{
-    if (m_Clusters.empty())
-    {
+std::string CXMeansOnline1d::printClusters(void) const {
+    if (m_Clusters.empty()) {
         return std::string();
     }
 
@@ -1211,46 +1077,41 @@ std::string CXMeansOnline1d::printClusters(void) const
     // We'll plot the marginal likelihood function over a range
     // where most of the mass is, i.e. the 99.9% confidence
 
-    static const double RANGE = 99.9;
+    static const double       RANGE = 99.9;
     static const unsigned int POINTS = 201;
 
     TDoubleDoublePr range(boost::numeric::bounds<double>::highest(),
                           boost::numeric::bounds<double>::lowest());
 
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
-        const CPrior &prior = m_Clusters[i].prior();
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        const CPrior &  prior = m_Clusters[i].prior();
         TDoubleDoublePr clusterRange = prior.marginalLikelihoodConfidenceInterval(RANGE);
         range.first = std::min(range.first, clusterRange.first);
         range.second = std::max(range.second, clusterRange.second);
     }
 
     double weightSum = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         weightSum += m_Clusters[i].weight(m_WeightCalc);
     }
 
     static const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-    static const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
+    static const TDouble4Vec1Vec          UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
 
     TDouble1Vec x(1, range.first);
-    double increment = (range.second - range.first) / (POINTS - 1.0);
+    double      increment = (range.second - range.first) / (POINTS - 1.0);
 
     std::ostringstream coordinatesStr;
     std::ostringstream likelihoodStr;
     coordinatesStr << "x = [";
     likelihoodStr << "likelihood = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x[0] += increment)
-    {
+    for (unsigned int i = 0u; i < POINTS; ++i, x[0] += increment) {
         double likelihood = 0.0;
-        for (std::size_t j = 0u; j < m_Clusters.size(); ++j)
-        {
-            double logLikelihood;
+        for (std::size_t j = 0u; j < m_Clusters.size(); ++j) {
+            double        logLikelihood;
             const CPrior &prior = m_Clusters[j].prior();
             if (!(  prior.jointLogMarginalLikelihood(COUNT_WEIGHT, x, UNIT_WEIGHT, logLikelihood)
-                  & (maths_t::E_FpFailed | maths_t::E_FpOverflowed)))
-            {
+                    & (maths_t::E_FpFailed | maths_t::E_FpOverflowed))) {
                 likelihood += m_Clusters[j].weight(m_WeightCalc)
                               / weightSum
                               * ::exp(logLikelihood);
@@ -1265,22 +1126,19 @@ std::string CXMeansOnline1d::printClusters(void) const
     return coordinatesStr.str() + likelihoodStr.str();
 }
 
-CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator(void)
-{
+CXMeansOnline1d::CIndexGenerator &CXMeansOnline1d::indexGenerator(void) {
     return m_ClusterIndexGenerator;
 }
 
 bool CXMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                             core::CStateRestoreTraverser &traverser)
-{
-    do
-    {
+                                             core::CStateRestoreTraverser &traverser) {
+    do {
         const std::string &name = traverser.name();
         RESTORE_SETUP_TEARDOWN(CLUSTER_TAG,
                                CCluster cluster(*this),
                                traverser.traverseSubLevel(boost::bind(&CCluster::acceptRestoreTraverser,
                                                                       &cluster, boost::cref(params), _1)),
-                                m_Clusters.push_back(cluster))
+                               m_Clusters.push_back(cluster))
         RESTORE(AVAILABLE_DISTRIBUTIONS_TAG, m_AvailableDistributions.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
                                double decayRate,
@@ -1299,32 +1157,25 @@ bool CXMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams &p
         RESTORE_BUILT_IN(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction)
         RESTORE_BUILT_IN(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount)
         RESTORE_BUILT_IN(WINSORISATION_CONFIDENCE_INTERVAL_TAG, m_WinsorisationConfidenceInterval)
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     return true;
 }
 
-const CXMeansOnline1d::CCluster *CXMeansOnline1d::cluster(std::size_t index) const
-{
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
-        if (m_Clusters[i].index() == index)
-        {
+const CXMeansOnline1d::CCluster *CXMeansOnline1d::cluster(std::size_t index) const {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        if (m_Clusters[i].index() == index) {
             return &m_Clusters[i];
         }
     }
     return 0;
 }
 
-double CXMeansOnline1d::minimumSplitCount(void) const
-{
+double CXMeansOnline1d::minimumSplitCount(void) const {
     double result = m_MinimumClusterCount;
-    if (m_MinimumClusterFraction > 0.0)
-    {
+    if (m_MinimumClusterFraction > 0.0) {
         double count = 0.0;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
             count += m_Clusters[i].count();
         }
         double scale = std::max(m_HistoryLength * (1.0 - ::exp(-m_InitialDecayRate)), 1.0);
@@ -1335,10 +1186,8 @@ double CXMeansOnline1d::minimumSplitCount(void) const
     return result;
 }
 
-bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster)
-{
-    if (cluster == m_Clusters.end())
-    {
+bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster) {
+    if (cluster == m_Clusters.end()) {
         return false;
     }
 
@@ -1346,10 +1195,9 @@ bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster)
     if (TOptionalClusterClusterPr split = cluster->split(m_AvailableDistributions,
                                                          this->minimumSplitCount(),
                                                          m_Smallest[0], interval,
-                                                         m_ClusterIndexGenerator))
-    {
+                                                         m_ClusterIndexGenerator)) {
         LOG_TRACE("Splitting cluster " << cluster->index()
-                  << " at " << cluster->centre());
+                                       << " at " << cluster->centre());
         std::size_t index = cluster->index();
         *cluster = split->second;
         m_Clusters.insert(cluster, split->first);
@@ -1361,23 +1209,20 @@ bool CXMeansOnline1d::maybeSplit(TClusterVecItr cluster)
 }
 
 bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1,
-                                 TClusterVecItr cluster2)
-{
-    if (cluster1 == m_Clusters.end() || cluster2 == m_Clusters.end())
-    {
+                                 TClusterVecItr cluster2) {
+    if (cluster1 == m_Clusters.end() || cluster2 == m_Clusters.end()) {
         return false;
     }
 
     TDoubleDoublePr interval = this->winsorisationInterval();
-    if (cluster1->shouldMerge(*cluster2, m_AvailableDistributions, m_Smallest[0], interval))
-    {
+    if (cluster1->shouldMerge(*cluster2, m_AvailableDistributions, m_Smallest[0], interval)) {
         LOG_TRACE("Merging cluster " << cluster1->index()
-                  << " at " << cluster1->centre()
-                  << " and cluster " << cluster2->index()
-                  << " at " << cluster2->centre());
+                                     << " at " << cluster1->centre()
+                                     << " and cluster " << cluster2->index()
+                                     << " at " << cluster2->centre());
         std::size_t index1 = cluster1->index();
         std::size_t index2 = cluster2->index();
-        CCluster merged = cluster1->merge(*cluster2, m_ClusterIndexGenerator);
+        CCluster    merged = cluster1->merge(*cluster2, m_ClusterIndexGenerator);
         *cluster1 = merged;
         m_Clusters.erase(cluster2);
         (this->mergeFunc())(index1, index2, merged.index());
@@ -1387,36 +1232,30 @@ bool CXMeansOnline1d::maybeMerge(TClusterVecItr cluster1,
     return false;
 }
 
-bool CXMeansOnline1d::prune(void)
-{
-    if (m_Clusters.size() <= 1)
-    {
+bool CXMeansOnline1d::prune(void) {
+    if (m_Clusters.size() <= 1) {
         return false;
     }
 
     bool result = false;
 
     double minimumCount = this->minimumSplitCount() * CLUSTER_DELETE_FRACTION;
-    for (std::size_t i = 1u; i < m_Clusters.size(); /**/)
-    {
+    for (std::size_t i = 1u; i < m_Clusters.size(); /**/) {
         CCluster &left  = m_Clusters[i-1];
         CCluster &right = m_Clusters[i];
-        if (left.count() < minimumCount || right.count() < minimumCount)
-        {
+        if (left.count() < minimumCount || right.count() < minimumCount) {
             std::size_t leftIndex  = left.index();
             std::size_t rightIndex = right.index();
             LOG_TRACE("Merging cluster " << leftIndex
-                      << " at " << left.centre()
-                      << " and cluster " << rightIndex
-                      << " at "<< right.centre());
+                                         << " at " << left.centre()
+                                         << " and cluster " << rightIndex
+                                         << " at "<< right.centre());
             CCluster merge = left.merge(right, m_ClusterIndexGenerator);
             left = merge;
             m_Clusters.erase(m_Clusters.begin() + i);
             (this->mergeFunc())(leftIndex, rightIndex, merge.index());
             result = true;
-        }
-        else
-        {
+        } else {
             ++i;
         }
     }
@@ -1424,12 +1263,10 @@ bool CXMeansOnline1d::prune(void)
     return result;
 }
 
-TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const
-{
+TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const {
     double f = (1.0 - m_WinsorisationConfidenceInterval) / 2.0;
 
-    if (f * this->count() < 1.0)
-    {
+    if (f * this->count() < 1.0) {
         // Don't bother if we don't expect a sample outside the
         // Winsorisation interval.
         return std::make_pair(boost::numeric::bounds<double>::lowest() / 2.0,
@@ -1442,32 +1279,28 @@ TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const
     // data to the 1 - f central confidence interval.
 
     double totalCount = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         totalCount += m_Clusters[i].count();
     }
 
     double leftCount = f * totalCount;
     double rightCount = (1.0 - f) * totalCount;
     LOG_TRACE("totalCount = " << totalCount
-              << " interval = [" << leftCount << "," << rightCount << "]"
-              << " # clusters = " << m_Clusters.size());
+                              << " interval = [" << leftCount << "," << rightCount << "]"
+                              << " # clusters = " << m_Clusters.size());
 
     TDoubleDoublePr result;
 
     double partialCount = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
         double count = m_Clusters[i].count();
-        if (partialCount < leftCount
-            && partialCount + count >= leftCount)
-        {
+        if (partialCount < leftCount &&
+            partialCount + count >= leftCount) {
             double p = 100.0 * (leftCount - partialCount) / count;
             result.first = m_Clusters[i].percentile(p);
         }
-        if (partialCount < rightCount
-            && partialCount + count >= rightCount)
-        {
+        if (partialCount < rightCount &&
+            partialCount + count >= rightCount) {
             double p = 100.0 * (rightCount - partialCount) / count;
             result.second = m_Clusters[i].percentile(p);
             break;
@@ -1484,35 +1317,30 @@ TDoubleDoublePr CXMeansOnline1d::winsorisationInterval(void) const
 //////////// CCluster Implementation ////////////
 
 CXMeansOnline1d::CCluster::CCluster(const CXMeansOnline1d &clusterer) :
-        m_Index(clusterer.m_ClusterIndexGenerator.next()),
-        m_Prior(CNormalMeanPrecConjugate::nonInformativePrior(clusterer.m_DataType,
-                                                              clusterer.m_DecayRate)),
-        m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate, clusterer.m_MinimumCategoryCount)
-{
+    m_Index(clusterer.m_ClusterIndexGenerator.next()),
+    m_Prior(CNormalMeanPrecConjugate::nonInformativePrior(clusterer.m_DataType,
+                                                          clusterer.m_DecayRate)),
+    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate, clusterer.m_MinimumCategoryCount) {
 }
 
 CXMeansOnline1d::CCluster::CCluster(std::size_t index,
                                     const CNormalMeanPrecConjugate &prior,
                                     const CNaturalBreaksClassifier &structure) :
-        m_Index(index),
-        m_Prior(prior),
-        m_Structure(structure)
-{
+    m_Index(index),
+    m_Prior(prior),
+    m_Structure(structure) {
 }
 
 bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestoreParams &params,
-                                                       core::CStateRestoreTraverser &traverser)
-{
-    do
-    {
+                                                       core::CStateRestoreTraverser &traverser) {
+    do {
         const std::string &name = traverser.name();
         RESTORE_BUILT_IN(INDEX_TAG, m_Index)
         RESTORE_NO_ERROR(PRIOR_TAG, m_Prior = CNormalMeanPrecConjugate(params, traverser))
         RESTORE(STRUCTURE_TAG,
                 traverser.traverseSubLevel(boost::bind(&CNaturalBreaksClassifier::acceptRestoreTraverser,
                                                        &m_Structure, boost::cref(params), _1)))
-    }
-    while (traverser.next());
+    } while (traverser.next());
 
     return true;
 }
@@ -1525,27 +1353,23 @@ void CXMeansOnline1d::CCluster::acceptPersistInserter(core::CStatePersistInserte
     inserter.insertLevel(STRUCTURE_TAG, boost::bind(&CNaturalBreaksClassifier::acceptPersistInserter, &m_Structure, _1));
 }
 
-void CXMeansOnline1d::CCluster::dataType(maths_t::EDataType dataType)
-{
+void CXMeansOnline1d::CCluster::dataType(maths_t::EDataType dataType) {
     m_Prior.dataType(dataType);
 }
 
-void CXMeansOnline1d::CCluster::add(double point, double count)
-{
+void CXMeansOnline1d::CCluster::add(double point, double count) {
     m_Prior.addSamples(CConstantWeights::COUNT,
                        TDouble1Vec(1, point),
                        TDouble4Vec1Vec(1, TDouble4Vec(1, count)));
     m_Structure.add(point, count);
 }
 
-void CXMeansOnline1d::CCluster::decayRate(double decayRate)
-{
+void CXMeansOnline1d::CCluster::decayRate(double decayRate) {
     m_Prior.decayRate(decayRate);
     m_Structure.decayRate(decayRate);
 }
 
-void CXMeansOnline1d::CCluster::propagateForwardsByTime(double time)
-{
+void CXMeansOnline1d::CCluster::propagateForwardsByTime(double time) {
     m_Prior.propagateForwardsByTime(time);
     m_Structure.propagateForwardsByTime(time);
 }
@@ -1577,10 +1401,9 @@ double CXMeansOnline1d::CCluster::count(void) const
 
 double CXMeansOnline1d::CCluster::weight(maths_t::EClusterWeightCalc calc) const
 {
-    switch (calc)
-    {
-    case maths_t::E_ClustersEqualWeight:    return 1.0;
-    case maths_t::E_ClustersFractionWeight: return m_Prior.numberSamples();
+    switch (calc) {
+        case maths_t::E_ClustersEqualWeight:    return 1.0;
+        case maths_t::E_ClustersFractionWeight: return m_Prior.numberSamples();
     }
     LOG_ABORT("Unexpected calculation style " << calc);
 }
@@ -1591,8 +1414,7 @@ double CXMeansOnline1d::CCluster::logLikelihoodFromCluster(maths_t::EClusterWeig
     double result;
     if (detail::logLikelihoodFromCluster(point, m_Prior,
                                          this->weight(calc),
-                                         result) & maths_t::E_FpFailed)
-    {
+                                         result) & maths_t::E_FpFailed) {
         LOG_ERROR("Unable to compute likelihood for: " << m_Index);
     }
     return result;
@@ -1611,8 +1433,7 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
                                  double minimumCount,
                                  double smallest,
                                  const TDoubleDoublePr &interval,
-                                 CIndexGenerator &indexGenerator)
-{
+                                 CIndexGenerator &indexGenerator) {
     // We do our clustering top down to minimize space and avoid
     // making splits before we are confident they exist. This is
     // important for anomaly detection because we do *not* want
@@ -1629,17 +1450,15 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
 
     LOG_TRACE("split");
 
-    if (m_Structure.buffering())
-    {
+    if (m_Structure.buffering()) {
         return TOptionalClusterClusterPr();
     }
 
     maths_t::EDataType dataType = m_Prior.dataType();
-    double decayRate = m_Prior.decayRate();
+    double             decayRate = m_Prior.decayRate();
 
     std::size_t n = m_Structure.size();
-    if (n < 2)
-    {
+    if (n < 2) {
         return TOptionalClusterClusterPr();
     }
 
@@ -1647,13 +1466,11 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
     {
         TTupleVec categories;
         m_Structure.categories(n, 0, categories);
-        for (std::size_t i = 0u; i < categories.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < categories.size(); ++i) {
             detail::winsorise(interval, categories[i]);
         }
         if (!detail::splitSearch(minimumCount, MINIMUM_SPLIT_DISTANCE,
-                                 dataType, distributions, smallest, categories, split))
-        {
+                                 dataType, distributions, smallest, categories, split)) {
             return TOptionalClusterClusterPr();
         }
     }
@@ -1664,9 +1481,9 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
     CNaturalBreaksClassifier::TClassifierVec classifiers;
     m_Structure.split(split, classifiers);
     LOG_TRACE("Splitting cluster " << this->index()
-              << " at " << this->centre()
-              << " left = " << classifiers[0].print()
-              << ", right = " << classifiers[1].print());
+                                   << " at " << this->centre()
+                                   << " left = " << classifiers[0].print()
+                                   << ", right = " << classifiers[1].print());
 
     std::size_t index1 = indexGenerator.next();
     std::size_t index2 = indexGenerator.next();
@@ -1681,29 +1498,24 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
 bool CXMeansOnline1d::CCluster::shouldMerge(CCluster &other,
                                             CAvailableModeDistributions distributions,
                                             double smallest,
-                                            const TDoubleDoublePr &interval)
-{
-    if (   m_Structure.buffering()
-        || m_Structure.size() == 0
-        || other.m_Structure.size() == 0)
-    {
+                                            const TDoubleDoublePr &interval) {
+    if (   m_Structure.buffering() ||
+           m_Structure.size() == 0 ||
+           other.m_Structure.size() == 0) {
         return false;
     }
 
     maths_t::EDataType dataType = m_Prior.dataType();
-    TTupleVec categories;
-    if (!m_Structure.categories(m_Structure.size(), 0, categories))
-    {
+    TTupleVec          categories;
+    if (!m_Structure.categories(m_Structure.size(), 0, categories)) {
         return false;
     }
     std::size_t split = categories.size();
-    if (!other.m_Structure.categories(other.m_Structure.size(), 0, categories, true))
-    {
+    if (!other.m_Structure.categories(other.m_Structure.size(), 0, categories, true)) {
         return false;
     }
 
-    for (std::size_t i = 0u; i < categories.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < categories.size(); ++i) {
         detail::winsorise(interval, categories[i]);
     }
 
@@ -1713,14 +1525,13 @@ bool CXMeansOnline1d::CCluster::shouldMerge(CCluster &other,
     detail::BICGain(dataType, distributions, smallest, categories,
                     0, split, categories.size(), distance, nl, nr);
     LOG_TRACE("max(BIC(1) - BIC(2), 0) = " << distance
-              << " (to merge " << MAXIMUM_MERGE_DISTANCE << ")");
+                                           << " (to merge " << MAXIMUM_MERGE_DISTANCE << ")");
 
     return distance <= MAXIMUM_MERGE_DISTANCE;
 }
 
 CXMeansOnline1d::CCluster
-CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerator)
-{
+CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerator) {
     TTupleVec left, right;
     m_Structure.categories(1, 0, left);
     other.m_Structure.categories(1, 0, right);
@@ -1729,14 +1540,12 @@ CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerato
 
     CNormalMeanPrecConjugate::TMeanVarAccumulator mergedCategories;
 
-    if (left.size() > 0)
-    {
+    if (left.size() > 0) {
         LOG_TRACE("left = " << left[0]);
         mergedCategories += left[0];
     }
 
-    if (right.size() > 0)
-    {
+    if (right.size() > 0) {
         LOG_TRACE("right = " << right[0]);
         mergedCategories += right[0];
     }
@@ -1756,8 +1565,7 @@ CXMeansOnline1d::CCluster::merge(CCluster &other, CIndexGenerator &indexGenerato
     return result;
 }
 
-const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior(void) const
-{
+const CNormalMeanPrecConjugate &CXMeansOnline1d::CCluster::prior(void) const {
     return m_Prior;
 }
 
@@ -1782,10 +1590,10 @@ std::size_t CXMeansOnline1d::CCluster::memoryUsage(void) const
     return mem;
 }
 
-const double CXMeansOnline1d::WINSORISATION_CONFIDENCE_INTERVAL(1.0);
-const double CXMeansOnline1d::MINIMUM_SPLIT_DISTANCE(6.0);
-const double CXMeansOnline1d::MAXIMUM_MERGE_DISTANCE(2.0);
-const double CXMeansOnline1d::CLUSTER_DELETE_FRACTION(0.8);
+const double      CXMeansOnline1d::WINSORISATION_CONFIDENCE_INTERVAL(1.0);
+const double      CXMeansOnline1d::MINIMUM_SPLIT_DISTANCE(6.0);
+const double      CXMeansOnline1d::MAXIMUM_MERGE_DISTANCE(2.0);
+const double      CXMeansOnline1d::CLUSTER_DELETE_FRACTION(0.8);
 const std::size_t CXMeansOnline1d::STRUCTURE_SIZE(12u);
 
 }

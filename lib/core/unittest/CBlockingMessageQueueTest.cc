@@ -20,45 +20,38 @@
 #include <vector>
 
 
-CppUnit::Test *CBlockingMessageQueueTest::suite()
-{
+CppUnit::Test *CBlockingMessageQueueTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CBlockingMessageQueueTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CBlockingMessageQueueTest>(
-                                   "CBlockingMessageQueueTest::testSendReceive",
-                                   &CBlockingMessageQueueTest::testSendReceive) );
+                               "CBlockingMessageQueueTest::testSendReceive",
+                               &CBlockingMessageQueueTest::testSendReceive) );
 
     return suiteOfTests;
 }
 
-namespace
-{
-    class CReceiver
-    {
-        public:
-            void processMsg(const std::string &str, size_t /* backlog */)
-            {
-                m_Strings.push_back(str);
-                if ((m_Strings.size() % 1000) == 0)
-                {
-                    LOG_DEBUG("Received " << m_Strings.size() << " strings");
-                }
+namespace {
+class CReceiver {
+    public:
+        void processMsg(const std::string &str, size_t /* backlog */) {
+            m_Strings.push_back(str);
+            if ((m_Strings.size() % 1000) == 0) {
+                LOG_DEBUG("Received " << m_Strings.size() << " strings");
             }
+        }
 
-            size_t size(void) const
-            {
-                return m_Strings.size();
-            }
+        size_t size(void) const {
+            return m_Strings.size();
+        }
 
-        private:
-            typedef std::vector<std::string> TStrVec;
+    private:
+        typedef std::vector<std::string> TStrVec;
 
-            TStrVec m_Strings;
-    };
+        TStrVec m_Strings;
+};
 }
 
-void CBlockingMessageQueueTest::testSendReceive(void)
-{
+void CBlockingMessageQueueTest::testSendReceive(void) {
     CReceiver receiver;
 
     static const size_t QUEUE_SIZE(100);
@@ -73,8 +66,7 @@ void CBlockingMessageQueueTest::testSendReceive(void)
 
     LOG_DEBUG("Sending " << TEST_SIZE << " strings");
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
         queue.dispatchMsg("Test string");
     }
 

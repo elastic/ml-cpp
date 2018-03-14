@@ -27,10 +27,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! A class to time cppunit tests.
@@ -48,8 +46,7 @@ namespace test
 //! is added to cppunit, then this class will need to be
 //! rewritten.
 //!
-class TEST_EXPORT CTestTimer : public CppUnit::TestListener
-{
+class TEST_EXPORT CTestTimer : public CppUnit::TestListener {
     public:
         //! Called at the start of each test
         virtual void startTest(CppUnit::Test *test);
@@ -71,10 +68,10 @@ class TEST_EXPORT CTestTimer : public CppUnit::TestListener
         core::CStopWatch m_StopWatch;
 
         typedef std::map<std::string, uint64_t> TStrUInt64Map;
-        typedef TStrUInt64Map::const_iterator   TStrUInt64MapCItr;
+        typedef TStrUInt64Map::const_iterator TStrUInt64MapCItr;
 
         //! Map of test name to time taken (in ms)
-        TStrUInt64Map    m_TestTimes;
+        TStrUInt64Map m_TestTimes;
 };
 
 

@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -68,8 +66,7 @@ namespace core
 //! a non-zero hash, which would be hard to reproduce for a
 //! range of characters, hence we use our own hash algorithm.
 //!
-class CORE_EXPORT CStringCache
-{
+class CORE_EXPORT CStringCache {
     public:
         //! Constructor detects whether copy-on-write strings are in use
         CStringCache(void);
@@ -91,8 +88,7 @@ class CORE_EXPORT CStringCache
         //! Boost's hash function applied to an empty string returns a non-zero
         //! hash, which would be hard to reproduce for a range of characters,
         //! hence using a hand coded hash functor.
-        class CStrHash : public std::unary_function<std::string, size_t>
-        {
+        class CStrHash : public std::unary_function<std::string, size_t> {
             public:
                 size_t operator()(const std::string &str) const;
         };
@@ -100,8 +96,7 @@ class CORE_EXPORT CStringCache
         //! Class to hash a range of characters on construction to save
         //! calculating the length in operator().  Does NOT construct a
         //! temporary string object to create the hash.
-        class CCharPHash : public std::unary_function<const char *, size_t>
-        {
+        class CCharPHash : public std::unary_function<const char *, size_t> {
             public:
                 //! Store the given hash
                 CCharPHash(const char *str, const char *end);
@@ -116,8 +111,7 @@ class CORE_EXPORT CStringCache
 
         //! Check for equality between a char pointer and a string without
         //! constructing a temporary string
-        class CCharPStrEqual : public std::binary_function<const char *, std::string, bool>
-        {
+        class CCharPStrEqual : public std::binary_function<const char *, std::string, bool> {
             public:
                 //! Cache the char pointer length to speed comparisons
                 CCharPStrEqual(size_t length);
@@ -134,7 +128,7 @@ class CORE_EXPORT CStringCache
         bool m_HaveCopyOnWriteStrings;
 
         typedef boost::unordered_set<std::string, CStrHash> TStrUSet;
-        typedef TStrUSet::const_iterator                    TStrUSetCItr;
+        typedef TStrUSet::const_iterator TStrUSetCItr;
 
         //! The cache of strings
         TStrUSet m_Cache;

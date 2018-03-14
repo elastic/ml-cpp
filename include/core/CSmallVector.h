@@ -26,49 +26,38 @@
 #include <ostream>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! Map boost::container::small_vector_base for consistent naming.
 template<typename T>
 using CSmallVectorBase = boost::container::small_vector_base<T>;
 
-namespace small_vector_detail
-{
+namespace small_vector_detail {
 
 template<typename T, typename U>
-struct SPlusAssign
-{
+struct SPlusAssign {
     static_assert(sizeof(T) < 0, "The contained type has no defined += operator");
 };
 
 template<typename T>
-struct SPlusAssign<T, boost::true_type>
-{
-    static void compute(CSmallVectorBase<T> &lhs, const CSmallVectorBase<T> &rhs)
-    {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i)
-        {
+struct SPlusAssign<T, boost::true_type> {
+    static void compute(CSmallVectorBase<T> &lhs, const CSmallVectorBase<T> &rhs) {
+        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] += rhs[i];
         }
     }
 };
 
 template<typename T, typename U>
-struct SMinusAssign
-{
+struct SMinusAssign {
     static_assert(sizeof(T) < 0, "The contained type has no defined -= operator");
 };
 
 template<typename T>
-struct SMinusAssign<T, boost::true_type>
-{
-    static void compute(CSmallVectorBase<T> &lhs, const CSmallVectorBase<T> &rhs)
-    {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i)
-        {
+struct SMinusAssign<T, boost::true_type> {
+    static void compute(CSmallVectorBase<T> &lhs, const CSmallVectorBase<T> &rhs) {
+        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] -= rhs[i];
         }
     }
@@ -92,8 +81,7 @@ struct SMinusAssign<T, boost::true_type>
 //! \tparam N The maximum number of elements which are stored on
 //! the stack.
 template<typename T, std::size_t N>
-class CSmallVector : public boost::container::small_vector<T, N>
-{
+class CSmallVector : public boost::container::small_vector<T, N> {
     private:
         using TBase = boost::container::small_vector<T, N>;
 
@@ -115,28 +103,35 @@ class CSmallVector : public boost::container::small_vector<T, N>
     public:
         //! \name Constructors
         //@{
-        CSmallVector() {}
-        CSmallVector(const CSmallVector &other) : TBase(other) {}
-        CSmallVector(CSmallVector &&other) : TBase(std::move(other.baseRef())) {}
-        explicit CSmallVector(size_type n, const value_type &val = value_type()) : TBase(n, val) {}
-        CSmallVector(std::initializer_list<value_type> list) : TBase(list.begin(), list.end()) {}
+        CSmallVector() {
+        }
+        CSmallVector(const CSmallVector &other) : TBase(other) {
+        }
+        CSmallVector(CSmallVector &&other) : TBase(std::move(other.baseRef())) {
+        }
+        explicit CSmallVector(size_type n, const value_type &val = value_type()) : TBase(n, val) {
+        }
+        CSmallVector(std::initializer_list<value_type> list) : TBase(list.begin(), list.end()) {
+        }
         template<class ITR>
-        CSmallVector(ITR first, ITR last) : TBase(first, last) {}
+        CSmallVector(ITR first, ITR last) : TBase(first, last) {
+        }
         template<typename U, std::size_t M>
-        CSmallVector(const CSmallVector<U, M> &other) : TBase(other.begin(), other.end()) {}
+        CSmallVector(const CSmallVector<U, M> &other) : TBase(other.begin(), other.end()) {
+        }
         template<typename U>
-        CSmallVector(std::initializer_list<U> list) : TBase(list.begin(), list.end()) {}
+        CSmallVector(std::initializer_list<U> list) : TBase(list.begin(), list.end()) {
+        }
         // Extend to construct implicitly from a vector.
         template<typename U>
-        CSmallVector(const std::vector<U> &other) : TBase(other.begin(), other.end()) {}
+        CSmallVector(const std::vector<U> &other) : TBase(other.begin(), other.end()) {
+        }
 
-        CSmallVector &operator=(CSmallVector &&rhs)
-        {
+        CSmallVector &operator=(CSmallVector &&rhs) {
             this->baseRef() = std::move(rhs.baseRef());
             return *this;
         }
-        CSmallVector &operator=(const CSmallVector &rhs)
-        {
+        CSmallVector &operator=(const CSmallVector &rhs) {
             this->baseRef() = rhs.baseRef();
             return *this;
         }
@@ -148,29 +143,30 @@ class CSmallVector : public boost::container::small_vector<T, N>
         }
 
         // Non-standard plus assign for the case that T has operator+=.
-        const CSmallVector &operator+=(const CSmallVectorBase<T> &rhs)
-        {
+        const CSmallVector &operator+=(const CSmallVectorBase<T> &rhs) {
             using MaybeTrue = typename boost::has_plus_assign<T>::type;
             small_vector_detail::SPlusAssign<T, MaybeTrue>::compute(*this, rhs);
             return *this;
         }
 
         // Non-standard minus assign for the case that T has operator-=.
-        const CSmallVector &operator-=(const CSmallVectorBase<T> &rhs)
-        {
+        const CSmallVector &operator-=(const CSmallVectorBase<T> &rhs) {
             using MaybeTrue = typename boost::has_minus_assign<T>::type;
             small_vector_detail::SMinusAssign<T, MaybeTrue>::compute(*this, rhs);
             return *this;
         }
 
     private:
-        TBase &baseRef() { return *this; }
-        const TBase &baseRef() const { return *this; }
+        TBase &baseRef() {
+            return *this;
+        }
+        const TBase &baseRef() const {
+            return *this;
+        }
 };
 
 template<typename T, std::size_t N>
-std::ostream &operator<<(std::ostream &o, const CSmallVector<T, N> &v)
-{
+std::ostream &operator<<(std::ostream &o, const CSmallVector<T, N> &v) {
     return o << core::CContainerPrinter::print(v.begin(), v.end());
 }
 

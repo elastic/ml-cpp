@@ -21,10 +21,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Implements optimum runtime agglomerative clustering for
 //! arbitrary distance matrices.
@@ -47,8 +45,7 @@ namespace maths
 //! </pre>
 //!
 //! For other styles see https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
-class MATHS_EXPORT CAgglomerativeClusterer
-{
+class MATHS_EXPORT CAgglomerativeClusterer {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef std::vector<TDoubleVec> TDoubleVecVec;
@@ -58,8 +55,7 @@ class MATHS_EXPORT CAgglomerativeClusterer
         typedef std::vector<TDoubleSizeVecPr> TDoubleSizeVecPrVec;
 
         //! \brief A representation of a node in the tree of clusters.
-        class MATHS_EXPORT CNode
-        {
+        class MATHS_EXPORT CNode {
             public:
                 //! Set the rightmost point below this node.
                 CNode(std::size_t index, double height);
@@ -110,8 +106,7 @@ class MATHS_EXPORT CAgglomerativeClusterer
 
     public:
         //! Possible clustering objective functions supported.
-        enum EObjective
-        {
+        enum EObjective {
             E_Single,
             E_Complete,
             E_Average,

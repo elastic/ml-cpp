@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CXMeansOnline1dTest : public CppUnit::TestFixture
-{
+class CXMeansOnline1dTest : public CppUnit::TestFixture {
     public:
         void testCluster(void);
         void testMixtureOfGaussians(void);

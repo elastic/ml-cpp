@@ -30,10 +30,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Simple C++ wrapper around the libxml2 library.
@@ -65,30 +63,29 @@ namespace core
 //!
 //! Does not call xmlCleanupParser on application exit.
 //!
-class CORE_EXPORT CXmlParser : public CXmlParserIntf
-{
+class CORE_EXPORT CXmlParser : public CXmlParserIntf {
     public:
         static const std::string ATTRIBUTE_SEPARATOR;
         static const std::string ATTRIBUTE_EQUALS;
-        static const size_t      DEFAULT_INDENT_SPACES;
-        static const size_t      MAX_INDENT_SPACES;
+        static const size_t DEFAULT_INDENT_SPACES;
+        static const size_t MAX_INDENT_SPACES;
         static const char        *INDENT_SPACE_STR;
 
     public:
         typedef std::vector<std::string>           TStrVec;
-        typedef TStrVec::iterator                  TStrVecItr;
-        typedef TStrVec::const_iterator            TStrVecCItr;
+        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef std::set<std::string>              TStrSet;
-        typedef TStrSet::iterator                  TStrSetItr;
-        typedef TStrSet::const_iterator            TStrSetCItr;
+        typedef TStrSet::iterator TStrSetItr;
+        typedef TStrSet::const_iterator TStrSetCItr;
 
         typedef std::vector<CXmlNode>              TXmlNodeVec;
-        typedef TXmlNodeVec::iterator              TXmlNodeVecItr;
-        typedef TXmlNodeVec::const_iterator        TXmlNodeVecCItr;
+        typedef TXmlNodeVec::iterator TXmlNodeVecItr;
+        typedef TXmlNodeVec::const_iterator TXmlNodeVecCItr;
 
         typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        typedef TStrStrMap::const_iterator TStrStrMapCItr;
 
     public:
         CXmlParser(void);
@@ -133,16 +130,13 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         //! return false.
         template<typename TYPE>
         bool    evalXPathExpression(const std::string &xpath,
-                                    TYPE &ret) const
-        {
+                                    TYPE &ret) const {
             CXmlNode value;
-            if (this->evalXPathExpression(xpath, value) == false)
-            {
+            if (this->evalXPathExpression(xpath, value) == false) {
                 return false;
             }
 
-            if (CStringUtils::stringToType(value.value(), ret) == false)
-            {
+            if (CStringUtils::stringToType(value.value(), ret) == false) {
                 LOG_ERROR("Conversion error for " << xpath);
                 return false;
             }
@@ -277,8 +271,8 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf
         static void errorHandler(void *ctxt, const char *msg, ...);
 
     private:
-        xmlDocPtr           m_Doc;
-        xmlXPathContextPtr  m_XPathContext;
+        xmlDocPtr m_Doc;
+        xmlXPathContextPtr m_XPathContext;
 
         //! Pointer to the current node accessed via the navigation API
         xmlNode             *m_NavigatedNode;

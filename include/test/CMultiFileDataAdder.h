@@ -21,10 +21,8 @@
 
 #include <string>
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 //! \brief
 //! A file based persister for writing Ml models.
@@ -44,8 +42,7 @@ namespace test
 //! file.  For an option to persist an entire model to a single
 //! file, use the CSingleStreamDataAdder class.
 //!
-class TEST_EXPORT CMultiFileDataAdder : public core::CDataAdder
-{
+class TEST_EXPORT CMultiFileDataAdder : public core::CDataAdder {
     public:
         //! Default file extension for persisted files.
         static const std::string JSON_FILE_EXT;

@@ -24,28 +24,23 @@
 
 // Unfortunately, Eigen headers seem to be super fragile to
 // include directly so we just forward declare here ourselves.
-namespace Eigen
-{
+namespace Eigen {
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX> class SparseMatrix;
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX> class SparseVector;
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS> class Matrix;
 }
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! Types of symmetric matrices constructed with a vector.
-enum ESymmetricMatrixType
-{
+enum ESymmetricMatrixType {
     E_OuterProduct,
     E_Diagonal
 };
 
 //! \brief Common types used by the vector and matrix classes.
-class MATHS_EXPORT CLinearAlgebra
-{
+class MATHS_EXPORT CLinearAlgebra {
     public:
         static const char DELIMITER = ',';
 };

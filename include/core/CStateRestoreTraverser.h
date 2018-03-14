@@ -23,10 +23,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //!
 //! All values are returned as strings.
 //!
-class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable
-{
+class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable {
     public:
         CStateRestoreTraverser(void);
 
@@ -72,20 +69,15 @@ class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable
         //! should return a bool and this will be passed on as the return value
         //! of this method.
         template <typename FUNC>
-        bool traverseSubLevel(FUNC f)
-        {
-            if (!this->hasSubLevel())
-            {
+        bool traverseSubLevel(FUNC f) {
+            if (!this->hasSubLevel()) {
                 return false;
             }
 
             CAutoLevel level(*this);
-            try
-            {
+            try {
                 return f(*this);
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_ERROR("Restoration failed: " << e.what());
                 level.setBadState();
                 return false;
@@ -122,8 +114,7 @@ class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable
 
     private:
         //! Class to implement RAII for traversing the next level down
-        class CORE_EXPORT CAutoLevel : private CNonCopyable
-        {
+        class CORE_EXPORT CAutoLevel : private CNonCopyable {
             public:
                 CAutoLevel(CStateRestoreTraverser &traverser);
                 ~CAutoLevel(void);
@@ -137,11 +128,11 @@ class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable
                 CStateRestoreTraverser &m_Traverser;
 
                 //! Remember whether descent on construction succeeded
-                bool                   m_Descended;
+                bool m_Descended;
 
                 //! If a stream parsing error occurs, don't try and descend
                 //! in the destructor
-                bool                   m_BadState;
+                bool m_BadState;
         };
 
     private:

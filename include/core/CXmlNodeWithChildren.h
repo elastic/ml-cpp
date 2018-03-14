@@ -23,10 +23,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CXmlNodeWithChildrenPool;
 
 
@@ -39,14 +37,13 @@ class CXmlNodeWithChildrenPool;
 //! IMPLEMENTATION DECISIONS:\n
 //! Currently no support for sorting children into any order.
 //!
-class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
-{
+class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode {
     public:
         typedef boost::shared_ptr<CXmlNodeWithChildren> TXmlNodeWithChildrenP;
 
         typedef std::vector<TXmlNodeWithChildrenP>      TChildNodePVec;
-        typedef TChildNodePVec::iterator                TChildNodePVecItr;
-        typedef TChildNodePVec::const_iterator          TChildNodePVecCItr;
+        typedef TChildNodePVec::iterator TChildNodePVecItr;
+        typedef TChildNodePVec::const_iterator TChildNodePVecCItr;
 
     public:
         CXmlNodeWithChildren(void);
@@ -88,7 +85,7 @@ class CORE_EXPORT CXmlNodeWithChildren : public CXmlNode
         //! are ever added
         TChildNodePVec m_Children;
 
-    friend class CXmlNodeWithChildrenPool;
+        friend class CXmlNodeWithChildrenPool;
 };
 
 

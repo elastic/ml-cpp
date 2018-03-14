@@ -21,28 +21,26 @@
 #include <core/CXmlParser.h>
 
 
-CppUnit::Test *CXmlNodeWithChildrenTest::suite()
-{
+CppUnit::Test *CXmlNodeWithChildrenTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CXmlNodeWithChildrenTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
-                                   &CXmlNodeWithChildrenTest::testNodeHierarchyToXml) );
+                               "CXmlNodeWithChildrenTest::testNodeHierarchyToXml",
+                               &CXmlNodeWithChildrenTest::testNodeHierarchyToXml) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
-                                   &CXmlNodeWithChildrenTest::testParserToNodeHierarchy) );
+                               "CXmlNodeWithChildrenTest::testParserToNodeHierarchy",
+                               &CXmlNodeWithChildrenTest::testParserToNodeHierarchy) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testPerformanceNoPool",
-                                   &CXmlNodeWithChildrenTest::testPerformanceNoPool) );
+                               "CXmlNodeWithChildrenTest::testPerformanceNoPool",
+                               &CXmlNodeWithChildrenTest::testPerformanceNoPool) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CXmlNodeWithChildrenTest>(
-                                   "CXmlNodeWithChildrenTest::testPerformanceWithPool",
-                                   &CXmlNodeWithChildrenTest::testPerformanceWithPool) );
+                               "CXmlNodeWithChildrenTest::testPerformanceWithPool",
+                               &CXmlNodeWithChildrenTest::testPerformanceWithPool) );
 
     return suiteOfTests;
 }
 
-void CXmlNodeWithChildrenTest::testNodeHierarchyToXml(void)
-{
+void CXmlNodeWithChildrenTest::testNodeHierarchyToXml(void) {
     ml::core::CXmlParser parser;
 
     ml::core::CXmlNodeWithChildren twoDeepA("twoDeepA", "Element A");
@@ -117,8 +115,7 @@ void CXmlNodeWithChildrenTest::testNodeHierarchyToXml(void)
     CPPUNIT_ASSERT(xml.find("twoDeepC") < xml.find("twoDeepB"));
 }
 
-void CXmlNodeWithChildrenTest::testParserToNodeHierarchy(void)
-{
+void CXmlNodeWithChildrenTest::testParserToNodeHierarchy(void) {
     ml::core::CXmlParser parser;
 
     std::string xml = "\
@@ -161,8 +158,7 @@ void CXmlNodeWithChildrenTest::testParserToNodeHierarchy(void)
     CPPUNIT_ASSERT(xml.find("value5") != std::string::npos);
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceNoPool(void)
-{
+void CXmlNodeWithChildrenTest::testPerformanceNoPool(void) {
     ml::core::CXmlParser parser;
 
     CPPUNIT_ASSERT(parser.parseFile("testfiles/p2psmon.xml"));
@@ -172,8 +168,7 @@ void CXmlNodeWithChildrenTest::testPerformanceNoPool(void)
              ml::core::CTimeUtils::toTimeString(start));
 
     static const size_t TEST_SIZE(20000);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(rootNodePtr));
         CPPUNIT_ASSERT(rootNodePtr != 0);
@@ -187,8 +182,7 @@ void CXmlNodeWithChildrenTest::testPerformanceNoPool(void)
              " with no pool took " << (end - start) << " seconds");
 }
 
-void CXmlNodeWithChildrenTest::testPerformanceWithPool(void)
-{
+void CXmlNodeWithChildrenTest::testPerformanceWithPool(void) {
     ml::core::CXmlParser parser;
 
     CPPUNIT_ASSERT(parser.parseFile("testfiles/p2psmon.xml"));
@@ -200,8 +194,7 @@ void CXmlNodeWithChildrenTest::testPerformanceWithPool(void)
     ml::core::CXmlNodeWithChildrenPool pool;
 
     static const size_t TEST_SIZE(20000);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
         CPPUNIT_ASSERT(parser.toNodeHierarchy(pool, rootNodePtr));
         CPPUNIT_ASSERT(rootNodePtr != 0);

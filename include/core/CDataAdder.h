@@ -27,10 +27,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Abstract interface for data adder.
@@ -46,13 +44,12 @@ namespace core
 //! data store that can retrieve based on 2 values: index and ID.
 //! Elasticsearch supports this.
 //!
-class CORE_EXPORT CDataAdder : private CNonCopyable
-{
+class CORE_EXPORT CDataAdder : private CNonCopyable {
     public:
         typedef boost::shared_ptr<std::ostream> TOStreamP;
         typedef boost::shared_ptr<CDataAdder>   TDataAdderP;
 
-        typedef std::function<bool(CDataAdder &)> TPersistFunc;
+        typedef std::function<bool (CDataAdder &)> TPersistFunc;
 
     public:
         virtual ~CDataAdder(void);

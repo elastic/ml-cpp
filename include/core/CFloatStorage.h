@@ -26,19 +26,16 @@
 #include <math.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-namespace
-{
+namespace {
 const int MAX_PRECISE_INTEGER_FLOAT(
     static_cast<int>(
         ::pow(10.0,
               static_cast<double>(std::numeric_limits<float>::digits10))
-    ) - 1
-);
+        ) - 1
+    );
 }
 
 //! \brief This class should be used in place of float whenever
@@ -77,43 +74,41 @@ const int MAX_PRECISE_INTEGER_FLOAT(
 //!
 //! Will use exactly one conversion from double to float to assign
 //! the value of a * b + 2.0 * c * c to d.
-class CORE_EXPORT CFloatStorage
-{
+class CORE_EXPORT CFloatStorage {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) { return true; }
+        static bool dynamicSizeAlwaysZero(void) {
+            return true;
+        }
 
     public:
         //! Default construction of the floating point value.
-        CFloatStorage(void) : m_Value() {}
+        CFloatStorage(void) : m_Value() {
+        }
 
         //! Integer promotion. So one can write things like CFloatStorage(1).
-        CFloatStorage(int value) : m_Value(float(value))
-        {
+        CFloatStorage(int value) : m_Value(float(value)) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
-            if (    value > MAX_PRECISE_INTEGER_FLOAT
-                || -value < MAX_PRECISE_INTEGER_FLOAT)
-            {
+            if (    value > MAX_PRECISE_INTEGER_FLOAT ||
+                    -value < MAX_PRECISE_INTEGER_FLOAT) {
                 LOG_WARN("Loss of precision assigning int " << value << " to float");
             }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK
         }
 
         //! Implicit construction from a float.
-        CFloatStorage(float value) : m_Value(value) {}
+        CFloatStorage(float value) : m_Value(value) {
+        }
 
         //! Implicit construction from a double.
-        CFloatStorage(double value) : m_Value()
-        {
+        CFloatStorage(double value) : m_Value() {
             this->set(value);
         }
 
         //! Set from a string.
-        bool fromString(const std::string &string)
-        {
+        bool fromString(const std::string &string) {
             double value;
-            if (CStringUtils::stringToType(string, value))
-            {
+            if (CStringUtils::stringToType(string, value)) {
                 this->set(value);
                 return true;
             }
@@ -121,8 +116,7 @@ class CORE_EXPORT CFloatStorage
         }
 
         //! Convert to a string.
-        std::string toString(void) const
-        {
+        std::string toString(void) const {
             return CStringUtils::typeToStringPrecise(static_cast<double>(m_Value),
                                                      CIEEE754::E_SinglePrecision);
         }
@@ -130,32 +124,27 @@ class CORE_EXPORT CFloatStorage
         //! \name Double Assignment
         //@{
         //! Assign from a double.
-        CFloatStorage &operator=(double value)
-        {
+        CFloatStorage &operator=(double value) {
             this->set(value);
             return *this;
         }
         //! Plus assign from double.
-        CFloatStorage &operator+=(double value)
-        {
+        CFloatStorage &operator+=(double value) {
             this->set(static_cast<double>(m_Value) + value);
             return *this;
         }
         //! Minus assign from double.
-        CFloatStorage &operator-=(double value)
-        {
+        CFloatStorage &operator-=(double value) {
             this->set(static_cast<double>(m_Value) - value);
             return *this;
         }
         //! Multiply assign from double.
-        CFloatStorage &operator*=(double value)
-        {
+        CFloatStorage &operator*=(double value) {
             this->set(static_cast<double>(m_Value) * value);
             return *this;
         }
         //! Divide assign from double.
-        CFloatStorage &operator/=(double value)
-        {
+        CFloatStorage &operator/=(double value) {
             this->set(static_cast<double>(m_Value) / value);
             return *this;
         }
@@ -169,22 +158,17 @@ class CORE_EXPORT CFloatStorage
 
     private:
         //! Utility to actually set the floating point value.
-        void set(double value)
-        {
+        void set(double value) {
 #ifdef CFLOATSTORAGE_BOUNDS_CHECK
-            if (    value > std::numeric_limits<float>::max()
-                || -value > std::numeric_limits<float>::max())
-            {
+            if (    value > std::numeric_limits<float>::max() ||
+                    -value > std::numeric_limits<float>::max()) {
                 LOG_WARN("Value overflows float " << value);
             }
-            if (    value < std::numeric_limits<float>::min()
-                && -value < std::numeric_limits<float>::min())
-            {
+            if (    value < std::numeric_limits<float>::min() &&
+                    -value < std::numeric_limits<float>::min()) {
                 LOG_WARN("Value underflows float " << value);
-            }
-            else if (    value < 100 * std::numeric_limits<float>::min()
-                     && -value < 100 * std::numeric_limits<float>::min())
-            {
+            } else if (    value < 100 * std::numeric_limits<float>::min() &&
+                           -value < 100 * std::numeric_limits<float>::min()) {
                 LOG_WARN("Less than 3 s.f. precision retained for " << value);
             }
 #endif // CFLOATSTORAGE_BOUNDS_CHECK

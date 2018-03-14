@@ -20,8 +20,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CCountingModelTest : public CppUnit::TestFixture
-{
+class CCountingModelTest : public CppUnit::TestFixture {
     public:
         void testSkipSampling(void);
         void testCheckScheduledEvents(void);

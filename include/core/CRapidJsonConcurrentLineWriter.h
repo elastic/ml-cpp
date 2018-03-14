@@ -19,10 +19,8 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonLineWriter.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A Json line writer for concurrently writing to a shared output stream
@@ -33,8 +31,7 @@ namespace core
 //! IMPLEMENTATION DECISIONS:\n
 //! hard code encoding and stream type
 //!
-class CORE_EXPORT CRapidJsonConcurrentLineWriter : public CRapidJsonLineWriter<rapidjson::StringBuffer>
-{
+class CORE_EXPORT CRapidJsonConcurrentLineWriter : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
     public:
         using TRapidJsonLineWriterBase = CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
@@ -63,8 +60,7 @@ class CORE_EXPORT CRapidJsonConcurrentLineWriter : public CRapidJsonLineWriter<r
         //! Note this non-virtual overwrite is needed to avoid slicing of the writer
         //! and hence ensure the correct EndObject is called
         //! \p doc reference to rapidjson document value
-        void write(rapidjson::Value &doc)
-        {
+        void write(rapidjson::Value &doc) {
             doc.Accept(*this);
         }
 

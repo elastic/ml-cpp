@@ -24,10 +24,8 @@
 #include <utility>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Base class to parse lines containing nested documents from a stream.
@@ -43,8 +41,7 @@ namespace api
 //! The original use case was to factor out commonality from lineified
 //! JSON and XML parsers.
 //!
-class API_EXPORT CLineifiedInputParser : public CInputParser
-{
+class API_EXPORT CLineifiedInputParser : public CInputParser {
     public:
         //! Construct with an input stream to be parsed.  Once a stream is
         //! passed to this constructor, no other object should read from it.
@@ -94,7 +91,7 @@ class API_EXPORT CLineifiedInputParser : public CInputParser
         //! characters is NOT zero terminated, which is something to be aware of
         //! when accessing it.
         TScopedCharArray m_WorkBuffer;
-        size_t           m_WorkBufferCapacity;
+        size_t m_WorkBufferCapacity;
         char             *m_WorkBufferPtr;
         char             *m_WorkBufferEnd;
 };

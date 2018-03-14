@@ -28,10 +28,8 @@
 
 class CLoggerTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -74,12 +72,10 @@ namespace core
 //! product, but can be useful when a unit test needs to log more
 //! detailed information.
 //!
-class CORE_EXPORT CLogger : private CNonCopyable
-{
+class CORE_EXPORT CLogger : private CNonCopyable {
     public:
         //! Used to set the level we should log at
-        enum ELevel
-        {
+        enum ELevel {
             E_Fatal,
             E_Error,
             E_Warn,
@@ -147,7 +143,7 @@ class CORE_EXPORT CLogger : private CNonCopyable
         void massageProperties(log4cxx::helpers::Properties &props) const;
 
         typedef std::map<log4cxx::logchar, log4cxx::LogString> TLogCharLogStrMap;
-        typedef TLogCharLogStrMap::const_iterator              TLogCharLogStrMapCItr;
+        typedef TLogCharLogStrMap::const_iterator TLogCharLogStrMapCItr;
 
         //! Replace Ml specific mappings in a single string
         void massageString(const TLogCharLogStrMap &mappings,
@@ -161,16 +157,16 @@ class CORE_EXPORT CLogger : private CNonCopyable
         //! CLogger is a singleton, so we can not just create new instances
         void reset();
     private:
-        log4cxx::LoggerPtr        m_Logger;
+        log4cxx::LoggerPtr m_Logger;
 
         //! Has the logger ever been reconfigured?  This is not protected by a
         //! lock despite the fact that it may be accessed from different
         //! threads.  It is declared volatile to prevent the compiler optimising
         //! away reads of it.
-        volatile bool             m_Reconfigured;
+        volatile bool m_Reconfigured;
 
         //! Cache the program name
-        std::string               m_ProgramName;
+        std::string m_ProgramName;
 
         //! When logging to a named pipe this stores the C FILE pointer to
         //! access the pipe.  Should be NULL otherwise.
@@ -178,7 +174,7 @@ class CORE_EXPORT CLogger : private CNonCopyable
 
         //! When logging to a pipe, the file descriptor that stderr was
         //! originally associated with.
-        int                       m_OrigStderrFd;
+        int m_OrigStderrFd;
 
         //! friend class for testing
         friend class ::CLoggerTest;

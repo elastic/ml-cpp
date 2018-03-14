@@ -24,10 +24,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Manages the various IO streams of an API command.
@@ -55,8 +53,7 @@ namespace api
 //! always required.  Persist/restore streams are returned as pointers
 //! because some processes may not require both.
 //!
-class API_EXPORT CIoManager : private core::CNonCopyable
-{
+class API_EXPORT CIoManager : private core::CNonCopyable {
     public:
         //! Leave \p inputFileName/\p outputFileName empty to indicate
         //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to
@@ -92,23 +89,23 @@ class API_EXPORT CIoManager : private core::CNonCopyable
 
     private:
         //! Have the streams been successfully initialised?
-        bool                               m_IoInitialised;
+        bool m_IoInitialised;
 
         //! Name of file/pipe to get input from.  Empty implies STDIN.
-        std::string                        m_InputFileName;
+        std::string m_InputFileName;
 
         //! Is the input file a named pipe?
-        bool                               m_IsInputFileNamedPipe;
+        bool m_IsInputFileNamedPipe;
 
         //! If this object owns the input stream then a pointer to it.  If
         //! std::cin is being used then this will be NULL.
         core::CNamedPipeFactory::TIStreamP m_InputStream;
 
         //! Name of file/pipe to write output to.  Empty implies STDOUT.
-        std::string                        m_OutputFileName;
+        std::string m_OutputFileName;
 
         //! Is the input file a named pipe?
-        bool                               m_IsOutputFileNamedPipe;
+        bool m_IsOutputFileNamedPipe;
 
         //! If this object owns the output stream then a pointer to it.  If
         //! std::cout is being used then this will be NULL.
@@ -116,10 +113,10 @@ class API_EXPORT CIoManager : private core::CNonCopyable
 
         //! Name of file/pipe to restore state from.  Empty implies don't
         //! restore state.
-        std::string                        m_RestoreFileName;
+        std::string m_RestoreFileName;
 
         //! Is the restore file a named pipe?
-        bool                               m_IsRestoreFileNamedPipe;
+        bool m_IsRestoreFileNamedPipe;
 
         //! If this object owns the restore stream then a pointer to it.  A
         //! NULL pointer implies state is not being restored.
@@ -127,10 +124,10 @@ class API_EXPORT CIoManager : private core::CNonCopyable
 
         //! Name of file/pipe to persist state to.  Empty implies don't persist
         //! state.
-        std::string                        m_PersistFileName;
+        std::string m_PersistFileName;
 
         //! Is the persist file a named pipe?
-        bool                               m_IsPersistFileNamedPipe;
+        bool m_IsPersistFileNamedPipe;
 
         //! If this object owns the persist stream then a pointer to it.  A
         //! NULL pointer implies state is not being persisted.

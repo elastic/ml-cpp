@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLineifiedJsonInputParserTest : public CppUnit::TestFixture
-{
+class CLineifiedJsonInputParserTest : public CppUnit::TestFixture {
     public:
         void testThroughputArbitrary(void);
         void testThroughputCommon(void);

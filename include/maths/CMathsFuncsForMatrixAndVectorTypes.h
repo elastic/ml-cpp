@@ -19,18 +19,13 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CMathsFuncs.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 template<typename VECTOR, typename F>
-bool CMathsFuncs::aComponent(const F &f, const VECTOR &val)
-{
-    for (std::size_t i = 0u; i < val.dimension(); ++i)
-    {
-        if (f(val(i)))
-        {
+bool CMathsFuncs::aComponent(const F &f, const VECTOR &val) {
+    for (std::size_t i = 0u; i < val.dimension(); ++i) {
+        if (f(val(i))) {
             return true;
         }
     }
@@ -38,12 +33,9 @@ bool CMathsFuncs::aComponent(const F &f, const VECTOR &val)
 }
 
 template<typename VECTOR, typename F>
-bool CMathsFuncs::everyComponent(const F &f, const VECTOR &val)
-{
-    for (std::size_t i = 0u; i < val.dimension(); ++i)
-    {
-        if (!f(val(i)))
-        {
+bool CMathsFuncs::everyComponent(const F &f, const VECTOR &val) {
+    for (std::size_t i = 0u; i < val.dimension(); ++i) {
+        if (!f(val(i))) {
             return false;
         }
     }
@@ -51,14 +43,10 @@ bool CMathsFuncs::everyComponent(const F &f, const VECTOR &val)
 }
 
 template<typename SYMMETRIC_MATRIX, typename F>
-bool CMathsFuncs::anElement(const F &f, const SYMMETRIC_MATRIX &val)
-{
-    for (std::size_t i = 0u; i < val.rows(); ++i)
-    {
-        for (std::size_t j = i; j < val.columns(); ++j)
-        {
-            if (f(val(i, j)))
-            {
+bool CMathsFuncs::anElement(const F &f, const SYMMETRIC_MATRIX &val) {
+    for (std::size_t i = 0u; i < val.rows(); ++i) {
+        for (std::size_t j = i; j < val.columns(); ++j) {
+            if (f(val(i, j))) {
                 return true;
             }
         }
@@ -67,14 +55,10 @@ bool CMathsFuncs::anElement(const F &f, const SYMMETRIC_MATRIX &val)
 }
 
 template<typename SYMMETRIC_MATRIX, typename F>
-bool CMathsFuncs::everyElement(const F &f, const SYMMETRIC_MATRIX &val)
-{
-    for (std::size_t i = 0u; i < val.rows(); ++i)
-    {
-        for (std::size_t j = i; j < val.columns(); ++j)
-        {
-            if (!f(val(i, j)))
-            {
+bool CMathsFuncs::everyElement(const F &f, const SYMMETRIC_MATRIX &val) {
+    for (std::size_t i = 0u; i < val.rows(); ++i) {
+        for (std::size_t j = i; j < val.columns(); ++j) {
+            if (!f(val(i, j))) {
                 return false;
             }
         }
@@ -83,38 +67,32 @@ bool CMathsFuncs::everyElement(const F &f, const SYMMETRIC_MATRIX &val)
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isNan(const CVectorNx1<double, N> &val)
-{
+bool CMathsFuncs::isNan(const CVectorNx1<double, N> &val) {
     return aComponent(static_cast<bool (*)(double)>(&isNan), val);
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isNan(const CSymmetricMatrixNxN<double, N> &val)
-{
+bool CMathsFuncs::isNan(const CSymmetricMatrixNxN<double, N> &val) {
     return anElement(static_cast<bool (*)(double)>(&isNan), val);
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isInf(const CVectorNx1<double, N> &val)
-{
+bool CMathsFuncs::isInf(const CVectorNx1<double, N> &val) {
     return aComponent(static_cast<bool (*)(double)>(&isInf), val);
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isInf(const CSymmetricMatrixNxN<double, N> &val)
-{
+bool CMathsFuncs::isInf(const CSymmetricMatrixNxN<double, N> &val) {
     return anElement(static_cast<bool (*)(double)>(&isInf), val);
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isFinite(const CVectorNx1<double, N> &val)
-{
+bool CMathsFuncs::isFinite(const CVectorNx1<double, N> &val) {
     return everyComponent(static_cast<bool (*)(double)>(&isFinite), val);
 }
 
 template<std::size_t N>
-bool CMathsFuncs::isFinite(const CSymmetricMatrixNxN<double, N> &val)
-{
+bool CMathsFuncs::isFinite(const CSymmetricMatrixNxN<double, N> &val) {
     return everyElement(static_cast<bool (*)(double)>(&isFinite), val);
 }
 

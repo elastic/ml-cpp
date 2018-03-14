@@ -31,10 +31,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CAnnotatedProbabilityBuilder;
 class CInfluenceCalculator;
 
@@ -59,8 +57,7 @@ class CInfluenceCalculator;
 //! which are selected at runtime. This is necessary because different features
 //! use different influence calculations, but the features are selected based
 //! on the commands the user runs.
-class MODEL_EXPORT CProbabilityAndInfluenceCalculator
-{
+class MODEL_EXPORT CProbabilityAndInfluenceCalculator {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble2Vec = core::CSmallVector<double, 2>;
@@ -89,8 +86,7 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
         using TStoredStringPtr1Vec = core::CSmallVector<core::CStoredStringPtr, 1>;
 
         //! \brief Wraps up the parameters to the influence calculation.
-        struct MODEL_EXPORT SParams : private core::CNonCopyable
-        {
+        struct MODEL_EXPORT SParams : private core::CNonCopyable {
             SParams(const CPartitioningFields &partitioningFields);
 
             //! Helper to print a description of the parameters.
@@ -132,8 +128,7 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
 
         //! \brief Wraps up the parameters to the influence calculation
         //! for correlates.
-        struct MODEL_EXPORT SCorrelateParams : private core::CNonCopyable
-        {
+        struct MODEL_EXPORT SCorrelateParams : private core::CNonCopyable {
             SCorrelateParams(const CPartitioningFields &partitioningFields);
 
             //! Helper to print a description of the parameters.
@@ -369,12 +364,10 @@ class MODEL_EXPORT CProbabilityAndInfluenceCalculator
 //! be an anomaly if only the records labeled with the field value
 //! were present", or 2) "would there still be an anomaly if none
 //! of the records labeled with the field value were present".
-class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable
-{
+class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void)
-        {
+        static bool dynamicSizeAlwaysZero(void) {
             return true;
         }
         using TParams = CProbabilityAndInfluenceCalculator::SParams;
@@ -400,8 +393,7 @@ class MODEL_EXPORT CInfluenceCalculator : private core::CNonCopyable
 
 //! \brief A stub implementation for the case that the influence
 //! can't be calculated.
-class MODEL_EXPORT CInfluenceUnavailableCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CInfluenceUnavailableCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;
@@ -409,8 +401,7 @@ class MODEL_EXPORT CInfluenceUnavailableCalculator : public CInfluenceCalculator
 
 //! \brief A stub implementation for the case that every influence
 //! is 1, irrespective of the feature value and influence values.
-class MODEL_EXPORT CIndicatorInfluenceCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CIndicatorInfluenceCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;
@@ -437,8 +428,7 @@ class MODEL_EXPORT CIndicatorInfluenceCalculator : public CInfluenceCalculator
 //! Otherwise, the anomaly is likely due to the absence of counts for
 //! one of the influencing field values, in which case we'd need to
 //! know what its typical count is and we don't have this information.
-class MODEL_EXPORT CLogProbabilityComplementInfluenceCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CLogProbabilityComplementInfluenceCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;
@@ -469,8 +459,7 @@ class MODEL_EXPORT CLogProbabilityComplementInfluenceCalculator : public CInflue
 //! field value were present". Note, we can determine whether there
 //! is influence in this case if the anomalous value is in either
 //! the left or right tail.
-class MODEL_EXPORT CLogProbabilityInfluenceCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CLogProbabilityInfluenceCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;
@@ -491,8 +480,7 @@ class MODEL_EXPORT CLogProbabilityInfluenceCalculator : public CInfluenceCalcula
 //!
 //! \see CLogProbabilityComplementInfluenceCalculator for more details
 //! on the calculation.
-class MODEL_EXPORT CMeanInfluenceCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CMeanInfluenceCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;
@@ -513,8 +501,7 @@ class MODEL_EXPORT CMeanInfluenceCalculator : public CInfluenceCalculator
 //!
 //! \see CLogProbabilityComplementInfluenceCalculator for more details
 //! on the calculation.
-class MODEL_EXPORT CVarianceInfluenceCalculator : public CInfluenceCalculator
-{
+class MODEL_EXPORT CVarianceInfluenceCalculator : public CInfluenceCalculator {
     public:
         virtual void computeInfluences(TParams &params) const;
         virtual void computeInfluences(TCorrelateParams &params) const;

@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CUnameTest : public CppUnit::TestFixture
-{
+class CUnameTest : public CppUnit::TestFixture {
     public:
         void testUname(void);
 

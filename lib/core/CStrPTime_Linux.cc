@@ -22,10 +22,8 @@
 #include <string.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 // On Linux strptime() accepts %z, but doesn't make any changes
@@ -46,11 +44,9 @@ namespace core
 // (Interestingly, strptime() works fine on Mac OS X.)
 char *CStrPTime::strPTime(const char *buf,
                           const char *format,
-                          struct tm *tm)
-{
+                          struct tm *tm) {
     // If any of the inputs are NULL then do nothing
-    if (buf == 0 || format == 0 || tm == 0)
-    {
+    if (buf == 0 || format == 0 || tm == 0) {
         return 0;
     }
 
@@ -58,52 +54,40 @@ char *CStrPTime::strPTime(const char *buf,
 
     // Replace %Z first if present
     size_t tznamePos(adjFormat.find("%Z"));
-    if (tznamePos != std::string::npos)
-    {
+    if (tznamePos != std::string::npos) {
         // Find the corresponding place in the buffer
         char *excess(CStrPTime::strPTime(buf,
                                          adjFormat.substr(0, tznamePos).c_str(),
                                          tm));
-        if (excess == 0)
-        {
+        if (excess == 0) {
             return 0;
         }
 
         // Skip leading whitespace
-        while (::isspace(static_cast<unsigned char>(*excess)))
-        {
+        while (::isspace(static_cast<unsigned char>(*excess))) {
             ++excess;
         }
 
         // Only GMT and the standard and daylight saving timezone names for the
         // current timezone are supported, as per the strptime() man page
         std::string possTzName(excess);
-        if (possTzName.find("GMT") == 0)
-        {
+        if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
-        }
-        else if (possTzName.find(::tzname[0]) == 0)
-        {
+        } else if (possTzName.find(::tzname[0]) == 0) {
             adjFormat.replace(tznamePos, 2, ::tzname[0]);
-        }
-        else if (possTzName.find(::tzname[1]) == 0)
-        {
+        } else if (possTzName.find(::tzname[1]) == 0) {
             adjFormat.replace(tznamePos, 2, ::tzname[1]);
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 
     // Check if the format specifier includes a %z
     size_t zPos(adjFormat.find("%z"));
-    if (zPos != std::string::npos)
-    {
+    if (zPos != std::string::npos) {
         // If there's anything except whitespace after the
         // %z it's too complicated
-        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) != std::string::npos)
-        {
+        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) != std::string::npos) {
             return 0;
         }
 
@@ -114,73 +98,54 @@ char *CStrPTime::strPTime(const char *buf,
 
     // We only have more work to do if %z was in the string, and
     // the basic strptime() call worked
-    if (excess != 0 && zPos != std::string::npos)
-    {
+    if (excess != 0 && zPos != std::string::npos) {
         // Skip leading whitespace
-        while (::isspace(static_cast<unsigned char>(*excess)))
-        {
+        while (::isspace(static_cast<unsigned char>(*excess))) {
             ++excess;
         }
 
         // We expect something along the lines of +0000 or
         // -0500, i.e. a plus or minus sign followed by 4 digits
         int sign(0);
-        if (*excess == '+')
-        {
+        if (*excess == '+') {
             sign = 1;
-        }
-        else if (*excess == '-')
-        {
+        } else if (*excess == '-') {
             sign = -1;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
         int hour(0);
-        if (*excess >= '0' && *excess <= '2')
-        {
+        if (*excess >= '0' && *excess <= '2') {
             hour += (*excess - '0') * 10;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
-        if (*excess >= '0' && *excess <= '9')
-        {
+        if (*excess >= '0' && *excess <= '9') {
             hour += (*excess - '0');
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
         int minute(0);
-        if (*excess >= '0' && *excess <= '5')
-        {
+        if (*excess >= '0' && *excess <= '5') {
             minute += (*excess - '0') * 10;
-        }
-        else
-        {
+        } else {
             return 0;
         }
 
         ++excess;
 
-        if (*excess >= '0' && *excess <= '9')
-        {
+        if (*excess >= '0' && *excess <= '9') {
             minute += (*excess - '0');
-        }
-        else
-        {
+        } else {
             return 0;
         }
 

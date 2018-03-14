@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTimeUtilsTest : public CppUnit::TestFixture
-{
+class CTimeUtilsTest : public CppUnit::TestFixture {
     public:
         void testNow(void);
         void testToIso8601(void);

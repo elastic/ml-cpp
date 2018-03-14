@@ -19,14 +19,11 @@
 #include <model/CModelFactory.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief A factory class implementation for CCountingModel.
 //!
@@ -34,8 +31,7 @@ namespace model
 //! This concrete factory implements the methods to make new models
 //! and data gatherers, and create default priors suitable for the
 //! CCountingModel class.
-class MODEL_EXPORT CCountingModelFactory : public CModelFactory
-{
+class MODEL_EXPORT CCountingModelFactory : public CModelFactory {
     public:
         //! Lift all overloads of the defaultPrior function into scope.
         using CModelFactory::defaultPrior;
@@ -132,8 +128,8 @@ class MODEL_EXPORT CCountingModelFactory : public CModelFactory
         virtual void features(const TFeatureVec &features);
 
         //! Set the bucket results delay
-        virtual void bucketResultsDelay(std::size_t bucketResultsDelay) ;
-        //@}
+        virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
+    //@}
 
     private:
         //! Get the field values which partition the data for modeling.

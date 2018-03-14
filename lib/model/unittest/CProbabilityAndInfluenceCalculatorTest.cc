@@ -38,8 +38,7 @@
 
 using namespace ml;
 
-namespace
-{
+namespace {
 
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
@@ -72,13 +71,11 @@ using TStrCRefDouble1VecDouble1VecPrPrVec = model::CProbabilityAndInfluenceCalcu
 using TStoredStringPtrStoredStringPtrPrDoublePrVec = model::CProbabilityAndInfluenceCalculator::TStoredStringPtrStoredStringPtrPrDoublePrVec;
 using TInfluenceCalculatorCPtr = boost::shared_ptr<const model::CInfluenceCalculator>;
 
-TDouble1VecDoublePr make_pair(double first, double second)
-{
+TDouble1VecDoublePr make_pair(double first, double second) {
     return TDouble1VecDoublePr{TDouble1Vec{first}, second};
 }
 
-TDouble1VecDoublePr make_pair(double first1, double first2, double second)
-{
+TDouble1VecDoublePr make_pair(double first1, double first2, double second) {
     return TDouble1VecDoublePr{TDouble1Vec{first1, first2}, second};
 }
 
@@ -87,38 +84,37 @@ TDouble1VecDoublePr make_pair(double first1, double first2, double second)
 //    return TDouble1VecDouble1VecPr{TDouble1Vec{first1, first2}, TDouble1Vec{second1, second2}};
 //}
 
-maths::CModelParams params(core_t::TTime bucketLength)
-{
+maths::CModelParams params(core_t::TTime bucketLength) {
     double learnRate{static_cast<double>(bucketLength) / 1800.0};
     double minimumSeasonalVarianceScale{0.4};
     return maths::CModelParams{bucketLength, learnRate, 0.0, minimumSeasonalVarianceScale};
 }
 
-std::size_t dimension(double) { return 1; }
-std::size_t dimension(const TDoubleVec &sample) { return sample.size(); }
+std::size_t dimension(double) {
+    return 1;
+}
+std::size_t dimension(const TDoubleVec &sample) {
+    return sample.size();
+}
 
-TTimeDouble2VecSizeTr sample(core_t::TTime time, double sample)
-{
+TTimeDouble2VecSizeTr sample(core_t::TTime time, double sample) {
     return core::make_triple(time, TDouble2Vec{sample}, std::size_t{0});
 }
-TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec &sample)
-{
+TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec &sample) {
     return core::make_triple(time, TDouble2Vec(sample), std::size_t{0});
 }
 
 template<typename SAMPLES>
-core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES &samples, maths::CModel &model)
-{
-    TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(dimension(samples[0]))};
+core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES &samples, maths::CModel &model) {
+    TDouble2Vec4VecVec            weights{maths::CConstantWeights::unit<TDouble2Vec>(dimension(samples[0]))};
     maths::CModelAddSamplesParams params;
     params.integer(false)
-          .propagationInterval(1.0)
-          .weightStyles(maths::CConstantWeights::COUNT)
-          .trendWeights(weights)
-          .priorWeights(weights);
+    .propagationInterval(1.0)
+    .weightStyles(maths::CConstantWeights::COUNT)
+    .trendWeights(weights)
+    .priorWeights(weights);
     core_t::TTime time{0};
-    for (const auto &sample_ : samples)
-    {
+    for (const auto &sample_ : samples) {
         model.addSamples(params, TTimeDouble2VecSizeTrVec{sample(time, sample_)});
         time += bucketLength;
     }
@@ -130,15 +126,14 @@ void computeProbability(core_t::TTime time,
                         const TDouble2Vec &sample,
                         const maths::CModel &model,
                         double &probablity,
-                        TTail2Vec &tail)
-{
-    TDouble2Vec4Vec weight{model.seasonalWeight(0.0, time)};
+                        TTail2Vec &tail) {
+    TDouble2Vec4Vec                weight{model.seasonalWeight(0.0, time)};
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation)
-          .addBucketEmpty(TBool2Vec{false})
-          .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
-          .addWeights(weight);
-    bool conditional;
+    .addBucketEmpty(TBool2Vec{false})
+    .weightStyles(maths::CConstantWeights::SEASONAL_VARIANCE)
+    .addWeights(weight);
+    bool      conditional;
     TSize1Vec mostAnomalousCorrelate;
     model.probability(params,
                       TTime2Vec1Vec{TTime2Vec{time}},
@@ -163,13 +158,12 @@ void computeInfluences(CALCULATOR &calculator,
                        const TTail2Vec &tail,
                        const std::string &influencerName,
                        const TStrCRefDouble1VecDoublePrPrVec &influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result)
-{
+                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
-    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    TDouble2Vec4Vec weights{model.seasonalWeight(0.0, time), TDouble2Vec{1.0}};
+    model::CPartitioningFields                         partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    TDouble2Vec4Vec                                    weights{model.seasonalWeight(0.0, time), TDouble2Vec{1.0}};
     model::CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
     params.s_Feature = feature;
     params.s_Model = &model;
@@ -177,7 +171,7 @@ void computeInfluences(CALCULATOR &calculator,
     params.s_Value = TDouble2Vec1Vec{TDoubleVec{value}};
     params.s_Count = count;
     params.s_ComputeProbabilityParams.weightStyles(weightStyles)
-                                     .addWeights(weights);
+    .addWeights(weights);
     params.s_Probability = probability;
     params.s_Tail = tail;
     params.s_InfluencerName = model::CStringStore::influencers().get(influencerName);
@@ -198,15 +192,14 @@ void computeInfluences(CALCULATOR &calculator,
                        const TTail2Vec &tail,
                        const std::string &influencerName,
                        const TStrCRefDouble1VecDouble1VecPrPrVec &influencerValues,
-                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result)
-{
+                       TStoredStringPtrStoredStringPtrPrDoublePrVec &result) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
-    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-    TTime2Vec times_(&times[0], &times[2]);
-    TDouble2Vec values_(&values[0], &values[2]);
-    TDouble2Vec counts_(&counts[0], &counts[2]);
+    model::CPartitioningFields                                  partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    TTime2Vec                                                   times_(&times[0], &times[2]);
+    TDouble2Vec                                                 values_(&values[0], &values[2]);
+    TDouble2Vec                                                 counts_(&counts[0], &counts[2]);
     model::CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);
     params.s_Feature = feature;
     params.s_Model = &model;
@@ -235,8 +228,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
                                      core_t::TTime time_,
                                      const TDoubleVecVec &values,
                                      const TStrCRefDouble1VecDoublePrPrVecVec &influencerValues,
-                                     TStoredStringPtrStoredStringPtrPrDoublePrVec &influences)
-{
+                                     TStoredStringPtrStoredStringPtrPrDoublePrVec &influences) {
     maths_t::TWeightStyleVec weightStyles;
     weightStyles.push_back(maths_t::E_SampleSeasonalVarianceScaleWeight);
     weightStyles.push_back(maths_t::E_SampleCountVarianceScaleWeight);
@@ -249,32 +241,30 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     calculator.plugin(*influenceCalculator);
 
     maths::CJointProbabilityOfLessLikelySamples pJoint;
-    maths::CProbabilityOfExtremeSample pExtreme;
+    maths::CProbabilityOfExtremeSample          pExtreme;
 
-    for (std::size_t i = 0u; i < values.size(); ++i)
-    {
-        std::size_t dimension{values[i].size() - 1};
-        TTime2Vec1Vec time{TTime2Vec{time_}};
+    for (std::size_t i = 0u; i < values.size(); ++i) {
+        std::size_t     dimension{values[i].size() - 1};
+        TTime2Vec1Vec   time{TTime2Vec{time_}};
         TDouble2Vec1Vec value{TDouble2Vec(&values[i][0], &values[i][dimension])};
         TDouble2Vec4Vec weight(2, TDouble2Vec(dimension, values[i][dimension]));
-        double count{0.0};
-        for (const auto &influence : influencerValues[i])
-        {
+        double          count{0.0};
+        for (const auto &influence : influencerValues[i]) {
             count += influence.second.second;
         }
 
         maths::CModelProbabilityParams params_;
         params_.addCalculation(model_t::probabilityCalculation(feature))
-               .seasonalConfidenceInterval(0.0)
-               .addBucketEmpty(TBool2Vec{false})
-               .weightStyles(weightStyles)
-               .addWeights(weight);
+        .seasonalConfidenceInterval(0.0)
+        .addBucketEmpty(TBool2Vec{false})
+        .weightStyles(weightStyles)
+        .addWeights(weight);
 
-        double p = 0.0;
-        TTail2Vec tail;
+        double               p = 0.0;
+        TTail2Vec            tail;
         model_t::CResultType type;
-        TSize1Vec mostAnomalousCorrelate;
-        calculator.addProbability(feature, 0, model, 0/*elapsedTime*/,
+        TSize1Vec            mostAnomalousCorrelate;
+        calculator.addProbability(feature, 0, model, 0 /*elapsedTime*/,
                                   params_, time, value,
                                   p, tail, type, mostAnomalousCorrelate);
         LOG_DEBUG("  p = " << p);
@@ -302,14 +292,13 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     CPPUNIT_ASSERT(pExtreme.calculate(pe));
 
     LOG_DEBUG("  probability = " << probability
-              << ", expected probability = " << std::min(pj, pe));
+                                 << ", expected probability = " << std::min(pj, pe));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pe, pj), probability, 1e-10);
 }
 
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(void) {
     LOG_DEBUG("*** testInfluenceUnavailableCalculator ***");
 
     test::CRandomNumbers rng;
@@ -320,9 +309,9 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
         LOG_DEBUG("Test univariate");
 
         model::CInfluenceUnavailableCalculator calculator;
-        maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-        maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+        maths::CTimeSeriesDecomposition        trend{0.0, bucketLength};
+        maths::CNormalMeanPrecConjugate        prior =
+            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
         maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
         TDoubleVec samples;
@@ -336,8 +325,8 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
         TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
         computeInfluences(calculator,
                           model_t::E_IndividualLowCountsByBucketAndPerson, model,
-                          0/*time*/, 15.0/*value*/, 1.0/*count*/,
-                          0.001/*probability*/, TTail2Vec{maths_t::E_RightTail},
+                          0 /*time*/, 15.0 /*value*/, 1.0 /*count*/,
+                          0.001 /*probability*/, TTail2Vec{maths_t::E_RightTail},
                           I, influencerValues, influences);
 
         LOG_DEBUG("influences = " << core::CContainerPrinter::print(influences));
@@ -379,11 +368,10 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
 
         LOG_DEBUG("influences = " << core::CContainerPrinter::print(influences));
         CPPUNIT_ASSERT(influences.empty());
-    }*/
+       }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator(void) {
     LOG_DEBUG("*** testLogProbabilityComplementInfluenceCalculator ***");
 
     test::CRandomNumbers rng;
@@ -401,14 +389,14 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
             core_t::TTime now{addSamples(bucketLength, samples, model)};
 
-            double p;
+            double    p;
             TTail2Vec tail;
             computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{20.0}, model, p, tail);
 
@@ -417,7 +405,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             computeInfluences(calculator,
                               model_t::E_IndividualCountByBucketAndPerson, model,
-                              0/*time*/, 20.0/*value*/, 1.0/*count*/,
+                              0 /*time*/, 20.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -429,14 +417,14 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
             core_t::TTime now{addSamples(bucketLength, samples, model)};
 
-            double p;
+            double    p;
             TTail2Vec tail;
             computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{20.0}, model, p, tail);
 
@@ -447,7 +435,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             computeInfluences(calculator,
                               model_t::E_IndividualCountByBucketAndPerson, model,
-                              0/*time*/, 20.0/*value*/, 1.0/*count*/,
+                              0 /*time*/, 20.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -459,34 +447,32 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples)
-                {
+                for (auto &&sample : samples) {
                     sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
                 }
             }
             addSamples(bucketLength, samples, model);
 
-            TTimeVec testTimes{0, 86400 / 4, 86400 / 2, (3 * 86400) / 4};
+            TTimeVec                        testTimes{0, 86400 / 4, 86400 / 2, (3 * 86400) / 4};
             TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1), make_pair(70.0, 1.0)},
                                                              {TStrCRef(i2), make_pair(50.0, 1.0)}};
-            std::string expectedInfluencerValues[]{"i1", "i2"};
+            std::string   expectedInfluencerValues[]{"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {0.0, 0.0}, {1.0, 1.0}, {0.8, 0.6}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG("  time = " << time);
                 LOG_DEBUG("  baseline = " << model.predict(time));
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(time, maths_t::E_TwoSided, TDouble2Vec{120.0}, model, p, tail);
                 LOG_DEBUG("  p = " << p << ", tail = " << tail);
@@ -494,12 +480,11 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualCountByBucketAndPerson, model,
-                                  time, 120.0/*value*/, 1.0/*count*/,
+                                  time, 120.0 /*value*/, 1.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
-                for (std::size_t j = 0u; j < influences.size(); ++j)
-                {
+                for (std::size_t j = 0u; j < influences.size(); ++j) {
                     CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j], influences[j].second, 0.06);
                 }
@@ -704,11 +689,10 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                 }
             }
         }
-    }*/
+       }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void) {
     LOG_DEBUG("*** testMeanInfluenceCalculator ***");
 
     test::CRandomNumbers rng;
@@ -724,14 +708,14 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
             core_t::TTime now{addSamples(bucketLength, samples, model)};
 
-            double p;
+            double    p;
             TTail2Vec tail;
             computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{20.0}, model, p, tail);
 
@@ -740,7 +724,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             computeInfluences(calculator,
                               model_t::E_IndividualMeanByPerson, model,
-                              0/*time*/, 5.0/*value*/, 1.0/*count*/,
+                              0 /*time*/, 5.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -752,7 +736,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
@@ -762,7 +746,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
             {
                 LOG_DEBUG("Right tail, one clear influence");
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{12.5}, model, p, tail);
 
@@ -773,7 +757,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, model,
-                                  0/*time*/, 12.5/*value*/, 20.0/*count*/,
+                                  0 /*time*/, 12.5 /*value*/, 20.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -783,7 +767,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
             {
                 LOG_DEBUG("Right tail, no clear influences");
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{15.0}, model, p, tail);
 
@@ -793,7 +777,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, model,
-                                  0/*time*/, 15.0/*value*/, 11.0/*count*/,
+                                  0 /*time*/, 15.0 /*value*/, 11.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -802,7 +786,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
             {
                 LOG_DEBUG("Left tail, no clear influences");
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{5.0}, model, p, tail);
 
@@ -812,7 +796,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, model,
-                                  0/*time*/, 5.0/*value*/, 11.0/*count*/,
+                                  0 /*time*/, 5.0 /*value*/, 11.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -821,7 +805,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
             {
                 LOG_DEBUG("Left tail, two influences");
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{8.0}, model, p, tail);
 
@@ -832,7 +816,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualMeanByPerson, model,
-                                  0/*time*/, 8.0/*value*/, 40.0/*count*/,
+                                  0 /*time*/, 8.0 /*value*/, 40.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -1051,18 +1035,17 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator(void)
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, influences[1].second, 0.08);
             }
         }
-    }*/
+       }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator(void) {
     LOG_DEBUG("*** testLogProbabilityInfluenceCalculator ***");
 
     test::CRandomNumbers rng;
 
     model::CLogProbabilityInfluenceCalculator calculator;
 
-    core_t::TTime bucketLength{600};
+    core_t::TTime            bucketLength{600};
     maths_t::TWeightStyleVec weightStyle(1, maths_t::E_SampleSeasonalVarianceScaleWeight);
 
 
@@ -1073,14 +1056,14 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
             core_t::TTime now{addSamples(bucketLength, samples, model)};
 
-            double p;
+            double    p;
             TTail2Vec tail;
             computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{5.0}, model, p, tail);
 
@@ -1089,7 +1072,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             computeInfluences(calculator,
                               model_t::E_IndividualUniqueCountByBucketAndPerson, model,
-                              now/*time*/, 5.0/*value*/, 1.0/*count*/,
+                              now /*time*/, 5.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -1101,14 +1084,14 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
             core_t::TTime now{addSamples(bucketLength, samples, model)};
 
-            double p;
+            double    p;
             TTail2Vec tail;
             computeProbability(now, maths_t::E_TwoSided, TDouble1Vec{6.0}, model, p, tail);
 
@@ -1119,7 +1102,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             computeInfluences(calculator,
                               model_t::E_IndividualUniqueCountByBucketAndPerson, model,
-                              now/*time*/, 6.0/*value*/, 1.0/*count*/,
+                              now /*time*/, 6.0 /*value*/, 1.0 /*count*/,
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
@@ -1131,15 +1114,14 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 
             maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
             maths::CNormalMeanPrecConjugate prior =
-                    maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
             maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             {
                 rng.generateNormalSamples(0.0, 100.0, 10 * 86400 / 600, samples);
                 core_t::TTime time{0};
-                for (auto &&sample : samples)
-                {
+                for (auto &&sample : samples) {
                     sample += 100.0 + 100.0 * ::sin(2.0 * 3.1416 * static_cast<double>(time) / 86400.0);
                     time += bucketLength;
                 }
@@ -1147,18 +1129,17 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 
             addSamples(bucketLength, samples, model);
 
-            TTimeVec testTimes{0, 86400 / 4, 86400 / 2, (3 * 86400) / 4};
+            TTimeVec                        testTimes{0, 86400 / 4, 86400 / 2, (3 * 86400) / 4};
             TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1), make_pair(60.0, 1.0)},
                                                              {TStrCRef(i2), make_pair(50.0, 1.0)}};
-            std::string expectedInfluencerValues[] = {"i1", "i2"};
+            std::string   expectedInfluencerValues[] = {"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {1.0, 1.0}, {1.0, 1.0}, {1.0, 0.7}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG("  time = " << time);
 
-                double p;
+                double    p;
                 TTail2Vec tail;
                 computeProbability(time, maths_t::E_TwoSided, TDouble2Vec{60.0}, model, p, tail);
                 LOG_DEBUG("  p = " << p << ", tail = " << tail);
@@ -1166,13 +1147,12 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                 TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
                 computeInfluences(calculator,
                                   model_t::E_IndividualHighUniqueCountByBucketAndPerson, model,
-                                  time, 60.0/*value*/, 1.0/*count*/,
+                                  time, 60.0 /*value*/, 1.0 /*count*/,
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG("  influences = " << core::CContainerPrinter::print(influences));
                 std::sort(influences.begin(), influences.end(), maths::COrderings::SFirstLess());
-                for (std::size_t j = 0u; j < influences.size(); ++j)
-                {
+                for (std::size_t j = 0u; j < influences.size(); ++j) {
                     CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j], influences[j].second, 0.03);
                 }
@@ -1388,8 +1368,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
 //    }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(void) {
     LOG_DEBUG("*** testIndicatorInfluenceCalculator ***");
 
     {
@@ -1399,7 +1378,7 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(vo
 
         maths::CTimeSeriesDecomposition trend{0.0, 600};
         maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
         maths::CUnivariateTimeSeriesModel model(params(600), 0, trend, prior);
 
         TStrCRefDouble1VecDoublePrPrVec influencerValues{{TStrCRef(i1), make_pair(1.0, 1.0)},
@@ -1409,8 +1388,8 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(vo
         TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
         computeInfluences(calculator,
                           model_t::E_IndividualIndicatorOfBucketPerson, model,
-                          0/*time*/, 1.0/*value*/, 1.0/*count*/,
-                          0.1/*probability*/, TTail2Vec{maths_t::E_RightTail},
+                          0 /*time*/, 1.0 /*value*/, 1.0 /*count*/,
+                          0.1 /*probability*/, TTail2Vec{maths_t::E_RightTail},
                           I, influencerValues, influences);
 
         LOG_DEBUG("influences = " << core::CContainerPrinter::print(influences));
@@ -1443,11 +1422,10 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator(vo
         LOG_DEBUG("influences = " << core::CContainerPrinter::print(influences));
         CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
                              core::CContainerPrinter::print(influences));
-    }*/
+       }*/
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator(void)
-{
+void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator(void) {
     LOG_DEBUG("*** testProbabilityAndInfluenceCalculator ***");
 
     test::CRandomNumbers rng;
@@ -1456,17 +1434,17 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
 
     maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
     maths::CNormalMeanPrecConjugate prior =
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
     maths::CMultivariateNormalConjugate<2> multivariatePrior =
-            maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CUnivariateTimeSeriesModel univariateModel(params(bucketLength), 0, trend, prior);
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
+    maths::CUnivariateTimeSeriesModel   univariateModel(params(bucketLength), 0, trend, prior);
     maths::CMultivariateTimeSeriesModel multivariateModel(params(bucketLength), trend, multivariatePrior);
 
     TDoubleVec samples;
     rng.generateNormalSamples(10.0, 1.0, 50, samples);
     addSamples(bucketLength, samples, univariateModel);
 
-    TDoubleVec mean{10.0, 15.0};
+    TDoubleVec    mean{10.0, 15.0};
     TDoubleVecVec covariances{{1.0, 0.5}, {0.5, 2.0}};
     TDoubleVecVec multivariateSamples;
     rng.generateMultivariateNormalSamples(mean, covariances, 50, multivariateSamples);
@@ -1510,27 +1488,25 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                                          {TStrCRef(i1), make_pair(17.0, 22.0, 1.0)}};
 
         maths::CJointProbabilityOfLessLikelySamples pJoint;
-        maths::CProbabilityOfExtremeSample pExtreme;
+        maths::CProbabilityOfExtremeSample          pExtreme;
 
-        for (std::size_t i = 0u; i < 5; ++i)
-        {
-            for (std::size_t j = 0u; j < features.size(); ++j)
-            {
+        for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t j = 0u; j < features.size(); ++j) {
                 TDouble2Vec1Vec value{TDouble2Vec(&values[i+5*j][0], &values[i+5*j][1+j])};
                 TDouble2Vec4Vec weights{TDouble2Vec(1+j, values[i+5*j][1+j]),
                                         TDouble2Vec(1+j, 1.0)};
                 maths::CModelProbabilityParams params_;
                 params_.addCalculation(maths_t::E_TwoSided)
-                       .seasonalConfidenceInterval(0.0)
-                       .addBucketEmpty(TBool2Vec{false})
-                       .weightStyles(weightStyles)
-                       .addWeights(weights);
-                double p;
-                TTail2Vec tail;
+                .seasonalConfidenceInterval(0.0)
+                .addBucketEmpty(TBool2Vec{false})
+                .weightStyles(weightStyles)
+                .addWeights(weights);
+                double               p;
+                TTail2Vec            tail;
                 model_t::CResultType type;
-                TSize1Vec mostAnomalousCorrelate;
+                TSize1Vec            mostAnomalousCorrelate;
                 calculator.addProbability(features[j], 0, *models[j],
-                                          0/*elapsedTime*/, params_,
+                                          0 /*elapsedTime*/, params_,
                                           TTime2Vec1Vec{TTime2Vec{now}}, value,
                                           p, tail, type, mostAnomalousCorrelate);
                 pJoint.add(p);
@@ -1553,7 +1529,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         pJoint.add(0.02);
         pExtreme.add(0.02);
 
-        double probability;
+        double                                       probability;
         TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
         CPPUNIT_ASSERT(calculator.calculate(probability, influences));
 
@@ -1562,7 +1538,7 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         CPPUNIT_ASSERT(pExtreme.calculate(pe));
 
         LOG_DEBUG("  probability = " << probability
-                  << ", expected probability = " << std::min(pj, pe));
+                                     << ", expected probability = " << std::min(pj, pe));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pe, pj), probability, 1e-10);
     }
     {
@@ -1579,20 +1555,19 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                              { 9.0, 14.0, 1.0},
                                              {17.0, 22.0, 2.0}}};
         TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-                TStrCRefDouble1VecDoublePrPrVecVec{
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 7.0, 1.5)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 9.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 2.0)}}},
-                TStrCRefDouble1VecDoublePrPrVecVec{
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 20.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 7.0, 12.0, 1.5)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 9.0, 14.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
-        for (std::size_t i = 0u; i < features.size(); ++i)
-        {
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 7.0, 1.5)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 9.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 2.0)}}},
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(15.0, 20.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 7.0, 12.0, 1.5)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair( 9.0, 14.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
+        for (std::size_t i = 0u; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
@@ -1616,21 +1591,20 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                              {10.8, 15.8, 1.5},
                                              {19.0, 24.0, 1.0}}};
         TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-                TStrCRefDouble1VecDoublePrPrVecVec{
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 8.5, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 1.0)}}},
-                TStrCRefDouble1VecDoublePrPrVecVec{
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 8.5, 13.5, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
-                    TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 8.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 1.0)}}},
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 8.5, 13.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
 
-        for (std::size_t i = 0u; i < features.size(); ++i)
-        {
+        for (std::size_t i = 0u; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
@@ -1654,28 +1628,28 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                              {10.8, 15.8, 1.0},
                                              {14.0, 19.0, 1.0}}};
         TStrCRefDouble1VecDoublePrPrVecVec influencerValues[]{
-                 TStrCRefDouble1VecDoublePrPrVecVec{
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.0, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.5, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 9.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair( 7.0, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.6, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(12.0, 1.0)}}},
-                 TStrCRefDouble1VecDoublePrPrVecVec{
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 17.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.0, 15.0, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.5, 15.5, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 9.0, 14.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair( 7.0, 12.0, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(10.6, 15.6, 1.0)}},
-                     TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 21.0, 1.0)},
-                                                     {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}}}};
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 9.0, 1.0)},
+                                                {TStrCRef(i2), make_pair( 7.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.6, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(12.0, 1.0)}}},
+            TStrCRefDouble1VecDoublePrPrVecVec{
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(12.0, 17.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.0, 15.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(10.5, 15.5, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.5, 15.5, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair( 9.0, 14.0, 1.0)},
+                                                {TStrCRef(i2), make_pair( 7.0, 12.0, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(11.0, 16.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(10.6, 15.6, 1.0)}},
+                TStrCRefDouble1VecDoublePrPrVec{{TStrCRef(i1), make_pair(16.0, 21.0, 1.0)},
+                                                {TStrCRef(i2), make_pair(12.0, 17.0, 1.0)}}}};
 
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
@@ -1702,28 +1676,27 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
     }
 }
 
-CppUnit::Test *CProbabilityAndInfluenceCalculatorTest::suite(void)
-{
+CppUnit::Test *CProbabilityAndInfluenceCalculatorTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CProbabilityAndInfluenceCalculatorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-                                   "CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator",
-                                   &CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator) );
+                               "CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator",
+                               &CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator) );
 
     return suiteOfTests;
 }

@@ -18,14 +18,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMathsMemoryTest : public CppUnit::TestFixture
-{
-public:
-    void testPriors(void);
-    void testBjkstVec(void);
-    void testTimeSeriesDecompositions(void);
+class CMathsMemoryTest : public CppUnit::TestFixture {
+    public:
+        void testPriors(void);
+        void testBjkstVec(void);
+        void testTimeSeriesDecompositions(void);
 
-    static CppUnit::Test *suite(void);
+        static CppUnit::Test *suite(void);
 };
 
 

@@ -41,15 +41,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief A collection of utility functionality for the CDataGatherer
 //! and CBucketGatherer hierarchies.
@@ -65,8 +62,7 @@ namespace model
 //! all member functions should be static and it should be state-less.
 //! If your functionality doesn't fit this pattern just make it a nested
 //! class.
-class MODEL_EXPORT CGathererTools
-{
+class MODEL_EXPORT CGathererTools {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef boost::optional<double> TOptionalDouble;
@@ -85,8 +81,7 @@ class MODEL_EXPORT CGathererTools
         //! DESCRIPTION:\n
         //! Wraps up the functionality to sample the mean time between
         //! measurements.
-        class MODEL_EXPORT CArrivalTimeGatherer
-        {
+        class MODEL_EXPORT CArrivalTimeGatherer {
             public:
                 typedef TMeanAccumulator TAccumulator;
 
@@ -103,8 +98,7 @@ class MODEL_EXPORT CGathererTools
                 //! Update the state with a new measurement.
                 //!
                 //! \param[in] time The time of the measurement.
-                inline void add(core_t::TTime time)
-                {
+                inline void add(core_t::TTime time) {
                     this->add(time, 1);
                 }
 
@@ -112,16 +106,12 @@ class MODEL_EXPORT CGathererTools
                 //!
                 //! \param[in] time The end time of the \p count messages.
                 //! \param[in] count The count of measurements.
-                inline void add(core_t::TTime time, unsigned int count)
-                {
-                    if (m_LastTime == FIRST_TIME)
-                    {
+                inline void add(core_t::TTime time, unsigned int count) {
+                    if (m_LastTime == FIRST_TIME) {
                         m_LastTime = time;
-                    }
-                    else
-                    {
+                    } else {
                         m_Value.add(  static_cast<double>(time - m_LastTime)
-                                    / static_cast<double>(count));
+                                      / static_cast<double>(count));
                         m_LastTime = time;
                     }
                 }
@@ -233,8 +223,7 @@ class MODEL_EXPORT CGathererTools
         //! DESCRIPTION:\n
         //! Wraps up the functionality to sample the sum of a metric quantity
         //! in a bucketing interval.
-        class MODEL_EXPORT CSumGatherer
-        {
+        class MODEL_EXPORT CSumGatherer {
             public:
                 typedef core::CSmallVector<double, 1> TDouble1Vec;
                 typedef std::vector<std::string> TStrVec;
@@ -279,21 +268,17 @@ class MODEL_EXPORT CGathererTools
                          const TDouble1Vec &value,
                          unsigned int count,
                          unsigned int /*sampleCount*/,
-                         const TStoredStringPtrVec &influences)
-                {
+                         const TStoredStringPtrVec &influences) {
                     TSampleVec &sum = m_BucketSums.get(time);
-                    if (sum.empty())
-                    {
+                    if (sum.empty()) {
                         core_t::TTime bucketLength = m_BucketSums.bucketLength();
                         sum.push_back(CSample(maths::CIntegerTools::floor(time, bucketLength),
                                               TDoubleVec(1, 0.0), 1.0, 0.0));
                     }
                     (sum[0].value())[0] += value[0];
-                     sum[0].count()     += static_cast<double>(count);
-                    for (std::size_t i = 0u; i < influences.size(); ++i)
-                    {
-                        if (!influences[i])
-                        {
+                    sum[0].count()     += static_cast<double>(count);
+                    for (std::size_t i = 0u; i < influences.size(); ++i) {
+                        if (!influences[i]) {
                             continue;
                         }
                         TStoredStringPtrDoubleUMap &sums = m_InfluencerBucketSums[i].get(time);

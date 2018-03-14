@@ -25,10 +25,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 //! \brief
@@ -45,23 +43,22 @@ namespace api
 //! to be hard to categorise (even by human being) and are hence
 //! ignored for benchmarking purposes.
 //!
-class API_EXPORT CBenchMarker
-{
+class API_EXPORT CBenchMarker {
     public:
         //! A count and and example string
         typedef std::pair<size_t, std::string>             TSizeStrPr;
 
         //! Used for mapping Ml type to count and example
         typedef std::map<int, TSizeStrPr>                  TIntSizeStrPrMap;
-        typedef TIntSizeStrPrMap::iterator                 TIntSizeStrPrMapItr;
-        typedef TIntSizeStrPrMap::const_iterator           TIntSizeStrPrMapCItr;
+        typedef TIntSizeStrPrMap::iterator TIntSizeStrPrMapItr;
+        typedef TIntSizeStrPrMap::const_iterator TIntSizeStrPrMapCItr;
 
         //! A regex and its corresponding type count map
         typedef std::pair<core::CRegex, TIntSizeStrPrMap>  TRegexIntSizeStrPrMapPr;
 
         //! Vector of regexes with corresponding type count maps
         typedef std::vector<TRegexIntSizeStrPrMapPr>       TRegexIntSizeStrPrMapPrVec;
-        typedef TRegexIntSizeStrPrMapPrVec::iterator       TRegexIntSizeStrPrMapPrVecItr;
+        typedef TRegexIntSizeStrPrMapPrVec::iterator TRegexIntSizeStrPrMapPrVecItr;
         typedef TRegexIntSizeStrPrMapPrVec::const_iterator TRegexIntSizeStrPrMapPrVecCItr;
 
     public:
@@ -78,11 +75,11 @@ class API_EXPORT CBenchMarker
 
     private:
         //! Number of messages passed to the benchmarker
-        size_t                     m_TotalMessages;
+        size_t m_TotalMessages;
 
         //! Number of messages that matched one of the regexes, and hence
         //! contribute to the scoring
-        size_t                     m_ScoredMessages;
+        size_t m_ScoredMessages;
 
         //! The string and tokens we base this type on
         TRegexIntSizeStrPrMapPrVec m_Measures;

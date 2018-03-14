@@ -27,10 +27,8 @@ class CResourceMonitorTest;
 class CResourceLimitTest;
 class CAnomalyJobLimitTest;
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 class CAnomalyDetector;
 class CAnomalyDetectorModel;
@@ -40,11 +38,9 @@ class CResourcePruner;
 //!
 //! DESCRIPTION:\n
 //! Assess memory used by models and decide on further memory allocations.
-class MODEL_EXPORT CResourceMonitor
-{
+class MODEL_EXPORT CResourceMonitor {
     public:
-        struct MODEL_EXPORT SResults
-        {
+        struct MODEL_EXPORT SResults {
             std::size_t s_Usage;
             std::size_t s_ByFields;
             std::size_t s_PartitionFields;
@@ -57,7 +53,7 @@ class MODEL_EXPORT CResourceMonitor
     public:
         typedef std::pair<CAnomalyDetectorModel*, std::size_t> TModelPtrSizePr;
         typedef std::map<CAnomalyDetectorModel*, std::size_t> TModelPtrSizeMap;
-        typedef std::function<void(const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
+        typedef std::function<void (const CResourceMonitor::SResults&)> TMemoryUsageReporterFunc;
         typedef std::map<core_t::TTime, std::size_t> TTimeSizeMap;
 
         //! The minimum time between prunes

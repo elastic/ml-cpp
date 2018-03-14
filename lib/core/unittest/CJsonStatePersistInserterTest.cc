@@ -21,30 +21,26 @@
 #include <sstream>
 
 
-CppUnit::Test *CJsonStatePersistInserterTest::suite()
-{
+CppUnit::Test *CJsonStatePersistInserterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CJsonStatePersistInserterTest>(
-                                   "CJsonStatePersistInserterTest::testPersist",
-                                   &CJsonStatePersistInserterTest::testPersist) );
+                               "CJsonStatePersistInserterTest::testPersist",
+                               &CJsonStatePersistInserterTest::testPersist) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
-void insert2ndLevel(ml::core::CStatePersistInserter &inserter)
-{
+void insert2ndLevel(ml::core::CStatePersistInserter &inserter) {
     inserter.insertValue("level2A", 3.14, ml::core::CIEEE754::E_SinglePrecision);
     inserter.insertValue("level2B", 'z');
 }
 
 }
 
-void CJsonStatePersistInserterTest::testPersist(void)
-{
+void CJsonStatePersistInserterTest::testPersist(void) {
     std::ostringstream strm;
 
     {

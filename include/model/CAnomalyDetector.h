@@ -41,15 +41,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 class CModel;
 class CSearchKey;
@@ -79,8 +76,7 @@ class CSearchKey;
 //! choose to analyse certain field values either individually or as
 //! a population.
 
-class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
-{
+class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                        TStrVec;
         typedef std::vector<const std::string*>                 TStrCPtrVec;
@@ -94,10 +90,10 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
         typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
 
         typedef std::function<void (const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const std::string &,
-                                      const CModelPlotData &)> TOutputModelPlotDataFunc;
+                                    const std::string &,
+                                    const std::string &,
+                                    const std::string &,
+                                    const CModelPlotData &)> TOutputModelPlotDataFunc;
         typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
     public:
@@ -362,30 +358,30 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable
 
     private:
         //! An identifier for the search for which this is detecting anomalies.
-        int                                 m_DetectorIndex;
+        int m_DetectorIndex;
 
         //! Configurable behaviour
         const CAnomalyDetectorModelConfig   &m_ModelConfig;
 
         //! The end of the last complete bucket we've observed.  This is an OPEN
         //! endpoint, i.e. this time is the lowest time NOT in the last bucket.
-        core_t::TTime                       m_LastBucketEndTime;
+        core_t::TTime m_LastBucketEndTime;
 
         //! The data gatherers.
-        TDataGathererPtr                    m_DataGatherer;
+        TDataGathererPtr m_DataGatherer;
 
         //! The factory for new data gatherers and models.
-        TModelFactoryCPtr                   m_ModelFactory;
+        TModelFactoryCPtr m_ModelFactory;
 
         // The model of the data in which we are detecting anomalies.
-        TModelPtr                           m_Model;
+        TModelPtr m_Model;
 
         //! Is this a cloned detector containing the bare minimum information
         //! necessary to create a valid persisted state?
-        bool                                m_IsForPersistence;
+        bool m_IsForPersistence;
 
-    friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
-                                                 const CAnomalyDetector &);
+        friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
+                                                     const CAnomalyDetector &);
 };
 
 MODEL_EXPORT

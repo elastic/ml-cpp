@@ -26,32 +26,27 @@
 
 #include <boost/make_shared.hpp>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 CCountingModelFactory::CCountingModelFactory(const SModelParams &params,
                                              model_t::ESummaryMode summaryMode,
                                              const std::string &summaryCountFieldName) :
-        CModelFactory(params),
-        m_Identifier(),
-        m_SummaryMode(summaryMode),
-        m_SummaryCountFieldName(summaryCountFieldName),
-        m_UseNull(false),
-        m_BucketResultsDelay(0)
-{}
+    CModelFactory(params),
+    m_Identifier(),
+    m_SummaryMode(summaryMode),
+    m_SummaryCountFieldName(summaryCountFieldName),
+    m_UseNull(false),
+    m_BucketResultsDelay(0) {
+}
 
-CCountingModelFactory *CCountingModelFactory::clone(void) const
-{
+CCountingModelFactory *CCountingModelFactory::clone(void) const {
     return new CCountingModelFactory(*this);
 }
 
-CAnomalyDetectorModel *CCountingModelFactory::makeModel(const SModelInitializationData &initData) const
-{
+CAnomalyDetectorModel *CCountingModelFactory::makeModel(const SModelInitializationData &initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer)
-    {
+    if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
@@ -59,19 +54,16 @@ CAnomalyDetectorModel *CCountingModelFactory::makeModel(const SModelInitializati
 }
 
 CAnomalyDetectorModel *CCountingModelFactory::makeModel(const SModelInitializationData &initData,
-                                         core::CStateRestoreTraverser &traverser) const
-{
+                                                        core::CStateRestoreTraverser &traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer)
-    {
+    if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
     return new CCountingModel(this->modelParams(), dataGatherer, traverser);
 }
 
-CDataGatherer *CCountingModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const
-{
+CDataGatherer *CCountingModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -90,8 +82,7 @@ CDataGatherer *CCountingModelFactory::makeDataGatherer(const SGathererInitializa
 }
 
 CDataGatherer *CCountingModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
-                                                       core::CStateRestoreTraverser &traverser) const
-{
+                                                       core::CStateRestoreTraverser &traverser) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -108,30 +99,25 @@ CDataGatherer *CCountingModelFactory::makeDataGatherer(const std::string &partit
 }
 
 CCountingModelFactory::TPriorPtr
-    CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
-                                        const SModelParams &/*params*/) const
-{
+CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
+                                    const SModelParams & /*params*/) const {
     return boost::make_shared<maths::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
-    CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                    const SModelParams &/*params*/) const
-{
+CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
+                                                const SModelParams & /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
-    CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                                 const SModelParams &/*params*/) const
-{
+CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
+                                             const SModelParams & /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(2);
 }
 
-const CSearchKey &CCountingModelFactory::searchKey(void) const
-{
-    if (!m_SearchKeyCache)
-    {
+const CSearchKey &CCountingModelFactory::searchKey(void) const {
+    if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
                                           m_UseNull,
@@ -144,67 +130,56 @@ const CSearchKey &CCountingModelFactory::searchKey(void) const
     return *m_SearchKeyCache;
 }
 
-bool CCountingModelFactory::isSimpleCount(void) const
-{
+bool CCountingModelFactory::isSimpleCount(void) const {
     return CSearchKey::isSimpleCount(function_t::function(m_Features),
                                      m_PersonFieldName);
 }
 
-model_t::ESummaryMode CCountingModelFactory::summaryMode(void) const
-{
+model_t::ESummaryMode CCountingModelFactory::summaryMode(void) const {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CCountingModelFactory::dataType(void) const
-{
+maths_t::EDataType CCountingModelFactory::dataType(void) const {
     return maths_t::E_IntegerData;
 }
 
-void CCountingModelFactory::identifier(int identifier)
-{
+void CCountingModelFactory::identifier(int identifier) {
     m_Identifier = identifier;
     m_SearchKeyCache.reset();
 }
 
 void CCountingModelFactory::fieldNames(const std::string &partitionFieldName,
-                                       const std::string &/*overFieldName*/,
+                                       const std::string & /*overFieldName*/,
                                        const std::string &byFieldName,
-                                       const std::string &/*valueFieldName*/,
-                                       const TStrVec &/*influenceFieldNames*/)
-{
+                                       const std::string & /*valueFieldName*/,
+                                       const TStrVec & /*influenceFieldNames*/) {
     m_PartitionFieldName = partitionFieldName;
     m_PersonFieldName = byFieldName;
     m_SearchKeyCache.reset();
 }
 
-void CCountingModelFactory::useNull(bool useNull)
-{
+void CCountingModelFactory::useNull(bool useNull) {
     m_UseNull = useNull;
     m_SearchKeyCache.reset();
 }
 
-void CCountingModelFactory::features(const TFeatureVec &features)
-{
+void CCountingModelFactory::features(const TFeatureVec &features) {
     m_Features = features;
     m_SearchKeyCache.reset();
 }
 
-void CCountingModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay)
-{
+void CCountingModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
 CCountingModelFactory::TStrCRefVec
-    CCountingModelFactory::partitioningFields(void) const
-{
+CCountingModelFactory::partitioningFields(void) const {
     TStrCRefVec result;
     result.reserve(2);
-    if (!m_PartitionFieldName.empty())
-    {
+    if (!m_PartitionFieldName.empty()) {
         result.emplace_back(m_PartitionFieldName);
     }
-    if (!m_PersonFieldName.empty())
-    {
+    if (!m_PersonFieldName.empty()) {
         result.emplace_back(m_PersonFieldName);
     }
     return result;

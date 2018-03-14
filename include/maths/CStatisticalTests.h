@@ -26,19 +26,15 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief A collection of statistical tests and test statistics.
-class MATHS_EXPORT CStatisticalTests
-{
+class MATHS_EXPORT CStatisticalTests {
     public:
         typedef std::vector<uint16_t> TUInt16Vec;
         typedef std::vector<double> TDoubleVec;
@@ -89,8 +85,7 @@ class MATHS_EXPORT CStatisticalTests
         //!
         //! \see http://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion
         //! for more information on this test statistic.
-        class MATHS_EXPORT CCramerVonMises
-        {
+        class MATHS_EXPORT CCramerVonMises {
             public:
                 //! Enumeration of the p values for which the test
                 //! statistic value is tabulated.

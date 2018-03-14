@@ -24,10 +24,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 class COutputHandler;
 }
 }
@@ -41,8 +39,7 @@ class COutputHandler;
 //! IMPLEMENTATION DECISIONS:\n
 //! Only the minimal set of required functions are implemented.
 //!
-class CMockDataProcessor : public ml::api::CDataProcessor
-{
+class CMockDataProcessor : public ml::api::CDataProcessor {
     public:
         CMockDataProcessor(ml::api::COutputHandler &outputHandler);
 
@@ -70,11 +67,11 @@ class CMockDataProcessor : public ml::api::CDataProcessor
         ml::api::COutputHandler &m_OutputHandler;
 
         //! Empty field overrides
-        TStrStrUMap                  m_FieldOverrides;
+        TStrStrUMap m_FieldOverrides;
 
-        uint64_t                     m_NumRecordsHandled;
+        uint64_t m_NumRecordsHandled;
 
-        bool                         m_WriteFieldNames;
+        bool m_WriteFieldNames;
 };
 
 

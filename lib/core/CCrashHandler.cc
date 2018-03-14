@@ -14,13 +14,10 @@
  */
 #include <core/CCrashHandler.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
-void CCrashHandler::installCrashHandler(void)
-{
+void CCrashHandler::installCrashHandler(void) {
     // do nothing, see platform specific actions
 }
 

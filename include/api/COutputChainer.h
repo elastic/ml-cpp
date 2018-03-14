@@ -23,15 +23,12 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CDataProcessor;
 
@@ -49,8 +46,7 @@ class CDataProcessor;
 //! The function to be called for each output record is encapsulated
 //! in a std::function to reduce coupling.
 //!
-class API_EXPORT COutputChainer : public COutputHandler
-{
+class API_EXPORT COutputChainer : public COutputHandler {
     public:
         //! Construct with a reference to the next data processor in the chain
         COutputChainer(CDataProcessor &dataProcessor);
@@ -106,7 +102,7 @@ class API_EXPORT COutputChainer : public COutputHandler
         CDataProcessor      &m_DataProcessor;
 
         //! Field names in the order they are to be written to the output
-        TStrVec             m_FieldNames;
+        TStrVec m_FieldNames;
 
         //! Pre-computed hashes for each field name.  The pre-computed hashes
         //! are at the same index in this vector as the corresponding field name
@@ -115,16 +111,16 @@ class API_EXPORT COutputChainer : public COutputHandler
 
         //! Used to build up the full set of fields to pass on to the next data
         //! processor
-        TStrStrUMap         m_WorkRecordFields;
+        TStrStrUMap m_WorkRecordFields;
 
         typedef boost::reference_wrapper<std::string> TStrRef;
         typedef std::vector<TStrRef>                  TStrRefVec;
-        typedef TStrRefVec::const_iterator            TStrRefVecCItr;
+        typedef TStrRefVec::const_iterator TStrRefVecCItr;
 
         //! References to the strings within m_WorkRecordFields in the same
         //! order as the field names in m_FieldNames.  This avoids the need to
         //! do hash lookups when populating m_WorkRecordFields.
-        TStrRefVec          m_WorkRecordFieldRefs;
+        TStrRefVec m_WorkRecordFieldRefs;
 };
 
 

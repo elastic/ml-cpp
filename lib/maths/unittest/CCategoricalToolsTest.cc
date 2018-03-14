@@ -32,24 +32,21 @@ typedef std::vector<std::size_t> TSizeVec;
 
 using namespace ml;
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample(void)
-{
+void CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample(void) {
     LOG_DEBUG("+-----------------------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample  |");
     LOG_DEBUG("+-----------------------------------------------------------------------+");
 
 }
 
-void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount(void)
-{
+void CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount(void) {
     LOG_DEBUG("+-------------------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount  |");
     LOG_DEBUG("+-------------------------------------------------------------------+");
 
 }
 
-void CCategoricalToolsTest::testExpectedDistinctCategories(void)
-{
+void CCategoricalToolsTest::testExpectedDistinctCategories(void) {
     LOG_DEBUG("+---------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testExpectedDistinctCategories  |");
     LOG_DEBUG("+---------------------------------------------------------+");
@@ -67,8 +64,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.2, 0.2, 0.2, 0.2, 0.2 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -103,8 +99,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.1, 0.3, 0.4, 0.1, 0.1 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -138,8 +133,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.35, 0.1, 0.25, 0.25, 0.05 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -177,8 +171,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -213,8 +206,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.05, 0.3, 0.4, 0.02, 0.03, 0.05, 0.05, 0.01, 0.02, 0.07 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -248,8 +240,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
             double probabilities[] = { 0.05, 0.1, 0.15, 0.15, 0.05, 0.05, 0.1, 0.15, 0.15, 0.05 };
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i)
-            {
+            for (std::size_t i = 0u; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(TDoubleVec(boost::begin(categories),
                                                           boost::end(categories)),
@@ -282,8 +273,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
     }
     {
         TDoubleVec categories;
-        for (std::size_t i = 1u; i < 101; ++i)
-        {
+        for (std::size_t i = 1u; i < 101; ++i) {
             categories.push_back(static_cast<double>(i));
         }
 
@@ -293,11 +283,9 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i)
-            {
+            for (std::size_t i = 0u; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j)
-                {
+                for (std::size_t j = 0u; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i], categories.size(), samples);
                     std::sort(samples.begin(), samples.end());
@@ -330,11 +318,9 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i)
-            {
+            for (std::size_t i = 0u; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j)
-                {
+                for (std::size_t j = 0u; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i], categories.size(), samples);
                     std::sort(samples.begin(), samples.end());
@@ -371,11 +357,9 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i)
-            {
+            for (std::size_t i = 0u; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j)
-                {
+                for (std::size_t j = 0u; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i], categories.size(), samples);
                     std::sort(samples.begin(), samples.end());
@@ -402,8 +386,7 @@ void CCategoricalToolsTest::testExpectedDistinctCategories(void)
     }
 }
 
-void CCategoricalToolsTest::testLogBinomialProbability(void)
-{
+void CCategoricalToolsTest::testLogBinomialProbability(void) {
     LOG_DEBUG("+-----------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testLogBinomialProbability  |");
     LOG_DEBUG("+-----------------------------------------------------+");
@@ -413,16 +396,13 @@ void CCategoricalToolsTest::testLogBinomialProbability(void)
     double n[] = { 10, 100, 10000 };
     double p[] = { 0.1, 0.5, 0.9 };
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i)
-    {
-        for (std::size_t j = 0u; j < boost::size(p); ++j)
-        {
+    for (std::size_t i = 0u; i < boost::size(n); ++i) {
+        for (std::size_t j = 0u; j < boost::size(p); ++j) {
             LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
 
             boost::math::binomial_distribution<> binomial(n[i], p[j]);
-            double median = boost::math::median(binomial);
-            for (std::size_t f = 1u; f < 10; ++f)
-            {
+            double                               median = boost::math::median(binomial);
+            for (std::size_t f = 1u; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = ::floor(f_ * median);
                 double pdf = boost::math::pdf(binomial, m);
@@ -433,11 +413,10 @@ void CCategoricalToolsTest::testLogBinomialProbability(void)
                                                                                       static_cast<std::size_t>(m),
                                                                                       logpdf));
                 LOG_DEBUG("f(" << m << "), expected = " << pdf
-                          << ", actual = " << ::exp(logpdf));
+                               << ", actual = " << ::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
             }
-            for (std::size_t f = 1u; f < 10; ++f)
-            {
+            for (std::size_t f = 1u; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = median + ::floor(f_ * (n[i] - median));
                 double pdf = boost::math::pdf(binomial, m);
@@ -448,15 +427,14 @@ void CCategoricalToolsTest::testLogBinomialProbability(void)
                                                                                       static_cast<std::size_t>(m),
                                                                                       logpdf));
                 LOG_DEBUG("f(" << m << "), expected = " << pdf
-                          << ", actual = " << ::exp(logpdf));
+                               << ", actual = " << ::exp(logpdf));
                 CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
             }
         }
     }
 }
 
-void CCategoricalToolsTest::testLogMultinomialProbability(void)
-{
+void CCategoricalToolsTest::testLogMultinomialProbability(void) {
     LOG_DEBUG("+--------------------------------------------------------+");
     LOG_DEBUG("|  CCategoricalToolsTest::testLogMultinomialProbability  |");
     LOG_DEBUG("+--------------------------------------------------------+");
@@ -471,20 +449,17 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
         double n[] = { 10, 100, 10000 };
         double p[] = { 0.1, 0.5, 0.9 };
 
-        for (std::size_t i = 0u; i < boost::size(n); ++i)
-        {
-            for (std::size_t j = 0u; j < boost::size(p); ++j)
-            {
+        for (std::size_t i = 0u; i < boost::size(n); ++i) {
+            for (std::size_t j = 0u; j < boost::size(p); ++j) {
                 LOG_DEBUG("n = " << n[i] << ", p = " << p[j]);
 
                 boost::math::binomial_distribution<> binomial(n[i], p[j]);
-                double median = boost::math::median(binomial);
-                for (std::size_t f = 1u; f < 10; ++f)
-                {
-                    double f_ = static_cast<double>(f) / 10.0;
-                    double m = ::floor(f_ * median);
-                    double pdf = boost::math::pdf(binomial, m);
-                    double logpdf;
+                double                               median = boost::math::median(binomial);
+                for (std::size_t f = 1u; f < 10; ++f) {
+                    double     f_ = static_cast<double>(f) / 10.0;
+                    double     m = ::floor(f_ * median);
+                    double     pdf = boost::math::pdf(binomial, m);
+                    double     logpdf;
                     TDoubleVec pi;
                     pi.push_back(p[j]);
                     pi.push_back(1.0 - p[j]);
@@ -494,15 +469,14 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                          maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
                     LOG_DEBUG("f(" << m << "), expected = " << pdf
-                              << ", actual = " << ::exp(logpdf));
+                                   << ", actual = " << ::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
                 }
-                for (std::size_t f = 1u; f < 10; ++f)
-                {
-                    double f_ = static_cast<double>(f) / 10.0;
-                    double m = median + ::floor(f_ * (n[i] - median));
-                    double pdf = boost::math::pdf(binomial, m);
-                    double logpdf;
+                for (std::size_t f = 1u; f < 10; ++f) {
+                    double     f_ = static_cast<double>(f) / 10.0;
+                    double     m = median + ::floor(f_ * (n[i] - median));
+                    double     pdf = boost::math::pdf(binomial, m);
+                    double     logpdf;
                     TDoubleVec pi;
                     pi.push_back(p[j]);
                     pi.push_back(1.0 - p[j]);
@@ -512,7 +486,7 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
                     CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
                                          maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
                     LOG_DEBUG("f(" << m << "), expected = " << pdf
-                              << ", actual = " << ::exp(logpdf));
+                                   << ", actual = " << ::exp(logpdf));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, ::exp(logpdf), 1e-6 * pdf);
                 }
             }
@@ -528,12 +502,10 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
         pi.push_back(0.6);
 
         std::size_t n = 10;
-        for (std::size_t m = 0u; m <= n; ++m)
-        {
+        for (std::size_t m = 0u; m <= n; ++m) {
             double marginal = 0.0;
-            for (std::size_t i = 0u; i <= n - m; ++i)
-            {
-                double logpdf;
+            for (std::size_t i = 0u; i <= n - m; ++i) {
+                double   logpdf;
                 TSizeVec ni;
                 ni.push_back(m);
                 ni.push_back(i);
@@ -544,32 +516,31 @@ void CCategoricalToolsTest::testLogMultinomialProbability(void)
             }
 
             boost::math::binomial_distribution<> binomial(static_cast<double>(n), pi[0]);
-            double pdf = boost::math::pdf(binomial, static_cast<double>(m));
+            double                               pdf = boost::math::pdf(binomial, static_cast<double>(m));
             LOG_DEBUG("f = " << pdf << ", marginal = " << marginal);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(pdf, marginal, 1e-6 * pdf);
         }
     }
 }
 
-CppUnit::Test *CCategoricalToolsTest::suite(void)
-{
+CppUnit::Test *CCategoricalToolsTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCategoricalToolsTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CCategoricalToolsTest>(
-                                   "CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample",
-                                   &CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample) );
+                               "CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample",
+                               &CCategoricalToolsTest::testProbabilityOfLessLikelyMultinomialSample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCategoricalToolsTest>(
-                                   "CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount",
-                                   &CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount) );
+                               "CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount",
+                               &CCategoricalToolsTest::testProbabilityOfLessLikelyCategoryCount) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCategoricalToolsTest>(
-                                   "CCategoricalToolsTest::testExpectedDistinctCategories",
-                                   &CCategoricalToolsTest::testExpectedDistinctCategories) );
+                               "CCategoricalToolsTest::testExpectedDistinctCategories",
+                               &CCategoricalToolsTest::testExpectedDistinctCategories) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCategoricalToolsTest>(
-                                   "CCategoricalToolsTest::testLogBinomialProbability",
-                                   &CCategoricalToolsTest::testLogBinomialProbability) );
+                               "CCategoricalToolsTest::testLogBinomialProbability",
+                               &CCategoricalToolsTest::testLogBinomialProbability) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCategoricalToolsTest>(
-                                   "CCategoricalToolsTest::testLogMultinomialProbability",
-                                   &CCategoricalToolsTest::testLogMultinomialProbability) );
+                               "CCategoricalToolsTest::testLogMultinomialProbability",
+                               &CCategoricalToolsTest::testLogMultinomialProbability) );
 
     return suiteOfTests;
 }

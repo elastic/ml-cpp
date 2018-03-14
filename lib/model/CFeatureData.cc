@@ -24,20 +24,16 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
-namespace
-{
+namespace {
 
 using TSizeVec = std::vector<std::size_t>;
 
 //! Get the sequence [0, N).
 template<std::size_t N>
-const TSizeVec &sequence()
-{
+const TSizeVec &sequence() {
     static const TSizeVec result(boost::counting_iterator<std::size_t>(0),
                                  boost::counting_iterator<std::size_t>(N));
     return result;
@@ -47,31 +43,29 @@ const TSizeVec &sequence()
 
 ////// CFeatureDataIndexing //////
 
-const TSizeVec &CFeatureDataIndexing::valueIndices(std::size_t dimension)
-{
-    switch (dimension)
-    {
-    case 1:
-        return sequence<1>();
-    case 2:
-        return sequence<2>();
-    case 3:
-        return sequence<3>();
-    case 4:
-        return sequence<4>();
-    case 5:
-        return sequence<5>();
-    case 6:
-        return sequence<6>();
-    case 7:
-        return sequence<7>();
-    case 8:
-        return sequence<8>();
-    case 9:
-        return sequence<9>();
-    default:
-        LOG_ERROR("Unsupported dimension " << dimension);
-        break;
+const TSizeVec &CFeatureDataIndexing::valueIndices(std::size_t dimension) {
+    switch (dimension) {
+        case 1:
+            return sequence<1>();
+        case 2:
+            return sequence<2>();
+        case 3:
+            return sequence<3>();
+        case 4:
+            return sequence<4>();
+        case 5:
+            return sequence<5>();
+        case 6:
+            return sequence<6>();
+        case 7:
+            return sequence<7>();
+        case 8:
+            return sequence<8>();
+        case 9:
+            return sequence<9>();
+        default:
+            LOG_ERROR("Unsupported dimension " << dimension);
+            break;
     }
     static const TSizeVec EMPTY;
     return EMPTY;
@@ -80,35 +74,30 @@ const TSizeVec &CFeatureDataIndexing::valueIndices(std::size_t dimension)
 ////// SEventRateFeatureData //////
 
 SEventRateFeatureData::SEventRateFeatureData(uint64_t count) :
-        s_Count(count)
-{}
+    s_Count(count) {
+}
 
-void SEventRateFeatureData::swap(SEventRateFeatureData &other)
-{
+void SEventRateFeatureData::swap(SEventRateFeatureData &other) {
     std::swap(s_Count, other.s_Count);
     s_InfluenceValues.swap(other.s_InfluenceValues);
 }
 
-std::string SEventRateFeatureData::print() const
-{
+std::string SEventRateFeatureData::print() const {
     std::ostringstream result;
     result << s_Count;
-    if (!s_InfluenceValues.empty())
-    {
+    if (!s_InfluenceValues.empty()) {
         result << ", " << core::CContainerPrinter::print(s_InfluenceValues);
     }
     return result.str();
 }
 
-std::size_t SEventRateFeatureData::memoryUsage() const
-{
+std::size_t SEventRateFeatureData::memoryUsage() const {
     std::size_t mem = sizeof(*this);
     mem += core::CMemory::dynamicSize(s_InfluenceValues);
     return mem;
 }
 
-void SEventRateFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void SEventRateFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("SMetricFeatureData", sizeof(*this));
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
 }
@@ -123,27 +112,25 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
                                        bool isInteger,
                                        bool isNonNegative,
                                        const TSampleVec &samples) :
-        s_BucketValue(boost::in_place(bucketTime,
-                                      bucketValue,
-                                      bucketVarianceScale,
-                                      bucketCount)),
-        s_IsInteger(isInteger),
-        s_IsNonNegative(isNonNegative),
-        s_Samples(samples)
-{
+    s_BucketValue(boost::in_place(bucketTime,
+                                  bucketValue,
+                                  bucketVarianceScale,
+                                  bucketCount)),
+    s_IsInteger(isInteger),
+    s_IsNonNegative(isNonNegative),
+    s_Samples(samples) {
     s_InfluenceValues.swap(influenceValues);
 }
 
 SMetricFeatureData::SMetricFeatureData(bool isInteger,
                                        bool isNonNegative,
                                        const TSampleVec &samples) :
-        s_IsInteger(isInteger),
-        s_IsNonNegative(isNonNegative),
-        s_Samples(samples)
-{}
+    s_IsInteger(isInteger),
+    s_IsNonNegative(isNonNegative),
+    s_Samples(samples) {
+}
 
-std::string SMetricFeatureData::print() const
-{
+std::string SMetricFeatureData::print() const {
     std::ostringstream result;
     result << "value = " << core::CContainerPrinter::print(s_BucketValue)
            << ", is integer " << s_IsInteger
@@ -152,16 +139,14 @@ std::string SMetricFeatureData::print() const
     return result.str();
 }
 
-std::size_t SMetricFeatureData::memoryUsage() const
-{
+std::size_t SMetricFeatureData::memoryUsage() const {
     std::size_t mem = core::CMemory::dynamicSize(s_BucketValue);
     mem += core::CMemory::dynamicSize(s_InfluenceValues);
     mem += core::CMemory::dynamicSize(s_Samples);
     return mem;
 }
 
-void SMetricFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const
-{
+void SMetricFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("SMetricFeatureData");
     core::CMemoryDebug::dynamicSize("s_BucketValue", s_BucketValue, mem);
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);

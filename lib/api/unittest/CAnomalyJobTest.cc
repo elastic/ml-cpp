@@ -36,8 +36,7 @@
 #include <sstream>
 #include <cstdio>
 
-namespace
-{
+namespace {
 
 //! \brief
 //! Mock object for state restore unit tests.
@@ -45,12 +44,10 @@ namespace
 //! DESCRIPTION:\n
 //! CDataSearcher that returns an empty stream.
 //!
-class CEmptySearcher : public ml::core::CDataSearcher
-{
+class CEmptySearcher : public ml::core::CDataSearcher {
     public:
         //! Do a search that results in an empty input stream.
-        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/)
-        {
+        virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
             return TIStreamP(new std::istringstream());
         }
 };
@@ -65,27 +62,22 @@ class CEmptySearcher : public ml::core::CDataSearcher
 //! Only the minimal set of required functions are implemented.
 //!
 
-class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
-{
+class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CSingleResultVisitor(void) : m_LastResult(0.0)
-        { }
+        CSingleResultVisitor(void) : m_LastResult(0.0) {
+        }
 
-        virtual ~CSingleResultVisitor(void)
-        { }
+        virtual ~CSingleResultVisitor(void) {
+        }
 
-        virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
+        virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,
-                           bool /*pivot*/)
-        {
-            if (!this->isSimpleCount(node) && this->isLeaf(node))
-            {
-                if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0)
-                {
+                           bool /*pivot*/) {
+            if (!this->isSimpleCount(node) && this->isLeaf(node)) {
+                if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                     return;
                 }
-                if (!node.s_Model)
-                {
+                if (!node.s_Model) {
                     return;
                 }
                 const ml::model::SAttributeProbability &attribute =
@@ -96,8 +88,7 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
             }
         }
 
-        double lastResults(void) const
-        {
+        double lastResults(void) const {
             return m_LastResult;
         }
 
@@ -105,49 +96,41 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor
         double m_LastResult;
 };
 
-class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor
-{
+class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CMultiResultVisitor(void) : m_LastResult(0.0)
-        { }
+        CMultiResultVisitor(void) : m_LastResult(0.0) {
+        }
 
-        virtual ~CMultiResultVisitor(void)
-        { }
+        virtual ~CMultiResultVisitor(void) {
+        }
 
-        virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
+        virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,
-                           bool /*pivot*/)
-        {
-            if (!this->isSimpleCount(node) && this->isLeaf(node))
-            {
-                if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0)
-                {
+                           bool /*pivot*/) {
+            if (!this->isSimpleCount(node) && this->isLeaf(node)) {
+                if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                     return;
                 }
-                if (!node.s_Model)
-                {
+                if (!node.s_Model) {
                     return;
                 }
-                std::size_t pid;
+                std::size_t                     pid;
                 const ml::model::CDataGatherer &gatherer = node.s_Model->dataGatherer();
-                if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid))
-                {
+                if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
                     LOG_ERROR("No identifier for '"
-                        << *node.s_Spec.s_PersonFieldValue << "'");
+                              << *node.s_Spec.s_PersonFieldValue << "'");
                     return;
                 }
-                for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i)
-                {
+                for (std::size_t i = 0; i < node.s_AnnotatedProbability.s_AttributeProbabilities.size(); ++i) {
                     const ml::model::SAttributeProbability &attribute =
                         node.s_AnnotatedProbability.s_AttributeProbabilities[i];
                     m_LastResult += node.s_Model->currentBucketValue(attribute.s_Feature,
-                                            pid, attribute.s_Cid, node.s_BucketStartTime)[0];
+                                                                     pid, attribute.s_Cid, node.s_BucketStartTime)[0];
                 }
             }
         }
 
-        double lastResults(void) const
-        {
+        double lastResults(void) const {
             return m_LastResult;
         }
 
@@ -155,21 +138,18 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor
         double m_LastResult;
 };
 
-class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor
-{
+class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CResultsScoreVisitor(int score) : m_Score(score)
-        { }
+        CResultsScoreVisitor(int score) : m_Score(score) {
+        }
 
-        virtual ~CResultsScoreVisitor(void)
-        { }
+        virtual ~CResultsScoreVisitor(void) {
+        }
 
-        virtual void visit(const ml::model::CHierarchicalResults &/*results*/,
+        virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,
-                           bool /*pivot*/)
-        {
-            if (this->isRoot(node))
-            {
+                           bool /*pivot*/) {
+            if (this->isRoot(node)) {
                 node.s_NormalizedAnomalyScore = m_Score;
             }
         }
@@ -178,20 +158,17 @@ class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor
         int m_Score;
 };
 
-size_t countBuckets(const std::string &key, const std::string &output)
-{
-    size_t count = 0;
+size_t countBuckets(const std::string &key, const std::string &output) {
+    size_t              count = 0;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT(doc.IsArray());
 
     const rapidjson::Value &allRecords = doc.GetArray();
-    for (auto &r : allRecords.GetArray())
-    {
+    for (auto &r : allRecords.GetArray()) {
         rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember(key);
-        if (recordsIt != r.GetObject().MemberEnd())
-        {
+        if (recordsIt != r.GetObject().MemberEnd()) {
             ++count;
         }
     }
@@ -199,15 +176,12 @@ size_t countBuckets(const std::string &key, const std::string &output)
     return count;
 }
 
-bool findLine(const std::string &regex, const ml::core::CRegex::TStrVec &lines)
-{
+bool findLine(const std::string &regex, const ml::core::CRegex::TStrVec &lines) {
     ml::core::CRegex rx;
     rx.init(regex);
     std::size_t pos = 0;
-    for (ml::core::CRegex::TStrVecCItr i = lines.begin(); i != lines.end(); ++i)
-    {
-        if (rx.search(*i, pos))
-        {
+    for (ml::core::CRegex::TStrVecCItr i = lines.begin(); i != lines.end(); ++i) {
+        if (rx.search(*i, pos)) {
             return true;
         }
     }
@@ -221,23 +195,22 @@ const ml::core_t::TTime BUCKET_SIZE(3600);
 
 using namespace ml;
 
-void CAnomalyJobTest::testBadTimes(void)
-{
+void CAnomalyJobTest::testBadTimes(void) {
     {
         // Test with no time field
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("value");
         clauses.push_back("partitionfield=greenhouse");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["wibble"] = "12345678";
@@ -249,19 +222,19 @@ void CAnomalyJobTest::testBadTimes(void)
     }
     {
         // Test with bad time field
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("value");
         clauses.push_back("partitionfield=greenhouse");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "hello";
@@ -273,20 +246,20 @@ void CAnomalyJobTest::testBadTimes(void)
     }
     {
         // Test with bad time field format
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("value");
         clauses.push_back("partitionfield=greenhouse");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream,
-                api::CAnomalyJob::TPersistCompleteFunc(), nullptr, -1, "time", "%Y%m%m%H%M%S");
+                             wrappedOutputStream,
+                             api::CAnomalyJob::TPersistCompleteFunc(), nullptr, -1, "time", "%Y%m%m%H%M%S");
 
         api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "hello world";
@@ -298,23 +271,22 @@ void CAnomalyJobTest::testBadTimes(void)
     }
 }
 
-void CAnomalyJobTest::testOutOfSequence(void)
-{
+void CAnomalyJobTest::testOutOfSequence(void) {
     {
         // Test out of sequence record
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("value");
         clauses.push_back("partitionfield=greenhouse");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         job.description();
         job.descriptionAndDebugMemoryUsage();
@@ -336,19 +308,18 @@ void CAnomalyJobTest::testOutOfSequence(void)
     }
 }
 
-void CAnomalyJobTest::testControlMessages(void)
-{
+void CAnomalyJobTest::testControlMessages(void) {
     {
         // Test control messages
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("value");
         clauses.push_back("partitionfield=greenhouse");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
@@ -372,8 +343,8 @@ void CAnomalyJobTest::testControlMessages(void)
     }
     {
         // Test reset bucket
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("partitionfield=greenhouse");
@@ -388,24 +359,20 @@ void CAnomalyJobTest::testControlMessages(void)
         std::stringstream outputStrm;
         {
             core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            api::CAnomalyJob               job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime time = 12345678;
-            for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2))
-            {
+            for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2)) {
                 std::stringstream ss;
                 ss << time;
                 dataRows["time"] = ss.str();
-                if (i == 40)
-                {
-                    for (std::size_t j = 0; j < 100; j++)
-                    {
+                if (i == 40) {
+                    for (std::size_t j = 0; j < 100; j++) {
                         CPPUNIT_ASSERT(job.handleRecord(dataRows));
                     }
                 }
                 CPPUNIT_ASSERT(job.handleRecord(dataRows));
-                if (i < 2)
-                {
+                if (i < 2) {
                     // We haven't processed one full bucket but it should be safe to flush.
                     dataRows["."] = "f1";
                     CPPUNIT_ASSERT(job.handleRecord(dataRows));
@@ -420,13 +387,11 @@ void CAnomalyJobTest::testControlMessages(void)
         CPPUNIT_ASSERT(doc.IsArray());
 
         const rapidjson::Value &allRecords = doc.GetArray();
-        bool foundRecord = false;
-        for (auto &r : allRecords.GetArray())
-        {
+        bool                    foundRecord = false;
+        for (auto &r : allRecords.GetArray()) {
             rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember("records");
-            if (recordsIt != r.GetObject().MemberEnd())
-            {
-                auto &recordsArray = recordsIt->value.GetArray()[0];
+            if (recordsIt != r.GetObject().MemberEnd()) {
+                auto &                                recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =  recordsArray.FindMember("actual");
                 CPPUNIT_ASSERT(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray &values = actualIt->value.GetArray();
@@ -440,29 +405,24 @@ void CAnomalyJobTest::testControlMessages(void)
         std::stringstream outputStrm2;
         {
             core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm2);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            api::CAnomalyJob               job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime time = 12345678;
-            for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2))
-            {
+            for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2)) {
                 std::stringstream ss;
                 ss << time;
                 dataRows["time"] = ss.str();
-                if (i == 40)
-                {
-                    for (std::size_t j = 0; j < 100; j++)
-                    {
+                if (i == 40) {
+                    for (std::size_t j = 0; j < 100; j++) {
                         CPPUNIT_ASSERT(job.handleRecord(dataRows));
                     }
                 }
                 CPPUNIT_ASSERT(job.handleRecord(dataRows));
-                if (i == 40)
-                {
+                if (i == 40) {
                     api::CAnomalyJob::TStrStrUMap rows;
                     rows["."] = "r" + ss.str() + " " + ss.str();
                     CPPUNIT_ASSERT(job.handleRecord(rows));
-                    for (std::size_t j = 0; j < 100; j++)
-                    {
+                    for (std::size_t j = 0; j < 100; j++) {
                         CPPUNIT_ASSERT(job.handleRecord(dataRows));
                     }
                 }
@@ -476,12 +436,10 @@ void CAnomalyJobTest::testControlMessages(void)
 
         const rapidjson::Value &allRecords2 = doc2.GetArray();
         foundRecord = false;
-        for (auto &r : allRecords2.GetArray())
-        {
+        for (auto &r : allRecords2.GetArray()) {
             rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember("records");
-            if (recordsIt != r.GetObject().MemberEnd())
-            {
-                auto &recordsArray = recordsIt->value.GetArray()[0];
+            if (recordsIt != r.GetObject().MemberEnd()) {
+                auto &                                recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =  recordsArray.FindMember("actual");
                 CPPUNIT_ASSERT(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray &values = actualIt->value.GetArray();
@@ -495,17 +453,16 @@ void CAnomalyJobTest::testControlMessages(void)
     }
 }
 
-void CAnomalyJobTest::testSkipTimeControlMessage(void)
-{
-    model::CLimits limits;
-    api::CFieldConfig fieldConfig;
+void CAnomalyJobTest::testSkipTimeControlMessage(void) {
+    model::CLimits             limits;
+    api::CFieldConfig          fieldConfig;
     api::CFieldConfig::TStrVec clauses;
     clauses.push_back("count");
     fieldConfig.initFromClause(clauses);
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-    std::stringstream outputStrm;
+    std::stringstream              outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
     api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
@@ -513,8 +470,7 @@ void CAnomalyJobTest::testSkipTimeControlMessage(void)
     api::CAnomalyJob::TStrStrUMap dataRows;
 
     core_t::TTime time = 3600;
-    for (std::size_t i = 0; i < 10; ++i, time += BUCKET_SIZE)
-    {
+    for (std::size_t i = 0; i < 10; ++i, time += BUCKET_SIZE) {
         std::ostringstream ss;
         ss << time;
         dataRows["time"] = ss.str();
@@ -535,8 +491,7 @@ void CAnomalyJobTest::testSkipTimeControlMessage(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
 
     // Let's send a few buckets after skip time
-    for (std::size_t i = 0; i < 3; ++i, time += BUCKET_SIZE)
-    {
+    for (std::size_t i = 0; i < 3; ++i, time += BUCKET_SIZE) {
         std::ostringstream ss;
         ss << time;
         dataRows["time"] = ss.str();
@@ -548,8 +503,7 @@ void CAnomalyJobTest::testSkipTimeControlMessage(void)
     CPPUNIT_ASSERT_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
 }
 
-void CAnomalyJobTest::testOutOfPhase(void)
-{
+void CAnomalyJobTest::testOutOfPhase(void) {
     // Ensure the right data ends up in the right buckets
     // First we test that it works as expected for non-out-of-phase,
     // then we crank in the out-of-phase
@@ -563,9 +517,9 @@ void CAnomalyJobTest::testOutOfPhase(void)
     // The code is pretty verbose here, but executes quickly
     {
         LOG_DEBUG("*** testing non-out-of-phase metric ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("mean(value)");
         fieldConfig.initFromClause(clauses);
@@ -576,7 +530,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -685,19 +639,19 @@ void CAnomalyJobTest::testOutOfPhase(void)
     {
         LOG_DEBUG("*** testing non-out-of-phase metric ***");
         // Same as previous test but starting not on a bucket boundary
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("mean(value)");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -792,19 +746,19 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
     {
         LOG_DEBUG("*** testing non-out-of-phase count ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         fieldConfig.initFromClause(clauses);
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -912,9 +866,9 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
     {
         LOG_DEBUG("*** testing non-out-of-phase count ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         fieldConfig.initFromClause(clauses);
@@ -925,7 +879,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -1029,9 +983,9 @@ void CAnomalyJobTest::testOutOfPhase(void)
     // Now we come to the real meat and potatoes of the test, the out-of-phase buckets
     {
         LOG_DEBUG("*** testing out-of-phase metric ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("mean(value)");
         fieldConfig.initFromClause(clauses);
@@ -1044,7 +998,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -1175,9 +1129,9 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
     {
         LOG_DEBUG("*** testing out-of-phase metric ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("mean(value)");
         fieldConfig.initFromClause(clauses);
@@ -1190,7 +1144,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -1320,9 +1274,9 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
     {
         LOG_DEBUG("*** testing out-of-phase eventrate ***");
-        core_t::TTime bucketSize = 100;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 100;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("high_count");
         clauses.push_back("by");
@@ -1337,7 +1291,7 @@ void CAnomalyJobTest::testOutOfPhase(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                wrappedOutputStream);
+                             wrappedOutputStream);
 
         api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -1513,12 +1467,11 @@ void CAnomalyJobTest::testOutOfPhase(void)
     }
 }
 
-void CAnomalyJobTest::testBucketSelection(void)
-{
+void CAnomalyJobTest::testBucketSelection(void) {
     LOG_DEBUG("*** testBucketSelection ***");
-    core_t::TTime bucketSize = 100;
-    model::CLimits limits;
-    api::CFieldConfig fieldConfig;
+    core_t::TTime              bucketSize = 100;
+    model::CLimits             limits;
+    api::CFieldConfig          fieldConfig;
     api::CFieldConfig::TStrVec clauses;
     clauses.push_back("mean(value)");
     fieldConfig.initFromClause(clauses);
@@ -1531,7 +1484,7 @@ void CAnomalyJobTest::testBucketSelection(void)
     core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
     api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-            wrappedOutputStream);
+                         wrappedOutputStream);
 
     job.m_ResultsQueue.reset(950);
     {
@@ -1642,14 +1595,13 @@ void CAnomalyJobTest::testBucketSelection(void)
     }
 }
 
-void CAnomalyJobTest::testModelPlot(void)
-{
+void CAnomalyJobTest::testModelPlot(void) {
     LOG_DEBUG("*** testModelPlot ***");
     {
         // Test non-overlapping buckets
-        core_t::TTime bucketSize = 10000;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 10000;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("mean(value)");
         clauses.push_back("by");
@@ -1665,7 +1617,7 @@ void CAnomalyJobTest::testModelPlot(void)
             core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                    wrappedOutputStream);
+                                 wrappedOutputStream);
 
             api::CAnomalyJob::TStrStrUMap dataRows;
             dataRows["time"] = "10000000";
@@ -1723,9 +1675,9 @@ void CAnomalyJobTest::testModelPlot(void)
     }
     {
         // Test overlapping buckets
-        core_t::TTime bucketSize = 10000;
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        core_t::TTime              bucketSize = 10000;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clauses;
         clauses.push_back("max(value)");
         fieldConfig.initFromClause(clauses);
@@ -1740,7 +1692,7 @@ void CAnomalyJobTest::testModelPlot(void)
             core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                    wrappedOutputStream);
+                                 wrappedOutputStream);
 
             api::CAnomalyJob::TStrStrUMap dataRows;
 
@@ -1830,15 +1782,14 @@ void CAnomalyJobTest::testModelPlot(void)
     }
 }
 
-void CAnomalyJobTest::testInterimResultEdgeCases(void)
-{
+void CAnomalyJobTest::testInterimResultEdgeCases(void) {
     LOG_DEBUG("*** testInterimResultEdgeCases ***");
 
     const char *logFile = "test.log";
 
-    core_t::TTime bucketSize = 3600;
-    model::CLimits limits;
-    api::CFieldConfig fieldConfig;
+    core_t::TTime              bucketSize = 3600;
+    model::CLimits             limits;
+    api::CFieldConfig          fieldConfig;
     api::CFieldConfig::TStrVec clauses{"count", "by", "error"};
     fieldConfig.initFromClause(clauses);
 
@@ -1885,8 +1836,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases(void)
     std::ifstream log(logFile);
     CPPUNIT_ASSERT(log.is_open());
     char line[256];
-    while (log.getline(line, 256))
-    {
+    while (log.getline(line, 256)) {
         LOG_DEBUG("Got '" << line << "'");
         CPPUNIT_ASSERT(false);
     }
@@ -1894,57 +1844,55 @@ void CAnomalyJobTest::testInterimResultEdgeCases(void)
     std::remove(logFile);
 }
 
-void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void)
-{
-    model::CLimits limits;
-    api::CFieldConfig fieldConfig;
+void CAnomalyJobTest::testRestoreFailsWithEmptyStream(void) {
+    model::CLimits             limits;
+    api::CFieldConfig          fieldConfig;
     api::CFieldConfig::TStrVec clauses;
     clauses.push_back("value");
     clauses.push_back("partitionfield=greenhouse");
     fieldConfig.initFromClause(clauses);
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
-    std::ostringstream outputStrm;
+    std::ostringstream             outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-            wrappedOutputStream);
+                         wrappedOutputStream);
 
-    core_t::TTime completeToTime(0);
+    core_t::TTime  completeToTime(0);
     CEmptySearcher restoreSearcher;
     CPPUNIT_ASSERT(job.restoreState(restoreSearcher, completeToTime) == false);
 }
 
-CppUnit::Test* CAnomalyJobTest::suite(void)
-{
+CppUnit::Test* CAnomalyJobTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyJobTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testBadTimes",
-                                   &CAnomalyJobTest::testBadTimes) );
+                               "CAnomalyJobTest::testBadTimes",
+                               &CAnomalyJobTest::testBadTimes) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testOutOfSequence",
-                                   &CAnomalyJobTest::testOutOfSequence) );
+                               "CAnomalyJobTest::testOutOfSequence",
+                               &CAnomalyJobTest::testOutOfSequence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testControlMessages",
-                                   &CAnomalyJobTest::testControlMessages) );
+                               "CAnomalyJobTest::testControlMessages",
+                               &CAnomalyJobTest::testControlMessages) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testSkipTimeControlMessage",
-                                   &CAnomalyJobTest::testSkipTimeControlMessage) );
+                               "CAnomalyJobTest::testSkipTimeControlMessage",
+                               &CAnomalyJobTest::testSkipTimeControlMessage) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testOutOfPhase",
-                                   &CAnomalyJobTest::testOutOfPhase) );
+                               "CAnomalyJobTest::testOutOfPhase",
+                               &CAnomalyJobTest::testOutOfPhase) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testBucketSelection",
-                                   &CAnomalyJobTest::testBucketSelection) );
+                               "CAnomalyJobTest::testBucketSelection",
+                               &CAnomalyJobTest::testBucketSelection) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testModelPlot",
-                                   &CAnomalyJobTest::testModelPlot) );
+                               "CAnomalyJobTest::testModelPlot",
+                               &CAnomalyJobTest::testModelPlot) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testInterimResultEdgeCases",
-                                   &CAnomalyJobTest::testInterimResultEdgeCases) );
+                               "CAnomalyJobTest::testInterimResultEdgeCases",
+                               &CAnomalyJobTest::testInterimResultEdgeCases) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobTest>(
-                                   "CAnomalyJobTest::testRestoreFailsWithEmptyStream",
-                                   &CAnomalyJobTest::testRestoreFailsWithEmptyStream) );
+                               "CAnomalyJobTest::testRestoreFailsWithEmptyStream",
+                               &CAnomalyJobTest::testRestoreFailsWithEmptyStream) );
     return suiteOfTests;
 }

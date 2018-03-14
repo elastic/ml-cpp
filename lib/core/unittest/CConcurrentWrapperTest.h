@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CConcurrentWrapperTest : public CppUnit::TestFixture
-{
+class CConcurrentWrapperTest : public CppUnit::TestFixture {
     public:
         void testBasic(void);
         void testThreads(void);

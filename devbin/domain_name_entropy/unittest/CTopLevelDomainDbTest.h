@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTopLevelDomainDbTest : public CppUnit::TestFixture
-{
+class CTopLevelDomainDbTest : public CppUnit::TestFixture {
     public:
         void testMozillaTestCases(void);
         void testSimpleTestCases(void);

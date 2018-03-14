@@ -31,17 +31,14 @@
 class CResourceMonitorTest;
 class CStringStoreTest;
 
-namespace ml
-{
+namespace ml {
 
-namespace core
-{
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace model
-{
+namespace model {
 
 //! \brief
 //! DESCRIPTION:\n
@@ -61,22 +58,17 @@ namespace model
 //! strings.
 //! Write access is locked for the benefit of future threading.
 //!
-class MODEL_EXPORT CStringStore : private core::CNonCopyable
-{
+class MODEL_EXPORT CStringStore : private core::CNonCopyable {
     public:
-        struct MODEL_EXPORT SHashStoredStringPtr
-        {
-            std::size_t operator()(const core::CStoredStringPtr &key) const
-            {
+        struct MODEL_EXPORT SHashStoredStringPtr {
+            std::size_t operator()(const core::CStoredStringPtr &key) const {
                 boost::hash<std::string> hasher;
                 return hasher(*key);
             }
         };
-        struct MODEL_EXPORT SStoredStringPtrEqual
-        {
+        struct MODEL_EXPORT SStoredStringPtrEqual {
             bool operator()(const core::CStoredStringPtr &lhs,
-                            const core::CStoredStringPtr &rhs) const
-            {
+                            const core::CStoredStringPtr &rhs) const {
                 return *lhs == *rhs;
             }
         };
@@ -150,8 +142,8 @@ class MODEL_EXPORT CStringStore : private core::CNonCopyable
         //! Locking primitive
         mutable core::CFastMutex m_Mutex;
 
-    friend class ::CResourceMonitorTest;
-    friend class ::CStringStoreTest;
+        friend class ::CResourceMonitorTest;
+        friend class ::CStringStoreTest;
 };
 
 

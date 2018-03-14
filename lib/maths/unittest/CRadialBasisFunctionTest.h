@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CRadialBasisFunctionTest : public CppUnit::TestFixture
-{
+class CRadialBasisFunctionTest : public CppUnit::TestFixture {
     public:
         void testDerivative(void);
         void testMean(void);

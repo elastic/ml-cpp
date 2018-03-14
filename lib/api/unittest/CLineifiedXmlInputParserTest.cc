@@ -28,58 +28,51 @@
 #include <sstream>
 
 
-CppUnit::Test *CLineifiedXmlInputParserTest::suite()
-{
+CppUnit::Test *CLineifiedXmlInputParserTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CLineifiedXmlInputParserTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-                                   "CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",
-                                   &CLineifiedXmlInputParserTest::testThroughputArbitraryConformant) );
+                               "CLineifiedXmlInputParserTest::testThroughputArbitraryConformant",
+                               &CLineifiedXmlInputParserTest::testThroughputArbitraryConformant) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-                                   "CLineifiedXmlInputParserTest::testThroughputCommonConformant",
-                                   &CLineifiedXmlInputParserTest::testThroughputCommonConformant) );
+                               "CLineifiedXmlInputParserTest::testThroughputCommonConformant",
+                               &CLineifiedXmlInputParserTest::testThroughputCommonConformant) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-                                   "CLineifiedXmlInputParserTest::testThroughputArbitraryRapid",
-                                   &CLineifiedXmlInputParserTest::testThroughputArbitraryRapid) );
+                               "CLineifiedXmlInputParserTest::testThroughputArbitraryRapid",
+                               &CLineifiedXmlInputParserTest::testThroughputArbitraryRapid) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CLineifiedXmlInputParserTest>(
-                                   "CLineifiedXmlInputParserTest::testThroughputCommonRapid",
-                                   &CLineifiedXmlInputParserTest::testThroughputCommonRapid) );
+                               "CLineifiedXmlInputParserTest::testThroughputCommonRapid",
+                               &CLineifiedXmlInputParserTest::testThroughputCommonRapid) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
 
-class CSetupVisitor
-{
+class CSetupVisitor {
     public:
         CSetupVisitor(void)
             : m_RecordsPerBlock(0),
-              m_OutputWriter("root")
-        {
+              m_OutputWriter("root") {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
             ++m_RecordsPerBlock;
             CPPUNIT_ASSERT(m_OutputWriter.writeRow(dataRowFields));
 
             return true;
         }
 
-        std::string input(size_t testSize) const
-        {
+        std::string input(size_t testSize) const {
             const std::string &block = m_OutputWriter.internalString();
 
             std::string str;
             str.reserve(testSize * block.length());
 
             // Duplicate the binary data according to the test size
-            for (size_t count = 0; count < testSize; ++count)
-            {
+            for (size_t count = 0; count < testSize; ++count) {
                 str.append(block);
             }
 
@@ -88,33 +81,28 @@ class CSetupVisitor
             return str;
         }
 
-        size_t recordsPerBlock(void) const
-        {
+        size_t recordsPerBlock(void) const {
             return m_RecordsPerBlock;
         }
 
     private:
-        size_t                                  m_RecordsPerBlock;
+        size_t m_RecordsPerBlock;
         ml::api::CLineifiedXmlOutputWriter m_OutputWriter;
 };
 
-class CVisitor
-{
+class CVisitor {
     public:
         CVisitor(void)
-            : m_RecordCount(0)
-        {
+            : m_RecordCount(0) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap &/*dataRowFields*/)
-        {
+        bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap & /*dataRowFields*/) {
             ++m_RecordCount;
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
@@ -125,33 +113,28 @@ class CVisitor
 
 }
 
-void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant(void)
-{
+void CLineifiedXmlInputParserTest::testThroughputArbitraryConformant(void) {
     LOG_INFO("Testing using a standards-conformant XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CXmlParser>(false);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputCommonConformant(void)
-{
+void CLineifiedXmlInputParserTest::testThroughputCommonConformant(void) {
     LOG_INFO("Testing using a standards-conformant XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CXmlParser>(true);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid(void)
-{
+void CLineifiedXmlInputParserTest::testThroughputArbitraryRapid(void) {
     LOG_INFO("Testing using a rapid XML parser assuming arbitrary fields in XML documents");
     this->runTest<ml::core::CRapidXmlParser>(false);
 }
 
-void CLineifiedXmlInputParserTest::testThroughputCommonRapid(void)
-{
+void CLineifiedXmlInputParserTest::testThroughputCommonRapid(void) {
     LOG_INFO("Testing using a rapid XML parser assuming all XML documents have the same fields");
     this->runTest<ml::core::CRapidXmlParser>(true);
 }
 
 template <typename PARSER>
-void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure)
-{
+void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -168,12 +151,12 @@ void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure)
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
-    std::istringstream input(setupVisitor.input(TEST_SIZE));
+    std::istringstream  input(setupVisitor.input(TEST_SIZE));
 
-    PARSER underlyingParser;
+    PARSER                            underlyingParser;
     ml::api::CLineifiedXmlInputParser parser(underlyingParser,
-                                                  input,
-                                                  allDocsSameStructure);
+                                             input,
+                                             allDocsSameStructure);
 
     CVisitor visitor;
 

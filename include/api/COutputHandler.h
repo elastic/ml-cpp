@@ -29,15 +29,12 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 
 //! \brief
@@ -57,16 +54,15 @@ class CBackgroundPersister;
 //! for the strings that hold the field names.  The nested CPreComputedHash
 //! class and TPreComputedHashVec typedef can be used to implement this.
 //!
-class API_EXPORT COutputHandler : private core::CNonCopyable
-{
+class API_EXPORT COutputHandler : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
     public:
         COutputHandler(void);
@@ -118,8 +114,7 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
     protected:
         //! Class to cache a hash value so that it doesn't have to be repeatedly
         //! recomputed
-        class API_EXPORT CPreComputedHash : public std::unary_function<std::string, size_t>
-        {
+        class API_EXPORT CPreComputedHash : public std::unary_function<std::string, size_t> {
             public:
                 //! Store the given hash
                 CPreComputedHash(size_t hash);
@@ -134,14 +129,14 @@ class API_EXPORT COutputHandler : private core::CNonCopyable
 
     protected:
         //! Used when there are no extra fields
-        static const TStrVec     EMPTY_FIELD_NAMES;
+        static const TStrVec EMPTY_FIELD_NAMES;
 
         //! Used when there are no field overrides
         static const TStrStrUMap EMPTY_FIELD_OVERRIDES;
 
         typedef std::vector<CPreComputedHash>                  TPreComputedHashVec;
-        typedef TPreComputedHashVec::iterator                  TPreComputedHashVecItr;
-        typedef TPreComputedHashVec::const_iterator            TPreComputedHashVecCItr;
+        typedef TPreComputedHashVec::iterator TPreComputedHashVecItr;
+        typedef TPreComputedHashVec::const_iterator TPreComputedHashVecCItr;
 };
 
 

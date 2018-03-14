@@ -40,24 +40,20 @@
 extern char **environ;
 
 
-namespace
-{
+namespace {
 
 //! Attempt to close all file descriptors except the standard ones.  The
 //! standard file descriptors will be reopened on /dev/null in the spawned
 //! process.  Returns false and sets errno if the actions cannot be initialised
 //! at all, but other errors are ignored.
-bool setupFileActions(posix_spawn_file_actions_t *fileActions)
-{
-    if (::posix_spawn_file_actions_init(fileActions) != 0)
-    {
+bool setupFileActions(posix_spawn_file_actions_t *fileActions) {
+    if (::posix_spawn_file_actions_init(fileActions) != 0) {
         return false;
     }
 
     struct rlimit rlim;
     ::memset(&rlim, 0, sizeof(struct rlimit));
-    if (::getrlimit(RLIMIT_NOFILE, &rlim) != 0)
-    {
+    if (::getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
         rlim.rlim_cur = 36; // POSIX default
     }
 
@@ -67,25 +63,18 @@ bool setupFileActions(posix_spawn_file_actions_t *fileActions)
     // in reality it's unlikely that any file descriptors above a million will
     // be open at the time this function is called.
     int maxFd(rlim.rlim_cur > 1000000 ? 1000000 : static_cast<int>(rlim.rlim_cur));
-    for (int fd = 0; fd <= maxFd; ++fd)
-    {
-        if (fd == STDIN_FILENO)
-        {
+    for (int fd = 0; fd <= maxFd; ++fd) {
+        if (fd == STDIN_FILENO) {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_RDONLY, S_IRUSR);
-        }
-        else if (fd == STDOUT_FILENO || fd == STDERR_FILENO)
-        {
+        } else if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
             ::posix_spawn_file_actions_addopen(fileActions, fd, "/dev/null", O_WRONLY, S_IWUSR);
-        }
-        else
-        {
+        } else {
             // Close other files that are open.  There is a race condition here,
             // in that files could be opened or closed between this code running
             // and the posix_spawn() function being called.  However, this would
             // violate the restrictions stated in the contract detailed in the
             // Doxygen description of this class.
-            if (::fcntl(fd, F_GETFL) != -1)
-            {
+            if (::fcntl(fd, F_GETFL) != -1) {
                 ::posix_spawn_file_actions_addclose(fileActions, fd);
             }
         }
@@ -96,58 +85,45 @@ bool setupFileActions(posix_spawn_file_actions_t *fileActions)
 
 }
 
-namespace ml
-{
-namespace core
-{
-namespace detail
-{
+namespace ml {
+namespace core {
+namespace detail {
 
-class CTrackerThread : public CThread
-{
+class CTrackerThread : public CThread {
     public:
         typedef std::set<CProcess::TPid> TPidSet;
 
     public:
         CTrackerThread(void)
             : m_Shutdown(false),
-              m_Condition(m_Mutex)
-        {
+              m_Condition(m_Mutex) {
         }
 
         //! Mutex is accessible so the code outside the class can avoid race
         //! conditions.
-        CMutex &mutex(void)
-        {
+        CMutex &mutex(void) {
             return m_Mutex;
         }
 
         //! Add a PID to track.
-        void addPid(CProcess::TPid pid)
-        {
+        void addPid(CProcess::TPid pid) {
             CScopedLock lock(m_Mutex);
             m_Pids.insert(pid);
             m_Condition.signal();
         }
 
-        bool terminatePid(CProcess::TPid pid)
-        {
-            if (!this->havePid(pid))
-            {
+        bool terminatePid(CProcess::TPid pid) {
+            if (!this->havePid(pid)) {
                 LOG_ERROR("Will not attempt to kill process " << pid << ": not a child process");
                 return false;
             }
 
-            if (::kill(pid, SIGTERM) == -1)
-            {
+            if (::kill(pid, SIGTERM) == -1) {
                 // Don't log an error if the process exited normally in between
                 // checking whether it was our child process and killing it
-                if (errno != ESRCH)
-                {
+                if (errno != ESRCH) {
                     LOG_ERROR("Failed to kill process " << pid << ": " << ::strerror(errno));
-                }
-                else
-                {
+                } else {
                     // But log at debug in case there's a bug in this area
                     LOG_DEBUG("No such process while trying to kill PID " << pid);
                 }
@@ -157,10 +133,8 @@ class CTrackerThread : public CThread
             return true;
         }
 
-        bool havePid(CProcess::TPid pid) const
-        {
-            if (pid <= 0)
-            {
+        bool havePid(CProcess::TPid pid) const {
+            if (pid <= 0) {
                 return false;
             }
 
@@ -172,20 +146,15 @@ class CTrackerThread : public CThread
         }
 
     protected:
-        virtual void run(void)
-        {
+        virtual void run(void) {
             CScopedLock lock(m_Mutex);
 
-            while (!m_Shutdown)
-            {
+            while (!m_Shutdown) {
                 // Reap zombies every 50ms if child processes are running,
                 // otherwise wait for a child process to start.
-                if (m_Pids.empty())
-                {
+                if (m_Pids.empty()) {
                     m_Condition.wait();
-                }
-                else
-                {
+                } else {
                     m_Condition.wait(50);
                 }
 
@@ -193,8 +162,7 @@ class CTrackerThread : public CThread
             }
         }
 
-        virtual void shutdown(void)
-        {
+        virtual void shutdown(void) {
             LOG_DEBUG("Shutting down spawned process tracker thread");
             CScopedLock lock(m_Mutex);
             m_Shutdown = true;
@@ -204,39 +172,28 @@ class CTrackerThread : public CThread
     private:
         //! Reap zombie child processes and adjust the set of live child PIDs
         //! accordingly.  MUST be called with m_Mutex locked.
-        void checkForDeadChildren(void)
-        {
+        void checkForDeadChildren(void) {
             int status = 0;
-            for (;;)
-            {
+            for (;;) {
                 CProcess::TPid pid = ::waitpid(-1, &status, WNOHANG);
                 // 0 means there are child processes but none have died
-                if (pid == 0)
-                {
+                if (pid == 0) {
                     break;
                 }
                 // -1 means error
-                if (pid == -1)
-                {
-                    if (errno != EINTR)
-                    {
+                if (pid == -1) {
+                    if (errno != EINTR) {
                         break;
                     }
-                }
-                else
-                {
-                    if (WIFSIGNALED(status))
-                    {
+                } else {
+                    if (WIFSIGNALED(status)) {
                         int signal = WTERMSIG(status);
-                        if (signal == SIGTERM)
-                        {
+                        if (signal == SIGTERM) {
                             // We expect this when a job is force-closed, so log
                             // at a lower level
                             LOG_INFO("Child process with PID " << pid <<
                                      " was terminated by signal " << signal);
-                        }
-                        else
-                        {
+                        } else {
                             // This should never happen if the system is working
                             // normally - possible reasons are the Linux OOM
                             // killer, manual intervention and bugs that cause
@@ -244,17 +201,12 @@ class CTrackerThread : public CThread
                             LOG_ERROR("Child process with PID " << pid <<
                                       " was terminated by signal " << signal);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         int exitCode = WEXITSTATUS(status);
-                        if (exitCode == 0)
-                        {
+                        if (exitCode == 0) {
                             // This is the happy case
                             LOG_DEBUG("Child process with PID " << pid << " has exited");
-                        }
-                        else
-                        {
+                        } else {
                             LOG_WARN("Child process with PID " << pid <<
                                      " has exited with exit code " << exitCode);
                         }
@@ -265,10 +217,10 @@ class CTrackerThread : public CThread
         }
 
     private:
-        bool           m_Shutdown;
-        TPidSet        m_Pids;
+        bool m_Shutdown;
+        TPidSet m_Pids;
         mutable CMutex m_Mutex;
-        CCondition     m_Condition;
+        CCondition m_Condition;
 };
 
 }
@@ -276,42 +228,34 @@ class CTrackerThread : public CThread
 
 CDetachedProcessSpawner::CDetachedProcessSpawner(const TStrVec &permittedProcessPaths)
     : m_PermittedProcessPaths(permittedProcessPaths),
-      m_TrackerThread(boost::make_shared<detail::CTrackerThread>())
-{
-    if (m_TrackerThread->start() == false)
-    {
+      m_TrackerThread(boost::make_shared<detail::CTrackerThread>()) {
+    if (m_TrackerThread->start() == false) {
         LOG_ERROR("Failed to start spawned process tracker thread");
     }
 }
 
-CDetachedProcessSpawner::~CDetachedProcessSpawner(void)
-{
-    if (m_TrackerThread->stop() == false)
-    {
+CDetachedProcessSpawner::~CDetachedProcessSpawner(void) {
+    if (m_TrackerThread->stop() == false) {
         LOG_ERROR("Failed to stop spawned process tracker thread");
     }
 }
 
-bool CDetachedProcessSpawner::spawn(const std::string &processPath, const TStrVec &args)
-{
+bool CDetachedProcessSpawner::spawn(const std::string &processPath, const TStrVec &args) {
     CProcess::TPid dummy(0);
     return this->spawn(processPath, args, dummy);
 }
 
 bool CDetachedProcessSpawner::spawn(const std::string &processPath,
                                     const TStrVec &args,
-                                    CProcess::TPid &childPid)
-{
+                                    CProcess::TPid &childPid) {
     if (std::find(m_PermittedProcessPaths.begin(),
                   m_PermittedProcessPaths.end(),
-                  processPath) == m_PermittedProcessPaths.end())
-    {
+                  processPath) == m_PermittedProcessPaths.end()) {
         LOG_ERROR("Spawning process '" << processPath << "' is not permitted");
         return false;
     }
 
-    if (::access(processPath.c_str(), X_OK) != 0)
-    {
+    if (::access(processPath.c_str(), X_OK) != 0) {
         LOG_ERROR("Cannot execute '" << processPath << "': " <<
                   ::strerror(errno));
         return false;
@@ -327,22 +271,19 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
     // These const_casts may cause const data to get modified BUT only in the
     // child post-fork, so this won't corrupt parent process data
     argv.push_back(const_cast<char *>(processPath.c_str()));
-    for (size_t index = 0; index < args.size(); ++index)
-    {
+    for (size_t index = 0; index < args.size(); ++index) {
         argv.push_back(const_cast<char *>(args[index].c_str()));
     }
     argv.push_back(static_cast<char *>(0));
 
     posix_spawn_file_actions_t fileActions;
-    if (setupFileActions(&fileActions) == false)
-    {
+    if (setupFileActions(&fileActions) == false) {
         LOG_ERROR("Failed to set up file actions prior to spawn of '" <<
                   processPath << "': " << ::strerror(errno));
         return false;
     }
     posix_spawnattr_t spawnAttributes;
-    if (::posix_spawnattr_init(&spawnAttributes) != 0)
-    {
+    if (::posix_spawnattr_init(&spawnAttributes) != 0) {
         LOG_ERROR("Failed to set up spawn attributes prior to spawn of '" <<
                   processPath << "': " << ::strerror(errno));
         return false;
@@ -365,8 +306,7 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
         ::posix_spawn_file_actions_destroy(&fileActions);
         ::posix_spawnattr_destroy(&spawnAttributes);
 
-        if (err != 0)
-        {
+        if (err != 0) {
             LOG_ERROR("Failed to spawn '" << processPath << "': " <<
                       ::strerror(err));
             return false;
@@ -380,13 +320,11 @@ bool CDetachedProcessSpawner::spawn(const std::string &processPath,
     return true;
 }
 
-bool CDetachedProcessSpawner::terminateChild(CProcess::TPid pid)
-{
+bool CDetachedProcessSpawner::terminateChild(CProcess::TPid pid) {
     return m_TrackerThread->terminatePid(pid);
 }
 
-bool CDetachedProcessSpawner::hasChild(CProcess::TPid pid) const
-{
+bool CDetachedProcessSpawner::hasChild(CProcess::TPid pid) const {
     return m_TrackerThread->havePid(pid);
 }
 

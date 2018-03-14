@@ -42,15 +42,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CEventData;
 class CMetricBucketGatherer;
 class CResourceMonitor;
@@ -110,8 +107,7 @@ class CSearchKey;
 //!
 //! Time-based data gathering is handled by further classes derived from
 //! CBucketGatherer, for Metrics and EventRates accordingly.
-class MODEL_EXPORT CDataGatherer
-{
+class MODEL_EXPORT CDataGatherer {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef core::CSmallVector<double, 1> TDouble1Vec;
@@ -366,8 +362,7 @@ class MODEL_EXPORT CDataGatherer
         //! \tparam T The type of the feature data.
         template<typename T>
         bool featureData(core_t::TTime time, core_t::TTime bucketLength,
-                         std::vector<std::pair<model_t::EFeature, T> > &result) const
-        {
+                         std::vector<std::pair<model_t::EFeature, T> > &result) const {
             TFeatureAnyPrVec rawFeatureData;
             this->chooseBucketGatherer(time).featureData(time, bucketLength, rawFeatureData);
 
@@ -375,17 +370,15 @@ class MODEL_EXPORT CDataGatherer
 
             result.clear();
             result.reserve(rawFeatureData.size());
-            for (std::size_t i = 0u; i < rawFeatureData.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < rawFeatureData.size(); ++i) {
                 TFeatureAnyPr &feature = rawFeatureData[i];
 
                 // Check the typeid before attempting the cast so we
                 // don't use throw to handle failure, which is slow.
-                if (feature.second.type() != typeid(T))
-                {
+                if (feature.second.type() != typeid(T)) {
                     LOG_ERROR("Bad type for feature = " << model_t::print(feature.first)
-                              << ", expected " << typeid(T).name()
-                              << " got " << feature.second.type().name());
+                                                        << ", expected " << typeid(T).name()
+                                                        << " got " << feature.second.type().name());
                     succeeded = false;
                     continue;
                 }
@@ -640,68 +633,56 @@ class MODEL_EXPORT CDataGatherer
         //@{
         //! Extract the person identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.first.first;
         }
         //! Extract the person identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.first.first;
         }
         //! Extract the person identifier from a tuple.
-        static inline std::size_t extractPersonId(const TSizeSizePr &tuple)
-        {
+        static inline std::size_t extractPersonId(const TSizeSizePr &tuple) {
             return tuple.first;
         }
         //! Extracts the person identifier from a tuple.
-        struct SExtractPersonId
-        {
+        struct SExtractPersonId {
             template<typename TUPLE>
-            std::size_t operator()(const TUPLE &t) const
-            {
+            std::size_t operator()(const TUPLE &t) const {
                 return CDataGatherer::extractPersonId(t);
             }
         };
 
         //! Extract the attribute identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.first.second;
         }
         //! Extract the attribute identifier from a tuple.
         template<typename T>
-        static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.first.second;
         }
         //! Extract the attribute identifier from a tuple.
-        static inline std::size_t extractAttributeId(const TSizeSizePr &tuple)
-        {
+        static inline std::size_t extractAttributeId(const TSizeSizePr &tuple) {
             return tuple.second;
         }
         //! Extracts the attribute identifier from a tuple.
-        struct SExtractAttributeId
-        {
+        struct SExtractAttributeId {
             template<typename TUPLE>
-            std::size_t operator()(const TUPLE &t) const
-            {
+            std::size_t operator()(const TUPLE &t) const {
                 return CDataGatherer::extractAttributeId(t);
             }
         };
 
         //! Extract the data from a tuple.
         template<typename T>
-        static inline const T &extractData(const std::pair<const TSizeSizePr, T> &tuple)
-        {
+        static inline const T &extractData(const std::pair<const TSizeSizePr, T> &tuple) {
             return tuple.second;
         }
         //! Extract the data from a tuple.
         template<typename T>
-        static inline const T &extractData(const std::pair<TSizeSizePr, T> &tuple)
-        {
+        static inline const T &extractData(const std::pair<TSizeSizePr, T> &tuple) {
             return tuple.second;
         }
         //@}

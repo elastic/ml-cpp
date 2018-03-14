@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CStringUtilsTest : public CppUnit::TestFixture
-{
+class CStringUtilsTest : public CppUnit::TestFixture {
     public:
         void testNumMatches(void);
         void testReplace(void);

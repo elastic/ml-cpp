@@ -37,19 +37,15 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CPrior;
 }
-namespace model
-{
+namespace model {
 
 //! \brief The most basic population model interface.
 //!
@@ -69,8 +65,7 @@ namespace model
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
-{
+class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel {
     public:
         typedef std::vector<core_t::TTime> TTimeVec;
         typedef std::pair<std::size_t, uint64_t> TSizeUInt64Pr;
@@ -136,7 +131,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         //! Extract the bucket value for metric feature data.
         static inline TDouble1Vec extractValue(model_t::EFeature feature,
                                                const std::pair<TSizeSizePr, SMetricFeatureData> &data);
-        //@}
+    //@}
 
     public:
         //! \name Person
@@ -197,8 +192,7 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
 
     protected:
         //! \brief A key for the partial bucket corrections map.
-        class MODEL_EXPORT CCorrectionKey
-        {
+        class MODEL_EXPORT CCorrectionKey {
             public:
                 CCorrectionKey(model_t::EFeature feature,
                                std::size_t pid,
@@ -215,15 +209,13 @@ class MODEL_EXPORT CPopulationModel : public CAnomalyDetectorModel
         };
 
         //! \brief A hasher for the partial bucket corrections map key.
-        struct MODEL_EXPORT CHashCorrectionKey
-        {
-            std::size_t operator()(const CCorrectionKey &key) const
-            {
+        struct MODEL_EXPORT CHashCorrectionKey {
+            std::size_t operator()(const CCorrectionKey &key) const {
                 return key.hash();
             }
         };
         using TCorrectionKeyDouble1VecUMap =
-                boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
+            boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
 
     protected:
         //! Persist state by passing information to the supplied inserter.

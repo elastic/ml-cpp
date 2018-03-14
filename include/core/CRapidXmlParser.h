@@ -26,10 +26,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CRapidXmlStateRestoreTraverser;
 
 
@@ -71,11 +69,10 @@ class CRapidXmlStateRestoreTraverser;
 //! at least, we'll try to get acceptable performance from
 //! XML using RapidXml.
 //!
-class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
-{
+class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf {
     public:
         typedef std::map<std::string, std::string> TStrStrMap;
-        typedef TStrStrMap::const_iterator         TStrStrMapCItr;
+        typedef TStrStrMap::const_iterator TStrStrMapCItr;
 
     public:
         CRapidXmlParser(void);
@@ -178,10 +175,10 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
         typedef boost::scoped_array<char>     TScopedCharArray;
 
         //! RapidXml parses the XML in-situ, so keep a copy of the input
-        TScopedCharArray      m_XmlBuf;
+        TScopedCharArray m_XmlBuf;
 
         //! Size of array allocated
-        size_t                m_XmlBufSize;
+        size_t m_XmlBufSize;
 
         //! The RapidXml data structure
         TCharRapidXmlDocument m_Doc;
@@ -189,7 +186,7 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf
         //! Pointer to the current node accessed via the navigation API
         TCharRapidXmlNode     *m_NavigatedNode;
 
-    friend class CRapidXmlStateRestoreTraverser;
+        friend class CRapidXmlStateRestoreTraverser;
 };
 
 

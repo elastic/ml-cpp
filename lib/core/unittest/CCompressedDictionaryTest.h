@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CCompressedDictionaryTest : public CppUnit::TestFixture
-{
+class CCompressedDictionaryTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
         void testPersist(void);

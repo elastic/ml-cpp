@@ -34,15 +34,12 @@
 class CBaseTokenListDataTyperTest;
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api
-{
+namespace api {
 class CTokenListReverseSearchCreatorIntf;
 
 //! \brief
@@ -69,8 +66,7 @@ class CTokenListReverseSearchCreatorIntf;
 //! correct setting of reverse search creator state needs to be added to
 //! the copy constructor and assignment operator of this class.)
 //!
-class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
-{
+class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
     public:
         //! Name of the field that contains pre-tokenised tokens (in CSV format)
         //! if available
@@ -94,15 +90,14 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
 
         //! Used for stream output of token IDs translated back to the original
         //! tokens
-        struct API_EXPORT SIdTranslater
-        {
+        struct API_EXPORT SIdTranslater {
             SIdTranslater(const CBaseTokenListDataTyper &typer,
                           const TSizeSizePrVec &tokenIds,
                           char separator);
 
             const CBaseTokenListDataTyper &s_Typer;
             const TSizeSizePrVec          &s_TokenIds;
-            char                          s_Separator;
+            char s_Separator;
         };
 
     public:
@@ -204,8 +199,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
 
     private:
         //! Value type for the TTokenMIndex below
-        class CTokenInfoItem
-        {
+        class CTokenInfoItem {
             public:
                 CTokenInfoItem(const std::string &str,
                                size_t index);
@@ -224,23 +218,21 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
                 std::string m_Str;
 
                 //! Index of the token
-                size_t      m_Index;
+                size_t m_Index;
 
                 //! How many types use this token?
-                size_t      m_TypeCount;
+                size_t m_TypeCount;
         };
 
         //! Compute equality based on the first element of a pair only
-        class CSizePairFirstElementEquals
-        {
+        class CSizePairFirstElementEquals {
             public:
                 CSizePairFirstElementEquals(size_t value);
 
                 //! PAIRTYPE can be any struct with a data member named "first"
                 //! that can be checked for equality to a size_t
                 template <typename PAIRTYPE>
-                bool operator()(const PAIRTYPE &lhs) const
-                {
+                bool operator()(const PAIRTYPE &lhs) const {
                     return lhs.first == m_Value;
                 }
 
@@ -253,8 +245,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
         using TTokenListTypeVec = std::vector<CTokenListType>;
 
         //! Tag for the token index
-        struct SToken
-        {
+        struct SToken {
         };
 
         using TTokenMIndex = boost::multi_index::multi_index_container<
@@ -264,9 +255,9 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
                 boost::multi_index::hashed_unique<
                     boost::multi_index::tag<SToken>,
                     BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CTokenInfoItem, std::string, str)
+                    >
                 >
-            >
-        >;
+            >;
 
     private:
         //! Used by deferred persistence functions
@@ -290,42 +281,42 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper
 
         //! The lower threshold for comparison.  If another type matches this
         //! closely, we'll take it providing there's no other better match.
-        double                                       m_LowerThreshold;
+        double m_LowerThreshold;
 
         //! The upper threshold for comparison.  If another type matches this
         //! closely, we accept it immediately (i.e. don't look for a better one).
-        double                                       m_UpperThreshold;
+        double m_UpperThreshold;
 
         //! Has the data typer's state changed?
-        bool                                         m_HasChanged;
+        bool m_HasChanged;
 
         //! The types
-        TTokenListTypeVec                            m_Types;
+        TTokenListTypeVec m_Types;
 
         //! List of match count/index into type vector in descending order of
         //! match count
-        TSizeSizePrList                              m_TypesByCount;
+        TSizeSizePrList m_TypesByCount;
 
         //! Used for looking up tokens to a unique ID
-        TTokenMIndex                                 m_TokenIdLookup;
+        TTokenMIndex m_TokenIdLookup;
 
         //! Vector to use to build up sequences of token IDs.  This is a member
         //! to save repeated reallocations for different strings.
-        TSizeSizePrVec                               m_WorkTokenIds;
+        TSizeSizePrVec m_WorkTokenIds;
 
         //! Set to use to build up unique token IDs.  This is a member to save
         //! repeated reallocations for different strings.
-        TSizeSizeMap                                 m_WorkTokenUniqueIds;
+        TSizeSizeMap m_WorkTokenUniqueIds;
 
         //! Used to parse pre-tokenised input supplied as CSV.
-        CCsvInputParser::CCsvLineParser              m_CsvLineParser;
+        CCsvInputParser::CCsvLineParser m_CsvLineParser;
 
-    // For unit testing
-    friend class ::CBaseTokenListDataTyperTest;
+        // For unit testing
+        friend class ::CBaseTokenListDataTyperTest;
 
-    // For ostream output
-    friend API_EXPORT std::ostream &operator<<(std::ostream &,
-                                               const SIdTranslater &);
+        // For ostream output
+        friend API_EXPORT std::ostream &operator<<(std::ostream &,
+                                                   const SIdTranslater &);
 };
 
 

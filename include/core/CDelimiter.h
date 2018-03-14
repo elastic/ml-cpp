@@ -23,10 +23,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Encapsulates a delimiter
@@ -42,8 +40,7 @@ namespace core
 //! 2) A delimiter can match any number of spaces in a space delimited
 //!    text file.
 //!
-class CORE_EXPORT CDelimiter
-{
+class CORE_EXPORT CDelimiter {
     public:
         //! Delimiter used by default constructor
         static const std::string DEFAULT_DELIMITER;
@@ -112,26 +109,26 @@ class CORE_EXPORT CDelimiter
 
     private:
         //! The primary delimiter
-        CRegex       m_Delimiter;
-        bool         m_Valid;
+        CRegex m_Delimiter;
+        bool m_Valid;
 
         //! Only treat the primary delimiter as a delimiter if it's followed by
         //! this regular expression.
-        CRegex       m_FollowingRegex;
-        bool         m_HaveFollowingRegex;
+        CRegex m_FollowingRegex;
+        bool m_HaveFollowingRegex;
 
         //! After some time has passed, should we waive the following regex?
-        bool         m_WaiveFollowingRegexAfterTime;
+        bool m_WaiveFollowingRegexAfterTime;
 
         //! The quote character (or '\0' if there isn't one).
         //! The main delimiter will be ignored if it's inside quotes.
-        char         m_Quote;
+        char m_Quote;
 
         //! The character used to escape the quote character ('\0' if none).
-        char         m_Escape;
+        char m_Escape;
 
-    friend CORE_EXPORT std::ostream &operator<<(std::ostream &strm,
-                                                const CDelimiter &delimiter);
+        friend CORE_EXPORT std::ostream &operator<<(std::ostream &strm,
+                                                    const CDelimiter &delimiter);
 };
 
 //! Useful for debugging and CPPUNIT_ASSERT_EQUALS

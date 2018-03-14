@@ -27,14 +27,11 @@
 
 #include <cstddef>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 }
-namespace maths
-{
+namespace maths {
 class CPrior;
 
 //! \brief Interface for a multivariate prior distribution function.
@@ -46,8 +43,7 @@ class CPrior;
 //! This exists to support a one-of-n prior distribution which comprises
 //! a weighted selection of basic likelihood functions and is implemented
 //! using the composite pattern.
-class MATHS_EXPORT CMultivariatePrior
-{
+class MATHS_EXPORT CMultivariatePrior {
     public:
         using TDouble10Vec = core::CSmallVector<double, 10>;
         using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
@@ -79,7 +75,7 @@ class MATHS_EXPORT CMultivariatePrior
         static const std::string NORMAL_TAG;
         static const std::string ONE_OF_N_TAG;
         static const std::string CONSTANT_TAG;
-        //@}
+    //@}
 
     public:
         //! \name Life-cycle
@@ -230,10 +226,10 @@ class MATHS_EXPORT CMultivariatePrior
         //! \param[in] weights The weights of each sample in \p samples.
         //! \param[out] result Filled in with the joint likelihood of \p samples.
         virtual maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
-                                       const TDouble10Vec1Vec &samples,
-                                       const TDouble10Vec4Vec1Vec &weights,
-                                       double &result) const = 0;
+        jointLogMarginalLikelihood(const TWeightStyleVec &weightStyles,
+                                   const TDouble10Vec1Vec &samples,
+                                   const TDouble10Vec4Vec1Vec &weights,
+                                   double &result) const = 0;
 
         //! Sample the marginal likelihood function.
         //!

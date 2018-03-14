@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -38,8 +36,7 @@ namespace core
 //! ctime_s() function with slightly different semantics to Unix's
 //! ctime_r().
 //!
-class CORE_EXPORT CCTimeR : private CNonInstantiatable
-{
+class CORE_EXPORT CCTimeR : private CNonInstantiatable {
     public:
         static char *cTimeR(const time_t *clock, char *result);
 };

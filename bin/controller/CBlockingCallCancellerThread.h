@@ -19,10 +19,8 @@
 
 #include <iosfwd>
 
-namespace ml
-{
-namespace controller
-{
+namespace ml {
+namespace controller {
 
 //! \brief
 //! Cancels blocking IO in one thread if a stream reaches end-of-file.
@@ -45,8 +43,7 @@ namespace controller
 //! but will be blocked opening one of the named pipes.  The blocking call
 //! needs to be cancelled to allow this process to exit gracefully.
 //!
-class CBlockingCallCancellerThread : public core::CThread
-{
+class CBlockingCallCancellerThread : public core::CThread {
     public:
         CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                      std::istream &monitorStream);
@@ -67,7 +64,7 @@ class CBlockingCallCancellerThread : public core::CThread
         std::istream             &m_MonitorStream;
 
         //! Flag to indicate the thread should shut down
-        volatile bool            m_Shutdown;
+        volatile bool m_Shutdown;
 };
 
 

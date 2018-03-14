@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLengthEncodedInputParserTest : public CppUnit::TestFixture
-{
+class CLengthEncodedInputParserTest : public CppUnit::TestFixture {
     public:
         void testCsvEquivalence(void);
         void testThroughput(void);

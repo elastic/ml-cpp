@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CLineifiedXmlInputParserTest : public CppUnit::TestFixture
-{
+class CLineifiedXmlInputParserTest : public CppUnit::TestFixture {
     public:
         void testThroughputArbitraryConformant(void);
         void testThroughputCommonConformant(void);

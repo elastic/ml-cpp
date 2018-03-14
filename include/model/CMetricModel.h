@@ -32,19 +32,15 @@
 #include <stdint.h>
 
 
-namespace
-{
+namespace {
 class CMockMetricModel;
 }
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CModelFactory;
 
 //! \brief The metric model common functionality.
@@ -64,8 +60,7 @@ class CModelFactory;
 //!
 //! It assumes data are supplied in time order since this means minimal
 //! state can be maintained.
-class MODEL_EXPORT CMetricModel : public CIndividualModel
-{
+class MODEL_EXPORT CMetricModel : public CIndividualModel {
     public:
         using TFeatureData = SMetricFeatureData;
         using TSizeFeatureDataPr = std::pair<std::size_t, TFeatureData>;
@@ -74,8 +69,7 @@ class MODEL_EXPORT CMetricModel : public CIndividualModel
         using TFeatureSizeFeatureDataPrVecPrVec = std::vector<TFeatureSizeFeatureDataPrVecPr>;
 
         //! The statistics we maintain about a bucketing interval.
-        struct MODEL_EXPORT SBucketStats
-        {
+        struct MODEL_EXPORT SBucketStats {
             explicit SBucketStats(core_t::TTime startTime);
 
             //! The start time of this bucket.

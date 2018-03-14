@@ -20,10 +20,8 @@
 #include <sstream>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 
 CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
@@ -31,13 +29,11 @@ CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
                                                    bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
       m_Parser(parser),
-      m_AllDocsSameStructure(allDocsSameStructure)
-{
+      m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
-bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
-{
-    TStrVec &fieldNames = this->fieldNames();
+bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
+    TStrVec &  fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream
@@ -47,39 +43,31 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
     TStrStrUMap recordFields;
 
     TCharPSizePr beginLenPair(this->parseLine());
-    while (beginLenPair.first != 0)
-    {
+    while (beginLenPair.first != 0) {
         if (m_Parser.parseBufferInSitu(beginLenPair.first,
-                                       beginLenPair.second) == false)
-        {
+                                       beginLenPair.second) == false) {
             LOG_ERROR("Failed to parse XML document");
             return false;
         }
 
         if (m_Parser.navigateRoot() == false ||
-            m_Parser.navigateFirstChild() == false)
-        {
+            m_Parser.navigateFirstChild() == false) {
             LOG_ERROR("XML document has unexpected structure");
             return false;
         }
 
-        if (m_AllDocsSameStructure)
-        {
+        if (m_AllDocsSameStructure) {
             if (this->decodeDocumentWithCommonFields(fieldNames,
                                                      fieldValRefs,
-                                                     recordFields) == false)
-            {
+                                                     recordFields) == false) {
                 LOG_ERROR("Failed to decode XML document");
                 return false;
             }
-        }
-        else
-        {
+        } else {
             this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
         }
 
-        if (readerFunc(recordFields) == false)
-        {
+        if (readerFunc(recordFields) == false) {
             LOG_ERROR("Record handler function forced exit");
             return false;
         }
@@ -92,10 +80,8 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc)
 
 bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldNames,
                                                               TStrRefVec &fieldValRefs,
-                                                              TStrStrUMap &recordFields)
-{
-    if (fieldValRefs.empty())
-    {
+                                                              TStrStrUMap &recordFields) {
+    if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
         this->decodeDocumentWithArbitraryFields(fieldNames, recordFields);
 
@@ -104,8 +90,7 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
         fieldValRefs.reserve(fieldNames.size());
         for (TStrVecCItr iter = fieldNames.begin();
              iter != fieldNames.end();
-             ++iter)
-        {
+             ++iter) {
             fieldValRefs.push_back(boost::ref(recordFields[*iter]));
         }
 
@@ -113,25 +98,21 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
     }
 
     size_t i(0);
-    bool more(true);
-    do
-    {
+    bool   more(true);
+    do {
         m_Parser.currentNodeValue(fieldValRefs[i]);
         ++i;
         more = m_Parser.navigateNext();
-    }
-    while (i < fieldValRefs.size() && more);
+    } while (i < fieldValRefs.size() && more);
 
-    if (i < fieldValRefs.size() || more)
-    {
-        while (more)
-        {
+    if (i < fieldValRefs.size() || more) {
+        while (more) {
             ++i;
             more = m_Parser.navigateNext();
         }
 
         LOG_ERROR("Incorrect number of fields: expected "
-           << fieldValRefs.size() << ", got " << i);
+                  << fieldValRefs.size() << ", got " << i);
         return false;
     }
 
@@ -139,21 +120,18 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec &fieldName
 }
 
 void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec &fieldNames,
-                                                                 TStrStrUMap &recordFields)
-{
+                                                                 TStrStrUMap &recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();
     recordFields.clear();
 
-    do
-    {
+    do {
         fieldNames.push_back(std::string());
         std::string &name = fieldNames.back();
         m_Parser.currentNodeName(name);
         m_Parser.currentNodeValue(recordFields[name]);
-    }
-    while (m_Parser.navigateNext());
+    } while (m_Parser.navigateNext());
 
     this->gotFieldNames(true);
     this->gotData(true);

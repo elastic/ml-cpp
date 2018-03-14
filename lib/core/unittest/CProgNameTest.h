@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CProgNameTest : public CppUnit::TestFixture
-{
+class CProgNameTest : public CppUnit::TestFixture {
     public:
         void testProgName(void);
         void testProgDir(void);

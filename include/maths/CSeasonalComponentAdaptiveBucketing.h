@@ -28,23 +28,19 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CSeasonalTime;
 
 //! \brief An adaptive bucketing of the value of a periodic function.
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucketing
-{
+class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucketing {
     public:
         using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
         using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
@@ -186,14 +182,13 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
 
         //! Get the bucket variances.
         TDoubleVec variances(void) const;
-        //@}
+    //@}
 
     private:
         using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
 
         //! \brief The state maintained for each bucket.
-        struct SBucket
-        {
+        struct SBucket {
             SBucket(void);
             SBucket(const TRegression &regression,
                     double variance,
@@ -255,8 +250,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
 
 //! Create a free function which will be found by Koenig lookup.
 inline void swap(CSeasonalComponentAdaptiveBucketing &lhs,
-                 CSeasonalComponentAdaptiveBucketing &rhs)
-{
+                 CSeasonalComponentAdaptiveBucketing &rhs) {
     lhs.swap(rhs);
 }
 

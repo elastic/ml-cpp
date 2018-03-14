@@ -26,15 +26,12 @@
 #include <cstddef>
 #include <string>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Estimates a calendar component of a time series.
 //!
@@ -48,8 +45,7 @@ namespace maths
 //!
 //! The bucketing is aged by relaxing it back towards uniform and aging the counts of the
 //! mean value for each bucket as usual.
-class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
-{
+class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent {
     public:
         //! \param[in] feature The calendar feature.
         //! \param[in] maxSize The maximum number of component buckets.
@@ -166,8 +162,7 @@ class MATHS_EXPORT CCalendarComponent : private CDecompositionComponent
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CCalendarComponent &lhs, CCalendarComponent &rhs)
-{
+inline void swap(CCalendarComponent &lhs, CCalendarComponent &rhs) {
     lhs.swap(rhs);
 }
 

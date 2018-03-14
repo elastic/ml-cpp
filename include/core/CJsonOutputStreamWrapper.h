@@ -40,8 +40,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Pool and buffer sizes are hardcoded.
-class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable
-{
+class CORE_EXPORT CJsonOutputStreamWrapper final : CNonCopyable {
     private:
         //! number of buffers in the pool
         static const size_t BUFFER_POOL_SIZE = 16;
@@ -99,16 +98,16 @@ class CORE_EXPORT CJsonOutputStreamWrapper final: CNonCopyable
 
     private:
         //! the pool of buffers
-        rapidjson::StringBuffer                                         m_StringBuffers[BUFFER_POOL_SIZE];
+        rapidjson::StringBuffer m_StringBuffers[BUFFER_POOL_SIZE];
 
         //! the pool of available buffers
         CConcurrentQueue<rapidjson::StringBuffer*, BUFFER_POOL_SIZE>    m_StringBufferQueue;
 
         //! the stream object wrapped by CConcurrentWrapper
-        TOStreamConcurrentWrapper                                       m_ConcurrentOutputStream;
+        TOStreamConcurrentWrapper m_ConcurrentOutputStream;
 
         //! whether we wrote the first element
-        bool                                                            m_FirstObject;
+        bool m_FirstObject;
 };
 
 }

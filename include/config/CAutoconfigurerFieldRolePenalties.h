@@ -22,10 +22,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CPenalty;
 
@@ -39,8 +37,7 @@ class CPenalty;
 //! This provides a single definition point for a logical group of penalties
 //! and has been factored into its own class to avoid CAutoconfigurer becoming
 //! monolithic.
-class CONFIG_EXPORT CAutoconfigurerFieldRolePenalties : core::CNonCopyable
-{
+class CONFIG_EXPORT CAutoconfigurerFieldRolePenalties : core::CNonCopyable {
     public:
         CAutoconfigurerFieldRolePenalties(const CAutoconfigurerParams &params);
 

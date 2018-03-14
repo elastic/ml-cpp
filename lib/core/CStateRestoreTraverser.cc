@@ -17,49 +17,38 @@
 #include <core/CLogger.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CStateRestoreTraverser::CStateRestoreTraverser(void)
-    : m_BadState(false)
-{
+    : m_BadState(false) {
 }
 
-CStateRestoreTraverser::~CStateRestoreTraverser(void)
-{
+CStateRestoreTraverser::~CStateRestoreTraverser(void) {
 }
 
-bool CStateRestoreTraverser::haveBadState(void) const
-{
+bool CStateRestoreTraverser::haveBadState(void) const {
     return m_BadState;
 }
 
-void CStateRestoreTraverser::setBadState(void)
-{
+void CStateRestoreTraverser::setBadState(void) {
     m_BadState = true;
 }
 
 CStateRestoreTraverser::CAutoLevel::CAutoLevel(CStateRestoreTraverser &traverser)
     : m_Traverser(traverser),
       m_Descended(traverser.descend()),
-      m_BadState(false)
-{
+      m_BadState(false) {
 }
 
-void CStateRestoreTraverser::CAutoLevel::setBadState(void)
-{
+void CStateRestoreTraverser::CAutoLevel::setBadState(void) {
     m_BadState = true;
 }
 
-CStateRestoreTraverser::CAutoLevel::~CAutoLevel(void)
-{
-    if (m_Descended && !m_BadState)
-    {
-        if (m_Traverser.ascend() == false)
-        {
+CStateRestoreTraverser::CAutoLevel::~CAutoLevel(void) {
+    if (m_Descended && !m_BadState) {
+        if (m_Traverser.ascend() == false) {
             LOG_ERROR("Inconsistency - could not ascend following previous descend");
             m_Traverser.setBadState();
         }

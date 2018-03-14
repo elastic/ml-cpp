@@ -29,10 +29,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Input parser interface
@@ -44,30 +42,29 @@ namespace api
 //! Abstract interface declares the readStream method that must be
 //! implemented in sub-classes.
 //!
-class API_EXPORT CInputParser : private core::CNonCopyable
-{
+class API_EXPORT CInputParser : private core::CNonCopyable {
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
         //! For fast access to the field values without repeatedly computing the
         //! hash, we maintain references to the values in the hash map
         typedef boost::reference_wrapper<std::string>          TStrRef;
         typedef std::vector<TStrRef>                           TStrRefVec;
-        typedef TStrRefVec::iterator                           TStrRefVecItr;
-        typedef TStrRefVec::const_iterator                     TStrRefVecCItr;
+        typedef TStrRefVec::iterator TStrRefVecItr;
+        typedef TStrRefVec::const_iterator TStrRefVecCItr;
 
         //! Callback function prototype that gets called for each record
         //! read from the input stream.  Return false to exit reader loop.
         //! Arguments are:
         //! 1) Header row fields
         //! 2) Data row fields
-        typedef std::function<bool(const TStrStrUMap &)>       TReaderFunc;
+        typedef std::function<bool (const TStrStrUMap &)>       TReaderFunc;
 
     public:
         CInputParser(void);
@@ -102,13 +99,13 @@ class API_EXPORT CInputParser : private core::CNonCopyable
 
     private:
         //! Have we got the field names?
-        bool       m_GotFieldNames;
+        bool m_GotFieldNames;
 
         //! Have we found any data?
-        bool       m_GotData;
+        bool m_GotData;
 
         //! Field names parsed from the input
-        TStrVec    m_FieldNames;
+        TStrVec m_FieldNames;
 };
 
 

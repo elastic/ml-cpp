@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CJsonStateRestoreTraverserTest : public CppUnit::TestFixture
-{
+class CJsonStateRestoreTraverserTest : public CppUnit::TestFixture {
     public:
         void testRestore1(void);
         void testRestore2(void);

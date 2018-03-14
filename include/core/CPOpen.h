@@ -21,10 +21,8 @@
 #include <stdio.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -37,8 +35,7 @@ namespace core
 //! This has been broken into a class of its own because Windows has a
 //! _popen() and _pclose() functions rather than Unix's popen() and pclose().
 //!
-class CORE_EXPORT CPOpen : private CNonInstantiatable
-{
+class CORE_EXPORT CPOpen : private CNonInstantiatable {
     public:
         static FILE *pOpen(const char *command,
                            const char *mode);

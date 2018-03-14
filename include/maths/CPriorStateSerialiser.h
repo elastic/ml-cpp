@@ -23,15 +23,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 class CPrior;
 struct SDistributionRestoreParams;
@@ -48,8 +45,7 @@ struct SDistributionRestoreParams;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format makes it easier to provide backwards/forwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CPriorStateSerialiser
-{
+class MATHS_EXPORT CPriorStateSerialiser {
     public:
         using TPriorPtr = boost::shared_ptr<CPrior>;
         using TMultivariatePriorPtr = boost::shared_ptr<CMultivariatePrior>;

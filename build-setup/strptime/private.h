@@ -83,7 +83,7 @@ static char	privatehid[] = "@(#)private.h	8.6";
 #endif /* !defined HAVE_UTMPX_H */
 
 #ifdef LOCALE_HOME
-#undef LOCALE_HOME		/* not to be handled by tzcode itself */
+#undef LOCALE_HOME      /* not to be handled by tzcode itself */
 #endif /* defined LOCALE_HOME */
 
 #if HAVE_INCOMPATIBLE_CTIME_R
@@ -95,11 +95,11 @@ static char	privatehid[] = "@(#)private.h	8.6";
 ** Nested includes
 */
 
-#include "sys/types.h"	/* for time_t */
+#include "sys/types.h"  /* for time_t */
 #include "stdio.h"
 #include "errno.h"
 #include "string.h"
-#include "limits.h"	/* for CHAR_BIT et al. */
+#include "limits.h" /* for CHAR_BIT et al. */
 #include "time.h"
 #include "stdlib.h"
 
@@ -108,7 +108,7 @@ static char	privatehid[] = "@(#)private.h	8.6";
 #endif /* HAVE_GETTEXT */
 
 #if HAVE_SYS_WAIT_H
-#include <sys/wait.h>	/* for WIFEXITED and WEXITSTATUS */
+#include <sys/wait.h>   /* for WIFEXITED and WEXITSTATUS */
 #endif /* HAVE_SYS_WAIT_H */
 
 #ifndef WIFEXITED
@@ -119,7 +119,7 @@ static char	privatehid[] = "@(#)private.h	8.6";
 #endif /* !defined WEXITSTATUS */
 
 #if HAVE_UNISTD_H
-#include "unistd.h"	/* for F_OK, R_OK, and other POSIX goodness */
+#include "unistd.h" /* for F_OK, R_OK, and other POSIX goodness */
 #endif /* HAVE_UNISTD_H */
 
 #ifndef F_OK
@@ -140,8 +140,8 @@ static char	privatehid[] = "@(#)private.h	8.6";
 */
 #ifndef HAVE_STDINT_H
 #define HAVE_STDINT_H \
-	(199901 <= __STDC_VERSION__ || \
-	2 < (__GLIBC__ + (0 < __GLIBC_MINOR__)))
+    (199901 <= __STDC_VERSION__ || \
+     2 < (__GLIBC__ + (0 < __GLIBC_MINOR__)))
 #endif /* !defined HAVE_STDINT_H */
 
 #if HAVE_STDINT_H
@@ -151,13 +151,13 @@ static char	privatehid[] = "@(#)private.h	8.6";
 #ifndef INT_FAST64_MAX
 /* Pre-C99 GCC compilers define __LONG_LONG_MAX__ instead of LLONG_MAX.  */
 #if defined LLONG_MAX || defined __LONG_LONG_MAX__
-typedef long long	int_fast64_t;
+typedef long long int_fast64_t;
 #else /* ! (defined LLONG_MAX || defined __LONG_LONG_MAX__) */
 #if (LONG_MAX >> 31) < 0xffffffff
 Please use a compiler that supports a 64-bit integer type (or wider);
-you may need to compile with "-DHAVE_STDINT_H".
+you may need to compile             with "-DHAVE_STDINT_H".
 #endif /* (LONG_MAX >> 31) < 0xffffffff */
-typedef long		int_fast64_t;
+typedef long int_fast64_t;
 #endif /* ! (defined LLONG_MAX || defined __LONG_LONG_MAX__) */
 #endif /* !defined INT_FAST64_MAX */
 
@@ -232,8 +232,8 @@ const char *	scheck(const char * string, const char * format);
 ** add one more for a minus sign if the type is signed.
 */
 #define INT_STRLEN_MAXIMUM(type) \
-	((TYPE_BIT(type) - TYPE_SIGNED(type)) * 302 / 1000 + \
-	1 + TYPE_SIGNED(type))
+    ((TYPE_BIT(type) - TYPE_SIGNED(type)) * 302 / 1000 + \
+     1 + TYPE_SIGNED(type))
 #endif /* !defined INT_STRLEN_MAXIMUM */
 
 /*
@@ -286,7 +286,7 @@ char *ctime_r(time_t const *, char *);
 #endif /* HAVE_INCOMPATIBLE_CTIME_R */
 
 #ifndef YEARSPERREPEAT
-#define YEARSPERREPEAT		400	/* years before a Gregorian repeat */
+#define YEARSPERREPEAT		400 /* years before a Gregorian repeat */
 #endif /* !defined YEARSPERREPEAT */
 
 /*
@@ -302,7 +302,7 @@ char *ctime_r(time_t const *, char *);
 #endif /* !defined SECSPERREPEAT */
 
 #ifndef SECSPERREPEAT_BITS
-#define SECSPERREPEAT_BITS	34	/* ceil(log2(SECSPERREPEAT)) */
+#define SECSPERREPEAT_BITS	34  /* ceil(log2(SECSPERREPEAT)) */
 #endif /* !defined SECSPERREPEAT_BITS */
 
 /*

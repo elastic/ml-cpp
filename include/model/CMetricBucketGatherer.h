@@ -30,15 +30,12 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 class CResourceMonitor;
 
@@ -49,8 +46,7 @@ class CResourceMonitor;
 //! to characterize metric time series.
 //!
 //! \sa CDataGatherer.
-class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer
-{
+class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer {
     public:
         typedef std::pair<model_t::EMetricCategory, std::size_t> TCategorySizePr;
         typedef std::map<TCategorySizePr, boost::any> TCategorySizePrAnyMap;
@@ -98,7 +94,7 @@ class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer
         //! redundant except to create a signature that will not be mistaken for
         //! a general purpose copy constructor.
         CMetricBucketGatherer(bool isForPersistence,
-                            const CMetricBucketGatherer &other);
+                              const CMetricBucketGatherer &other);
         //@}
 
         //! \name Persistence
@@ -123,7 +119,7 @@ class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer
         //! Internal restore function.
         bool acceptRestoreTraverserInternal(core::CStateRestoreTraverser &traverser,
                                             bool isCurrentVersion);
-        //@}
+    //@}
 
     public:
         //! \name Fields
@@ -231,7 +227,7 @@ class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer
         //! \param[out] result Filled in with the feature data at \p time.
         virtual void featureData(core_t::TTime time, core_t::TTime bucketLength,
                                  TFeatureAnyPrVec &result) const;
-        //@}
+    //@}
 
     private:
         //! Create samples if possible for the bucket pointed out by \p time.
@@ -307,8 +303,8 @@ class MODEL_EXPORT CMetricBucketGatherer : public CBucketGatherer
         //!   -# For population models only, the name of the field which
         //!      identifies people's attributes,
         //!   -# The name of zero or more influencing fields,
-        //!   -# The name of the field holding the count followed by the 
-        //!      field name(s) of the field(s) which hold the statistics 
+        //!   -# The name of the field holding the count followed by the
+        //!      field name(s) of the field(s) which hold the statistics
         //!      themselves, which must (for those that are present) be
         //!      ordered mean, min, max, sum.
         //!   -# For the API with user defined pre-summarisation, the name

@@ -23,10 +23,8 @@
 #include <ios>
 #include <ostream>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 class CCompressOStream;
 
@@ -50,8 +48,7 @@ class CCompressOStream;
 //! that downstream CDataAdder/CDataSearcher store will
 //! support strings of Base64 encoded data
 //!
-class CORE_EXPORT CStateCompressor : public CDataAdder
-{
+class CORE_EXPORT CStateCompressor : public CDataAdder {
     public:
         static const std::string COMPRESSED_ATTRIBUTE;
         static const std::string END_OF_STREAM_ATTRIBUTE;
@@ -62,15 +59,14 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
         typedef boost::shared_ptr<CCompressOStream> TCompressOStreamP;
 
         // Implements the boost::iostreams Sink template interface
-        class CChunkFilter
-        {
+        class CChunkFilter {
             public:
                 typedef char char_type;
 
                 //! Inform the filtering_stream owning object what this is capable of
                 struct category :
-                        public boost::iostreams::sink_tag,
-                        public boost::iostreams::closable_tag
+                    public boost::iostreams::sink_tag,
+                    public boost::iostreams::closable_tag
                 {};
 
             public:
@@ -126,7 +122,7 @@ class CORE_EXPORT CStateCompressor : public CDataAdder
 
                 //! true if all the writes were successfull
                 bool m_WritesSuccessful;
-            };
+        };
 
     public:
         //! Constructor: take a reference to the underlying downstream datastore

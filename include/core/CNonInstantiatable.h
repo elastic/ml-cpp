@@ -18,10 +18,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -36,8 +34,7 @@ namespace core
 //! The class is (seemingly pointlessly) exported from the DLL to
 //! prevent Visual C++ warning C4275.
 //!
-class CORE_EXPORT CNonInstantiatable
-{
+class CORE_EXPORT CNonInstantiatable {
     private:
         //! Prevent instantiation
         CNonInstantiatable(void);

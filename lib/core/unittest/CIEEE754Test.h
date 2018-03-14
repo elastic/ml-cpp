@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIEEE754Test : public CppUnit::TestFixture
-{
+class CIEEE754Test : public CppUnit::TestFixture {
     public:
         void testRound(void);
 

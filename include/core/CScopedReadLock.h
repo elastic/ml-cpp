@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CReadWriteLock;
 
 //! \brief
@@ -34,8 +32,7 @@ class CReadWriteLock;
 //! IMPLEMENTATION DECISIONS:\n
 //! See Schmidt etc. for details.
 //!
-class CORE_EXPORT CScopedReadLock : private CNonCopyable
-{
+class CORE_EXPORT CScopedReadLock : private CNonCopyable {
     public:
         //! Read lock specified read/write lock
         CScopedReadLock(CReadWriteLock &readWriteLock);

@@ -19,8 +19,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CProbabilityCalibratorTest : public CppUnit::TestFixture
-{
+class CProbabilityCalibratorTest : public CppUnit::TestFixture {
     public:
         void testCalibration(void);
 

@@ -22,29 +22,23 @@
 CMockDataProcessor::CMockDataProcessor(ml::api::COutputHandler &outputHandler)
     : m_OutputHandler(outputHandler),
       m_NumRecordsHandled(0),
-      m_WriteFieldNames(true)
-{
+      m_WriteFieldNames(true) {
 }
 
-void CMockDataProcessor::newOutputStream(void)
-{
+void CMockDataProcessor::newOutputStream(void) {
     m_OutputHandler.newOutputStream();
 }
 
-bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields)
-{
+bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields) {
     // First time through we output the field names
-    if (m_WriteFieldNames)
-    {
+    if (m_WriteFieldNames) {
         TStrVec fieldNames;
         fieldNames.reserve(dataRowFields.size());
-        for (const auto &entry : dataRowFields)
-        {
+        for (const auto &entry : dataRowFields) {
             fieldNames.push_back(entry.first);
         }
 
-        if (m_OutputHandler.fieldNames(fieldNames) == false)
-        {
+        if (m_OutputHandler.fieldNames(fieldNames) == false) {
             LOG_ERROR("Unable to set field names for output:\n" <<
                       this->debugPrintRecord(dataRowFields));
             return false;
@@ -52,8 +46,7 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields)
         m_WriteFieldNames = false;
     }
 
-    if (m_OutputHandler.writeRow(dataRowFields, m_FieldOverrides) == false)
-    {
+    if (m_OutputHandler.writeRow(dataRowFields, m_FieldOverrides) == false) {
         LOG_ERROR("Unable to write output");
         return false;
     }
@@ -63,41 +56,34 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap &dataRowFields)
     return true;
 }
 
-void CMockDataProcessor::finalise(void)
-{
+void CMockDataProcessor::finalise(void) {
 }
 
 bool CMockDataProcessor::restoreState(ml::core::CDataSearcher &restoreSearcher,
-                                      ml::core_t::TTime &completeToTime)
-{
+                                      ml::core_t::TTime &completeToTime) {
     // Pass on the request in case we're chained
     if (m_OutputHandler.restoreState(restoreSearcher,
-                                     completeToTime) == false)
-    {
+                                     completeToTime) == false) {
         return false;
     }
 
     return true;
 }
 
-bool CMockDataProcessor::persistState(ml::core::CDataAdder &persister)
-{
+bool CMockDataProcessor::persistState(ml::core::CDataAdder &persister) {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistState(persister) == false)
-    {
+    if (m_OutputHandler.persistState(persister) == false) {
         return false;
     }
 
     return true;
 }
 
-uint64_t CMockDataProcessor::numRecordsHandled(void) const
-{
+uint64_t CMockDataProcessor::numRecordsHandled(void) const {
     return m_NumRecordsHandled;
 }
 
-ml::api::COutputHandler &CMockDataProcessor::outputHandler(void)
-{
+ml::api::COutputHandler &CMockDataProcessor::outputHandler(void) {
     return m_OutputHandler;
 }
 

@@ -35,10 +35,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 class CDetectionRule;
 class CSearchKey;
 class CModelAutoConfigurer;
@@ -58,12 +56,10 @@ class CModelFactory;
 //! Default settings for various modes of operation are provided
 //! by the default* factory methods.
 
-class MODEL_EXPORT CAnomalyDetectorModelConfig
-{
+class MODEL_EXPORT CAnomalyDetectorModelConfig {
     public:
         //! The possible factory types.
-        enum EFactoryType
-        {
+        enum EFactoryType {
             E_EventRateFactory = 0,
             E_MetricFactory = 1,
             E_EventRatePopulationFactory = 2,
@@ -247,18 +243,17 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         //! \param[in] multipleBucketLengths If specified, set multiple bucket
         //! lengths to be analysed (CSV string of time values)
         static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength,
-                                                          model_t::ESummaryMode summaryMode,
-                                                          const std::string &summaryCountFieldName,
-                                                          core_t::TTime latency,
-                                                          std::size_t bucketResultsDelay,
-                                                          bool multivariateByFields,
-                                                          const std::string &multipleBucketLengths);
+                                                         model_t::ESummaryMode summaryMode,
+                                                         const std::string &summaryCountFieldName,
+                                                         core_t::TTime latency,
+                                                         std::size_t bucketResultsDelay,
+                                                         bool multivariateByFields,
+                                                         const std::string &multipleBucketLengths);
 
         //! Overload using defaults.
         static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
-                                                          model_t::ESummaryMode summaryMode = model_t::E_None,
-                                                          const std::string &summaryCountFieldName = "")
-        {
+                                                         model_t::ESummaryMode summaryMode = model_t::E_None,
+                                                         const std::string &summaryCountFieldName = "") {
             return defaultConfig(bucketLength,
                                  summaryMode,
                                  summaryCountFieldName,

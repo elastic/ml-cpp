@@ -20,10 +20,8 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Common interface implemented by all our radial basis
 //! functions.
@@ -37,8 +35,7 @@ namespace maths
 //! The radial basis function hierarchy is stateless to keep the
 //! representation as compact as possible. (All functions are
 //! supplied the centre.)
-class MATHS_EXPORT CRadialBasisFunction
-{
+class MATHS_EXPORT CRadialBasisFunction {
     public:
         virtual ~CRadialBasisFunction(void);
 
@@ -119,8 +116,7 @@ class MATHS_EXPORT CRadialBasisFunction
 //!
 //! Here, \f$\epsilon\f$ denotes the scale and \f$c\f$ the centre
 //! of the basis function.
-class MATHS_EXPORT CGaussianBasisFunction : public CRadialBasisFunction
-{
+class MATHS_EXPORT CGaussianBasisFunction : public CRadialBasisFunction {
     public:
         //! Create a copy of this object.
         //!
@@ -181,8 +177,7 @@ class MATHS_EXPORT CGaussianBasisFunction : public CRadialBasisFunction
 //!
 //! Here, \f$\epsilon\f$ denotes the scale and \f$c\f$ the centre
 //! of the basis function.
-class MATHS_EXPORT CInverseQuadraticBasisFunction : public CRadialBasisFunction
-{
+class MATHS_EXPORT CInverseQuadraticBasisFunction : public CRadialBasisFunction {
     public:
         //! Create a copy of this object.
         //!

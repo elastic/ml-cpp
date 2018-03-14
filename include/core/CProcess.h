@@ -29,10 +29,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -50,8 +48,7 @@ namespace core
 //! implementation implements the calls that are required by
 //! Windows for applications that want to run as Windows services.
 //!
-class CORE_EXPORT CProcess : private CNonCopyable
-{
+class CORE_EXPORT CProcess : private CNonCopyable {
     public:
         //! These messages need to be 100% standard across all services
         static const char *STARTING_MSG;
@@ -65,16 +62,16 @@ class CORE_EXPORT CProcess : private CNonCopyable
 
         //! Vector of process arguments
         typedef std::vector<std::string> TStrVec;
-        typedef TStrVec::const_iterator  TStrVecCItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         //! The shutdown function
-        typedef std::function<void()>    TShutdownFunc;
+        typedef std::function<void ()>    TShutdownFunc;
 
         //! Process ID type
 #ifdef Windows
-        typedef DWORD                    TPid;
+        typedef DWORD TPid;
 #else
-        typedef pid_t                    TPid;
+        typedef pid_t TPid;
 #endif
 
     public:
@@ -134,19 +131,19 @@ class CORE_EXPORT CProcess : private CNonCopyable
 
     private:
         //! Is this process running as a Windows service?
-        bool                  m_IsService;
+        bool m_IsService;
 
         //! Is this process initialised?
-        bool                  m_Initialised;
+        bool m_Initialised;
 
         //! Is this process running?
-        bool                  m_Running;
+        bool m_Running;
 
         //! Address of the mlMain() function to call
-        TMlMainFunc      m_MlMainFunc;
+        TMlMainFunc m_MlMainFunc;
 
         //! Original arguments passed to the program's main() function
-        TStrVec               m_Args;
+        TStrVec m_Args;
 
 #ifdef Windows
         //! Service handle (will be 0 if we're not running as a service)
@@ -154,11 +151,11 @@ class CORE_EXPORT CProcess : private CNonCopyable
 #endif
 
         //! Lock to protect the shutdown function object
-        CFastMutex            m_ShutdownFuncMutex;
+        CFastMutex m_ShutdownFuncMutex;
 
         //! Function to call if the process is instructed to shut down.
         //! Will be empty until initialisation is complete.
-        TShutdownFunc         m_ShutdownFunc;
+        TShutdownFunc m_ShutdownFunc;
 };
 
 

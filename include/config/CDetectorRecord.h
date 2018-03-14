@@ -29,10 +29,8 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CDetectorSpecification;
 
 //! \brief Holds the field values needed to update a detector.
@@ -41,8 +39,7 @@ class CDetectorSpecification;
 //! The state from a record need to update a detector's penalty functions.
 //! This is its time and its field values corresponding to the argument
 //! and partitioning field(s) used by the detector.
-class CONFIG_EXPORT CDetectorRecord
-{
+class CONFIG_EXPORT CDetectorRecord {
     public:
         typedef boost::array<std::size_t, constants::NUMBER_FIELD_INDICES> TSizeAry;
         typedef boost::array<const std::string*, constants::NUMBER_FIELD_INDICES> TStrCPtrAry;
@@ -126,8 +123,7 @@ class CONFIG_EXPORT CDetectorRecord
 //! address table from every detector, built once up front on the set of initial
 //! candidate detectors, to a corresponding collection of entries in a field
 //! value vector which we populate once per record.
-class CONFIG_EXPORT CDetectorRecordDirectAddressTable
-{
+class CONFIG_EXPORT CDetectorRecordDirectAddressTable {
     public:
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
         typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;

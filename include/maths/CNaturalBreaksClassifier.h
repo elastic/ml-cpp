@@ -27,15 +27,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 struct SDistributionRestoreParams;
 
 //! \brief This does online segmentation with fixed space by approximate
@@ -106,8 +103,7 @@ struct SDistributionRestoreParams;
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CNaturalBreaksClassifier
-{
+class MATHS_EXPORT CNaturalBreaksClassifier {
     public:
         typedef std::vector<std::size_t> TSizeVec;
         typedef std::vector<double> TDoubleVec;
@@ -126,8 +122,7 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         //!      variation.
         //!   -# Variation is the total sample variation, i.e. the
         //!      sum of the square differences from the sample mean.
-        enum EObjective
-        {
+        enum EObjective {
             E_TargetDeviation,
             E_TargetVariation
         };
@@ -331,12 +326,10 @@ class MATHS_EXPORT CNaturalBreaksClassifier
         static double variation(const TTuple &category);
 
         //! Wrapper to evaluate the specified object function.
-        static inline double objective(EObjective objective, const TTuple &category)
-        {
-            switch (objective)
-            {
-            case E_TargetDeviation: return deviation(category);
-            case E_TargetVariation: return variation(category);
+        static inline double objective(EObjective objective, const TTuple &category) {
+            switch (objective) {
+                case E_TargetDeviation: return deviation(category);
+                case E_TargetVariation: return variation(category);
             }
             return deviation(category);
         }

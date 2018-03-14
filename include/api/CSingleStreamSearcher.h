@@ -20,10 +20,8 @@
 #include <api/ImportExport.h>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Retrieves data from a single C++ stream.
@@ -44,8 +42,7 @@ namespace api
 //! again, but doing this enables the interface to be used in cases
 //! where different streams are returned for each request.
 //!
-class API_EXPORT CSingleStreamSearcher : public core::CDataSearcher
-{
+class API_EXPORT CSingleStreamSearcher : public core::CDataSearcher {
     public:
         //! The \p stream must already be open when the constructor is
         //! called.

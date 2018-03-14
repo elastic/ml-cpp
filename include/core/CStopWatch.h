@@ -21,10 +21,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -42,8 +40,7 @@ namespace core
 //! 2^32 milliseconds is less than 50 days, and, in production, our
 //! processes should be able to run for longer than this.
 //!
-class CORE_EXPORT CStopWatch
-{
+class CORE_EXPORT CStopWatch {
     public:
         //! Construct a stop watch, optionally starting it immediately
         CStopWatch(bool startRunning = false);
@@ -73,18 +70,18 @@ class CORE_EXPORT CStopWatch
 
     private:
         //! Is the stop watch currently running?
-        bool           m_IsRunning;
+        bool m_IsRunning;
 
         //! Monotonic timer - should not go backwards if the user sets the clock
         CMonotonicTime m_MonotonicTime;
 
         //! Monotonic time (in milliseconds since some arbitrary time in the
         //! past) when the stop watch was last started
-        uint64_t       m_Start;
+        uint64_t m_Start;
 
         //! Time (in milliseconds) accumulated over previous runs of the stop
         //! watch since the last reset
-        uint64_t       m_AccumulatedTime;
+        uint64_t m_AccumulatedTime;
 };
 
 

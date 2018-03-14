@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CGammaRateConjugateTest : public CppUnit::TestFixture
-{
+class CGammaRateConjugateTest : public CppUnit::TestFixture {
     public:
         void testMultipleUpdate(void);
         void testPropagation(void);

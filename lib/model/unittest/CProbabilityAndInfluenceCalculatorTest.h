@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CProbabilityAndInfluenceCalculatorTest : public CppUnit::TestFixture
-{
+class CProbabilityAndInfluenceCalculatorTest : public CppUnit::TestFixture {
     public:
         void testInfluenceUnavailableCalculator(void);
         void testLogProbabilityComplementInfluenceCalculator(void);

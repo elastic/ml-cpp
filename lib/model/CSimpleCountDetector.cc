@@ -19,10 +19,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
                                            model_t::ESummaryMode summaryMode,
@@ -37,8 +35,7 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
                        partitionFieldValue,
                        firstTime,
                        modelFactory),
-      m_FieldValues(summaryMode == model_t::E_None ? 1 : 2)
-{
+      m_FieldValues(summaryMode == model_t::E_None ? 1 : 2) {
     // We use a single event rate detector to maintain the counts, and for the
     // special case of the simple count detector, we'll create it before we've
     // seen any events, so that in the extreme case of no events in a search
@@ -48,27 +45,22 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
 
 CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence,
                                            const CAnomalyDetector &other)
-    : CAnomalyDetector(isForPersistence, other)
-{
+    : CAnomalyDetector(isForPersistence, other) {
 }
 
-bool CSimpleCountDetector::isSimpleCount(void) const
-{
+bool CSimpleCountDetector::isSimpleCount(void) const {
     return true;
 }
 
-void CSimpleCountDetector::pruneModels(void)
-{
+void CSimpleCountDetector::pruneModels(void) {
     return;
 }
 
 const CAnomalyDetector::TStrCPtrVec &
-CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec &fieldValues)
-{
+CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec &fieldValues) {
     // The first field value is always the magic word "count", but for
     // summarised input we need to pass on the true value of the second field
-    if (m_FieldValues.size() > 1)
-    {
+    if (m_FieldValues.size() > 1) {
         m_FieldValues[1] = (fieldValues.size() > 1) ? fieldValues[1] : &EMPTY_STRING;
     }
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPriorTest : public CppUnit::TestFixture
-{
+class CPriorTest : public CppUnit::TestFixture {
     public:
         void testExpectation(void);
 

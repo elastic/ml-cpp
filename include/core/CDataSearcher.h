@@ -25,10 +25,8 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! Interface class for retrieving data by running a search.
@@ -43,11 +41,10 @@ namespace core
 //!
 //! The result of a successful search is a std::istream.
 //!
-class CORE_EXPORT CDataSearcher : private CNonCopyable
-{
+class CORE_EXPORT CDataSearcher : private CNonCopyable {
     public:
         typedef std::vector<std::string>         TStrVec;
-        typedef TStrVec::const_iterator          TStrVecCItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef boost::shared_ptr<std::istream>  TIStreamP;
 

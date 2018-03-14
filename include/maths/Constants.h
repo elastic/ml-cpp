@@ -21,10 +21,8 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! The minimum coefficient of variation supported by the models.
 //! In general, if the coefficient of variation for the data becomes
@@ -97,8 +95,7 @@ const double MAXIMUM_ACCURATE_VARIANCE_SCALE{2.0};
 const double DEFAULT_SEASONAL_CONFIDENCE_INTERVAL{50.0};
 
 //! \brief A collection of weight styles and weights.
-class MATHS_EXPORT CConstantWeights
-{
+class MATHS_EXPORT CConstantWeights {
     public:
         using TDouble2Vec = core::CSmallVector<double, 2>;
         using TDouble4Vec = core::CSmallVector<double, 4>;
@@ -119,14 +116,12 @@ class MATHS_EXPORT CConstantWeights
         static const TDouble4Vec1Vec SINGLE_UNIT;
         //! Get a unit weight for data with \p dimension.
         template<typename VECTOR>
-        static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension)
-        {
+        static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {
             return TDouble2Vec4Vec{VECTOR(dimension, 1.0)};
         }
         //! Get a single unit weight for data with \p dimension.
         template<typename VECTOR>
-        static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1> singleUnit(std::size_t dimension)
-        {
+        static core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1> singleUnit(std::size_t dimension) {
             return core::CSmallVector<core::CSmallVector<VECTOR, 4>, 1>{
                        core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
         }

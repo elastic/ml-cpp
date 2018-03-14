@@ -22,10 +22,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerImpl;
 class CAutoconfigurerParams;
 class CReportWriter;
@@ -44,8 +42,7 @@ class CReportWriter;
 //!
 //! We use the pimpl idiom to isolate the internals of this library from the
 //! automatic configuration commands.
-class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor
-{
+class CONFIG_EXPORT CAutoconfigurer : public api::CDataProcessor {
     public:
         CAutoconfigurer(const CAutoconfigurerParams &params,
                         CReportWriter &reportWriter);

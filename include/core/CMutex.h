@@ -24,10 +24,8 @@
 #endif
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CCondition;
 
 
@@ -47,8 +45,7 @@ class CCondition;
 //! On Windows, critical sections are preferred to mutexes, as
 //! they do not consume system handles.
 //!
-class CORE_EXPORT CMutex : private CNonCopyable
-{
+class CORE_EXPORT CMutex : private CNonCopyable {
     public:
         CMutex(void);
         ~CMutex(void);
@@ -60,11 +57,11 @@ class CORE_EXPORT CMutex : private CNonCopyable
 #ifdef Windows
         CRITICAL_SECTION m_Mutex;
 #else
-        pthread_mutex_t  m_Mutex;
+        pthread_mutex_t m_Mutex;
 #endif
 
-    // Allow CCondition access to internals
-    friend class CCondition;
+        // Allow CCondition access to internals
+        friend class CCondition;
 };
 
 

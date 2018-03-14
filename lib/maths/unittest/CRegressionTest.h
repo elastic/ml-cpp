@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRegressionTest : public CppUnit::TestFixture
-{
+class CRegressionTest : public CppUnit::TestFixture {
     public:
         void testInvariants(void);
         void testFit(void);

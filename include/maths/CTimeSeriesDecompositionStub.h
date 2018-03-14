@@ -19,10 +19,8 @@
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/ImportExport.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Stub out the interface if it is known that the time series
 //! being modeled can't have seasonality.
@@ -31,8 +29,7 @@ namespace maths
 //! This is a lightweight (empty) class which implements the interface
 //! for the case that the time series being modeled is known a-priori
 //! not to have seasonality.
-class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface
-{
+class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
     public:
         //! Clone this decomposition.
         virtual CTimeSeriesDecompositionStub *clone(void) const;

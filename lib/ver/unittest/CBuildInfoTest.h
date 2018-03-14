@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CBuildInfoTest : public CppUnit::TestFixture
-{
+class CBuildInfoTest : public CppUnit::TestFixture {
     public:
         void testFullInfo(void);
 

@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CModelTypesTest : public CppUnit::TestFixture
-{
+class CModelTypesTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

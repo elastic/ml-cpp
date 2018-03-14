@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CRapidJsonLineWriterTest : public CppUnit::TestFixture
-{
+class CRapidJsonLineWriterTest : public CppUnit::TestFixture {
     public:
         void testDoublePrecission();
         void testDoublePrecissionDtoa();

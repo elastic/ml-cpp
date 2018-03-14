@@ -31,8 +31,7 @@ class CMockDataAdder;
 //! appear to be for the searched index.  The actual search string is NOT
 //! properly applied.  This is OK for the current scope of the unit testing.
 //!
-class CMockSearcher : public ml::core::CDataSearcher
-{
+class CMockSearcher : public ml::core::CDataSearcher {
     public:
         CMockSearcher(const CMockDataAdder &mockDataAdder);
 

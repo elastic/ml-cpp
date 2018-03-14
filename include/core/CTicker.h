@@ -22,10 +22,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -41,34 +39,28 @@ namespace core
 //! objects for this but there is complexity with scope.
 //!
 template<typename RECEIVER>
-class CTicker : public CThread
-{
+class CTicker : public CThread {
     public:
         //! Timeout is in milliseconds
         CTicker(uint32_t timeOut, RECEIVER &receiver)
             : m_Condition(m_Mutex),
               m_Quit(false),
               m_TimeOut(timeOut),
-              m_Receiver(receiver)
-        {
+              m_Receiver(receiver) {
         }
 
         //! Destructor will stop the ticker thread if it's already running
-        ~CTicker(void)
-        {
-            if (this->isStarted())
-            {
+        ~CTicker(void) {
+            if (this->isStarted()) {
                 this->stop();
             }
         }
 
     protected:
-        void run(void)
-        {
+        void run(void) {
             CScopedLock lock(m_Mutex);
 
-            while (!m_Quit)
-            {
+            while (!m_Quit) {
                 m_Condition.wait(m_TimeOut);
 
                 // Call receiver
@@ -79,8 +71,7 @@ class CTicker : public CThread
             m_Quit = false;
         }
 
-        void shutdown(void)
-        {
+        void shutdown(void) {
             CScopedLock lock(m_Mutex);
 
             m_Quit = true;
@@ -88,14 +79,14 @@ class CTicker : public CThread
         }
 
     private:
-        CMutex     m_Mutex;
+        CMutex m_Mutex;
         CCondition m_Condition;
 
         //! Should the ticker quit?
-        bool       m_Quit;
+        bool m_Quit;
 
         //! How often (in milliseconds) should the ticker tick?
-        uint32_t   m_TimeOut;
+        uint32_t m_TimeOut;
 
         //! Reference to the object whose tick() method will be called
         RECEIVER   &m_Receiver;

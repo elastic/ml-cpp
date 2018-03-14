@@ -26,37 +26,35 @@
 #include <stdlib.h>
 
 
-CppUnit::Test *CStringSimilarityTesterTest::suite()
-{
+CppUnit::Test *CStringSimilarityTesterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testStringSimilarity",
-                                   &CStringSimilarityTesterTest::testStringSimilarity) );
+                               "CStringSimilarityTesterTest::testStringSimilarity",
+                               &CStringSimilarityTesterTest::testStringSimilarity) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testLevensteinDistance",
-                                   &CStringSimilarityTesterTest::testLevensteinDistance) );
+                               "CStringSimilarityTesterTest::testLevensteinDistance",
+                               &CStringSimilarityTesterTest::testLevensteinDistance) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testLevensteinDistance2",
-                                   &CStringSimilarityTesterTest::testLevensteinDistance2) );
+                               "CStringSimilarityTesterTest::testLevensteinDistance2",
+                               &CStringSimilarityTesterTest::testLevensteinDistance2) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
-                                   &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent) );
+                               "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
+                               &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
-                                   &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar) );
+                               "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
+                               &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
-                                   &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence) );
+                               "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
+                               &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-                                   "CStringSimilarityTesterTest::testWeightedEditDistance",
-                                   &CStringSimilarityTesterTest::testWeightedEditDistance) );
+                               "CStringSimilarityTesterTest::testWeightedEditDistance",
+                               &CStringSimilarityTesterTest::testWeightedEditDistance) );
 
     return suiteOfTests;
 }
 
-void CStringSimilarityTesterTest::testStringSimilarity(void)
-{
+void CStringSimilarityTesterTest::testStringSimilarity(void) {
     std::string str1("This is identical");
     std::string str2("This is identical");
 
@@ -144,8 +142,7 @@ void CStringSimilarityTesterTest::testStringSimilarity(void)
     CPPUNIT_ASSERT_EQUAL(similarity3, similarity9);
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance(void)
-{
+void CStringSimilarityTesterTest::testLevensteinDistance(void) {
     ml::core::CStringSimilarityTester sst;
 
     std::string cat("cat");
@@ -189,8 +186,7 @@ void CStringSimilarityTesterTest::testLevensteinDistance(void)
     CPPUNIT_ASSERT_EQUAL(size_t(7), sst.levenshteinDistanceEx(str1, str4, &::isdigit));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance2(void)
-{
+void CStringSimilarityTesterTest::testLevensteinDistance2(void) {
     ml::core::CStringSimilarityTester sst;
 
     typedef std::vector<std::string> TStrVec;
@@ -266,8 +262,7 @@ void CStringSimilarityTesterTest::testLevensteinDistance2(void)
     CPPUNIT_ASSERT_EQUAL(size_t(9), sst.levenshteinDistance(empty, serviceStart));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void)
-{
+void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void) {
     ml::core::CStringSimilarityTester sst;
 
     typedef std::vector<std::string> TStrVec;
@@ -277,12 +272,10 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
 
     TStrVec input(TEST_SIZE);
 
-    for (size_t index = 0; index < TEST_SIZE; ++index)
-    {
+    for (size_t index = 0; index < TEST_SIZE; ++index) {
         // Construct the strings from a random number of random lower case
         // letters - empty strings are possible
-        for (int len = (::rand() % MAX_LEN); len > 0; --len)
-        {
+        for (int len = (::rand() % MAX_LEN); len > 0; --len) {
             input[index] += char('a' + (::rand() % 26));
         }
     }
@@ -291,13 +284,10 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
     LOG_INFO("Starting Levenstein distance throughput test for low commonality strings at " <<
              ml::core::CTimeUtils::toTimeString(start));
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
-        for (size_t j = 0; j < TEST_SIZE; ++j)
-        {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
+        for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
-            if (i == j)
-            {
+            if (i == j) {
                 CPPUNIT_ASSERT_EQUAL(size_t(0), result);
             }
         }
@@ -312,8 +302,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent(void
              " took " << (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
-{
+void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void) {
     ml::core::CStringSimilarityTester sst;
 
     typedef std::vector<std::string> TStrVec;
@@ -323,18 +312,14 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
 
     TStrVec input(TEST_SIZE);
 
-    for (size_t index = 0; index < TEST_SIZE; ++index)
-    {
+    for (size_t index = 0; index < TEST_SIZE; ++index) {
         // Construct the strings with a large amount of commonality
-        for (int count = 0; count < EXTRA_CHARS; ++count)
-        {
-            if (index % 2 == 0)
-            {
+        for (int count = 0; count < EXTRA_CHARS; ++count) {
+            if (index % 2 == 0) {
                 input[index] += "common";
             }
             input[index] += char('a' + (::rand() % 26));
-            if (index % 2 != 0)
-            {
+            if (index % 2 != 0) {
                 input[index] += "common";
             }
         }
@@ -344,13 +329,10 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
     LOG_INFO("Starting Levenstein distance throughput test for similar strings at " <<
              ml::core::CTimeUtils::toTimeString(start));
 
-    for (size_t i = 0; i < TEST_SIZE; ++i)
-    {
-        for (size_t j = 0; j < TEST_SIZE; ++j)
-        {
+    for (size_t i = 0; i < TEST_SIZE; ++i) {
+        for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
-            if (i == j)
-            {
+            if (i == j) {
                 CPPUNIT_ASSERT_EQUAL(size_t(0), result);
             }
         }
@@ -365,8 +347,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar(void)
              (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence(void)
-{
+void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence(void) {
     // The intention here is to ensure that the Berghel-Roach algorithm delivers
     // the same results as the simple algorithm.  We take advantage of
     // friendship to call the private implementation methods directly.
@@ -393,8 +374,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence(voi
                          sst.berghelRoachEditDistance(mouse, elephant));
 }
 
-void CStringSimilarityTesterTest::testWeightedEditDistance(void)
-{
+void CStringSimilarityTesterTest::testWeightedEditDistance(void) {
     ml::core::CStringSimilarityTester sst;
 
     typedef std::pair<std::string, size_t> TStrSizePr;

@@ -27,15 +27,12 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CDataGatherer;
 
 //! \brief Manages setting of sample counts.
@@ -48,8 +45,7 @@ class CDataGatherer;
 //! likelihood function is approximate and so if the mean bucket
 //! bucket count wanders too far from the sample count we reset the
 //! the sample count.
-class MODEL_EXPORT CSampleCounts
-{
+class MODEL_EXPORT CSampleCounts {
     public:
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
         typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;

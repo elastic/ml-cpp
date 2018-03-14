@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDetectionRulesJsonParserTest : public CppUnit::TestFixture
-{
+class CDetectionRulesJsonParserTest : public CppUnit::TestFixture {
     public:
         void testParseRulesGivenEmptyString(void);
         void testParseRulesGivenEmptyArray(void);

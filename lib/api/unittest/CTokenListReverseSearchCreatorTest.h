@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CTokenListReverseSearchCreatorTest : public CppUnit::TestFixture
-{
+class CTokenListReverseSearchCreatorTest : public CppUnit::TestFixture {
     public:
         void testCostOfToken(void);
         void testCreateNullSearch(void);

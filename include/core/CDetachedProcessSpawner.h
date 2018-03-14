@@ -24,12 +24,9 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
-namespace detail
-{
+namespace ml {
+namespace core {
+namespace detail {
 class CTrackerThread;
 }
 
@@ -75,8 +72,7 @@ class CTrackerThread;
 //! entires in the lookup, and this could represent a security risk
 //! given how operating systems recycle process IDs.)
 //!
-class CORE_EXPORT CDetachedProcessSpawner
-{
+class CORE_EXPORT CDetachedProcessSpawner {
     public:
         typedef std::vector<std::string> TStrVec;
 
@@ -116,7 +112,7 @@ class CORE_EXPORT CDetachedProcessSpawner
 
     private:
         //! Paths to processes that may be spawned.
-        TStrVec         m_PermittedProcessPaths;
+        TStrVec m_PermittedProcessPaths;
 
         //! Thread to track which processes that have been created are still
         //! alive.

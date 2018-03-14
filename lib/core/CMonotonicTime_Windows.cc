@@ -18,40 +18,31 @@
 #include <core/WindowsSafe.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CMonotonicTime::CMonotonicTime(void)
     : m_ScalingFactor1(0),
       // Only one variable scaling factor is needed on Windows
       m_ScalingFactor2(0),
-      m_ScalingFactor3(0)
-{
+      m_ScalingFactor3(0) {
     LARGE_INTEGER largeInt;
-    if (QueryPerformanceFrequency(&largeInt) == FALSE)
-    {
+    if (QueryPerformanceFrequency(&largeInt) == FALSE) {
         LOG_WARN("High frequency performance counters not available");
-    }
-    else
-    {
+    } else {
         // The high frequency counter ticks this many times per second
         m_ScalingFactor1 = static_cast<uint64_t>(largeInt.QuadPart);
     }
 }
 
-uint64_t CMonotonicTime::milliseconds(void) const
-{
+uint64_t CMonotonicTime::milliseconds(void) const {
     // This is only accurate to about 15 milliseconds
     return GetTickCount64();
 }
 
-uint64_t CMonotonicTime::nanoseconds(void) const
-{
-    if (m_ScalingFactor1 == 0)
-    {
+uint64_t CMonotonicTime::nanoseconds(void) const {
+    if (m_ScalingFactor1 == 0) {
         // High frequency performance counters are not available, so return an
         // approximation
         return GetTickCount64() * 1000000ULL;
@@ -60,8 +51,7 @@ uint64_t CMonotonicTime::nanoseconds(void) const
     LARGE_INTEGER largeInt;
 
     // This function call is slow
-    if (QueryPerformanceCounter(&largeInt) == FALSE)
-    {
+    if (QueryPerformanceCounter(&largeInt) == FALSE) {
         // Failed to obtain high frequency performance counter reading, so
         // return an approximation
         return GetTickCount64() * 1000000ULL;

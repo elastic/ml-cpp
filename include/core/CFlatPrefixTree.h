@@ -23,10 +23,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief A flat prefix tree that allows efficient string lookups
 //!
@@ -56,8 +54,7 @@ namespace core
 //! binary search on the first character, moving on to the node indicated by
 //! the characters next index, applying binary search on the second character,
 //! and so on.
-class CORE_EXPORT CFlatPrefixTree
-{
+class CORE_EXPORT CFlatPrefixTree {
     public:
         typedef std::vector<std::string> TStrVec;
         typedef TStrVec::const_iterator TStrVecCItr;
@@ -65,11 +62,9 @@ class CORE_EXPORT CFlatPrefixTree
         typedef std::string::const_reverse_iterator TStrCRItr;
 
     private:
-        struct SNode
-        {
+        struct SNode {
             //! See CMemory.
-            static bool dynamicSizeAlwaysZero(void)
-            {
+            static bool dynamicSizeAlwaysZero(void) {
                 return true;
             }
 
@@ -81,8 +76,7 @@ class CORE_EXPORT CFlatPrefixTree
             uint32_t s_Next;
         };
 
-        struct SDistinctChar
-        {
+        struct SDistinctChar {
             SDistinctChar(char c, char type, std::size_t start, std::size_t end);
 
             char s_Char;

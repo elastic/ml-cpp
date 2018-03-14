@@ -23,10 +23,8 @@
 #include <functional>
 #include <thread>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A thread safe concurrent wrapper.
@@ -40,8 +38,7 @@ namespace core
 //! @tparam QUEUE_CAPACITY internal queue capacity
 //! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
 template<typename T, size_t QUEUE_CAPACITY = 100, size_t NOTIFY_CAPACITY = 50>
-class CConcurrentWrapper final: private CNonCopyable
-{
+class CConcurrentWrapper final : private CNonCopyable {
     public:
         //! Wrap and return the wrapped object
         //!
@@ -49,23 +46,18 @@ class CConcurrentWrapper final: private CNonCopyable
         //! This starts a background thread.
         CConcurrentWrapper(T &resource) :
             m_Resource(resource),
-            m_Done(false)
-        {
-            m_Worker = std::thread([this]
-            {
-                while (!m_Done)
-                {
-                    m_Queue.pop()();
-                }
-            });
+            m_Done(false) {
+            m_Worker = std::thread([this] {
+                    while (!m_Done) {
+                        m_Queue.pop()();
+                    }
+                });
         }
 
-        ~CConcurrentWrapper()
-        {
-            m_Queue.push([this]
-            {
-                m_Done = true;
-            });
+        ~CConcurrentWrapper() {
+            m_Queue.push([this] {
+                    m_Done = true;
+                });
 
             m_Worker.join();
         }
@@ -73,41 +65,37 @@ class CConcurrentWrapper final: private CNonCopyable
         //! Push something into the queue of the wrapped object
         //! The code inside of this lambda is guaranteed to be executed in an atomic fashion.
         template<typename F>
-        void operator()(F f) const
-        {
-            m_Queue.push([=]
-            {
-                f(m_Resource);
-            });
+        void operator()(F f) const {
+            m_Queue.push([=] {
+                    f(m_Resource);
+                });
         }
 
         //! Debug the memory used by this component.
-        void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const
-        {
+        void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
             mem->setName("CConcurrentWrapper");
             m_Queue.debugMemoryUsage(mem->addChild());
         }
 
         //! Get the memory used by this component.
-        std::size_t memoryUsage(void) const
-        {
+        std::size_t memoryUsage(void) const {
             return m_Queue.memoryUsage();
         }
 
     private:
         //! Queue for the tasks
         mutable CConcurrentQueue<std::function<void()>,
-            QUEUE_CAPACITY, NOTIFY_CAPACITY>                    m_Queue;
+                                 QUEUE_CAPACITY, NOTIFY_CAPACITY>                    m_Queue;
 
         //! The wrapped resource
         T                                                       &m_Resource;
 
         //! thread for the worker
-        std::thread                                             m_Worker;
+        std::thread m_Worker;
 
         //! boolean for stopping the worker
         //! never touched outside of the main thread
-        bool                                                    m_Done;
+        bool m_Done;
 };
 
 }

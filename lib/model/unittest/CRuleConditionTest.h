@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CRuleConditionTest : public CppUnit::TestFixture
-{
+class CRuleConditionTest : public CppUnit::TestFixture {
     public:
         void testTimeContition(void);
 

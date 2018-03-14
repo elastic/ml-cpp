@@ -21,10 +21,8 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CBucketCountStatistics;
 class CPartitionDataCountStatistics;
@@ -41,8 +39,7 @@ class CByOverAndPartitionDataCountStatistics;
 //! distinct (by, partition) field value pair. This applies a bucket length
 //! specific penalty based on the proportion of populated buckets verses total
 //! buckets.
-class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty
-{
+class CONFIG_EXPORT CTooMuchDataPenalty : public CPenalty {
     public:
         CTooMuchDataPenalty(const CAutoconfigurerParams &params);
 

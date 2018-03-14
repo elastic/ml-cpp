@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CRandomProjectionClustererTest : public CppUnit::TestFixture
-{
+class CRandomProjectionClustererTest : public CppUnit::TestFixture {
     public:
         void testGenerateProjections(void);
         void testClusterProjections(void);

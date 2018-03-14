@@ -32,33 +32,28 @@
 
 #include <boost/make_shared.hpp>
 
-namespace ml
-{
-namespace model
-{
+namespace ml {
+namespace model {
 
 CMetricModelFactory::CMetricModelFactory(const SModelParams &params,
                                          model_t::ESummaryMode summaryMode,
                                          const std::string &summaryCountFieldName) :
-        CModelFactory(params),
-        m_Identifier(),
-        m_SummaryMode(summaryMode),
-        m_SummaryCountFieldName(summaryCountFieldName),
-        m_UseNull(false),
-        m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH),
-        m_BucketResultsDelay(0)
-{}
+    CModelFactory(params),
+    m_Identifier(),
+    m_SummaryMode(summaryMode),
+    m_SummaryCountFieldName(summaryCountFieldName),
+    m_UseNull(false),
+    m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH),
+    m_BucketResultsDelay(0) {
+}
 
-CMetricModelFactory *CMetricModelFactory::clone(void) const
-{
+CMetricModelFactory *CMetricModelFactory::clone(void) const {
     return new CMetricModelFactory(*this);
 }
 
-CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitializationData &initData) const
-{
+CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitializationData &initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer)
-    {
+    if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
@@ -66,8 +61,7 @@ CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitialization
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames)
-    {
+    for (const auto &name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
@@ -80,11 +74,9 @@ CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitialization
 }
 
 CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitializationData &initData,
-                                       core::CStateRestoreTraverser &traverser) const
-{
+                                                      core::CStateRestoreTraverser &traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
-    if (!dataGatherer)
-    {
+    if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
         return 0;
     }
@@ -92,8 +84,7 @@ CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitialization
 
     TFeatureInfluenceCalculatorCPtrPrVecVec influenceCalculators;
     influenceCalculators.reserve(m_InfluenceFieldNames.size());
-    for (const auto &name : m_InfluenceFieldNames)
-    {
+    for (const auto &name : m_InfluenceFieldNames) {
         influenceCalculators.push_back(this->defaultInfluenceCalculators(name, features));
     }
 
@@ -106,8 +97,7 @@ CAnomalyDetectorModel *CMetricModelFactory::makeModel(const SModelInitialization
                             traverser);
 }
 
-CDataGatherer *CMetricModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const
-{
+CDataGatherer *CMetricModelFactory::makeDataGatherer(const SGathererInitializationData &initData) const {
     return new CDataGatherer(model_t::E_Metric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -126,8 +116,7 @@ CDataGatherer *CMetricModelFactory::makeDataGatherer(const SGathererInitializati
 }
 
 CDataGatherer *CMetricModelFactory::makeDataGatherer(const std::string &partitionFieldValue,
-                                                     core::CStateRestoreTraverser &traverser) const
-{
+                                                     core::CStateRestoreTraverser &traverser) const {
     return new CDataGatherer(model_t::E_Metric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -144,20 +133,17 @@ CDataGatherer *CMetricModelFactory::makeDataGatherer(const std::string &partitio
 }
 
 CMetricModelFactory::TPriorPtr
-    CMetricModelFactory::defaultPrior(model_t::EFeature feature,
-                                      const SModelParams &params) const
-{
+CMetricModelFactory::defaultPrior(model_t::EFeature feature,
+                                  const SModelParams &params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
-    if (model_t::isCategorical(feature))
-    {
+    if (model_t::isCategorical(feature)) {
         return TPriorPtr();
     }
 
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
-    if (model_t::isConstant(feature))
-    {
+    if (model_t::isConstant(feature)) {
         return boost::make_shared<maths::CConstantPrior>();
     }
 
@@ -175,13 +161,13 @@ CMetricModelFactory::TPriorPtr
     maths_t::EDataType dataType = this->dataType();
 
     maths::CGammaRateConjugate gammaPrior =
-            maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
+        maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
     maths::CLogNormalMeanPrecConjugate logNormalPrior =
-            maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
+        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
 
     maths::CNormalMeanPrecConjugate normalPrior =
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
 
     // Create the component priors.
     TPriorPtrVec priors;
@@ -189,15 +175,14 @@ CMetricModelFactory::TPriorPtr
     priors.emplace_back(gammaPrior.clone());
     priors.emplace_back(logNormalPrior.clone());
     priors.emplace_back(normalPrior.clone());
-    if (params.s_MinimumModeFraction <= 0.5)
-    {
+    if (params.s_MinimumModeFraction <= 0.5) {
         // Create the multimode prior.
         TPriorPtrVec modePriors;
         modePriors.reserve(3u);
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
         modePriors.emplace_back(normalPrior.clone());
-        maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
+        maths::COneOfNPrior    modePrior(modePriors, dataType, params.s_DecayRate);
         maths::CXMeansOnline1d clusterer(dataType,
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight,
@@ -213,14 +198,12 @@ CMetricModelFactory::TPriorPtr
 }
 
 CMetricModelFactory::TMultivariatePriorPtr
-    CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                  const SModelParams &params) const
-{
+CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
+                                              const SModelParams &params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     // Gaussian mixture for modeling (latitude, longitude).
-    if (model_t::isLatLong(feature))
-    {
+    if (model_t::isLatLong(feature)) {
         return this->latLongPrior(params);
     }
 
@@ -228,8 +211,7 @@ CMetricModelFactory::TMultivariatePriorPtr
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(dimension, params);
     priors.push_back(multivariateNormal);
-    if (params.s_MinimumModeFraction <= 0.5)
-    {
+    if (params.s_MinimumModeFraction <= 0.5) {
         priors.push_back(this->multivariateMultimodalPrior(dimension, params, *multivariateNormal));
     }
 
@@ -237,24 +219,20 @@ CMetricModelFactory::TMultivariatePriorPtr
 }
 
 CMetricModelFactory::TMultivariatePriorPtr
-    CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                               const SModelParams &params) const
-{
+CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
+                                           const SModelParams &params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
     priors.push_back(multivariateNormal);
-    if (params.s_MinimumModeFraction <= 0.5)
-    {
+    if (params.s_MinimumModeFraction <= 0.5) {
         priors.push_back(this->multivariateMultimodalPrior(2, params, *multivariateNormal));
     }
     return this->multivariateOneOfNPrior(2, params, priors);
 }
 
-const CSearchKey &CMetricModelFactory::searchKey(void) const
-{
-    if (!m_SearchKeyCache)
-    {
+const CSearchKey &CMetricModelFactory::searchKey(void) const {
+    if (!m_SearchKeyCache) {
         m_SearchKeyCache.reset(CSearchKey(m_Identifier,
                                           function_t::function(m_Features),
                                           m_UseNull,
@@ -268,33 +246,28 @@ const CSearchKey &CMetricModelFactory::searchKey(void) const
     return *m_SearchKeyCache;
 }
 
-bool CMetricModelFactory::isSimpleCount(void) const
-{
+bool CMetricModelFactory::isSimpleCount(void) const {
     return false;
 }
 
-model_t::ESummaryMode CMetricModelFactory::summaryMode(void) const
-{
+model_t::ESummaryMode CMetricModelFactory::summaryMode(void) const {
     return m_SummaryMode;
 }
 
-maths_t::EDataType CMetricModelFactory::dataType(void) const
-{
+maths_t::EDataType CMetricModelFactory::dataType(void) const {
     return maths_t::E_ContinuousData;
 }
 
-void CMetricModelFactory::identifier(int identifier)
-{
+void CMetricModelFactory::identifier(int identifier) {
     m_Identifier = identifier;
     m_SearchKeyCache.reset();
 }
 
 void CMetricModelFactory::fieldNames(const std::string &partitionFieldName,
-                                     const std::string &/*overFieldName*/,
+                                     const std::string & /*overFieldName*/,
                                      const std::string &byFieldName,
                                      const std::string &valueFieldName,
-                                     const TStrVec &influenceFieldNames)
-{
+                                     const TStrVec &influenceFieldNames) {
     m_PartitionFieldName = partitionFieldName;
     m_PersonFieldName = byFieldName;
     m_ValueFieldName = valueFieldName;
@@ -302,38 +275,31 @@ void CMetricModelFactory::fieldNames(const std::string &partitionFieldName,
     m_SearchKeyCache.reset();
 }
 
-void CMetricModelFactory::useNull(bool useNull)
-{
+void CMetricModelFactory::useNull(bool useNull) {
     m_UseNull = useNull;
     m_SearchKeyCache.reset();
 }
 
-void CMetricModelFactory::features(const TFeatureVec &features)
-{
+void CMetricModelFactory::features(const TFeatureVec &features) {
     m_Features = features;
     m_SearchKeyCache.reset();
 }
 
-void CMetricModelFactory::bucketLength(core_t::TTime bucketLength)
-{
+void CMetricModelFactory::bucketLength(core_t::TTime bucketLength) {
     m_BucketLength = bucketLength;
 }
 
-void CMetricModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay)
-{
+void CMetricModelFactory::bucketResultsDelay(std::size_t bucketResultsDelay) {
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CMetricModelFactory::TStrCRefVec CMetricModelFactory::partitioningFields(void) const
-{
+CMetricModelFactory::TStrCRefVec CMetricModelFactory::partitioningFields(void) const {
     TStrCRefVec result;
     result.reserve(2);
-    if (!m_PartitionFieldName.empty())
-    {
+    if (!m_PartitionFieldName.empty()) {
         result.emplace_back(m_PartitionFieldName);
     }
-    if (!m_PersonFieldName.empty())
-    {
+    if (!m_PersonFieldName.empty()) {
         result.emplace_back(m_PersonFieldName);
     }
     return result;

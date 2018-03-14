@@ -31,14 +31,11 @@
 #include <string>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 struct SDistributionRestoreParams;
 }
-namespace model
-{
+namespace model {
 //! \brief Wraps up model global parameters.
 //!
 //! DESCIRIPTION:\n
@@ -49,8 +46,7 @@ namespace model
 //! IMPLEMENTATION:\n
 //! This is purposely not implemented as a nested class so that it can
 //! be forward declared.
-struct MODEL_EXPORT SModelParams
-{
+struct MODEL_EXPORT SModelParams {
     using TDetectionRuleVec = std::vector<CDetectionRule>;
     using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;

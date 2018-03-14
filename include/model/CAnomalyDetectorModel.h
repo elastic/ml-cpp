@@ -46,21 +46,17 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CMultivariatePrior;
 }
 
-namespace model
-{
+namespace model {
 
 class CAttributeFrequencyGreaterThan;
 class CInterimBucketCorrector;
@@ -135,8 +131,7 @@ struct SAttributeProbability;
 //!
 //! The hierarchy is non-copyable because we don't currently need to be
 //! able to copy models and the "correct" copy semantics are not obvious.
-class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
-{
+class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable {
     friend class CModelDetailsView;
 
     public:
@@ -514,8 +509,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         using TFeatureSizeSize1VecUMapPrVec = std::vector<TFeatureSizeSize1VecUMapPr>;
 
         //! \brief The feature models.
-        struct MODEL_EXPORT SFeatureModels
-        {
+        struct MODEL_EXPORT SFeatureModels {
             SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel);
 
             //! Restore the models reading state from \p traverser.
@@ -539,8 +533,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         using TFeatureModelsVec = std::vector<SFeatureModels>;
 
         //! \brief The feature correlate models.
-        struct MODEL_EXPORT SFeatureCorrelateModels
-        {
+        struct MODEL_EXPORT SFeatureCorrelateModels {
             SFeatureCorrelateModels(model_t::EFeature feature,
                                     TMultivariatePriorPtr modelPrior,
                                     TCorrelationsPtr model);
@@ -566,8 +559,7 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         using TFeatureCorrelateModelsVec = std::vector<SFeatureCorrelateModels>;
 
         //! \brief Implements the allocator for new correlate priors.
-        class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator
-        {
+        class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator {
             public:
                 using TMemoryUsage = std::function<std::size_t (std::size_t)>;
 
@@ -622,14 +614,11 @@ class MODEL_EXPORT CAnomalyDetectorModel : private core::CNonCopyable
         void applyFilter(model_t::EExcludeFrequent exclude,
                          bool updateStatistics,
                          const FILTER &filter,
-                         T &data) const
-        {
-            if (this->params().s_ExcludeFrequent & exclude)
-            {
+                         T &data) const {
+            if (this->params().s_ExcludeFrequent & exclude) {
                 std::size_t initialSize = data.size();
                 data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
-                if (updateStatistics && data.size() != initialSize)
-                {
+                if (updateStatistics && data.size() != initialSize) {
                     core::CStatistics::stat(stat_t::E_NumberExcludedFrequentInvocations).increment(1);
                 }
             }

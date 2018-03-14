@@ -26,8 +26,7 @@
 using namespace ml;
 using namespace model;
 
-namespace
-{
+namespace {
 typedef std::vector<double> TDoubleVec;
 
 const function_t::EFunction INDIVIDUAL_COUNT  = function_t::E_IndividualCount;
@@ -36,8 +35,7 @@ const function_t::EFunction POPULATION_COUNT  = function_t::E_PopulationCount;
 const function_t::EFunction POPULATION_METRIC = function_t::E_PopulationMetric;
 }
 
-void CAnomalyDetectorModelConfigTest::testNormal(void)
-{
+void CAnomalyDetectorModelConfigTest::testNormal(void) {
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig(1800);
         CPPUNIT_ASSERT(config.init("testfiles/mlmodel.conf"));
@@ -72,10 +70,8 @@ void CAnomalyDetectorModelConfigTest::testNormal(void)
         CPPUNIT_ASSERT_EQUAL(std::size_t(20), config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
         CPPUNIT_ASSERT_EQUAL(std::size_t(20), config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i)
-        {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j)
-            {
+        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 params.push_back(config.aggregationStyleParam(static_cast<model_t::EAggregationStyle>(i),
                                                               static_cast<model_t::EAggregationParam>(j)));
             }
@@ -113,8 +109,7 @@ void CAnomalyDetectorModelConfigTest::testNormal(void)
     }
 }
 
-void CAnomalyDetectorModelConfigTest::testErrors(void)
-{
+void CAnomalyDetectorModelConfigTest::testErrors(void) {
     {
         CAnomalyDetectorModelConfig config1 = CAnomalyDetectorModelConfig::defaultConfig(1800);
         CPPUNIT_ASSERT(!config1.init("testfiles/invalidmlmodel.conf"));
@@ -177,10 +172,8 @@ void CAnomalyDetectorModelConfigTest::testErrors(void)
                              config1.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
         CPPUNIT_ASSERT_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
                              config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i)
-        {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j)
-            {
+        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 CPPUNIT_ASSERT_EQUAL(config2.aggregationStyleParam(static_cast<model_t::EAggregationStyle>(i),
                                                                    static_cast<model_t::EAggregationParam>(j)),
                                      config1.aggregationStyleParam(static_cast<model_t::EAggregationStyle>(i),
@@ -211,16 +204,15 @@ void CAnomalyDetectorModelConfigTest::testErrors(void)
     }
 }
 
-CppUnit::Test *CAnomalyDetectorModelConfigTest::suite(void)
-{
+CppUnit::Test *CAnomalyDetectorModelConfigTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyDetectorModelConfigTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyDetectorModelConfigTest>(
-                                   "CAnomalyDetectorModelConfigTest::testNormal",
-                                   &CAnomalyDetectorModelConfigTest::testNormal) );
+                               "CAnomalyDetectorModelConfigTest::testNormal",
+                               &CAnomalyDetectorModelConfigTest::testNormal) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyDetectorModelConfigTest>(
-                                   "CAnomalyDetectorModelConfigTest::testErrors",
-                                   &CAnomalyDetectorModelConfigTest::testErrors) );
+                               "CAnomalyDetectorModelConfigTest::testErrors",
+                               &CAnomalyDetectorModelConfigTest::testErrors) );
 
     return suiteOfTests;
 }

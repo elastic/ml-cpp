@@ -28,15 +28,12 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief This class implements the q-digest quantile approximation.
 //!
@@ -88,8 +85,7 @@ namespace maths
 //! This uses the fact the maximum length of the q-digest is \f$3k\f$
 //! to ensure constant complexity of all operations at various points
 //! and to reserve sufficient memory up front for our node allocator.
-class MATHS_EXPORT CQDigest : private core::CNonCopyable
-{
+class MATHS_EXPORT CQDigest : private core::CNonCopyable {
     public:
         typedef std::pair<uint32_t, uint64_t> TUInt32UInt64Pr;
         typedef std::vector<TUInt32UInt64Pr> TUInt32UInt64PrVec;
@@ -102,7 +98,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
         static const std::string K_TAG;
         static const std::string N_TAG;
         static const std::string NODE_TAG;
-        //@}
+    //@}
 
     public:
         CQDigest(uint64_t k, double decayRate = 0.0);
@@ -215,7 +211,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
 
         //! Print the q-digest.
         std::string print(void) const;
-        //@}
+    //@}
 
     private:
         typedef std::vector<std::size_t> TSizeVec;
@@ -231,21 +227,18 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
         typedef TNodePtrVec::const_reverse_iterator TNodePtrVecCRItr;
 
         //! Orders node pointers by level order.
-        struct MATHS_EXPORT SLevelLess
-        {
+        struct MATHS_EXPORT SLevelLess {
             bool operator()(const CNode *lhs, const CNode *rhs) const;
         };
 
         //! Order node pointers by post order in completed tree.
-        struct MATHS_EXPORT SPostLess
-        {
+        struct MATHS_EXPORT SPostLess {
             bool operator()(const CNode *lhs, const CNode *rhs) const;
         };
 
         //! Represents a node of the q-digest with convenience
         //! operations for compression.
-        class MATHS_EXPORT CNode
-        {
+        class MATHS_EXPORT CNode {
             public:
                 //! \name XML Tag Names
                 //!
@@ -254,7 +247,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
                 static const std::string MIN_TAG;
                 static const std::string MAX_TAG;
                 static const std::string COUNT_TAG;
-                //@}
+            //@}
 
             public:
                 CNode(void);
@@ -393,8 +386,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable
         };
 
         //! Manages the creation and recycling of nodes.
-        class MATHS_EXPORT CNodeAllocator
-        {
+        class MATHS_EXPORT CNodeAllocator {
             public:
                 CNodeAllocator(std::size_t size);
 

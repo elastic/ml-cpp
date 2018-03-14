@@ -45,10 +45,8 @@
 
 class CForecastRunnerTest;
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Forecast Worker to create forecasts of timeseries/ml models.
@@ -69,8 +67,7 @@ namespace api
 //! pruned in the main thread.
 //! Cloning also happens beforehand as the forecast job might hang in
 //! the queue for a while
-class API_EXPORT CForecastRunner final: private core::CNonCopyable
-{
+class API_EXPORT CForecastRunner final : private core::CNonCopyable {
     public:
         //! max open forecast requests
         //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
@@ -150,8 +147,7 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         void deleteAllForecastJobs();
 
     private:
-        struct API_EXPORT SForecast
-        {
+        struct API_EXPORT SForecast {
             SForecast();
 
             SForecast(SForecast &&other);
@@ -167,40 +163,40 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
             core_t::TTime forecastEnd() const;
 
             //! The forecast ID
-            std::string                 s_ForecastId;
+            std::string s_ForecastId;
 
             //! The forecast alias
-            std::string                 s_ForecastAlias;
+            std::string s_ForecastAlias;
 
             //! Vector of models/series selected for forecasting (cloned for forecasting)
-            TForecastResultSeriesVec    s_ForecastSeries;
+            TForecastResultSeriesVec s_ForecastSeries;
 
             //! Forecast create time
-            core_t::TTime               s_CreateTime;
+            core_t::TTime s_CreateTime;
 
             //! Forecast start time
-            core_t::TTime               s_StartTime;
+            core_t::TTime s_StartTime;
 
             //! Forecast duration
-            core_t::TTime               s_Duration;
+            core_t::TTime s_Duration;
 
             //! Expiration of the forecast (for automatic deletion)
-            core_t::TTime               s_ExpiryTime;
+            core_t::TTime s_ExpiryTime;
 
             //! Forecast bounds
-            double                      s_BoundsPercentile;
+            double s_BoundsPercentile;
 
             //! total number of models
-            size_t                      s_NumberOfModels;
+            size_t s_NumberOfModels;
 
             //! total number of models able to forecast
-            size_t                      s_NumberOfForecastableModels;
+            size_t s_NumberOfForecastableModels;
 
             //! total memory required for this forecasting job (only the models)
-            size_t                      s_MemoryUsage;
+            size_t s_MemoryUsage;
 
             //! A collection storing important messages from forecasting
-            TStrUSet                    s_Messages;
+            TStrUSet s_Messages;
         };
 
     private:
@@ -237,7 +233,7 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
 
     private:
         //! This job ID
-        std::string                             m_JobId;
+        std::string m_JobId;
 
         //! the output stream to write results to
         core::CJsonOutputStreamWrapper          &m_ConcurrentOutputStream;
@@ -247,22 +243,22 @@ class API_EXPORT CForecastRunner final: private core::CNonCopyable
         model::CResourceMonitor                 &m_ResourceMonitor;
 
         //! thread for the worker
-        std::thread                             m_Worker;
+        std::thread m_Worker;
 
         //! indicator for worker
-        volatile bool                           m_Shutdown;
+        volatile bool m_Shutdown;
 
         //! The 'queue' of forecast jobs to be executed
         std::list<SForecast>                    m_ForecastJobs;
 
         //! Mutex
-        std::mutex                              m_Mutex;
+        std::mutex m_Mutex;
 
         //! Condition variable for the requests queue
-        std::condition_variable                 m_WorkAvailableCondition;
+        std::condition_variable m_WorkAvailableCondition;
 
         //! Condition variable for notifications on done requests
-        std::condition_variable                 m_WorkCompleteCondition;
+        std::condition_variable m_WorkCompleteCondition;
 
         friend class ::CForecastRunnerTest;
 };

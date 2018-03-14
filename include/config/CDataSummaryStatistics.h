@@ -32,10 +32,8 @@
 
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 
 //! \brief Basic summary statistics for both categorical and numerical
 //! data.
@@ -43,8 +41,7 @@ namespace config
 //! DESCRIPTION:\n
 //! This gets the time range of the data set and computes the mean rate
 //! of records in the data set.
-class CONFIG_EXPORT CDataSummaryStatistics
-{
+class CONFIG_EXPORT CDataSummaryStatistics {
     public:
         CDataSummaryStatistics(void);
 
@@ -87,8 +84,7 @@ class CONFIG_EXPORT CDataSummaryStatistics
 //! The estimates of distinct count and most frequent category counts
 //! are exact for small data sets and then switch seemlessly to using
 //! appropriate sketch data structures for very high distinct counts.
-class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics
-{
+class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStatistics {
     public:
         typedef std::pair<std::string, std::size_t> TStrSizePr;
         typedef std::vector<TStrSizePr> TStrSizePrVec;
@@ -219,8 +215,7 @@ class CONFIG_EXPORT CCategoricalDataSummaryStatistics : public CDataSummaryStati
 //! it to use only Gaussian modes and allow many more clusters since
 //! we want an accurate description of the bulk of the distribution
 //! and don't care about over fitting as we do for anomaly detection.
-class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics
-{
+class CONFIG_EXPORT CNumericDataSummaryStatistics : public CDataSummaryStatistics {
     public:
         typedef std::pair<double, double> TDoubleDoublePr;
         typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;

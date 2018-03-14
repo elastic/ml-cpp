@@ -30,24 +30,20 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 class CSeasonalTime;
 
 //! \brief Represents the result of running the periodicity
 //! hypothesis tests.
 class MATHS_EXPORT CPeriodicityHypothesisTestsResult : boost::equality_comparable<CPeriodicityHypothesisTestsResult,
-                                                       boost::addable<CPeriodicityHypothesisTestsResult> >
-{
+                                                                                  boost::addable<CPeriodicityHypothesisTestsResult> > {
     public:
         using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
     public:
         //! \brief Component data.
-        struct MATHS_EXPORT SComponent
-        {
+        struct MATHS_EXPORT SComponent {
             SComponent();
             SComponent(const std::string &description,
                        bool diurnal,
@@ -117,8 +113,7 @@ class MATHS_EXPORT CPeriodicityHypothesisTestsResult : boost::equality_comparabl
 };
 
 //! \brief Configures the periodicity testing.
-class MATHS_EXPORT CPeriodicityHypothesisTestsConfig
-{
+class MATHS_EXPORT CPeriodicityHypothesisTestsConfig {
     public:
         CPeriodicityHypothesisTestsConfig();
 
@@ -169,8 +164,7 @@ class MATHS_EXPORT CPeriodicityHypothesisTestsConfig
 //! of the amplitude. It also compares these possibilities with a
 //! specified period (typically found by examining the cyclic
 //! autocorrelation).
-class MATHS_EXPORT CPeriodicityHypothesisTests
-{
+class MATHS_EXPORT CPeriodicityHypothesisTests {
     public:
         using TDouble2Vec = core::CSmallVector<double, 2>;
         using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
@@ -211,8 +205,7 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
         using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<core_t::TTime>;
 
         //! \brief A collection of statistics used during testing.
-        struct STestStats
-        {
+        struct STestStats {
             STestStats();
             //! Set the various test thresholds.
             void setThresholds(double vt, double at, double Rt);
@@ -251,15 +244,13 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
         };
 
         //! \brief Manages the testing of a set of nested hypotheses.
-        class CNestedHypotheses
-        {
+        class CNestedHypotheses {
             public:
                 using TTestFunc = std::function<CPeriodicityHypothesisTestsResult (STestStats &)>;
 
                 //! \brief Manages the building of a collection of nested
                 //! hypotheses.
-                class CBuilder
-                {
+                class CBuilder {
                     public:
                         explicit CBuilder(CNestedHypotheses &hypothesis);
                         CBuilder &addNested(TTestFunc test);
@@ -322,39 +313,39 @@ class MATHS_EXPORT CPeriodicityHypothesisTests
 
         //! The null hypothesis of the various tests.
         CPeriodicityHypothesisTestsResult
-            testForNull(const TTimeTimePr2Vec &window,
-                        const TFloatMeanAccumulatorCRng &buckets,
-                        STestStats &stats) const;
+        testForNull(const TTimeTimePr2Vec &window,
+                    const TFloatMeanAccumulatorCRng &buckets,
+                    STestStats &stats) const;
 
         //! Test for a daily periodic component.
         CPeriodicityHypothesisTestsResult
-            testForDaily(const TTimeTimePr2Vec &window,
-                         const TFloatMeanAccumulatorCRng &buckets,
-                         STestStats &stats) const;
+        testForDaily(const TTimeTimePr2Vec &window,
+                     const TFloatMeanAccumulatorCRng &buckets,
+                     STestStats &stats) const;
 
         //! Test for a weekly periodic component.
         CPeriodicityHypothesisTestsResult
-            testForWeekly(const TTimeTimePr2Vec &window,
-                          const TFloatMeanAccumulatorCRng &buckets,
-                          STestStats &stats) const;
+        testForWeekly(const TTimeTimePr2Vec &window,
+                      const TFloatMeanAccumulatorCRng &buckets,
+                      STestStats &stats) const;
 
         //! Test for a weekday/end partition.
         CPeriodicityHypothesisTestsResult
-            testForDailyWithWeekend(const TFloatMeanAccumulatorCRng &buckets,
-                                    STestStats &stats) const;
+        testForDailyWithWeekend(const TFloatMeanAccumulatorCRng &buckets,
+                                STestStats &stats) const;
 
         //! Test for a weekday/end partition with weekly .
         CPeriodicityHypothesisTestsResult
-            testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec &window,
-                                               const TFloatMeanAccumulatorCRng &buckets,
-                                               STestStats &stats) const;
+        testForWeeklyGivenDailyWithWeekend(const TTimeTimePr2Vec &window,
+                                           const TFloatMeanAccumulatorCRng &buckets,
+                                           STestStats &stats) const;
 
         //! Test for the specified period given we think there is
         //! some diurnal periodicity.
         CPeriodicityHypothesisTestsResult
-            testForPeriod(const TTimeTimePr2Vec &window,
-                          const TFloatMeanAccumulatorCRng &buckets,
-                          STestStats &stats) const;
+        testForPeriod(const TTimeTimePr2Vec &window,
+                      const TFloatMeanAccumulatorCRng &buckets,
+                      STestStats &stats) const;
 
         //! Check we've seen sufficient data to test accurately.
         bool seenSufficientDataToTest(core_t::TTime period,

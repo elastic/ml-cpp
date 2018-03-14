@@ -30,67 +30,59 @@
 #include <vector>
 
 
-CppUnit::Test *CCsvInputParserTest::suite()
-{
+CppUnit::Test *CCsvInputParserTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CCsvInputParserTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testSimpleDelims",
-                                   &CCsvInputParserTest::testSimpleDelims) );
+                               "CCsvInputParserTest::testSimpleDelims",
+                               &CCsvInputParserTest::testSimpleDelims) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testComplexDelims",
-                                   &CCsvInputParserTest::testComplexDelims) );
+                               "CCsvInputParserTest::testComplexDelims",
+                               &CCsvInputParserTest::testComplexDelims) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testThroughput",
-                                   &CCsvInputParserTest::testThroughput) );
+                               "CCsvInputParserTest::testThroughput",
+                               &CCsvInputParserTest::testThroughput) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testDateParse",
-                                   &CCsvInputParserTest::testDateParse) );
+                               "CCsvInputParserTest::testDateParse",
+                               &CCsvInputParserTest::testDateParse) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testQuoteParsing",
-                                   &CCsvInputParserTest::testQuoteParsing) );
+                               "CCsvInputParserTest::testQuoteParsing",
+                               &CCsvInputParserTest::testQuoteParsing) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CCsvInputParserTest>(
-                                   "CCsvInputParserTest::testLineParser",
-                                   &CCsvInputParserTest::testLineParser) );
+                               "CCsvInputParserTest::testLineParser",
+                               &CCsvInputParserTest::testLineParser) );
 
     return suiteOfTests;
 }
 
-namespace
-{
+namespace {
 
 
-class CVisitor
-{
+class CVisitor {
     public:
         CVisitor(void)
             : m_Fast(true),
-              m_RecordCount(0)
-        {
+              m_RecordCount(0) {
         }
 
         CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
             : m_Fast(false),
               m_RecordCount(0),
-              m_ExpectedFieldNames(expectedFieldNames)
-        {
+              m_ExpectedFieldNames(expectedFieldNames) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
             ++m_RecordCount;
 
             // For the throughput test, the assertions below will skew the
             // results, so bypass them
-            if (m_Fast)
-            {
+            if (m_Fast) {
                 return true;
             }
 
             // Check the field names
-            for (const auto &entry : dataRowFields)
-            {
+            for (const auto &entry : dataRowFields) {
                 auto iter = std::find(m_ExpectedFieldNames.begin(), m_ExpectedFieldNames.end(), entry.first);
                 CPPUNIT_ASSERT(iter != m_ExpectedFieldNames.end());
             }
@@ -113,19 +105,17 @@ class CVisitor
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
     private:
-        bool                                   m_Fast;
-        size_t                                 m_RecordCount;
+        bool m_Fast;
+        size_t m_RecordCount;
         ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 };
 
-class CTimeCheckingVisitor
-{
+class CTimeCheckingVisitor {
     public:
         typedef std::vector<ml::core_t::TTime> TTimeVec;
 
@@ -136,13 +126,11 @@ class CTimeCheckingVisitor
             : m_RecordCount(0),
               m_TimeField(timeField),
               m_TimeFormat(timeFormat),
-              m_ExpectedTimes(expectedTimes)
-        {
+              m_ExpectedTimes(expectedTimes) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
             // Check the time field exists
             CPPUNIT_ASSERT(m_RecordCount < m_ExpectedTimes.size());
 
@@ -153,16 +141,13 @@ class CTimeCheckingVisitor
             ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find(m_TimeField);
             CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
             ml::core_t::TTime timeVal(0);
-            if (m_TimeFormat.empty())
-            {
+            if (m_TimeFormat.empty()) {
                 CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(fieldIter->second,
-                                                                         timeVal));
-            }
-            else
-            {
+                                                                    timeVal));
+            } else {
                 CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(m_TimeFormat,
-                                                                   fieldIter->second,
-                                                                   timeVal));
+                                                              fieldIter->second,
+                                                              timeVal));
                 LOG_DEBUG("Converted " << fieldIter->second <<
                           " to " << timeVal <<
                           " using format " << m_TimeFormat);
@@ -174,29 +159,25 @@ class CTimeCheckingVisitor
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
     private:
-        size_t      m_RecordCount;
+        size_t m_RecordCount;
         std::string m_TimeField;
         std::string m_TimeFormat;
-        TTimeVec    m_ExpectedTimes;
+        TTimeVec m_ExpectedTimes;
 };
 
-class CQuoteCheckingVisitor
-{
+class CQuoteCheckingVisitor {
     public:
         CQuoteCheckingVisitor(void)
-            : m_RecordCount(0)
-        {
+            : m_RecordCount(0) {
         }
 
         //! Handle a record
-        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields)
-        {
+        bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
             // Now check quoted fields
             ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find("q1");
             CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
@@ -219,8 +200,7 @@ class CQuoteCheckingVisitor
             return true;
         }
 
-        size_t recordCount(void) const
-        {
+        size_t recordCount(void) const {
             return m_RecordCount;
         }
 
@@ -231,8 +211,7 @@ class CQuoteCheckingVisitor
 
 }
 
-void CCsvInputParserTest::testSimpleDelims(void)
-{
+void CCsvInputParserTest::testSimpleDelims(void) {
     std::ifstream simpleStrm("testfiles/simple.txt");
     CPPUNIT_ASSERT(simpleStrm.is_open());
 
@@ -273,8 +252,7 @@ void CCsvInputParserTest::testSimpleDelims(void)
     CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CCsvInputParserTest::testComplexDelims(void)
-{
+void CCsvInputParserTest::testComplexDelims(void) {
     std::ifstream complexStrm("testfiles/complex.txt");
     CPPUNIT_ASSERT(complexStrm.is_open());
 
@@ -313,26 +291,22 @@ void CCsvInputParserTest::testComplexDelims(void)
     CPPUNIT_ASSERT(parser.readStream(std::ref(visitor)));
 }
 
-void CCsvInputParserTest::testThroughput(void)
-{
+void CCsvInputParserTest::testThroughput(void) {
     std::ifstream ifs("testfiles/simple.txt");
     CPPUNIT_ASSERT(ifs.is_open());
 
     std::string line;
 
     std::string header;
-    if (std::getline(ifs, line).good())
-    {
+    if (std::getline(ifs, line).good()) {
         header = line;
         header += '\n';
     }
 
     std::string restOfFile;
-    size_t nonHeaderLines(0);
-    while (std::getline(ifs, line).good())
-    {
-        if (line.empty())
-        {
+    size_t      nonHeaderLines(0);
+    while (std::getline(ifs, line).good()) {
+        if (line.empty()) {
             break;
         }
         ++nonHeaderLines;
@@ -346,9 +320,8 @@ void CCsvInputParserTest::testThroughput(void)
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
-    std::string input(header);
-    for (size_t count = 0; count < TEST_SIZE; ++count)
-    {
+    std::string         input(header);
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
         input += restOfFile;
     }
     LOG_DEBUG("Input size is " << input.length());
@@ -373,8 +346,7 @@ void CCsvInputParserTest::testThroughput(void)
              " records took " << (end - start) << " seconds");
 }
 
-void CCsvInputParserTest::testDateParse(void)
-{
+void CCsvInputParserTest::testDateParse(void) {
     static const ml::core_t::TTime EXPECTED_TIMES[] = {
         1359331200,
         1359331200,
@@ -484,8 +456,7 @@ void CCsvInputParserTest::testDateParse(void)
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
 }
 
-void CCsvInputParserTest::testQuoteParsing(void)
-{
+void CCsvInputParserTest::testQuoteParsing(void) {
     // Expect:
     // q1 =
     // q2 =
@@ -494,7 +465,7 @@ void CCsvInputParserTest::testQuoteParsing(void)
     std::string input(
         "b,q1,q2,q3,q4,e\n"
         "x,,\"\",\"\"\"\",\"\"\"\"\"\",x\n"
-    );
+        );
 
     ml::api::CCsvInputParser parser(input);
 
@@ -505,10 +476,9 @@ void CCsvInputParserTest::testQuoteParsing(void)
     CPPUNIT_ASSERT_EQUAL(size_t(1), visitor.recordCount());
 }
 
-void CCsvInputParserTest::testLineParser(void)
-{
+void CCsvInputParserTest::testLineParser(void) {
     ml::api::CCsvInputParser::CCsvLineParser lineParser;
-    std::string token;
+    std::string                              token;
 
     {
         std::string simple{"a,b,c"};

@@ -17,14 +17,11 @@
 #include <stdlib.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
-int CUnSetEnv::unSetEnv(const char *name)
-{
+int CUnSetEnv::unSetEnv(const char *name) {
     // The Microsoft C runtime library treats a request to set an environment
     // variable to an empty string as a request to delete it
     return ::_putenv_s(name, "");

@@ -24,10 +24,8 @@
 #include <streambuf>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! A stream buffer where reads and writes are processed in different threads.
@@ -68,8 +66,7 @@ namespace core
 //! std::streambuf:
 //! http://www.cplusplus.com/reference/streambuf/streambuf/
 //!
-class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf
-{
+class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf {
     public:
         //! By default, the three buffers will initially have this size.  They
         //! may potentially grow if characters are put back into them.
@@ -149,19 +146,19 @@ class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf
         TScopedCharArray m_WriteBuffer;
 
         //! Capacity of the write buffer.
-        size_t           m_WriteBufferCapacity;
+        size_t m_WriteBufferCapacity;
 
         //! Buffer that get functions will read from.
         TScopedCharArray m_ReadBuffer;
 
         //! Capacity of the read buffer.
-        size_t           m_ReadBufferCapacity;
+        size_t m_ReadBufferCapacity;
 
         //! Buffer that get functions will read from.
         TScopedCharArray m_IntermediateBuffer;
 
         //! Capacity of the read buffer.
-        size_t           m_IntermediateBufferCapacity;
+        size_t m_IntermediateBufferCapacity;
 
         //! End of data held in the intermediate buffer.  If this points at the
         //! beginning of the intermediate buffer, the implication is that the
@@ -171,27 +168,27 @@ class CORE_EXPORT CDualThreadStreamBuf : public std::streambuf
         //! Number of bytes that have been swapped from the read buffer to the
         //! intermediate buffer over the lifetime of this object.  Enables
         //! tellg() to work on an associated istream.
-        size_t           m_ReadBytesSwapped;
+        size_t m_ReadBytesSwapped;
 
         //! Number of bytes that have been swapped from the write buffer to the
         //! intermediate buffer over the lifetime of this object.  Enables
         //! tellp() to work on an associated ostream.
-        size_t           m_WriteBytesSwapped;
+        size_t m_WriteBytesSwapped;
 
         //! A lock to protect swapping of the buffers and manage blocking when
-        CMutex           m_IntermediateBufferMutex;
+        CMutex m_IntermediateBufferMutex;
 
         //! A condition to wait on ing of the buffers and manage blocking when
-        CCondition       m_IntermediateBufferCondition;
+        CCondition m_IntermediateBufferCondition;
 
         //! Flag to indicate end-of-file.  When this is set, the reader will
         //! receive end-of-file notification once all the buffers are empty.
         //! The writer will not be allowed to add any more data.
-        volatile bool    m_Eof;
+        volatile bool m_Eof;
 
         //! A call to signalFatalError() chucks away all currently buffered data
         //! and prevents future data being added.
-        volatile bool    m_FatalError;
+        volatile bool m_FatalError;
 };
 
 

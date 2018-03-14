@@ -28,16 +28,13 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
 
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class COutputHandler;
 
@@ -51,20 +48,19 @@ class COutputHandler;
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class API_EXPORT CDataProcessor : private core::CNonCopyable
-{
+class API_EXPORT CDataProcessor : private core::CNonCopyable {
     public:
         static const char CONTROL_FIELD_NAME_CHAR = '.';
         static const std::string CONTROL_FIELD_NAME;
 
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
     public:
         CDataProcessor(void);

@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -37,8 +35,7 @@ namespace core
 //! library treats a request to set a variable to be empty as a
 //! request to delete it from the environment.
 //!
-class CORE_EXPORT CUnSetEnv : private CNonInstantiatable
-{
+class CORE_EXPORT CUnSetEnv : private CNonInstantiatable {
     public:
         static int unSetEnv(const char *name);
 };

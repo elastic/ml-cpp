@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataSemanticsTest : public CppUnit::TestFixture
-{
+class CDataSemanticsTest : public CppUnit::TestFixture {
     public:
         void testBinary(void);
         void testNonNumericCategorical(void);

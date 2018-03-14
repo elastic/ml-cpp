@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CCsvOutputWriterTest : public CppUnit::TestFixture
-{
+class CCsvOutputWriterTest : public CppUnit::TestFixture {
     public:
         void testAdd(void);
         void testOverwrite(void);

@@ -29,10 +29,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Write output data in JSON format, one document per line
@@ -46,8 +44,7 @@ namespace api
 //! IMPLEMENTATION:\n
 //! Using RapidJson to do the heavy lifting.
 //!
-class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
-{
+class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler {
     public:
         typedef std::set<std::string> TStrSet;
 
@@ -93,28 +90,28 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler
 
     private:
         //! Write a single field to the document
-        void writeField(const std::string &name, 
+        void writeField(const std::string &name,
                         const std::string &value,
                         rapidjson::Document &doc) const;
 
     private:
         //! Which output fields are numeric?
-        TStrSet                       m_NumericFields;
+        TStrSet m_NumericFields;
 
         //! If we've been initialised without a specific stream, output is
         //! written to this string stream
-        std::ostringstream            m_StringOutputBuf;
+        std::ostringstream m_StringOutputBuf;
 
         //! Reference to the stream we're going to write to
         std::ostream                  &m_OutStream;
 
         //! JSON writer ostream wrapper
-        rapidjson::OStreamWrapper     m_WriteStream;
+        rapidjson::OStreamWrapper m_WriteStream;
 
         typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
         //! JSON writer
-        TGenericLineWriter            m_Writer;
+        TGenericLineWriter m_Writer;
 };
 
 

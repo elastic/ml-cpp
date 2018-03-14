@@ -31,10 +31,8 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Create normalized anomaly scores
@@ -56,8 +54,7 @@ namespace api
 //! Does not support processor chaining functionality as it is unlikely
 //! that this class would ever be chained to another data processor.
 //!
-class API_EXPORT CResultNormalizer
-{
+class API_EXPORT CResultNormalizer {
     public:
         //! Field names used in records to be normalised
         static const std::string LEVEL;
@@ -80,12 +77,12 @@ class API_EXPORT CResultNormalizer
 
     public:
         typedef std::vector<std::string>                       TStrVec;
-        typedef TStrVec::iterator                              TStrVecItr;
-        typedef TStrVec::const_iterator                        TStrVecCItr;
+        typedef TStrVec::iterator TStrVecItr;
+        typedef TStrVec::const_iterator TStrVecCItr;
 
         typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
-        typedef TStrStrUMap::iterator                          TStrStrUMapItr;
-        typedef TStrStrUMap::const_iterator                    TStrStrUMapCItr;
+        typedef TStrStrUMap::iterator TStrStrUMapItr;
+        typedef TStrStrUMap::const_iterator TStrStrUMapCItr;
 
     public:
         CResultNormalizer(const model::CAnomalyDetectorModelConfig &modelConfig,
@@ -112,14 +109,12 @@ class API_EXPORT CResultNormalizer
         template<typename T>
         bool parseDataField(const TStrStrUMap &dataRowFields,
                             const std::string &fieldName,
-                            T &result) const
-        {
+                            T &result) const {
             TStrStrUMapCItr iter = dataRowFields.find(fieldName);
             if (iter == dataRowFields.end() ||
-                core::CStringUtils::stringToType(iter->second, result) == false)
-            {
+                core::CStringUtils::stringToType(iter->second, result) == false) {
                 LOG_ERROR("Cannot interpret " << fieldName << " field in record:\n" <<
-                        CDataProcessor::debugPrintRecord(dataRowFields));
+                          CDataProcessor::debugPrintRecord(dataRowFields));
                 return false;
             }
             return true;
@@ -133,17 +128,17 @@ class API_EXPORT CResultNormalizer
         COutputHandler                                      &m_OutputHandler;
 
         //! Do we need to tell the output handler what our fieldnames are?
-        bool                                                m_WriteFieldNames;
+        bool m_WriteFieldNames;
 
         //! Map holding fields to write to the output
-        TStrStrUMap                                         m_OutputFields;
+        TStrStrUMap m_OutputFields;
 
         //! References to specific entries in the map to save repeatedly
         //! searching for them
         std::string                                         &m_OutputFieldNormalizedScore;
 
         //! The hierarchical results normalizer
-        model::CHierarchicalResultsNormalizer               m_Normalizer;
+        model::CHierarchicalResultsNormalizer m_Normalizer;
 };
 
 

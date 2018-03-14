@@ -17,10 +17,8 @@
 
 #include <api/CTokenListReverseSearchCreatorIntf.h>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Create Engine API reverse searches for categories of events.
@@ -36,8 +34,7 @@ namespace api
 //! The Engine API reverse search has the space separated list of the tokens
 //! and the regex because most modern index-based storages accept such searches.
 //!
-class API_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf
-{
+class API_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf {
     public:
         CTokenListReverseSearchCreator(const std::string &fieldName);
 

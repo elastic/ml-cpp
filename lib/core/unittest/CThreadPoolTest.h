@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CThreadPoolTest : public CppUnit::TestFixture
-{
+class CThreadPoolTest : public CppUnit::TestFixture {
     public:
         void testPool(void);
 

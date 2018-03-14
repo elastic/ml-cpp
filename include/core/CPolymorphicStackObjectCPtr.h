@@ -21,11 +21,10 @@
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/variant.hpp>
 
-namespace ml
-{
-namespace core
-{
-class CORE_EXPORT CNullPolymorphicStackObjectCPtr {};
+namespace ml {
+namespace core {
+class CORE_EXPORT CNullPolymorphicStackObjectCPtr {
+};
 
 //! \brief A stack based pointer to polymorphic object emulator.
 //!
@@ -37,32 +36,32 @@ class CORE_EXPORT CNullPolymorphicStackObjectCPtr {};
 //! it behaves exactly like a pointer to the base class in terms of usage.
 //! This is to support runtime polymorphism without using the heap.
 template<typename BASE, typename D1, typename D2, typename D3 = D2, typename D4 = D2>
-class CPolymorphicStackObjectCPtr
-{
+class CPolymorphicStackObjectCPtr {
     private:
         typedef const typename boost::remove_const<BASE>::type TConstBase;
-        typedef const typename boost::remove_const<D1>::type   TConstD1;
-        typedef const typename boost::remove_const<D2>::type   TConstD2;
-        typedef const typename boost::remove_const<D3>::type   TConstD3;
-        typedef const typename boost::remove_const<D4>::type   TConstD4;
+        typedef const typename boost::remove_const<D1>::type TConstD1;
+        typedef const typename boost::remove_const<D2>::type TConstD2;
+        typedef const typename boost::remove_const<D3>::type TConstD3;
+        typedef const typename boost::remove_const<D4>::type TConstD4;
 
     public:
-        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
+        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {
+        }
 
         template<typename T>
-        explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {}
+        explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {
+        }
 
         template<typename O1, typename O2, typename O3, typename O4>
-        CPolymorphicStackObjectCPtr(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4> &other)
-        {
+        CPolymorphicStackObjectCPtr(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4> &other) {
 #define MAYBE_SET(TYPE) {                                         \
-                            TYPE *d = other.template get<TYPE>(); \
-                            if (d)                                \
-                            {                                     \
-                                m_Storage = *d;                   \
-                                return;                           \
-                            }                                     \
-                        }
+        TYPE *d = other.template get<TYPE>(); \
+        if (d)                                \
+        {                                     \
+            m_Storage = *d;                   \
+            return;                           \
+        }                                     \
+}
             MAYBE_SET(TConstD1);
             MAYBE_SET(TConstD2);
             MAYBE_SET(TConstD3);
@@ -72,8 +71,7 @@ class CPolymorphicStackObjectCPtr
         }
 
         template<typename O1, typename O2, typename O3, typename O4>
-        const CPolymorphicStackObjectCPtr &operator=(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4> &other)
-        {
+        const CPolymorphicStackObjectCPtr &operator=(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4> &other) {
             CPolymorphicStackObjectCPtr tmp(other);
             this->swap(tmp);
             return *this;
@@ -84,15 +82,14 @@ class CPolymorphicStackObjectCPtr
             return boost::relaxed_get<CNullPolymorphicStackObjectCPtr>(&m_Storage) == 0;
         }
 
-        TConstBase *operator->(void) const
-        {
+        TConstBase *operator->(void) const {
 #define MAYBE_RETURN(TYPE) {                                                        \
-                               TYPE *result = boost::relaxed_get<TYPE>(&m_Storage); \
-                               if (result)                                          \
-                               {                                                    \
-                                   return static_cast<TConstBase*>(result);         \
-                               }                                                    \
-                           }
+        TYPE *result = boost::relaxed_get<TYPE>(&m_Storage); \
+        if (result)                                          \
+        {                                                    \
+            return static_cast<TConstBase*>(result);         \
+        }                                                    \
+}
             MAYBE_RETURN(TConstD1);
             MAYBE_RETURN(TConstD2);
             MAYBE_RETURN(TConstD3);
@@ -101,19 +98,16 @@ class CPolymorphicStackObjectCPtr
             return 0;
         }
 
-        TConstBase &operator*(void) const
-        {
+        TConstBase &operator*(void) const {
             return *(this->operator->());
         }
 
-        template<typename T> const T *get(void) const
-        {
+        template<typename T> const T *get(void) const {
             return boost::relaxed_get<T>(&m_Storage);
         }
 
     private:
-        void swap(CPolymorphicStackObjectCPtr &other)
-        {
+        void swap(CPolymorphicStackObjectCPtr &other) {
             m_Storage.swap(other.m_Storage);
         }
 

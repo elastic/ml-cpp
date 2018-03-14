@@ -27,10 +27,8 @@
 #include <cstddef>
 #include <cmath>
 
-namespace ml
-{
-namespace handy_typedefs
-{
+namespace ml {
+namespace handy_typedefs {
 using TDouble1Vec = core::CSmallVector<double, 1>;
 using TDouble4Vec = core::CSmallVector<double, 4>;
 using TDouble10Vec = core::CSmallVector<double, 10>;
@@ -54,8 +52,7 @@ using TGeneratorVec = std::vector<TGenerator>;
 //!
 //! DESCRIPTION:\n
 //! This is a mix in interface for use within the testing framework.
-class CPriorTestInterface
-{
+class CPriorTestInterface {
     public:
         using TDoubleDoublePr = std::pair<double, double>;
         using TDoubleDoublePr1Vec = core::CSmallVector<TDoubleDoublePr, 1>;
@@ -70,8 +67,8 @@ class CPriorTestInterface
 
         //! Wrapper which takes care of weights.
         maths_t::EFloatingPointErrorStatus
-            jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec &samples,
-                                       double &result) const;
+        jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec &samples,
+                                   double &result) const;
 
         //! Wrapper which takes care of weights.
         bool minusLogJointCdf(const handy_typedefs::TDouble1Vec &samples,
@@ -160,8 +157,7 @@ class CPriorTestInterface
 //! standards, because it's the cleanest way to implement this functionality.
 //! DON'T use this elsewhere.
 template<typename PRIOR>
-class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
-{
+class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface {
     public:
         using PRIOR::addSamples;
         using PRIOR::jointLogMarginalLikelihood;
@@ -177,49 +173,45 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface
     public:
         CPriorTestInterfaceMixin(const PRIOR &prior) :
             PRIOR(prior),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
-        {}
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {
+        }
 
         CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin &other) :
             PRIOR(static_cast<const PRIOR&>(other)),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this))
-        {}
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {
+        }
 
-        virtual ~CPriorTestInterfaceMixin(void) {}
+        virtual ~CPriorTestInterfaceMixin(void) {
+        }
 
         //! Swap the contents efficiently.
-        void swap(CPriorTestInterfaceMixin &other)
-        {
+        void swap(CPriorTestInterfaceMixin &other) {
             this->PRIOR::swap(other);
         }
 
         //! Clone the object.
-        virtual CPriorTestInterfaceMixin *clone(void) const
-        {
+        virtual CPriorTestInterfaceMixin *clone(void) const {
             return new CPriorTestInterfaceMixin(*this);
         }
 };
 
 
 //! \brief Kernel for checking normalization with CPrior::expectation.
-class C1dUnitKernel
-{
+class C1dUnitKernel {
     public:
-        bool operator()(double /*x*/, double &result) const
-        {
+        bool operator()(double /*x*/, double &result) const {
             result = 1.0;
             return true;
         }
 };
 
 //! \brief Kernel for computing the variance with CPrior::expectation.
-class CVarianceKernel
-{
+class CVarianceKernel {
     public:
-        CVarianceKernel(double mean) : m_Mean(mean) {}
+        CVarianceKernel(double mean) : m_Mean(mean) {
+        }
 
-        bool operator()(double x, double &result) const
-        {
+        bool operator()(double x, double &result) const {
             result = (x - m_Mean) * (x - m_Mean);
             return true;
         }
@@ -230,16 +222,14 @@ class CVarianceKernel
 
 //! \brief A constant unit kernel.
 template<std::size_t N>
-class CUnitKernel
-{
+class CUnitKernel {
     public:
         CUnitKernel(const maths::CMultivariatePrior &prior) :
-                m_Prior(&prior),
-                m_X(1)
-        {}
+            m_Prior(&prior),
+            m_X(1) {
+        }
 
-        bool operator()(const maths::CVectorNx1<double, N> &x, double &result) const
-        {
+        bool operator()(const maths::CVectorNx1<double, N> &x, double &result) const {
             m_X[0].assign(x.begin(), x.end());
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, result);
             result = std::exp(result);
@@ -259,17 +249,15 @@ handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(1, handy_typede
 
 //! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
-class CMeanKernel
-{
+class CMeanKernel {
     public:
         CMeanKernel(const maths::CMultivariatePrior &prior) :
-                m_Prior(&prior),
-                m_X(1)
-        {}
+            m_Prior(&prior),
+            m_X(1) {
+        }
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
-                        maths::CVectorNx1<double, N> &result) const
-        {
+                        maths::CVectorNx1<double, N> &result) const {
             m_X[0].assign(x.begin(), x.end());
             double likelihood;
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);
@@ -291,19 +279,17 @@ handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(1, handy_typede
 
 //! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>
-class CCovarianceKernel
-{
+class CCovarianceKernel {
     public:
         CCovarianceKernel(const maths::CMultivariatePrior &prior,
                           const maths::CVectorNx1<double, N> &mean) :
-                m_Prior(&prior),
-                m_Mean(mean),
-                m_X(1)
-        {}
+            m_Prior(&prior),
+            m_Mean(mean),
+            m_X(1) {
+        }
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
-                        maths::CSymmetricMatrixNxN<double, N> &result) const
-        {
+                        maths::CSymmetricMatrixNxN<double, N> &result) const {
             m_X[0].assign(x.begin(), x.end());
             double likelihood;
             m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);

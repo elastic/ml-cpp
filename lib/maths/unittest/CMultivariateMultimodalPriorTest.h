@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CMultivariateMultimodalPriorTest : public CppUnit::TestFixture
-{
+class CMultivariateMultimodalPriorTest : public CppUnit::TestFixture {
     public:
         void testMultipleUpdate(void);
         void testPropagation(void);

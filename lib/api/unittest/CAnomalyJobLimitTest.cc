@@ -39,56 +39,43 @@
 
 using namespace ml;
 
-std::set<std::string> getUniqueValues(const std::string &key, const std::string &output)
-{
+std::set<std::string> getUniqueValues(const std::string &key, const std::string &output) {
     std::set<std::string> values;
-    rapidjson::Document doc;
+    rapidjson::Document   doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
     CPPUNIT_ASSERT(!doc.HasParseError());
     CPPUNIT_ASSERT(doc.IsArray());
 
     size_t i = 0;
 
-    while(true)
-    {
+    while(true) {
         rapidjson::Value *p1 = rapidjson::Pointer("/" + std::to_string(i)).Get(doc);
-        if (p1 != nullptr)
-        {
+        if (p1 != nullptr) {
             size_t j = 0;
-            while(true)
-            {
+            while(true) {
                 rapidjson::Value *p2 = rapidjson::Pointer("/" + std::to_string(i)
-                    + "/records/" + std::to_string(j)).Get(doc);
-                if (p2 != nullptr)
-                {
+                                                          + "/records/" + std::to_string(j)).Get(doc);
+                if (p2 != nullptr) {
                     size_t k = 0;
-                    while (true)
-                    {
+                    while (true) {
                         rapidjson::Value *p3 = rapidjson::Pointer("/" + std::to_string(i)
-                            + "/records/" + std::to_string(j)
-                            + "/causes/" + std::to_string(k)
-                            + "/" + key).Get(doc);
+                                                                  + "/records/" + std::to_string(j)
+                                                                  + "/causes/" + std::to_string(k)
+                                                                  + "/" + key).Get(doc);
 
-                        if (p3 != nullptr)
-                        {
+                        if (p3 != nullptr) {
                             values.insert(p3->GetString());
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                         ++k;
                     }
-                }
-                else
-                {
+                } else {
                     break;
                 }
                 ++j;
             }
-        }
-        else
-        {
+        } else {
             break;
         }
         ++i;
@@ -97,21 +84,19 @@ std::set<std::string> getUniqueValues(const std::string &key, const std::string 
     return values;
 }
 
-CppUnit::Test* CAnomalyJobLimitTest::suite()
-{
+CppUnit::Test* CAnomalyJobLimitTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CAnomalyJobLimitTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobLimitTest>(
-                                   "CAnomalyJobLimitTest::testLimit",
-                                   &CAnomalyJobLimitTest::testLimit) );
+                               "CAnomalyJobLimitTest::testLimit",
+                               &CAnomalyJobLimitTest::testLimit) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CAnomalyJobLimitTest>(
-                                   "CAnomalyJobLimitTest::testAccuracy",
-                                   &CAnomalyJobLimitTest::testAccuracy) );
+                               "CAnomalyJobLimitTest::testAccuracy",
+                               &CAnomalyJobLimitTest::testAccuracy) );
     return suiteOfTests;
 }
 
-void CAnomalyJobLimitTest::testAccuracy(void)
-{
+void CAnomalyJobLimitTest::testAccuracy(void) {
     // Check that the amount of memory used when we go over the
     // resource limit is close enough to the limit that we specified
 
@@ -121,7 +106,7 @@ void CAnomalyJobLimitTest::testAccuracy(void)
         // Without limits, this data set should make the models around
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
-        api::CFieldConfig fieldConfig;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -134,7 +119,7 @@ void CAnomalyJobLimitTest::testAccuracy(void)
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
-        std::stringstream outputStrm;
+        std::stringstream              outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
 
         model::CLimits limits;
@@ -144,10 +129,10 @@ void CAnomalyJobLimitTest::testAccuracy(void)
         {
             LOG_TRACE("Setting up job");
             api::CAnomalyJob job("job",
-                                   limits,
-                                   fieldConfig,
-                                   modelConfig,
-                                   wrappedOutputStream);
+                                 limits,
+                                 fieldConfig,
+                                 modelConfig,
+                                 wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             CPPUNIT_ASSERT(inputStrm.is_open());
@@ -167,7 +152,7 @@ void CAnomalyJobLimitTest::testAccuracy(void)
     }
     {
         // Now run the data with limiting
-        api::CFieldConfig fieldConfig;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -192,10 +177,10 @@ void CAnomalyJobLimitTest::testAccuracy(void)
 
             LOG_TRACE("Setting up job");
             api::CAnomalyJob job("job",
-                                   limits,
-                                   fieldConfig,
-                                   modelConfig,
-                                   wrappedOutputStream);
+                                 limits,
+                                 fieldConfig,
+                                 modelConfig,
+                                 wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             CPPUNIT_ASSERT(inputStrm.is_open());
@@ -220,8 +205,7 @@ void CAnomalyJobLimitTest::testAccuracy(void)
     }
 }
 
-void CAnomalyJobLimitTest::testLimit(void)
-{
+void CAnomalyJobLimitTest::testLimit(void) {
     typedef std::set<std::string> TStrSet;
 
     std::stringstream outputStrm;
@@ -229,8 +213,8 @@ void CAnomalyJobLimitTest::testLimit(void)
         core::CJsonOutputStreamWrapper wrappedOutputStream (outputStrm);
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -246,10 +230,10 @@ void CAnomalyJobLimitTest::testLimit(void)
 
         LOG_TRACE("Setting up job");
         api::CAnomalyJob job("job",
-                               limits,
-                               fieldConfig,
-                               modelConfig,
-                               wrappedOutputStream);
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
@@ -277,8 +261,8 @@ void CAnomalyJobLimitTest::testLimit(void)
     {
         // Run the data with some resource limits after the first 4 records and
         // check that we get only anomalies from the first 2 partitions
-        model::CLimits limits;
-        api::CFieldConfig fieldConfig;
+        model::CLimits             limits;
+        api::CFieldConfig          fieldConfig;
         api::CFieldConfig::TStrVec clause;
         clause.push_back("value");
         clause.push_back("by");
@@ -297,10 +281,10 @@ void CAnomalyJobLimitTest::testLimit(void)
 
         LOG_TRACE("Setting up job");
         api::CAnomalyJob job("job",
-                               limits,
-                               fieldConfig,
-                               modelConfig,
-                               wrappedOutputStream);
+                             limits,
+                             fieldConfig,
+                             modelConfig,
+                             wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         CPPUNIT_ASSERT(inputStrm.is_open());
@@ -321,8 +305,8 @@ void CAnomalyJobLimitTest::testLimit(void)
 
         LOG_TRACE("Reading second file");
         CPPUNIT_ASSERT(parser2.readStream(boost::bind(&api::CAnomalyJob::handleRecord,
-                                                     &job,
-                                                     _1)));
+                                                      &job,
+                                                      _1)));
         LOG_TRACE("Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }

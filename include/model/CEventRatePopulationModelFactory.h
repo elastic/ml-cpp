@@ -19,14 +19,11 @@
 #include <model/CModelFactory.h>
 #include <model/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 
 //! \brief A factory class implementation for CEventRatePopulationModel.
 //!
@@ -34,8 +31,7 @@ namespace model
 //! This concrete factory implements the methods to make new models
 //! and data gatherers, and create default priors suitable for the
 //! CEventRatePopulationModel class.
-class MODEL_EXPORT CEventRatePopulationModelFactory : public CModelFactory
-{
+class MODEL_EXPORT CEventRatePopulationModelFactory : public CModelFactory {
     public:
         //! Lift all overloads into scope.
         using CModelFactory::defaultMultivariatePrior;
@@ -144,8 +140,8 @@ class MODEL_EXPORT CEventRatePopulationModelFactory : public CModelFactory
         virtual void features(const TFeatureVec &features);
 
         //! Set the bucket results delay
-        virtual void bucketResultsDelay(std::size_t bucketResultsDelay) ;
-        //@}
+        virtual void bucketResultsDelay(std::size_t bucketResultsDelay);
+    //@}
 
     private:
         //! Get the field values which partition the data for modeling.

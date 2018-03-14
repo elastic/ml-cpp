@@ -21,10 +21,8 @@
 #include <iterator>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string &rootName)
@@ -32,8 +30,7 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string &
                                         this->nameFromCache(rootName),
                                         0,
                                         rootName.length())),
-      m_ApproxLen(12 + rootName.length() * 2)
-{
+      m_ApproxLen(12 + rootName.length() * 2) {
     m_Doc.append_node(m_LevelParent);
 }
 
@@ -43,14 +40,12 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string &
                                         this->nameFromCache(rootName),
                                         0,
                                         rootName.length())),
-      m_ApproxLen(12 + rootName.length() * 2)
-{
+      m_ApproxLen(12 + rootName.length() * 2) {
     m_Doc.append_node(m_LevelParent);
 
     for (TStrStrMapCItr iter = rootAttributes.begin();
          iter != rootAttributes.end();
-         ++iter)
-    {
+         ++iter) {
         const std::string &name = iter->first;
         const std::string &value = iter->second;
         m_LevelParent->append_attribute(m_Doc.allocate_attribute(m_Doc.allocate_string(name.c_str(),
@@ -65,8 +60,7 @@ CRapidXmlStatePersistInserter::CRapidXmlStatePersistInserter(const std::string &
 }
 
 void CRapidXmlStatePersistInserter::insertValue(const std::string &name,
-                                                const std::string &value)
-{
+                                                const std::string &value) {
     m_LevelParent->append_node(m_Doc.allocate_node(rapidxml::node_element,
                                                    this->nameFromCache(name),
                                                    value.empty() ? 0 : m_Doc.allocate_string(value.c_str(),
@@ -78,32 +72,26 @@ void CRapidXmlStatePersistInserter::insertValue(const std::string &name,
     m_ApproxLen += 5 + name.length() * 2 + value.length();
 }
 
-void CRapidXmlStatePersistInserter::toXml(std::string &xml) const
-{
+void CRapidXmlStatePersistInserter::toXml(std::string &xml) const {
     this->toXml(true, xml);
 }
 
-void CRapidXmlStatePersistInserter::toXml(bool indent, std::string &xml) const
-{
+void CRapidXmlStatePersistInserter::toXml(bool indent, std::string &xml) const {
     xml.clear();
     // Hopefully the 4096 will be enough to cover any escaping required
     xml.reserve(m_ApproxLen + 4096);
 
-    if (indent)
-    {
+    if (indent) {
         rapidxml::print(std::back_inserter(xml),
                         m_Doc);
-    }
-    else
-    {
+    } else {
         rapidxml::print(std::back_inserter(xml),
                         m_Doc,
                         rapidxml::print_no_indenting);
     }
 }
 
-void CRapidXmlStatePersistInserter::newLevel(const std::string &name)
-{
+void CRapidXmlStatePersistInserter::newLevel(const std::string &name) {
     TCharRapidXmlNode *child(m_Doc.allocate_node(rapidxml::node_element,
                                                  this->nameFromCache(name),
                                                  0,
@@ -116,11 +104,9 @@ void CRapidXmlStatePersistInserter::newLevel(const std::string &name)
     m_LevelParent = child;
 }
 
-void CRapidXmlStatePersistInserter::endLevel(void)
-{
+void CRapidXmlStatePersistInserter::endLevel(void) {
     TCharRapidXmlNode *levelGrandParent(m_LevelParent->parent());
-    if (levelGrandParent == 0)
-    {
+    if (levelGrandParent == 0) {
         LOG_ERROR("Logic error - ending more levels than have been started");
         return;
     }
@@ -129,8 +115,7 @@ void CRapidXmlStatePersistInserter::endLevel(void)
     m_LevelParent = levelGrandParent;
 }
 
-const char *CRapidXmlStatePersistInserter::nameFromCache(const std::string &name)
-{
+const char *CRapidXmlStatePersistInserter::nameFromCache(const std::string &name) {
     return m_NameCache.stringFor(name.c_str(), name.length()).c_str();
 }
 

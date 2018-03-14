@@ -19,30 +19,24 @@
 #include <core/CWindowsError.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 CCondition::CCondition(CMutex &mutex)
-    : m_Mutex(mutex)
-{
+    : m_Mutex(mutex) {
     InitializeConditionVariable(&m_Condition);
 }
 
-CCondition::~CCondition(void)
-{
+CCondition::~CCondition(void) {
     // There's no need to explicitly destroy a Windows condition variable
 }
 
-bool CCondition::wait(void)
-{
+bool CCondition::wait(void) {
     BOOL success(SleepConditionVariableCS(&m_Condition,
                                           &m_Mutex.m_Mutex,
                                           INFINITE));
-    if (success == FALSE)
-    {
+    if (success == FALSE) {
         LOG_WARN("Condition wait failed : " << CWindowsError());
         return false;
     }
@@ -50,16 +44,13 @@ bool CCondition::wait(void)
     return true;
 }
 
-bool CCondition::wait(uint32_t t)
-{
+bool CCondition::wait(uint32_t t) {
     BOOL success(SleepConditionVariableCS(&m_Condition,
                                           &m_Mutex.m_Mutex,
                                           t));
-    if (success == FALSE)
-    {
+    if (success == FALSE) {
         DWORD errorCode(GetLastError());
-        if (errorCode != WAIT_TIMEOUT && errorCode != ERROR_TIMEOUT)
-        {
+        if (errorCode != WAIT_TIMEOUT && errorCode != ERROR_TIMEOUT) {
             LOG_WARN("Condition wait failed : " << CWindowsError(errorCode));
             return false;
         }
@@ -68,13 +59,11 @@ bool CCondition::wait(uint32_t t)
     return true;
 }
 
-void CCondition::signal(void)
-{
+void CCondition::signal(void) {
     WakeConditionVariable(&m_Condition);
 }
 
-void CCondition::broadcast(void)
-{
+void CCondition::broadcast(void) {
     WakeAllConditionVariable(&m_Condition);
 }
 

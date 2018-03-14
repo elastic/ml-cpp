@@ -29,10 +29,8 @@
 
 #include <functional>
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief Writes out hierarchical results using a callback to write
 //! individual results.
@@ -44,8 +42,7 @@ namespace api
 //! For each node one or more CAnomalyDetector::SResults objects are
 //! constructed and written by the callback supplied to the constructor.
 class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResultsVisitor,
-                                              private core::CNonCopyable
-{
+                                              private core::CNonCopyable {
     public:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TOptionalDouble = boost::optional<double>;
@@ -63,8 +60,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 
         enum EResultType {E_SimpleCountResult, E_PopulationResult, E_PartitionResult, E_Result};
         //! Type which wraps up the results of anomaly detection.
-        struct API_EXPORT SResults
-        {
+        struct API_EXPORT SResults {
             //! Construct for population results
             SResults(bool isAllTimeResult,
                      bool isOverallResult,
@@ -116,11 +112,11 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
                      core_t::TTime bucketSpan,
                      TStr1Vec scheduledEventDescriptions);
 
-            EResultType                         s_ResultType;
-            bool                                s_IsAllTimeResult;
-            bool                                s_IsOverallResult;
-            bool                                s_UseNull;
-            bool                                s_IsMetric;
+            EResultType s_ResultType;
+            bool s_IsAllTimeResult;
+            bool s_IsOverallResult;
+            bool s_UseNull;
+            bool s_IsMetric;
             const std::string                   &s_PartitionFieldName;
             const std::string                   &s_PartitionFieldValue;
             const std::string                   &s_ByFieldName;
@@ -129,28 +125,28 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
             const std::string                   &s_OverFieldName;
             const std::string                   &s_OverFieldValue;
             const std::string                   &s_MetricValueField;
-            core_t::TTime                       s_BucketStartTime;
-            core_t::TTime                       s_BucketSpan;
+            core_t::TTime s_BucketStartTime;
+            core_t::TTime s_BucketSpan;
             const std::string                   &s_FunctionName;
             const std::string                   &s_FunctionDescription;
-            TDouble1Vec                         s_FunctionValue;
-            TDouble1Vec                         s_PopulationAverage;
-            TOptionalDouble                     s_BaselineRate;
-            TOptionalUInt64                     s_CurrentRate;
-            TDouble1Vec                         s_BaselineMean;
-            TDouble1Vec                         s_CurrentMean;
-            double                              s_RawAnomalyScore;
-            double                              s_NormalizedAnomalyScore;
-            double                              s_Probability;
+            TDouble1Vec s_FunctionValue;
+            TDouble1Vec s_PopulationAverage;
+            TOptionalDouble s_BaselineRate;
+            TOptionalUInt64 s_CurrentRate;
+            TDouble1Vec s_BaselineMean;
+            TDouble1Vec s_CurrentMean;
+            double s_RawAnomalyScore;
+            double s_NormalizedAnomalyScore;
+            double s_Probability;
             const TStoredStringPtrStoredStringPtrPrDoublePrVec &s_Influences;
-            int                                 s_Identifier;
-            TStr1Vec                            s_ScheduledEventDescriptions;
+            int s_Identifier;
+            TStr1Vec s_ScheduledEventDescriptions;
         };
 
     public:
-        typedef SResults                                            TResults;
-        typedef std::function<bool(TResults)>                       TResultWriterFunc;
-        typedef std::function<bool(core_t::TTime, TNode, bool)>     TPivotWriterFunc;
+        typedef SResults TResults;
+        typedef std::function<bool (TResults)>                       TResultWriterFunc;
+        typedef std::function<bool (core_t::TTime, TNode, bool)>     TPivotWriterFunc;
 
     public:
         CHierarchicalResultsWriter(const model::CLimits &limits,
@@ -181,7 +177,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 
         //! Write partition result if \p node is a partition level result
         void writePartitionResult(const model::CHierarchicalResults &results,
-                              const TNode &node);
+                                  const TNode &node);
 
         //! Write out a simple count result if \p node is simple
         //! count.
@@ -207,7 +203,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
         TPivotWriterFunc m_PivotWriterFunc;
 
         //! Remember the current bucket time for writing pivots
-        core_t::TTime   m_BucketTime;
+        core_t::TTime m_BucketTime;
 };
 
 }

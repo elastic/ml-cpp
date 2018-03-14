@@ -32,10 +32,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief The BJSKT algorithm for estimating the number of unique values
 //! in a collection.
@@ -80,8 +78,7 @@ namespace maths
 //! Note that the hash map lookup constants are good but the complexity
 //! is bad \f$O(m)\f$ so the \p maxSize parameter supplied to the
 //! constructor should be less than a few hundred.
-class MATHS_EXPORT CBjkstUniqueValues
-{
+class MATHS_EXPORT CBjkstUniqueValues {
     public:
         typedef core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec TUInt32HashVec;
 
@@ -134,8 +131,7 @@ class MATHS_EXPORT CBjkstUniqueValues
         typedef TUInt32Vec::const_iterator TUInt32VecCItr;
 
         //! Wraps up the sketch data.
-        struct MATHS_EXPORT SSketch
-        {
+        struct MATHS_EXPORT SSketch {
             SSketch(void);
             SSketch(std::size_t numberHashes);
 

@@ -36,10 +36,8 @@
 #include <limits>
 #include <vector>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Common functionality for random projection clustering.
 //!
@@ -66,8 +64,7 @@ namespace maths
 //!
 //! For more details see http://people.ee.duke.edu/~lcarin/random-projection-for-high.pdf
 template<std::size_t N>
-class CRandomProjectionClusterer
-{
+class CRandomProjectionClusterer {
     public:
         using TDoubleVec = std::vector<double>;
         using TSizeVec = std::vector<std::size_t>;
@@ -77,11 +74,9 @@ class CRandomProjectionClusterer
 
         //! Set up the projections.
         virtual bool initialise(std::size_t numberProjections,
-                                std::size_t dimension)
-        {
+                                std::size_t dimension) {
             m_Dimension = dimension;
-            if (!this->generateProjections(numberProjections))
-            {
+            if (!this->generateProjections(numberProjections)) {
                 LOG_ERROR("Failed to generate projections");
                 return false;
             }
@@ -96,36 +91,29 @@ class CRandomProjectionClusterer
 
     protected:
         //! Get the random number generator.
-        CPRNG::CXorShift1024Mult &rng(void) const
-        {
+        CPRNG::CXorShift1024Mult &rng(void) const {
             return m_Rng;
         }
 
         //! Get the projections.
-        const TVectorArrayVec &projections(void) const
-        {
+        const TVectorArrayVec &projections(void) const {
             return m_Projections;
         }
 
         //! Generate \p b random projections.
-        bool generateProjections(std::size_t b)
-        {
+        bool generateProjections(std::size_t b) {
             m_Projections.clear();
 
-            if (b == 0)
-            {
+            if (b == 0) {
                 return true;
             }
 
-            if (m_Dimension <= N)
-            {
+            if (m_Dimension <= N) {
                 m_Projections.resize(1);
                 TVectorArray &projection = m_Projections[0];
-                for (std::size_t i = 0u; i < N; ++i)
-                {
+                for (std::size_t i = 0u; i < N; ++i) {
                     projection[i].extend(m_Dimension, 0.0);
-                    if (i < m_Dimension)
-                    {
+                    if (i < m_Dimension) {
                         projection[i](i) = 1.0;
                     }
                 }
@@ -136,17 +124,14 @@ class CRandomProjectionClusterer
 
             TDoubleVec components;
             CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * m_Dimension, components);
-            for (std::size_t i = 0u; i < b; ++i)
-            {
+            for (std::size_t i = 0u; i < b; ++i) {
                 TVectorArray &projection = m_Projections[i];
-                for (std::size_t j = 0u; j < N; ++j)
-                {
+                for (std::size_t j = 0u; j < N; ++j) {
                     projection[j].assign(&components[(i * N + j    ) * m_Dimension],
                                          &components[(i * N + j + 1) * m_Dimension]);
                 }
 
-                if (!CGramSchmidt::basis(projection))
-                {
+                if (!CGramSchmidt::basis(projection)) {
                     LOG_ERROR("Failed to construct basis");
                     return false;
                 }
@@ -157,19 +142,14 @@ class CRandomProjectionClusterer
 
         //! Extend the projections for an increase in data
         //! dimension to \p dimension.
-        bool extendProjections(std::size_t dimension)
-        {
+        bool extendProjections(std::size_t dimension) {
             using TDoubleVecArray = boost::array<TDoubleVec, N>;
 
-            if (dimension <= m_Dimension)
-            {
+            if (dimension <= m_Dimension) {
                 return true;
-            }
-            else if (dimension <= N)
-            {
+            } else if (dimension <= N) {
                 TVectorArray &projection = m_Projections[0];
-                for (std::size_t i = m_Dimension; i < dimension; ++i)
-                {
+                for (std::size_t i = m_Dimension; i < dimension; ++i) {
                     projection[i](i) = 1.0;
                 }
                 return true;
@@ -177,29 +157,25 @@ class CRandomProjectionClusterer
 
             std::size_t b = m_Projections.size();
             std::size_t d = dimension - m_Dimension;
-            double alpha =   static_cast<double>(m_Dimension)
-                           / static_cast<double>(dimension);
+            double      alpha =   static_cast<double>(m_Dimension)
+                                / static_cast<double>(dimension);
             double beta = 1.0 - alpha;
 
             TDoubleVecArray extension;
-            TDoubleVec components;
+            TDoubleVec      components;
             CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * d, components);
-            for (std::size_t i = 0u; i < b; ++i)
-            {
-                for (std::size_t j = 0u; j < N; ++j)
-                {
+            for (std::size_t i = 0u; i < b; ++i) {
+                for (std::size_t j = 0u; j < N; ++j) {
                     extension[j].assign(&components[(i * N + j    ) * d],
                                         &components[(i * N + j + 1) * d]);
                 }
 
-                if (!CGramSchmidt::basis(extension))
-                {
+                if (!CGramSchmidt::basis(extension)) {
                     LOG_ERROR("Failed to construct basis");
                     return false;
                 }
 
-                for (std::size_t j = 0u; j < N; ++j)
-                {
+                for (std::size_t j = 0u; j < N; ++j) {
                     scale(extension[j], beta);
                     TVector &projection = m_Projections[i][j];
                     projection *= alpha;
@@ -213,10 +189,8 @@ class CRandomProjectionClusterer
 
     private:
         //! Scale the values in the vector \p x by \p scale.
-        void scale(TDoubleVec &x, double scale)
-        {
-            for (std::size_t i = 0u; i < x.size(); ++i)
-            {
+        void scale(TDoubleVec &x, double scale) {
+            for (std::size_t i = 0u; i < x.size(); ++i) {
                 x[i] *= scale;
             }
         }
@@ -235,8 +209,7 @@ class CRandomProjectionClusterer
 //! \brief Implements random projection clustering for batches
 //! of data points.
 template<std::size_t N>
-class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
-{
+class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
     public:
         using TDoubleVec = typename CRandomProjectionClusterer<N>::TDoubleVec;
         using TSizeVec = typename CRandomProjectionClusterer<N>::TSizeVec;
@@ -259,8 +232,8 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
 
     public:
         CRandomProjectionClustererBatch(double compression) :
-                m_Compression(compression)
-        {}
+            m_Compression(compression) {
+        }
 
         virtual ~CRandomProjectionClustererBatch(void) = default;
 
@@ -269,29 +242,23 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         //! \param[in] numberProjections The number of projections
         //! to create.
         //! \param[in] dimension The dimension of the space to project.
-        virtual bool initialise(std::size_t numberProjections, std::size_t dimension)
-        {
+        virtual bool initialise(std::size_t numberProjections, std::size_t dimension) {
             m_ProjectedData.resize(numberProjections);
             return this->CRandomProjectionClusterer<N>::initialise(numberProjections, dimension);
         }
 
         //! Reserve space for \p n data points.
-        void reserve(std::size_t n)
-        {
-            for (std::size_t i = 0u; i < m_ProjectedData.size(); ++i)
-            {
+        void reserve(std::size_t n) {
+            for (std::size_t i = 0u; i < m_ProjectedData.size(); ++i) {
                 m_ProjectedData[i].reserve(n);
             }
         }
 
         //! Add projected data for \p x.
-        void add(const TVector &x)
-        {
-            for (std::size_t i = 0u; i < this->projections().size(); ++i)
-            {
+        void add(const TVector &x) {
+            for (std::size_t i = 0u; i < this->projections().size(); ++i) {
                 TVectorNx1 px;
-                for (std::size_t j = 0u; j < N; ++j)
-                {
+                for (std::size_t j = 0u; j < N; ++j) {
                     px(j) = this->projections()[i][j].inner(x);
                 }
                 m_ProjectedData[i].push_back(px);
@@ -305,10 +272,8 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         //! \param[in] result Filled in with the final agglomerative
         //! clustering of the different projections.
         template<typename CLUSTERER>
-        void run(CLUSTERER clusterer, TSizeVecVec &result) const
-        {
-            if (m_ProjectedData.empty())
-            {
+        void run(CLUSTERER clusterer, TSizeVecVec &result) const {
+            if (m_ProjectedData.empty()) {
                 return;
             }
 
@@ -342,20 +307,16 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
 
     protected:
         //! \brief Hashes a vector.
-        struct SHashVector
-        {
+        struct SHashVector {
             template<typename VECTOR>
-            std::size_t operator()(const VECTOR &lhs) const
-            {
+            std::size_t operator()(const VECTOR &lhs) const {
                 return static_cast<std::size_t>(boost::unwrap_ref(lhs).checksum());
             }
         };
         //! \brief Checks two vectors for equality.
-        struct SVectorsEqual
-        {
+        struct SVectorsEqual {
             template<typename VECTOR>
-            bool operator()(const VECTOR &lhs, const VECTOR &rhs) const
-            {
+            bool operator()(const VECTOR &lhs, const VECTOR &rhs) const {
                 return boost::unwrap_ref(lhs) == boost::unwrap_ref(rhs);
             }
         };
@@ -377,11 +338,10 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                                 TDoubleVecVec &W,
                                 TVectorNx1VecVec &M,
                                 TSvdNxNVecVec &C,
-                                TSizeUSet &I) const
-        {
+                                TSizeUSet &I) const {
             using TVectorNx1CRef = boost::reference_wrapper<const TVectorNx1>;
             using TVectorNx1CRefSizeUMap =
-                    boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
+                boost::unordered_map<TVectorNx1CRef, std::size_t, SHashVector, SVectorsEqual>;
             using TClusterVec = typename CLUSTERER::TClusterVec;
             using TSampleCovariancesNxN = CBasicStatistics::SSampleCovariances<double, N>;
 
@@ -401,16 +361,14 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
             // Filled in with the samples of the (i,j)'th cluster.
             TSizeVec sij;
 
-            for (std::size_t i = 0u; i < b; ++i)
-            {
+            for (std::size_t i = 0u; i < b; ++i) {
                 LOG_TRACE("projection " << i);
                 P = m_ProjectedData[i];
 
                 // Create a lookup of points to their indices.
                 lookup.clear();
                 lookup.rehash(P.size());
-                for (std::size_t j = 0u; j < m_ProjectedData[i].size(); ++j)
-                {
+                for (std::size_t j = 0u; j < m_ProjectedData[i].size(); ++j) {
                     lookup[boost::cref(m_ProjectedData[i][j])] = j;
                 }
 
@@ -418,17 +376,16 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 clusterer.setPoints(P);
                 clusterer.run();
                 const TClusterVec &clusters = clusterer.clusters();
-                double ni = static_cast<double>(clusters.size());
+                double             ni = static_cast<double>(clusters.size());
                 LOG_TRACE("# clusters = " << ni);
 
-                for (std::size_t j = 0u; j < clusters.size(); ++j)
-                {
+                for (std::size_t j = 0u; j < clusters.size(); ++j) {
                     const TVectorNx1Vec &points = clusters[j].points();
                     LOG_TRACE("# points = " << points.size());
 
                     // Compute the number of points to sample from this cluster.
                     std::size_t nij = points.size();
-                    double wij = static_cast<double>(nij) / static_cast<double>(n);
+                    double      wij = static_cast<double>(nij) / static_cast<double>(n);
                     std::size_t nsij = static_cast<std::size_t>(std::max(m_Compression * wij * ni, 1.0));
                     LOG_TRACE("wij = " << wij << ", nsij = " << nsij);
 
@@ -436,8 +393,8 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     TSampleCovariancesNxN covariances;
                     covariances.add(points);
                     TVectorNx1 mij = CBasicStatistics::mean(covariances);
-                    TSvdNxN Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
-                                Eigen::ComputeFullU | Eigen::ComputeFullV);
+                    TSvdNxN    Cij(toDenseMatrix(CBasicStatistics::covariances(covariances)),
+                                   Eigen::ComputeFullU | Eigen::ComputeFullV);
 
                     // Compute the probability that a sample from the cluster
                     // is a given point in the cluster.
@@ -446,11 +403,9 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                     pij.reserve(nij);
                     fij.reserve(nij);
                     double pmax = boost::numeric::bounds<double>::lowest();
-                    for (std::size_t k = 0u; k < nij; ++k)
-                    {
+                    for (std::size_t k = 0u; k < nij; ++k) {
                         std::size_t index = lookup[boost::cref(points[k])];
-                        if (I.count(index) == 0)
-                        {
+                        if (I.count(index) == 0) {
                             TEigenVectorNx1 x = toDenseVector(points[k] - mij);
                             pij.push_back(-0.5 * x.transpose() * Cij.solve(x));
                             fij.push_back(index);
@@ -458,16 +413,13 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                         }
                     }
 
-                    if (pij.size() > 0)
-                    {
+                    if (pij.size() > 0) {
                         double Zij = 0.0;
-                        for (std::size_t k = 0u; k < pij.size(); ++k)
-                        {
+                        for (std::size_t k = 0u; k < pij.size(); ++k) {
                             pij[k] = ::exp(pij[k] - pmax);
                             Zij += pij[k];
                         }
-                        for (std::size_t k = 0u; k < pij.size(); ++k)
-                        {
+                        for (std::size_t k = 0u; k < pij.size(); ++k) {
                             pij[k] /= Zij;
                         }
                         LOG_TRACE("pij = " << core::CContainerPrinter::print(pij));
@@ -477,8 +429,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                         LOG_TRACE("sij = " << core::CContainerPrinter::print(sij));
 
                         // Save the relevant data for the i'th clustering.
-                        for (std::size_t k = 0u; k < nsij; ++k)
-                        {
+                        for (std::size_t k = 0u; k < nsij; ++k) {
                             I.insert(fij[sij[k]]);
                         }
                     }
@@ -494,8 +445,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         //! \param[in] I The indices of distinct sampled points.
         //! \param[out] H Filled in with the neighbourhoods of each
         //! point in \p I, i.e. the indices of the closest points.
-        void neighbourhoods(const TSizeUSet &I, TSizeVecVec &H) const
-        {
+        void neighbourhoods(const TSizeUSet &I, TSizeVecVec &H) const {
             using TVectorSizeUMap = boost::unordered_map<TVector, std::size_t, SHashVector>;
 
             LOG_TRACE("I = " << core::CContainerPrinter::print(I));
@@ -506,12 +456,9 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
             TVectorVec S;
             S.reserve(I.size());
             TVector concat(b * N);
-            for (auto i : I)
-            {
-                for (std::size_t j = 0u; j < b; ++j)
-                {
-                    for (std::size_t k = 0u; k < N; ++k)
-                    {
+            for (auto i : I) {
+                for (std::size_t j = 0u; j < b; ++j) {
+                    for (std::size_t k = 0u; k < N; ++k) {
                         concat(N * j + k) = m_ProjectedData[j][i](k);
                     }
                 }
@@ -519,26 +466,21 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                 S.push_back(concat);
             }
             TVectorSizeUMap lookup(S.size());
-            for (std::size_t i = 0u; i < S.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < S.size(); ++i) {
                 lookup[S[i]] = i;
             }
             CKdTree<TVector> samples;
             samples.build(S);
 
             // Compute the neighbourhoods.
-            for (std::size_t i = 0u; i < n; ++i)
-            {
-                for (std::size_t j = 0u; j < b; ++j)
-                {
-                    for (std::size_t k = 0u; k < N; ++k)
-                    {
+            for (std::size_t i = 0u; i < n; ++i) {
+                for (std::size_t j = 0u; j < b; ++j) {
+                    for (std::size_t k = 0u; k < N; ++k) {
                         concat(N * j + k) = m_ProjectedData[j][i](k);
                     }
                 }
                 const TVector *nn = samples.nearestNeighbour(concat);
-                if (!nn)
-                {
+                if (!nn) {
                     LOG_ERROR("No nearest neighbour of " << concat);
                     continue;
                 }
@@ -561,20 +503,18 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                           const TVectorNx1VecVec &M,
                           const TSvdNxNVecVec &C,
                           const TSizeVecVec &H,
-                          TDoubleVecVec &S) const
-        {
+                          TDoubleVecVec &S) const {
             std::size_t b = m_ProjectedData.size();
             std::size_t h = H.size();
 
             TMeanAccumulatorVecVec S_(h);
 
             TVectorVec Pi(h);
-            for (std::size_t i = 0u; i < b; ++i)
-            {
+            for (std::size_t i = 0u; i < b; ++i) {
                 const TVectorNx1Vec &X  = m_ProjectedData[i];
-                const TDoubleVec &Wi    = W[i];
+                const TDoubleVec &   Wi    = W[i];
                 const TVectorNx1Vec &Mi = M[i];
-                const TSvdNxNVec &Ci    = C[i];
+                const TSvdNxNVec &   Ci    = C[i];
                 LOG_TRACE("W(i) = " << core::CContainerPrinter::print(Wi));
                 LOG_TRACE("M(i) = " << core::CContainerPrinter::print(Mi));
 
@@ -583,54 +523,44 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
 
                 // Compute the probability each neighbourhood is from
                 // a given cluster.
-                for (std::size_t c = 0u; c < nci; ++c)
-                {
+                for (std::size_t c = 0u; c < nci; ++c) {
                     double wic = ::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
                     LOG_TRACE("  w(" << i << "," << c << ") = " << wic);
-                    for (std::size_t j = 0u; j < h; ++j)
-                    {
+                    for (std::size_t j = 0u; j < h; ++j) {
                         std::size_t hj = H[j].size();
                         Pi[j](c) = static_cast<double>(hj) * wic;
-                        for (std::size_t k = 0u; k < hj; ++k)
-                        {
+                        for (std::size_t k = 0u; k < hj; ++k) {
                             TEigenVectorNx1 x = toDenseVector(X[H[j][k]] - Mi[c]);
                             Pi[j](c) -= 0.5 * x.transpose() * Ci[c].solve(x);
                         }
                         LOG_TRACE("    P(" << j << "," << c << ") = " << Pi[j](c));
                     }
                 }
-                for (std::size_t j = 0u; j < h; ++j)
-                {
+                for (std::size_t j = 0u; j < h; ++j) {
                     double Pmax = *std::max_element(Pi[j].begin(), Pi[j].end());
                     double Z = 0.0;
-                    for (std::size_t c = 0u; c < nci; ++c)
-                    {
+                    for (std::size_t c = 0u; c < nci; ++c) {
                         Pi[j](c) = ::exp(Pi[j](c) - Pmax);
                         Z += Pi[j](c);
                     }
-                    for (std::size_t c = 0u; c < nci; ++c)
-                    {
+                    for (std::size_t c = 0u; c < nci; ++c) {
                         Pi[j](c) /= Z;
                     }
                     LOG_TRACE("  P(" << j << ") = " << Pi[j]);
                 }
 
                 // Compute the similarities.
-                for (std::size_t j = 0u; j < h; ++j)
-                {
+                for (std::size_t j = 0u; j < h; ++j) {
                     S_[j].resize(j + 1);
-                    for (std::size_t k = 0u; k <= j; ++k)
-                    {
+                    for (std::size_t k = 0u; k <= j; ++k) {
                         S_[j][k].add(-::log(std::max(Pi[j].inner(Pi[k]),
                                                      boost::numeric::bounds<double>::smallest())));
                     }
                 }
             }
-            for (std::size_t i = 0u; i < S_.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < S_.size(); ++i) {
                 S[i].reserve(S_[i].size());
-                for (std::size_t j = 0u; j < S_[i].size(); ++j)
-                {
+                for (std::size_t j = 0u; j < S_[i].size(); ++j) {
                     S[i].push_back(CBasicStatistics::mean(S_[i][j]));
                 }
             }
@@ -645,8 +575,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
         //! underlying points.
         void clusterNeighbourhoods(TDoubleVecVec &S,
                                    const TSizeVecVec &H,
-                                   TSizeVecVec &result) const
-        {
+                                   TSizeVecVec &result) const {
             using TNode = CAgglomerativeClusterer::CNode;
             using TDoubleTuple = CNaturalBreaksClassifier::TDoubleTuple;
             using TDoubleTupleVec = CNaturalBreaksClassifier::TDoubleTupleVec;
@@ -660,8 +589,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
 
             TDoubleTupleVec heights;
             heights.reserve(tree.size());
-            for (std::size_t i = 0u; i < tree.size(); ++i)
-            {
+            for (std::size_t i = 0u; i < tree.size(); ++i) {
                 heights.push_back(TDoubleTuple());
                 heights.back().add(tree[i].height());
             }
@@ -672,42 +600,34 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
                                                         2, // Number splits
                                                         0, // Minimum cluster size
                                                         CNaturalBreaksClassifier::E_TargetDeviation,
-                                                        splits))
-            {
+                                                        splits)) {
                 double height = CBasicStatistics::mean(heights[splits[0] - 1]);
                 LOG_TRACE("split = " << core::CContainerPrinter::print(splits)
-                          << ", height = " << height);
+                                     << ", height = " << height);
                 const TNode &root = tree.back();
                 root.clusteringAt(height, result);
-                for (std::size_t i = 0u; i < result.size(); ++i)
-                {
-                    TSizeVec &ri = result[i];
+                for (std::size_t i = 0u; i < result.size(); ++i) {
+                    TSizeVec &  ri = result[i];
                     std::size_t n = ri.size();
-                    for (std::size_t j = 0u; j < n; ++j)
-                    {
+                    for (std::size_t j = 0u; j < n; ++j) {
                         ri.insert(ri.end(), H[ri[j]].begin(), H[ri[j]].end());
                     }
                     ri.erase(ri.begin(), ri.begin() + n);
                 }
-            }
-            else
-            {
+            } else {
                 LOG_ERROR("Failed to cluster " << core::CContainerPrinter::print(heights));
             }
         }
 
         //! Get the projected data points.
-        const TVectorNx1VecVec &projectedData(void) const
-        {
+        const TVectorNx1VecVec &projectedData(void) const {
             return m_ProjectedData;
         }
 
         //! Get the log determinant of the rank full portion of \p m.
-        double logDeterminant(const TSvdNxN &svd) const
-        {
+        double logDeterminant(const TSvdNxN &svd) const {
             double result = 0.0;
-            for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i)
-            {
+            for (std::size_t i = 0u, rank = static_cast<std::size_t>(svd.rank()); i < rank; ++i) {
                 result += ::log(svd.singularValues()[i]);
             }
             return result;
@@ -726,12 +646,12 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N>
 //! \brief Adapts clustering implementations for use by the random
 //! projection clusterer.
 template<typename CLUSTERER>
-class CRandomProjectionClustererFacade {};
+class CRandomProjectionClustererFacade {
+};
 
 //! \brief Adapts x-means for use by the random projection clusterer.
 template<std::size_t N, typename COST>
-class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
-{
+class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> > {
     public:
         using TClusterer = CXMeans<CVectorNx1<double, N>, COST>;
         using TClusterVec = typename TClusterer::TClusterVec;
@@ -743,29 +663,26 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
                                          std::size_t improveParamsKmeansIterations,
                                          std::size_t improveStructureClusterSeeds,
                                          std::size_t improveStructureKmeansIterations) :
-                m_Xmeans(xmeans),
-                m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
-                m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
-                m_ImproveStructureKmeansIterations(improveStructureKmeansIterations)
-        {}
+            m_Xmeans(xmeans),
+            m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
+            m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
+            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {
+        }
 
         //! Set the points to cluster.
-        void setPoints(TVectorNx1Vec &points)
-        {
+        void setPoints(TVectorNx1Vec &points) {
             m_Xmeans.setPoints(points);
         }
 
         //! Cluster the points.
-        void run(void)
-        {
+        void run(void) {
             m_Xmeans.run(m_ImproveParamsKmeansIterations,
                          m_ImproveStructureClusterSeeds,
                          m_ImproveStructureKmeansIterations);
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
-        {
+        const TClusterVec &clusters(void) const {
             return m_Xmeans.clusters();
         }
 
@@ -785,25 +702,23 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
 
 //! Makes an x-means adapter for random projection clustering.
 template<std::size_t N, typename COST>
-CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
-    forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST> &xmeans,
-                                 std::size_t improveParamsKmeansIterations,
-                                 std::size_t improveStructureClusterSeeds,
-                                 std::size_t improveStructureKmeansIterations)
-{
-    return CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>(
-               xmeans,
-               improveParamsKmeansIterations,
-               improveStructureClusterSeeds,
-               improveStructureKmeansIterations);
+CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> >
+forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST> &xmeans,
+                             std::size_t improveParamsKmeansIterations,
+                             std::size_t improveStructureClusterSeeds,
+                             std::size_t improveStructureKmeansIterations) {
+    return CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> >(
+        xmeans,
+        improveParamsKmeansIterations,
+        improveStructureClusterSeeds,
+        improveStructureKmeansIterations);
 }
 
 //! \brief Adapts k-means for use by the random projection clusterer.
 template<std::size_t N>
-class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-{
+class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > > {
     public:
-        using TClusterer = CKMeansFast<CVectorNx1<double, N>>;
+        using TClusterer = CKMeansFast<CVectorNx1<double, N> >;
         using TClusterVec = typename TClusterer::TClusterVec;
         using TVectorNx1 = CVectorNx1<double, N>;
         using TVectorNx1Vec = std::vector<TVectorNx1>;
@@ -812,30 +727,27 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
         CRandomProjectionClustererFacade(const TClusterer &kmeans,
                                          std::size_t k,
                                          std::size_t maxIterations) :
-                m_Kmeans(kmeans),
-                m_K(k),
-                m_MaxIterations(maxIterations)
-        {}
+            m_Kmeans(kmeans),
+            m_K(k),
+            m_MaxIterations(maxIterations) {
+        }
 
         //! Set the points to cluster.
-        void setPoints(TVectorNx1Vec &points)
-        {
+        void setPoints(TVectorNx1Vec &points) {
             m_Kmeans.setPoints(points);
-            TVectorNx1Vec centres;
+            TVectorNx1Vec                                                       centres;
             CKMeansPlusPlusInitialization<TVectorNx1, CPRNG::CXorShift1024Mult> seedCentres(m_Rng);
             seedCentres.run(points, m_K, centres);
             m_Kmeans.setCentres(centres);
         }
 
         //! Cluster the points.
-        void run(void)
-        {
+        void run(void) {
             m_Kmeans.run(m_MaxIterations);
         }
 
         //! Get the clusters (should only be called after run).
-        const TClusterVec &clusters(void) const
-        {
+        const TClusterVec &clusters(void) const {
             m_Kmeans.clusters(m_Clusters);
             return m_Clusters;
         }
@@ -855,12 +767,11 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
 
 //! Makes a k-means adapter for random projection clustering.
 template<std::size_t N>
-CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
-    forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>> &kmeans,
-                                 std::size_t k,
-                                 std::size_t maxIterations)
-{
-    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>(kmeans, k, maxIterations);
+CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > >
+forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N> > &kmeans,
+                             std::size_t k,
+                             std::size_t maxIterations) {
+    return CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > >(kmeans, k, maxIterations);
 }
 
 }

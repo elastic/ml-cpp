@@ -24,10 +24,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 class CTestTimer;
 
 //! \brief
@@ -42,8 +40,7 @@ class CTestTimer;
 //! because the xUnit Jenkins plugin's default XSL transform
 //! knows this format.
 //!
-class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook
-{
+class TEST_EXPORT CTimingXmlOutputterHook : public CppUnit::XmlOutputterHook {
     public:
         CTimingXmlOutputterHook(const CTestTimer &testTimer,
                                 const std::string &topPath,

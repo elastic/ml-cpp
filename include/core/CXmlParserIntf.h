@@ -22,10 +22,8 @@
 #include <string>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStringCache;
 class CXmlNodeWithChildrenPool;
 
@@ -43,8 +41,7 @@ class CXmlNodeWithChildrenPool;
 //! more functionality is added to the RapidXml parser
 //! encapsulation.
 //!
-class CORE_EXPORT CXmlParserIntf : private CNonCopyable
-{
+class CORE_EXPORT CXmlParserIntf : private CNonCopyable {
     public:
         //! The <?xml version="1.0"?> that goes at the top of XML files
         static const std::string XML_HEADER;

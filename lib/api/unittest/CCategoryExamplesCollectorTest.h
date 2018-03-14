@@ -18,8 +18,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 
-class CCategoryExamplesCollectorTest : public CppUnit::TestFixture
-{
+class CCategoryExamplesCollectorTest : public CppUnit::TestFixture {
     public:
         void testAddGivenMaxExamplesIsZero(void);
         void testAddGivenSameCategoryExamplePairAddedTwice(void);

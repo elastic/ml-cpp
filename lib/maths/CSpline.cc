@@ -18,39 +18,31 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-namespace ml
-{
-namespace maths
-{
-namespace spline_detail
-{
+namespace ml {
+namespace maths {
+namespace spline_detail {
 
-namespace
-{
+namespace {
 
 //! Sanity check the diagonals and the vector dimensions are
 //! consistent.
 bool checkTridiagonal(const TDoubleVec &a,
                       const TDoubleVec &b,
                       const TDoubleVec &c,
-                      const TDoubleVec &x)
-{
-    if (a.size() + 1 != b.size())
-    {
+                      const TDoubleVec &x) {
+    if (a.size() + 1 != b.size()) {
         LOG_ERROR("Lower diagonal and main diagonal inconsistent:"
                   << " a = " << core::CContainerPrinter::print(a)
                   << " b = " << core::CContainerPrinter::print(b));
         return false;
     }
-    if (c.size() + 1 != b.size())
-    {
+    if (c.size() + 1 != b.size()) {
         LOG_ERROR("Upper diagonal and main diagonal inconsistent:"
                   << " b = " << core::CContainerPrinter::print(b)
                   << " c = " << core::CContainerPrinter::print(c));
         return false;
     }
-    if (b.size() != x.size())
-    {
+    if (b.size() != x.size()) {
         LOG_ERROR("Dimension mismatch:"
                   << " x = " << core::CContainerPrinter::print(x)
                   << ", b = " << core::CContainerPrinter::print(b))
@@ -64,10 +56,8 @@ bool checkTridiagonal(const TDoubleVec &a,
 bool solveTridiagonal(const TDoubleVec &a,
                       const TDoubleVec &b,
                       TDoubleVec &c,
-                      TDoubleVec &x)
-{
-    if (!checkTridiagonal(a, b, c, x))
-    {
+                      TDoubleVec &x) {
+    if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }
 
@@ -87,19 +77,16 @@ bool solveTridiagonal(const TDoubleVec &a,
     std::size_t n = x.size();
 
     // Eliminate the lower diagonal.
-    if (b[0] == 0.0)
-    {
+    if (b[0] == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
     }
     c[0] = c[0] / b[0];
     x[0] = x[0] / b[0];
-    for (std::size_t i = 1; i + 1 < n; ++i)
-    {
+    for (std::size_t i = 1; i + 1 < n; ++i) {
         double m = (b[i] - a[i-1] * c[i-1]);
-        if (m == 0.0)
-        {
+        if (m == 0.0) {
             LOG_ERROR("Badly conditioned: "
                       << core::CContainerPrinter::print(b));
             return false;
@@ -108,8 +95,7 @@ bool solveTridiagonal(const TDoubleVec &a,
         x[i] = (x[i] - a[i-1] * x[i-1]) / m;
     }
     double m = (b[n-1] - a[n-2] * c[n-2]);
-    if (m == 0.0)
-    {
+    if (m == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
@@ -117,8 +103,7 @@ bool solveTridiagonal(const TDoubleVec &a,
     x[n-1] = (x[n-1] - a[n-2] * x[n-2]) / m;
 
     // Back substitution.
-    for (std::size_t i = n - 1; i-- > 0; /**/)
-    {
+    for (std::size_t i = n - 1; i-- > 0; /**/) {
         x[i] -= c[i] * x[i+1];
     }
 
@@ -132,10 +117,8 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
                               TDoubleVec &c,
                               TDoubleVec &u,
                               const TDoubleVec &v,
-                              TDoubleVec &x)
-{
-    if (!checkTridiagonal(a, b, c, x))
-    {
+                              TDoubleVec &x) {
+    if (!checkTridiagonal(a, b, c, x)) {
         return false;
     }
 
@@ -166,8 +149,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
     std::size_t n = x.size();
 
     // Eliminate the lower diagonal.
-    if (b[0] == 0.0)
-    {
+    if (b[0] == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
@@ -175,11 +157,9 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
     c[0] = c[0] / b[0];
     x[0] = x[0] / b[0];
     u[0] = u[0] / b[0];
-    for (std::size_t i = 1; i + 1 < n; ++i)
-    {
+    for (std::size_t i = 1; i + 1 < n; ++i) {
         double m = (b[i] - a[i-1] * c[i-1]);
-        if (m == 0.0)
-        {
+        if (m == 0.0) {
             LOG_ERROR("Badly conditioned: "
                       << core::CContainerPrinter::print(b));
             return false;
@@ -189,8 +169,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
         u[i] = (u[i] - a[i-1] * u[i-1]) / m;
     }
     double m = (b[n-1] - a[n-2] * c[n-2]);
-    if (m == 0.0)
-    {
+    if (m == 0.0) {
         LOG_ERROR("Badly conditioned: "
                   << core::CContainerPrinter::print(b));
         return false;
@@ -199,8 +178,7 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
     u[n-1] = (u[n-1] - a[n-2] * u[n-2]) / m;
 
     // Back substitution.
-    for (std::size_t i = n - 1; i-- > 0; /**/)
-    {
+    for (std::size_t i = n - 1; i-- > 0; /**/) {
         x[i] = x[i] - c[i] * x[i+1];
         u[i] = u[i] - c[i] * u[i+1];
     }
@@ -208,14 +186,12 @@ bool solvePeturbedTridiagonal(const TDoubleVec &a,
     // Apply the correction.
     double vx = 0.0;
     double vu = 0.0;
-    for (std::size_t i = 0u; i < n; ++i)
-    {
+    for (std::size_t i = 0u; i < n; ++i) {
         vx += v[i] * x[i];
         vu += v[i] * u[i];
     }
     double delta = vx / (1.0 + vu);
-    for (std::size_t i = 0u; i < n; ++i)
-    {
+    for (std::size_t i = 0u; i < n; ++i) {
         x[i] -= delta * u[i];
     }
 

@@ -30,8 +30,7 @@
 using namespace ml;
 using namespace core;
 
-void CContainerPrinterTest::testAll(void)
-{
+void CContainerPrinterTest::testAll(void) {
     std::vector<double> vec;
     LOG_DEBUG("vec = " << CContainerPrinter::print(vec));
     CPPUNIT_ASSERT(CContainerPrinter::print(vec) == "[]");
@@ -57,8 +56,8 @@ void CContainerPrinterTest::testAll(void)
     CPPUNIT_ASSERT_EQUAL(std::string("[\"null\", 3, 1.1]"),
                          CContainerPrinter::print(plist));
 
-    double three = 3.0;
-    double fivePointOne = 5.1;
+    double                    three = 3.0;
+    double                    fivePointOne = 5.1;
     std::map<double, double*> map;
     map.insert(std::make_pair(1.1, &three));
     map.insert(std::make_pair(3.3, &fivePointOne));
@@ -68,11 +67,11 @@ void CContainerPrinterTest::testAll(void)
                          CContainerPrinter::print(map));
 
     std::auto_ptr<int> pints[] =
-        {
-            std::auto_ptr<int>(new int(2)),
-            std::auto_ptr<int>(new int(3)),
-            std::auto_ptr<int>(new int(2))
-        };
+    {
+        std::auto_ptr<int>(new int(2)),
+        std::auto_ptr<int>(new int(3)),
+        std::auto_ptr<int>(new int(2))
+    };
     LOG_DEBUG("pints = " << CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),
                          CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
@@ -91,13 +90,12 @@ void CContainerPrinterTest::testAll(void)
                          CContainerPrinter::print(aggregate));
 }
 
-CppUnit::Test *CContainerPrinterTest::suite(void)
-{
+CppUnit::Test *CContainerPrinterTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CContainerPrinterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CContainerPrinterTest>(
-                                   "CContainerPrinterTest::testAll",
-                                   &CContainerPrinterTest::testAll) );
+                               "CContainerPrinterTest::testAll",
+                               &CContainerPrinterTest::testAll) );
 
     return suiteOfTests;
 }

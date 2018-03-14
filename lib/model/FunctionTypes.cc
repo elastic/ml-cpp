@@ -23,19 +23,14 @@
 #include <ostream>
 
 
-namespace ml
-{
-namespace model
-{
-namespace function_t
-{
+namespace ml {
+namespace model {
+namespace function_t {
 
 typedef model_t::TFeatureVec TFeatureVec;
 
-bool isIndividual(EFunction function)
-{
-    switch (function)
-    {
+bool isIndividual(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
         case E_IndividualNonZeroCount:
         case E_IndividualRareCount:
@@ -133,10 +128,8 @@ bool isIndividual(EFunction function)
     return false;
 }
 
-bool isPopulation(EFunction function)
-{
-    switch (function)
-    {
+bool isPopulation(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
         case E_IndividualNonZeroCount:
         case E_IndividualRareCount:
@@ -234,10 +227,8 @@ bool isPopulation(EFunction function)
     return false;
 }
 
-bool isPeers(EFunction function)
-{
-    switch (function)
-    {
+bool isPeers(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
         case E_IndividualNonZeroCount:
         case E_IndividualRareCount:
@@ -333,10 +324,8 @@ bool isPeers(EFunction function)
     return false;
 }
 
-bool isMetric(EFunction function)
-{
-    switch (function)
-    {
+bool isMetric(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
         case E_IndividualNonZeroCount:
         case E_IndividualRareCount:
@@ -438,10 +427,8 @@ bool isMetric(EFunction function)
     return false;
 }
 
-bool isForecastSupported(EFunction function)
-{
-    switch (function)
-    {
+bool isForecastSupported(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
         case E_IndividualNonZeroCount:
         case E_IndividualRareCount:
@@ -549,373 +536,371 @@ bool isForecastSupported(EFunction function)
 }
 
 
-namespace
-{
+namespace {
 
 typedef std::map<model_t::EFeature, TFunctionVec> TFeatureFunctionVecMap;
 typedef TFeatureFunctionVecMap::iterator TFeatureFunctionVecMapItr;
 typedef TFeatureFunctionVecMap::const_iterator TFeatureFunctionVecMapCItr;
 
-namespace detail
-{
+namespace detail {
 
 const model_t::EFeature INDIVIDUAL_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_NON_ZERO_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualNonZeroCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualNonZeroCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_RARE_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualCountByBucketAndPerson,
-        model_t::E_IndividualTotalBucketCountByPerson,
-    };
+{
+    model_t::E_IndividualCountByBucketAndPerson,
+    model_t::E_IndividualTotalBucketCountByPerson,
+};
 const model_t::EFeature INDIVIDUAL_RARE_NON_ZERO_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualNonZeroCountByBucketAndPerson,
-        model_t::E_IndividualTotalBucketCountByPerson
-    };
+{
+    model_t::E_IndividualNonZeroCountByBucketAndPerson,
+    model_t::E_IndividualTotalBucketCountByPerson
+};
 const model_t::EFeature INDIVIDUAL_RARE_FEATURES[] =
-    {
-        model_t::E_IndividualTotalBucketCountByPerson,
-        model_t::E_IndividualIndicatorOfBucketPerson
-    };
+{
+    model_t::E_IndividualTotalBucketCountByPerson,
+    model_t::E_IndividualIndicatorOfBucketPerson
+};
 const model_t::EFeature INDIVIDUAL_LOW_COUNTS_FEATURES[] =
-    {
-        model_t::E_IndividualLowCountsByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowCountsByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_HIGH_COUNTS_FEATURES[] =
-    {
-        model_t::E_IndividualHighCountsByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighCountsByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_LOW_NON_ZERO_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualLowNonZeroCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowNonZeroCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_HIGH_NON_ZERO_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualHighNonZeroCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighNonZeroCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualUniqueCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualUniqueCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_LOW_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualLowUniqueCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowUniqueCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_HIGH_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_IndividualHighUniqueCountByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighUniqueCountByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_IndividualInfoContentByBucketAndPerson
-    };
+{
+    model_t::E_IndividualInfoContentByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_HIGH_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_IndividualHighInfoContentByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighInfoContentByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_LOW_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_IndividualLowInfoContentByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowInfoContentByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_TIME_OF_DAY_FEATURES[] =
-    {
-        model_t::E_IndividualTimeOfDayByBucketAndPerson
-    };
+{
+    model_t::E_IndividualTimeOfDayByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_TIME_OF_WEEK_FEATURES[] =
-    {
-        model_t::E_IndividualTimeOfWeekByBucketAndPerson
-    };
+{
+    model_t::E_IndividualTimeOfWeekByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_FEATURES[] =
-    {
-        model_t::E_IndividualMeanByPerson,
-        model_t::E_IndividualMinByPerson,
-        model_t::E_IndividualMaxByPerson
-    };
+{
+    model_t::E_IndividualMeanByPerson,
+    model_t::E_IndividualMinByPerson,
+    model_t::E_IndividualMaxByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_MEAN_FEATURES[] =
-    {
-        model_t::E_IndividualMeanByPerson
-    };
+{
+    model_t::E_IndividualMeanByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_MEAN_FEATURES[] =
-    {
-        model_t::E_IndividualLowMeanByPerson
-    };
+{
+    model_t::E_IndividualLowMeanByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES[] =
-    {
-        model_t::E_IndividualHighMeanByPerson
-    };
+{
+    model_t::E_IndividualHighMeanByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_MEDIAN_FEATURES[] =
-    {
-        model_t::E_IndividualMedianByPerson
-    };
+{
+    model_t::E_IndividualMedianByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES[] =
-    {
-        model_t::E_IndividualLowMedianByPerson
-    };
+{
+    model_t::E_IndividualLowMedianByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES[] =
-    {
-        model_t::E_IndividualHighMedianByPerson
-    };
+{
+    model_t::E_IndividualHighMedianByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_MIN_FEATURES[] =
-    {
-        model_t::E_IndividualMinByPerson
-    };
+{
+    model_t::E_IndividualMinByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_MAX_FEATURES[] =
-    {
-        model_t::E_IndividualMaxByPerson
-    };
+{
+    model_t::E_IndividualMaxByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_VARIANCE_FEATURES[] =
-    {
-        model_t::E_IndividualVarianceByPerson
-    };
+{
+    model_t::E_IndividualVarianceByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_VARIANCE_FEATURES[] =
-    {
-        model_t::E_IndividualLowVarianceByPerson
-    };
+{
+    model_t::E_IndividualLowVarianceByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_VARIANCE_FEATURES[] =
-    {
-        model_t::E_IndividualHighVarianceByPerson
-    };
+{
+    model_t::E_IndividualHighVarianceByPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualLowSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualHighSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_NON_NULL_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualNonNullSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualNonNullSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_LOW_NON_NULL_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualLowNonNullSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualLowNonNullSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_METRIC_HIGH_NON_NULL_SUM_FEATURES[] =
-    {
-        model_t::E_IndividualHighNonNullSumByBucketAndPerson
-    };
+{
+    model_t::E_IndividualHighNonNullSumByBucketAndPerson
+};
 const model_t::EFeature INDIVIDUAL_LAT_LONG_FEATURES[] =
-    {
-        model_t::E_IndividualMeanLatLongByPerson
-    };
+{
+    model_t::E_IndividualMeanLatLongByPerson
+};
 const model_t::EFeature INDIVIDUAL_MAX_VELOCITY_FEATURES[] =
-    {
-        model_t::E_IndividualMaxVelocityByPerson
-    };
+{
+    model_t::E_IndividualMaxVelocityByPerson
+};
 const model_t::EFeature INDIVIDUAL_MIN_VELOCITY_FEATURES[] =
-    {
-        model_t::E_IndividualMinVelocityByPerson
-    };
+{
+    model_t::E_IndividualMinVelocityByPerson
+};
 const model_t::EFeature INDIVIDUAL_MEAN_VELOCITY_FEATURES[] =
-    {
-        model_t::E_IndividualMeanVelocityByPerson
-    };
+{
+    model_t::E_IndividualMeanVelocityByPerson
+};
 const model_t::EFeature INDIVIDUAL_SUM_VELOCITY_FEATURES[] =
-    {
-        model_t::E_IndividualSumVelocityByPerson
-    };
+{
+    model_t::E_IndividualSumVelocityByPerson
+};
 const model_t::EFeature POPULATION_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationCountByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_LOW_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_HIGH_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_RARE_FEATURES[] =
-    {
-        model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-        model_t::E_PopulationUniquePersonCountByAttribute
-    };
+{
+    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute
+};
 const model_t::EFeature POPULATION_RARE_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationCountByBucketPersonAndAttribute,
-        model_t::E_PopulationUniquePersonCountByAttribute
-    };
+{
+    model_t::E_PopulationCountByBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute
+};
 const model_t::EFeature POPULATION_FREQ_RARE_FEATURES[] =
-    {
-        model_t::E_PopulationAttributeTotalCountByPerson,
-        model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
-        model_t::E_PopulationUniquePersonCountByAttribute
-    };
+{
+    model_t::E_PopulationAttributeTotalCountByPerson,
+    model_t::E_PopulationIndicatorOfBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute
+};
 const model_t::EFeature POPULATION_FREQ_RARE_COUNT_FEATURES[] =
-    {
-        model_t::E_PopulationAttributeTotalCountByPerson,
-        model_t::E_PopulationCountByBucketPersonAndAttribute,
-        model_t::E_PopulationUniquePersonCountByAttribute
-    };
+{
+    model_t::E_PopulationAttributeTotalCountByPerson,
+    model_t::E_PopulationCountByBucketPersonAndAttribute,
+    model_t::E_PopulationUniquePersonCountByAttribute
+};
 const model_t::EFeature POPULATION_LOW_COUNTS_FEATURES[] =
-    {
-        model_t::E_PopulationLowCountsByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowCountsByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_HIGH_COUNTS_FEATURES[] =
-    {
-        model_t::E_PopulationHighCountsByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighCountsByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PopulationInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_LOW_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_HIGH_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_TIME_OF_DAY_FEATURES[] =
-    {
-        model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_TIME_OF_WEEK_FEATURES[] =
-    {
-        model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_FEATURES[] =
-    {
-        model_t::E_PopulationMeanByPersonAndAttribute,
-        model_t::E_PopulationMinByPersonAndAttribute,
-        model_t::E_PopulationMaxByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMeanByPersonAndAttribute,
+    model_t::E_PopulationMinByPersonAndAttribute,
+    model_t::E_PopulationMaxByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_MEAN_FEATURES[] =
-    {
-        model_t::E_PopulationMeanByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMeanByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_LOW_MEAN_FEATURES[] =
-    {
-        model_t::E_PopulationLowMeanByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowMeanByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_HIGH_MEAN_FEATURES[] =
-    {
-        model_t::E_PopulationHighMeanByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighMeanByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_MEDIAN_FEATURES[] =
-    {
-        model_t::E_PopulationMedianByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMedianByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_LOW_MEDIAN_FEATURES[] =
-    {
-        model_t::E_PopulationLowMedianByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowMedianByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_HIGH_MEDIAN_FEATURES[] =
-    {
-        model_t::E_PopulationHighMedianByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighMedianByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_MIN_FEATURES[] =
-    {
-        model_t::E_PopulationMinByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMinByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_MAX_FEATURES[] =
-    {
-        model_t::E_PopulationMaxByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMaxByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_VARIANCE_FEATURES[] =
-    {
-        model_t::E_PopulationVarianceByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationVarianceByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_LOW_VARIANCE_FEATURES[] =
-    {
-        model_t::E_PopulationLowVarianceByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowVarianceByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_HIGH_VARIANCE_FEATURES[] =
-    {
-        model_t::E_PopulationHighVarianceByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighVarianceByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_SUM_FEATURES[] =
-    {
-        model_t::E_PopulationSumByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationSumByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_LOW_SUM_FEATURES[] =
-    {
-        model_t::E_PopulationLowSumByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationLowSumByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_METRIC_HIGH_SUM_FEATURES[] =
-    {
-        model_t::E_PopulationHighSumByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PopulationHighSumByBucketPersonAndAttribute
+};
 const model_t::EFeature POPULATION_LAT_LONG_FEATURES[] =
-    {
-        model_t::E_PopulationMeanLatLongByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMeanLatLongByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_MAX_VELOCITY_FEATURES[] =
-    {
-        model_t::E_PopulationMaxVelocityByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMaxVelocityByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_MIN_VELOCITY_FEATURES[] =
-    {
-        model_t::E_PopulationMinVelocityByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMinVelocityByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_MEAN_VELOCITY_FEATURES[] =
-    {
-        model_t::E_PopulationMeanVelocityByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationMeanVelocityByPersonAndAttribute
+};
 const model_t::EFeature POPULATION_SUM_VELOCITY_FEATURES[] =
-    {
-        model_t::E_PopulationSumVelocityByPersonAndAttribute
-    };
+{
+    model_t::E_PopulationSumVelocityByPersonAndAttribute
+};
 const model_t::EFeature PEERS_COUNT_FEATURES[] =
-    {
-        model_t::E_PeersCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersCountByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PeersUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_LOW_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_HIGH_DISTINCT_COUNT_FEATURES[] =
-    {
-        model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_LOW_COUNTS_FEATURES[] =
-    {
-        model_t::E_PeersLowCountsByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersLowCountsByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_HIGH_COUNTS_FEATURES[] =
-    {
-        model_t::E_PeersHighCountsByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersHighCountsByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PeersInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_LOW_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PeersLowInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersLowInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_HIGH_INFO_CONTENT_FEATURES[] =
-    {
-        model_t::E_PeersHighInfoContentByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersHighInfoContentByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_TIME_OF_DAY_FEATURES[] =
-    {
-        model_t::E_PeersTimeOfDayByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersTimeOfDayByBucketPersonAndAttribute
+};
 const model_t::EFeature PEERS_TIME_OF_WEEK_FEATURES[] =
-    {
-        model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute
-    };
+{
+    model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute
+};
 
 // Function names
 const std::string COUNT("count");
@@ -1053,15 +1038,15 @@ const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::INDIVIDUAL_
 
 //! The features for the metric median by function.
 const TFeatureVec INDIVIDUAL_METRIC_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES),
-                                                  END(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES));
+                                                    END(detail::INDIVIDUAL_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median by function.
 const TFeatureVec INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES),
-                                                  END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
+                                                        END(detail::INDIVIDUAL_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median by function.
 const TFeatureVec INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES),
-                                                  END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
+                                                         END(detail::INDIVIDUAL_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min by function.
 const TFeatureVec INDIVIDUAL_METRIC_MIN_FEATURES(BEGIN(detail::INDIVIDUAL_METRIC_MIN_FEATURES),
@@ -1205,15 +1190,15 @@ const TFeatureVec POPULATION_METRIC_HIGH_MEAN_FEATURES(BEGIN(detail::POPULATION_
 
 //! The features for the metric median over function.
 const TFeatureVec POPULATION_METRIC_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_MEDIAN_FEATURES),
-                                                  END(detail::POPULATION_METRIC_MEDIAN_FEATURES));
+                                                    END(detail::POPULATION_METRIC_MEDIAN_FEATURES));
 
 //! The features for the metric low median over function.
 const TFeatureVec POPULATION_METRIC_LOW_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES),
-                                                  END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
+                                                        END(detail::POPULATION_METRIC_LOW_MEDIAN_FEATURES));
 
 //! The features for the metric high median over function.
 const TFeatureVec POPULATION_METRIC_HIGH_MEDIAN_FEATURES(BEGIN(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES),
-                                                  END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
+                                                         END(detail::POPULATION_METRIC_HIGH_MEDIAN_FEATURES));
 
 //! The features for the metric min over function.
 const TFeatureVec POPULATION_METRIC_MIN_FEATURES(BEGIN(detail::POPULATION_METRIC_MIN_FEATURES),
@@ -1318,26 +1303,22 @@ const TFunctionVec EMPTY_FUNCTIONS;
 
 //! Add the features corresponding to \p function to \p map.
 void addFeatures(EFunction function,
-                 TFeatureFunctionVecMap &map)
-{
+                 TFeatureFunctionVecMap &map) {
     const TFeatureVec &features = function_t::features(function);
-    for (std::size_t i = 0u; i < features.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < features.size(); ++i) {
         map[features[i]].push_back(function);
     }
 }
 
 //! Build a map from features to the functions which include them.
-TFeatureFunctionVecMap buildFeatureFunctionMap(void)
-{
+TFeatureFunctionVecMap buildFeatureFunctionMap(void) {
     TFeatureFunctionVecMap result;
 
     // This is written like this to generate a compiler warning
     // when a new function is added. This map must include every
     // function so add a case if you add a new function.
 
-    switch (E_IndividualCount)
-    {
+    switch (E_IndividualCount) {
         // The fall-through is intentional in this switch: the switched-on value
         // selects the first case and then all the calls to addFeatures() are
         // made
@@ -1600,8 +1581,7 @@ TFeatureFunctionVecMap buildFeatureFunctionMap(void)
             addFeatures(E_PeersTimeOfWeek, result);
     }
 
-    for (TFeatureFunctionVecMapItr i = result.begin(); i != result.end(); ++i)
-    {
+    for (TFeatureFunctionVecMapItr i = result.begin(); i != result.end(); ++i) {
         std::sort(i->second.begin(), i->second.end());
     }
 
@@ -1612,20 +1592,16 @@ const TFeatureFunctionVecMap FUNCTIONS_BY_FEATURE = buildFeatureFunctionMap();
 
 
 //! Get the function with the fewest features.
-EFunction mostSpecific(const TFunctionVec &functions)
-{
-    if (functions.empty())
-    {
+EFunction mostSpecific(const TFunctionVec &functions) {
+    if (functions.empty()) {
         LOG_ABORT("No functions specified");
     }
 
-    EFunction result = functions[0];
+    EFunction   result = functions[0];
     std::size_t numberFeatures = features(functions[0]).size();
-    for (std::size_t i = 1u; i < functions.size(); ++i)
-    {
+    for (std::size_t i = 1u; i < functions.size(); ++i) {
         std::size_t n = features(functions[i]).size();
-        if (n < numberFeatures)
-        {
+        if (n < numberFeatures) {
             result = functions[i];
             numberFeatures = n;
         }
@@ -1635,10 +1611,8 @@ EFunction mostSpecific(const TFunctionVec &functions)
 
 }
 
-const TFeatureVec &features(EFunction function)
-{
-    switch (function)
-    {
+const TFeatureVec &features(EFunction function) {
+    switch (function) {
         case E_IndividualCount:
             return INDIVIDUAL_COUNT_FEATURES;
         case E_IndividualNonZeroCount:
@@ -1760,9 +1734,9 @@ const TFeatureVec &features(EFunction function)
         case E_PopulationMetricMedian:
             return POPULATION_METRIC_MEDIAN_FEATURES;
         case E_PopulationMetricLowMedian:
-             return POPULATION_METRIC_LOW_MEDIAN_FEATURES;
+            return POPULATION_METRIC_LOW_MEDIAN_FEATURES;
         case E_PopulationMetricHighMedian:
-             return POPULATION_METRIC_HIGH_MEDIAN_FEATURES;
+            return POPULATION_METRIC_HIGH_MEDIAN_FEATURES;
         case E_PopulationMetricMin:
             return POPULATION_METRIC_MIN_FEATURES;
         case E_PopulationMetricMax:
@@ -1817,22 +1791,18 @@ const TFeatureVec &features(EFunction function)
     return EMPTY_FEATURES;
 }
 
-EFunction function(const TFeatureVec &features)
-{
-    if (features.empty())
-    {
+EFunction function(const TFeatureVec &features) {
+    if (features.empty()) {
         LOG_ERROR("No features default to '" << print(E_IndividualCount) << "'");
         return E_IndividualCount;
     }
 
     TFunctionVec candidates;
-    std::size_t i = 0u;
+    std::size_t  i = 0u;
 
-    for (/**/; candidates.empty() && i < features.size(); ++i)
-    {
+    for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
-        if (functionsItr == FUNCTIONS_BY_FEATURE.end())
-        {
+        if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
             LOG_WARN("No functions for feature " << model_t::print(features[i]))
             continue;
         }
@@ -1844,11 +1814,9 @@ EFunction function(const TFeatureVec &features)
 
     TFunctionVec tmp;
     tmp.reserve(candidates.size());
-    for (/**/; !candidates.empty() && i < features.size(); ++i)
-    {
+    for (/**/; !candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
-        if (functionsItr == FUNCTIONS_BY_FEATURE.end())
-        {
+        if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
             LOG_WARN("No functions for feature " << model_t::print(features[i]))
             continue;
         }
@@ -1861,21 +1829,18 @@ EFunction function(const TFeatureVec &features)
         tmp.clear();
     }
 
-    if (candidates.empty())
-    {
+    if (candidates.empty()) {
         EFunction result = mostSpecific(fallback);
         LOG_ERROR("Inconsistent features " << core::CContainerPrinter::print(features)
-                   << " defaulting to '" << print(result) << "'");
+                                           << " defaulting to '" << print(result) << "'");
         return result;
     }
 
     return mostSpecific(candidates);
 }
 
-const std::string &name(EFunction function)
-{
-    switch (function)
-    {
+const std::string &name(EFunction function) {
+    switch (function) {
         case E_IndividualCount:                return detail::COUNT;
         case E_IndividualNonZeroCount:         return detail::NON_ZERO_COUNT;
         case E_IndividualRareCount:            return detail::COUNT;
@@ -1968,10 +1933,8 @@ const std::string &name(EFunction function)
     return detail::UNEXPECTED_FUNCTION;
 }
 
-std::string print(EFunction function)
-{
-    switch (function)
-    {
+std::string print(EFunction function) {
+    switch (function) {
         case E_IndividualCount:                return "individual count";
         case E_IndividualNonZeroCount:         return "individual non-zero count";
         case E_IndividualRareCount:            return "individual rare count";
@@ -2064,8 +2027,7 @@ std::string print(EFunction function)
     return "-";
 }
 
-std::ostream &operator<<(std::ostream &o, EFunction function)
-{
+std::ostream &operator<<(std::ostream &o, EFunction function) {
     return o << print(function);
 }
 

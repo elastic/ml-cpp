@@ -22,20 +22,18 @@
 
 using namespace ml;
 
-CppUnit::Test *CMemoryUsageJsonWriterTest::suite()
-{
+CppUnit::Test *CMemoryUsageJsonWriterTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CMemoryUsageJsonWriterTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>(
-                                   "CMemoryUsageJsonWriterTest::test",
-                                   &CMemoryUsageJsonWriterTest::test) );
+                               "CMemoryUsageJsonWriterTest::test",
+                               &CMemoryUsageJsonWriterTest::test) );
 
     return suiteOfTests;
 }
 
 
-void CMemoryUsageJsonWriterTest::test(void)
-{
+void CMemoryUsageJsonWriterTest::test(void) {
     {
         // Check that adding nothing produces nothing
         std::ostringstream ss;
@@ -49,7 +47,7 @@ void CMemoryUsageJsonWriterTest::test(void)
     }
     {
         // Check one object
-        std::ostringstream ss;
+        std::ostringstream           ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -60,7 +58,7 @@ void CMemoryUsageJsonWriterTest::test(void)
     }
     {
         // Check one object with unused space
-        std::ostringstream ss;
+        std::ostringstream           ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223, 45678);
@@ -71,7 +69,7 @@ void CMemoryUsageJsonWriterTest::test(void)
     }
     {
         // Check one empty array
-        std::ostringstream ss;
+        std::ostringstream           ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -84,7 +82,7 @@ void CMemoryUsageJsonWriterTest::test(void)
     }
     {
         // Check one full array
-        std::ostringstream ss;
+        std::ostringstream           ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);
@@ -107,7 +105,7 @@ void CMemoryUsageJsonWriterTest::test(void)
     }
     {
         // Check sub-object
-        std::ostringstream ss;
+        std::ostringstream           ss;
         core::CMemoryUsageJsonWriter writer(ss);
         writer.startObject();
         core::CMemoryUsage::SMemoryUsage description("Hello", 223);

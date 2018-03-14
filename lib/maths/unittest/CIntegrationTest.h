@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CIntegrationTest : public CppUnit::TestFixture
-{
+class CIntegrationTest : public CppUnit::TestFixture {
     public:
         void testAllSingleVariate(void);
         void testAdaptive(void);

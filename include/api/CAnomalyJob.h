@@ -48,21 +48,17 @@
 class CBackgroundPersisterTest;
 class CAnomalyJobTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CDataAdder;
 class CDataSearcher;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CHierarchicalResults;
 class CLimits;
 }
-namespace api
-{
+namespace api {
 class CBackgroundPersister;
 class CModelPlotDataJsonWriter;
 class CFieldConfig;
@@ -81,8 +77,7 @@ class CFieldConfig;
 //! handler to be a CJsonOutputWriter rather than a writer for an
 //! arbitrary format
 //!
-class API_EXPORT CAnomalyJob : public CDataProcessor
-{
+class API_EXPORT CAnomalyJob : public CDataProcessor {
     public:
         //! Elasticsearch index for state
         static const std::string ML_STATE_INDEX;
@@ -107,8 +102,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
         //!      requested time
         //!   -# Success:
         //!   -# Failure:
-        enum ERestoreStateStatus
-        {
+        enum ERestoreStateStatus {
             E_IncorrectVersion,
             E_UnexpectedTag,
             E_MemoryLimitReached,
@@ -120,15 +114,15 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
 
     public:
-        typedef std::function<void(
-                                 core_t::TTime,
-                                 const std::string &,
-                                 const std::string &,
-                                 size_t,
-                                 const model::CResourceMonitor::SResults &,
-                                 const std::string &,
-                                 core_t::TTime,
-                                 core_t::TTime)> TPersistCompleteFunc;
+        typedef std::function<void (
+                                  core_t::TTime,
+                                  const std::string &,
+                                  const std::string &,
+                                  size_t,
+                                  const model::CResourceMonitor::SResults &,
+                                  const std::string &,
+                                  core_t::TTime,
+                                  core_t::TTime)> TPersistCompleteFunc;
         typedef model::CAnomalyDetector::TAnomalyDetectorPtr TAnomalyDetectorPtr;
         typedef std::vector<TAnomalyDetectorPtr> TAnomalyDetectorPtrVec;
         typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
@@ -144,14 +138,12 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
         typedef TModelPlotDataVec::const_iterator TModelPlotDataVecCItr;
         typedef model::CBucketQueue<TModelPlotDataVec> TModelPlotDataVecQueue;
 
-        struct API_EXPORT SRestoredStateDetail
-        {
-            ERestoreStateStatus          s_RestoredStateStatus;
+        struct API_EXPORT SRestoredStateDetail {
+            ERestoreStateStatus s_RestoredStateStatus;
             boost::optional<std::string> s_Extra;
         };
 
-        struct SBackgroundPersistArgs
-        {
+        struct SBackgroundPersistArgs {
             SBackgroundPersistArgs(const model::CResultsQueue &resultsQueue,
                                    const TModelPlotDataVecQueue &modelPlotQueue,
                                    core_t::TTime time,
@@ -175,16 +167,16 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
     public:
         CAnomalyJob(const std::string &jobId,
-                         model::CLimits &limits,
-                         CFieldConfig &fieldConfig,
-                         model::CAnomalyDetectorModelConfig &modelConfig,
-                         core::CJsonOutputStreamWrapper &outputBuffer,
-                         const TPersistCompleteFunc &persistCompleteFunc = TPersistCompleteFunc(),
-                         CBackgroundPersister *periodicPersister = nullptr,
-                         core_t::TTime maxQuantileInterval = -1,
-                         const std::string &timeFieldName = DEFAULT_TIME_FIELD_NAME,
-                         const std::string &timeFieldFormat = EMPTY_STRING,
-                         size_t maxAnomalyRecords = 0u);
+                    model::CLimits &limits,
+                    CFieldConfig &fieldConfig,
+                    model::CAnomalyDetectorModelConfig &modelConfig,
+                    core::CJsonOutputStreamWrapper &outputBuffer,
+                    const TPersistCompleteFunc &persistCompleteFunc = TPersistCompleteFunc(),
+                    CBackgroundPersister *periodicPersister = nullptr,
+                    core_t::TTime maxQuantileInterval = -1,
+                    const std::string &timeFieldName = DEFAULT_TIME_FIELD_NAME,
+                    const std::string &timeFieldFormat = EMPTY_STRING,
+                    size_t maxAnomalyRecords = 0u);
 
         virtual ~CAnomalyJob(void);
 
@@ -428,7 +420,7 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
     private:
         //! The job ID
-        std::string                m_JobId;
+        std::string m_JobId;
 
         //! Configurable limits
         model::CLimits             &m_Limits;
@@ -437,10 +429,10 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
         core::CJsonOutputStreamWrapper &m_OutputStream;
 
         //! Responsible for performing forecasts
-        CForecastRunner            m_ForecastRunner;
+        CForecastRunner m_ForecastRunner;
 
         //! Object to which the output is passed
-        CJsonOutputWriter          m_JsonOutputWriter;
+        CJsonOutputWriter m_JsonOutputWriter;
 
         //! Field names to use for the analysis
         CFieldConfig               &m_FieldConfig;
@@ -449,30 +441,30 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
         model::CAnomalyDetectorModelConfig &m_ModelConfig;
 
         //! Keep count of how many records we've handled
-        uint64_t                   m_NumRecordsHandled;
+        uint64_t m_NumRecordsHandled;
 
         //! Detector keys.
-        TKeyVec                    m_DetectorKeys;
+        TKeyVec m_DetectorKeys;
 
         //! Map of objects to provide the inner workings
         TKeyAnomalyDetectorPtrUMap m_Detectors;
 
         //! The end time of the last bucket out of latency window we've seen
-        core_t::TTime              m_LastFinalisedBucketEndTime;
+        core_t::TTime m_LastFinalisedBucketEndTime;
 
         //! Optional function to be called when persistence is complete
-        TPersistCompleteFunc       m_PersistCompleteFunc;
+        TPersistCompleteFunc m_PersistCompleteFunc;
 
         //! Name of field holding the time
-        std::string                m_TimeFieldName;
+        std::string m_TimeFieldName;
 
         //! Time field format.  Blank means seconds since the epoch, i.e. the
         //! time field can be converted to a time_t by simply converting the
         //! string to a number.
-        std::string                m_TimeFieldFormat;
+        std::string m_TimeFieldFormat;
 
         //! License restriction on the number of detectors allowed
-        size_t                     m_MaxDetectors;
+        size_t m_MaxDetectors;
 
         //! Pointer to periodic persister that works in the background.  May be
         //! nullptr if this object is not responsible for starting periodic
@@ -481,23 +473,23 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
         //! If we haven't output quantiles for this long due to a big anomaly
         //! we'll output them to reflect decay.  Non-positive values mean never.
-        core_t::TTime              m_MaxQuantileInterval;
+        core_t::TTime m_MaxQuantileInterval;
 
         //! What was the wall clock time when we last persisted the
         //! normalizer? The normalizer is persisted for two reasons:
         //! either there was a significant change or more than a
         //! certain period of time has passed since last time it was persisted.
-        core_t::TTime              m_LastNormalizerPersistTime;
+        core_t::TTime m_LastNormalizerPersistTime;
 
         //! Latest record time seen.
-        core_t::TTime              m_LatestRecordTime;
+        core_t::TTime m_LatestRecordTime;
 
         //! Last time we sent a finalised result to the API.
-        core_t::TTime              m_LastResultsTime;
+        core_t::TTime m_LastResultsTime;
 
         //! When the model state was restored was it entirely successful.
         //! Extra information about any errors that may have occurred
-        SRestoredStateDetail       m_RestoredStateDetail;
+        SRestoredStateDetail m_RestoredStateDetail;
 
         //! The hierarchical results aggregator.
         model::CHierarchicalResultsAggregator m_Aggregator;
@@ -507,15 +499,15 @@ class API_EXPORT CAnomalyJob : public CDataProcessor
 
         //! Store the last N half-buckets' results in order
         //! to choose the best result
-        model::CResultsQueue       m_ResultsQueue;
+        model::CResultsQueue m_ResultsQueue;
 
         //! Also store the model plot for the buckets for each
         //! result time - these will be output when the corresponding
         //! result is output
-        TModelPlotDataVecQueue     m_ModelPlotQueue;
+        TModelPlotDataVecQueue m_ModelPlotQueue;
 
-    friend class ::CBackgroundPersisterTest;
-    friend class ::CAnomalyJobTest;
+        friend class ::CBackgroundPersisterTest;
+        friend class ::CAnomalyJobTest;
 };
 
 }

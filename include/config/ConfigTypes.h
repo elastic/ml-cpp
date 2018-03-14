@@ -21,14 +21,11 @@
 #include <iosfwd>
 #include <string>
 
-namespace ml
-{
-namespace config_t
-{
+namespace ml {
+namespace config_t {
 
 //! Enumeration of the user specified data types.
-enum EUserDataType
-{
+enum EUserDataType {
     E_UserCategorical,
     E_UserNumeric
 };
@@ -42,8 +39,7 @@ CONFIG_EXPORT
 std::ostream &operator<<(std::ostream &o, EUserDataType type);
 
 //! Enumeration of the data types we understand.
-enum EDataType
-{
+enum EDataType {
     E_UndeterminedType,
     E_Binary,
     E_Categorical,
@@ -74,8 +70,7 @@ CONFIG_EXPORT
 std::ostream &operator<<(std::ostream &o, EDataType type);
 
 //! Enumeration of the top-level functions we'll consider configuring.
-enum EFunctionCategory
-{
+enum EFunctionCategory {
     E_Count,
     E_Rare,
     E_DistinctCount,
@@ -134,8 +129,7 @@ std::ostream &operator<<(std::ostream &o, EFunctionCategory function);
 
 //! Enumeration of the sensitivity of the anomaly detection to high,
 //! low, or both tails.
-enum ESide
-{
+enum ESide {
     E_HighSide,
     E_LowSide,
     E_TwoSide,

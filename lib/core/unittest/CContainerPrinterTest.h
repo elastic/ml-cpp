@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CContainerPrinterTest : public CppUnit::TestFixture
-{
+class CContainerPrinterTest : public CppUnit::TestFixture {
     public:
         void testAll(void);
 

@@ -36,10 +36,8 @@
 
 #include <math.h>
 
-namespace ml
-{
-namespace maths
-{
+namespace ml {
+namespace maths {
 
 //! \brief Collection of root solving functions.
 //!
@@ -47,8 +45,7 @@ namespace maths
 //! This implements a collection of root solving functions as static
 //! member functions. In particular, it implements Brent's method and
 //! interval bisection.
-class MATHS_EXPORT CSolvers
-{
+class MATHS_EXPORT CSolvers {
     private:
         typedef std::pair<double, double> TDoubleDoublePr;
 
@@ -62,11 +59,10 @@ class MATHS_EXPORT CSolvers
                                                          const double c,
                                                          const double fa,
                                                          const double fb,
-                                                         const double fc)
-        {
-            return    a * fb * fc / (fa - fb) / (fa - fc)
-                    + b * fa * fc / (fb - fa) / (fb - fc)
-                    + c * fa * fb / (fc - fa) / (fc - fb);
+                                                         const double fc) {
+            return a * fb * fc / (fa - fb) / (fa - fc)
+                   + b * fa * fc / (fb - fa) / (fb - fc)
+                   + c * fa * fb / (fc - fa) / (fc - fb);
         }
 
         //! A secant interpolation of two distinct function values.
@@ -74,23 +70,20 @@ class MATHS_EXPORT CSolvers
         static inline double secantInterpolate(const double a,
                                                const double b,
                                                const double fa,
-                                               const double fb)
-        {
+                                               const double fb) {
             return b - fb * (b - a) / (fb - fa);
         }
 
         //! Bisect the interval [\p a, \p b].
         static inline double bisect(const double a,
-                                    const double b)
-        {
+                                    const double b) {
             return (a + b) / 2.0;
         }
 
         //! Shift the values such that a = b and b = c.
         static inline void shift(double &a,
                                  double &b,
-                                 const double c)
-        {
+                                 const double c) {
             a = b;
             b = c;
         }
@@ -99,8 +92,7 @@ class MATHS_EXPORT CSolvers
         static inline void shift(double &a,
                                  double &b,
                                  double &c,
-                                 const double d)
-        {
+                                 const double d) {
             a = b;
             b = c;
             c = d;
@@ -109,15 +101,13 @@ class MATHS_EXPORT CSolvers
 
         //! Function wrapper which checks for NaN argument.
         template<typename F>
-        class CTrapNaNArgument
-        {
+        class CTrapNaNArgument {
             public:
-                CTrapNaNArgument(const F &f) : m_F(f) {}
+                CTrapNaNArgument(const F &f) : m_F(f) {
+                }
 
-                inline double operator()(const double x) const
-                {
-                    if (CMathsFuncs::isNan(x))
-                    {
+                inline double operator()(const double x) const {
+                    if (CMathsFuncs::isNan(x)) {
                         throw std::invalid_argument("x is nan");
                     }
                     return m_F(x);
@@ -140,19 +130,15 @@ class MATHS_EXPORT CSolvers
                              std::size_t &maxIterations,
                              double lb,
                              double &x,
-                             double &fx)
-        {
+                             double &fx) {
             tolerance = std::max(tolerance,
                                  ::sqrt(std::numeric_limits<double>::epsilon()));
             const double golden = 0.3819660;
 
-            if (fa < fb)
-            {
+            if (fa < fb) {
                 x = a;
                 fx = fa;
-            }
-            else
-            {
+            } else {
                 x = b;
                 fx = fb;
             }
@@ -163,28 +149,24 @@ class MATHS_EXPORT CSolvers
 
             std::size_t n = maxIterations;
 
-            do
-            {
+            do {
                 double xm = bisect(a, b);
 
                 double t1 = tolerance * (::fabs(x) + 0.25);
                 double t2 = 2.0 * t1;
-                if (fx <= lb || ::fabs(x - xm) <= (t2 - (b - a) / 2.0))
-                {
+                if (fx <= lb || ::fabs(x - xm) <= (t2 - (b - a) / 2.0)) {
                     break;
                 }
 
                 double sign = (x >= xm) ? -1.0 : 1.0;
 
-                if (sLast > t1)
-                {
+                if (sLast > t1) {
                     // Fit parabola to abscissa.
                     double r = (x - w) * (fx - fv);
                     double q = (x - v) * (fx - fw);
                     double p = (x - v) * q - (x - w) * r;
                     q = 2 * (q - r);
-                    if (q > 0)
-                    {
+                    if (q > 0) {
                         p = -p;
                     }
                     q = ::fabs(q);
@@ -192,26 +174,20 @@ class MATHS_EXPORT CSolvers
                     double td = sLast;
                     sLast = ::fabs(s);
 
-                    if (::fabs(p) >= q * td / 2.0
-                        || p <= q * (a - x)
-                        || p >= q * (b - x))
-                    {
+                    if (::fabs(p) >= q * td / 2.0 ||
+                        p <= q * (a - x) ||
+                        p >= q * (b - x)) {
                         // Minimum not in range or converging too slowly.
                         sLast = (x >= xm) ? x - a : b - x;
                         s = sign * std::max(golden * sLast, t1);
-                    }
-                    else
-                    {
+                    } else {
                         s = p / q;
                         double u = x + s;
-                        if ((u - a) < t2 || (b - u) < t2)
-                        {
+                        if ((u - a) < t2 || (b - u) < t2) {
                             s = sign * t1;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     // Don't have a suitable abscissa so just use golden
                     // section in to the larger of [a, x] and [x, b].
                     sLast = (x >= xm) ? x - a : b - x;
@@ -223,22 +199,16 @@ class MATHS_EXPORT CSolvers
                 LOG_TRACE("s = " << s << ", u = " << u)
                 LOG_TRACE("f(u) = " << fu << ", f(x) = " << fx);
 
-                if (fu <= fx)
-                {
+                if (fu <= fx) {
                     u >= x ? a = x : b = x;
                     shift(v, w, x, u);
                     shift(fv, fw, fx, fu);
-                }
-                else
-                {
+                } else {
                     u < x ? a = u : b = u;
-                    if (fu <= fw || w == x)
-                    {
+                    if (fu <= fw || w == x) {
                         shift(v, w, u);
                         shift(fv, fw, fu);
-                    }
-                    else if (fu <= fv || v == x || v == w)
-                    {
+                    } else if (fu <= fv || v == x || v == w) {
                         v = u;
                         fv = fu;
                     }
@@ -246,8 +216,7 @@ class MATHS_EXPORT CSolvers
                 LOG_TRACE("a = " << a << ", b = " << b);
                 LOG_TRACE("x = " << x << ", v = " << v << ", w = " << w);
                 LOG_TRACE("f(x) = " << fx << ", f(v) = " << fv << ", f(w) = " << fw);
-            }
-            while (--n > 0);
+            } while (--n > 0);
 
             maxIterations -= n;
         }
@@ -263,10 +232,8 @@ class MATHS_EXPORT CSolvers
                             const double direction,
                             std::size_t &maxIterations,
                             const double min,
-                            const double max)
-        {
-            if (a > b)
-            {
+                            const double max) {
+            if (a > b) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
@@ -276,36 +243,31 @@ class MATHS_EXPORT CSolvers
             // quickly.
 
             double step = b - a;
-            if (step == 0.0)
-            {
+            if (step == 0.0) {
                 step = 1.0;
             }
 
             std::size_t n = maxIterations;
-            for (/**/; n > 0; --n)
-            {
-                if (fa * fb <= 0.0)
-                {
+            for (/**/; n > 0; --n) {
+                if (fa * fb <= 0.0) {
                     break;
                 }
 
                 step *= 2.0;
-                if (n < (3 * maxIterations) / 4)
-                {
+                if (n < (3 * maxIterations) / 4) {
                     double minStep = step;
                     double maxStep = step * step;
                     step = fa == fb ?
                            maxStep : std::min(std::max(  ::fabs(b - a)
-                                                       / ::fabs(fb - fa)
-                                                       * ::fabs(fb),
-                                                       minStep), maxStep);
+                                                         / ::fabs(fb - fa)
+                                                         * ::fabs(fb),
+                                                         minStep), maxStep);
                 }
                 a = b;
                 fa = fb;
                 b += direction * step;
                 b = std::max(std::min(b, max), min);
-                if (a == b)
-                {
+                if (a == b) {
                     // We've hit our domain constraints.
                     break;
                 }
@@ -313,8 +275,7 @@ class MATHS_EXPORT CSolvers
                 fb = f(b);
             }
 
-            if (a > b)
-            {
+            if (a > b) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
@@ -357,8 +318,7 @@ class MATHS_EXPORT CSolvers
                                        const F &f,
                                        std::size_t &maxIterations,
                                        double min = -std::numeric_limits<double>::max(),
-                                       double max = std::numeric_limits<double>::max())
-        {
+                                       double max = std::numeric_limits<double>::max()) {
             return bracket(a, b, fa, fb, f, -1.0, maxIterations, min, max);
         }
 
@@ -395,8 +355,7 @@ class MATHS_EXPORT CSolvers
                                         const F &f,
                                         std::size_t &maxIterations,
                                         double min = -std::numeric_limits<double>::max(),
-                                        double max = std::numeric_limits<double>::max())
-        {
+                                        double max = std::numeric_limits<double>::max()) {
             return bracket(a, b, fa, fb, f, +1.0, maxIterations, min, max);
         }
 
@@ -429,20 +388,14 @@ class MATHS_EXPORT CSolvers
                                  const F &f,
                                  std::size_t &maxIterations,
                                  const EQUAL &equal,
-                                 double &bestGuess)
-        {
-            if (equal(a, b))
-            {
+                                 double &bestGuess) {
+            if (equal(a, b)) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
-            }
-            else if (maxIterations < 3)
-            {
+            } else if (maxIterations < 3) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
-            }
-            else
-            {
+            } else {
                 maxIterations -= 2;
                 solve(a, b, f(a), f(b), f, maxIterations, equal, bestGuess);
                 maxIterations += 2;
@@ -480,38 +433,32 @@ class MATHS_EXPORT CSolvers
                           const F &f,
                           std::size_t &maxIterations,
                           const EQUAL &equal,
-                          double &bestGuess)
-        {
-            if (equal(a, b))
-            {
+                          double &bestGuess) {
+            if (equal(a, b)) {
                 // There is a bug in boost's solver for the case that
                 // a == b so trap and return early.
                 maxIterations = 0;
                 bestGuess = (a + b) / 2.0;
                 return;
             }
-            try
-            {
+            try {
                 CTrapNaNArgument<F> fSafe(f);
                 // Need at least one step or the boost solver underflows
                 // size_t.
                 boost::uintmax_t n = std::max(maxIterations, std::size_t(1));
-                TDoubleDoublePr bracket =
-                        boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe, a, b, fa, fb, equal, n);
+                TDoubleDoublePr  bracket =
+                    boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe, a, b, fa, fb, equal, n);
                 a = bracket.first;
                 b = bracket.second;
                 bestGuess = bisect(a, b);
                 maxIterations = static_cast<std::size_t>(n);
                 return;
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_TRACE("Falling back to Brent's solver: " << e.what());
                 // Avoid compiler warning in the case of LOG_TRACE being compiled out
                 static_cast<void>(&e);
             }
-            if (!brent(a, b, fa, fb, f, maxIterations, equal, bestGuess))
-            {
+            if (!brent(a, b, fa, fb, f, maxIterations, equal, bestGuess)) {
                 throw std::invalid_argument("doesn't bracket root");
             }
         }
@@ -542,16 +489,13 @@ class MATHS_EXPORT CSolvers
                           const F &f,
                           std::size_t &maxIterations,
                           const EQUAL &equal,
-                          double &bestGuess)
-        {
-            if (equal(a, b))
-            {
+                          double &bestGuess) {
+            if (equal(a, b)) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
                 return true;
             }
-            if (maxIterations < 3)
-            {
+            if (maxIterations < 3) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
                 return true;
@@ -591,60 +535,51 @@ class MATHS_EXPORT CSolvers
                           const F &f,
                           std::size_t &maxIterations,
                           const EQUAL &equal,
-                          double &bestGuess)
-        {
+                          double &bestGuess) {
             std::size_t n = maxIterations;
 
-            if (fa == 0.0)
-            {
+            if (fa == 0.0) {
                 // Root at left bracket.
                 bestGuess = b = a;
                 maxIterations -= n;
                 return true;
             }
-            if (fb == 0.0)
-            {
+            if (fb == 0.0) {
                 // Root at right bracket.
                 bestGuess = a = b;
                 maxIterations -= n;
                 return true;
             }
-            if (fa * fb > 0.0)
-            {
+            if (fa * fb > 0.0) {
                 // Not bracketed.
                 maxIterations -= n;
                 return false;
             }
 
-            if (::fabs(fa) < ::fabs(fb))
-            {
+            if (::fabs(fa) < ::fabs(fb)) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
 
-            bool bisected = true;
+            bool   bisected = true;
             double c = a;
             double fc = fa;
             double d = std::numeric_limits<double>::max();
 
-            do
-            {
+            do {
                 double s = (fa != fc) && (fb != fc) ?
                            inverseQuadraticInterpolate(a, b, c, fa, fb, fc) :
                            secantInterpolate(a, b, fa, fb);
 
                 double e = (3.0 * a + b) / 4.0;
 
-                if (   (!(((s > e) && (s < b)) || ((s < e) && (s > b))))
-                    || ( bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c)))
-                    || (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d))))
-                {
+                if (   (!(((s > e) && (s < b)) || ((s < e) && (s > b)))) ||
+                       ( bisected && ((::fabs(s - b) >= ::fabs(b - c) / 2.0) || equal(b, c))) ||
+                       (!bisected && ((::fabs(s - b) >= ::fabs(c - d) / 2.0) || equal(c, d)))) {
                     // Use bisection.
                     s = bisect(a, b);
                     bisected = true;
-                }
-                else
-                {
+                } else {
                     bisected = false;
                 }
 
@@ -652,35 +587,28 @@ class MATHS_EXPORT CSolvers
                 shift(d, c, b);
                 fc = fb;
 
-                if (fs == 0.0)
-                {
+                if (fs == 0.0) {
                     // Root at s.
                     bestGuess = a = b = s;
                     maxIterations -= (n - 1);
                     return true;
                 }
 
-                if (fa * fs > 0.0)
-                {
+                if (fa * fs > 0.0) {
                     a = s;
                     fa = fs;
-                }
-                else
-                {
+                } else {
                     b = s;
                     fb = fs;
                 }
 
-                if (::fabs(fa) < ::fabs(fb))
-                {
+                if (::fabs(fa) < ::fabs(fb)) {
                     std::swap(a, b);
                     std::swap(fa, fb);
                 }
-            }
-            while (--n > 0 && !equal(a, b));
+            } while (--n > 0 && !equal(a, b));
 
-            if (b < a)
-            {
+            if (b < a) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
@@ -719,16 +647,13 @@ class MATHS_EXPORT CSolvers
                               const F &f,
                               std::size_t &maxIterations,
                               const EQUAL &equal,
-                              double &bestGuess)
-        {
-            if (equal(a, b))
-            {
+                              double &bestGuess) {
+            if (equal(a, b)) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
                 return true;
             }
-            if (maxIterations < 3)
-            {
+            if (maxIterations < 3) {
                 bestGuess = bisect(a, b);
                 maxIterations = 0u;
                 return true;
@@ -770,54 +695,44 @@ class MATHS_EXPORT CSolvers
                               const F &f,
                               std::size_t &maxIterations,
                               const EQUAL &equal,
-                              double &bestGuess)
-        {
+                              double &bestGuess) {
             std::size_t n = maxIterations;
-            if (fa == 0.0)
-            {
+            if (fa == 0.0) {
                 // Root at left bracket.
                 bestGuess = b = a;
                 maxIterations -= n;
                 return true;
             }
-            if (fb == 0.0)
-            {
+            if (fb == 0.0) {
                 // Root at right bracket.
                 bestGuess = a = b;
                 maxIterations -= n;
                 return true;
             }
-            if (fa * fb > 0.0)
-            {
+            if (fa * fb > 0.0) {
                 // Not bracketed.
                 maxIterations -= n;
                 return false;
             }
 
-            do
-            {
+            do {
                 const double c = bisect(a, b);
                 const double fc = f(c);
-                if (fc == 0.0)
-                {
+                if (fc == 0.0) {
                     // Root at s.
                     bestGuess = a = b = c;
                     maxIterations -= (n - 1);
                     return true;
                 }
 
-                if (fa * fc > 0.0)
-                {
+                if (fa * fc > 0.0) {
                     a = c;
                     fa = fc;
-                }
-                else
-                {
+                } else {
                     b = c;
                     fb = fc;
                 }
-            }
-            while (--n > 0 && !equal(a, b));
+            } while (--n > 0 && !equal(a, b));
 
             bestGuess = fa != fb ?
                         secantInterpolate(a, b, fa, fb) :
@@ -864,8 +779,7 @@ class MATHS_EXPORT CSolvers
                                     double tolerance,
                                     std::size_t &maxIterations,
                                     double &x,
-                                    double &fx)
-        {
+                                    double &fx) {
             minimize(a, b, fa, fb, f,
                      tolerance, maxIterations,
                      -std::numeric_limits<double>::max(),
@@ -906,8 +820,7 @@ class MATHS_EXPORT CSolvers
                                     double tolerance,
                                     std::size_t &maxIterations,
                                     double &x,
-                                    double &fx)
-        {
+                                    double &fx) {
             CCompositeFunctions::CMinus<F> f_(f);
             minimize(a, b, -fa, -fb, f_, tolerance, maxIterations, x, fx);
             fx = -fx;
@@ -928,23 +841,20 @@ class MATHS_EXPORT CSolvers
         static bool globalMinimize(const T &p,
                                    const F &f,
                                    double &x,
-                                   double &fx)
-        {
+                                   double &fx) {
             typedef std::pair<double, std::size_t> TDoubleSizePr;
             typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
 
             std::size_t n = p.size();
 
-            if (n == 0)
-            {
+            if (n == 0) {
                 LOG_ERROR("Must provide points at which to evaluate function");
                 return false;
             }
 
             TMinAccumulator min;
-            T fp(p.size());
-            for (std::size_t i = 0u; i < p.size(); ++i)
-            {
+            T               fp(p.size());
+            for (std::size_t i = 0u; i < p.size(); ++i) {
                 double fi = f(p[i]);
                 fp[i] = fi;
                 min.add(TDoubleSizePr(fi, i));
@@ -954,30 +864,24 @@ class MATHS_EXPORT CSolvers
 
             std::size_t i = min[0].second;
             std::size_t maxIterations = 5;
-            if (i == 0)
-            {
+            if (i == 0) {
                 minimize( p[0],  p[1],
-                         fp[0], fp[1],
-                         f, 0.0, maxIterations,
-                         x, fx);
-            }
-            else if (i == n - 1)
-            {
+                          fp[0], fp[1],
+                          f, 0.0, maxIterations,
+                          x, fx);
+            } else if (i == n - 1) {
                 minimize( p[n - 2],  p[n - 1],
-                         fp[n - 2], fp[n - 1],
-                         f, 0.0, maxIterations,
-                         x, fx);
-            }
-            else
-            {
+                          fp[n - 2], fp[n - 1],
+                          f, 0.0, maxIterations,
+                          x, fx);
+            } else {
                 std::size_t ai = i - 1;
                 std::size_t bi = i + 1;
                 minimize( p[ai],  p[bi],
-                         fp[ai], fp[bi],
-                         f, 0.0, maxIterations,
-                         x, fx);
-                if (fp[i] < fx)
-                {
+                          fp[ai], fp[bi],
+                          f, 0.0, maxIterations,
+                          x, fx);
+                if (fp[i] < fx) {
                     x  = p[i];
                     fx = fp[i];
                 }
@@ -1001,10 +905,9 @@ class MATHS_EXPORT CSolvers
         static bool globalMaximize(const T &p,
                                    const F &f,
                                    double &x,
-                                   double &fx)
-        {
+                                   double &fx) {
             CCompositeFunctions::CMinus<F> f_(f);
-            bool result = globalMinimize(p, f_, x, fx);
+            bool                           result = globalMinimize(p, f_, x, fx);
             fx = -fx;
             return result;
         }
@@ -1047,10 +950,8 @@ class MATHS_EXPORT CSolvers
                                 const F &f,
                                 const double fc,
                                 std::size_t maxIterations,
-                                TDoubleDoublePr &result)
-        {
-            if (a > b)
-            {
+                                TDoubleDoublePr &result) {
+            if (a > b) {
                 std::swap(a, b);
                 std::swap(fa, fb);
             }
@@ -1062,8 +963,7 @@ class MATHS_EXPORT CSolvers
             }
 
             result = TDoubleDoublePr(x, x);
-            if (fx > fc)
-            {
+            if (fx > fc) {
                 return false;
             }
 
@@ -1073,33 +973,27 @@ class MATHS_EXPORT CSolvers
 
             LOG_TRACE("a = " << a << ", x = " << x << ", b = " << b);
             LOG_TRACE("f_(a) = " << fa - fc
-                      << ", f_(x) = " << fx - fc
-                      << ", f_(b) = " << fb - fc);
+                                 << ", f_(x) = " << fx - fc
+                                 << ", f_(b) = " << fb - fc);
 
-            const double eps = ::sqrt(std::numeric_limits<double>::epsilon()) * b;
+            const double                eps = ::sqrt(std::numeric_limits<double>::epsilon()) * b;
             CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, eps);
             LOG_TRACE("eps = " << eps);
 
-            try
-            {
+            try {
                 std::size_t n = maxIterations;
                 solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
                 LOG_TRACE("iterations = " << n);
-            }
-            catch (const std::exception &e)
-            {
+            } catch (const std::exception &e) {
                 LOG_ERROR("Failed to find left end point: " << e.what());
                 return false;
             }
 
-            try
-            {
+            try {
                 std::size_t n = maxIterations;
                 solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
                 LOG_TRACE("iterations = " << n);
-            }
-            catch (std::exception &e)
-            {
+            } catch (std::exception &e) {
                 LOG_ERROR("Failed to find right end point: " << e.what());
                 return false;
             }

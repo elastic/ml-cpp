@@ -18,8 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CPackedBitVectorTest : public CppUnit::TestFixture
-{
+class CPackedBitVectorTest : public CppUnit::TestFixture {
     public:
         void testCreation(void);
         void testExtend(void);

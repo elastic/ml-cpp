@@ -19,10 +19,8 @@
 #include <core/ImportExport.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -35,8 +33,7 @@ namespace core
 //! This has been broken into a class of its own because Windows has a
 //! strtok_s() function rather than Unix's strtok_r().
 //!
-class CORE_EXPORT CStrTokR : private CNonInstantiatable
-{
+class CORE_EXPORT CStrTokR : private CNonInstantiatable {
     public:
         static char *strTokR(char *str, const char *sep, char **lasts);
 };

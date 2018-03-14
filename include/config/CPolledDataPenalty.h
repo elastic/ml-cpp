@@ -23,10 +23,8 @@
 
 #include <boost/optional.hpp>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDataCountStatistics;
 
@@ -38,8 +36,7 @@ class CDataCountStatistics;
 //! having bucket lengths less than the arrival interval. This tests this
 //! condition and applies a decreasing penalty based on the number of intervals
 //! for which this behavior has been observed.
-class CONFIG_EXPORT CPolledDataPenalty : public CPenalty
-{
+class CONFIG_EXPORT CPolledDataPenalty : public CPenalty {
     public:
         CPolledDataPenalty(const CAutoconfigurerParams &params);
 

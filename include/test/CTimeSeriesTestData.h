@@ -24,25 +24,21 @@
 #include <vector>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CRegex;
 }
-namespace test
-{
+namespace test {
 
-class TEST_EXPORT CTimeSeriesTestData
-{
+class TEST_EXPORT CTimeSeriesTestData {
     public:
         typedef std::vector<double>                  TDoubleVec;
-        typedef TDoubleVec::iterator                 TDoubleVecItr;
+        typedef TDoubleVec::iterator TDoubleVecItr;
         typedef std::pair<core_t::TTime, double>     TTimeDoublePr;
         typedef std::vector<TTimeDoublePr>           TTimeDoublePrVec;
-        typedef TTimeDoublePrVec::iterator           TTimeDoublePrVecItr;
-        typedef TTimeDoublePrVec::reverse_iterator   TTimeDoublePrVecRItr;
-        typedef TTimeDoublePrVec::const_iterator     TTimeDoublePrVecCItr;
+        typedef TTimeDoublePrVec::iterator TTimeDoublePrVecItr;
+        typedef TTimeDoublePrVec::reverse_iterator TTimeDoublePrVecRItr;
+        typedef TTimeDoublePrVec::const_iterator TTimeDoublePrVecCItr;
         typedef std::pair<core_t::TTime, TDoubleVec> TTimeDoubleVecPr;
         typedef std::vector<TTimeDoubleVecPr>        TTimeDoubleVecPrVec;
 

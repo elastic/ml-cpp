@@ -27,10 +27,8 @@
 #include <list>
 
 
-namespace ml
-{
-namespace api
-{
+namespace ml {
+namespace api {
 
 //! \brief
 //! Enables a data adder to run in a different thread.
@@ -61,8 +59,7 @@ namespace api
 //! the data adder is not thread safe then it may not be used by
 //! any other object until after this object is destroyed.
 //!
-class API_EXPORT CBackgroundPersister : private core::CNonCopyable
-{
+class API_EXPORT CBackgroundPersister : private core::CNonCopyable {
     public:
         using TFirstProcessorPeriodicPersistFunc = std::function<bool(CBackgroundPersister &)>;
 
@@ -120,8 +117,7 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
 
     private:
         //! Implementation of the background thread
-        class CBackgroundThread : public core::CThread
-        {
+        class CBackgroundThread : public core::CThread {
             public:
                 CBackgroundThread(CBackgroundPersister &owner);
 
@@ -137,11 +133,11 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
 
     private:
         //! How frequently should background persistence be attempted?
-        core_t::TTime                      m_PeriodicPersistInterval;
+        core_t::TTime m_PeriodicPersistInterval;
 
         //! What was the wall clock time when we started our last periodic
         //! persistence?
-        core_t::TTime                      m_LastPeriodicPersistTime;
+        core_t::TTime m_LastPeriodicPersistTime;
 
         //! The function that will be called to start the chain of background
         //! persistence.
@@ -154,25 +150,25 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         core::CDataAdder                   &m_DataAdder;
 
         //! Mutex to ensure atomicity of operations where required.
-        core::CFastMutex                   m_Mutex;
+        core::CFastMutex m_Mutex;
 
         //! Is the background thread currently busy persisting data?
-        volatile bool                      m_IsBusy;
+        volatile bool m_IsBusy;
 
         //! Have we been told to shut down?
-        volatile bool                      m_IsShutdown;
+        volatile bool m_IsShutdown;
 
         using TPersistFuncList = std::list<core::CDataAdder::TPersistFunc>;
 
         //! Function to call in the background thread to do persistence.
-        TPersistFuncList                   m_PersistFuncs;
+        TPersistFuncList m_PersistFuncs;
 
         //! Thread used to do the background work
-        CBackgroundThread                  m_BackgroundThread;
+        CBackgroundThread m_BackgroundThread;
 
-    // Allow the background thread to access the member variables of the owning
-    // object
-    friend class CBackgroundThread;
+        // Allow the background thread to access the member variables of the owning
+        // object
+        friend class CBackgroundThread;
 };
 
 

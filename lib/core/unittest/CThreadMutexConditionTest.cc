@@ -21,31 +21,26 @@
 #include <core/CThread.h>
 
 
-CppUnit::Test *CThreadMutexConditionTest::suite()
-{
+CppUnit::Test *CThreadMutexConditionTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CThreadMutexConditionTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CThreadMutexConditionTest>(
-                                   "CThreadMutexConditionTest::testThread",
-                                   &CThreadMutexConditionTest::testThread) );
+                               "CThreadMutexConditionTest::testThread",
+                               &CThreadMutexConditionTest::testThread) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CThreadMutexConditionTest>(
-                                   "CThreadMutexConditionTest::testThreadCondition",
-                                   &CThreadMutexConditionTest::testThreadCondition) );
+                               "CThreadMutexConditionTest::testThreadCondition",
+                               &CThreadMutexConditionTest::testThreadCondition) );
 
     return suiteOfTests;
 }
 
-void CThreadMutexConditionTest::testThread(void)
-{
-    class CThread : public ml::core::CThread
-    {
+void CThreadMutexConditionTest::testThread(void) {
+    class CThread : public ml::core::CThread {
         public:
-            CThread(void) : m_Running(false)
-            {
+            CThread(void) : m_Running(false) {
             }
 
-            bool isRunning(void)
-            {
+            bool isRunning(void) {
                 m_Mutex.lock();
                 bool ret = m_Running;
                 m_Mutex.unlock();
@@ -53,18 +48,15 @@ void CThreadMutexConditionTest::testThread(void)
             }
 
         private:
-            void run(void)
-            {
+            void run(void) {
                 LOG_DEBUG("Thread running");
                 m_Mutex.lock();
                 m_Running = true;
                 m_Mutex.unlock();
 
-                for(;;)
-                {
+                for(;;) {
                     m_Mutex.lock();
-                    if(m_Running == false)
-                    {
+                    if(m_Running == false) {
                         m_Mutex.unlock();
                         break;
                     }
@@ -74,8 +66,7 @@ void CThreadMutexConditionTest::testThread(void)
                 LOG_DEBUG("Thread exiting");
             }
 
-            void shutdown(void)
-            {
+            void shutdown(void) {
                 LOG_DEBUG("Thread shutdown");
                 m_Mutex.lock();
                 m_Running = false;
@@ -84,7 +75,7 @@ void CThreadMutexConditionTest::testThread(void)
 
         private:
             ml::core::CMutex m_Mutex;
-            bool                  m_Running;
+            bool m_Running;
     };
 
     CThread thread;
@@ -104,44 +95,36 @@ void CThreadMutexConditionTest::testThread(void)
     CPPUNIT_ASSERT(thread.isRunning() == false);
 }
 
-void CThreadMutexConditionTest::testThreadCondition(void)
-{
-    class CThread : public ml::core::CThread
-    {
+void CThreadMutexConditionTest::testThreadCondition(void) {
+    class CThread : public ml::core::CThread {
         public:
-            CThread(void) : m_Condition(m_Mutex)
-            {
+            CThread(void) : m_Condition(m_Mutex) {
             }
 
-            void lock(void)
-            {
+            void lock(void) {
                 LOG_DEBUG("lock start " << this->currentThreadId());
                 m_Mutex.lock();
                 LOG_DEBUG("lock end " << this->currentThreadId());
             }
 
-            void unlock(void)
-            {
+            void unlock(void) {
                 LOG_DEBUG("unlock " << this->currentThreadId());
                 m_Mutex.unlock();
             }
 
-            void wait(void)
-            {
+            void wait(void) {
                 LOG_DEBUG("wait start " << this->currentThreadId());
                 m_Condition.wait();
                 LOG_DEBUG("wait end " << this->currentThreadId());
             }
 
-            void signal(void)
-            {
+            void signal(void) {
                 LOG_DEBUG("signal " << this->currentThreadId());
                 m_Condition.signal();
             }
 
         private:
-            void run(void)
-            {
+            void run(void) {
                 LOG_DEBUG("Thread running");
                 this->lock();
                 this->signal();
@@ -150,8 +133,7 @@ void CThreadMutexConditionTest::testThreadCondition(void)
                 LOG_DEBUG("Thread exiting");
             }
 
-            void shutdown(void)
-            {
+            void shutdown(void) {
                 LOG_DEBUG("Thread shutting down");
                 this->lock();
                 this->signal();
@@ -160,7 +142,7 @@ void CThreadMutexConditionTest::testThreadCondition(void)
             }
 
         private:
-            ml::core::CMutex     m_Mutex;
+            ml::core::CMutex m_Mutex;
             ml::core::CCondition m_Condition;
     };
 

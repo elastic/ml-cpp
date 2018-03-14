@@ -27,10 +27,8 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CCategoricalDataSummaryStatistics;
 class CNumericDataSummaryStatistics;
 
@@ -42,8 +40,7 @@ class CNumericDataSummaryStatistics;
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CCantBeNumeric : public CPenalty
-{
+class CONFIG_EXPORT CCantBeNumeric : public CPenalty {
     public:
         CCantBeNumeric(const CAutoconfigurerParams &params);
 
@@ -68,8 +65,7 @@ class CONFIG_EXPORT CCantBeNumeric : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CCantBeCategorical : public CPenalty
-{
+class CONFIG_EXPORT CCantBeCategorical : public CPenalty {
     public:
         CCantBeCategorical(const CAutoconfigurerParams &params);
 
@@ -94,8 +90,7 @@ class CONFIG_EXPORT CCantBeCategorical : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CDontUseUnaryField : public CPenalty
-{
+class CONFIG_EXPORT CDontUseUnaryField : public CPenalty {
     public:
         CDontUseUnaryField(const CAutoconfigurerParams &params);
 
@@ -121,8 +116,7 @@ class CONFIG_EXPORT CDontUseUnaryField : public CPenalty
 //! share a single field for a given role then objects of this hierarchy
 //! are penalty functions which are constant on the set of detectors for
 //! which a given field and its role are fixed.
-class CONFIG_EXPORT CDistinctCountThresholdPenalty : public CPenalty
-{
+class CONFIG_EXPORT CDistinctCountThresholdPenalty : public CPenalty {
     public:
         CDistinctCountThresholdPenalty(const CAutoconfigurerParams &params,
                                        std::size_t distinctCountForPenaltyOfOne,

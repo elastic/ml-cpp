@@ -36,15 +36,12 @@
 #include <utility>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStateRestoreTraverser;
 }
 
-namespace maths
-{
+namespace maths {
 class CModel;
 class CMultinomialConjugate;
 class CMultivariatePrior;
@@ -53,8 +50,7 @@ class CTimeSeriesCorrelations;
 class CTimeSeriesDecompositionInterface;
 }
 
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModel;
 class CDataGatherer;
 class CDetectionRule;
@@ -77,8 +73,7 @@ class CSearchKey;
 //! to either compute online or delta probabilities for log messages,
 //! metric values, etc. This hierarchy implements the factory pattern
 //! for the CAnomalyDetectorModel hierarchy for this purpose.
-class MODEL_EXPORT CModelFactory
-{
+class MODEL_EXPORT CModelFactory {
     public:
         using TFeatureVec = std::vector<model_t::EFeature>;
         using TStrVec = std::vector<std::string>;
@@ -118,8 +113,7 @@ class MODEL_EXPORT CModelFactory
         //! We wrap up the initialization data in an object so we don't
         //! need to change the signature of every factory function each
         //! time we need extra data to initialize a model.
-        struct MODEL_EXPORT SModelInitializationData
-        {
+        struct MODEL_EXPORT SModelInitializationData {
             explicit SModelInitializationData(const TDataGathererPtr &dataGatherer);
 
             TDataGathererPtr s_DataGatherer;
@@ -131,8 +125,7 @@ class MODEL_EXPORT CModelFactory
         //! We wrap up the initialization data in an object so we don't
         //! need to change the signature of every factory function each
         //! time we need extra data to initialize a data gatherer.
-        struct MODEL_EXPORT SGathererInitializationData
-        {
+        struct MODEL_EXPORT SGathererInitializationData {
             SGathererInitializationData(core_t::TTime startTime,
                                         const std::string &partitionFieldValue,
                                         unsigned int sampleOverrideCount = 0u);
@@ -253,8 +246,8 @@ class MODEL_EXPORT CModelFactory
 
         //! Get the influence calculators to use for each feature in \p features.
         const TFeatureInfluenceCalculatorCPtrPrVec &
-            defaultInfluenceCalculators(const std::string &influencerName,
-                                        const TFeatureVec &features) const;
+        defaultInfluenceCalculators(const std::string &influencerName,
+                                    const TFeatureVec &features) const;
         //@}
 
         //! Get the search key corresponding to this factory.

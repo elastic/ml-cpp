@@ -37,20 +37,16 @@
 
 class CHierarchicalResultsTest;
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace model
-{
+namespace model {
 class CAnomalyDetectorModel;
 class CLimits;
 
-namespace hierarchical_results_detail
-{
+namespace hierarchical_results_detail {
 
 typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 typedef std::pair<core::CStoredStringPtr, core::CStoredStringPtr> TStoredStringPtrStoredStringPtrPr;
@@ -79,8 +75,7 @@ typedef core::CSmallVector<std::string, 1> TStr1Vec;
 //!   -# autodetect sum(bytes) over host
 //!   -# autodetect rare by uri_path over clientip
 //!   -# and so on.
-struct MODEL_EXPORT SResultSpec
-{
+struct MODEL_EXPORT SResultSpec {
     SResultSpec(void);
 
     //! Persist the result specification by passing information to \p inserter.
@@ -143,8 +138,7 @@ struct MODEL_EXPORT SResultSpec
 //! aggregation process.
 //!
 //! \see buildHierarchicalResults for more details.
-struct MODEL_EXPORT SNode
-{
+struct MODEL_EXPORT SNode {
     typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
     typedef const SNode *TNodeCPtr;
     typedef std::vector<TNodeCPtr> TNodeCPtrVec;
@@ -222,7 +216,7 @@ struct MODEL_EXPORT SNode
     //! The start time of the bucket generating the anomaly.
     core_t::TTime s_BucketStartTime;
 
-     //! The length of the bucket for this result.
+    //! The length of the bucket for this result.
     core_t::TTime s_BucketLength;
     //@}
 };
@@ -261,8 +255,7 @@ class CHierarchicalResultsVisitor;
 //! invalid if it is kept longer than to output a single result. This is
 //! to minimize the amount of state that needs to be copied when outputting
 //! results (to minimize both runtime and transient memory usage).
-class MODEL_EXPORT CHierarchicalResults
-{
+class MODEL_EXPORT CHierarchicalResults {
     public:
         typedef std::vector<double> TDoubleVec;
         typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
@@ -431,8 +424,7 @@ class MODEL_EXPORT CHierarchicalResults
 };
 
 //! \brief Interface for visiting the results.
-class MODEL_EXPORT CHierarchicalResultsVisitor
-{
+class MODEL_EXPORT CHierarchicalResultsVisitor {
     public:
         typedef CHierarchicalResults::TNode TNode;
 
@@ -482,7 +474,7 @@ class MODEL_EXPORT CHierarchicalResultsVisitor
                                       const TNode &node,
                                       bool pivot);
 
-    friend class ::CHierarchicalResultsTest;
+        friend class ::CHierarchicalResultsTest;
 };
 
 }

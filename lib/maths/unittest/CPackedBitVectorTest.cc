@@ -34,21 +34,17 @@ typedef std::vector<bool> TBoolVec;
 typedef std::vector<std::size_t> TSizeVec;
 typedef std::vector<maths::CPackedBitVector> TPackedBitVectorVec;
 
-namespace
-{
+namespace {
 
-std::string print(const maths::CPackedBitVector &v)
-{
+std::string print(const maths::CPackedBitVector &v) {
     std::ostringstream result;
     result << v;
     return result.str();
 }
 
-std::string toBitString(const TBoolVec &v)
-{
+std::string toBitString(const TBoolVec &v) {
     std::ostringstream result;
-    for (std::size_t i = 0u; i < v.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < v.size(); ++i) {
         result << static_cast<int>(v[i]);
     }
     return result.str();
@@ -56,8 +52,7 @@ std::string toBitString(const TBoolVec &v)
 
 }
 
-void CPackedBitVectorTest::testCreation(void)
-{
+void CPackedBitVectorTest::testCreation(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testCreation  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -99,11 +94,11 @@ void CPackedBitVectorTest::testCreation(void)
                          core::CContainerPrinter::print(test6.toBitVector()));
 
     bool bits1_[] =
-        {
-            true,
-            true
-        };
-    TBoolVec bits1(boost::begin(bits1_), boost::end(bits1_));
+    {
+        true,
+        true
+    };
+    TBoolVec                bits1(boost::begin(bits1_), boost::end(bits1_));
     maths::CPackedBitVector test7(bits1);
     LOG_DEBUG("test7 = " << test7);
     CPPUNIT_ASSERT_EQUAL(bits1.size(), test7.dimension());
@@ -111,10 +106,10 @@ void CPackedBitVectorTest::testCreation(void)
                          core::CContainerPrinter::print(test7.toBitVector()));
 
     bool bits2_[] =
-        {
-            true, false, false, true, true, false, false, false, false, true, true, true, true, false
-        };
-    TBoolVec bits2(boost::begin(bits2_), boost::end(bits2_));
+    {
+        true, false, false, true, true, false, false, false, false, true, true, true, true, false
+    };
+    TBoolVec                bits2(boost::begin(bits2_), boost::end(bits2_));
     maths::CPackedBitVector test8(bits2);
     LOG_DEBUG("test8 = " << test8);
     CPPUNIT_ASSERT_EQUAL(bits2.size(), test8.dimension());
@@ -124,13 +119,11 @@ void CPackedBitVectorTest::testCreation(void)
     test::CRandomNumbers rng;
 
     TSizeVec components;
-    for (std::size_t t = 0u; t < 100; ++t)
-    {
+    for (std::size_t t = 0u; t < 100; ++t) {
         rng.generateUniformSamples(0, 2, 30, components);
-        TBoolVec bits3(components.begin(), components.end());
+        TBoolVec                bits3(components.begin(), components.end());
         maths::CPackedBitVector test9(bits3);
-        if ((t + 1) % 10 == 0)
-        {
+        if ((t + 1) % 10 == 0) {
             LOG_DEBUG("test9 = " << test9);
         }
         CPPUNIT_ASSERT_EQUAL(bits3.size(), test9.dimension());
@@ -139,8 +132,7 @@ void CPackedBitVectorTest::testCreation(void)
     }
 }
 
-void CPackedBitVectorTest::testExtend(void)
-{
+void CPackedBitVectorTest::testExtend(void) {
     LOG_DEBUG("+------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testExtend  |");
     LOG_DEBUG("+------------------------------------+");
@@ -197,11 +189,10 @@ void CPackedBitVectorTest::testExtend(void)
     TSizeVec components;
     rng.generateUniformSamples(0, 2, 1012, components);
 
-    TBoolVec bits2;
+    TBoolVec                bits2;
     maths::CPackedBitVector test4;
 
-    for (std::size_t i = 0u; i < components.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < components.size(); ++i) {
         bits2.push_back(components[i] > 0);
         test4.extend(components[i] > 0);
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2),
@@ -209,8 +200,7 @@ void CPackedBitVectorTest::testExtend(void)
     }
 }
 
-void CPackedBitVectorTest::testContract(void)
-{
+void CPackedBitVectorTest::testContract(void) {
     LOG_DEBUG("+--------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testContract  |");
     LOG_DEBUG("+--------------------------------------+");
@@ -221,14 +211,13 @@ void CPackedBitVectorTest::testContract(void)
     test1.extend(false);
     test1.extend(true);
     std::string expected[] =
-        {
-            "[1 1 0 1]",
-            "[1 0 1]",
-            "[0 1]",
-            "[1]"
-        };
-    for (const std::string *e = expected; test1.dimension() > 0; ++e)
     {
+        "[1 1 0 1]",
+        "[1 0 1]",
+        "[0 1]",
+        "[1]"
+    };
+    for (const std::string *e = expected; test1.dimension() > 0; ++e) {
         LOG_DEBUG("test1 = " << test1);
         CPPUNIT_ASSERT_EQUAL(*e, print(test1));
         test1.contract();
@@ -239,8 +228,7 @@ void CPackedBitVectorTest::testContract(void)
     bits1.push_back(true);
     bits1.push_back(false);
     maths::CPackedBitVector test2(bits1);
-    for (std::size_t i = 0u; i < 10; ++i)
-    {
+    for (std::size_t i = 0u; i < 10; ++i) {
         bits1.erase(bits1.begin());
         test2.contract();
         LOG_DEBUG("test2 = " << test2);
@@ -252,8 +240,7 @@ void CPackedBitVectorTest::testContract(void)
     bits2.push_back(false);
     maths::CPackedBitVector test3(1024, true);
     test3.extend(false);
-    for (std::size_t i = 0u; i < 10; ++i)
-    {
+    for (std::size_t i = 0u; i < 10; ++i) {
         bits2.erase(bits2.begin());
         test3.contract();
         LOG_DEBUG("test3 = " << test3);
@@ -262,8 +249,7 @@ void CPackedBitVectorTest::testContract(void)
     }
 }
 
-void CPackedBitVectorTest::testOperators(void)
-{
+void CPackedBitVectorTest::testOperators(void) {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testOperators  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -273,24 +259,20 @@ void CPackedBitVectorTest::testOperators(void)
     TPackedBitVectorVec test;
 
     TSizeVec components;
-    for (std::size_t t = 0u; t < 20; ++t)
-    {
+    for (std::size_t t = 0u; t < 20; ++t) {
         rng.generateUniformSamples(0, 2, 20, components);
         TBoolVec bits(components.begin(), components.end());
         test.push_back(maths::CPackedBitVector(bits));
     }
 
-    for (std::size_t i = 0u; i < test.size(); ++i)
-    {
-        for (std::size_t j = i; j < test.size(); ++j)
-        {
+    for (std::size_t i = 0u; i < test.size(); ++i) {
+        for (std::size_t j = i; j < test.size(); ++j) {
             CPPUNIT_ASSERT(test[i] < test[j] || test[i] > test[j] || test[i] == test[j]);
         }
     }
 }
 
-void CPackedBitVectorTest::testInner(void)
-{
+void CPackedBitVectorTest::testInner(void) {
     LOG_DEBUG("+-----------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testInner  |");
     LOG_DEBUG("+-----------------------------------+");
@@ -300,16 +282,16 @@ void CPackedBitVectorTest::testInner(void)
 
     maths::CPackedBitVector test1(10, true);
     maths::CPackedBitVector test2(10, false);
-    bool bits1[] =
-        {
-            true, true, false, false, true, false, false, false, true, true
-        };
+    bool                    bits1[] =
+    {
+        true, true, false, false, true, false, false, false, true, true
+    };
     maths::CPackedBitVector test3(TBoolVec(boost::begin(bits1),
                                            boost::end(bits1)));
     bool bits2[] =
-        {
-            false, false, true, false, true, false, false, false, false, false
-        };
+    {
+        false, false, true, false, true, false, false, false, false, false
+    };
     maths::CPackedBitVector test4(TBoolVec(boost::begin(bits2),
                                            boost::end(bits2)));
 
@@ -343,30 +325,26 @@ void CPackedBitVectorTest::testInner(void)
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test7;
-    TVectorVec comparison;
+    TVectorVec          comparison;
 
     TSizeVec components;
-    for (std::size_t t = 0u; t < 50; ++t)
-    {
+    for (std::size_t t = 0u; t < 50; ++t) {
         rng.generateUniformSamples(0, 2, 50, components);
         TBoolVec bits3(components.begin(), components.end());
         test7.push_back(maths::CPackedBitVector(bits3));
         comparison.push_back(TVector(bits3.begin(), bits3.end()));
     }
 
-    for (std::size_t i = 0u; i < test7.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < test7.size(); ++i) {
         LOG_DEBUG("Testing " << test7[i]);
-        for (std::size_t j = 0u; j < test7.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < test7.size(); ++j) {
             CPPUNIT_ASSERT_EQUAL(comparison[i].inner(comparison[j]),
                                  test7[i].inner(test7[j]));
         }
     }
 }
 
-void CPackedBitVectorTest::testBitwiseOr(void)
-{
+void CPackedBitVectorTest::testBitwiseOr(void) {
     LOG_DEBUG("+---------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testBitwiseOr  |");
     LOG_DEBUG("+---------------------------------------+");
@@ -376,45 +354,38 @@ void CPackedBitVectorTest::testBitwiseOr(void)
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
-    TBitSetVec comparison;
+    TBitSetVec          comparison;
 
     TSizeVec components;
-    for (std::size_t t = 0u; t < 50; ++t)
-    {
+    for (std::size_t t = 0u; t < 50; ++t) {
         rng.generateUniformSamples(0, 2, 50, components);
         TBoolVec bits(components.begin(), components.end());
         test.push_back(maths::CPackedBitVector(bits));
         comparison.push_back(std::bitset<50>(toBitString(bits)));
     }
 
-    for (std::size_t i = 0u; i < test.size(); ++i)
-    {
+    for (std::size_t i = 0u; i < test.size(); ++i) {
         LOG_DEBUG("Testing " << test[i]);
-        for (std::size_t j = 0u; j < test.size(); ++j)
-        {
+        for (std::size_t j = 0u; j < test.size(); ++j) {
             {
-                double expected = 0.0;
+                double          expected = 0.0;
                 std::bitset<50> bitwiseOr = comparison[i] | comparison[j];
-                for (std::size_t k = 0u; k < bitwiseOr.size(); ++k)
-                {
+                for (std::size_t k = 0u; k < bitwiseOr.size(); ++k) {
                     expected += bitwiseOr[k] ? 1.0 : 0.0;
                 }
-                if (j % 10 == 0)
-                {
+                if (j % 10 == 0) {
                     LOG_DEBUG("or  = " << expected);
                 }
                 CPPUNIT_ASSERT_EQUAL(expected, test[i].inner(test[j],
                                                              maths::CPackedBitVector::E_OR));
             }
             {
-                double expected = 0.0;
+                double          expected = 0.0;
                 std::bitset<50> bitwiseXor = comparison[i] ^ comparison[j];
-                for (std::size_t k = 0u; k < bitwiseXor.size(); ++k)
-                {
+                for (std::size_t k = 0u; k < bitwiseXor.size(); ++k) {
                     expected += bitwiseXor[k] ? 1.0 : 0.0;
                 }
-                if (j % 10 == 0)
-                {
+                if (j % 10 == 0) {
                     LOG_DEBUG("xor = " << expected);
                 }
                 CPPUNIT_ASSERT_EQUAL(expected, test[i].inner(test[j],
@@ -424,19 +395,17 @@ void CPackedBitVectorTest::testBitwiseOr(void)
     }
 }
 
-void CPackedBitVectorTest::testPersist(void)
-{
+void CPackedBitVectorTest::testPersist(void) {
     LOG_DEBUG("+-------------------------------------+");
     LOG_DEBUG("|  CPackedBitVectorTest::testPersist  |");
     LOG_DEBUG("+-------------------------------------+");
 
     bool bits[] =
-        {
-            true, true, false, false, true, false, false, false, true, true
-        };
-
-    for (std::size_t t = 0u; t < boost::size(bits); ++t)
     {
+        true, true, false, false, true, false, false, false, true, true
+    };
+
+    for (std::size_t t = 0u; t < boost::size(bits); ++t) {
         maths::CPackedBitVector origVector(TBoolVec(boost::begin(bits),
                                                     boost::begin(bits) + t));
 
@@ -450,31 +419,30 @@ void CPackedBitVectorTest::testPersist(void)
     }
 }
 
-CppUnit::Test *CPackedBitVectorTest::suite(void)
-{
+CppUnit::Test *CPackedBitVectorTest::suite(void) {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testCreation",
-                                   &CPackedBitVectorTest::testCreation) );
+                               "CPackedBitVectorTest::testCreation",
+                               &CPackedBitVectorTest::testCreation) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testExtend",
-                                   &CPackedBitVectorTest::testExtend) );
+                               "CPackedBitVectorTest::testExtend",
+                               &CPackedBitVectorTest::testExtend) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testContract",
-                                   &CPackedBitVectorTest::testContract) );
+                               "CPackedBitVectorTest::testContract",
+                               &CPackedBitVectorTest::testContract) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testOperators",
-                                   &CPackedBitVectorTest::testOperators) );
+                               "CPackedBitVectorTest::testOperators",
+                               &CPackedBitVectorTest::testOperators) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testInner",
-                                   &CPackedBitVectorTest::testInner) );
+                               "CPackedBitVectorTest::testInner",
+                               &CPackedBitVectorTest::testInner) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testBitwiseOr",
-                                   &CPackedBitVectorTest::testBitwiseOr) );
+                               "CPackedBitVectorTest::testBitwiseOr",
+                               &CPackedBitVectorTest::testBitwiseOr) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CPackedBitVectorTest>(
-                                   "CPackedBitVectorTest::testPersist",
-                                   &CPackedBitVectorTest::testPersist) );
+                               "CPackedBitVectorTest::testPersist",
+                               &CPackedBitVectorTest::testPersist) );
 
     return suiteOfTests;
 }

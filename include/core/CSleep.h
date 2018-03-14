@@ -21,10 +21,8 @@
 #include <stdint.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -46,8 +44,7 @@ namespace core
 //! milliseconds.  The reason is that Windows can only sleep for a multiple of
 //! milliseconds, and we can't use functionality that's only available on Unix.
 //!
-class CORE_EXPORT CSleep : private CNonInstantiatable
-{
+class CORE_EXPORT CSleep : private CNonInstantiatable {
     public:
         //! A processing delay that has been found (by trial and error) to slow
         //! down a thread when required, but without causing unwanted MySQL

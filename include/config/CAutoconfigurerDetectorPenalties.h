@@ -23,10 +23,8 @@
 
 #include <vector>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CAutoconfigurerFieldRolePenalties;
 class CDetectorSpecification;
@@ -42,8 +40,7 @@ class CPenalty;
 //! This provides a single definition point for a logical group of penalties
 //! and has been factored into its own class to avoid CAutoconfigurer becoming
 //! monolithic.
-class CONFIG_EXPORT CAutoconfigurerDetectorPenalties
-{
+class CONFIG_EXPORT CAutoconfigurerDetectorPenalties {
     public:
         typedef boost::shared_ptr<CPenalty> TPenaltyPtr;
 

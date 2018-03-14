@@ -20,10 +20,8 @@
 #include <core/CThread.h>
 #include <core/ImportExport.h>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 //! \brief
 //! An output stream that writes to a boost filtering_stream endpoint.
@@ -39,8 +37,7 @@ namespace core
 //! manages the buffering of data between the client thread and
 //! the upload thread.
 //!
-class CORE_EXPORT CCompressOStream : public std::ostream
-{
+class CORE_EXPORT CCompressOStream : public std::ostream {
     public:
         //! Constructor
         CCompressOStream(CStateCompressor::CChunkFilter &filter);
@@ -52,8 +49,7 @@ class CORE_EXPORT CCompressOStream : public std::ostream
         void close(void);
 
     private:
-        class CCompressThread : public CThread
-        {
+        class CCompressThread : public CThread {
             public:
                 CCompressThread(CCompressOStream &stream,
                                 CDualThreadStreamBuf &streamBuf,
@@ -85,7 +81,7 @@ class CORE_EXPORT CCompressOStream : public std::ostream
         CDualThreadStreamBuf m_StreamBuf;
 
         //! Thread used for the upload
-        CCompressThread      m_UploadThread;
+        CCompressThread m_UploadThread;
 };
 
 } // core

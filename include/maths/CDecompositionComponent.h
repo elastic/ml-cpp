@@ -29,29 +29,25 @@
 #include <cstddef>
 #include <vector>
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace maths
-{
+namespace maths {
 
 //! \brief Common functionality used by our decomposition component classes.
-class MATHS_EXPORT CDecompositionComponent
-{
+class MATHS_EXPORT CDecompositionComponent {
     public:
         using TDoubleDoublePr = maths_t::TDoubleDoublePr;
         using TDoubleVec = std::vector<double>;
         using TFloatVec = std::vector<CFloatStorage>;
         using TSplineCRef = CSpline<boost::reference_wrapper<const TFloatVec>,
                                     boost::reference_wrapper<const TFloatVec>,
-                                    boost::reference_wrapper<const TDoubleVec>>;
+                                    boost::reference_wrapper<const TDoubleVec> >;
         using TSplineRef = CSpline<boost::reference_wrapper<TFloatVec>,
                                    boost::reference_wrapper<TFloatVec>,
-                                   boost::reference_wrapper<TDoubleVec>>;
+                                   boost::reference_wrapper<TDoubleVec> >;
 
     public:
         //! Persist state by passing information to \p inserter.
@@ -62,11 +58,9 @@ class MATHS_EXPORT CDecompositionComponent
 
     protected:
         //! \brief A low memory representation of the value and variance splines.
-        class MATHS_EXPORT CPackedSplines
-        {
+        class MATHS_EXPORT CPackedSplines {
             public:
-                enum ESpline
-                {
+                enum ESpline {
                     E_Value    = 0,
                     E_Variance = 1
                 };

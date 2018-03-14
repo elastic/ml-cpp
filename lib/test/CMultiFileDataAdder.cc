@@ -24,30 +24,25 @@
 #include <fstream>
 
 
-namespace ml
-{
-namespace test
-{
+namespace ml {
+namespace test {
 
 
 const std::string CMultiFileDataAdder::JSON_FILE_EXT = ".json";
 
 
 CMultiFileDataAdder::CMultiFileDataAdder(std::string baseFilename,
-                                         std::string fileExtension)
-{
+                                         std::string fileExtension) {
     m_BaseFilename.swap(baseFilename);
     m_FileExtension.swap(fileExtension);
 }
 
 CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::string &index,
-                                                                const std::string &id)
-{
+                                                                const std::string &id) {
     const std::string &filename = this->makeFilename(index, id);
 
     TOStreamP strm(boost::make_shared<std::ofstream>(filename.c_str()));
-    if (!strm->good())
-    {
+    if (!strm->good()) {
         LOG_ERROR("Failed to create new output stream for file " << filename);
         strm.reset();
     }
@@ -56,11 +51,9 @@ CMultiFileDataAdder::TOStreamP CMultiFileDataAdder::addStreamed(const std::strin
 }
 
 bool CMultiFileDataAdder::streamComplete(TOStreamP &strm,
-                                         bool /*force*/)
-{
+                                         bool /*force*/) {
     std::ofstream *ofs(dynamic_cast<std::ofstream *>(strm.get()));
-    if (ofs == 0)
-    {
+    if (ofs == 0) {
         return false;
     }
 
@@ -70,26 +63,21 @@ bool CMultiFileDataAdder::streamComplete(TOStreamP &strm,
 }
 
 std::string CMultiFileDataAdder::makeFilename(const std::string &index,
-                                              const std::string &id) const
-{
+                                              const std::string &id) const {
     // NB: The logic in here must mirror that of CMultiFileSearcher::search()
 
     std::string filename(m_BaseFilename);
-    if (!index.empty())
-    {
+    if (!index.empty()) {
         filename += "/_";
         filename += index;
     }
 
-    try
-    {
+    try {
         // Prior existence of the directory is not considered an error by
         // boost::filesystem, and this is what we want
         boost::filesystem::path directoryPath(filename);
         boost::filesystem::create_directories(directoryPath);
-    }
-    catch (std::exception &e)
-    {
+    } catch (std::exception &e) {
         LOG_ERROR("Failed to create directory " << filename <<
                   " - " << e.what());
     }

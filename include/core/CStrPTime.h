@@ -21,10 +21,8 @@
 #include <time.h>
 
 
-namespace ml
-{
-namespace core
-{
+namespace ml {
+namespace core {
 
 
 //! \brief
@@ -48,8 +46,7 @@ namespace core
 //! indicated by the %Z format, but (at least on Fedora 9) it doesn't.
 //! So Linux requires special handling for %Z too.
 //!
-class CORE_EXPORT CStrPTime : private CNonInstantiatable
-{
+class CORE_EXPORT CStrPTime : private CNonInstantiatable {
     public:
         static char *strPTime(const char *buf,
                               const char *format,

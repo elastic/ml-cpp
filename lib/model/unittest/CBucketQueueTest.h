@@ -17,8 +17,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBucketQueueTest : public CppUnit::TestFixture
-{
+class CBucketQueueTest : public CppUnit::TestFixture {
     public:
         void testConstructorFillsQueue(void);
         void testPushGivenEarlierTime(void);

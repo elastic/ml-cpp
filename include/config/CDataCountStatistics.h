@@ -37,17 +37,14 @@
 #include <vector>
 #include <stdint.h>
 
-namespace ml
-{
-namespace config
-{
+namespace ml {
+namespace config {
 class CAutoconfigurerParams;
 class CDetectorRecord;
 class CDetectorSpecification;
 
 //! \brief Statistics for the bucketed data.
-class CONFIG_EXPORT CBucketCountStatistics
-{
+class CONFIG_EXPORT CBucketCountStatistics {
     public:
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
         typedef core::CTriple<std::size_t, std::size_t, std::size_t> TSizeSizeSizeTr;
@@ -58,8 +55,7 @@ class CONFIG_EXPORT CBucketCountStatistics
         typedef maths::CBasicStatistics::SSampleMeanVarSkew<double>::TAccumulator TMoments;
 
         //! \brief The moments of a categorical function argument field.
-        struct CONFIG_EXPORT SArgumentMoments
-        {
+        struct CONFIG_EXPORT SArgumentMoments {
             //! The distinct count moments.
             TMoments s_DistinctCount;
             //! The information content moments.
@@ -98,11 +94,10 @@ class CONFIG_EXPORT CBucketCountStatistics
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMean;
 
         //! \brief Bucket data stored about argument field.
-        struct CONFIG_EXPORT SBucketArgumentData
-        {
+        struct CONFIG_EXPORT SBucketArgumentData {
             SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) :
-                    s_DistinctValues(distinctValues)
-            {}
+                s_DistinctValues(distinctValues) {
+            }
             //! The approximate distinct values.
             maths::CBjkstUniqueValues s_DistinctValues;
             //! A sample of the unique strings in the bucket.
@@ -148,8 +143,7 @@ class CONFIG_EXPORT CBucketCountStatistics
 //! Each logical set of data statistics has its own hierarchy and is managed
 //! by a direct address table which enumerates unique combinations and maps
 //! detectors to their appropriate statistics.
-class CONFIG_EXPORT CDataCountStatistics
-{
+class CONFIG_EXPORT CDataCountStatistics {
     public:
         typedef std::vector<uint64_t> TUInt64Vec;
         typedef std::vector<CDetectorRecord> TDetectorRecordVec;
@@ -184,15 +178,13 @@ class CONFIG_EXPORT CDataCountStatistics
 
         //! Extract the by field value.
         template<typename T>
-        static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p)
-        {
+        static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
             return p.first.first;
         }
 
         //! Extract the partition field value.
         template<typename T>
-        static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p)
-        {
+        static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T> &p) {
             return p.first.second;
         }
 
@@ -270,8 +262,7 @@ class CONFIG_EXPORT CDataCountStatistics
 };
 
 //! \brief The count statistics for detectors with no "by" or "over" field.
-class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics {
     public:
         CPartitionDataCountStatistics(const CAutoconfigurerParams &params);
 
@@ -280,8 +271,7 @@ class CONFIG_EXPORT CPartitionDataCountStatistics : public CDataCountStatistics
 };
 
 //! \brief The count statistics for detectors with no "over" field.
-class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatistics {
     public:
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
         typedef boost::unordered_set<TSizeSizePr> TSizeSizePrUSet;
@@ -296,8 +286,7 @@ class CONFIG_EXPORT CByAndPartitionDataCountStatistics : public CDataCountStatis
 };
 
 //! \brief The count statistics for detectors with a "by" and an "over" field.
-class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountStatistics
-{
+class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountStatistics {
     public:
         typedef boost::unordered_map<std::size_t, uint64_t> TSizeUInt64UMap;
         typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -328,8 +317,7 @@ class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountSt
 //! maintain a direct address table from every detector, built once up front
 //! on the set of initial candidate detectors, to a corresponding collection
 //! unique data count statistics.
-class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable
-{
+class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable {
     public:
         typedef std::vector<CDetectorRecord> TDetectorRecordVec;
         typedef std::vector<CDetectorSpecification> TDetectorSpecificationVec;

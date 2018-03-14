@@ -30,19 +30,17 @@
 #include <string>
 #include <sstream>
 
-CppUnit::Test *CResultNormalizerTest::suite()
-{
+CppUnit::Test *CResultNormalizerTest::suite() {
     CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite("CResultNormalizerTest");
 
     suiteOfTests->addTest( new CppUnit::TestCaller<CResultNormalizerTest>(
-                                   "CResultNormalizerTest::testInitNormalizer",
-                                   &CResultNormalizerTest::testInitNormalizer) );
+                               "CResultNormalizerTest::testInitNormalizer",
+                               &CResultNormalizerTest::testInitNormalizer) );
 
     return suiteOfTests;
 }
 
-void CResultNormalizerTest::testInitNormalizer(void)
-{
+void CResultNormalizerTest::testInitNormalizer(void) {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
@@ -52,7 +50,7 @@ void CResultNormalizerTest::testInitNormalizer(void)
 
     CPPUNIT_ASSERT(normalizer.initNormalizer("testfiles/quantilesState.json"));
 
-    std::ifstream inputStrm("testfiles/normalizerInput.csv");
+    std::ifstream            inputStrm("testfiles/normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
     CPPUNIT_ASSERT(inputParser.readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord,
                                                       &normalizer,
@@ -63,10 +61,9 @@ void CResultNormalizerTest::testInitNormalizer(void)
 
     // Results are new line separated so read all the docs into an  array
     std::vector<rapidjson::Document> resultDocs;
-    std::stringstream ss(results);
-    std::string docString;
-    while (std::getline(ss, docString))
-    {
+    std::stringstream                ss(results);
+    std::string                      docString;
+    while (std::getline(ss, docString)) {
         resultDocs.emplace_back();
         resultDocs.back().Parse<rapidjson::kParseDefaultFlags>(docString.c_str());
     }
