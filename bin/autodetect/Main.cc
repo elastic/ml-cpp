@@ -36,6 +36,7 @@
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
+#include <api/CModelSnapshotJsonWriter.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -262,8 +263,7 @@ int main(int argc, char **argv)
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
-    // output writer for CFieldDataTyper and persistence callback
-    ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
+    ml::api::CModelSnapshotJsonWriter modelSnapshotWriter(jobId, wrappedOutputStream);
     if (fieldConfig.initFromCmdLine(fieldConfigFile,
                                     clauseTokens) == false)
     {
@@ -277,8 +277,7 @@ int main(int argc, char **argv)
                              fieldConfig,
                              modelConfig,
                              wrappedOutputStream,
-                             boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete,
-                                         &outputWriter, _1, _2, _3, _4, _5, _6, _7, _8),
+                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write, &modelSnapshotWriter, _1),
                              periodicPersister.get(),
                              maxQuantileInterval,
                              timeField,
@@ -303,8 +302,10 @@ int main(int argc, char **argv)
     // Chain the categorizer's output to the anomaly detector's input
     ml::api::COutputChainer outputChainer(job);
 
+    ml::api::CJsonOutputWriter fieldDataTyperOutputWriter(jobId, wrappedOutputStream);
+
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, outputWriter);
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer, fieldDataTyperOutputWriter);
 
     if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0)
     {
@@ -330,7 +331,7 @@ int main(int argc, char **argv)
     // as it must be finalised before the skeleton is destroyed, and C++
     // destruction order means the skeleton will be destroyed before the output
     // writer as it was constructed last.
-    outputWriter.finalise();
+    fieldDataTyperOutputWriter.finalise();
 
     if (!ioLoopSucceeded)
     {
