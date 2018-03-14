@@ -75,10 +75,10 @@ void CModelSizeStatsJsonWriter::write(const std::string &jobId,
     writer.String(print(results.s_MemoryStatus));
 
     writer.String(TIMESTAMP);
-    writer.Int64(results.s_BucketStartTime * 1000);
+    writer.Time(results.s_BucketStartTime);
 
     writer.String(LOG_TIME);
-    writer.Int64(core::CTimeUtils::now() * 1000);
+    writer.Time(core::CTimeUtils::now());
 
     writer.EndObject();
 }
