@@ -21,18 +21,22 @@ namespace ml
 {
 namespace api
 {
+namespace
+{
 
 // JSON field names
-const std::string CModelSnapshotJsonWriter::JOB_ID("job_id");
-const std::string CModelSnapshotJsonWriter::TIMESTAMP("timestamp");
-const std::string CModelSnapshotJsonWriter::MODEL_SNAPSHOT("model_snapshot");
-const std::string CModelSnapshotJsonWriter::SNAPSHOT_ID("snapshot_id");
-const std::string CModelSnapshotJsonWriter::SNAPSHOT_DOC_COUNT("snapshot_doc_count");
-const std::string CModelSnapshotJsonWriter::DESCRIPTION("description");
-const std::string CModelSnapshotJsonWriter::LATEST_RECORD_TIME("latest_record_time_stamp");
-const std::string CModelSnapshotJsonWriter::LATEST_RESULT_TIME("latest_result_time_stamp");
-const std::string CModelSnapshotJsonWriter::QUANTILE_STATE("quantile_state");
-const std::string CModelSnapshotJsonWriter::QUANTILES("quantiles");
+const std::string JOB_ID("job_id");
+const std::string TIMESTAMP("timestamp");
+const std::string MODEL_SNAPSHOT("model_snapshot");
+const std::string SNAPSHOT_ID("snapshot_id");
+const std::string SNAPSHOT_DOC_COUNT("snapshot_doc_count");
+const std::string DESCRIPTION("description");
+const std::string LATEST_RECORD_TIME("latest_record_time_stamp");
+const std::string LATEST_RESULT_TIME("latest_result_time_stamp");
+const std::string QUANTILES("quantiles");
+const std::string QUANTILE_STATE("quantile_state");
+
+}
 
 CModelSnapshotJsonWriter::CModelSnapshotJsonWriter(const std::string &jobId, core::CJsonOutputStreamWrapper &strmOut)
     : m_JobId(jobId),

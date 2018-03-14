@@ -83,6 +83,5 @@ void CModelSizeStatsJsonWriter::write(const std::string &jobId,
     writer.EndObject();
 }
 
-
 }
 }

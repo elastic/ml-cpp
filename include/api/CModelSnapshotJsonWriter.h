@@ -51,17 +51,6 @@ class API_EXPORT CModelSnapshotJsonWriter
             core_t::TTime                     s_LatestFinalResultTime;
         };
 
-        static const std::string JOB_ID;
-        static const std::string TIMESTAMP;
-        static const std::string MODEL_SNAPSHOT;
-        static const std::string SNAPSHOT_ID;
-        static const std::string SNAPSHOT_DOC_COUNT;
-        static const std::string DESCRIPTION;
-        static const std::string LATEST_RECORD_TIME;
-        static const std::string LATEST_RESULT_TIME;
-        static const std::string QUANTILES;
-        static const std::string QUANTILE_STATE;
-
     public:
         //! Constructor that causes output to be written to the specified wrapped stream
         CModelSnapshotJsonWriter(const std::string &jobId,

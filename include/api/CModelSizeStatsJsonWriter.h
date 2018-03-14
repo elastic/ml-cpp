@@ -40,7 +40,6 @@ class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable
                           core::CRapidJsonConcurrentLineWriter &writer);
 };
 
-
 }
 }
 

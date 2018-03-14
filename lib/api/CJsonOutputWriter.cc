@@ -35,6 +35,56 @@ namespace api
 namespace
 {
 
+// JSON field names
+const std::string JOB_ID("job_id");
+const std::string TIMESTAMP("timestamp");
+const std::string BUCKET("bucket");
+const std::string DETECTOR_INDEX("detector_index");
+const std::string RECORDS("records");
+const std::string EVENT_COUNT("event_count");
+const std::string IS_INTERIM("is_interim");
+const std::string PROBABILITY("probability");
+const std::string RAW_ANOMALY_SCORE("raw_anomaly_score");
+const std::string ANOMALY_SCORE("anomaly_score");
+const std::string RECORD_SCORE("record_score");
+const std::string INITIAL_RECORD_SCORE("initial_record_score");
+const std::string INFLUENCER_SCORE("influencer_score");
+const std::string INITIAL_INFLUENCER_SCORE("initial_influencer_score");
+const std::string FIELD_NAME("field_name");
+const std::string BY_FIELD_NAME("by_field_name");
+const std::string BY_FIELD_VALUE("by_field_value");
+const std::string CORRELATED_BY_FIELD_VALUE("correlated_by_field_value");
+const std::string TYPICAL("typical");
+const std::string ACTUAL("actual");
+const std::string CAUSES("causes");
+const std::string FUNCTION("function");
+const std::string FUNCTION_DESCRIPTION("function_description");
+const std::string OVER_FIELD_NAME("over_field_name");
+const std::string OVER_FIELD_VALUE("over_field_value");
+const std::string PARTITION_FIELD_NAME("partition_field_name");
+const std::string PARTITION_FIELD_VALUE("partition_field_value");
+const std::string INITIAL_SCORE("initial_anomaly_score");
+const std::string INFLUENCER_FIELD_NAME("influencer_field_name");
+const std::string INFLUENCER_FIELD_VALUE("influencer_field_value");
+const std::string INFLUENCER_FIELD_VALUES("influencer_field_values");
+const std::string BUCKET_INFLUENCERS("bucket_influencers");
+const std::string INFLUENCERS("influencers");
+const std::string FLUSH("flush");
+const std::string ID("id");
+const std::string LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
+const std::string CATEGORY_ID("category_id");
+const std::string CATEGORY_DEFINITION("category_definition");
+const std::string TERMS("terms");
+const std::string REGEX("regex");
+const std::string MAX_MATCHING_LENGTH("max_matching_length");
+const std::string EXAMPLES("examples");
+const std::string BUCKET_SPAN("bucket_span");
+const std::string PROCESSING_TIME("processing_time_ms");
+const std::string TIME_INFLUENCER("bucket_time");
+const std::string PARTITION_SCORES("partition_scores");
+const std::string SCHEDULED_EVENTS("scheduled_events");
+const std::string QUANTILES("quantiles");
+
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
 //! The caller is responsible for ensuring this, and a
@@ -58,8 +108,8 @@ class CProbabilityLess
         bool operator()(const CJsonOutputWriter::TDocumentWeakPtrIntPr &lhs,
                         const CJsonOutputWriter::TDocumentWeakPtrIntPr &rhs) const
         {
-            return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY)
-                 < doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
+            return doubleFromDocument(lhs.first, PROBABILITY)
+                 < doubleFromDocument(rhs.first, PROBABILITY);
         }
 };
 
@@ -75,8 +125,8 @@ class CDetectorThenProbabilityLess
         {
             if (lhs.second == rhs.second)
             {
-                return doubleFromDocument(lhs.first, CJsonOutputWriter::PROBABILITY)
-                     < doubleFromDocument(rhs.first, CJsonOutputWriter::PROBABILITY);
+                return doubleFromDocument(lhs.first, PROBABILITY)
+                     < doubleFromDocument(rhs.first, PROBABILITY);
             }
             return lhs.second < rhs.second;
         }
@@ -116,59 +166,11 @@ class CInfluencerGreater
         const std::string &m_Field;
 };
 
-const CInfluencerGreater INFLUENCER_GREATER = CInfluencerGreater(CJsonOutputWriter::INITIAL_INFLUENCER_SCORE);
-const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(CJsonOutputWriter::INITIAL_SCORE);
+const CInfluencerGreater INFLUENCER_GREATER = CInfluencerGreater(INITIAL_INFLUENCER_SCORE);
+const CInfluencerGreater BUCKET_INFLUENCER_GREATER = CInfluencerGreater(INITIAL_SCORE);
 
 }
 
-// JSON field names
-const std::string   CJsonOutputWriter::JOB_ID("job_id");
-const std::string   CJsonOutputWriter::TIMESTAMP("timestamp");
-const std::string   CJsonOutputWriter::BUCKET("bucket");
-const std::string   CJsonOutputWriter::DETECTOR_INDEX("detector_index");
-const std::string   CJsonOutputWriter::RECORDS("records");
-const std::string   CJsonOutputWriter::EVENT_COUNT("event_count");
-const std::string   CJsonOutputWriter::IS_INTERIM("is_interim");
-const std::string   CJsonOutputWriter::PROBABILITY("probability");
-const std::string   CJsonOutputWriter::RAW_ANOMALY_SCORE("raw_anomaly_score");
-const std::string   CJsonOutputWriter::ANOMALY_SCORE("anomaly_score");
-const std::string   CJsonOutputWriter::RECORD_SCORE("record_score");
-const std::string   CJsonOutputWriter::INITIAL_RECORD_SCORE("initial_record_score");
-const std::string   CJsonOutputWriter::INFLUENCER_SCORE("influencer_score");
-const std::string   CJsonOutputWriter::INITIAL_INFLUENCER_SCORE("initial_influencer_score");
-const std::string   CJsonOutputWriter::FIELD_NAME("field_name");
-const std::string   CJsonOutputWriter::BY_FIELD_NAME("by_field_name");
-const std::string   CJsonOutputWriter::BY_FIELD_VALUE("by_field_value");
-const std::string   CJsonOutputWriter::CORRELATED_BY_FIELD_VALUE("correlated_by_field_value");
-const std::string   CJsonOutputWriter::TYPICAL("typical");
-const std::string   CJsonOutputWriter::ACTUAL("actual");
-const std::string   CJsonOutputWriter::CAUSES("causes");
-const std::string   CJsonOutputWriter::FUNCTION("function");
-const std::string   CJsonOutputWriter::FUNCTION_DESCRIPTION("function_description");
-const std::string   CJsonOutputWriter::OVER_FIELD_NAME("over_field_name");
-const std::string   CJsonOutputWriter::OVER_FIELD_VALUE("over_field_value");
-const std::string   CJsonOutputWriter::PARTITION_FIELD_NAME("partition_field_name");
-const std::string   CJsonOutputWriter::PARTITION_FIELD_VALUE("partition_field_value");
-const std::string   CJsonOutputWriter::INITIAL_SCORE("initial_anomaly_score");
-const std::string   CJsonOutputWriter::INFLUENCER_FIELD_NAME("influencer_field_name");
-const std::string   CJsonOutputWriter::INFLUENCER_FIELD_VALUE("influencer_field_value");
-const std::string   CJsonOutputWriter::INFLUENCER_FIELD_VALUES("influencer_field_values");
-const std::string   CJsonOutputWriter::BUCKET_INFLUENCERS("bucket_influencers");
-const std::string   CJsonOutputWriter::INFLUENCERS("influencers");
-const std::string   CJsonOutputWriter::FLUSH("flush");
-const std::string   CJsonOutputWriter::ID("id");
-const std::string   CJsonOutputWriter::LAST_FINALIZED_BUCKET_END("last_finalized_bucket_end");
-const std::string   CJsonOutputWriter::CATEGORY_ID("category_id");
-const std::string   CJsonOutputWriter::CATEGORY_DEFINITION("category_definition");
-const std::string   CJsonOutputWriter::TERMS("terms");
-const std::string   CJsonOutputWriter::REGEX("regex");
-const std::string   CJsonOutputWriter::MAX_MATCHING_LENGTH("max_matching_length");
-const std::string   CJsonOutputWriter::EXAMPLES("examples");
-const std::string   CJsonOutputWriter::BUCKET_SPAN("bucket_span");
-const std::string   CJsonOutputWriter::PROCESSING_TIME("processing_time_ms");
-const std::string   CJsonOutputWriter::TIME_INFLUENCER("bucket_time");
-const std::string   CJsonOutputWriter::PARTITION_SCORES("partition_scores");
-const std::string   CJsonOutputWriter::SCHEDULED_EVENTS("scheduled_events");
 
 CJsonOutputWriter::CJsonOutputWriter(const std::string &jobId, core::CJsonOutputStreamWrapper &strmOut)
     : m_JobId(jobId),
@@ -944,7 +946,7 @@ void CJsonOutputWriter::persistNormalizer(const model::CHierarchicalResultsNorma
     normalizer.toJson(m_LastNonInterimBucketTime, "api", quantilesState, true);
 
     m_Writer.StartObject();
-    m_Writer.String(CModelSnapshotJsonWriter::QUANTILES);
+    m_Writer.String(QUANTILES);
     // No need to copy the strings as the doc is written straight away
     CModelSnapshotJsonWriter::writeQuantileState(m_JobId, quantilesState, m_LastNonInterimBucketTime, m_Writer);
     m_Writer.EndObject();
