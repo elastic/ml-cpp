@@ -13,6 +13,7 @@
 #include <core/ImportExport.h>
 #include <core/CFunctional.h>
 #include <core/CRapidJsonPoolAllocator.h>
+#include <core/CTimeUtils.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -183,6 +184,11 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
             return TRapidJsonWriterBase::Double(d);
         }
 
+        //! Writes an epoch second timestamp as an epoch millis timestamp
+        bool Time(core_t::TTime t)
+        {
+            return this->Int64(CTimeUtils::toEpochMs(t));
+        }
 
         //! Push a constant string into a supplied rapidjson object value
         //! \p[in] value constant string
@@ -391,8 +397,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
                                core_t::TTime value,
                                TValue &obj) const
         {
-            int64_t javaTimestamp = int64_t(value) * 1000;
-            TValue v(javaTimestamp);
+            TValue v(CTimeUtils::toEpochMs(value));
             this->addMember(fieldName, v, obj);
         }
 
@@ -538,7 +543,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
 
             for (const auto &value: values)
             {
-                this->pushBack(value * int64_t(1000), array);
+                this->pushBack(CTimeUtils::toEpochMs(value), array);
             }
 
             this->addMember(fieldName, array, obj);

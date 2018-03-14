@@ -491,7 +491,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, *docPtr);
             m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketData.s_BucketSpan, *docPtr);
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
 
             if (isInterim)
             {
@@ -522,7 +522,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
             }
 
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
             if (isInterim)
             {
                 m_Writer.addBoolFieldToObj(IS_INTERIM, isInterim, *docPtr);
@@ -542,7 +542,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
     m_Writer.String(JOB_ID);
     m_Writer.String(m_JobId);
     m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(bucketTime * 1000);
+    m_Writer.Time(bucketTime);
 
     m_Writer.String(ANOMALY_SCORE);
     m_Writer.Double(bucketData.s_MaxBucketInfluencerNormalizedAnomalyScore);
@@ -577,7 +577,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
 
 
             m_Writer.addStringFieldCopyToObj(JOB_ID, m_JobId, *docPtr);
-            m_Writer.addIntFieldToObj(TIMESTAMP, bucketTime * 1000, *docPtr);
+            m_Writer.addTimeFieldToObj(TIMESTAMP, bucketTime, *docPtr);
             m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketData.s_BucketSpan, *docPtr);
             if (isInterim)
             {
@@ -975,7 +975,7 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string &flushId, core_t::TTi
     m_Writer.String(ID);
     m_Writer.String(flushId);
     m_Writer.String(LAST_FINALIZED_BUCKET_END);
-    m_Writer.Int64(lastFinalizedBucketEnd * 1000);
+    m_Writer.Time(lastFinalizedBucketEnd);
 
     m_Writer.EndObject();
     m_Writer.EndObject();
