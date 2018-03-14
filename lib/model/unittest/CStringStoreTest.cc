@@ -86,11 +86,11 @@ class CStringThread : public core::CThread {
         }
 
     private:
-        std::size_t m_I;
-        TStrVec m_Strings;
+        std::size_t         m_I;
+        TStrVec             m_Strings;
         TStoredStringPtrVec m_Ptrs;
-        TStrCPtrUSet m_UniquePtrs;
-        TCppUnitExceptionP m_LastException;
+        TStrCPtrUSet        m_UniquePtrs;
+        TCppUnitExceptionP  m_LastException;
 };
 
 }

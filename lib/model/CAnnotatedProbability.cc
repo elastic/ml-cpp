@@ -196,7 +196,7 @@ bool SAnnotatedProbability::isInterim(void) const {
 
 bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {
-        const std::string &    name = traverser.name();
+        const std::string      &    name = traverser.name();
         core::CStoredStringPtr influencerName;
         core::CStoredStringPtr influencerValue;
         double                 d;

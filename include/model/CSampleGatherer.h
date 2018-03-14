@@ -148,7 +148,7 @@ class CSampleGatherer {
         bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
             std::size_t i = 0u;
             do {
-                const std::string &     name = traverser.name();
+                const std::string       &     name = traverser.name();
                 TMetricPartialStatistic stat(m_Dimension);
                 RESTORE_BUILT_IN(DIMENSION_TAG, m_Dimension)
                 RESTORE(CLASSIFIER_TAG, traverser.traverseSubLevel(
@@ -187,7 +187,7 @@ class CSampleGatherer {
                                        core_t::TTime /*bucketLength*/,
                                        double effectiveSampleCount) const {
             const TMetricPartialStatistic &bucketPartial = m_BucketStats.get(time);
-            double                         count = bucketPartial.count();
+            double                        count = bucketPartial.count();
             if (count > 0.0) {
                 core_t::TTime bucketTime = bucketPartial.time();
                 TDouble1Vec   bucketValue  = bucketPartial.value();
@@ -265,8 +265,8 @@ class CSampleGatherer {
                     continue;
                 }
                 TStoredStringPtrStatUMap &stats = m_InfluencerBucketStats[i].get(time);
-                auto                      j = stats.emplace(influences[i],
-                                                            CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension)).first;
+                auto                     j = stats.emplace(influences[i],
+                                                           CMetricStatisticWrappers::template make<STATISTIC>(m_Dimension)).first;
                 CMetricStatisticWrappers::add(statistic, count, j->second);
             }
         }
@@ -405,18 +405,18 @@ class CSampleGatherer {
 
     private:
         //! The dimension of the statistic being gathered.
-        std::size_t m_Dimension;
+        std::size_t                            m_Dimension;
 
         //! Classifies the sampled statistics.
-        CDataClassifier m_Classifier;
+        CDataClassifier                        m_Classifier;
 
         //! The queue holding the partial aggregate statistics within
         //! latency window used for building samples.
-        TSampleQueue m_SampleStats;
+        TSampleQueue                           m_SampleStats;
 
         //! The aggregation of the measurements received for each
         //! bucket within latency window.
-        TStatBucketQueue m_BucketStats;
+        TStatBucketQueue                       m_BucketStats;
 
         //! The aggregation of the measurements received for each
         //! bucket and influencing field within latency window.
@@ -424,7 +424,7 @@ class CSampleGatherer {
 
         //! The samples of the aggregate statistic in the current
         //! bucketing interval.
-        TSampleVec m_Samples;
+        TSampleVec                             m_Samples;
 };
 
 template<typename STATISTIC, model_t::EFeature FEATURE>

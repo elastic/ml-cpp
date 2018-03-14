@@ -239,8 +239,8 @@ void CDetectorSpecification::scores(TParamScoresVec &result) const {
     const TTimeVec &candidates = this->params().candidateBucketLengths();
     for (std::size_t iid = 0u; iid < boost::size(IGNORE_EMPTY); ++iid) {
         for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
-            std::size_t    pid = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
-            double         score = CPenalty::score(m_Penalties[pid]);
+            std::size_t   pid = this->params().penaltyIndexFor(bid, IGNORE_EMPTY[iid]);
+            double        score = CPenalty::score(m_Penalties[pid]);
             const TStrVec &descriptions = m_PenaltyDescriptions[pid];
             if (score > this->params().minimumDetectorScore()) {
                 const std::string &name = config_t::ignoreEmptyVersionName(m_Function,

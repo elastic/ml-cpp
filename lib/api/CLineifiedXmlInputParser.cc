@@ -33,7 +33,7 @@ CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf &parser,
 }
 
 bool CLineifiedXmlInputParser::readStream(const TReaderFunc &readerFunc) {
-    TStrVec &  fieldNames = this->fieldNames();
+    TStrVec    &  fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
     // Reset the record buffer pointers in case we're reading a new stream

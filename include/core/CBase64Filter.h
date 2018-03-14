@@ -324,7 +324,7 @@ class CORE_EXPORT CBase64Decoder {
         TUInt8Buf m_BufferOut;
 
         //! Have we read all the available data from the downstream stream
-        bool m_Eos;
+        bool      m_Eos;
 };
 
 } // core

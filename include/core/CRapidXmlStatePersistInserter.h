@@ -93,7 +93,7 @@ class CORE_EXPORT CRapidXmlStatePersistInserter : public CStatePersistInserter {
 
         //! Approximate size of final string - used to reserve memory to
         //! minimise reallocations during conversion to string representation
-        size_t m_ApproxLen;
+        size_t                m_ApproxLen;
 };
 
 

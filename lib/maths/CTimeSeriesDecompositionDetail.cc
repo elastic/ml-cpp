@@ -553,11 +553,11 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::swap(CPeriodicityTest &ot
 }
 
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue &message) {
-    core_t::TTime                   time{message.s_Time};
-    double                          value{message.s_Value};
+    core_t::TTime                  time{message.s_Time};
+    double                         value{message.s_Value};
     const maths_t::TWeightStyleVec &weightStyles{message.s_WeightStyles};
-    const maths_t::TDouble4Vec &    weights{message.s_Weights};
-    double                          weight{maths_t::countForUpdate(weightStyles, weights)};
+    const maths_t::TDouble4Vec     &    weights{message.s_Weights};
+    double                         weight{maths_t::countForUpdate(weightStyles, weights)};
 
     this->test(message);
 
@@ -589,9 +589,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponen
 }
 
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue &message) {
-    core_t::TTime                            time{message.s_Time};
-    core_t::TTime                            lastTime{message.s_LastTime};
-    const TPredictor &                       predictor{message.s_Predictor};
+    core_t::TTime                           time{message.s_Time};
+    core_t::TTime                           lastTime{message.s_LastTime};
+    const TPredictor                        &                       predictor{message.s_Predictor};
     const CPeriodicityHypothesisTestsConfig &config{message.s_PeriodicityTestConfig};
 
     switch (m_Machine.state()) {
@@ -805,10 +805,10 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::swap(CCalendarTest &other) {
 }
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue &message) {
-    core_t::TTime                   time{message.s_Time};
-    double                          error{message.s_Value - message.s_Trend - message.s_Seasonal - message.s_Calendar};
+    core_t::TTime                  time{message.s_Time};
+    double                         error{message.s_Value - message.s_Trend - message.s_Seasonal - message.s_Calendar};
     const maths_t::TWeightStyleVec &weightStyles{message.s_WeightStyles};
-    const maths_t::TDouble4Vec &    weights{message.s_Weights};
+    const maths_t::TDouble4Vec     &    weights{message.s_Weights};
 
     this->test(message);
 
@@ -1080,13 +1080,13 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue &messag
         case SC_NEW_COMPONENTS: {
             this->interpolate(message);
 
-            core_t::TTime                   time{message.s_Time};
-            double                          value{message.s_Value};
-            double                          trend{message.s_Trend};
-            double                          seasonal{message.s_Seasonal};
-            double                          calendar{message.s_Calendar};
+            core_t::TTime                  time{message.s_Time};
+            double                         value{message.s_Value};
+            double                         trend{message.s_Trend};
+            double                         seasonal{message.s_Seasonal};
+            double                         calendar{message.s_Calendar};
             const maths_t::TWeightStyleVec &weightStyles{message.s_WeightStyles};
-            const maths_t::TDouble4Vec &    weights{message.s_Weights};
+            const maths_t::TDouble4Vec     &    weights{message.s_Weights};
 
             TSeasonalComponentPtrVec seasonalComponents;
             TCalendarComponentPtrVec calendarComponents;
@@ -1117,14 +1117,14 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue &messag
             m_Trend.add(time, values[0], weight);
             for (std::size_t i = 1u; i <= m; ++i) {
                 CSeasonalComponent *component{seasonalComponents[i - 1]};
-                CComponentErrors *  error_{seasonalErrors[i - 1]};
-                double              wi{weight / component->time().fractionInWindow()};
+                CComponentErrors   *  error_{seasonalErrors[i - 1]};
+                double             wi{weight / component->time().fractionInWindow()};
                 component->add(time, values[i], wi);
                 error_->add(error, predictions[i - 1], wi);
             }
             for (std::size_t i = m + 1; i <= m + n; ++i) {
                 CCalendarComponent *component{calendarComponents[i - m - 1]};
-                CComponentErrors *  error_{calendarErrors[i - m - 1]};
+                CComponentErrors   *  error_{calendarErrors[i - m - 1]};
                 component->add(time, values[i], weight);
                 error_->add(error, predictions[i - 1], weight);
             }
@@ -1167,14 +1167,14 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
                 m_Seasonal.reset(new SSeasonal);
             }
 
-            core_t::TTime                            time{message.s_Time};
-            core_t::TTime                            lastTime{message.s_LastTime};
+            core_t::TTime                           time{message.s_Time};
+            core_t::TTime                           lastTime{message.s_LastTime};
             const CPeriodicityHypothesisTestsResult &result{message.s_Result};
-            const CExpandingWindow &                 window{message.s_Window};
-            const TPredictor &                       predictor{message.s_Predictor};
+            const CExpandingWindow                  &                 window{message.s_Window};
+            const TPredictor                        &                       predictor{message.s_Predictor};
 
             TSeasonalComponentVec &components{m_Seasonal->s_Components};
-            TComponentErrorsVec &  errors{m_Seasonal->s_PredictionErrors};
+            TComponentErrorsVec   &  errors{m_Seasonal->s_PredictionErrors};
 
             if (!this->addSeasonalComponents(result, window, predictor, m_Trend, components, errors)) {
                 break;
@@ -1220,7 +1220,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
             }
 
             TCalendarComponentVec &components{m_Calendar->s_Components};
-            TComponentErrorsVec &  errors{m_Calendar->s_PredictionErrors};
+            TComponentErrorsVec   &  errors{m_Calendar->s_PredictionErrors};
 
             this->addCalendarComponent(feature, time, components, errors);
             this->apply(SC_ADDED_COMPONENTS, message);
@@ -1562,7 +1562,7 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
         for (auto &component : seasonal) {
             if (component.slopeAccurate(time)) {
                 const CSeasonalTime &time_{component.time()};
-                double               si{component.slope()};
+                double              si{component.slope()};
                 component.shiftSlope(-si);
                 slope[time_.window()] += si;
             }
@@ -1822,7 +1822,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
         shifts.reserve(n);
         for (std::size_t i = 0u; i < n; ++i) {
             const CSeasonalTime &time_ = s_Components[i].time();
-            auto                 j = windowed.find(time_.window());
+            auto                j = windowed.find(time_.window());
             if (j == windowed.end() || j->second > 1) {
                 if (s_PredictionErrors[i].remove(bucketLength, s_Components[i])) {
                     LOG_DEBUG("Removing seasonal component"

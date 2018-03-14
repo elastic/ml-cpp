@@ -51,7 +51,7 @@ class CRandomProjectionClustererForTest : public maths::CRandomProjectionCluster
 
     public:
         CRandomProjectionClustererForTest(double compression = 1.0) :
-            maths::CRandomProjectionClustererBatch<N>(compression) {
+                              maths::CRandomProjectionClustererBatch<N>(compression) {
         }
 
         const TVectorArrayVec &projections(void) const {

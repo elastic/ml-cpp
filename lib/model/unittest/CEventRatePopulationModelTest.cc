@@ -279,13 +279,13 @@ void CEventRatePopulationModelTest::testBasicAccessors(void) {
             // Test the person and attribute invariants.
             for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j) {
                 const std::string &name = model->personName(j);
-                std::size_t        pid;
+                std::size_t       pid;
                 CPPUNIT_ASSERT(gatherer->personId(name, pid));
                 CPPUNIT_ASSERT_EQUAL(j, pid);
             }
             for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j) {
                 const std::string &name = model->attributeName(j);
-                std::size_t        cid;
+                std::size_t       cid;
                 CPPUNIT_ASSERT(gatherer->attributeId(name, cid));
                 CPPUNIT_ASSERT_EQUAL(j, cid);
             }
@@ -388,7 +388,7 @@ void CEventRatePopulationModelTest::testFeatures(void) {
         CModelFactory::TDataGathererPtr            gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
         CModelFactory::SModelInitializationData    modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr           modelHolder(factory.makeModel(modelInitData));
-        CEventRatePopulationModel *                model =
+        CEventRatePopulationModel                  *                model =
             dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
         model::CModelFactory::TFeatureMathsModelPtrPrVec models{factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
@@ -438,7 +438,7 @@ void CEventRatePopulationModelTest::testFeatures(void) {
                     populationSamples[cid].second.push_back(weight);
                 }
                 for (auto &samples_ : populationSamples) {
-                    std::size_t         cid = samples_.first;
+                    std::size_t        cid = samples_.first;
                     TDouble2Vec4VecVec &weights = samples_.second.second;
                     maths::COrderings::simultaneousSort(samples_.second.first, weights);
                     maths::CModel::TTimeDouble2VecSizeTrVec samples;
@@ -522,7 +522,7 @@ void CEventRatePopulationModelTest::testComputeProbability(void) {
     CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData    modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr           modelHolder(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *                model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
+    CEventRatePopulationModel                  *                model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
     TAnomalyAccumulator anomalies(6u);
 
@@ -868,7 +868,7 @@ void CEventRatePopulationModelTest::testFrequency(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
-    const model::CDataGatherer &               populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
+    const model::CDataGatherer                 &               populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        model(factory.makeModel(modelInitData));
@@ -985,7 +985,7 @@ void CEventRatePopulationModelTest::testSampleRateWeight(void) {
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        model(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *             populationModel =
+    CEventRatePopulationModel               *             populationModel =
         dynamic_cast<CEventRatePopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
@@ -1101,7 +1101,7 @@ void CEventRatePopulationModelTest::testPeriodicity(void) {
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        model(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *             populationModel =
+    CEventRatePopulationModel               *             populationModel =
         dynamic_cast<CEventRatePopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 
@@ -1178,7 +1178,7 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     CModelFactory::TDataGathererPtr            gathererNoGap(factory.makeDataGatherer(gathererNoGapInitData));
     CModelFactory::SModelInitializationData    modelNoGapInitData(gathererNoGap);
     CAnomalyDetectorModel::TModelPtr           modelNoGapHolder(factory.makeModel(modelNoGapInitData));
-    CEventRatePopulationModel *                modelNoGap = dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
+    CEventRatePopulationModel                  *                modelNoGap = dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
 
     addArrival(SMessage(100, "p1", "a1"), gathererNoGap, m_ResourceMonitor);
     addArrival(SMessage(100, "p1", "a2"), gathererNoGap, m_ResourceMonitor);
@@ -1193,7 +1193,7 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     CModelFactory::TDataGathererPtr            gathererWithGap(factory.makeDataGatherer(gathererWithGapInitData));
     CModelFactory::SModelInitializationData    modelWithGapInitData(gathererWithGap);
     CAnomalyDetectorModel::TModelPtr           modelWithGapHolder(factory.makeModel(modelWithGapInitData));
-    CEventRatePopulationModel *                modelWithGap = dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
+    CEventRatePopulationModel                  *                modelWithGap = dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
 
     addArrival(SMessage(100, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
     addArrival(SMessage(100, "p1", "a2"), gathererWithGap, m_ResourceMonitor);
@@ -1252,7 +1252,7 @@ void CEventRatePopulationModelTest::testInterimCorrections(void) {
     CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData    modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr           modelHolder(factory.makeModel(modelInitData));
-    CEventRatePopulationModel *                model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
+    CEventRatePopulationModel                  *                model = dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
     test::CRandomNumbers rng;
     core_t::TTime        now = startTime;

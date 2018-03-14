@@ -63,7 +63,7 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
             this->maths::CKMostCorrelated::mostCorrelated(result);
         }
 
-        const TVectorVec &projections(void) const {
+        const TVectorVec                       &projections(void) const {
             return this->maths::CKMostCorrelated::projections();
         }
 
@@ -71,11 +71,11 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
             return this->maths::CKMostCorrelated::projected();
         }
 
-        const TCorrelationVec &correlations(void) const {
+        const TCorrelationVec                  &correlations(void) const {
             return this->maths::CKMostCorrelated::correlations();
         }
 
-        const TMeanVarAccumulatorVec &moments(void) const {
+        const TMeanVarAccumulatorVec           &moments(void) const {
             return this->maths::CKMostCorrelated::moments();
         }
 };
@@ -762,7 +762,7 @@ void CKMostCorrelatedTest::testScale(void) {
         TDoubleVec normal;
         rng.generateNormalSamples(50.0, 20.0, ns[2], normal);
 
-        TDoubleVecVec     samples(b, TDoubleVec(n[s]));
+        TDoubleVecVec    samples(b, TDoubleVec(n[s]));
         const TDoubleVec *samples_[] = { &uniform, &gamma, &normal };
         for (std::size_t i = 0u; i < b; ++i) {
             for (std::size_t j = 0u, l = 0u; j < 3; ++j) {

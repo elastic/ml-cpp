@@ -63,7 +63,7 @@ class CReceiver {
     private:
         typedef std::vector<std::string> TStrVec;
 
-        TStrVec m_Strings;
+        TStrVec  m_Strings;
 
         uint32_t m_SleepTime;
 };

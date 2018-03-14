@@ -99,10 +99,10 @@ class API_EXPORT CInputParser : private core::CNonCopyable {
 
     private:
         //! Have we got the field names?
-        bool m_GotFieldNames;
+        bool    m_GotFieldNames;
 
         //! Have we found any data?
-        bool m_GotData;
+        bool    m_GotData;
 
         //! Field names parsed from the input
         TStrVec m_FieldNames;

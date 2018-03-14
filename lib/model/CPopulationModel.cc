@@ -160,9 +160,9 @@ CPopulationModel::currentBucketCount(std::size_t pid,
     }
 
     const TSizeUInt64PrVec &personCounts = this->personCounts();
-    auto                    i = std::lower_bound(personCounts.begin(),
-                                                 personCounts.end(),
-                                                 pid, maths::COrderings::SFirstLess());
+    auto                   i = std::lower_bound(personCounts.begin(),
+                                                personCounts.end(),
+                                                pid, maths::COrderings::SFirstLess());
     return (i != personCounts.end() && i->first == pid) ?
            TOptionalUInt64(i->second) : TOptionalUInt64();
 }
@@ -209,7 +209,7 @@ void CPopulationModel::sample(core_t::TTime startTime,
                               CResourceMonitor &resourceMonitor) {
     this->CAnomalyDetectorModel::sample(startTime, endTime, resourceMonitor);
 
-    const CDataGatherer &                       gatherer = this->dataGatherer();
+    const CDataGatherer                        &                       gatherer = this->dataGatherer();
     const CDataGatherer::TSizeSizePrUInt64UMap &counts = gatherer.bucketCounts(startTime);
     for (const auto &count : counts) {
         std::size_t pid = CDataGatherer::extractPersonId(count);
@@ -235,7 +235,7 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     const CDataGatherer &gatherer = this->dataGatherer();
-    TStrCRefUInt64Map    hashes;
+    TStrCRefUInt64Map   hashes;
     hashActive(E_Person,    gatherer, m_PersonLastBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeFirstBucketTimes, hashes);
     hashActive(E_Attribute, gatherer, m_AttributeLastBucketTimes, hashes);
@@ -282,7 +282,7 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
         return 1.0;
     }
 
-    const maths::CCountMinSketch &   counts = m_PersonAttributeBucketCounts[cid];
+    const maths::CCountMinSketch    &   counts = m_PersonAttributeBucketCounts[cid];
     const maths::CBjkstUniqueValues &distinctPeople = m_DistinctPersonCounts[cid];
 
     double personCount =  counts.count(static_cast<uint32_t>(pid))
@@ -565,7 +565,7 @@ void CPopulationModel::removePeople(const TSizeVec &peopleToRemove) {
 
 void CPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) {
     const CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime        gapDuration = endTime - startTime;
+    core_t::TTime       gapDuration = endTime - startTime;
 
     for (std::size_t pid = 0u; pid < m_PersonLastBucketTimes.size(); ++pid) {
         if (gatherer.isPersonActive(pid) && !CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid])) {

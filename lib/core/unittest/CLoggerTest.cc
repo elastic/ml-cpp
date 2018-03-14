@@ -199,7 +199,7 @@ void CLoggerTest::testNonAsciiJsonLogging(void) {
         CPPUNIT_ASSERT(!doc.HasParseError());
         CPPUNIT_ASSERT(doc.HasMember("message"));
         const rapidjson::Value &messageValue = doc["message"];
-        std::string             messageString(messageValue.GetString(), messageValue.GetStringLength());
+        std::string            messageString(messageValue.GetString(), messageValue.GetStringLength());
 
         // we expect messages to be in order, so we only need to test the current one
         if (messageString.find(messages[foundMessages]) != std::string::npos) {

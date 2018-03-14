@@ -98,8 +98,8 @@ class CORE_EXPORT CRapidXmlStateRestoreTraverser : public CStateRestoreTraverser
         mutable std::string m_CachedValue;
 
         //! Are m_CachedName and m_CachedValue valid?
-        mutable bool m_IsNameCacheValid;
-        mutable bool m_IsValueCacheValid;
+        mutable bool        m_IsNameCacheValid;
+        mutable bool        m_IsValueCacheValid;
 };
 
 

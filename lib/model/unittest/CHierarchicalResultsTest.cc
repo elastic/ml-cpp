@@ -145,7 +145,7 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
         }
 
     private:
-        std::size_t m_Layer;
+        std::size_t     m_Layer;
         TNodeCPtrSetVec m_Layers;
 };
 
@@ -209,8 +209,8 @@ class CPrinter : public model::CHierarchicalResultsVisitor {
         }
 
     private:
-        bool m_ShouldPrintWrittenNodesOnly;
-        std::string m_Result;
+        bool           m_ShouldPrintWrittenNodesOnly;
+        std::string    m_Result;
         model::CLimits m_Limits;
 };
 
@@ -251,10 +251,10 @@ class CNodeExtractor : public model::CHierarchicalResultsVisitor {
         }
 
     private:
-        TNodeCPtrVec m_PartitionedNodes;
-        TNodeCPtrVec m_PartitionNodes;
-        TNodeCPtrVec m_PersonNodes;
-        TNodeCPtrVec m_LeafNodes;
+        TNodeCPtrVec       m_PartitionedNodes;
+        TNodeCPtrVec       m_PartitionNodes;
+        TNodeCPtrVec       m_PersonNodes;
+        TNodeCPtrVec       m_LeafNodes;
 };
 
 //! \brief Checks our anomaly scores are correct post scoring.

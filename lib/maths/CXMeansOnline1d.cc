@@ -1084,7 +1084,7 @@ std::string CXMeansOnline1d::printClusters(void) const {
                           boost::numeric::bounds<double>::lowest());
 
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        const CPrior &  prior = m_Clusters[i].prior();
+        const CPrior    &  prior = m_Clusters[i].prior();
         TDoubleDoublePr clusterRange = prior.marginalLikelihoodConfidenceInterval(RANGE);
         range.first = std::min(range.first, clusterRange.first);
         range.second = std::max(range.second, clusterRange.second);
@@ -1108,7 +1108,7 @@ std::string CXMeansOnline1d::printClusters(void) const {
     for (unsigned int i = 0u; i < POINTS; ++i, x[0] += increment) {
         double likelihood = 0.0;
         for (std::size_t j = 0u; j < m_Clusters.size(); ++j) {
-            double        logLikelihood;
+            double       logLikelihood;
             const CPrior &prior = m_Clusters[j].prior();
             if (!(  prior.jointLogMarginalLikelihood(COUNT_WEIGHT, x, UNIT_WEIGHT, logLikelihood)
                     & (maths_t::E_FpFailed | maths_t::E_FpOverflowed))) {

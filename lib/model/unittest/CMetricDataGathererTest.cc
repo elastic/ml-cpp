@@ -533,7 +533,7 @@ void CMetricDataGathererTest::multipleSeriesTests(void) {
         }
 
         const TTimeDoublePrVec &bucket2 = buckets2[i];
-        TMeanAccumulator        a;
+        TMeanAccumulator       a;
         for (std::size_t j = 0u; j < bucket2.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket2[j].first, "p2", bucket2[j].second);
             a.add(bucket2[j].second);

@@ -153,7 +153,7 @@ class MATHS_EXPORT CCompositeFunctions {
                 }
 
             private:
-                F_ m_F;
+                F_     m_F;
                 double m_Offset;
         };
 
@@ -266,8 +266,8 @@ class MATHS_EXPORT CCompositeFunctions {
                 }
 
             private:
-                F_ m_F;
-                G_ m_G;
+                F_      m_F;
+                G_      m_G;
         };
 };
 

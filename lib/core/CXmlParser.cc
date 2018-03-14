@@ -311,7 +311,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
         xmlElementType type(nodes->nodeTab[i]->type);
         if (type == XML_ELEMENT_NODE || type == XML_ATTRIBUTE_NODE) {
             const xmlChar *name(nodes->nodeTab[i]->name);
-            xmlChar *      value(xmlNodeGetContent(nodes->nodeTab[i]));
+            xmlChar       *      value(xmlNodeGetContent(nodes->nodeTab[i]));
 
             CXmlNode node(reinterpret_cast<const char *>(name),
                           reinterpret_cast<char *>(value));
@@ -325,7 +325,7 @@ bool CXmlParser::evalXPathExpression(const std::string &xpathExpr,
             xmlAttr *prop(nodes->nodeTab[i]->properties);
             while (prop != 0) {
                 const xmlChar *propName(prop->name);
-                xmlChar *      propValue(xmlGetProp(nodes->nodeTab[i], propName));
+                xmlChar       *      propValue(xmlGetProp(nodes->nodeTab[i], propName));
 
                 attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char *>(propName),
                                                     reinterpret_cast<char *>(propValue)));

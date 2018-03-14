@@ -94,9 +94,9 @@ class MODEL_EXPORT CSample {
 
     private:
         core_t::TTime m_Time;
-        TDouble1Vec m_Value;
-        double m_VarianceScale;
-        double m_Count;
+        TDouble1Vec   m_Value;
+        double        m_VarianceScale;
+        double        m_Count;
 };
 
 }

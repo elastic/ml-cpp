@@ -337,7 +337,7 @@ class MODEL_EXPORT CEventRatePopulationModel : public CPopulationModel {
         virtual const TSizeUInt64PrVec &personCounts(void) const;
 
         //! Get the interim corrections of the current bucket.
-        TCorrectionKeyDouble1VecUMap &currentBucketInterimCorrections(void) const;
+        TCorrectionKeyDouble1VecUMap   &currentBucketInterimCorrections(void) const;
 
         //! Initialize the time series models for "n" newly observed people
         //! and "m" attributes.
@@ -386,7 +386,7 @@ class MODEL_EXPORT CEventRatePopulationModel : public CPopulationModel {
 
     private:
         //! The statistics we maintain about the bucket.
-        SBucketStats m_CurrentBucketStats;
+        SBucketStats                 m_CurrentBucketStats;
 
         //! The initial prior for attributes' probabilities.
         maths::CMultinomialConjugate m_NewAttributeProbabilityPrior;
@@ -395,20 +395,20 @@ class MODEL_EXPORT CEventRatePopulationModel : public CPopulationModel {
         maths::CMultinomialConjugate m_AttributeProbabilityPrior;
 
         //! A cache of the attribute probabilities.
-        TCategoryProbabilityCache m_AttributeProbabilities;
+        TCategoryProbabilityCache    m_AttributeProbabilities;
 
         //! The models of all the attribute correlates for each feature.
         //!
         //! IMPORTANT this must come before m_FeatureModels in the class declaration
         //! so its destructor is called afterwards (12.6.2) because feature models
         //! unregister themselves from correlation models.
-        TFeatureCorrelateModelsVec m_FeatureCorrelatesModels;
+        TFeatureCorrelateModelsVec    m_FeatureCorrelatesModels;
 
         //! The population attribute models for each feature.
-        TFeatureModelsVec m_FeatureModels;
+        TFeatureModelsVec             m_FeatureModels;
 
         //! A cache of the probability calculation results.
-        mutable TProbabilityCache m_Probabilities;
+        mutable TProbabilityCache     m_Probabilities;
 
         //! The memory estimator.
         mutable CMemoryUsageEstimator m_MemoryEstimator;

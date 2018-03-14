@@ -113,7 +113,7 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
 
     private:
         TFloatFloatPrVec *m_Knots;
-        ptrdiff_t m_I;
+        ptrdiff_t        m_I;
 };
 
 const double      EPS = static_cast<double>(std::numeric_limits<float>::epsilon());

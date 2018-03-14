@@ -86,7 +86,7 @@ class CSetupVisitor {
         }
 
     private:
-        size_t m_RecordsPerBlock;
+        size_t                             m_RecordsPerBlock;
         ml::api::CLineifiedXmlOutputWriter m_OutputWriter;
 };
 

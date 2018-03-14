@@ -71,7 +71,7 @@ void CBenchMarker::addResult(const std::string &message,
          ++measureVecIter) {
         const core::CRegex &regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
-            TIntSizeStrPrMap &  counts = measureVecIter->second;
+            TIntSizeStrPrMap    &  counts = measureVecIter->second;
             TIntSizeStrPrMapItr mapIter = counts.find(type);
             if (mapIter == counts.end()) {
                 counts.insert(TIntSizeStrPrMap::value_type(type,
@@ -173,7 +173,7 @@ void CBenchMarker::dumpResults(void) const {
                  ++mapIter) {
                 int type(mapIter->first);
 
-                size_t             count(mapIter->second.first);
+                size_t            count(mapIter->second.first);
                 const std::string &example = mapIter->second.second;
                 strm << "\t\t" << count;
                 if (usedTypes.find(type) != usedTypes.end()) {

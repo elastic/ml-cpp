@@ -76,7 +76,7 @@ void CCountMinSketch::swap(CCountMinSketch &other) {
             if (otherCounts) {
                 counts->swap(*otherCounts);
             } else {
-                SSketch &         otherSketch = boost::get<SSketch>(other.m_Sketch);
+                SSketch           &         otherSketch = boost::get<SSketch>(other.m_Sketch);
                 TUInt32FloatPrVec tmp;
                 tmp.swap(*counts);
                 m_Sketch = SSketch();
@@ -93,7 +93,7 @@ void CCountMinSketch::swap(CCountMinSketch &other) {
                 sketch.s_Counts.swap(otherSketch->s_Counts);
             } else {
                 TUInt32FloatPrVec &otherCounts = boost::get<TUInt32FloatPrVec>(other.m_Sketch);
-                TUInt32FloatPrVec  tmp;
+                TUInt32FloatPrVec tmp;
                 tmp.swap(otherCounts);
                 other.m_Sketch = SSketch();
                 sketch.s_Hashes.swap(boost::get<SSketch>(other.m_Sketch).s_Hashes);
@@ -343,7 +343,7 @@ void CCountMinSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) 
 }
 
 std::size_t CCountMinSketch::memoryUsage(void) const {
-    std::size_t              mem = 0;
+    std::size_t             mem = 0;
     const TUInt32FloatPrVec *counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         mem += core::CMemory::dynamicSize(*counts);

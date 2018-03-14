@@ -172,7 +172,7 @@ void CJsonLogLayout::format(LogString &output,
                  i != keySet.end();
                  ++i) {
                 const LogString &key = *i;
-                LogString        value;
+                LogString       value;
                 if (event->getMDC(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);
@@ -184,7 +184,7 @@ void CJsonLogLayout::format(LogString &output,
                  i != propertySet.end();
                  ++i) {
                 const LogString &key = *i;
-                LogString        value;
+                LogString       value;
                 if (event->getProperty(key, value)) {
                     LOG4CXX_ENCODE_CHAR(name, key);
                     writer.String(name);

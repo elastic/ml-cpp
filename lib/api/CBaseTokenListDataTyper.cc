@@ -109,7 +109,7 @@ int CBaseTokenListDataTyper::computeType(bool isDryRun,
          ++iter) {
         const CTokenListType &compType = m_Types[iter->second];
         const TSizeSizePrVec &baseTokenIds = compType.baseTokenIds();
-        size_t                baseWeight(compType.baseWeight());
+        size_t               baseWeight(compType.baseWeight());
 
         // Check whether the current record matches the search for the existing
         // type - if it does then we'll put it in the existing type without any
@@ -291,8 +291,8 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
                                          baseTokenIds.end(),
                                          CSizePairFirstElementEquals(tokenId)));
         const CTokenInfoItem &info = m_TokenIdLookup[tokenId];
-        size_t                cost(m_ReverseSearchCreator->costOfToken(info.str(),
-                                                                       occurrences));
+        size_t               cost(m_ReverseSearchCreator->costOfToken(info.str(),
+                                                                      occurrences));
         rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(info.typeCount(),
                                                                TSizeSizePr(tokenId,
                                                                            cost)));

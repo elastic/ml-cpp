@@ -120,7 +120,7 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec &bucketCounts,
     for (std::size_t bid = 0u; bid < candidates.size(); ++bid) {
         uint64_t bc = bucketCounts[bid];
         if (bc > 0) {
-            const CBucketCountStatistics &                        si = statistics[bid];
+            const CBucketCountStatistics                         &                        si = statistics[bid];
             const CBucketCountStatistics::TSizeSizePrMomentsUMap &mi = si.countMomentsPerPartition();
 
             TMeanAccumulator penalty_;

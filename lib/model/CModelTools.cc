@@ -385,10 +385,10 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature, std::size
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         auto pos = m_Caches.find({feature, id});
         if (pos != m_Caches.end()) {
-            double                        x{value[0][0]};
-            const TDouble1Vec &           modes{pos->second.s_Modes};
+            double                       x{value[0][0]};
+            const TDouble1Vec            &           modes{pos->second.s_Modes};
             const TDoubleProbabilityFMap &probabilities{pos->second.s_Probabilities};
-            auto                          right = probabilities.lower_bound(x);
+            auto                         right = probabilities.lower_bound(x);
 
             if (right != probabilities.end() && right->first == x) {
                 probability = right->second.s_Probability;

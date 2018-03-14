@@ -762,7 +762,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     TMaxAccumulator maxLogUpperBound;
     double          logMaximumRemainder = MINUS_INF;
     for (std::size_t i = 0u, n = logWeights.size(); i < n; ++i) {
-        double        wi = logWeights[i].first;
+        double       wi = logWeights[i].first;
         const CPrior &model = *m_Models[logWeights[i].second].second;
 
         double li = 0.0;
@@ -873,7 +873,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
 
     TMaxAccumulator tail_;
     for (std::size_t i = 0u; i < logWeights.size(); ++i) {
-        double        weight = std::exp(logWeights[i].first);
+        double       weight = std::exp(logWeights[i].first);
         const CPrior &model = *m_Models[logWeights[i].second].second;
 
         if (lowerBound > static_cast<double>(m_Models.size() - i) * weight

@@ -152,25 +152,25 @@ class CONFIG_EXPORT CReportWriter : public api::COutputHandler {
 
     private:
         //! The stream to which to write the report.
-        std::ostream &m_WriteStream;
+        std::ostream             &m_WriteStream;
 
         //! The total number of records processed.
-        std::string m_TotalRecords;
+        std::string              m_TotalRecords;
 
         //! The total number of invalid records processed.
-        std::string m_InvalidRecords;
+        std::string              m_InvalidRecords;
 
         //! The summary statistics.
-        TStrVecVec m_UnclassifiedFields;
+        TStrVecVec               m_UnclassifiedFields;
 
         //! The summary statistics for categorical fields.
-        TStrVecVec m_CategoricalFields;
+        TStrVecVec               m_CategoricalFields;
 
         //! The summary statistics for numeric fields.
-        TStrVecVec m_NumericFields;
+        TStrVecVec               m_NumericFields;
 
         //! The summary of a candidate detector.
-        TStrVecVecVecVec m_Detectors;
+        TStrVecVecVecVec         m_Detectors;
 };
 
 }

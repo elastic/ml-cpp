@@ -161,11 +161,11 @@ class CSphericalGaussianInfoCriterion {
 
         //! Update the sufficient statistics for computing info content.
         void add(const TMeanVarAccumulator &moments) {
-            double                   ni = CBasicStatistics::count(moments);
+            double                  ni = CBasicStatistics::count(moments);
             const TBarePointPrecise &m = CBasicStatistics::mean(moments);
             const TBarePointPrecise &c = CBasicStatistics::maximumLikelihoodVariance(moments);
-            std::size_t              d = c.dimension();
-            double                   vi = 0.0;
+            std::size_t             d = c.dimension();
+            double                  vi = 0.0;
             for (std::size_t i = 0u; i < d; ++i) {
                 vi += c(i);
             }
@@ -311,9 +311,9 @@ class CGaussianInfoCriterion {
     private:
         //! Compute the log of the determinant of \p covariance.
         double logDeterminant(const TCovariances &covariance) const {
-            double         n = CBasicStatistics::count(covariance);
+            double        n = CBasicStatistics::count(covariance);
             const TMatrix &c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
-            double         upper = information_criteria_detail::confidence(n - m_D - 1.0);
+            double        upper = information_criteria_detail::confidence(n - m_D - 1.0);
             return information_criteria_detail::logDeterminant(c, upper);
         }
 

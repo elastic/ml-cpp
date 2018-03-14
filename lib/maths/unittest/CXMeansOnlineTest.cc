@@ -557,10 +557,10 @@ void CXMeansOnlineTest::testManyClusters(void) {
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             double l = 0.0;
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                double         n = maths::CBasicStatistics::count(clusters[j].covariances());
-                const TPoint & mean = maths::CBasicStatistics::mean(clusters[j].covariances());
+                double        n = maths::CBasicStatistics::count(clusters[j].covariances());
+                const TPoint  & mean = maths::CBasicStatistics::mean(clusters[j].covariances());
                 const TMatrix &covariance = maths::CBasicStatistics::maximumLikelihoodCovariances(clusters[j].covariances());
-                double         lj;
+                double        lj;
                 maths::gaussianLogLikelihood(covariance, samples[i] - mean, lj);
                 l += n * ::exp(lj);
             }
@@ -782,8 +782,8 @@ void CXMeansOnlineTest::testLatLongData(void) {
         }
 
         {
-            double                                   ll = 0.0;
-            double                                   Z  = 0.0;
+            double                                  ll = 0.0;
+            double                                  Z  = 0.0;
             const TXMeans2FloatForTest::TClusterVec &clusters = clusterer.clusters();
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
                 double  w = maths::CBasicStatistics::count(clusters[j].covariances());

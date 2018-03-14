@@ -1234,8 +1234,8 @@ class MATHS_EXPORT CBasicStatistics {
                 }
 
             private:
-                LESS m_Less;
-                CONTAINER m_Statistics;
+                LESS        m_Less;
+                CONTAINER   m_Statistics;
                 //! How many elements of the container are unused?
                 std::size_t m_UnusedCount;
         };
@@ -1496,7 +1496,7 @@ class MATHS_EXPORT CBasicStatistics {
 
             private:
                 //! The set minimum.
-                COrderStatisticsStack<T, 1, LESS> m_Min;
+                COrderStatisticsStack<T, 1, LESS>    m_Min;
                 //! The set maximum.
                 COrderStatisticsStack<T, 1, GREATER> m_Max;
         };
@@ -1584,8 +1584,8 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N> > {
                          CBasicStatistics::SSampleCovariances<U, N> &covariances) {
         U d{static_cast<U>(N)};
 
-        U                                n{CBasicStatistics::count(covariances)};
-        const CVectorNx1<U, N> &         m{CBasicStatistics::mean(covariances)};
+        U                               n{CBasicStatistics::count(covariances)};
+        const CVectorNx1<U, N>          &         m{CBasicStatistics::mean(covariances)};
         const CSymmetricMatrixNxN<U, N> &s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
 
         U mn{s.trace() / d};

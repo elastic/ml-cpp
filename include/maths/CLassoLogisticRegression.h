@@ -131,9 +131,9 @@ class MATHS_EXPORT CSparseMatrix {
 
     private:
         //! The number of rows.
-        std::size_t m_Rows;
+        std::size_t            m_Rows;
         //! The number of columns.
-        std::size_t m_Columns;
+        std::size_t            m_Columns;
         //! Representation of the non-zero elements.
         TSizeSizePrDoublePrVec m_Elements;
 };
@@ -246,7 +246,7 @@ class MATHS_EXPORT CCyclicCoordinateDescent {
         //! The maximum number of iterations of the main loop.
         std::size_t m_MaxIterations;
         //! The relative convergence threshold.
-        double m_Eps;
+        double      m_Eps;
 };
 
 //! The possible styles for learning hyperparameter \f$\lambda\f$.
@@ -297,7 +297,7 @@ class MATHS_EXPORT CLogisticRegressionModel {
 
     private:
         //! The intercept.
-        double m_Beta0;
+        double           m_Beta0;
 
         //! The non-zero beta parameters.
         TSizeDoublePrVec m_Beta;
@@ -361,7 +361,7 @@ class MATHS_EXPORT CLassoLogisticRegression {
             return m_X;
         }
         //! Get the training feature vectors.
-        inline STORAGE &x(void) {
+        inline STORAGE       &x(void) {
             return m_X;
         }
 
@@ -379,21 +379,21 @@ class MATHS_EXPORT CLassoLogisticRegression {
             return m_Y;
         }
         //! Get the training feature vectors.
-        inline TDoubleVec &y(void) {
+        inline TDoubleVec       &y(void) {
             return m_Y;
         }
 
     private:
         //! The feature vectors.
-        STORAGE m_X;
+        STORAGE     m_X;
         //! The dimension of the feature vectors.
         std::size_t m_D;
         //! The feature vector labels.
-        TDoubleVec m_Y;
+        TDoubleVec  m_Y;
         //! The precision of the Laplace prior.
-        double m_Lambda;
+        double      m_Lambda;
         //! The (last) learned regression parameters.
-        TDoubleVec m_Beta;
+        TDoubleVec  m_Beta;
 };
 
 typedef std::vector<std::vector<double> > TDenseStorage;

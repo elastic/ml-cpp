@@ -62,15 +62,15 @@ class CORE_EXPORT CCompressOStream : public std::ostream {
 
             public:
                 //! Reference to the owning stream
-                CCompressOStream                 &m_Stream;
+                CCompressOStream                  &m_Stream;
 
                 //! Reference to the owning stream's buffer
-                CDualThreadStreamBuf             &m_StreamBuf;
+                CDualThreadStreamBuf              &m_StreamBuf;
 
             private:
                 //! Reference to the output sink - this handles
                 //! downstream writing to datastore
-                CStateCompressor::CChunkFilter   &m_FilterSink;
+                CStateCompressor::CChunkFilter    &m_FilterSink;
 
                 //! The gzip filter to live within the new thread
                 CStateCompressor::TFilteredOutput m_OutFilter;
@@ -81,7 +81,7 @@ class CORE_EXPORT CCompressOStream : public std::ostream {
         CDualThreadStreamBuf m_StreamBuf;
 
         //! Thread used for the upload
-        CCompressThread m_UploadThread;
+        CCompressThread      m_UploadThread;
 };
 
 } // core

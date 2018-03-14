@@ -92,7 +92,7 @@ void CSplineTest::testNatural(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t       n = curvatures.size();
+        std::size_t      n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
                                      << ", curvatures[n] = " << curvatures[n-1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
@@ -123,7 +123,7 @@ void CSplineTest::testNatural(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t       n = curvatures.size();
+        std::size_t      n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
                                      << ", curvatures[n] = " << curvatures[n-1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
@@ -161,7 +161,7 @@ void CSplineTest::testParabolicRunout(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t       n = curvatures.size();
+        std::size_t      n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
                                      << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0],
@@ -197,7 +197,7 @@ void CSplineTest::testParabolicRunout(void) {
         }
 
         const TDoubleVec &curvatures = spline.curvatures();
-        std::size_t       n = curvatures.size();
+        std::size_t      n = curvatures.size();
         LOG_DEBUG("curvatures[0] = " << curvatures[0]
                                      << ", curvatures[1] = " << curvatures[1]);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0],

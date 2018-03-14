@@ -140,7 +140,7 @@ class MODEL_EXPORT CGathererTools {
 
                 //! The mean time between messages received in the current
                 //! bucketing interval.
-                TAccumulator m_Value;
+                TAccumulator  m_Value;
         };
 
         //! \brief Mean statistic gatherer.
@@ -317,10 +317,10 @@ class MODEL_EXPORT CGathererTools {
                 bool isRedundant(core_t::TTime samplingCutoffTime) const;
             private:
                 //! Classifies the sum series.
-                CDataClassifier m_Classifier;
+                CDataClassifier                    m_Classifier;
 
                 //! The sum for each bucket within the latency window.
-                TSampleVecQueue m_BucketSums;
+                TSampleVecQueue                    m_BucketSums;
 
                 //! The sum for each influencing field value and bucket within
                 //! the latency window.

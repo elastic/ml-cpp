@@ -334,13 +334,13 @@ class CTimeSeriesAnomalyModel {
 
             private:
                 //! The anomaly tag.
-                std::size_t m_Tag;
+                std::size_t      m_Tag;
 
                 //! The time at which the anomaly started.
-                core_t::TTime m_OpenTime;
+                core_t::TTime    m_OpenTime;
 
                 //! The anomaly sign, i.e. is the mean error positive or negative.
-                double m_Sign;
+                double           m_Sign;
 
                 //! The mean deviation from predictions.
                 TMeanAccumulator m_MeanErrorNorm;
@@ -349,12 +349,12 @@ class CTimeSeriesAnomalyModel {
 
     private:
         //! The largest anomalous probability.
-        static const double LARGEST_ANOMALOUS_PROBABILITY;
+        static const double               LARGEST_ANOMALOUS_PROBABILITY;
         //! The log of the largest anomalous probability.
-        static const double LOG_LARGEST_ANOMALOUS_PROBABILITY;
+        static const double               LOG_LARGEST_ANOMALOUS_PROBABILITY;
         //! The log of the largest probability that it is deemed
         //! significantly anomalous.
-        static const double LOG_SMALL_PROBABILITY;
+        static const double               LOG_SMALL_PROBABILITY;
         //! A unit weight.
         static const TDouble10Vec4Vec1Vec UNIT;
 
@@ -374,13 +374,13 @@ class CTimeSeriesAnomalyModel {
 
     private:
         //! The data bucketing interval.
-        core_t::TTime m_BucketLength;
+        core_t::TTime                   m_BucketLength;
 
         //! The mean prediction error.
-        TMeanAccumulator m_MeanError;
+        TMeanAccumulator                m_MeanError;
 
         //! The current anomalies (if there are any).
-        TAnomaly1Vec m_Anomalies;
+        TAnomaly1Vec                    m_Anomalies;
 
         //! The model describing features of anomalous time periods.
         TMultivariateNormalConjugateVec m_Priors;
@@ -710,8 +710,8 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_TrendControl]};
-            core_t::TTime         time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
-            TDouble1Vec           prediction{m_Trend->mean(time)};
+            core_t::TTime        time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
+            TDouble1Vec          prediction{m_Trend->mean(time)};
             multiplier = controller.multiplier(prediction, errors[E_TrendControl],
                                                this->params().bucketLength(),
                                                this->params().learnRate(),
@@ -723,7 +723,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_PriorControl]};
-            TDouble1Vec           prediction{m_Prior->marginalLikelihoodMean()};
+            TDouble1Vec          prediction{m_Prior->marginalLikelihoodMean()};
             multiplier = controller.multiplier(prediction, errors[E_PriorControl],
                                                this->params().bucketLength(),
                                                this->params().learnRate(),
@@ -862,12 +862,12 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
         TModelCPtr1Vec                   correlatedModel;
         if (m_Correlations->correlationModels(m_Id, correlated, variables,
                                               correlationModel, correlatedModel)) {
-            double                    sample{correlatedModel[0]->m_Trend->detrend(time, correlatedValue[0].second, 0.0)};
-            TSize10Vec                marginalize{variables[0][1]};
-            TSizeDoublePr10Vec        condition{{variables[0][1], sample}};
+            double                   sample{correlatedModel[0]->m_Trend->detrend(time, correlatedValue[0].second, 0.0)};
+            TSize10Vec               marginalize{variables[0][1]};
+            TSizeDoublePr10Vec       condition{{variables[0][1], sample}};
             const CMultivariatePrior *joint{correlationModel[0].first};
-            TPriorPtr                 margin{joint->univariate(marginalize, NOTHING_TO_CONDITION).first};
-            TPriorPtr                 conditional{joint->univariate(NOTHING_TO_MARGINALIZE, condition).first};
+            TPriorPtr                margin{joint->univariate(marginalize, NOTHING_TO_CONDITION).first};
+            TPriorPtr                conditional{joint->univariate(NOTHING_TO_MARGINALIZE, condition).first};
             correlateCorrection = conditional->marginalLikelihoodMean() - margin->marginalLikelihoodMean();
         }
     }
@@ -1434,11 +1434,11 @@ void CTimeSeriesCorrelations::processSamples(const maths_t::TWeightStyleVec &wei
         }
 
         const TMultivariatePriorPtr &prior{i->second.first};
-        SSampleData *                samples1{&i1->second};
-        SSampleData *                samples2{&i2->second};
-        std::size_t                  n1{samples1->s_Times.size()};
-        std::size_t                  n2{samples2->s_Times.size()};
-        std::size_t                  indices[] = { 0, 1 };
+        SSampleData                 *                samples1{&i1->second};
+        SSampleData                 *                samples2{&i2->second};
+        std::size_t                 n1{samples1->s_Times.size()};
+        std::size_t                 n2{samples2->s_Times.size()};
+        std::size_t                 indices[] = { 0, 1 };
         if (n1 < n2) {
             std::swap(samples1, samples2);
             std::swap(n1, n2);
@@ -1970,8 +1970,8 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_TrendControl]};
-            TDouble1Vec           prediction(dimension);
-            core_t::TTime         time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
+            TDouble1Vec          prediction(dimension);
+            core_t::TTime        time{static_cast<core_t::TTime>(CBasicStatistics::mean(averageTime))};
             for (std::size_t d = 0u; d < dimension; ++d) {
                 prediction[d] = m_Trend[d]->mean(time);
             }
@@ -1988,11 +1988,11 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
         }
         {
             CDecayRateController &controller{(*m_Controllers)[E_PriorControl]};
-            TDouble1Vec           prediction(m_Prior->marginalLikelihoodMean());
-            double                multiplier{controller.multiplier(prediction, errors[E_PriorControl],
-                                                                   this->params().bucketLength(),
-                                                                   this->params().learnRate(),
-                                                                   this->params().decayRate())};
+            TDouble1Vec          prediction(m_Prior->marginalLikelihoodMean());
+            double               multiplier{controller.multiplier(prediction, errors[E_PriorControl],
+                                                                  this->params().bucketLength(),
+                                                                  this->params().learnRate(),
+                                                                  this->params().decayRate())};
             if (multiplier != 1.0) {
                 m_Prior->decayRate(multiplier * m_Prior->decayRate());
                 LOG_TRACE("prior decay rate = " << m_Prior->decayRate());

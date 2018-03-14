@@ -117,19 +117,19 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler {
     private:
         //! If we've been initialised without a specific stream, output is
         //! written to this string stream
-        std::ostringstream m_StringOutputBuf;
+        std::ostringstream  m_StringOutputBuf;
 
         //! Reference to the stream we're going to write to
         std::ostream        &m_StrmOut;
 
         //! Should we output a messages section before the CSV?
-        bool m_OutputMessages;
+        bool                m_OutputMessages;
 
         //! Should we output a row containing the CSV column names?
-        bool m_OutputHeader;
+        bool                m_OutputHeader;
 
         //! CSV field names in the order they are to be written to the output
-        TStrVec m_FieldNames;
+        TStrVec             m_FieldNames;
 
         //! Pre-computed hashes for each field name.  The pre-computed hashes
         //! are at the same index in this vector as the corresponding field name
@@ -151,11 +151,11 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler {
 
         //! Character to use for escaping quotes (const to allow compiler
         //! optimisations, since the value can't be changed after construction)
-        const char m_Escape;
+        const char   m_Escape;
 
         //! Output field separator by default this is ',' but can be
         //! overridden in the constructor
-        const char m_Separator;
+        const char   m_Separator;
 };
 
 

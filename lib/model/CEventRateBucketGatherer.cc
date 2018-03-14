@@ -184,7 +184,7 @@ void persistFeatureData(const TCategoryAnyMap &featureData,
                         core::CStatePersistInserter &inserter) {
     for (const auto &data_ : featureData) {
         model_t::EEventRateCategory category = data_.first;
-        const boost::any &          data = data_.second;
+        const boost::any            &          data = data_.second;
         try {
             switch (category) {
                 case model_t::E_DiurnalTimes:

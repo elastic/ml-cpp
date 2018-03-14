@@ -96,22 +96,22 @@ class API_EXPORT CLineifiedJsonOutputWriter : public COutputHandler {
 
     private:
         //! Which output fields are numeric?
-        TStrSet m_NumericFields;
+        TStrSet                       m_NumericFields;
 
         //! If we've been initialised without a specific stream, output is
         //! written to this string stream
-        std::ostringstream m_StringOutputBuf;
+        std::ostringstream            m_StringOutputBuf;
 
         //! Reference to the stream we're going to write to
         std::ostream                  &m_OutStream;
 
         //! JSON writer ostream wrapper
-        rapidjson::OStreamWrapper m_WriteStream;
+        rapidjson::OStreamWrapper     m_WriteStream;
 
         typedef core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
         //! JSON writer
-        TGenericLineWriter m_Writer;
+        TGenericLineWriter            m_Writer;
 };
 
 

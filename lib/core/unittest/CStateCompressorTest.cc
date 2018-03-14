@@ -97,10 +97,10 @@ class CMockDataAdder : public ml::core::CDataAdder {
         }
 
     private:
-        TSizeStrMap m_Data;
-        std::size_t m_CurrentDocNum;
-        TOStreamP m_CurrentStream;
-        std::size_t m_MaxDocumentSize;
+        TSizeStrMap       m_Data;
+        std::size_t       m_CurrentDocNum;
+        TOStreamP         m_CurrentStream;
+        std::size_t       m_MaxDocumentSize;
 };
 
 class CMockDataSearcher : public ml::core::CDataSearcher {
@@ -109,7 +109,7 @@ class CMockDataSearcher : public ml::core::CDataSearcher {
         }
 
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
-            TIStreamP          stream;
+            TIStreamP         stream;
             const TSizeStrMap &events = m_Adder.data();
 
             TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
@@ -135,7 +135,7 @@ class CMockDataSearcher : public ml::core::CDataSearcher {
     private:
 
         CMockDataAdder &m_Adder;
-        std::size_t m_AskedFor;
+        std::size_t    m_AskedFor;
 };
 
 }

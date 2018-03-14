@@ -248,14 +248,14 @@ class CEvaluateOnSamples : core::CNonCopyable {
 
     private:
         const TWeightStyleVec &m_WeightStyles;
-        const TDouble1Vec &m_Samples;
+        const TDouble1Vec     &m_Samples;
         const TDouble4Vec1Vec &m_Weights;
-        bool m_IsNonInformative;
-        double m_Mean;
-        double m_Precision;
-        double m_Shape;
-        double m_Rate;
-        double m_PredictionMean;
+        bool                  m_IsNonInformative;
+        double                m_Mean;
+        double                m_Precision;
+        double                m_Shape;
+        double                m_Rate;
+        double                m_PredictionMean;
 };
 
 //! Computes the probability of seeing less likely samples at a specified offset.
@@ -322,16 +322,16 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
 
     private:
         maths_t::EProbabilityCalculation m_Calculation;
-        const TWeightStyleVec &m_WeightStyles;
-        const TDouble1Vec &m_Samples;
-        const TDouble4Vec1Vec &m_Weights;
-        bool m_IsNonInformative;
-        double m_Mean;
-        double m_Precision;
-        double m_Shape;
-        double m_Rate;
-        double m_PredictionMean;
-        mutable int m_Tail;
+        const TWeightStyleVec            &m_WeightStyles;
+        const TDouble1Vec                &m_Samples;
+        const TDouble4Vec1Vec            &m_Weights;
+        bool                             m_IsNonInformative;
+        double                           m_Mean;
+        double                           m_Precision;
+        double                           m_Shape;
+        double                           m_Rate;
+        double                           m_PredictionMean;
+        mutable int                      m_Tail;
 };
 
 //! The log marginal likelihood function of the samples is the log of the
@@ -455,15 +455,15 @@ class CLogMarginalLikelihood : core::CNonCopyable {
         }
 
     private:
-        double m_Mean;
-        double m_Precision;
-        double m_Shape;
-        double m_Rate;
-        double m_NumberSamples;
-        double m_WeightedNumberSamples;
-        double m_SampleMean;
-        double m_SampleSquareDeviation;
-        double m_Constant;
+        double                                     m_Mean;
+        double                                     m_Precision;
+        double                                     m_Shape;
+        double                                     m_Rate;
+        double                                     m_NumberSamples;
+        double                                     m_WeightedNumberSamples;
+        double                                     m_SampleMean;
+        double                                     m_SampleSquareDeviation;
+        double                                     m_Constant;
         mutable maths_t::EFloatingPointErrorStatus m_ErrorStatus;
 };
 

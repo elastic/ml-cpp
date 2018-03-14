@@ -160,7 +160,7 @@ void CForecastRunner::forecastWorker() {
                 TForecastResultSeries &series = forecastJob.s_ForecastSeries.back();
 
                 while (!series.s_ToForecast.empty()) {
-                    const TForecastModelWrapper &    model = series.s_ToForecast.back();
+                    const TForecastModelWrapper      &    model = series.s_ToForecast.back();
                     model_t::TDouble1VecDouble1VecPr support = model_t::support(model.s_Feature);
                     bool                             success = model.s_ForecastModel->forecast(forecastJob.s_StartTime,
                                                                                                forecastJob.forecastEnd(),

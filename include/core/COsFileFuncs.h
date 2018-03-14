@@ -61,24 +61,24 @@ class CORE_EXPORT COsFileFuncs : private CNonInstantiatable {
     public:
         //! Use in place of OS level file flags - will be defined as zero on
         //! platforms that don't support them
-        static const int APPEND;
-        static const int BINARY;
-        static const int CREAT;
-        static const int EXCL;
-        static const int NOFOLLOW;
-        static const int RDONLY;
-        static const int RDWR;
-        static const int TEXT;
-        static const int TRUNC;
-        static const int WRONLY;
-        static const int RENAMABLE;
+        static const int  APPEND;
+        static const int  BINARY;
+        static const int  CREAT;
+        static const int  EXCL;
+        static const int  NOFOLLOW;
+        static const int  RDONLY;
+        static const int  RDWR;
+        static const int  TEXT;
+        static const int  TRUNC;
+        static const int  WRONLY;
+        static const int  RENAMABLE;
 
         //! Use in place of OS level access flags - will be defined as zero on
         //! platforms that don't support them
-        static const int EXISTS;
-        static const int READABLE;
-        static const int WRITABLE;
-        static const int EXECUTABLE;
+        static const int  EXISTS;
+        static const int  READABLE;
+        static const int  WRITABLE;
+        static const int  EXECUTABLE;
 
         //! The name of the magic file that discards everything written to it
         static const char *NULL_FILENAME;

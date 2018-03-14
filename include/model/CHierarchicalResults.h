@@ -409,18 +409,18 @@ class MODEL_EXPORT CHierarchicalResults {
 
     private:
         //! Storage for the nodes.
-        TNodeDeque m_Nodes;
+        TNodeDeque                               m_Nodes;
 
         //! Storage for the pivot nodes.
         TStoredStringPtrStoredStringPtrPrNodeMap m_PivotNodes;
 
         //! Pivot root nodes.
-        TStoredStringPtrNodeMap m_PivotRootNodes;
+        TStoredStringPtrNodeMap                  m_PivotRootNodes;
 
         //! Is the result final or interim?
         //! This field is transient - does not get persisted because interim results
         //! never get persisted.
-        model_t::CResultType m_ResultType;
+        model_t::CResultType                     m_ResultType;
 };
 
 //! \brief Interface for visiting the results.

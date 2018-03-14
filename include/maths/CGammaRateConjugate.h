@@ -407,25 +407,25 @@ class MATHS_EXPORT CGammaRateConjugate : public CPrior {
         //! We assume that the data are described by \f$X = Y - u\f$, where
         //! \f$u\f$ is a constant and \f$Y\f$ is gamma distributed. This allows
         //! us to model data with negative values greater than \f$-u\f$.
-        double m_Offset;
+        double              m_Offset;
 
         //! The margin between the smallest value and the support left end.
-        double m_OffsetMargin;
+        double              m_OffsetMargin;
 
         //! The maximum likelihood estimate of the shape parameter.
-        double m_LikelihoodShape;
+        double              m_LikelihoodShape;
 
         //! The sum of the logs of the samples.
-        TMeanAccumulator m_LogSamplesMean;
+        TMeanAccumulator    m_LogSamplesMean;
 
         //! The count, mean and variance of the samples.
         TMeanVarAccumulator m_SampleMoments;
 
         //! The initial shape parameter of the prior gamma distribution.
-        double m_PriorShape;
+        double              m_PriorShape;
 
         //! The initial rate parameter of the prior gamma distribution.
-        double m_PriorRate;
+        double              m_PriorRate;
 };
 
 }

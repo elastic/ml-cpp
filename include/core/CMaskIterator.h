@@ -120,11 +120,11 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
 
     private:
         //! The start of the container.
-        ITR m_Begin;
+        ITR                  m_Begin;
         //! The mask.
         const TDifferenceVec *m_Mask;
         //! The current element (in the mask).
-        difference_type m_Index;
+        difference_type      m_Index;
 };
 
 //! Get a non-constant mask iterator over a subset of the elements of a vector.

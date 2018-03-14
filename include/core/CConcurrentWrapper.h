@@ -88,14 +88,14 @@ class CConcurrentWrapper final : private CNonCopyable {
                                  QUEUE_CAPACITY, NOTIFY_CAPACITY>                    m_Queue;
 
         //! The wrapped resource
-        T                                                       &m_Resource;
+        T                                                                            &m_Resource;
 
         //! thread for the worker
-        std::thread m_Worker;
+        std::thread                                                                  m_Worker;
 
         //! boolean for stopping the worker
         //! never touched outside of the main thread
-        bool m_Done;
+        bool                                                                         m_Done;
 };
 
 }

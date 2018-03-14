@@ -85,10 +85,10 @@ class CMinusLogLikelihood {
         }
 
     private:
-        const maths::CPrior *m_Prior;
+        const maths::CPrior      *m_Prior;
         maths_t::TWeightStyleVec m_WeightStyle;
-        mutable TDoubleVec m_X;
-        TDoubleVecVec m_Weight;
+        mutable TDoubleVec       m_X;
+        TDoubleVecVec            m_Weight;
 };
 
 }

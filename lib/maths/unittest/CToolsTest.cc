@@ -331,7 +331,7 @@ class CTruncatedPdf {
 
     private:
         const maths::CMixtureDistribution<T> &m_Mixture;
-        double m_Cutoff;
+        double                               m_Cutoff;
 };
 
 template<typename T>

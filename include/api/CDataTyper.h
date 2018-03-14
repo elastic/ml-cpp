@@ -118,10 +118,10 @@ class API_EXPORT CDataTyper {
 
     private:
         //! Which field name are we working on?
-        std::string m_FieldName;
+        std::string              m_FieldName;
 
         //! When was data last persisted for this typer?  (0 means never.)
-        core_t::TTime m_LastPersistTime;
+        core_t::TTime            m_LastPersistTime;
 };
 
 

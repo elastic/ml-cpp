@@ -136,13 +136,13 @@ class CMessageBuffer {
 
             private:
                 CMessageBuffer<MESSAGE, BUFFER> &m_MessageBuffer;
-                bool m_Shutdown;
-                bool m_IsRunning;
+                bool                            m_Shutdown;
+                bool                            m_IsRunning;
         };
 
         CMessageBufferThread m_Thread;
-        CMutex m_Mutex;
-        CCondition m_Condition;
+        CMutex               m_Mutex;
+        CCondition           m_Condition;
         BUFFER               &m_Buffer;
 
         friend class CMessageBufferThread;

@@ -351,7 +351,7 @@ bool CNumericDataSummaryStatistics::densityChart(TDoubleDoublePrVec &result) con
     typedef maths::CMixtureDistribution<boost::math::normal_distribution<> > TGMM;
 
     const maths::CXMeansOnline1d::TClusterVec &clusters = m_Clusters.clusters();
-    std::size_t                                n = clusters.size();
+    std::size_t                               n = clusters.size();
 
     try {
         TDoubleVec weights;

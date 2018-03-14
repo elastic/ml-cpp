@@ -395,11 +395,11 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
                 return {TUnivariatePriorPtr(CNormalMeanPrecConjugate::nonInformativePrior(dataType, decayRate).clone()), 0.0};
             }
 
-            double        p = m_GaussianPrecision(i1[0]);
-            double        s = m_WishartDegreesFreedom / 2.0;
-            double        v = m_WishartDegreesFreedom - static_cast<double>(N) - 1.0;
+            double       p = m_GaussianPrecision(i1[0]);
+            double       s = m_WishartDegreesFreedom / 2.0;
+            double       v = m_WishartDegreesFreedom - static_cast<double>(N) - 1.0;
             const TPoint &m = this->mean();
-            TMatrix       c = m_WishartScaleMatrix / v;
+            TMatrix      c = m_WishartScaleMatrix / v;
 
             double m1  = m(i1[0]);
             double c11 = c(i1[0], i1[0]);
@@ -484,8 +484,8 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
             TPoint2 p;
             p(0) = m_GaussianPrecision(i1[0]);
             p(1) = m_GaussianPrecision(i1[1]);
-            double         f = m_WishartDegreesFreedom;
-            const TPoint & m  = this->mean();
+            double        f = m_WishartDegreesFreedom;
+            const TPoint  & m  = this->mean();
             const TMatrix &c = m_WishartScaleMatrix;
 
             TPoint2  m1;
@@ -1010,20 +1010,20 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
 
     private:
         //! The mean parameter of a non-informative prior.
-        static const TPoint NON_INFORMATIVE_MEAN;
+        static const TPoint      NON_INFORMATIVE_MEAN;
 
         //! The precision parameter of a non-informative prior.
-        static const double NON_INFORMATIVE_PRECISION;
+        static const double      NON_INFORMATIVE_PRECISION;
 
         //! The degrees freedom of a non-informative prior.
-        static const double NON_INFORMATIVE_DEGREES_FREEDOM;
+        static const double      NON_INFORMATIVE_DEGREES_FREEDOM;
 
         //! The scale matrix of a non-informative prior.
-        static const TMatrix NON_INFORMATIVE_SCALE;
+        static const TMatrix     NON_INFORMATIVE_SCALE;
 
         //! The minimum degrees freedom for the Wishart distribution for
         //! which we'll treat the predictive distribution as Gaussian.
-        static const double MINIMUM_GAUSSIAN_DEGREES_FREEDOM;
+        static const double      MINIMUM_GAUSSIAN_DEGREES_FREEDOM;
 
         //! \name State tags for model persistence.
         //@{
@@ -1165,13 +1165,13 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
 
     private:
         //! The mean of the multivariate Gaussian prior.
-        TPoint m_GaussianMean;
+        TPoint  m_GaussianMean;
 
         //! The precision scale of the multivariate Gaussian prior.
-        TPoint m_GaussianPrecision;
+        TPoint  m_GaussianPrecision;
 
         //! The degrees freedom of the Wishart prior.
-        double m_WishartDegreesFreedom;
+        double  m_WishartDegreesFreedom;
 
         //! The scale matrix of the Wishart prior.
         TMatrix m_WishartScaleMatrix;

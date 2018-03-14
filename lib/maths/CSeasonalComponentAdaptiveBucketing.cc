@@ -207,8 +207,8 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
 
     this->CAdaptiveBucketing::add(bucket, time, weight);
 
-    SBucket &    bucket_{m_Buckets[bucket]};
-    double       t{m_Time->regression(time)};
+    SBucket     &    bucket_{m_Buckets[bucket]};
+    double      t{m_Time->regression(time)};
     TRegression &regression{bucket_.s_Regression};
 
     TDoubleMeanVarAccumulator moments =
@@ -448,8 +448,8 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
         double xl{endpoints[l-1]};
         double xr{endpoints[l]};
         if (l == r) {
-            double         interval{m_Endpoints[i] - m_Endpoints[i-1]};
-            double         w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
+            double        interval{m_Endpoints[i] - m_Endpoints[i-1]};
+            double        w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
             const SBucket &bucket{m_Buckets[l-1]};
             buckets.emplace_back(bucket.s_Regression.scaled(w * w),
                                  bucket.s_Variance,
@@ -459,7 +459,7 @@ void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec &endpoints) {
         } else {
             double                    interval{xr - m_Endpoints[i-1]};
             double                    w{CTools::truncate(interval / (xr - xl), 0.0, 1.0)};
-            const SBucket *           bucket{&m_Buckets[l-1]};
+            const SBucket             *           bucket{&m_Buckets[l-1]};
             TMinAccumulator           firstUpdate;
             TMinAccumulator           lastUpdate;
             TDoubleRegression         regression{bucket->s_Regression.scaled(w)};
@@ -536,9 +536,9 @@ bool CSeasonalComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
 }
 
 void CSeasonalComponentAdaptiveBucketing::add(std::size_t bucket, core_t::TTime time, double value, double weight) {
-    SBucket &                 bucket_{m_Buckets[bucket]};
-    TRegression &             regression{bucket_.s_Regression};
-    CFloatStorage &           variance{bucket_.s_Variance};
+    SBucket                   &                 bucket_{m_Buckets[bucket]};
+    TRegression               &             regression{bucket_.s_Regression};
+    CFloatStorage             &           variance{bucket_.s_Variance};
     TDoubleMeanVarAccumulator variance_{
         CBasicStatistics::accumulator(regression.count(),
                                       regression.mean(),
@@ -557,9 +557,9 @@ double CSeasonalComponentAdaptiveBucketing::count(std::size_t bucket) const {
 }
 
 double CSeasonalComponentAdaptiveBucketing::predict(std::size_t bucket, core_t::TTime time, double offset) const {
-    const SBucket &    bucket_{m_Buckets[bucket]};
-    core_t::TTime      firstUpdate{bucket_.s_FirstUpdate};
-    core_t::TTime      lastUpdate{bucket_.s_LastUpdate};
+    const SBucket     &    bucket_{m_Buckets[bucket]};
+    core_t::TTime     firstUpdate{bucket_.s_FirstUpdate};
+    core_t::TTime     lastUpdate{bucket_.s_LastUpdate};
     const TRegression &regression{bucket_.s_Regression};
 
     double interval{static_cast<double>(lastUpdate - firstUpdate)};

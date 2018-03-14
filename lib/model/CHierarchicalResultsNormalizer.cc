@@ -181,7 +181,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     std::size_t index = 0;
 
     for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
-        const TWord &      word = this->leafSet()[i].first;
+        const TWord       &      word = this->leafSet()[i].first;
         const TNormalizer &normalizer = this->leafSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -192,7 +192,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->personSet().size(); ++i) {
-        const TWord &      word = this->personSet()[i].first;
+        const TWord       &      word = this->personSet()[i].first;
         const TNormalizer &normalizer = this->personSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -203,7 +203,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->partitionSet().size(); ++i) {
-        const TWord &      word = this->partitionSet()[i].first;
+        const TWord       &      word = this->partitionSet()[i].first;
         const TNormalizer &normalizer = this->partitionSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -214,7 +214,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->influencerSet().size(); ++i) {
-        const TWord &      word = this->influencerSet()[i].first;
+        const TWord       &      word = this->influencerSet()[i].first;
         const TNormalizer &normalizer = this->influencerSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -225,7 +225,7 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
     }
 
     for (std::size_t i = 0; i < this->influencerBucketSet().size(); ++i) {
-        const TWord &      word = this->influencerBucketSet()[i].first;
+        const TWord       &      word = this->influencerBucketSet()[i].first;
         const TNormalizer &normalizer = this->influencerBucketSet()[i].second;
         CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer,
                                         key,
@@ -293,7 +293,7 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream &inputStream) {
 
             isBucketNormalizerRestored = true;
         } else {
-            TWordNormalizerPrVec *    normalizerVec = 0;
+            TWordNormalizerPrVec      *    normalizerVec = 0;
             TDictionary::TUInt64Array hashArray;
             if (!this->parseCue(cue, normalizerVec, hashArray)) {
                 return E_Corrupt;

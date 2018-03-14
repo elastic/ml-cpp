@@ -77,7 +77,7 @@ class API_EXPORT CLineifiedXmlInputParser : public CLineifiedInputParser {
 
         //! Are all XML documents expected to contain the same fields in the
         //! same order?
-        bool m_AllDocsSameStructure;
+        bool                 m_AllDocsSameStructure;
 };
 
 

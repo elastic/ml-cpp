@@ -90,10 +90,10 @@ class CORE_EXPORT CCompressUtils : private CNonCopyable {
             E_Finished
         };
 
-        EState m_State;
+        EState   m_State;
 
         //! Is this object only fit for getting compressed lengths?
-        bool m_LengthOnly;
+        bool     m_LengthOnly;
 
         //! The output buffer when the compressed result is being stored
         TByteVec m_FullResult;

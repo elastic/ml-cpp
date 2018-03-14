@@ -135,8 +135,8 @@ class CCdf : core::CNonCopyable {
 
     private:
         const TDoubleVec &m_Categories;
-        TDoubleVec m_Cdf;
-        double m_Pu;
+        TDoubleVec       m_Cdf;
+        double           m_Pu;
 };
 
 //! This computes the complement of the cumulative density function
@@ -198,8 +198,8 @@ class CCdfComplement : core::CNonCopyable {
 
     private:
         const TDoubleVec &m_Categories;
-        TDoubleVec m_CdfComplement;
-        double m_Pu;
+        TDoubleVec       m_CdfComplement;
+        double           m_Pu;
 };
 
 //! Get the number of samples of the marginal priors to use as a

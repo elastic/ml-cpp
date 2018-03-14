@@ -144,8 +144,8 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
                          CBasicStatistics::SSampleCovariances<U, N> &covariances) {
         U d = static_cast<U>(N);
 
-        U                                n = CBasicStatistics::count(covariances);
-        const CVectorNx1<U, N> &         m = CBasicStatistics::mean(covariances);
+        U                               n = CBasicStatistics::count(covariances);
+        const CVectorNx1<U, N>          &         m = CBasicStatistics::mean(covariances);
         const CSymmetricMatrixNxN<U, N> &s = CBasicStatistics::maximumLikelihoodCovariances(covariances);
 
         double mn = s.trace() / d;

@@ -76,9 +76,9 @@ class CUnprotectedAdder : public ml::core::CThread {
         }
 
     private:
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
-        uint32_t m_Increment;
+        uint32_t          m_SleepTime;
+        uint32_t          m_Iterations;
+        uint32_t          m_Increment;
         volatile uint32_t &m_Variable;
 };
 
@@ -107,9 +107,9 @@ class CAtomicAdder : public ml::core::CThread {
         }
 
     private:
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
-        uint32_t m_Increment;
+        uint32_t                  m_SleepTime;
+        uint32_t                  m_Iterations;
+        uint32_t                  m_Increment;
         std::atomic_uint_fast32_t &m_Variable;
 };
 
@@ -142,10 +142,10 @@ class CFastMutexProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CFastMutex &m_Mutex;
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
-        uint32_t m_Increment;
+        ml::core::CFastMutex      &m_Mutex;
+        uint32_t                  m_SleepTime;
+        uint32_t                  m_Iterations;
+        uint32_t                  m_Increment;
         volatile uint32_t         &m_Variable;
 };
 
@@ -178,10 +178,10 @@ class CMutexProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CMutex &m_Mutex;
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
-        uint32_t m_Increment;
+        ml::core::CMutex      &m_Mutex;
+        uint32_t              m_SleepTime;
+        uint32_t              m_Iterations;
+        uint32_t              m_Increment;
         volatile uint32_t     &m_Variable;
 };
 
@@ -214,10 +214,10 @@ class CWriteLockProtectedAdder : public ml::core::CThread {
         }
 
     private:
-        ml::core::CReadWriteLock &m_ReadWriteLock;
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
-        uint32_t m_Increment;
+        ml::core::CReadWriteLock      &m_ReadWriteLock;
+        uint32_t                      m_SleepTime;
+        uint32_t                      m_Iterations;
+        uint32_t                      m_Increment;
         volatile uint32_t             &m_Variable;
 };
 
@@ -253,11 +253,11 @@ class CReadLockProtectedReader : public ml::core::CThread {
         }
 
     private:
-        ml::core::CReadWriteLock &m_ReadWriteLock;
-        uint32_t m_SleepTime;
-        uint32_t m_Iterations;
+        ml::core::CReadWriteLock      &m_ReadWriteLock;
+        uint32_t                      m_SleepTime;
+        uint32_t                      m_Iterations;
         volatile uint32_t             &m_Variable;
-        uint32_t m_LastRead;
+        uint32_t                      m_LastRead;
 };
 
 

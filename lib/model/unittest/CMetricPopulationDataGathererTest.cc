@@ -166,7 +166,7 @@ void CMetricPopulationDataGathererTest::testMean(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
     CPPUNIT_ASSERT(gatherer.isPopulation());
 
     TStrStrPrMeanAccumulatorMap accumulators;
@@ -233,7 +233,7 @@ void CMetricPopulationDataGathererTest::testMin(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
 
     TStrStrPrMinAccumulatorMap accumulators;
     core_t::TTime              bucketStart = startTime;
@@ -299,7 +299,7 @@ void CMetricPopulationDataGathererTest::testMax(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
 
     TStrStrPrMaxAccumulatorMap accumulators;
     core_t::TTime              bucketStart = startTime;
@@ -361,7 +361,7 @@ void CMetricPopulationDataGathererTest::testSum(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
 
     TStrStrPrDoubleMap expectedSums;
     core_t::TTime      bucketStart = startTime;
@@ -446,7 +446,7 @@ void CMetricPopulationDataGathererTest::testSampleCount(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
 
     std::size_t bucket = 0u;
     for (std::size_t i = 0u; i < messages.size(); ++i) {
@@ -505,7 +505,7 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
 
     TStrStrPrMeanAccumulatorMap bucketMeanAccumulators;
     TStrStrPrMeanAccumulatorMap sampleMeanAccumulators;
@@ -533,8 +533,8 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleVecMap meanSamples;
             for (std::size_t j = 0u; j < tmp[0].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr &data = tmp[0].second[j];
-                TStrStrPr                       key(gatherer.personName(data.first.first),
-                                                    gatherer.attributeName(data.first.second));
+                TStrStrPr                      key(gatherer.personName(data.first.first),
+                                                   gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     means[key] = data.second.s_BucketValue->value()[0];
                 }
@@ -551,8 +551,8 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleVecMap minSamples;
             for (std::size_t j = 0u; j < tmp[1].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr &data = tmp[1].second[j];
-                TStrStrPr                       key(gatherer.personName(data.first.first),
-                                                    gatherer.attributeName(data.first.second));
+                TStrStrPr                      key(gatherer.personName(data.first.first),
+                                                   gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     mins[key] = data.second.s_BucketValue->value()[0];
                 }
@@ -569,8 +569,8 @@ void CMetricPopulationDataGathererTest::testFeatureData(void) {
             TStrStrPrDoubleVecMap maxSamples;
             for (std::size_t j = 0u; j < tmp[2].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr &data = tmp[2].second[j];
-                TStrStrPr                       key(gatherer.personName(data.first.first),
-                                                    gatherer.attributeName(data.first.second));
+                TStrStrPr                      key(gatherer.personName(data.first.first),
+                                                   gatherer.attributeName(data.first.second));
                 if (data.second.s_BucketValue) {
                     maxs[key] = data.second.s_BucketValue->value()[0];
                 }
@@ -1134,7 +1134,7 @@ void CMetricPopulationDataGathererTest::testReleaseMemory(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData initData(startTime);
     CModelFactory::TDataGathererPtr            gathererPtr(factory.makeDataGatherer(initData));
-    CDataGatherer &                            gatherer(*gathererPtr);
+    CDataGatherer                              &                            gatherer(*gathererPtr);
     CPPUNIT_ASSERT(gatherer.isPopulation());
 
     core_t::TTime bucketStart = startTime;

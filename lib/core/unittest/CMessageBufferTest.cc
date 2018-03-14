@@ -79,8 +79,8 @@ class CBuffer {
 
     private:
         uint32_t m_FlushInterval;
-        TStrVec m_Buffer;
-        TStrVec m_Results;
+        TStrVec  m_Buffer;
+        TStrVec  m_Results;
 };
 }
 

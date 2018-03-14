@@ -164,34 +164,34 @@ class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
 
     private:
         //! The job ID
-        std::string m_JobId;
+        std::string                          m_JobId;
 
         //! The forecast ID
-        std::string m_ForecastId;
+        std::string                          m_ForecastId;
 
         //! The forecast alias
-        std::string m_ForecastAlias;
+        std::string                          m_ForecastAlias;
 
         //! JSON line writer
         core::CRapidJsonConcurrentLineWriter m_Writer;
 
         //! count of how many records written
-        uint64_t m_NumRecordsWritten;
+        uint64_t                             m_NumRecordsWritten;
 
         //! Forecast create time
-        core_t::TTime m_CreateTime;
+        core_t::TTime                        m_CreateTime;
 
         //! Forecast start time
-        core_t::TTime m_StartTime;
+        core_t::TTime                        m_StartTime;
 
         //! Forecast end time
-        core_t::TTime m_EndTime;
+        core_t::TTime                        m_EndTime;
 
         //! Forecast expiry time
-        core_t::TTime m_ExpiryTime;
+        core_t::TTime                        m_ExpiryTime;
 
         //! Forecast memory usage for models
-        size_t m_MemoryUsage;
+        size_t                               m_MemoryUsage;
 };
 
 } /* namespace model  */

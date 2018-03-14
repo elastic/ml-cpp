@@ -74,9 +74,9 @@ class CCdf : public std::unary_function<double, double> {
         }
 
     private:
-        EStyle m_Style;
-        const CPrior *m_Prior;
-        double m_Target;
+        EStyle              m_Style;
+        const CPrior        *m_Prior;
+        double              m_Target;
         mutable TDouble1Vec m_X;
 };
 

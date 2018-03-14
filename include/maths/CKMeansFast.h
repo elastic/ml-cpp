@@ -150,11 +150,11 @@ class CKMeansFast {
 
             private:
                 //! The centroid of the points in this cluster.
-                POINT m_Centre;
+                POINT     m_Centre;
                 //! The points in the cluster.
                 TPointVec m_Points;
                 //! A checksum for the points in the cluster.
-                uint64_t m_Checksum;
+                uint64_t  m_Checksum;
         };
 
         typedef std::vector<CCluster> TClusterVec;
@@ -186,7 +186,7 @@ class CKMeansFast {
                 }
 
                 //! Get the bounding box.
-                const TBoundingBox &boundingBox(void) const {
+                const TBoundingBox     &boundingBox(void) const {
                     return m_BoundingBox;
                 }
 
@@ -215,7 +215,7 @@ class CKMeansFast {
 
             private:
                 //! The points' bounding box.
-                mutable TBoundingBox m_BoundingBox;
+                mutable TBoundingBox     m_BoundingBox;
                 //! The centroid of the points.
                 mutable TMeanAccumulator m_Centroid;
         };
@@ -278,8 +278,8 @@ class CKMeansFast {
 
                     private:
                         const TBoundingBox *bb;
-                        std::size_t x;
-                        const TPointVec *centres;
+                        std::size_t        x;
+                        const TPointVec    *centres;
                 };
 
             public:
@@ -295,7 +295,7 @@ class CKMeansFast {
                 }
 
                 //! Get the filter.
-                const TSizeVec &filter(void) const {
+                const TSizeVec  &filter(void) const {
                     return m_Filter;
                 }
 
@@ -334,7 +334,7 @@ class CKMeansFast {
 
                 //! The centres which could be closer to one of the points
                 //! in the current branch of the k-d tree.
-                TSizeVec m_Filter;
+                TSizeVec        m_Filter;
         };
 
         //! \brief Updates the cluster centres in an iteration of Lloyd's
@@ -367,7 +367,7 @@ class CKMeansFast {
                         return false;
                     } else {
                         const TPointVec &centres = m_Centres.centres();
-                        const POINT &    point = node.s_Point;
+                        const POINT     &    point = node.s_Point;
                         (*m_Centroids)[detail::closest(centres, filter, point)].add(point);
                     }
                     return true;
@@ -375,7 +375,7 @@ class CKMeansFast {
 
             private:
                 //! The current centres.
-                CCentreFilter m_Centres;
+                CCentreFilter       m_Centres;
 
                 //! Compute the new cluster centres.
                 TMeanAccumulatorVec *m_Centroids;
@@ -406,7 +406,7 @@ class CKMeansFast {
                 //! point collection.
                 void operator()(const TNode &node) {
                     namespace detail = kmeans_fast_detail;
-                    std::size_t  n = m_Centres->size();
+                    std::size_t n = m_Centres->size();
                     const POINT &point = node.s_Point;
                     (*m_ClosestPoints)[detail::closest(*m_Centres,
                                                        boost::counting_iterator<std::size_t>(0),
@@ -416,7 +416,7 @@ class CKMeansFast {
 
             private:
                 const TPointVec *m_Centres;
-                TPointVecVec *m_ClosestPoints;
+                TPointVecVec    *m_ClosestPoints;
         };
 
     public:
@@ -519,7 +519,7 @@ class CKMeansFast {
 
     private:
         //! The current cluster centroids.
-        TPointVec m_Centres;
+        TPointVec                       m_Centres;
 
         //! The points.
         CKdTree<POINT, CKdTreeNodeData> m_Points;

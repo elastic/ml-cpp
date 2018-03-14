@@ -1452,7 +1452,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         // Generate some events.
@@ -1510,7 +1510,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         // Generate some events.
@@ -1575,7 +1575,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         // Generate some events.
@@ -1642,7 +1642,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         // Generate some events.
@@ -1708,7 +1708,7 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 2));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         // Generate some events.
@@ -1790,7 +1790,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1, TOptionalStr("v")));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         const std::string uniqueValue("str_value");
@@ -1857,7 +1857,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1, TOptionalStr("v")));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         const std::string uniqueValue("str_value");
@@ -1933,7 +1933,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 1, TOptionalStr("v")));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         const std::string uniqueValue("str_value");
@@ -2006,7 +2006,7 @@ void CEventRateModelTest::testDistinctCountProbabilityCalculationWithInfluence(v
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPersonWithInfluence("p", gatherer, m_ResourceMonitor, 2, TOptionalStr("v")));
         CModelFactory::SModelInitializationData modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-        CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+        CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         CPPUNIT_ASSERT(model);
 
         const std::string uniqueValue("str_value");
@@ -2099,7 +2099,7 @@ void CEventRateModelTest::testOnlineRareWithInfluence(void) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPersonWithInfluence("p5", gatherer, m_ResourceMonitor, 1));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        modelHolder(factory.makeModel(modelInitData));
-    CEventRateModel *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
+    CEventRateModel                         *                       model = dynamic_cast<CEventRateModel*>(modelHolder.get());
     CPPUNIT_ASSERT(model);
 
     SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;

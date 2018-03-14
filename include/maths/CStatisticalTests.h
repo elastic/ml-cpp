@@ -89,14 +89,14 @@ class MATHS_EXPORT CStatisticalTests {
             public:
                 //! Enumeration of the p values for which the test
                 //! statistic value is tabulated.
-                static const double P_VALUES[16];
+                static const double      P_VALUES[16];
                 //! Enumeration of the count, of the values used in
                 //! the test statistic, for which the value of the
                 //! test statistic is tabulated.
                 static const std::size_t N[13];
                 //! The tabulated values of the test statistic for
                 //! specific p-values and counts.
-                static const double T_VALUES[13][16];
+                static const double      T_VALUES[13][16];
 
             public:
                 CCramerVonMises(std::size_t size);
@@ -134,12 +134,12 @@ class MATHS_EXPORT CStatisticalTests {
 
             private:
                 //! The "count - 1" in the test statistic.
-                std::size_t m_Size;
+                std::size_t      m_Size;
                 //! The mean value of the test statistic.
                 TMeanAccumulator m_T;
                 //! The current values in the test statistic scaled
                 //! and converted to 16 bit integers.
-                TUInt16Vec m_F;
+                TUInt16Vec       m_F;
         };
 };
 

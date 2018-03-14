@@ -843,7 +843,7 @@ void CMetricModelTest::testProbabilityCalculationForMedian(void) {
 
 
 
-    std::size_t                       pid(0);
+    std::size_t                      pid(0);
     const CMetricModel::TFeatureData *fd = model.featureData(
         ml::model_t::E_IndividualMedianByPerson, pid,
         time - bucketLength);
@@ -1415,12 +1415,12 @@ void CMetricModelTest::testPrune(void) {
     CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData    modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr           model_(factory.makeModel(modelInitData));
-    CMetricModel *                             model = dynamic_cast<CMetricModel*>(model_.get());
+    CMetricModel                               *                             model = dynamic_cast<CMetricModel*>(model_.get());
     CPPUNIT_ASSERT(model);
     CModelFactory::TDataGathererPtr         expectedGatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData expectedModelInitData(expectedGatherer);
     CAnomalyDetectorModel::TModelPtr        expectedModelHolder(factory.makeModel(expectedModelInitData));
-    CMetricModel *                          expectedModel = dynamic_cast<CMetricModel*>(expectedModelHolder.get());
+    CMetricModel                            *                          expectedModel = dynamic_cast<CMetricModel*>(expectedModelHolder.get());
     CPPUNIT_ASSERT(expectedModel);
 
     test::CRandomNumbers rng;
@@ -1619,7 +1619,7 @@ void CMetricModelTest::testSkipSampling(void) {
     CAnomalyDetectorModel::TModelPtr        modelWithGapPtr(factory.makeModel(initDataWithGap));
     CPPUNIT_ASSERT(modelWithGapPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelWithGapPtr->category());
-    CMetricModel &modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
+    CMetricModel  &modelWithGap = static_cast<CMetricModel&>(*modelWithGapPtr.get());
     core_t::TTime gap(bucketLength * 10);
 
     {

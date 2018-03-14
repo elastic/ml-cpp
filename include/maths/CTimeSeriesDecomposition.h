@@ -225,23 +225,23 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
 
     private:
         //! The time of the latest value added.
-        core_t::TTime m_LastValueTime;
+        core_t::TTime              m_LastValueTime;
 
         //! The time to which the trend has been propagated.
-        core_t::TTime m_LastPropagationTime;
+        core_t::TTime              m_LastPropagationTime;
 
         //! Handles the communication between the various tests and
         //! components.
-        TMediatorPtr m_Mediator;
+        TMediatorPtr               m_Mediator;
 
         //! The test for seasonal components.
-        CPeriodicityTest m_PeriodicityTest;
+        CPeriodicityTest           m_PeriodicityTest;
 
         //! The test for calendar cyclic components.
-        CCalendarTest m_CalendarCyclicTest;
+        CCalendarTest              m_CalendarCyclicTest;
 
         //! The state for modeling the components of the decomposition.
-        CComponents m_Components;
+        CComponents                m_Components;
 };
 
 }

@@ -150,7 +150,7 @@ class CValueIs : public CConstraint<T> {
         }
 
     private:
-        const T *m_Rhs;
+        const T      *m_Rhs;
         PREDICATE<T> m_Pred;
 };
 //! \brief The constraint that a value of type T is greater than another.
@@ -174,7 +174,7 @@ class CVectorValueIs : public CConstraint<T> {
 
     private:
         const std::vector<T> *m_Rhs;
-        PREDICATE<T> m_Pred;
+        PREDICATE<T>         m_Pred;
 };
 
 //! \brief The constraint that a vector isn't empty.
@@ -264,7 +264,7 @@ class CBuiltinParameter : public CParameter {
         }
 
     private:
-        T &m_Value;
+        T               &m_Value;
         TConstraintCPtr m_Constraint;
 };
 
@@ -306,7 +306,7 @@ class CBuiltinVectorParameter : public CParameter {
         }
 
     private:
-        std::vector<T> &m_Value;
+        std::vector<T>                           &m_Value;
         boost::shared_ptr<const CConstraint<T> > m_Constraint;
 };
 
@@ -341,7 +341,7 @@ class COptionalStrVecParameter : public CParameter {
         }
 
     private:
-        CAutoconfigurerParams::TOptionalStrVec &m_Value;
+        CAutoconfigurerParams::TOptionalStrVec             &m_Value;
         boost::shared_ptr<const CConstraint<std::string> > m_Constraint;
 };
 
@@ -451,7 +451,7 @@ class CFunctionCategoryParameter : public CParameter {
         }
 
     private:
-        CAutoconfigurerParams::TFunctionCategoryVec &m_Value;
+        CAutoconfigurerParams::TFunctionCategoryVec                        &m_Value;
         boost::shared_ptr<const CConstraint<config_t::EFunctionCategory> > m_Constraint;
 };
 

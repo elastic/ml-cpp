@@ -118,7 +118,7 @@ class CPdf {
 
     private:
         DISTRIBUTION m_Distribution;
-        double m_Target;
+        double       m_Target;
 };
 
 //! Convenience factory method for the CPdf object for \p distribution.

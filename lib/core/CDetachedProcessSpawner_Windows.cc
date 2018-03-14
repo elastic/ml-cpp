@@ -144,10 +144,10 @@ class CTrackerThread : public CThread {
         }
 
     private:
-        bool m_Shutdown;
-        TPidHandleMap m_Pids;
+        bool           m_Shutdown;
+        TPidHandleMap  m_Pids;
         mutable CMutex m_Mutex;
-        CCondition m_Condition;
+        CCondition     m_Condition;
 };
 
 }

@@ -204,7 +204,7 @@ class CBase {
 
     private:
         uint64_t m_Fixed[5];
-        TIntVec m_Vec;
+        TIntVec  m_Vec;
 };
 
 class CDerived : public CBase {
@@ -232,7 +232,7 @@ class CDerived : public CBase {
 
     private:
         uint64_t m_Fixed[50];
-        TStrVec m_Strings;
+        TStrVec  m_Strings;
 };
 
 //! A basic allocator that tracks memory usage

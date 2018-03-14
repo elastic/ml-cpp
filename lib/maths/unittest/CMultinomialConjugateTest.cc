@@ -254,9 +254,9 @@ void CMultinomialConjugateTest::testMarginalLikelihood(void) {
                                      filter.jointLogMarginalLikelihood(sample, logp));
 
                 const TDoubleVec &filterCategories = filter.categories();
-                std::size_t       k = std::lower_bound(filterCategories.begin(),
-                                                       filterCategories.end(),
-                                                       samples[j]) - filterCategories.begin();
+                std::size_t      k = std::lower_bound(filterCategories.begin(),
+                                                      filterCategories.end(),
+                                                      samples[j]) - filterCategories.begin();
                 TDoubleVec filterProbabilities(filter.probabilities());
                 CPPUNIT_ASSERT(k < filterProbabilities.size());
                 double p = filterProbabilities[k];

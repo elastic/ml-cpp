@@ -197,9 +197,9 @@ void CAnomalyDetectorModel::sampleBucketStatistics(core_t::TTime startTime,
                                                    core_t::TTime endTime,
                                                    CResourceMonitor & /*resourceMonitor*/) {
     const CDataGatherer &gatherer{this->dataGatherer()};
-    core_t::TTime        bucketLength{this->bucketLength()};
+    core_t::TTime       bucketLength{this->bucketLength()};
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        const auto &counts = gatherer.bucketCounts(time);
+        const auto  &counts = gatherer.bucketCounts(time);
         std::size_t totalBucketCount{0u};
         for (const auto &count : counts) {
             totalBucketCount += CDataGatherer::extractData(count);
@@ -217,7 +217,7 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
 
     core_t::TTime bucketLength{this->bucketLength()};
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-        const auto &counts = gatherer.bucketCounts(time);
+        const auto  &counts = gatherer.bucketCounts(time);
         std::size_t totalBucketCount{0u};
 
         TSizeUSet uniquePeople;
@@ -243,7 +243,7 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
 
 void CAnomalyDetectorModel::skipSampling(core_t::TTime endTime) {
     CDataGatherer &gatherer{this->dataGatherer()};
-    core_t::TTime  startTime{gatherer.earliestBucketStartTime()};
+    core_t::TTime startTime{gatherer.earliestBucketStartTime()};
 
     if (!gatherer.validateSampleTimes(startTime, endTime)) {
         return;
@@ -436,10 +436,10 @@ const CInfluenceCalculator *CAnomalyDetectorModel::influenceCalculator(model_t::
         return 0;
     }
     const TFeatureInfluenceCalculatorCPtrPrVec &calculators{m_InfluenceCalculators[iid]};
-    auto                                        result = std::lower_bound(calculators.begin(),
-                                                                          calculators.end(),
-                                                                          feature,
-                                                                          maths::COrderings::SFirstLess());
+    auto                                       result = std::lower_bound(calculators.begin(),
+                                                                         calculators.end(),
+                                                                         feature,
+                                                                         maths::COrderings::SFirstLess());
     return result != calculators.end() && result->first == feature ? result->second.get() : 0;
 }
 

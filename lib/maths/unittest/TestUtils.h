@@ -240,8 +240,8 @@ class CUnitKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior *m_Prior;
-        mutable handy_typedefs::TDouble10Vec1Vec m_X;
+        const maths::CMultivariatePrior             *m_Prior;
+        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
 };
 
 template<std::size_t N>
@@ -270,8 +270,8 @@ class CMeanKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior *m_Prior;
-        mutable handy_typedefs::TDouble10Vec1Vec m_X;
+        const maths::CMultivariatePrior             *m_Prior;
+        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
 };
 
 template<std::size_t N>
@@ -302,9 +302,9 @@ class CCovarianceKernel {
         static handy_typedefs::TDouble10Vec4Vec1Vec SINGLE_UNIT;
 
     private:
-        const maths::CMultivariatePrior *m_Prior;
-        maths::CVectorNx1<double, N> m_Mean;
-        mutable handy_typedefs::TDouble10Vec1Vec m_X;
+        const maths::CMultivariatePrior             *m_Prior;
+        maths::CVectorNx1<double, N>                m_Mean;
+        mutable handy_typedefs::TDouble10Vec1Vec    m_X;
 };
 
 template<std::size_t N>

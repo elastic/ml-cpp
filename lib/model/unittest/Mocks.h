@@ -151,10 +151,10 @@ class CMockModel : public CAnomalyDetectorModel {
         virtual CMemoryUsageEstimator *memoryUsageEstimator(void) const;
 
     private:
-        bool m_IsPopulation;
+        bool                                       m_IsPopulation;
         TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketValues;
         TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketBaselineMeans;
-        TMathsModelPtrVec m_Models;
+        TMathsModelPtrVec                          m_Models;
 };
 
 //! \brief A details view for a mock model.

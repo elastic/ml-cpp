@@ -120,13 +120,13 @@ class CMinAmplitude {
 
     private:
         //! The mean of the trend.
-        double m_Level;
+        double                   m_Level;
         //! The total count of values added.
-        std::size_t m_Count;
+        std::size_t              m_Count;
         //! The smallest values.
-        TMinAccumulator m_Min;
+        TMinAccumulator          m_Min;
         //! The largest values.
-        TMaxAccumulator m_Max;
+        TMaxAccumulator          m_Max;
 };
 
 const std::size_t CMinAmplitude::MINIMUM_COUNT_TO_TEST{4};

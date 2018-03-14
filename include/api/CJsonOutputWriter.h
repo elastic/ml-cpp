@@ -432,19 +432,19 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler {
 
     private:
         //! The job ID
-        std::string m_JobId;
+        std::string                          m_JobId;
 
         //! JSON line writer
         core::CRapidJsonConcurrentLineWriter m_Writer;
 
         //! Time of last non-interim bucket written to output
-        core_t::TTime m_LastNonInterimBucketTime;
+        core_t::TTime                        m_LastNonInterimBucketTime;
 
         //! Has the output been finalised?
-        bool m_Finalised;
+        bool                                 m_Finalised;
 
         //! Max number of records to write for each bucket/detector
-        size_t m_RecordOutputLimit;
+        size_t                               m_RecordOutputLimit;
 
         //! Vector for building up documents representing nested sub-results.
         //! The documents in this vector will reference memory owned by
@@ -456,10 +456,10 @@ class API_EXPORT CJsonOutputWriter : public COutputHandler {
         //! The documents in this map will reference memory owned by
         //! m_JsonPoolAllocator.  (Hence this is declared after the memory pool
         //! so that it's destroyed first when the destructor runs.)
-        TTimeBucketDataMap m_BucketDataByTime;
+        TTimeBucketDataMap        m_BucketDataByTime;
 
         //! Protects the m_ModelSnapshotReports from concurrent access.
-        core::CMutex m_ModelSnapshotReportsQueueMutex;
+        core::CMutex              m_ModelSnapshotReportsQueueMutex;
 
         //! Queue of model snapshot reports waiting to be output.
         TModelSnapshotReportQueue m_ModelSnapshotReports;

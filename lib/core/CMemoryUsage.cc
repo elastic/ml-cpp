@@ -56,7 +56,7 @@ class CMemoryUsageComparisonTwo : public std::binary_function<std::string,
         }
 
     private:
-        std::string m_Baseline;
+        std::string        m_Baseline;
         const CMemoryUsage * m_FirstItem;
 };
 

@@ -134,16 +134,16 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch > {
 
     private:
         //! The style of interpolation to use.
-        EInterpolation m_Interpolation;
+        EInterpolation   m_Interpolation;
         //! The maximum permitted size for the sketch.
-        std::size_t m_MaxSize;
+        std::size_t      m_MaxSize;
         //! The number of unsorted values.
-        std::size_t m_Unsorted;
+        std::size_t      m_Unsorted;
         //! The values and counts used as knot points in a linear
         //! interpolation of the c.d.f.
         TFloatFloatPrVec m_Knots;
         //! The total count of points in the sketch.
-        double m_Count;
+        double           m_Count;
 };
 
 //! \brief Template wrapper for fixed size sketches which can be

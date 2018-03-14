@@ -96,11 +96,11 @@ class CTestOutputHandler : public COutputHandler {
         }
 
     private:
-        TStrVec m_FieldNames;
+        TStrVec  m_FieldNames;
 
-        bool m_NewStream;
+        bool     m_NewStream;
 
-        bool m_Finalised;
+        bool     m_Finalised;
 
         uint64_t m_Records;
 };

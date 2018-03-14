@@ -67,11 +67,11 @@ class CMockDataProcessor : public ml::api::CDataProcessor {
         ml::api::COutputHandler &m_OutputHandler;
 
         //! Empty field overrides
-        TStrStrUMap m_FieldOverrides;
+        TStrStrUMap             m_FieldOverrides;
 
-        uint64_t m_NumRecordsHandled;
+        uint64_t                m_NumRecordsHandled;
 
-        bool m_WriteFieldNames;
+        bool                    m_WriteFieldNames;
 };
 
 

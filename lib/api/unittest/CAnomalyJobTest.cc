@@ -114,7 +114,7 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
                 if (!node.s_Model) {
                     return;
                 }
-                std::size_t                     pid;
+                std::size_t                    pid;
                 const ml::model::CDataGatherer &gatherer = node.s_Model->dataGatherer();
                 if (!gatherer.personId(*node.s_Spec.s_PersonFieldValue, pid)) {
                     LOG_ERROR("No identifier for '"
@@ -387,11 +387,11 @@ void CAnomalyJobTest::testControlMessages(void) {
         CPPUNIT_ASSERT(doc.IsArray());
 
         const rapidjson::Value &allRecords = doc.GetArray();
-        bool                    foundRecord = false;
+        bool                   foundRecord = false;
         for (auto &r : allRecords.GetArray()) {
             rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember("records");
             if (recordsIt != r.GetObject().MemberEnd()) {
-                auto &                                recordsArray = recordsIt->value.GetArray()[0];
+                auto                                  &                                recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =  recordsArray.FindMember("actual");
                 CPPUNIT_ASSERT(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray &values = actualIt->value.GetArray();
@@ -439,7 +439,7 @@ void CAnomalyJobTest::testControlMessages(void) {
         for (auto &r : allRecords2.GetArray()) {
             rapidjson::Value::ConstMemberIterator recordsIt = r.GetObject().FindMember("records");
             if (recordsIt != r.GetObject().MemberEnd()) {
-                auto &                                recordsArray = recordsIt->value.GetArray()[0];
+                auto                                  &                                recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =  recordsArray.FindMember("actual");
                 CPPUNIT_ASSERT(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray &values = actualIt->value.GetArray();

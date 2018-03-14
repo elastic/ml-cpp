@@ -311,7 +311,7 @@ class MODEL_EXPORT CBucketGatherer {
         //@{
         //! Get the non-zero (person, attribute) pair counts in the
         //! bucketing interval corresponding to the given time.
-        const TSizeSizePrUInt64UMap &bucketCounts(core_t::TTime time) const;
+        const TSizeSizePrUInt64UMap                     &bucketCounts(core_t::TTime time) const;
 
         //! Get the non-zero (person, attribute) pair counts for each
         //! value of influencing field.
@@ -444,33 +444,33 @@ class MODEL_EXPORT CBucketGatherer {
 
     protected:
         //! Reference to the owning data gatherer
-        CDataGatherer &m_DataGatherer;
+        CDataGatherer                                    &m_DataGatherer;
 
     private:
         //! The earliest time of any record that has arrived.
-        core_t::TTime m_EarliestTime;
+        core_t::TTime                                    m_EarliestTime;
 
         //! The start of the current bucketing interval.
-        core_t::TTime m_BucketStart;
+        core_t::TTime                                    m_BucketStart;
 
         //! The non-zero (person, attribute) pair counts in the current
         //! bucketing interval.
-        TSizeSizePrUInt64UMapQueue m_PersonAttributeCounts;
+        TSizeSizePrUInt64UMapQueue                       m_PersonAttributeCounts;
 
         //! The counts for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.
-        TTimeSizeSizePrUInt64UMapMap m_MultiBucketPersonAttributeCounts;
+        TTimeSizeSizePrUInt64UMapMap                     m_MultiBucketPersonAttributeCounts;
 
         //! A set per bucket that contains a (pid,cid) pair if at least
         //! one explicit null record has been seen.
-        TSizeSizePrUSetQueue m_PersonAttributeExplicitNulls;
+        TSizeSizePrUSetQueue                             m_PersonAttributeExplicitNulls;
 
         //! The explicit nulls for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.
-        TTimeSizeSizePrUSetMap m_MultiBucketPersonAttributeExplicitNulls;
+        TTimeSizeSizePrUSetMap                           m_MultiBucketPersonAttributeExplicitNulls;
 
         //! The influencing field value counts per person and/or attribute.
-        TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue m_InfluencerCounts;
+        TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue   m_InfluencerCounts;
 
         //! The influencing field value counts for longer bucketing intervals.
         // TODO This is not queued so can't handle out of order data.

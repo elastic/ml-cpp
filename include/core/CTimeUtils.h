@@ -113,7 +113,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable {
                 typedef boost::unordered_set<std::string> TStrUSet;
 
                 //! Our cache of date words
-                TStrUSet m_DateWords;
+                TStrUSet                       m_DateWords;
         };
 };
 

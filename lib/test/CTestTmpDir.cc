@@ -37,7 +37,7 @@ std::string CTestTmpDir::tmpDir(void) {
     ::memset(&pwd, 0, sizeof(pwd));
     static const size_t BUFSIZE(16384);
     char                buffer[BUFSIZE] = { '\0' };
-    struct passwd *     result(0);
+    struct passwd       *     result(0);
     ::getpwuid_r(::getuid(),
                  &pwd,
                  buffer,

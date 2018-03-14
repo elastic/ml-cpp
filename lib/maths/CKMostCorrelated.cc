@@ -85,7 +85,7 @@ class CPairNotIn : public std::unary_function<TPointSizePr, bool> {
 
     private:
         const TSizeSizePrUSet *m_Lookup;
-        std::size_t m_X;
+        std::size_t           m_X;
 };
 
 //! \brief Unary predicate to check if a point is closer,
@@ -496,7 +496,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
             TPointRTree     rtree(points);
             TPointSizePrVec nearest;
             for (std::size_t i = 0u; i < seeds.size(); ++i) {
-                std::size_t                     X = points[seeds[i]].second;
+                std::size_t                    X = points[seeds[i]].second;
                 const TVectorPackedBitVectorPr &px = m_Projected.at(X);
 
                 nearest.clear();
@@ -512,12 +512,12 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                            std::back_inserter(nearest));
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
-                    std::size_t                     n = mostCorrelated.count();
-                    std::size_t                     S = n == desired ? mostCorrelated.biggest().s_X : 0;
-                    std::size_t                     T = n == desired ? mostCorrelated.biggest().s_Y : 0;
-                    std::size_t                     Y = nearest[j].second;
+                    std::size_t                    n = mostCorrelated.count();
+                    std::size_t                    S = n == desired ? mostCorrelated.biggest().s_X : 0;
+                    std::size_t                    T = n == desired ? mostCorrelated.biggest().s_Y : 0;
+                    std::size_t                    Y = nearest[j].second;
                     const TVectorPackedBitVectorPr &py = m_Projected.at(Y);
-                    SCorrelation                    cxy(X, px.first, px.second, Y, py.first, py.second);
+                    SCorrelation                   cxy(X, px.first, px.second, Y, py.first, py.second);
                     if (lookup.count(std::make_pair(cxy.s_X, cxy.s_Y)) > 0) {
                         continue;
                     }
@@ -534,10 +534,10 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
 
             for (std::size_t i = 0u; i < points.size(); ++i) {
                 const SCorrelation &biggest = mostCorrelated.biggest();
-                double              threshold = biggest.distance(amax);
+                double             threshold = biggest.distance(amax);
                 LOG_TRACE("threshold = " << threshold);
 
-                std::size_t                     X = points[i].second;
+                std::size_t                    X = points[i].second;
                 const TVectorPackedBitVectorPr &px = m_Projected.at(X);
 
                 TVector width(::sqrt(threshold));
@@ -567,12 +567,12 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec &result) const {
                 LOG_TRACE("# candidates = " << nearest.size());
 
                 for (std::size_t j = 0u; j < nearest.size(); ++j) {
-                    std::size_t                     n = mostCorrelated.count();
-                    std::size_t                     S = n == desired ? mostCorrelated.biggest().s_X : 0;
-                    std::size_t                     T = n == desired ? mostCorrelated.biggest().s_Y : 0;
-                    std::size_t                     Y = nearest[j].second;
+                    std::size_t                    n = mostCorrelated.count();
+                    std::size_t                    S = n == desired ? mostCorrelated.biggest().s_X : 0;
+                    std::size_t                    T = n == desired ? mostCorrelated.biggest().s_Y : 0;
+                    std::size_t                    Y = nearest[j].second;
                     const TVectorPackedBitVectorPr &py = m_Projected.at(Y);
-                    SCorrelation                    cxy(X, px.first, px.second, Y, py.first, py.second);
+                    SCorrelation                   cxy(X, px.first, px.second, Y, py.first, py.second);
                     if (lookup.count(std::make_pair(cxy.s_X, cxy.s_Y)) > 0) {
                         continue;
                     }
@@ -693,8 +693,8 @@ void CKMostCorrelated::SCorrelation::update(const TSizeVectorPackedBitVectorPrUM
     TSizeVectorPackedBitVectorPrUMapCItr x = projected.find(s_X);
     TSizeVectorPackedBitVectorPrUMapCItr y = projected.find(s_Y);
     if (x != projected.end() && y != projected.end()) {
-        const TVector &         px = x->second.first;
-        const TVector &         py = y->second.first;
+        const TVector          &         px = x->second.first;
+        const TVector          &         py = y->second.first;
         const CPackedBitVector &ix = x->second.second;
         const CPackedBitVector &iy = y->second.second;
         s_Correlation.add(correlation(px, ix, py, iy));

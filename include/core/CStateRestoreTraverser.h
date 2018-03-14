@@ -128,11 +128,11 @@ class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable {
                 CStateRestoreTraverser &m_Traverser;
 
                 //! Remember whether descent on construction succeeded
-                bool m_Descended;
+                bool                   m_Descended;
 
                 //! If a stream parsing error occurs, don't try and descend
                 //! in the destructor
-                bool m_BadState;
+                bool                   m_BadState;
         };
 
     private:

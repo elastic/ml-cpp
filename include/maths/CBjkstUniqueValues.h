@@ -172,9 +172,9 @@ class MATHS_EXPORT CBjkstUniqueValues {
 
     private:
         //! The maximum size of the sketch set before compression.
-        std::size_t m_MaxSize;
+        std::size_t        m_MaxSize;
         //! The number of distinct hashes to use in the sketch.
-        std::size_t m_NumberHashes;
+        std::size_t        m_NumberHashes;
         //! The distinct count sketch.
         TUInt32VecOrSketch m_Sketch;
 };

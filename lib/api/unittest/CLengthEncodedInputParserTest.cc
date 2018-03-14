@@ -113,7 +113,7 @@ class CSetupVisitor {
 
     private:
         std::string m_EncodedFieldNames;
-        size_t m_RecordsPerBlock;
+        size_t      m_RecordsPerBlock;
         std::string m_EncodedDataBlock;
 };
 
@@ -171,8 +171,8 @@ class CVisitor {
         }
 
     private:
-        bool m_Fast;
-        size_t m_RecordCount;
+        bool                              m_Fast;
+        size_t                            m_RecordCount;
         ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 
 };

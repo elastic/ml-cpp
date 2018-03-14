@@ -323,9 +323,9 @@ void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 
 std::size_t CIndividualModel::memoryUsage(void) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    TOptionalSize        estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
-                                                              gatherer.numberActiveAttributes(),
-                                                              this->numberCorrelations());
+    TOptionalSize       estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
+                                                             gatherer.numberActiveAttributes(),
+                                                             this->numberCorrelations());
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 

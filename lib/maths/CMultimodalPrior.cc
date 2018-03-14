@@ -379,7 +379,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
                 weight[0][count] = cluster.second;
                 if (winsorisation != missing) {
                     double &ww = weight[0][winsorisation];
-                    double  f   = (k->weight() + cluster.second) / Z;
+                    double f   = (k->weight() + cluster.second) / Z;
                     ww = std::max(1.0 - (1.0 - ww) / f, ww * f);
                 }
                 k->s_Prior->addSamples(weightStyles, sample, weight);

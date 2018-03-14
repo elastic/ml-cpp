@@ -257,9 +257,9 @@ class CNumericalLogProbabilityOfMFromNExtremeSamples {
 
                 const TDoubleVec *m_Limits;
                 const TDoubleVec *m_Corrections;
-                std::size_t m_N;
-                std::size_t m_M;
-                std::size_t m_I;
+                std::size_t      m_N;
+                std::size_t      m_M;
+                std::size_t      m_I;
         };
 
     public:
@@ -304,8 +304,8 @@ class CNumericalLogProbabilityOfMFromNExtremeSamples {
         }
 
     private:
-        TDoubleVec m_P;
-        TDoubleVec m_Corrections;
+        TDoubleVec  m_P;
+        TDoubleVec  m_Corrections;
         std::size_t m_N;
 };
 

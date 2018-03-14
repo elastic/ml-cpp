@@ -130,8 +130,8 @@ void CLongTailPenalty::extractTailCounts(const MAP &counts,
     }
 
     for (TItr i = counts.begin(); i != counts.end(); ++i) {
-        uint64_t               n = count(i->second);
-        std::size_t            partition = STATS::partition(*i);
+        uint64_t              n = count(i->second);
+        std::size_t           partition = STATS::partition(*i);
         const TMinAccumulator &min = mins[partition];
         if (   n <= static_cast<uint64_t>(  this->params().highCardinalityInTailFactor()
                                             * static_cast<double>(min[0]) + 0.5) ||

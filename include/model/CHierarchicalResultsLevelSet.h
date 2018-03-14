@@ -322,23 +322,23 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 
     private:
         //! The value for the bucket.
-        T m_BucketElement;
+        T                  m_BucketElement;
 
         //! The container for named influencer buckets.
-        TWordTypePrVec m_InfluencerBucketSet;
+        TWordTypePrVec     m_InfluencerBucketSet;
 
         //! The container for named influencers.
-        TWordTypePrVec m_InfluencerSet;
+        TWordTypePrVec     m_InfluencerSet;
 
         //! The container for named partitions.
-        TWordTypePrVec m_PartitionSet;
+        TWordTypePrVec     m_PartitionSet;
 
         //! The container for named people.
-        TWordTypePrVec m_PersonSet;
+        TWordTypePrVec     m_PersonSet;
 
         //! The container for leaves comprising distinct named
         //! (partition, person) field name pairs.
-        TWordTypePrVec m_LeafSet;
+        TWordTypePrVec     m_LeafSet;
 };
 
 template<typename T>

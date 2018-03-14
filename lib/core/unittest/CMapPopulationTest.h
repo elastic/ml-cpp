@@ -60,11 +60,11 @@ class CMapPopulationTest : public CppUnit::TestFixture {
                 const TCharPVec &charPtrVals(void) const;
 
             private:
-                TStrVec m_StringKeys;
-                TStrVec m_StringVals;
+                TStrVec         m_StringKeys;
+                TStrVec         m_StringVals;
 
-                TCharPVec m_CharPtrKeys;
-                TCharPVec m_CharPtrVals;
+                TCharPVec       m_CharPtrKeys;
+                TCharPVec       m_CharPtrVals;
         };
 
     private:
@@ -87,7 +87,7 @@ class CMapPopulationTest : public CppUnit::TestFixture {
         static const size_t FILL_SIZE;
         static const size_t TEST_SIZE;
 
-        const CTestData *m_TestData;
+        const CTestData     *m_TestData;
 };
 
 #endif // INCLUDED_CMapPopulationTest_h

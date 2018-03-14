@@ -152,8 +152,8 @@ void penaltyForCountImpl(const CAutoconfigurerParams &params,
 
     for (std::size_t bid = 0u; bid < n; ++bid) {
         const TSizeVec &indices_ = params.penaltyIndicesFor(bid);
-        double          penalty;
-        double          proportionWithLowVariation;
+        double         penalty;
+        double         proportionWithLowVariation;
         penaltyImpl(params, stats.bucketStatistics()[bid].countMomentsPerPartition(),
                     penalty, proportionWithLowVariation);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
@@ -195,8 +195,8 @@ void penaltyForImpl(const CAutoconfigurerParams &params,
         const TSizeVec &indices_ = params.penaltyIndicesFor(bid);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
         const std::string &argument = *spec.argumentField();
-        double             penalty = 0.0;
-        double             proportionWithLowVariation = 0.0;
+        double            penalty = 0.0;
+        double            proportionWithLowVariation = 0.0;
         computePenalty(params, stats.bucketStatistics()[bid].argumentMomentsPerPartition(argument),
                        penalty, proportionWithLowVariation);
         std::string description;

@@ -305,7 +305,7 @@ class CVectorRange {
 
     private:
         //! The underlying vector.
-        VECTOR *m_Vector;
+        VECTOR    *m_Vector;
         //! The range [m_A, m_B).
         size_type m_A, m_B;
 };

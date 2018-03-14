@@ -317,7 +317,7 @@ bool doMultivariateNormalSample(RNG &rng,
     // to sample.
     const CDenseVector<double> &S = svd.singularValues();
     const CDenseMatrix<double> &U = svd.matrixU();
-    TDoubleVec                  stddevs;
+    TDoubleVec                 stddevs;
     stddevs.reserve(d);
     for (std::size_t i = 0u; i < d; ++i) {
         stddevs.push_back(::sqrt(std::max(S(i), 0.0)));
@@ -373,7 +373,7 @@ void doMultivariateNormalSample(RNG &rng,
     // to sample.
     const TDenseVector &S = svd.singularValues();
     const TDenseMatrix &U = svd.matrixU();
-    T                   stddevs[N] = {};
+    T                  stddevs[N] = {};
     for (std::size_t i = 0u; i < N; ++i) {
         stddevs[i] = ::sqrt(std::max(S(i), 0.0));
     }

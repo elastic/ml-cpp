@@ -115,10 +115,10 @@ class MODEL_EXPORT CEventData {
         const TDouble1VecArray &values(void) const;
 
         //! Get the function argument string value.
-        const TOptionalStr &stringValue(void) const;
+        const TOptionalStr     &stringValue(void) const;
 
         //! Get the influencing field values.
-        const TOptionalStrVec &influences(void) const;
+        const TOptionalStrVec  &influences(void) const;
 
         //! Sets the data to be explicit null
         void setExplicitNull(void);
@@ -144,19 +144,19 @@ class MODEL_EXPORT CEventData {
 
     private:
         //! The event time.
-        core_t::TTime m_Time;
+        core_t::TTime                     m_Time;
         //! The event person identifier.
-        TOptionalSize m_Pid;
+        TOptionalSize                     m_Pid;
         //! The event attribute identifier(s).
-        TOptionalSizeVec m_Cids;
+        TOptionalSizeVec                  m_Cids;
         //! The event value(s).
         TOptionalDouble1VecArraySizePrVec m_Values;
         //! The function argument string value for this event.
-        TOptionalStr m_StringValue;
+        TOptionalStr                      m_StringValue;
         //! The influencing field values.
-        TOptionalStrVec m_Influences;
+        TOptionalStrVec                   m_Influences;
         //! Is it an explicit null record?
-        bool m_IsExplicitNull;
+        bool                              m_IsExplicitNull;
 };
 
 }

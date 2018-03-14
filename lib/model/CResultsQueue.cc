@@ -87,9 +87,9 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
     LOG_TRACE("Asking for queue items at " << (bucketStartTime - bucketLength) << " and " <<
               (bucketStartTime - (bucketLength / 2)));
 
-    core_t::TTime                             resultsTime = 0;
+    core_t::TTime                            resultsTime = 0;
     const model::CHierarchicalResults::TNode *node = m_Results.get(bucketStartTime - bucketLength).root();
-    double                                    r1 = 0.0;
+    double                                   r1 = 0.0;
     if (node) {
         r1 = node->s_NormalizedAnomalyScore;
     }

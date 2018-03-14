@@ -296,7 +296,7 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
             if (otherValues) {
                 values->swap(*otherValues);
             } else {
-                SSketch &  otherSketch = boost::get<SSketch>(other.m_Sketch);
+                SSketch    &  otherSketch = boost::get<SSketch>(other.m_Sketch);
                 TUInt32Vec tmp;
                 tmp.swap(*values);
                 m_Sketch = SSketch();
@@ -311,7 +311,7 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues &other) {
                 sketch.swap(*otherSketch);
             } else {
                 TUInt32Vec &otherValues = boost::get<TUInt32Vec>(other.m_Sketch);
-                TUInt32Vec  tmp;
+                TUInt32Vec tmp;
                 tmp.swap(otherValues);
                 other.m_Sketch = SSketch();
                 boost::get<SSketch>(other.m_Sketch).swap(sketch);
@@ -458,7 +458,7 @@ void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr me
 }
 
 std::size_t CBjkstUniqueValues::memoryUsage(void) const {
-    std::size_t       mem = 0;
+    std::size_t      mem = 0;
     const TUInt32Vec *values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         mem += core::CMemory::dynamicSize(*values);
@@ -606,7 +606,7 @@ void CBjkstUniqueValues::SSketch::add(std::size_t maxSize,
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec &b = s_B[i];
-            uint16_t   g = static_cast<uint16_t>((s_G[i])(value));
+            uint16_t  g = static_cast<uint16_t>((s_G[i])(value));
             LOG_TRACE("g = " << g
                              << ", zeros = " << static_cast<uint32_t>(zeros));
             if (detail::insert(b, g, zeros)) {
@@ -632,7 +632,7 @@ void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec &b = s_B[i];
-            uint16_t   g = static_cast<uint16_t>((s_G[i])(value));
+            uint16_t  g = static_cast<uint16_t>((s_G[i])(value));
             LOG_TRACE("g = " << g
                              << ", zeros = " << static_cast<uint32_t>(zeros));
             detail::remove(b, g);

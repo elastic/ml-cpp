@@ -337,7 +337,7 @@ class CBootstrapClusterer {
 
                         for (std::size_t l = 0u; !cik.empty() && l < bootstrapClusters[j].size(); ++l) {
                             const TSizeVec &cjl = bootstrapClusters[j][l];
-                            double          o = static_cast<double>(cik.size());
+                            double         o = static_cast<double>(cik.size());
                             CSetTools::inplace_set_difference(cik, cjl.begin(), cjl.end());
                             o -= static_cast<double>(cik.size());
                             o /= nik;
@@ -436,7 +436,7 @@ class CBootstrapClusterer {
             // Build a map from voters to point indices.
             TSizeSizeUMapVec voters(n);
             for (std::size_t i = 0u; i < components.size(); ++i) {
-                TSizeSizeUMap & cluster = voters[components[i]];
+                TSizeSizeUMap  & cluster = voters[components[i]];
                 const TSizeVec &vertex = this->fromVertex(bootstrapClusters, i);
                 for (std::size_t j = 0u; j < vertex.size(); ++j) {
                     ++cluster[vertex[j]];
@@ -793,11 +793,11 @@ class CBootstrapClusterer {
 
             private:
                 //! The graph to filter.
-                const TGraph *m_Graph;
+                const TGraph   *m_Graph;
                 //! The parities of the vertices of \p graph.
                 const TBoolVec *m_Parities;
                 //! The parity of the filtered graph.
-                bool m_Parity;
+                bool           m_Parity;
         };
 
     private:
@@ -919,11 +919,11 @@ class CBootstrapClusterer {
 
         //! The threshold in the similarity measure for which we will
         //! consider joining clusters.
-        double m_OverlapThreshold;
+        double                           m_OverlapThreshold;
 
         //! The amount overlap between clusters causes them to chain
         //! together.
-        double m_ChainingFactor;
+        double                           m_ChainingFactor;
 
         //! A flat encoding of the vertices in each clustering.
         //!
@@ -1051,13 +1051,13 @@ class CBootstrapClustererFacade<CXMeans<POINT, COST> > : private CBootstrapClust
         CXMeans<POINT, COST> m_Xmeans;
         //! The number of iterations to use in k-means for a single round
         //! of improve parameters.
-        std::size_t m_ImproveParamsKmeansIterations;
+        std::size_t          m_ImproveParamsKmeansIterations;
         //! The number of random seeds to try when initializing k-means
         //! for a single round of improve structure.
-        std::size_t m_ImproveStructureClusterSeeds;
+        std::size_t          m_ImproveStructureClusterSeeds;
         //! The number of iterations to use in k-means for a single round
         //! of improve structure.
-        std::size_t m_ImproveStructureKmeansIterations;
+        std::size_t          m_ImproveStructureKmeansIterations;
 };
 
 //! \brief Adapts the x-means implementation for use by the bootstrap
@@ -1103,11 +1103,11 @@ class CBootstrapClustererFacade<CKMeansFast<POINT> > : private CBootstrapCluster
         //! The random number generator.
         CPRNG::CXorShift1024Mult m_Rng;
         //! The k-means implementation.
-        CKMeansFast<POINT> m_Kmeans;
+        CKMeansFast<POINT>       m_Kmeans;
         //! The number of clusters to use.
-        std::size_t m_K;
+        std::size_t              m_K;
         //! The number of iterations to use in k-means.
-        std::size_t m_MaxIterations;
+        std::size_t              m_MaxIterations;
 };
 
 //! Cluster \p points using \p B bootstrap samples using x-means.

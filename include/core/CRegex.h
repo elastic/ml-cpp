@@ -85,7 +85,7 @@ class CORE_EXPORT CRegex {
         static std::string escapeRegexSpecial(const std::string &literal);
 
     private:
-        bool m_Initialised;
+        bool         m_Initialised;
         boost::regex m_Regex;
 };
 

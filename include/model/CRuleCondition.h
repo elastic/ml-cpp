@@ -119,15 +119,15 @@ class MODEL_EXPORT CRuleCondition {
         ERuleConditionType m_Type;
 
         //! The numerical condition.
-        SCondition m_Condition;
+        SCondition         m_Condition;
 
         //! The field name. Empty when not specified.
-        std::string m_FieldName;
+        std::string        m_FieldName;
 
         //! The field value. Empty when not specified.
-        std::string m_FieldValue;
+        std::string        m_FieldValue;
 
-        TPatternSetCRef m_ValueFilter;
+        TPatternSetCRef    m_ValueFilter;
 };
 
 }

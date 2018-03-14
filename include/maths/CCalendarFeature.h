@@ -101,9 +101,9 @@ class MATHS_EXPORT CCalendarFeature : boost::less_than_comparable< CCalendarFeat
 
     private:
         //! The feature.
-        uint16_t m_Feature;
+        uint16_t              m_Feature;
         //! The feature value.
-        uint16_t m_Value;
+        uint16_t              m_Value;
 };
 
 }

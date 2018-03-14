@@ -100,28 +100,28 @@ class CORE_EXPORT CStateCompressor : public CDataAdder {
 
             private:
                 //! The underlying datastore
-                CDataAdder &m_Adder;
+                CDataAdder            &m_Adder;
 
                 //! The filtering_stream compressor given to external clients
                 CDataAdder::TOStreamP m_OStream;
 
                 //! The sequential document number currently being written to
-                std::size_t m_CurrentDocNum;
+                std::size_t           m_CurrentDocNum;
 
                 //! The number of bytes written to the current CDataAdder stream
-                std::size_t m_BytesDone;
+                std::size_t           m_BytesDone;
 
                 //! The largest document size permitted by the downstream CDataAdder
-                std::size_t m_MaxDocSize;
+                std::size_t           m_MaxDocSize;
 
                 //! The search index to use - set by the upstream CDataAdder
-                std::string m_Index;
+                std::string           m_Index;
 
                 //! The base ID
-                std::string m_BaseId;
+                std::string           m_BaseId;
 
                 //! true if all the writes were successfull
-                bool m_WritesSuccessful;
+                bool                  m_WritesSuccessful;
         };
 
     public:
@@ -153,10 +153,10 @@ class CORE_EXPORT CStateCompressor : public CDataAdder {
     private:
 
         //! The chunking part of the iostreams filter chain
-        CChunkFilter m_FilterSink;
+        CChunkFilter      m_FilterSink;
 
         //! The iostreams filter chain that handles compression/chunking
-        TFilteredOutputP m_OutFilter;
+        TFilteredOutputP  m_OutFilter;
 
         TCompressOStreamP m_OutStream;
 };

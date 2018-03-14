@@ -335,7 +335,7 @@ void COneOfNPriorTest::testModels(void) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[i])));
         }
 
-        COneOfNPrior::TPriorCPtrVec         posteriorModels = filter.models();
+        COneOfNPrior::TPriorCPtrVec        posteriorModels = filter.models();
         const maths::CPoissonMeanConjugate *poissonModel =
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate *normalModel =
@@ -374,7 +374,7 @@ void COneOfNPriorTest::testModels(void) {
             filter.addSamples(TDouble1Vec(1, samples[i]));
         }
 
-        COneOfNPrior::TPriorCPtrVec         posteriorModels = filter.models();
+        COneOfNPrior::TPriorCPtrVec        posteriorModels = filter.models();
         const maths::CPoissonMeanConjugate *poissonModel =
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate *normalModel =

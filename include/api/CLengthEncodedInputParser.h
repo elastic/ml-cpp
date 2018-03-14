@@ -133,7 +133,7 @@ class API_EXPORT CLengthEncodedInputParser : public CInputParser {
         static const size_t WORK_BUFFER_SIZE;
 
         //! Reference to the stream we're going to read from
-        std::istream     &m_StrmIn;
+        std::istream        &m_StrmIn;
 
         typedef boost::scoped_array<char> TScopedCharArray;
 
@@ -148,7 +148,7 @@ class API_EXPORT CLengthEncodedInputParser : public CInputParser {
         TScopedCharArray m_WorkBuffer;
         const char       *m_WorkBufferPtr;
         const char       *m_WorkBufferEnd;
-        bool m_NoMoreRecords;
+        bool             m_NoMoreRecords;
 };
 
 

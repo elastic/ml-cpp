@@ -348,7 +348,7 @@ class CBucketQueue {
         }
 
     private:
-        TQueue m_Queue;
+        TQueue        m_Queue;
         core_t::TTime m_LatestBucketEnd;
         core_t::TTime m_BucketLength;
 };

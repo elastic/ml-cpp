@@ -290,10 +290,10 @@ class MODEL_EXPORT CMetricModel : public CIndividualModel {
         TFeatureSizeSizeTripleDouble1VecUMap &currentBucketInterimCorrections(void) const;
 
         //! Get the person counts in the current bucket.
-        virtual const TSizeUInt64PrVec &currentBucketPersonCounts(void) const;
+        virtual const TSizeUInt64PrVec       &currentBucketPersonCounts(void) const;
 
         //! Get writable person counts in the current bucket.
-        virtual TSizeUInt64PrVec &currentBucketPersonCounts(void);
+        virtual TSizeUInt64PrVec             &currentBucketPersonCounts(void);
 
         //! Set the current bucket total count.
         virtual void currentBucketTotalCount(uint64_t totalCount);

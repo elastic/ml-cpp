@@ -175,10 +175,10 @@ class CORE_EXPORT CRapidXmlParser : public CXmlParserIntf {
         typedef boost::scoped_array<char>     TScopedCharArray;
 
         //! RapidXml parses the XML in-situ, so keep a copy of the input
-        TScopedCharArray m_XmlBuf;
+        TScopedCharArray      m_XmlBuf;
 
         //! Size of array allocated
-        size_t m_XmlBufSize;
+        size_t                m_XmlBufSize;
 
         //! The RapidXml data structure
         TCharRapidXmlDocument m_Doc;

@@ -83,7 +83,7 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 
 const char *CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
-CFastMutex                CWordDictionary::ms_LoadMutex;
+CFastMutex               CWordDictionary::ms_LoadMutex;
 volatile CWordDictionary *CWordDictionary::ms_Instance(0);
 
 

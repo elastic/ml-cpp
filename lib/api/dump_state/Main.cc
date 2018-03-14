@@ -113,7 +113,7 @@ bool persistCategorizerStateToFile(const std::string &outputFileName) {
 
     // Persist the categorizer state to file
     {
-        std::ofstream *                            out = nullptr;
+        std::ofstream                              *                            out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open categorizer state output file " << outputFileName);
@@ -198,7 +198,7 @@ bool persistAnomalyDetectorStateToFile(const std::string &configFileName,
 
     // Persist the job state to file
     {
-        std::ofstream *                            out = nullptr;
+        std::ofstream                              *                            out = nullptr;
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(out = new std::ofstream(outputFileName));
         if (!out->is_open()) {
             LOG_ERROR("Failed to open state output file " << outputFileName);

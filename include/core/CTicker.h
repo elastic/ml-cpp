@@ -79,14 +79,14 @@ class CTicker : public CThread {
         }
 
     private:
-        CMutex m_Mutex;
+        CMutex     m_Mutex;
         CCondition m_Condition;
 
         //! Should the ticker quit?
-        bool m_Quit;
+        bool       m_Quit;
 
         //! How often (in milliseconds) should the ticker tick?
-        uint32_t m_TimeOut;
+        uint32_t   m_TimeOut;
 
         //! Reference to the object whose tick() method will be called
         RECEIVER   &m_Receiver;

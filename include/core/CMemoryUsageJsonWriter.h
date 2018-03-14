@@ -73,10 +73,10 @@ class CORE_EXPORT CMemoryUsageJsonWriter {
         typedef CRapidJsonLineWriter<rapidjson::OStreamWrapper> TGenericLineWriter;
 
         //! JSON writer
-        TGenericLineWriter m_Writer;
+        TGenericLineWriter        m_Writer;
 
         //! Have we finalised the stream?
-        bool m_Finalised;
+        bool                      m_Finalised;
 
 };
 

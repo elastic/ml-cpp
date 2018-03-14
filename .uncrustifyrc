@@ -1693,13 +1693,13 @@ align_var_def_span              = 1        # unsigned number
 #  0=Part of the type     'void *   foo;'
 #  1=Part of the variable 'void     *foo;'
 #  2=Dangling             'void    *foo;'
-align_var_def_star_style        = 0        # unsigned number
+align_var_def_star_style        = 1        # unsigned number
 
 # How to align the '&' in variable definitions.
 #  0=Part of the type
 #  1=Part of the variable
 #  2=Dangling
-align_var_def_amp_style         = 0        # unsigned number
+align_var_def_amp_style         = 1        # unsigned number
 
 # The threshold for aligning variable definitions (0=no limit)
 align_var_def_thresh            = 0        # unsigned number
@@ -1732,7 +1732,7 @@ align_enum_equ_span             = 0        # unsigned number
 align_enum_equ_thresh           = 0        # unsigned number
 
 # The span for aligning class (0=don't align)
-align_var_class_span            = 0        # unsigned number
+align_var_class_span            = 5        # unsigned number
 
 # The threshold for aligning class member definitions (0=no limit).
 align_var_class_thresh          = 0        # unsigned number

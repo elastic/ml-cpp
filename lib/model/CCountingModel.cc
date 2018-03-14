@@ -253,7 +253,7 @@ void CCountingModel::setMatchedEventsDescriptions(core_t::TTime sampleTime, core
 SModelParams::TStrDetectionRulePrVec
 CCountingModel::checkScheduledEvents(core_t::TTime sampleTime) const {
     const SModelParams::TStrDetectionRulePrVec &events = this->params().s_ScheduledEvents.get();
-    SModelParams::TStrDetectionRulePrVec        matchedEvents;
+    SModelParams::TStrDetectionRulePrVec       matchedEvents;
 
     for (auto &&event : events) {
         // Note that as the counting model is not aware of partitions
@@ -363,8 +363,8 @@ void CCountingModel::createUpdateNewModels(core_t::TTime /*time*/,
                                            CResourceMonitor & /*resourceMonitor*/) {
     this->updateRecycledModels();
     CDataGatherer &gatherer = this->dataGatherer();
-    std::size_t    numberNewPeople = gatherer.numberPeople();
-    std::size_t    numberExistingPeople = m_MeanCounts.size();
+    std::size_t   numberNewPeople = gatherer.numberPeople();
+    std::size_t   numberExistingPeople = m_MeanCounts.size();
     numberNewPeople = numberNewPeople > numberExistingPeople ?
                       numberNewPeople - numberExistingPeople : 0;
     if (numberNewPeople > 0) {

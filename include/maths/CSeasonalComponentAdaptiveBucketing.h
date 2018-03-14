@@ -245,7 +245,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         TSeasonalTimePtr m_Time;
 
         //! The buckets.
-        TBucketVec m_Buckets;
+        TBucketVec       m_Buckets;
 };
 
 //! Create a free function which will be found by Koenig lookup.

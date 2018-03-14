@@ -323,7 +323,7 @@ void CJsonOutputWriterTest::testWriteCategoryDefinition(void) {
     CPPUNIT_ASSERT_EQUAL(maxMatchingLength, static_cast<std::size_t>(category["max_matching_length"].GetInt()));
     CPPUNIT_ASSERT(category.HasMember("examples"));
 
-    TStrSet                 writtenExamplesSet;
+    TStrSet                writtenExamplesSet;
     const rapidjson::Value &writtenExamples = category["examples"];
     for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
         writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
@@ -810,7 +810,7 @@ void CJsonOutputWriterTest::testBucketWriteHelper(bool isInterim) {
 
     // Assert buckets
     for (rapidjson::SizeType i = 1; i < arrayDoc.Size(); i = i + 2) {
-        int                     buckettime = bucketTimes[i];
+        int                    buckettime = bucketTimes[i];
         const rapidjson::Value &bucketWrapper = arrayDoc[i];
         CPPUNIT_ASSERT(bucketWrapper.HasMember("bucket"));
 

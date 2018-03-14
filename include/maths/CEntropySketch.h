@@ -56,7 +56,7 @@ class MATHS_EXPORT CEntropySketch {
 
     private:
         //! The overall count.
-        uint64_t m_Y;
+        uint64_t   m_Y;
 
         //! The sketch count.
         TDoubleVec m_Yi;

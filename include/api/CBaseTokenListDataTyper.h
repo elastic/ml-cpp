@@ -218,10 +218,10 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
                 std::string m_Str;
 
                 //! Index of the token
-                size_t m_Index;
+                size_t      m_Index;
 
                 //! How many types use this token?
-                size_t m_TypeCount;
+                size_t      m_TypeCount;
         };
 
         //! Compute equality based on the first element of a pair only
@@ -281,35 +281,35 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
 
         //! The lower threshold for comparison.  If another type matches this
         //! closely, we'll take it providing there's no other better match.
-        double m_LowerThreshold;
+        double                                       m_LowerThreshold;
 
         //! The upper threshold for comparison.  If another type matches this
         //! closely, we accept it immediately (i.e. don't look for a better one).
-        double m_UpperThreshold;
+        double                                       m_UpperThreshold;
 
         //! Has the data typer's state changed?
-        bool m_HasChanged;
+        bool                                         m_HasChanged;
 
         //! The types
-        TTokenListTypeVec m_Types;
+        TTokenListTypeVec                            m_Types;
 
         //! List of match count/index into type vector in descending order of
         //! match count
-        TSizeSizePrList m_TypesByCount;
+        TSizeSizePrList                              m_TypesByCount;
 
         //! Used for looking up tokens to a unique ID
-        TTokenMIndex m_TokenIdLookup;
+        TTokenMIndex                                 m_TokenIdLookup;
 
         //! Vector to use to build up sequences of token IDs.  This is a member
         //! to save repeated reallocations for different strings.
-        TSizeSizePrVec m_WorkTokenIds;
+        TSizeSizePrVec                               m_WorkTokenIds;
 
         //! Set to use to build up unique token IDs.  This is a member to save
         //! repeated reallocations for different strings.
-        TSizeSizeMap m_WorkTokenUniqueIds;
+        TSizeSizeMap                                 m_WorkTokenUniqueIds;
 
         //! Used to parse pre-tokenised input supplied as CSV.
-        CCsvInputParser::CCsvLineParser m_CsvLineParser;
+        CCsvInputParser::CCsvLineParser              m_CsvLineParser;
 
         // For unit testing
         friend class ::CBaseTokenListDataTyperTest;

@@ -174,8 +174,8 @@ void CLG(std::size_t maxIterations,
                 }
 
                 std::size_t jPlus1 = (j + 1) % d;
-                double &    numjPlus1 = num[jPlus1];
-                double &    denjPlus1 = den[jPlus1];
+                double      &    numjPlus1 = num[jPlus1];
+                double      &    denjPlus1 = den[jPlus1];
                 double      DjPlus1    = delta[jPlus1];
                 numjPlus1 = denjPlus1 = 0.0;
                 for (iterator itr = x.beginRows(jPlus1); itr != x.endRows(jPlus1); ++itr) {
@@ -658,13 +658,13 @@ class C2FoldCrossValidatedLogLikelihood {
 
     private:
         //! The feature vector dimension.
-        std::size_t m_D;
+        std::size_t        m_D;
         //! The number of 2-splits.
-        std::size_t m_Splits;
+        std::size_t        m_Splits;
         //! The feature vectors of the 2-splits.
-        TMatrixVec m_X[2];
+        TMatrixVec         m_X[2];
         //! The feature vector labels of the 2-splits.
-        TDoubleVecVec m_Y[2];
+        TDoubleVecVec      m_Y[2];
         //! A placeholder for lambda so that it doesn't need to be
         //! re-initialized on each call to operator().
         mutable TDoubleVec m_Lambda;

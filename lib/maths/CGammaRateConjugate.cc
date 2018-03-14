@@ -548,13 +548,13 @@ class CEvaluateOnSamples : core::CNonCopyable {
 
     private:
         const TWeightStyleVec &m_WeightStyles;
-        const TDouble1Vec &m_Samples;
+        const TDouble1Vec     &m_Samples;
         const TDouble4Vec1Vec &m_Weights;
-        bool m_IsNonInformative;
-        double m_Offset;
-        double m_LikelihoodShape;
-        double m_PriorShape;
-        double m_PriorRate;
+        bool                  m_IsNonInformative;
+        double                m_Offset;
+        double                m_LikelihoodShape;
+        double                m_PriorShape;
+        double                m_PriorRate;
 };
 
 //! Computes the probability of seeing less likely samples at a specified offset.
@@ -617,15 +617,15 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
 
     private:
         maths_t::EProbabilityCalculation m_Calculation;
-        const TWeightStyleVec &m_WeightStyles;
-        const TDouble1Vec &m_Samples;
-        const TDouble4Vec1Vec &m_Weights;
-        bool m_IsNonInformative;
-        double m_Offset;
-        double m_LikelihoodShape;
-        double m_PriorShape;
-        double m_PriorRate;
-        mutable int m_Tail;
+        const TWeightStyleVec            &m_WeightStyles;
+        const TDouble1Vec                &m_Samples;
+        const TDouble4Vec1Vec            &m_Weights;
+        bool                             m_IsNonInformative;
+        double                           m_Offset;
+        double                           m_LikelihoodShape;
+        double                           m_PriorShape;
+        double                           m_PriorRate;
+        mutable int                      m_Tail;
 };
 
 //! Compute the joint marginal log likelihood function of a collection
@@ -773,16 +773,16 @@ class CLogMarginalLikelihood : core::CNonCopyable {
         }
 
     private:
-        const TWeightStyleVec &m_WeightStyles;
-        const TDouble1Vec &m_Samples;
-        const TDouble4Vec1Vec &m_Weights;
-        double m_Offset;
-        double m_LikelihoodShape;
-        double m_PriorShape;
-        double m_PriorRate;
-        double m_NumberSamples;
-        double m_ImpliedShape;
-        double m_Constant;
+        const TWeightStyleVec                      &m_WeightStyles;
+        const TDouble1Vec                          &m_Samples;
+        const TDouble4Vec1Vec                      &m_Weights;
+        double                                     m_Offset;
+        double                                     m_LikelihoodShape;
+        double                                     m_PriorShape;
+        double                                     m_PriorRate;
+        double                                     m_NumberSamples;
+        double                                     m_ImpliedShape;
+        double                                     m_Constant;
         mutable maths_t::EFloatingPointErrorStatus m_ErrorStatus;
 };
 

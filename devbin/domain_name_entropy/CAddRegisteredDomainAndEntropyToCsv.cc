@@ -126,7 +126,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool &readHeader,
         return false;
     }
 
-    std::string        hostName = tokens.at(m_DomainNameFieldIndex);
+    std::string       hostName = tokens.at(m_DomainNameFieldIndex);
     const std::string &time = tokens.at(m_TimeFieldIndex);
 
     if (time != lastTime) {

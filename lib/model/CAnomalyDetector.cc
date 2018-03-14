@@ -483,7 +483,7 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
     if (   terms.empty() ||
            m_DataGatherer->partitionFieldValue().empty() ||
            terms.find(m_DataGatherer->partitionFieldValue()) != terms.end()) {
-        const CSearchKey &   key = m_DataGatherer->searchKey();
+        const CSearchKey     &   key = m_DataGatherer->searchKey();
         TModelDetailsViewPtr view = m_Model.get()->details();
         if (view.get()) {
             core_t::TTime bucketLength = m_ModelConfig.bucketLength();

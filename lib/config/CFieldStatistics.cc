@@ -44,7 +44,7 @@ class CAddToStatistics : public boost::static_visitor<void> {
         }
 
     private:
-        core_t::TTime m_Time;
+        core_t::TTime     m_Time;
         const std::string *m_Example;
 };
 

@@ -379,7 +379,7 @@ class CKdTree {
         //! The point dimension.
         std::size_t m_Dimension;
         //! The representation of the points.
-        TNodeVec m_Nodes;
+        TNodeVec    m_Nodes;
 };
 
 }

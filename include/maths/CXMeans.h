@@ -130,13 +130,13 @@ class CXMeans {
 
             private:
                 //! The information criterion cost of this cluster.
-                double m_Cost;
+                double    m_Cost;
                 //! The centroid of the points in this cluster.
-                POINT m_Centre;
+                POINT     m_Centre;
                 //! The points in the cluster.
                 TPointVec m_Points;
                 //! A checksum for the points in the cluster.
-                uint64_t m_Checksum;
+                uint64_t  m_Checksum;
         };
 
         typedef std::vector<CCluster> TClusterVec;
@@ -167,7 +167,7 @@ class CXMeans {
         }
 
         //! Get the best centres found to date.
-        const TPointVec &centres(void) const {
+        const TPointVec   &centres(void) const {
             return m_BestCentres;
         }
 
@@ -231,7 +231,7 @@ class CXMeans {
             // k-means to improve parameters.
             m_Kmeans.run(kmeansIterations);
             const TPointVec &newCentres = m_Kmeans.centres();
-            TPointVecVec     newClusterPoints;
+            TPointVecVec    newClusterPoints;
             m_Kmeans.clusters(newClusterPoints);
 
             // Note that oldClusters holds pointers to the current
@@ -423,23 +423,23 @@ class CXMeans {
         mutable CPRNG::CXorShift1024Mult m_Rng;
 
         //! The maximum number of clusters.
-        std::size_t m_Kmax;
+        std::size_t                      m_Kmax;
 
         //! The current clusters.
-        TClusterVec m_Clusters;
+        TClusterVec                      m_Clusters;
 
         //! Checksums of clusters which weren't modified in the last
         //! iteration.
-        TUInt64USet m_Inactive;
+        TUInt64USet                      m_Inactive;
 
         //! The fast k-means state for the full set of points.
-        CKMeansFast<POINT> m_Kmeans;
+        CKMeansFast<POINT>               m_Kmeans;
 
         //! The minimum cost clustering found to date.
-        double m_MinCost;
+        double                           m_MinCost;
 
         //! The cluster centres corresponding to the maximum score.
-        TPointVec m_BestCentres;
+        TPointVec                        m_BestCentres;
 };
 
 }

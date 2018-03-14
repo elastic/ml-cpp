@@ -144,9 +144,9 @@ void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T> &mixture
 
     probability = 0.0;
 
-    double            fx = pdf(mixture, x);
+    double           fx = pdf(mixture, x);
     const TDoubleVec &weights = mixture.weights();
-    const TModeVec &  modes = mixture.modes();
+    const TModeVec   &  modes = mixture.modes();
     for (std::size_t i = 0u; i < modes.size(); ++i) {
         TDoubleVec samples;
         sample(modes[i], static_cast<std::size_t>(NUMBER_SAMPLES * weights[i]), samples);

@@ -100,7 +100,7 @@ void CCountingModelTest::testSkipSampling(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
         CAnomalyDetectorModel::TModelPtr        modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *                        modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CCountingModel                          *                        modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // |2|2|0|0|1| -> 1.0 mean count
         addArrival(*gathererNoGap, m_ResourceMonitor, 100, "p");
@@ -122,7 +122,7 @@ void CCountingModelTest::testSkipSampling(void) {
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererWithGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
         CAnomalyDetectorModel::TModelPtr        modelHolderWithGap(factory.makeModel(modelWithGapInitData));
-        CCountingModel *                        modelWithGap = dynamic_cast<CCountingModel*>(modelHolderWithGap.get());
+        CCountingModel                          *                        modelWithGap = dynamic_cast<CCountingModel*>(modelHolderWithGap.get());
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
@@ -167,7 +167,7 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
         addArrival(*gatherer, m_ResourceMonitor, 200, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CCountingModel                   *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         SModelParams::TStrDetectionRulePrVec matchedEvents = modelNoGap->checkScheduledEvents(50);
         CPPUNIT_ASSERT_EQUAL(std::size_t{0}, matchedEvents.size());
@@ -213,7 +213,7 @@ void CCountingModelTest::testCheckScheduledEvents(void) {
         addArrival(*gatherer, m_ResourceMonitor, 100, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
-        CCountingModel *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
+        CCountingModel                   *                 modelNoGap = dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // There are no events at this time
         modelNoGap->sampleBucketStatistics(0, 100, m_ResourceMonitor);

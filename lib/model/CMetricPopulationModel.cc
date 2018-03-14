@@ -242,7 +242,7 @@ CMetricPopulationModel::currentBucketValue(model_t::EFeature feature,
                                            std::size_t cid,
                                            core_t::TTime time) const {
     const TSizeSizePrFeatureDataPrVec &featureData = this->featureData(feature, time);
-    auto                               i = find(featureData, pid, cid);
+    auto                              i = find(featureData, pid, cid);
     return i != featureData.end() ? extractValue(feature, *i) : TDouble1Vec();
 }
 
@@ -274,7 +274,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
                                                     core_t::TTime endTime,
                                                     CResourceMonitor &resourceMonitor) {
     CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime  bucketLength = gatherer.bucketLength();
+    core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.dataAvailable(startTime)) {
         return;
     }
@@ -294,7 +294,7 @@ void CMetricPopulationModel::sampleBucketStatistics(core_t::TTime startTime,
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(time, bucketLength, featureData);
         for (auto &&featureData_ : featureData) {
-            model_t::EFeature            feature = featureData_.first;
+            model_t::EFeature           feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
@@ -307,7 +307,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                     core_t::TTime endTime,
                                     CResourceMonitor &resourceMonitor) {
     CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime  bucketLength = gatherer.bucketLength();
+    core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.validateSampleTimes(startTime, endTime)) {
         return;
     }
@@ -324,7 +324,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
         gatherer.featureData(time, bucketLength, featureData);
 
         const TTimeVec &preSampleAttributeLastBucketTimes = this->attributeLastBucketTimes();
-        TSizeTimeUMap   attributeLastBucketTimesMap;
+        TSizeTimeUMap  attributeLastBucketTimesMap;
         for (const auto &featureData_ : featureData) {
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[featureData_.first];
             for (const auto &data_ : data) {
@@ -344,8 +344,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
         const TTimeVec &attributeLastBucketTimes = this->attributeLastBucketTimes();
 
         for (auto &featureData_ : featureData) {
-            model_t::EFeature            feature = featureData_.first;
-            std::size_t                  dimension = model_t::dimension(feature);
+            model_t::EFeature           feature = featureData_.first;
+            std::size_t                 dimension = model_t::dimension(feature);
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
@@ -357,7 +357,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
             // Set up fuzzy de-duplication.
             if (data.size() >= this->params().s_MinimumToDeduplicate) {
                 for (const auto &data_ : data) {
-                    std::size_t                       cid = CDataGatherer::extractAttributeId(data_);
+                    std::size_t                      cid = CDataGatherer::extractAttributeId(data_);
                     const CGathererTools::TSampleVec &samples = CDataGatherer::extractData(data_).s_Samples;
                     for (const auto &sample : samples) {
                         fuzzy[cid].add(TDouble2Vec(sample.value(dimension)));
@@ -370,13 +370,13 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
             }
 
             for (const auto &data_ : data) {
-                std::size_t                       pid = CDataGatherer::extractPersonId(data_);
-                std::size_t                       cid = CDataGatherer::extractAttributeId(data_);
-                const TOptionalSample &           bucket = CDataGatherer::extractData(data_).s_BucketValue;
+                std::size_t                      pid = CDataGatherer::extractPersonId(data_);
+                std::size_t                      cid = CDataGatherer::extractAttributeId(data_);
+                const TOptionalSample            &           bucket = CDataGatherer::extractData(data_).s_BucketValue;
                 const CGathererTools::TSampleVec &samples = CDataGatherer::extractData(data_).s_Samples;
-                bool                              isInteger = CDataGatherer::extractData(data_).s_IsInteger;
-                bool                              isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
-                core_t::TTime                     cutoff = attributeLastBucketTimes[cid] - this->params().s_SamplingAgeCutoff;
+                bool                             isInteger = CDataGatherer::extractData(data_).s_IsInteger;
+                bool                             isNonNegative = CDataGatherer::extractData(data_).s_IsNonNegative;
+                core_t::TTime                    cutoff = attributeLastBucketTimes[cid] - this->params().s_SamplingAgeCutoff;
 
                 maths::CModel *model{this->model(feature, cid)};
                 if (!model) {
@@ -529,7 +529,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                                                 std::size_t numberAttributeProbabilities,
                                                 SAnnotatedProbability &result) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime        bucketLength = gatherer.bucketLength();
+    core_t::TTime       bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
         LOG_ERROR("Can only compute probability for single bucket");
@@ -569,7 +569,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
         LOG_TRACE("feature = " << model_t::print(feature));
 
         const TSizeSizePrFeatureDataPrVec &featureData = this->featureData(feature, startTime);
-        TSizeSizePr                        range = personRange(featureData, pid);
+        TSizeSizePr                       range = personRange(featureData, pid);
 
         for (std::size_t j = range.first; j < range.second; ++j) {
             std::size_t cid = CDataGatherer::extractAttributeId(featureData[j]);
@@ -694,11 +694,11 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
         }
         for (const auto &feature : m_CurrentBucketStats.s_FeatureData) {
             for (const auto &data_ : feature.second) {
-                std::size_t         pid = CDataGatherer::extractPersonId(data_);
-                std::size_t         cid = CDataGatherer::extractAttributeId(data_);
+                std::size_t        pid = CDataGatherer::extractPersonId(data_);
+                std::size_t        cid = CDataGatherer::extractAttributeId(data_);
                 const TFeatureData &data = CDataGatherer::extractData(data_);
-                uint64_t &          hash = hashes[{boost::cref(this->personName(pid)),
-                                                   boost::cref(this->attributeName(cid))}];
+                uint64_t           &          hash = hashes[{boost::cref(this->personName(pid)),
+                                                             boost::cref(this->attributeName(cid))}];
                 hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = maths::CChecksum::calculate(hash, data.s_IsInteger);
                 hash = maths::CChecksum::calculate(hash, data.s_Samples);
@@ -728,9 +728,9 @@ void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePt
 
 std::size_t CMetricPopulationModel::memoryUsage(void) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    TOptionalSize        estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
-                                                              gatherer.numberActiveAttributes(),
-                                                              0); // # correlations
+    TOptionalSize       estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
+                                                             gatherer.numberActiveAttributes(),
+                                                             0);  // # correlations
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
@@ -886,9 +886,9 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
         return false;
     }
 
-    const maths::CModel *              model{this->model(feature, cid)};
+    const maths::CModel               *              model{this->model(feature, cid)};
     const TSizeSizePrFeatureDataPrVec &data = this->featureData(feature, time);
-    TSizeSizePr                        range = personRange(data, pid);
+    TSizeSizePr                       range = personRange(data, pid);
 
     for (std::size_t j = range.first; j < range.second; ++j) {
         std::size_t cids[]{cid, CDataGatherer::extractAttributeId(data[j])};
@@ -908,13 +908,13 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
                                   core_t::TTime bucketTime,
                                   bool interim,
                                   CProbabilityAndInfluenceCalculator::SParams &params) const {
-    std::size_t            dimension{model_t::dimension(feature)};
-    auto                   data = find(this->featureData(feature, bucketTime), pid, cid);
-    const maths::CModel *  model{this->model(feature, cid)};
+    std::size_t           dimension{model_t::dimension(feature)};
+    auto                  data = find(this->featureData(feature, bucketTime), pid, cid);
+    const maths::CModel   *  model{this->model(feature, cid)};
     const TOptionalSample &bucket{CDataGatherer::extractData(*data).s_BucketValue};
-    core_t::TTime          time{model_t::sampleTime(feature, bucketTime, this->bucketLength(), bucket->time())};
-    TDouble2Vec4Vec        weights{model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time),
-                                   TDouble2Vec(dimension, bucket->varianceScale())};
+    core_t::TTime         time{model_t::sampleTime(feature, bucketTime, this->bucketLength(), bucket->time())};
+    TDouble2Vec4Vec       weights{model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time),
+                                  TDouble2Vec(dimension, bucket->varianceScale())};
 
     params.s_Feature = feature;
     params.s_Model = model;

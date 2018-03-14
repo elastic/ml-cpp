@@ -118,10 +118,10 @@ class CMixtureData {
         }
 
     private:
-        double m_Count;
-        maths::CNaturalBreaksClassifier m_Classifier;
+        double                                     m_Count;
+        maths::CNaturalBreaksClassifier            m_Classifier;
         maths::CNaturalBreaksClassifier::TTupleVec m_Categories;
-        TGMM m_Gmm;
+        TGMM                                       m_Gmm;
 };
 
 }

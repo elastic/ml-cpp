@@ -76,7 +76,7 @@ char *CStrPTime::strPTime(const char *buf,
         if (possTzName.find("GMT") == 0) {
             adjFormat.replace(tznamePos, 2, "GMT");
         } else {
-            CTimezone & tz = CTimezone::instance();
+            CTimezone   & tz = CTimezone::instance();
             std::string stdAbbrev(tz.stdAbbrev());
             if (possTzName.find(stdAbbrev) == 0) {
                 adjFormat.replace(tznamePos, 2, stdAbbrev);

@@ -109,12 +109,12 @@ class MATHS_EXPORT CPrior {
                 bool operator()(double x, double &result) const;
 
             private:
-                const CPrior *m_Prior;
+                const CPrior          *m_Prior;
                 const TWeightStyleVec *m_WeightStyles;
                 const TDouble4Vec1Vec *m_Weights;
                 //! Avoids creating the vector argument to jointLogMarginalLikelihood
                 //! more than once.
-                mutable TDouble1Vec m_X;
+                mutable TDouble1Vec   m_X;
         };
 
     public:
@@ -493,18 +493,18 @@ class MATHS_EXPORT CPrior {
             protected:
                 CPrior &prior(void) const;
                 const maths_t::TWeightStyleVec &weightStyles(void) const;
-                const TDouble1Vec &samples(void) const;
-                const TDouble4Vec1Vec &weights(void) const;
-                const TDouble1Vec &resamples(void) const;
-                const TDouble4Vec1Vec &resamplesWeights(void) const;
+                const TDouble1Vec              &samples(void) const;
+                const TDouble4Vec1Vec          &weights(void) const;
+                const TDouble1Vec              &resamples(void) const;
+                const TDouble4Vec1Vec          &resamplesWeights(void) const;
 
             private:
-                CPrior *m_Prior;
+                CPrior                         *m_Prior;
                 const maths_t::TWeightStyleVec *m_WeightStyles;
-                const TDouble1Vec *m_Samples;
-                const TDouble4Vec1Vec *m_Weights;
-                TDouble1Vec m_Resamples;
-                TDouble4Vec1Vec m_ResamplesWeights;
+                const TDouble1Vec              *m_Samples;
+                const TDouble4Vec1Vec          *m_Weights;
+                TDouble1Vec                    m_Resamples;
+                TDouble4Vec1Vec                m_ResamplesWeights;
         };
 
         //! \brief Computes the likelihood of a collection of samples and
@@ -565,10 +565,10 @@ class MATHS_EXPORT CPrior {
 
         //! The rate at which the prior returns to non-informative. Note that
         //! this is not persisted.
-        CFloatStorage m_DecayRate;
+        CFloatStorage      m_DecayRate;
 
         //! The number of samples with which the prior has been updated.
-        CFloatStorage m_NumberSamples;
+        CFloatStorage      m_NumberSamples;
 };
 
 }

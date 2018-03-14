@@ -159,8 +159,8 @@ class CEqualWithTolerance : public std::binary_function<T, T, bool>,
 
     private:
         unsigned int m_ToleranceType;
-        TNorm m_AbsoluteEps;
-        TNorm m_RelativeEps;
+        TNorm        m_AbsoluteEps;
+        TNorm        m_RelativeEps;
 };
 
 }

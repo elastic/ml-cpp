@@ -69,7 +69,7 @@ const CPenalty &CAutoconfigurerDetectorPenalties::fieldRolePenalty(const CDetect
     m_DetectorFieldRolePenalties.resize(36);
     TPenaltyPtr &result = m_DetectorFieldRolePenalties[fieldRolePenaltyIndex(spec)];
     if (!result) {
-        CDetectorFieldRolePenalty                penalty(m_Params);
+        CDetectorFieldRolePenalty               penalty(m_Params);
         const CAutoconfigurerFieldRolePenalties &penalties = m_FieldRolePenalties;
         if (spec.argumentField()) {
             penalty.addPenalty(constants::ARGUMENT_INDEX,

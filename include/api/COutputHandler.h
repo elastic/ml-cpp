@@ -129,7 +129,7 @@ class API_EXPORT COutputHandler : private core::CNonCopyable {
 
     protected:
         //! Used when there are no extra fields
-        static const TStrVec EMPTY_FIELD_NAMES;
+        static const TStrVec     EMPTY_FIELD_NAMES;
 
         //! Used when there are no field overrides
         static const TStrStrUMap EMPTY_FIELD_OVERRIDES;

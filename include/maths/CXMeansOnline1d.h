@@ -226,7 +226,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
 
             private:
                 //! A unique identifier for this cluster.
-                std::size_t m_Index;
+                std::size_t              m_Index;
 
                 //! The data representing this cluster.
                 CNormalMeanPrecConjugate m_Prior;
@@ -412,7 +412,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
         //! for which we'll delete a cluster. This is intended to
         //! introduce hysteresis in the cluster creation and deletion
         //! process and so should be in the range (0, 1).
-        static const double CLUSTER_DELETE_FRACTION;
+        static const double      CLUSTER_DELETE_FRACTION;
 
         //! The size of the data we use to maintain cluster detail.
         static const std::size_t STRUCTURE_SIZE;
@@ -442,46 +442,46 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
 
     private:
         //! The type of data being clustered.
-        maths_t::EDataType m_DataType;
+        maths_t::EDataType          m_DataType;
 
         //! The distributions available to model the clusters.
         CAvailableModeDistributions m_AvailableDistributions;
 
         //! The initial rate at which information is lost.
-        double m_InitialDecayRate;
+        double                      m_InitialDecayRate;
 
         //! The rate at which information is lost.
-        double m_DecayRate;
+        double                      m_DecayRate;
 
         //! A measure of the length of history of the data clustered.
-        double m_HistoryLength;
+        double                      m_HistoryLength;
 
         //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
         maths_t::EClusterWeightCalc m_WeightCalc;
 
         //! The minimum cluster fractional count.
-        double m_MinimumClusterFraction;
+        double                      m_MinimumClusterFraction;
 
         //! The minimum cluster count.
-        double m_MinimumClusterCount;
+        double                      m_MinimumClusterCount;
 
         //! The minimum count for a category in the sketch to cluster.
-        double m_MinimumCategoryCount;
+        double                      m_MinimumCategoryCount;
 
         //! The data central confidence interval on which to Winsorise.
-        double m_WinsorisationConfidenceInterval;
+        double                      m_WinsorisationConfidenceInterval;
 
         //! A generator of unique cluster indices.
-        CIndexGenerator m_ClusterIndexGenerator;
+        CIndexGenerator             m_ClusterIndexGenerator;
 
         //! The smallest sample added to date.
-        TMinAccumulator m_Smallest;
+        TMinAccumulator             m_Smallest;
 
         //! The largest sample added to date.
-        TMaxAccumulator m_Largest;
+        TMaxAccumulator             m_Largest;
 
         //! The clusters.
-        TClusterVec m_Clusters;
+        TClusterVec                 m_Clusters;
 
         friend ::CXMeansOnline1dTest;
 };

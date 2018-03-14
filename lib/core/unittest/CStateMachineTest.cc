@@ -107,9 +107,9 @@ class CTestThread : public core::CThread {
 
     private:
         test::CRandomNumbers m_Rng;
-        TMachineVec m_Machines;
-        std::size_t m_Failures;
-        TSizeVec m_States;
+        TMachineVec          m_Machines;
+        std::size_t          m_Failures;
+        TSizeVec             m_States;
 };
 
 void randomMachines(std::size_t n, TMachineVec &result) {

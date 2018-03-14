@@ -194,7 +194,7 @@ void aggregateLayer(ITR beginLayer,
         LOG_TRACE("aggregating = " << core::CContainerPrinter::print(children.second));
         if (children.second.size() > 1) {
             SNode &aggregate = (results.*newNode)();
-            bool   population = false;
+            bool  population = false;
             aggregate.s_Children.reserve(children.second.size());
             for (const auto &child : children.second) {
                 aggregate.s_Children.push_back(child);
@@ -498,7 +498,7 @@ bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser &traverser,
                                     const TSizeNodePtrUMap &nodePointers) {
     do {
         const std::string &name = traverser.name();
-        std::size_t        index = 0;
+        std::size_t       index = 0;
         if (name == PARENT_TAG) {
             if (!core::CPersistUtils::restore(PARENT_TAG, index, traverser)) {
                 LOG_ERROR("Restore error for " << traverser.name() << " / " << traverser.value());
@@ -660,7 +660,7 @@ void CHierarchicalResults::buildHierarchy(void) {
 
     if (layer.size() > 1) {
         TNode &root = this->newNode();
-        bool   population = false;
+        bool  population = false;
         for (std::size_t i = 0u; i < layer.size(); ++i) {
             root.s_Children.push_back(layer[i]);
             layer[i]->s_Parent = &root;
@@ -1082,7 +1082,7 @@ bool CHierarchicalResultsVisitor::shouldWriteResult(const CLimits &limits,
     // in the UI where a user drills down from an aggregated result and sees
     // nothing.
     static const double OUTPUT_TOLERANCE(1.2);
-    const TNode *       ancestor = nearestAncestorForWhichWeWriteResults(node);
+    const TNode         *       ancestor = nearestAncestorForWhichWeWriteResults(node);
     if (   ancestor &&
            p <= OUTPUT_TOLERANCE * ancestor->s_SmallestDescendantProbability &&
            shouldWriteResult(limits, results, *ancestor, pivot)) {

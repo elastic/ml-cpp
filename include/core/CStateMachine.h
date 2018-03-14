@@ -210,13 +210,13 @@ class CORE_EXPORT CStateMachine {
                 //! \note This should be set to slightly more than the number
                 //! of distinct machines which are created by the program
                 //! which uses this class.
-                std::size_t m_Capacity;
+                std::size_t              m_Capacity;
 
                 //! Get the number of available machines.
                 std::atomic<std::size_t> m_NumberMachines;
 
                 //! The actual machines.
-                TMachineVecList m_Machines;
+                TMachineVecList          m_Machines;
         };
 
     private:
@@ -229,9 +229,9 @@ class CORE_EXPORT CStateMachine {
 
     private:
         //! The machine identifier.
-        std::size_t m_Machine;
+        std::size_t          m_Machine;
         //! The current state of the machine.
-        std::size_t m_State;
+        std::size_t          m_State;
         //! A complete list of available machines.
         static CMachineDeque ms_Machines;
 };

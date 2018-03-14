@@ -126,30 +126,30 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             return true;
         }
 
-        const TTimeTimePrVec &highAnomalyTimes(void) const {
+        const TTimeTimePrVec                     &highAnomalyTimes(void) const {
             return m_HighAnomalyTimes;
         }
 
-        const TDoubleVec &highAnomalyFactors(void) const {
+        const TDoubleVec                         &highAnomalyFactors(void) const {
             return m_HighAnomalyFactors;
         }
 
-        const TDoubleVec &anomalyFactors(void) const {
+        const TDoubleVec                         &anomalyFactors(void) const {
             return m_AnomalyFactors;
         }
 
-        const TDoubleVec &anomalyRates(void) const {
+        const TDoubleVec                         &anomalyRates(void) const {
             return m_AnomalyRates;
         }
 
     private:
         const model::CAnomalyDetectorModelConfig &m_ModelConfig;
-        const model::CLimits &m_Limits;
-        core_t::TTime m_BucketLength;
-        TTimeTimePrVec m_HighAnomalyTimes;
-        TDoubleVec m_HighAnomalyFactors;
-        TDoubleVec m_AnomalyFactors;
-        TDoubleVec m_AnomalyRates;
+        const model::CLimits                     &m_Limits;
+        core_t::TTime                            m_BucketLength;
+        TTimeTimePrVec                           m_HighAnomalyTimes;
+        TDoubleVec                               m_HighAnomalyFactors;
+        TDoubleVec                               m_AnomalyFactors;
+        TDoubleVec                               m_AnomalyRates;
 };
 
 const double CResultWriter::HIGH_ANOMALY_SCORE(0.35);

@@ -384,7 +384,7 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree &propTr
     for (boost::property_tree::ptree::const_iterator i = propTree.begin();
          i != propTree.end();
          ++i) {
-        const std::string &                stanzaName = i->first;
+        const std::string                 &                stanzaName = i->first;
         const boost::property_tree::ptree &propertyTree = i->second;
 
         if (stanzaName == MODEL_STANZA) {

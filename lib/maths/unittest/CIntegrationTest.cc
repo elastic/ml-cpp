@@ -122,7 +122,7 @@ class CMultivariatePolynomialFunction {
             result = 0.0;
             for (std::size_t i = 0u; i < m_Terms.size(); ++i) {
                 const SMonomial &monomial = m_Terms[i];
-                double           term = monomial.s_Coefficient;
+                double          term = monomial.s_Coefficient;
                 for (unsigned int j = 0u; j < DIMENSION; ++j) {
                     if (monomial.s_Powers[j] > 0.0) {
                         term *= ::pow(x(j), monomial.s_Powers[j]);
@@ -138,7 +138,7 @@ class CMultivariatePolynomialFunction {
         }
 
     private:
-        TMonomialVec m_Terms;
+        TMonomialVec       m_Terms;
 };
 
 template<unsigned int DIMENSION>

@@ -64,7 +64,7 @@ class CBlockingCallCancellerThread : public core::CThread {
         std::istream             &m_MonitorStream;
 
         //! Flag to indicate the thread should shut down
-        volatile bool m_Shutdown;
+        volatile bool            m_Shutdown;
 };
 
 

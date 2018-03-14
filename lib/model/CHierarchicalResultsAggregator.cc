@@ -363,7 +363,7 @@ void CHierarchicalResultsAggregator::detectorProbabilities(const TNode &node, bo
         double probability{dp.second[0]};
         if (dp.second.size() > 1) {
             const double *params{m_Parameters[model_t::E_AggregatePeople]};
-            double        rawAnomalyScore;
+            double       rawAnomalyScore;
             CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
                                    params[model_t::E_ExtremeProbabilityWeight],
                                    static_cast<std::size_t>(params[model_t::E_MinExtremeSamples]),

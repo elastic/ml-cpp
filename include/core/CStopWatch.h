@@ -70,18 +70,18 @@ class CORE_EXPORT CStopWatch {
 
     private:
         //! Is the stop watch currently running?
-        bool m_IsRunning;
+        bool           m_IsRunning;
 
         //! Monotonic timer - should not go backwards if the user sets the clock
         CMonotonicTime m_MonotonicTime;
 
         //! Monotonic time (in milliseconds since some arbitrary time in the
         //! past) when the stop watch was last started
-        uint64_t m_Start;
+        uint64_t       m_Start;
 
         //! Time (in milliseconds) accumulated over previous runs of the stop
         //! watch since the last reset
-        uint64_t m_AccumulatedTime;
+        uint64_t       m_AccumulatedTime;
 };
 
 

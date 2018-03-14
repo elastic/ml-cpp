@@ -119,7 +119,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples {
                     return result;
                 }
 
-                TDoubleVec m_Limits;
+                TDoubleVec  m_Limits;
                 std::size_t m_N;
                 std::size_t m_M;
                 std::size_t m_I;
@@ -149,7 +149,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples {
 
     private:
         TMinValueAccumulator m_P;
-        std::size_t m_N;
+        std::size_t          m_N;
 };
 
 }

@@ -107,7 +107,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t m_X;
+                uint64_t              m_X;
         };
 
         //! \brief The xoroshiro128+ pseudo-random number generator.
@@ -193,7 +193,7 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t m_X[2];
+                uint64_t              m_X[2];
         };
 
         //! \brief The xorshift1024* pseudo-random number generator.
@@ -283,9 +283,9 @@ class MATHS_EXPORT CPRNG : private core::CNonInstantiatable {
 
             private:
                 //! The state.
-                uint64_t m_X[16];
+                uint64_t              m_X[16];
                 //! The current pair.
-                int m_P;
+                int                   m_P;
         };
 };
 

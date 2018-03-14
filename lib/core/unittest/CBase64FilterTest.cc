@@ -63,7 +63,7 @@ class CMockSource {
         }
 
     private:
-        std::string m_Data;
+        std::string     m_Data;
         std::streamsize m_Read;
 };
 

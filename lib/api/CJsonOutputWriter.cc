@@ -290,8 +290,8 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults 
 bool CJsonOutputWriter::acceptInfluencer(core_t::TTime time,
                                          const model::CHierarchicalResults::TNode &node,
                                          bool isBucketInfluencer) {
-    TDocumentWeakPtr     newDoc = m_Writer.makeStorableDoc();
-    SBucketData &        bucketData = m_BucketDataByTime[time];
+    TDocumentWeakPtr    newDoc = m_Writer.makeStorableDoc();
+    SBucketData         &        bucketData = m_BucketDataByTime[time];
     TDocumentWeakPtrVec &documents = (isBucketInfluencer) ? bucketData.s_BucketInfluencerDocuments :
                                      bucketData.s_InfluencerDocuments;
 

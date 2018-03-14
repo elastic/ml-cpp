@@ -125,7 +125,7 @@ void CSampleCounts::resetSampleCount(const CDataGatherer &gatherer,
     const TMeanAccumulator &count_ = m_MeanNonZeroBucketCounts[id];
     if (maths::CBasicStatistics::count(count_)
         >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
-        unsigned                          sampleCountThreshold = 0;
+        unsigned                         sampleCountThreshold = 0;
         const CDataGatherer::TFeatureVec &features = gatherer.features();
         for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
             sampleCountThreshold = std::max(sampleCountThreshold,
@@ -144,7 +144,7 @@ void CSampleCounts::refresh(const CDataGatherer &gatherer) {
         return;
     }
 
-    unsigned                          sampleCountThreshold = 0;
+    unsigned                         sampleCountThreshold = 0;
     const CDataGatherer::TFeatureVec &features = gatherer.features();
     for (CDataGatherer::TFeatureVecCItr i = features.begin(); i != features.end(); ++i) {
         sampleCountThreshold = std::max(sampleCountThreshold,

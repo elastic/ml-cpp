@@ -516,10 +516,10 @@ class MATHS_EXPORT CIntegration {
                                 for (unsigned int i_ = i, j = 0u;
                                      j < indices.size();
                                      i_ /= indices[j], ++j) {
-                                    EOrder        order = static_cast<EOrder>(indices[j]);
+                                    EOrder       order = static_cast<EOrder>(indices[j]);
                                     const double *w = CGaussLegendreQuadrature::weights(order);
                                     const double *a = CGaussLegendreQuadrature::abscissas(order);
-                                    std::size_t   k = i_ % indices[j];
+                                    std::size_t  k = i_ % indices[j];
                                     weights[i]  *= w[k];
                                     points[i](j) = a[k];
                                 }
@@ -542,8 +542,8 @@ class MATHS_EXPORT CIntegration {
 
                 static std::atomic<const CSparseGaussLegendreQuadrature *> ms_Instance;
 
-                TDoubleVec m_Weights;
-                TVectorVec m_Points;
+                TDoubleVec                                                 m_Weights;
+                TVectorVec                                                 m_Points;
         };
 
         //! Sparse grid Gauss-Legendre quadrature.

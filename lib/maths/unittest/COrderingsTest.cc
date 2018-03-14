@@ -116,10 +116,10 @@ void COrderingsTest::testPtrOrdering(void) {
     LOG_DEBUG("+-----------------------------------+");
 
     const double *null = 0;
-    double        one_(1.0);
-    double        two_(2.0);
-    double        hundred_(100.0);
-    double        big_(std::numeric_limits<double>::max());
+    double       one_(1.0);
+    double       two_(2.0);
+    double       hundred_(100.0);
+    double       big_(std::numeric_limits<double>::max());
     const double *one(&one_);
     const double *two(&two_);
     const double *hundred(&hundred_);
@@ -173,10 +173,10 @@ void COrderingsTest::testLess(void) {
     }
     {
         const double *null = 0;
-        double        one_(1.0);
-        double        two_(2.0);
-        double        hundred_(100.0);
-        double        big_(std::numeric_limits<double>::max());
+        double       one_(1.0);
+        double       two_(2.0);
+        double       hundred_(100.0);
+        double       big_(std::numeric_limits<double>::max());
         const double *one(&one_);
         const double *two(&two_);
         const double *hundred(&hundred_);

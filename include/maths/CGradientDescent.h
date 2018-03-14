@@ -65,7 +65,7 @@ class MATHS_EXPORT CGradientDescent {
 
             private:
                 //! The shift used to get the offset points.
-                double m_Eps;
+                double          m_Eps;
                 //! The function for which to compute the gradient.
                 const CFunction &m_F;
                 //! A placeholder for the shifted points.
@@ -100,10 +100,10 @@ class MATHS_EXPORT CGradientDescent {
 
     private:
         //! The multiplier of the unit vector along the gradient.
-        double m_LearnRate;
+        double  m_LearnRate;
 
         //! The proportion of the previous step to add.
-        double m_Momentum;
+        double  m_Momentum;
 
         //! The last step.
         TVector m_PreviousStep;

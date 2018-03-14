@@ -393,7 +393,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
                         weight[0][count].assign(N, cluster.second);
                         if (winsorisation != missing) {
                             TDouble10Vec &ww = weight[0][winsorisation];
-                            double        f = (k->weight() + cluster.second) / Z;
+                            double       f = (k->weight() + cluster.second) / Z;
                             for (auto &&w : ww) {
                                 w = std::max(1.0 - (1.0 - w) / f, w * f);
                             }
@@ -630,7 +630,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             TMaxAccumulator modeLikelihood;
             for (const auto &mode_ : m_Modes) {
-                double           w = mode_.weight();
+                double          w = mode_.weight();
                 const TPriorPtr &prior = mode_.s_Prior;
                 mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight_[0]);
                 double likelihood;
@@ -1147,10 +1147,10 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
         TClustererPtr m_Clusterer;
 
         //! The object used to initialize new cluster priors.
-        TPriorPtr m_SeedPrior;
+        TPriorPtr     m_SeedPrior;
 
         //! The modes of the distribution.
-        TModeVec m_Modes;
+        TModeVec      m_Modes;
 };
 
 template<std::size_t N>

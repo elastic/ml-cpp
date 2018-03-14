@@ -274,7 +274,7 @@ bool CBucketGatherer::addEventData(CEventData &data) {
             bucketCounts[pidCid] += count;
         }
 
-        const CEventData::TOptionalStrVec          influences = data.influences();
+        const CEventData::TOptionalStrVec         influences = data.influences();
         TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts = m_InfluencerCounts.get(time);
         influencerCounts.resize(influences.size());
         TStoredStringPtrVec canonicalInfluences(influences.size());
@@ -358,7 +358,7 @@ void CBucketGatherer::sample(core_t::TTime time) {
         }
 
         const TSizeSizePrStoredStringPtrPrUInt64UMapVec &influencerCounts = m_InfluencerCounts.get(time);
-        auto &                                           multiBucketInfluencerCounts = m_MultiBucketInfluencerCounts[bucketLength];
+        auto                                            &                                           multiBucketInfluencerCounts = m_MultiBucketInfluencerCounts[bucketLength];
         multiBucketInfluencerCounts.resize(influencerCounts.size());
         for (std::size_t i = 0u; i < influencerCounts.size(); ++i) {
             for (const auto &count : influencerCounts[i]) {
@@ -512,7 +512,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
         return false;
     }
     const TSizeSizePrUInt64UMap &bucketCounts = m_PersonAttributeCounts.get(time);
-    TSizeSizePr                  pidCid = std::make_pair(pid, cid);
+    TSizeSizePr                 pidCid = std::make_pair(pid, cid);
     return bucketExplicitNulls.find(pidCid) != bucketExplicitNulls.end() &&
            bucketCounts.find(pidCid) == bucketCounts.end();
 }

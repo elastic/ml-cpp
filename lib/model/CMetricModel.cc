@@ -205,7 +205,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                           core_t::TTime endTime,
                           CResourceMonitor &resourceMonitor) {
     CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime  bucketLength = gatherer.bucketLength();
+    core_t::TTime bucketLength = gatherer.bucketLength();
 
     if (!gatherer.validateSampleTimes(startTime, endTime)) {
         return;
@@ -221,7 +221,7 @@ void CMetricModel::sample(core_t::TTime startTime,
         gatherer.featureData(time, bucketLength, m_CurrentBucketStats.s_FeatureData);
 
         const CIndividualModel::TTimeVec &preSampleLastBucketTimes = this->lastBucketTimes();
-        CIndividualModel::TSizeTimeUMap   lastBucketTimesMap;
+        CIndividualModel::TSizeTimeUMap  lastBucketTimesMap;
         for (const auto &featureData : m_CurrentBucketStats.s_FeatureData) {
             for (const auto &data : featureData.second) {
                 std::size_t pid = data.first;
@@ -237,14 +237,14 @@ void CMetricModel::sample(core_t::TTime startTime,
         maths::CModelAddSamplesParams::TDouble2Vec4VecVec priorWeights;
 
         for (auto &&featureData : m_CurrentBucketStats.s_FeatureData) {
-            model_t::EFeature      feature = featureData.first;
+            model_t::EFeature     feature = featureData.first;
             TSizeFeatureDataPrVec &data = featureData.second;
-            std::size_t            dimension = model_t::dimension(feature);
+            std::size_t           dimension = model_t::dimension(feature);
             LOG_TRACE(model_t::print(feature) << " data = " << core::CContainerPrinter::print(data));
             this->applyFilter(model_t::E_XF_By, true, this->personFilter(), data);
 
             for (const auto &data_ : data) {
-                std::size_t                       pid = data_.first;
+                std::size_t                      pid = data_.first;
                 const CGathererTools::TSampleVec &samples = data_.second.s_Samples;
 
                 maths::CModel *model = this->model(feature, pid);
@@ -332,7 +332,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     CAnnotatedProbabilityBuilder resultBuilder(result);
 
     const CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime        bucketLength = gatherer.bucketLength();
+    core_t::TTime       bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
         LOG_ERROR("Can only compute probability for single bucket");
@@ -412,7 +412,7 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
         const TFeatureSizeFeatureDataPrVecPrVec &featureData = m_CurrentBucketStats.s_FeatureData;
         for (std::size_t i = 0u; i < featureData.size(); ++i) {
             for (std::size_t j = 0u; j < featureData[i].second.size(); ++j) {
-                uint64_t &          hash = hashes[KEY(featureData[i].second[j].first)];
+                uint64_t           &          hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData &data = featureData[i].second[j].second;
                 hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(hash, static_cast<uint64_t>(data.s_IsInteger));
@@ -536,12 +536,12 @@ void CMetricModel::fill(model_t::EFeature feature,
                         core_t::TTime bucketTime,
                         bool interim,
                         CProbabilityAndInfluenceCalculator::SParams &params) const {
-    std::size_t            dimension{model_t::dimension(feature)};
-    const TFeatureData *   data{this->featureData(feature, pid, bucketTime)};
+    std::size_t           dimension{model_t::dimension(feature)};
+    const TFeatureData    *   data{this->featureData(feature, pid, bucketTime)};
     const TOptionalSample &bucket{data->s_BucketValue};
-    const maths::CModel *  model{this->model(feature, pid)};
-    core_t::TTime          time{model_t::sampleTime(feature, bucketTime, this->bucketLength(), bucket->time())};
-    TDouble2Vec4Vec        weights(2);
+    const maths::CModel   *  model{this->model(feature, pid)};
+    core_t::TTime         time{model_t::sampleTime(feature, bucketTime, this->bucketLength(), bucket->time())};
+    TDouble2Vec4Vec       weights(2);
     weights[0] = model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time);
     weights[1].assign(dimension, bucket->varianceScale());
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
@@ -577,8 +577,8 @@ void CMetricModel::fill(model_t::EFeature feature,
     const CDataGatherer &gatherer{this->dataGatherer()};
     const maths::CModel *model{this->model(feature, pid)};
     const TSize2Vec1Vec &correlates{model->correlates()};
-    const TTimeVec &     firstBucketTimes{this->firstBucketTimes()};
-    core_t::TTime        bucketLength{gatherer.bucketLength()};
+    const TTimeVec      &     firstBucketTimes{this->firstBucketTimes()};
+    core_t::TTime       bucketLength{gatherer.bucketLength()};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -608,7 +608,7 @@ void CMetricModel::fill(model_t::EFeature feature,
         params.s_Correlated[i] = correlates[i][variables[1]];
         params.s_Variables[i] = variables;
         const maths::CModel *models[]{model, this->model(feature, correlates[i][variables[1]])};
-        TDouble2Vec4Vec      weight(2, TDouble2Vec(2, 1.0));
+        TDouble2Vec4Vec     weight(2, TDouble2Vec(2, 1.0));
         weight[0][variables[0]] = models[0]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
         weight[0][variables[1]] = models[1]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
 
@@ -618,7 +618,7 @@ void CMetricModel::fill(model_t::EFeature feature,
         if (data[0] && data[1] && data[0]->s_BucketValue && data[1]->s_BucketValue) {
             const TOptionalSample &bucket0{data[0]->s_BucketValue};
             const TOptionalSample &bucket1{data[1]->s_BucketValue};
-            core_t::TTime          times[] =
+            core_t::TTime         times[] =
             {
                 model_t::sampleTime(feature, bucketTime, bucketLength, bucket0->time()),
                 model_t::sampleTime(feature, bucketTime, bucketLength, bucket1->time())

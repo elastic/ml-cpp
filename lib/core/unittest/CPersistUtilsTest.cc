@@ -181,7 +181,7 @@ void testPersistRestore(const T &collection, const T &initial = T()) {
     }
     LOG_TRACE(" - doing persist again " << typeid(T).name());
     {
-        const T &                       restoredRef = restored;
+        const T                         &                       restoredRef = restored;
         core::CJsonStatePersistInserter inserter(restoredSs);
         core::CPersistUtils::persist(tag, restoredRef, inserter);
     }

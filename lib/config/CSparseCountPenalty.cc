@@ -128,10 +128,10 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                 for (TSizeSizePrQuantileUMapCItr q0 = quantiles[0]->begin(); q0 != quantiles[0]->end(); ++q0) {
                     const CBucketCountStatistics::TSizeSizePr &partition = q0->first;
 
-                    uint64_t                                bc = stats->bucketCounts()[0];
-                    const maths::CQuantileSketch &          qe0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
+                    uint64_t                               bc = stats->bucketCounts()[0];
+                    const maths::CQuantileSketch           &          qe0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
                     const CBucketCountStatistics::TMoments &m0 = moments[0]->find(partition)->second;
-                    double                                  me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
+                    double                                 me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
                     extract(qe0, nq, xq[0]);
                     means[0] = me0;
                     counts[0] = maths::CBasicStatistics::count(m0);
@@ -145,9 +145,9 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification &spec) const {
                         }
 
                         bc = stats->bucketCounts()[bid];
-                        const maths::CQuantileSketch &          qei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
+                        const maths::CQuantileSketch           &          qei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
                         const CBucketCountStatistics::TMoments &mi = moments[bid]->find(partition)->second;
-                        double                                  mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
+                        double                                 mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
                         extract(qei, nq, xq[bid]);
                         means[bid] = mei;
                         counts[bid] = maths::CBasicStatistics::count(mi);

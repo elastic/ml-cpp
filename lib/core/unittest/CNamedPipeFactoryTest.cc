@@ -64,7 +64,7 @@ class CThreadDataWriter : public ml::core::CThread {
 
     private:
         std::string m_FileName;
-        size_t m_Size;
+        size_t      m_Size;
 };
 
 class CThreadDataReader : public ml::core::CThread {
@@ -101,7 +101,7 @@ class CThreadDataReader : public ml::core::CThread {
                     // This code deals with the test character we write to
                     // detect the short-lived connection problem on Windows
                     const char *copyFrom = buffer;
-                    size_t      copyLen = static_cast<size_t>(strm.gcount());
+                    size_t     copyLen = static_cast<size_t>(strm.gcount());
                     if (m_Data.empty() &&
                         *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                         ++copyFrom;

@@ -116,25 +116,25 @@ class CONFIG_EXPORT CDetectorEnumerator {
         TAutoconfigurerParamsCRef m_Params;
 
         //! The list of functions to be considered.
-        TFunctionCategoryVec m_Functions;
+        TFunctionCategoryVec      m_Functions;
 
         //! Candidate field names for arguments categorical functions.
-        TStrVec m_CandidateCategoricalFunctionArguments;
+        TStrVec                   m_CandidateCategoricalFunctionArguments;
 
         //! Candidate arguments for metric functions.
-        TStrVec m_CandidateMetricFunctionArguments;
+        TStrVec                   m_CandidateMetricFunctionArguments;
 
         //! Candidate by fields.
-        TStrVec m_CandidateByFields;
+        TStrVec                   m_CandidateByFields;
 
         //! Candidate by fields for rare commands.
-        TStrVec m_CandidateRareByFields;
+        TStrVec                   m_CandidateRareByFields;
 
         //! Candidate over fields.
-        TStrVec m_CandidateOverFields;
+        TStrVec                   m_CandidateOverFields;
 
         //! Candidate partition fields.
-        TStrVec m_CandidatePartitionFields;
+        TStrVec                   m_CandidatePartitionFields;
 };
 
 }

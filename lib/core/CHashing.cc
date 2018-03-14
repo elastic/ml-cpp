@@ -334,7 +334,7 @@ uint32_t CHashing::murmurHash32(const void *key,
     uint32_t h = seed ^ length;
 
     // Note, remainder = length % 4
-    const int       remainder = length & 0x3;
+    const int      remainder = length & 0x3;
     const uint32_t *data = static_cast<const uint32_t*>(key);
     // Note, shift = (length - remainder) / 4
     const uint32_t *end = data + ((length - remainder) >> 2);
@@ -439,7 +439,7 @@ uint64_t CHashing::murmurHash64(const void *key,
     uint64_t h = seed ^ (length * m);
 
     // Note, remainder = length % 8
-    const int       remainder = length & 0x7;
+    const int      remainder = length & 0x7;
     const uint64_t *data = static_cast<const uint64_t*>(key);
     // Note, shift = (length - remainder) / 8
     const uint64_t *end = data + ((length - remainder) >> 3);

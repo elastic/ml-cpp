@@ -163,7 +163,7 @@ class CONFIG_EXPORT CPenalty {
         TAutoconfigurerParamsCRef m_Params;
 
         //! The penalties.
-        TPenaltyCPtrVec m_Penalties;
+        TPenaltyCPtrVec           m_Penalties;
 };
 
 //! Multiply a two penalties.

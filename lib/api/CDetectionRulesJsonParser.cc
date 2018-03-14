@@ -139,7 +139,7 @@ bool CDetectionRulesJsonParser::parseRuleActions(const rapidjson::Value &ruleObj
     int action = 0;
     for (unsigned int i = 0; i < array.Size(); ++i) {
         model::CRuleCondition ruleCondition;
-        const std::string &   parsedAction = array[i].GetString();
+        const std::string     &   parsedAction = array[i].GetString();
         if (parsedAction == FILTER_RESULTS) {
             action |= model::CDetectionRule::E_FilterResults;
         } else if (parsedAction == SKIP_SAMPLING) {
@@ -187,7 +187,7 @@ bool CDetectionRulesJsonParser::parseRuleConditions(const rapidjson::Value &rule
     }
 
     for (unsigned int i = 0; i < array.Size(); ++i) {
-        model::CRuleCondition   condition;
+        model::CRuleCondition  condition;
         const rapidjson::Value &conditionObject = array[i];
 
         if (!conditionObject.IsObject()) {
@@ -229,7 +229,7 @@ bool CDetectionRulesJsonParser::parseFilterId(const rapidjson::Value &conditionO
         return false;
     }
     const std::string &filterId = conditionObject[FILTER_ID.c_str()].GetString();
-    auto               filterEntry = m_FiltersByIdMap.find(filterId);
+    auto              filterEntry = m_FiltersByIdMap.find(filterId);
     if (filterEntry == m_FiltersByIdMap.end()) {
         LOG_ERROR("Filter with id [" << filterId << "] could not be found");
         return false;

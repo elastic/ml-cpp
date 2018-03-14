@@ -81,10 +81,10 @@ class CONFIG_EXPORT CBucketCountStatistics {
         uint64_t bucketPartitionCount(void) const;
 
         //! Get the moments of the count distribution per partition.
-        const TSizeSizePrMomentsUMap &countMomentsPerPartition(void) const;
+        const TSizeSizePrMomentsUMap         &countMomentsPerPartition(void) const;
 
         //! Get the quantile summary for the count distribution per partition.
-        const TSizeSizePrQuantileUMap &countQuantilesPerPartition(void) const;
+        const TSizeSizePrQuantileUMap        &countQuantilesPerPartition(void) const;
 
         //! Get the moments of the distribution of the distinct count of argument
         //! field values for \p name.
@@ -110,24 +110,24 @@ class CONFIG_EXPORT CBucketCountStatistics {
 
     private:
         //! The distinct partitions seen this bucket.
-        TSizeSizeSizeTrUInt64UMap m_CurrentBucketPartitionCounts;
+        TSizeSizeSizeTrUInt64UMap                   m_CurrentBucketPartitionCounts;
 
         //! The distinct counts of the argument fields for each partition
         //! for the current bucket.
         TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec m_CurrentBucketArgumentDataPerPartition;
 
         //! The total count of distinct partitions and buckets seen to date.
-        uint64_t m_BucketPartitionCount;
+        uint64_t                                    m_BucketPartitionCount;
 
         //! The moments of the distribution of partition counts.
-        TSizeSizePrMomentsUMap m_CountMomentsPerPartition;
+        TSizeSizePrMomentsUMap                      m_CountMomentsPerPartition;
 
         //! The count quantiles.
-        TSizeSizePrQuantileUMap m_CountQuantiles;
+        TSizeSizePrQuantileUMap                     m_CountQuantiles;
 
         //! The moments of the distribution of distinct counts of the argument
         //! fields per partition and bucket length.
-        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec m_ArgumentMomentsPerPartition;
+        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec  m_ArgumentMomentsPerPartition;
 };
 
 //! \brief The root of the class hierarchy for useful count statistics.
@@ -216,49 +216,49 @@ class CONFIG_EXPORT CDataCountStatistics {
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef       m_Params;
 
         //! The total count of records added.
-        uint64_t m_RecordCount;
+        uint64_t                        m_RecordCount;
 
         //! The last record time.
-        TOptionalTime m_LastRecordTime;
+        TOptionalTime                   m_LastRecordTime;
 
         //! The approximate distribution function of arrival times.
-        maths::CQuantileSketch m_ArrivalTimeDistribution;
+        maths::CQuantileSketch          m_ArrivalTimeDistribution;
 
         //! The earliest example time.
-        TMinTimeAccumulator m_Earliest;
+        TMinTimeAccumulator             m_Earliest;
 
         //! The latest example time.
-        TMaxTimeAccumulator m_Latest;
+        TMaxTimeAccumulator             m_Latest;
 
         //! The times of the ends of the last complete buckets.
-        TTimeVec m_LastBucketEndTimes;
+        TTimeVec                        m_LastBucketEndTimes;
 
         //! The set of all partitions.
-        TSizeUSet m_Partitions;
+        TSizeUSet                       m_Partitions;
 
         //! The partitions which are being sampled.
-        TSizeUSet m_SampledPartitions;
+        TSizeUSet                       m_SampledPartitions;
 
         //! The sampled distinct time series.
-        TSizeSizePrUSet m_SampledTimeSeries;
+        TSizeSizePrUSet                 m_SampledTimeSeries;
 
         //! The pseudo r.n.g. for generating permutations of the masks.
         maths::CPRNG::CXorOShiro128Plus m_Rng;
 
         //! The current index into the masks.
-        TSizeVec m_BucketIndices;
+        TSizeVec                        m_BucketIndices;
 
         //! The bucket sampling masks.
-        TBoolVecVec m_BucketMasks;
+        TBoolVecVec                     m_BucketMasks;
 
         //! The total count of complete buckets seen.
-        TUInt64Vec m_BucketCounts;
+        TUInt64Vec                      m_BucketCounts;
 
         //! The bucket statistics.
-        TBucketStatisticsVec m_BucketStatistics;
+        TBucketStatisticsVec            m_BucketStatistics;
 };
 
 //! \brief The count statistics for detectors with no "by" or "over" field.
@@ -304,7 +304,7 @@ class CONFIG_EXPORT CByOverAndPartitionDataCountStatistics : public CDataCountSt
 
     private:
         //! The distinct count of over values per (by, partition) pair.
-        TSizeSizePrCBjkstUMap m_DistinctOverValues;
+        TSizeSizePrCBjkstUMap       m_DistinctOverValues;
 };
 
 //! \brief Responsible for creating unique data count statistics and providing
@@ -351,13 +351,13 @@ class CONFIG_EXPORT CDataCountStatisticsDirectAddressTable {
 
     private:
         //! The parameters.
-        TAutoconfigurerParamsCRef m_Params;
+        TAutoconfigurerParamsCRef  m_Params;
 
         //! The many-to-one map from detector to data count statistic.
-        TSizeVec m_DetectorSchema;
+        TSizeVec                   m_DetectorSchema;
 
         //! The one-to-one map from data count statistic to first detector.
-        TPtrDiffVecVec m_RecordSchema;
+        TPtrDiffVecVec             m_RecordSchema;
 
         //! The actual count statistics.
         TDataCountStatisticsPtrVec m_DataCountStatistics;

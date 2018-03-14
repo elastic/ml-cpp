@@ -100,7 +100,7 @@ class MODEL_EXPORT CSearchKey {
         static const std::string COUNT_NAME;
 
         //! Character used to delimit the "cue" representation of the key
-        static const char CUE_DELIMITER;
+        static const char        CUE_DELIMITER;
 
         //! An empty string.
         static const std::string EMPTY_STRING;
@@ -206,18 +206,18 @@ class MODEL_EXPORT CSearchKey {
         uint64_t hash(void) const;
 
     private:
-        int m_Identifier;
-        function_t::EFunction m_Function;
-        bool m_UseNull;
+        int                       m_Identifier;
+        function_t::EFunction     m_Function;
+        bool                      m_UseNull;
         model_t::EExcludeFrequent m_ExcludeFrequent;
-        core::CStoredStringPtr m_FieldName;
-        core::CStoredStringPtr m_ByFieldName;
-        core::CStoredStringPtr m_OverFieldName;
-        core::CStoredStringPtr m_PartitionFieldName;
-        TStoredStringPtrVec m_InfluenceFieldNames;
+        core::CStoredStringPtr    m_FieldName;
+        core::CStoredStringPtr    m_ByFieldName;
+        core::CStoredStringPtr    m_OverFieldName;
+        core::CStoredStringPtr    m_PartitionFieldName;
+        TStoredStringPtrVec       m_InfluenceFieldNames;
 
         //! Used for efficient comparison.
-        mutable uint64_t m_Hash;
+        mutable uint64_t          m_Hash;
 
         // For debug output
         friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,

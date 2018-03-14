@@ -624,7 +624,7 @@ class COrderings : private core::CNonInstantiatable {
 
             private:
                 const KEY_VECTOR *m_Keys;
-                COMP m_Comp;
+                COMP             m_Comp;
         };
 
     public:

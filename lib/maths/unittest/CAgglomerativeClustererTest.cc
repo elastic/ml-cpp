@@ -80,7 +80,7 @@ class CCluster {
         }
 
     private:
-        double m_Height;
+        double   m_Height;
         TSizeVec m_Points;
 };
 
@@ -93,7 +93,7 @@ class CSlinkObjective {
         }
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
-            double          result = std::numeric_limits<double>::max();
+            double         result = std::numeric_limits<double>::max();
             const TSizeVec &lp = lhs.points();
             const TSizeVec &rp = rhs.points();
             for (std::size_t i = 0u; i < lp.size(); ++i) {
@@ -120,7 +120,7 @@ class CClinkObjective {
         }
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
-            double          result = -std::numeric_limits<double>::max();
+            double         result = -std::numeric_limits<double>::max();
             const TSizeVec &lp = lhs.points();
             const TSizeVec &rp = rhs.points();
             for (std::size_t i = 0u; i < lp.size(); ++i) {

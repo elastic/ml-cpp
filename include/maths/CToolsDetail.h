@@ -211,7 +211,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T> &mixture) {
     static const std::size_t INTERVALS = 8u;
 
     const TDoubleVec &weights = mixture.weights();
-    const TModeVec &  modes = mixture.modes();
+    const TModeVec   &  modes = mixture.modes();
 
     if (weights.empty()) {
         return 0.0;

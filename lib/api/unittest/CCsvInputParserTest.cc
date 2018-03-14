@@ -110,8 +110,8 @@ class CVisitor {
         }
 
     private:
-        bool m_Fast;
-        size_t m_RecordCount;
+        bool                              m_Fast;
+        size_t                            m_RecordCount;
         ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 };
 
@@ -164,10 +164,10 @@ class CTimeCheckingVisitor {
         }
 
     private:
-        size_t m_RecordCount;
+        size_t      m_RecordCount;
         std::string m_TimeField;
         std::string m_TimeFormat;
-        TTimeVec m_ExpectedTimes;
+        TTimeVec    m_ExpectedTimes;
 };
 
 class CQuoteCheckingVisitor {

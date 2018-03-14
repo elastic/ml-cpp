@@ -919,9 +919,9 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const
 
     if (!this->isRoot()) {
         const CNode *sibling = m_Ancestor->sibling(*this);
-        uint64_t     count = m_Count
-                             + (sibling ? sibling->count() : 0ull)
-                             + (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
+        uint64_t    count = m_Count
+                            + (sibling ? sibling->count() : 0ull)
+                            + (m_Ancestor->isParent(*this) ? m_Ancestor->count() : 0ull);
         if (count < compressionFactor) {
             LOG_ERROR("Bad triple count: " << count
                                            << ", floor(n/k) = " << compressionFactor);

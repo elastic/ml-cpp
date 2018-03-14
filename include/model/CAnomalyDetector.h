@@ -295,8 +295,8 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
         //! \param[in] endTime The end of the time interval to skip sampling.
         void skipSampling(core_t::TTime endTime);
 
-        const TModelPtr &model(void) const;
-        TModelPtr &model(void);
+        const TModelPtr           &model(void) const;
+        TModelPtr                 &model(void);
 
     protected:
         //! This function is called before adding a record allowing
@@ -358,27 +358,27 @@ class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
 
     private:
         //! An identifier for the search for which this is detecting anomalies.
-        int m_DetectorIndex;
+        int                                 m_DetectorIndex;
 
         //! Configurable behaviour
         const CAnomalyDetectorModelConfig   &m_ModelConfig;
 
         //! The end of the last complete bucket we've observed.  This is an OPEN
         //! endpoint, i.e. this time is the lowest time NOT in the last bucket.
-        core_t::TTime m_LastBucketEndTime;
+        core_t::TTime                       m_LastBucketEndTime;
 
         //! The data gatherers.
-        TDataGathererPtr m_DataGatherer;
+        TDataGathererPtr                    m_DataGatherer;
 
         //! The factory for new data gatherers and models.
-        TModelFactoryCPtr m_ModelFactory;
+        TModelFactoryCPtr                   m_ModelFactory;
 
         // The model of the data in which we are detecting anomalies.
-        TModelPtr m_Model;
+        TModelPtr                           m_Model;
 
         //! Is this a cloned detector containing the bare minimum information
         //! necessary to create a valid persisted state?
-        bool m_IsForPersistence;
+        bool                                m_IsForPersistence;
 
         friend MODEL_EXPORT std::ostream &operator<<(std::ostream &,
                                                      const CAnomalyDetector &);

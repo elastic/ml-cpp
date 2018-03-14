@@ -75,7 +75,7 @@ void CThreadMutexConditionTest::testThread(void) {
 
         private:
             ml::core::CMutex m_Mutex;
-            bool m_Running;
+            bool             m_Running;
     };
 
     CThread thread;
@@ -142,7 +142,7 @@ void CThreadMutexConditionTest::testThreadCondition(void) {
             }
 
         private:
-            ml::core::CMutex m_Mutex;
+            ml::core::CMutex     m_Mutex;
             ml::core::CCondition m_Condition;
     };
 

@@ -223,8 +223,8 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                 //! Get the likelihood that \p x is from this cluster.
                 double logLikelihoodFromCluster(maths_t::EClusterWeightCalc calc,
                                                 const TPointPrecise &x) const {
-                    double                likelihood;
-                    const TPointPrecise & mean = CBasicStatistics::mean(m_Covariances);
+                    double               likelihood;
+                    const TPointPrecise  & mean = CBasicStatistics::mean(m_Covariances);
                     const TMatrixPrecise &covariances =
                         CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
                     maths_t::EFloatingPointErrorStatus status =
@@ -560,19 +560,19 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
             private:
                 //! A unique identifier for this cluster.
-                std::size_t m_Index;
+                std::size_t        m_Index;
 
                 //! The type of data which will be clustered.
                 maths_t::EDataType m_DataType;
 
                 //! Controls the rate at which information is lost.
-                double m_DecayRate;
+                double             m_DecayRate;
 
                 //! The mean, covariances of the data in this cluster.
-                TCovariances m_Covariances;
+                TCovariances       m_Covariances;
 
                 //! The data representing the internal structure of this cluster.
-                TKMeansOnline m_Structure;
+                TKMeansOnline      m_Structure;
         };
 
         typedef std::vector<CCluster> TClusterVec;
@@ -1190,7 +1190,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
             typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
 
-            CCluster *      result = 0;
+            CCluster        *      result = 0;
             TMinAccumulator min;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
                 if (cluster.index() == m_Clusters[i].index()) {
@@ -1250,7 +1250,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
 
         //! The minimum Kullback-Leibler divergence at which we'll
         //! split a cluster.
-        static const double MINIMUM_SPLIT_DISTANCE;
+        static const double      MINIMUM_SPLIT_DISTANCE;
 
         //! The maximum Kullback-Leibler divergence for which we'll
         //! merge two cluster. This is intended to introduce hysteresis
@@ -1262,47 +1262,47 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
         //! for which we'll delete a cluster. This is intended to
         //! introduce hysteresis in the cluster creation and deletion
         //! process and so should be in the range (0, 1).
-        static const double CLUSTER_DELETE_FRACTION;
+        static const double              CLUSTER_DELETE_FRACTION;
 
         //! The size of the data we use to maintain cluster detail.
-        static const std::size_t STRUCTURE_SIZE;
+        static const std::size_t         STRUCTURE_SIZE;
 
         //! 1 - "smallest hard assignment weight".
-        static const double HARD_ASSIGNMENT_THRESHOLD;
+        static const double              HARD_ASSIGNMENT_THRESHOLD;
 
     private:
         //! The random number generator.
-        CPRNG::CXorOShiro128Plus m_Rng;
+        CPRNG::CXorOShiro128Plus         m_Rng;
 
         //! The type of data being clustered.
-        maths_t::EDataType m_DataType;
+        maths_t::EDataType               m_DataType;
 
         //! The initial rate at which information is lost.
-        double m_InitialDecayRate;
+        double                           m_InitialDecayRate;
 
         //! The rate at which information is lost.
-        double m_DecayRate;
+        double                           m_DecayRate;
 
         //! A measure of the length of history of the data clustered.
-        double m_HistoryLength;
+        double                           m_HistoryLength;
 
         //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
-        maths_t::EClusterWeightCalc m_WeightCalc;
+        maths_t::EClusterWeightCalc      m_WeightCalc;
 
         //! The minimum cluster fractional count.
-        double m_MinimumClusterFraction;
+        double                           m_MinimumClusterFraction;
 
         //! The minimum cluster count.
-        double m_MinimumClusterCount;
+        double                           m_MinimumClusterCount;
 
         //! The minimum count for a category in the sketch to cluster.
-        double m_MinimumCategoryCount;
+        double                           m_MinimumCategoryCount;
 
         //! A generator of unique cluster indices.
         CClustererTypes::CIndexGenerator m_ClusterIndexGenerator;
 
         //! The clusters.
-        TClusterVec m_Clusters;
+        TClusterVec                      m_Clusters;
 };
 
 template<typename T, std::size_t N>

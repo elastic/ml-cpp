@@ -67,8 +67,8 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf {
     public:
         static const std::string ATTRIBUTE_SEPARATOR;
         static const std::string ATTRIBUTE_EQUALS;
-        static const size_t DEFAULT_INDENT_SPACES;
-        static const size_t MAX_INDENT_SPACES;
+        static const size_t      DEFAULT_INDENT_SPACES;
+        static const size_t      MAX_INDENT_SPACES;
         static const char        *INDENT_SPACE_STR;
 
     public:
@@ -271,8 +271,8 @@ class CORE_EXPORT CXmlParser : public CXmlParserIntf {
         static void errorHandler(void *ctxt, const char *msg, ...);
 
     private:
-        xmlDocPtr m_Doc;
-        xmlXPathContextPtr m_XPathContext;
+        xmlDocPtr           m_Doc;
+        xmlXPathContextPtr  m_XPathContext;
 
         //! Pointer to the current node accessed via the navigation API
         xmlNode             *m_NavigatedNode;

@@ -88,9 +88,9 @@ class CInputThread : public ml::core::CThread {
 
     private:
         ml::core::CDualThreadStreamBuf &m_Buffer;
-        uint32_t m_Delay;
-        size_t m_FatalAfter;
-        size_t m_TotalData;
+        uint32_t                       m_Delay;
+        size_t                         m_FatalAfter;
+        size_t                         m_TotalData;
 };
 
 const char *DATA(
@@ -126,7 +126,7 @@ void CDualThreadStreamBufTest::testThroughput(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *    ptr(DATA);
+        const char      *    ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -172,7 +172,7 @@ void CDualThreadStreamBufTest::testSlowConsumer(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *    ptr(DATA);
+        const char      *    ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -208,7 +208,7 @@ void CDualThreadStreamBufTest::testPutback(void) {
     ml::core::CDualThreadStreamBuf buf;
 
     std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-    const char *    ptr(DATA);
+    const char      *    ptr(DATA);
     while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
         CPPUNIT_ASSERT(written > 0);
@@ -219,8 +219,8 @@ void CDualThreadStreamBufTest::testPutback(void) {
     buf.signalEndOfFile();
 
     static const char *PUTBACK_CHARS("put this back");
-    std::istream       strm(&buf);
-    char               c('\0');
+    std::istream      strm(&buf);
+    char              c('\0');
     CPPUNIT_ASSERT(strm.get(c).good());
     CPPUNIT_ASSERT_EQUAL(*DATA, c);
     CPPUNIT_ASSERT(strm.putback(c).good());
@@ -263,7 +263,7 @@ void CDualThreadStreamBufTest::testFatal(void) {
     size_t totalDataWritten(0);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char *    ptr(DATA);
+        const char      *    ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             if (written == 0) {

@@ -188,7 +188,7 @@ bool CRapidXmlParser::toNodeHierarchy(const TCharRapidXmlNode &parentNode,
     // parser class instead.
     nodePtr->m_Value.assign(parentNode.value(), parentNode.value_size());
 
-    size_t                        numAttributes(0);
+    size_t                       numAttributes(0);
     const TCharRapidXmlAttribute *attr(parentNode.first_attribute());
     while (attr != 0) {
         ++numAttributes;

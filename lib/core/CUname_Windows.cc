@@ -54,7 +54,7 @@ bool queryKernelVersion(uint16_t &major, uint16_t &minor, uint16_t &build) {
         return false;
     }
 
-    UINT              len(0);
+    UINT             len(0);
     VS_FIXEDFILEINFO *fixedFileInfo(0);
     if (VerQueryValue(buffer.get(),
                       "\\",

@@ -114,14 +114,14 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
             return true;
         }
 
-        const TResultsVec &results(void) const {
+        const TResultsVec                 &results(void) const {
             return m_Results;
         }
 
     private:
         const CAnomalyDetectorModelConfig &m_ModelConfig;
-        const CLimits &m_Limits;
-        TResultsVec m_Results;
+        const CLimits                     &m_Limits;
+        TResultsVec                       m_Results;
 };
 
 CppUnit::Test* CResourceLimitTest::suite(void) {
@@ -332,8 +332,8 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
 
     private:
         CResourceMonitor &m_ResourceMonitor;
-        std::size_t m_NewPeople;
-        std::size_t m_NewAttributes;
+        std::size_t      m_NewPeople;
+        std::size_t      m_NewAttributes;
 };
 
 //! A test wrapper around a real model that tracks calls to createNewModels
@@ -380,8 +380,8 @@ class CMockMetricModel : public ml::model::CMetricModel {
 
     private:
         CResourceMonitor &m_ResourceMonitor;
-        std::size_t m_NewPeople;
-        std::size_t m_NewAttributes;
+        std::size_t      m_NewPeople;
+        std::size_t      m_NewAttributes;
 };
 
 void addArrival(core_t::TTime time,

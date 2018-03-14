@@ -64,7 +64,7 @@ class API_EXPORT CStateRestoreStreamFilter : public boost::iostreams::basic_line
         size_t m_DocCount;
 
         //! whether the previous line has been rewritten
-        bool m_RewrotePreviousLine;
+        bool   m_RewrotePreviousLine;
 
         string_type do_filter(const string_type &line) override;
 };

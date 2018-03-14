@@ -135,8 +135,8 @@ void CBucketCountStatistics::add(const TSizeSizeSizeTr &partition,
     for (TDetectorRecordCItr record = beginRecords; record != endRecords; ++record) {
         if (record->function() == config_t::E_DistinctCount) {
             if (const std::string *name = record->argumentFieldName()) {
-                const std::string &  value = *record->argumentFieldValue();
-                std::size_t          i = emplace(name, m_CurrentBucketArgumentDataPerPartition);
+                const std::string   &  value = *record->argumentFieldValue();
+                std::size_t         i = emplace(name, m_CurrentBucketArgumentDataPerPartition);
                 SBucketArgumentData &data =
                     m_CurrentBucketArgumentDataPerPartition[i].second.emplace(partition, BJKST).first->second;
                 data.s_DistinctValues.add(CTools::category32(value));
@@ -162,14 +162,14 @@ void CBucketCountStatistics::capture(void) {
     m_CurrentBucketPartitionCounts.clear();
 
     for (std::size_t i = 0u; i < m_CurrentBucketArgumentDataPerPartition.size(); ++i) {
-        const std::string *              name = m_CurrentBucketArgumentDataPerPartition[i].first;
+        const std::string               *              name = m_CurrentBucketArgumentDataPerPartition[i].first;
         TSizeSizeSizeTrArgumentDataUMap &values = m_CurrentBucketArgumentDataPerPartition[i].second;
-        std::size_t                      j = emplace(name, m_ArgumentMomentsPerPartition);
+        std::size_t                     j = emplace(name, m_ArgumentMomentsPerPartition);
         for (TSizeSizeSizeTrArgumentDataUMapItr k = values.begin(); k != values.end(); ++k) {
-            TSizeSizePr       id(k->first.first, k->first.third);
+            TSizeSizePr      id(k->first.first, k->first.third);
             SArgumentMoments &moments = m_ArgumentMomentsPerPartition[j].second[id];
-            double            dc = static_cast<double>(k->second.s_DistinctValues.number());
-            double            info = dc * maths::CBasicStatistics::mean(k->second.s_MeanStringLength);
+            double           dc = static_cast<double>(k->second.s_DistinctValues.number());
+            double           info = dc * maths::CBasicStatistics::mean(k->second.s_MeanStringLength);
             moments.s_DistinctCount.add(dc);
             moments.s_InfoContent.add(info);
         }

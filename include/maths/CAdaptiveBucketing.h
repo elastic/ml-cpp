@@ -175,13 +175,13 @@ class MATHS_EXPORT CAdaptiveBucketing {
         const TFloatVec &endpoints(void) const;
 
         //! Get the bucket end points.
-        TFloatVec &endpoints(void);
+        TFloatVec       &endpoints(void);
 
         //! Get the bucket value centres.
         const TFloatVec &centres(void) const;
 
         //! Get the bucket value centres.
-        TFloatVec &centres(void);
+        TFloatVec       &centres(void);
 
         //! Get the total count of in the bucketing.
         double count(void) const;
@@ -228,17 +228,17 @@ class MATHS_EXPORT CAdaptiveBucketing {
 
     private:
         //! The rate at which information is aged out of the bucket values.
-        double m_DecayRate;
+        double                m_DecayRate;
 
         //! The minimum permitted bucket length if non-zero otherwise this
         //! is ignored.
-        double m_MinimumBucketLength;
+        double                m_MinimumBucketLength;
 
         //! The bucket end points.
-        TFloatVec m_Endpoints;
+        TFloatVec             m_Endpoints;
 
         //! The mean periodic time of each regression.
-        TFloatVec m_Centres;
+        TFloatVec             m_Centres;
 
         //! An IIR low pass filter for the total desired end point displacement
         //! in refine.

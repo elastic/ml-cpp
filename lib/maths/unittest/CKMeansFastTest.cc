@@ -105,7 +105,7 @@ class CCentreFilterChecker {
             typedef std::pair<double, std::size_t> TDoubleSizePr;
 
             m_CentreFilter.prune(node.boundingBox());
-            const TSizeVec &                                                 filtered = m_CentreFilter.filter();
+            const TSizeVec                                                   &                                                 filtered = m_CentreFilter.filter();
             maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> closest;
             for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
                 closest.add(TDoubleSizePr((m_Centres[i] - node.s_Point).euclidean(), i));
@@ -125,9 +125,9 @@ class CCentreFilterChecker {
         }
 
     private:
-        TPointVec m_Centres;
+        TPointVec             m_Centres;
         mutable TCentreFilter m_CentreFilter;
-        std::size_t &m_NumberAdmitted;
+        std::size_t           &m_NumberAdmitted;
 };
 
 template<typename POINT>

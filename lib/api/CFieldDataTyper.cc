@@ -146,7 +146,7 @@ COutputHandler &CFieldDataTyper::outputHandler(void) {
 
 int CFieldDataTyper::computeType(const TStrStrUMap &dataRowFields) {
     const std::string &categorizationFieldName = m_DataTyper->fieldName();
-    TStrStrUMapCItr    fieldIter = dataRowFields.find(categorizationFieldName);
+    TStrStrUMapCItr   fieldIter = dataRowFields.find(categorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
         LOG_WARN("Assigning type -1 to record with no " <<
                  categorizationFieldName << " field:" << core_t::LINE_ENDING <<

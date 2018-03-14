@@ -126,13 +126,13 @@ class CConcurrentQueue final : private CNonCopyable {
         boost::circular_buffer<T>                       m_Queue;
 
         //! Mutex
-        std::mutex m_Mutex;
+        std::mutex                                      m_Mutex;
 
         //! Condition variable for consumer
-        std::condition_variable m_ConsumerCondition;
+        std::condition_variable                         m_ConsumerCondition;
 
         //! Condition variable for producers
-        std::condition_variable m_ProducerCondition;
+        std::condition_variable                         m_ProducerCondition;
 };
 
 }

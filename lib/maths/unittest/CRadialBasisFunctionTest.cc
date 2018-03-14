@@ -47,8 +47,8 @@ class CValueAdaptor {
 
     private:
         const maths::CRadialBasisFunction *m_Function;
-        double m_Centre;
-        double m_Scale;
+        double                            m_Centre;
+        double                            m_Scale;
 };
 
 class CSquareDerivativeAdaptor {
@@ -69,8 +69,8 @@ class CSquareDerivativeAdaptor {
 
     private:
         const maths::CRadialBasisFunction *m_Function;
-        double m_Centre;
-        double m_Scale;
+        double                            m_Centre;
+        double                            m_Scale;
 };
 
 }

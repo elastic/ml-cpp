@@ -173,8 +173,8 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
                                                  const TDoubleVec &e);
 
         //! Subtract the projection of \p x onto \p e from \p x.
-        static const TVector &minusProjection(TVector &x,
-                                              const TVector &e);
+        static const TVector    &minusProjection(TVector &x,
+                                                 const TVector &e);
 
         //! Subtract the projection of \p x onto \p e from \p x.
         template<std::size_t N>
@@ -188,7 +188,7 @@ class MATHS_EXPORT CGramSchmidt : private core::CNonInstantiatable {
         static const TDoubleVec &divide(TDoubleVec &x, double s);
 
         //! Divide the vector \p x by the scalar \p s.
-        static const TVector &divide(TVector &x, double s);
+        static const TVector    &divide(TVector &x, double s);
 
         //! Divide the vector \p x by the scalar \p s.
         template<std::size_t N>

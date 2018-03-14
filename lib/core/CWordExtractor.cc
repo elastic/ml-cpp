@@ -46,14 +46,14 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
 
     messageWords.clear();
 
-    size_t                 messageLen(message.length());
-    size_t                 consecutive(0);
-    size_t                 wordStartPos(0);
-    size_t                 rollbackPos(0);
-    size_t                 spaceCount(0);
-    size_t                 punctCount(0);
-    bool                   inWord(false);
-    std::string            curWord;
+    size_t                messageLen(message.length());
+    size_t                consecutive(0);
+    size_t                wordStartPos(0);
+    size_t                rollbackPos(0);
+    size_t                spaceCount(0);
+    size_t                punctCount(0);
+    bool                  inWord(false);
+    std::string           curWord;
     const CWordDictionary &dict = CWordDictionary::instance();
     for (size_t messagePos = 0; messagePos < messageLen; ++messagePos) {
         char thisChar(message[messagePos]);

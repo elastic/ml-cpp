@@ -27,8 +27,8 @@ void CFunctionalTest::testIsNull(void) {
     core::CFunctional::SIsNull isNull;
 
     {
-        double        five = 5.0;
-        double *      null = 0;
+        double       five = 5.0;
+        double       *      null = 0;
         const double *notNull = &five;
         CPPUNIT_ASSERT( isNull(null));
         CPPUNIT_ASSERT(!isNull(notNull));
@@ -48,9 +48,9 @@ void CFunctionalTest::testIsNull(void) {
 }
 
 void CFunctionalTest::testDereference(void) {
-    double        one(1.0);
-    double        two(2.0);
-    double        three(3.0);
+    double       one(1.0);
+    double       two(2.0);
+    double       three(3.0);
     const double *null_ = 0;
 
     core::CFunctional::SDereference<core::CFunctional::SIsNull> derefIsNull;
@@ -61,7 +61,7 @@ void CFunctionalTest::testDereference(void) {
 
     std::less<double>                                   less;
     core::CFunctional::SDereference<std::less<double> > derefLess;
-    const double *                                      values[] = { &one, &two, &three };
+    const double                                        *                                      values[] = { &one, &two, &three };
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
         for (std::size_t j = 0u; j < boost::size(values); ++j) {
             CPPUNIT_ASSERT_EQUAL(less(*values[i], *values[j]), derefLess(values[i], values[j]));

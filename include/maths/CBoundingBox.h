@@ -121,7 +121,7 @@ class CBoundingBox {
 
     private:
         //! True if this is empty and false otherwise.
-        bool m_Empty;
+        bool  m_Empty;
 
         //! The bottom left and top right corner of the bounding box.
         POINT m_A, m_B;

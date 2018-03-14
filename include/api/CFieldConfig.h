@@ -120,10 +120,10 @@ class API_EXPORT CFieldConfig {
         static const std::string SUMMARY_COUNT_FIELD_OPTION;
 
         //! Character to look for to distinguish setting names
-        static const char SUFFIX_SEPARATOR;
+        static const char        SUFFIX_SEPARATOR;
 
         //! Character to look for to split field names out of complete config keys
-        static const char FIELDNAME_SEPARATOR;
+        static const char        FIELDNAME_SEPARATOR;
 
         //! Suffix applied to field names for the setting that indicates whether
         //! they're enabled
@@ -253,7 +253,7 @@ class API_EXPORT CFieldConfig {
 
     public:
         //! Class representing all the options associated with a field config.
-        class API_EXPORT CFieldOptions {
+        class API_EXPORT         CFieldOptions {
             public:
                 //! Construct with no "by" field nor "partition" field, deducing
                 //! the function from the fieldName
@@ -319,16 +319,16 @@ class API_EXPORT CFieldConfig {
                 void swap(CFieldOptions &other);
 
             private:
-                std::string m_Description;
+                std::string                  m_Description;
                 model::function_t::EFunction m_Function;
-                std::string m_FieldName;
-                int m_ConfigKey;
-                std::string m_ByFieldName;
-                std::string m_OverFieldName;
-                std::string m_PartitionFieldName;
-                bool m_ByHasExcludeFrequent;
-                bool m_OverHasExcludeFrequent;
-                bool m_UseNull;
+                std::string                  m_FieldName;
+                int                          m_ConfigKey;
+                std::string                  m_ByFieldName;
+                std::string                  m_OverFieldName;
+                std::string                  m_PartitionFieldName;
+                bool                         m_ByHasExcludeFrequent;
+                bool                         m_OverHasExcludeFrequent;
+                bool                         m_UseNull;
 
                 friend std::ostream &operator<<(std::ostream &,
                                                 const CFieldOptions &);
@@ -455,13 +455,13 @@ class API_EXPORT CFieldConfig {
         void addInfluencerFieldsFromByOverPartitionFields(void);
 
         //! Get the list of field names for pivoting the anomaly results
-        const TStrVec &influencerFieldNames(void) const;
+        const TStrVec                  &influencerFieldNames(void) const;
 
         //! Get the detector key to detection rules map
         const TIntDetectionRuleVecUMap &detectionRules(void) const;
 
         //! Get the scheduled events
-        const TStrDetectionRulePrVec &scheduledEvents(void) const;
+        const TStrDetectionRulePrVec   &scheduledEvents(void) const;
 
         //! Attempt to parse a detector's rules.
         bool parseRules(int detectorIndex, const std::string &rules);
@@ -479,7 +479,7 @@ class API_EXPORT CFieldConfig {
 
         const std::string &categorizationFieldName(void) const;
 
-        const TStrPatternSetUMap &ruleFilters(void) const;
+        const TStrPatternSetUMap  &ruleFilters(void) const;
 
     private:
         //! Parse detection rules into detectionRules
@@ -586,33 +586,33 @@ class API_EXPORT CFieldConfig {
 
     private:
         //! The fields options.
-        TFieldOptionsMIndex m_FieldOptions;
+        TFieldOptionsMIndex      m_FieldOptions;
 
         //! The superset of all field names that are used in the config.
-        TStrSet m_FieldNameSuperset;
+        TStrSet                  m_FieldNameSuperset;
 
         //! The categorization field name.
-        std::string m_CategorizationFieldName;
+        std::string              m_CategorizationFieldName;
 
         //! The filters to be applied to values of the categorization field.
-        TStrVec m_CategorizationFilters;
+        TStrVec                  m_CategorizationFilters;
 
         //! The field names specified for "influence", if any have been provided
-        TStrVec m_Influencers;
+        TStrVec                  m_Influencers;
 
         //! The summary count field name.   If this is empty then it implies
         //! that input has not been manually summarised.
-        std::string m_SummaryCountFieldName;
+        std::string              m_SummaryCountFieldName;
 
         //! The detection rules per detector index.
         TIntDetectionRuleVecUMap m_DetectorRules;
 
         //! The filters per id used by categorical rule conditions.
-        TStrPatternSetUMap m_RuleFilters;
+        TStrPatternSetUMap       m_RuleFilters;
 
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
-        TStrDetectionRulePrVec m_ScheduledEvents;
+        TStrDetectionRulePrVec   m_ScheduledEvents;
 
         // For unit testing
         friend class ::CFieldConfigTest;

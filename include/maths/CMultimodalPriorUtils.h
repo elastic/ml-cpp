@@ -97,7 +97,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             TMeanAccumulator result;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
                 const SMultimodalPriorMode<T> &mode = modes[i];
-                double                         w = mode.weight();
+                double                        w = mode.weight();
                 result.add(mode.s_Prior->marginalLikelihoodMean(), w);
             }
             return CBasicStatistics::mean(result);
@@ -136,7 +136,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
 
             TMaxAccumulator maxLikelihood;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
-                double   w = modes[i].weight();
+                double  w = modes[i].weight();
                 const T &prior = modes[i].s_Prior;
                 mode[0] = prior->marginalLikelihoodMode(TWeights::COUNT_VARIANCE, weight[0]);
                 double likelihood;
@@ -187,9 +187,9 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
             TMeanAccumulator result;
             for (std::size_t i = 0u; i < modes.size(); ++i) {
                 const SMultimodalPriorMode<T> &mode = modes[i];
-                double                         w = mode.weight();
-                double                         mm = mode.s_Prior->marginalLikelihoodMean();
-                double                         mv = mode.s_Prior->marginalLikelihoodVariance();
+                double                        w = mode.weight();
+                double                        mm = mode.s_Prior->marginalLikelihoodMean();
+                double                        mv = mode.s_Prior->marginalLikelihoodVariance();
                 result.add((mm - mean) * (mm + mean) + mv, w);
             }
 
@@ -835,13 +835,13 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                 }
 
             private:
-                EStyle m_Style;
-                const PRIOR *m_Prior;
+                EStyle                         m_Style;
+                const PRIOR                    *m_Prior;
                 const maths_t::TWeightStyleVec *m_WeightStyles;
-                TDouble4Vec1Vec m_Weights;
+                TDouble4Vec1Vec                m_Weights;
                 //! Avoids creating the vector argument to minusLogJointCdf
                 //! more than once.
-                mutable TDouble1Vec m_X;
+                mutable TDouble1Vec            m_X;
         };
 
     private:

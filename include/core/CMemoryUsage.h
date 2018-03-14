@@ -120,10 +120,10 @@ class CORE_EXPORT CMemoryUsage {
         TMemoryUsagePtrList m_Children;
 
         //! Collection of component items within this node
-        TMemoryUsageVec m_Items;
+        TMemoryUsageVec     m_Items;
 
         //! Description of this item
-        SMemoryUsage m_Description;
+        SMemoryUsage        m_Description;
 
         friend class memory_detail::CMemoryUsageComparison;
         friend class memory_detail::CMemoryUsageComparisonTwo;

@@ -480,11 +480,11 @@ void CAnomalyJob::flushAndResetResultsQueue(core_t::TTime startTime) {
              bucketStart < m_LastFinalisedBucketEndTime;
              bucketStart += effectiveBucketLength) {
             model::CHierarchicalResults &results = m_ResultsQueue.latest();
-            core_t::TTime                resultsTime = m_ResultsQueue.chooseResultTime(bucketStart, m_ModelConfig.bucketLength(), results);
+            core_t::TTime               resultsTime = m_ResultsQueue.chooseResultTime(bucketStart, m_ModelConfig.bucketLength(), results);
             if (resultsTime != 0) {
-                core::CStopWatch             timer(true);
+                core::CStopWatch            timer(true);
                 model::CHierarchicalResults &resultsToOutput = m_ResultsQueue.get(resultsTime);
-                uint64_t                     processingTime = timer.stop();
+                uint64_t                    processingTime = timer.stop();
                 // Model plots must be written first so the Java persists them
                 // once the bucket result is processed
                 this->writeOutModelPlot(resultsTime);
@@ -632,7 +632,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     core_t::TTime resultsTime = m_ResultsQueue.chooseResultTime(bucketStartTime, bucketLength, results);
     if (resultsTime != 0) {
         model::CHierarchicalResults &resultsToOutput = m_ResultsQueue.get(resultsTime);
-        uint64_t                     processingTime = timer.stop();
+        uint64_t                    processingTime = timer.stop();
         // Model plots must be written first so the Java persists them
         // once the bucket result is processed
         this->writeOutModelPlot(resultsTime);
@@ -685,7 +685,7 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
     // intermediate bucket, output it as interim too.
     uint64_t processingTime = timer.stop();
     if (m_ResultsQueue.hasInterimResults()) {
-        core_t::TTime                olderTime = bucketStartTime - bucketLength;
+        core_t::TTime               olderTime = bucketStartTime - bucketLength;
         model::CHierarchicalResults &olderResult = m_ResultsQueue.get(olderTime);
         this->writeOutResults(true, olderResult, olderTime, processingTime, 0l);
     }
@@ -1515,7 +1515,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
                             core_t::TTime time,
                             const TStrStrUMap &dataRowFields) {
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
-    const TStrVec &                      fieldNames = detector->fieldsOfInterest();
+    const TStrVec                        &                      fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
     for (std::size_t i = 0u; i < fieldNames.size(); ++i) {
         fieldValues.push_back(fieldValue(fieldNames[i], dataRowFields));

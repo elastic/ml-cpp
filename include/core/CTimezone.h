@@ -120,15 +120,15 @@ class CORE_EXPORT CTimezone : private CNonCopyable {
     private:
         //! Since there is one timezone for the whole program, access to it is
         //! protected by this mutex
-        mutable CFastMutex m_Mutex;
+        mutable CFastMutex               m_Mutex;
 
         //! Name of the current timezone in use within this program, or blank to
         //! use the current operating system settings
-        std::string m_Name;
+        std::string                      m_Name;
 
 #ifdef Windows
         //! Boost timezone database
-        boost::local_time::tz_database m_TimezoneDb;
+        boost::local_time::tz_database   m_TimezoneDb;
 
         //! Boost timezone database
         boost::local_time::time_zone_ptr m_Timezone;

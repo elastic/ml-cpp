@@ -355,7 +355,7 @@ class CORE_EXPORT CPersistUtils {
                 }
 
             private:
-                char m_PairDelimiter;
+                char                m_PairDelimiter;
                 mutable std::string m_Token;
         };
 

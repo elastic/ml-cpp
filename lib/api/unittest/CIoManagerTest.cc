@@ -30,11 +30,11 @@
 
 namespace {
 
-const uint32_t  SLEEP_TIME_MS = 100;
-const uint32_t  PAUSE_TIME_MS = 10;
-const size_t    MAX_ATTEMPTS = 100;
-const size_t    TEST_SIZE = 10000;
-const char      TEST_CHAR = 'a';
+const uint32_t SLEEP_TIME_MS = 100;
+const uint32_t PAUSE_TIME_MS = 10;
+const size_t   MAX_ATTEMPTS = 100;
+const size_t   TEST_SIZE = 10000;
+const char     TEST_CHAR = 'a';
 const char     *GOOD_INPUT_FILE_NAME = "testfiles/good_input_file";
 const char     *GOOD_OUTPUT_FILE_NAME = "testfiles/good_output_file";
 #ifdef Windows
@@ -72,7 +72,7 @@ class CThreadDataWriter : public ml::core::CThread {
 
     private:
         std::string m_FileName;
-        size_t m_Size;
+        size_t      m_Size;
 };
 
 class CThreadDataReader : public ml::core::CThread {
@@ -121,7 +121,7 @@ class CThreadDataReader : public ml::core::CThread {
                     // This code deals with the test character we write to
                     // detect the short-lived connection problem on Windows
                     const char *copyFrom = buffer;
-                    size_t      copyLen = static_cast<size_t>(strm.gcount());
+                    size_t     copyLen = static_cast<size_t>(strm.gcount());
                     if (m_Data.empty() &&
                         *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
                         ++copyFrom;
@@ -140,9 +140,9 @@ class CThreadDataReader : public ml::core::CThread {
 
     private:
         mutable ml::core::CMutex m_Mutex;
-        std::string m_FileName;
-        std::string m_Data;
-        volatile bool m_Shutdown;
+        std::string              m_FileName;
+        std::string              m_Data;
+        volatile bool            m_Shutdown;
 };
 
 }

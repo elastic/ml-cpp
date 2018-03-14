@@ -431,7 +431,7 @@ std::string CFieldConfig::findParameter(const std::string &parameter,
                                         TStrVec &copyTokens) {
     for (TStrVecItr iter = copyTokens.begin(); iter != copyTokens.end(); ++iter) {
         const std::string &token = *iter;
-        std::size_t        equalPos = token.find('=');
+        std::size_t       equalPos = token.find('=');
         if (equalPos == parameter.length() &&
             core::CStrCaseCmp::strNCaseCmp(parameter.c_str(),
                                            token.c_str(),
@@ -1262,7 +1262,7 @@ bool CFieldConfig::processFilter(const std::string &key,
         LOG_ERROR("Unrecognised filter key: " + key);
         return false;
     }
-    std::string        filterId = key.substr(sepPos + 1);
+    std::string       filterId = key.substr(sepPos + 1);
     core::CPatternSet &filter = m_RuleFilters[filterId];
     return filter.initFromJson(value);
 }

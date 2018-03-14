@@ -29,7 +29,7 @@ CppUnit::Test *CProcessTest::suite() {
 }
 
 void CProcessTest::testPids(void) {
-    ml::core::CProcess &     process = ml::core::CProcess::instance();
+    ml::core::CProcess       &     process = ml::core::CProcess::instance();
     ml::core::CProcess::TPid pid = process.id();
     ml::core::CProcess::TPid ppid = process.parentId();
 

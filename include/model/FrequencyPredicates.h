@@ -48,7 +48,7 @@ class MODEL_EXPORT CPersonFrequencyGreaterThan {
         //! The model containing the person frequencies.
         const CAnomalyDetectorModel *m_Model;
         //! The test threshold frequency.
-        double m_Threshold;
+        double                      m_Threshold;
 };
 
 //! \brief Wrapper around personFrequency to test whether
@@ -69,7 +69,7 @@ class MODEL_EXPORT CAttributeFrequencyGreaterThan {
         //! The model containing the person frequencies.
         const CAnomalyDetectorModel *m_Model;
         //! The test threshold frequency.
-        double m_Threshold;
+        double                      m_Threshold;
 };
 
 }

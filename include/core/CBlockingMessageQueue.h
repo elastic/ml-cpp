@@ -251,14 +251,14 @@ class CBlockingMessageQueue {
                 CBlockingMessageQueue<MESSAGE,
                                       RECEIVER,
                                       QUEUE_CAPACITY> &m_MessageQueue;
-                bool m_ShuttingDown;
-                bool m_IsRunning;
+                bool                                  m_ShuttingDown;
+                bool                                  m_IsRunning;
         };
 
         CMessageQueueThread m_Thread;
-        mutable CMutex m_Mutex;
-        CCondition m_ProducerCondition;
-        CCondition m_ConsumerCondition;
+        mutable CMutex      m_Mutex;
+        CCondition          m_ProducerCondition;
+        CCondition          m_ConsumerCondition;
         RECEIVER            &m_Receiver;
 
         //! Using a circular buffer for the queue means that it will not do any
@@ -269,7 +269,7 @@ class CBlockingMessageQueue {
         TMessageCircBuf m_Queue;
 
         //! Function to be called on queue shutdown
-        TShutdownFunc m_ShutdownFunc;
+        TShutdownFunc   m_ShutdownFunc;
 
         friend class CMessageQueueThread;
 };

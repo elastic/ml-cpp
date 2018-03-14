@@ -71,16 +71,16 @@ class API_EXPORT CForecastRunner final : private core::CNonCopyable {
     public:
         //! max open forecast requests
         //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
-        static const size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
+        static const size_t      MAX_FORECAST_JOBS_IN_QUEUE = 3;
 
         //! default expiry time
-        static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
+        static const size_t      DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
         //! max memory allowed to use for forecast models
-        static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520; // 20MB
+        static const size_t      MAX_FORECAST_MODEL_MEMORY = 20971520; // 20MB
 
         //! minimum time between stat updates to prevent to many updates in a short time
-        static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000; // 3s
+        static const uint64_t    MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000; // 3s
 
     private:
         static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -233,7 +233,7 @@ class API_EXPORT CForecastRunner final : private core::CNonCopyable {
 
     private:
         //! This job ID
-        std::string m_JobId;
+        std::string                             m_JobId;
 
         //! the output stream to write results to
         core::CJsonOutputStreamWrapper          &m_ConcurrentOutputStream;
@@ -243,22 +243,22 @@ class API_EXPORT CForecastRunner final : private core::CNonCopyable {
         model::CResourceMonitor                 &m_ResourceMonitor;
 
         //! thread for the worker
-        std::thread m_Worker;
+        std::thread                             m_Worker;
 
         //! indicator for worker
-        volatile bool m_Shutdown;
+        volatile bool                           m_Shutdown;
 
         //! The 'queue' of forecast jobs to be executed
         std::list<SForecast>                    m_ForecastJobs;
 
         //! Mutex
-        std::mutex m_Mutex;
+        std::mutex                              m_Mutex;
 
         //! Condition variable for the requests queue
-        std::condition_variable m_WorkAvailableCondition;
+        std::condition_variable                 m_WorkAvailableCondition;
 
         //! Condition variable for notifications on done requests
-        std::condition_variable m_WorkCompleteCondition;
+        std::condition_variable                 m_WorkCompleteCondition;
 
         friend class ::CForecastRunnerTest;
 };

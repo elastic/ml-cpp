@@ -104,7 +104,7 @@ class CHandler {
     private:
         typedef std::set<std::string> TStrSet;
 
-        TStrSet m_OutstandingOutput;
+        TStrSet          m_OutstandingOutput;
         ml::core::CMutex m_Mutex;
 };
 

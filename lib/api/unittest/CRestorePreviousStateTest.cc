@@ -184,7 +184,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string &stat
         // same as the riginial
         std::string newPersistedState;
         {
-            std::ostringstream *                       strm(0);
+            std::ostringstream                         *                       strm(0);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder            persister(ptr);
             CPPUNIT_ASSERT(restoredTyper.persistState(persister));
@@ -244,7 +244,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
     {
         ml::core_t::TTime completeToTime(0);
 
-        std::stringstream *                       output = new std::stringstream();
+        std::stringstream                         *                       output = new std::stringstream();
         ml::api::CSingleStreamSearcher::TIStreamP strm(output);
         boost::iostreams::filtering_ostream       in;
         in.push(ml::api::CStateRestoreStreamFilter());
@@ -264,7 +264,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string &
         // same as the original
         std::string newPersistedState;
         {
-            std::ostringstream *                       strm(0);
+            std::ostringstream                         *                       strm(0);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder            persister(ptr);
             CPPUNIT_ASSERT(restoredJob.persistState(persister));

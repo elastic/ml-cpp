@@ -369,13 +369,13 @@ void CMetricPopulationModelTest::testBasicAccessors(void) {
             // Test the person and attribute invariants.
             for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j) {
                 const std::string &name = model->personName(j);
-                std::size_t        pid;
+                std::size_t       pid;
                 CPPUNIT_ASSERT(gatherer->personId(name, pid));
                 CPPUNIT_ASSERT_EQUAL(j, pid);
             }
             for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j) {
                 const std::string &name = model->attributeName(j);
-                std::size_t        cid;
+                std::size_t       cid;
                 CPPUNIT_ASSERT(gatherer->attributeId(name, cid));
                 CPPUNIT_ASSERT_EQUAL(j, cid);
             }
@@ -410,8 +410,8 @@ void CMetricPopulationModelTest::testBasicAccessors(void) {
             for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
                 for (std::size_t pid = 0u; pid < numberPeople; ++pid) {
                     const TMeanAccumulator &expectedMean = expectedBucketMeans[pid * numberAttributes + cid];
-                    const TMinAccumulator & expectedMin   = expectedBucketMins[pid * numberAttributes + cid];
-                    const TMaxAccumulator & expectedMax   = expectedBucketMaxs[pid * numberAttributes + cid];
+                    const TMinAccumulator  & expectedMin   = expectedBucketMins[pid * numberAttributes + cid];
+                    const TMaxAccumulator  & expectedMax   = expectedBucketMaxs[pid * numberAttributes + cid];
 
                     TDouble1Vec mean = model->currentBucketValue(
                         model_t::E_PopulationMeanByPersonAndAttribute,
@@ -499,7 +499,7 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void) {
     CModelFactory::TDataGathererPtr            gatherer(dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
     CModelFactory::SModelInitializationData    modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr           modelHolder(factory.makeModel(modelInitData));
-    CMetricPopulationModel *                   model = dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
+    CMetricPopulationModel                     *                   model = dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
 
     CModelFactory::TFeatureMathsModelPtrPrVec models{factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
     CPPUNIT_ASSERT_EQUAL(features.size(), models.size());
@@ -523,12 +523,12 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void) {
             TSizeSizeTimeDouble2VecSizeTrVecDouble2Vec4VecVecPrMapMap populationWeightedSamples;
             for (std::size_t feature = 0u; feature < features.size(); ++feature) {
                 for (const auto &samples_ : expectedSamples[feature]) {
-                    std::size_t               pid = samples_.first.first;
-                    std::size_t               cid = samples_.first.second;
-                    double                    weight = model->sampleRateWeight(pid, cid);
+                    std::size_t              pid = samples_.first.first;
+                    std::size_t              cid = samples_.first.second;
+                    double                   weight = model->sampleRateWeight(pid, cid);
                     TTimeDouble2VecSizeTrVec &samples = populationWeightedSamples[feature][cid].first;
-                    TDouble2Vec4VecVec &      weights = populationWeightedSamples[feature][cid].second;
-                    TMathsModelPtr &          model_ = expectedPopulationModels[feature][cid];
+                    TDouble2Vec4VecVec       &      weights = populationWeightedSamples[feature][cid].second;
+                    TMathsModelPtr           &          model_ = expectedPopulationModels[feature][cid];
                     if (!model_) {
                         model_ = factory.defaultFeatureModel(features[feature], bucketLength, 1.0, false);
                     }
@@ -545,9 +545,9 @@ void CMetricPopulationModelTest::testMinMaxAndMean(void) {
             }
             for (auto &feature : populationWeightedSamples) {
                 for (auto &attribute : feature.second) {
-                    std::size_t               cid = attribute.first;
+                    std::size_t              cid = attribute.first;
                     TTimeDouble2VecSizeTrVec &samples = attribute.second.first;
-                    TDouble2Vec4VecVec &      weights = attribute.second.second;
+                    TDouble2Vec4VecVec       &      weights = attribute.second.second;
                     maths::COrderings::simultaneousSort(samples, weights);
                     maths::CModelAddSamplesParams params_;
                     params_.integer(false)
@@ -740,7 +740,7 @@ void CMetricPopulationModelTest::testComputeProbability(void) {
         CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
         CModelFactory::SModelInitializationData    modelInitData(gatherer);
         CAnomalyDetectorModel::TModelPtr           modelHolder(factory.makeModel(modelInitData));
-        CMetricPopulationModel *                   model =
+        CMetricPopulationModel                     *                   model =
             dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
 
         TAnomalyAccumulator anomalies(7);
@@ -1114,7 +1114,7 @@ void CMetricPopulationModelTest::testFrequency(void) {
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr            gatherer(factory.makeDataGatherer(gathererInitData));
-    const model::CDataGatherer &               populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
+    const model::CDataGatherer                 &               populationGatherer(dynamic_cast<const model::CDataGatherer&>(*gatherer));
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        model(factory.makeModel(modelInitData));
@@ -1347,7 +1347,7 @@ void CMetricPopulationModelTest::testPeriodicity(void) {
 
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr        model(factory.makeModel(modelInitData));
-    CMetricPopulationModel *                populationModel =
+    CMetricPopulationModel                  *                populationModel =
         dynamic_cast<CMetricPopulationModel*>(model.get());
     CPPUNIT_ASSERT(populationModel != 0);
 

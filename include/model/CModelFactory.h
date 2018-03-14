@@ -200,7 +200,7 @@ class MODEL_EXPORT CModelFactory {
         const TFeatureMultivariatePriorPtrPrVec &defaultCorrelatePriors(const TFeatureVec &features) const;
 
         //! Get the default models for correlations of \p features.
-        const TFeatureCorrelationsPtrPrVec &defaultCorrelates(const TFeatureVec &features) const;
+        const TFeatureCorrelationsPtrPrVec      &defaultCorrelates(const TFeatureVec &features) const;
 
         //! Get the default prior to use for \p feature.
         TPriorPtr defaultPrior(model_t::EFeature feature) const;
@@ -246,7 +246,7 @@ class MODEL_EXPORT CModelFactory {
 
         //! Get the influence calculators to use for each feature in \p features.
         const TFeatureInfluenceCalculatorCPtrPrVec &
-        defaultInfluenceCalculators(const std::string &influencerName,
+                                 defaultInfluenceCalculators(const std::string &influencerName,
                                     const TFeatureVec &features) const;
         //@}
 
@@ -421,16 +421,16 @@ class MODEL_EXPORT CModelFactory {
 
     private:
         //! The global model configuration parameters.
-        SModelParams m_ModelParams;
+        SModelParams                                       m_ModelParams;
 
         //! A cache of models for collections of features.
-        mutable TFeatureVecMathsModelMap m_MathsModelCache;
+        mutable TFeatureVecMathsModelMap                   m_MathsModelCache;
 
         //! A cache of priors for correlate pairs of collections of features.
-        mutable TFeatureVecMultivariatePriorMap m_CorrelatePriorCache;
+        mutable TFeatureVecMultivariatePriorMap            m_CorrelatePriorCache;
 
         //! A cache of models of the correlations of collections of features.
-        mutable TFeatureVecCorrelationsMap m_CorrelationsCache;
+        mutable TFeatureVecCorrelationsMap                 m_CorrelationsCache;
 
         //! A cache of influence calculators for collections of features.
         mutable TStrFeatureVecPrInfluenceCalculatorCPtrMap m_InfluenceCalculatorCache;

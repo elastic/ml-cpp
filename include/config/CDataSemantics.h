@@ -128,38 +128,38 @@ class CONFIG_EXPORT CDataSemantics {
 
     private:
         //! The last computed type.
-        config_t::EDataType m_Type;
+        config_t::EDataType   m_Type;
 
         //! Get a user specified override for the field type.
         TOptionalUserDataType m_Override;
 
         //! The total number of examples.
-        double m_Count;
+        double                m_Count;
 
         //! True if the values are numeric.
-        double m_NumericProportion;
+        double                m_NumericProportion;
 
         //! The proportion of values which are integer.
-        double m_IntegerProportion;
+        double                m_IntegerProportion;
 
         //! The smallest numerical value received.
-        TMinAccumulator m_Smallest;
+        TMinAccumulator       m_Smallest;
 
         //! The largest numerical value received.
-        TMaxAccumulator m_Largest;
+        TMaxAccumulator       m_Largest;
 
         //! The no more than three of the distinct values.
-        TStrVec m_DistinctValues;
+        TStrVec               m_DistinctValues;
 
         //! Examples of non-numeric strings.
-        TStrVec m_NonNumericValues;
+        TStrVec               m_NonNumericValues;
 
         //! Set to true if there are too many distinct values to maintain
         //! the empirical distribution.
-        bool m_EmpiricalDistributionOverflowed;
+        bool                  m_EmpiricalDistributionOverflowed;
 
         //! The empirical distribution.
-        TOrdinalSizeUMap m_EmpiricalDistribution;
+        TOrdinalSizeUMap      m_EmpiricalDistribution;
 };
 
 }

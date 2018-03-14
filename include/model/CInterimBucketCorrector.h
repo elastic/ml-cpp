@@ -107,13 +107,13 @@ class MODEL_EXPORT CInterimBucketCorrector {
 
     private:
         //! The bucket length
-        core_t::TTime m_BucketLength;
+        core_t::TTime                   m_BucketLength;
 
         //! The decomposition of the overall bucket count
         maths::CTimeSeriesDecomposition m_CountTrend;
 
         //! The mean statistic for the overall bucket count
-        TMeanAccumulator m_CountMean;
+        TMeanAccumulator                m_CountMean;
 };
 
 }

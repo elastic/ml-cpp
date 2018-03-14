@@ -50,15 +50,15 @@ class API_EXPORT CConfigUpdater {
         bool update(const std::string &config);
 
     private:
-        static const std::string MODEL_DEBUG_CONFIG;
-        static const std::string DETECTOR_RULES;
-        static const std::string DETECTOR_INDEX;
-        static const std::string RULES_JSON;
-        static const std::string FILTERS;
-        static const std::string SCHEDULED_EVENTS;
+        static const std::string           MODEL_DEBUG_CONFIG;
+        static const std::string           DETECTOR_RULES;
+        static const std::string           DETECTOR_INDEX;
+        static const std::string           RULES_JSON;
+        static const std::string           FILTERS;
+        static const std::string           SCHEDULED_EVENTS;
 
     private:
-        CFieldConfig &m_FieldConfig;
+        CFieldConfig                       &m_FieldConfig;
         model::CAnomalyDetectorModelConfig &m_ModelConfig;
 };
 }

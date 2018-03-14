@@ -315,7 +315,7 @@ class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
 
     private:
         //! The model dimension.
-        std::size_t m_Dimension;
+        std::size_t          m_Dimension;
 
         //! A collection of component models and their probabilities.
         TWeightPriorPtrPrVec m_Models;

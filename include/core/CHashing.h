@@ -208,9 +208,9 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                         std::string print(void) const;
 
                     private:
-                        uint32_t m_M;
+                        uint32_t   m_M;
                         TUInt32Vec m_A;
-                        uint32_t m_B;
+                        uint32_t   m_B;
                 };
 
                 typedef std::vector<CUInt32VecHash> TUInt32VecHashVec;
@@ -237,7 +237,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                         bool operator()(const std::string &token, CUInt32Hash &hash) const;
 
                     private:
-                        char m_Delimiter;
+                        char                m_Delimiter;
                         mutable std::string m_Token;
                 };
 
@@ -313,7 +313,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
 
                 //! Used by generateHashes to protect non thread safe calls
                 //! to the random number generator.
-                static CFastMutex ms_Mutex;
+                static CFastMutex              ms_Mutex;
         };
 
         //! MurmurHash2: fast 32-bit hash.

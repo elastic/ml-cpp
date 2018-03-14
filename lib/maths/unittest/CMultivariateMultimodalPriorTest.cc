@@ -59,7 +59,7 @@ class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimoda
 
     public:
         CMultivariateMultimodalPriorForTest(const maths::CMultivariateMultimodalPrior<N> &prior) :
-            maths::CMultivariateMultimodalPrior<N>(prior) {
+                       maths::CMultivariateMultimodalPrior<N>(prior) {
         }
 
         const TModeVec &modes(void) const {

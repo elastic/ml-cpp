@@ -87,7 +87,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
     typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
                                                            2, maths::COrderings::SSecondGreater> TMaxAccumulator;
 
-    const maths::CQuantileSketch &                  F = stats.arrivalTimeDistribution();
+    const maths::CQuantileSketch                   &                  F = stats.arrivalTimeDistribution();
     const maths::CQuantileSketch::TFloatFloatPrVec &knots = F.knots();
     if (knots.size() == 1) {
         return static_cast<core_t::TTime>(knots[0].first);

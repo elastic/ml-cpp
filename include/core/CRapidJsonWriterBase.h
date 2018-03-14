@@ -135,7 +135,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
         //! Get a valid allocator from the stack
         //! If no valid allocator can be found then store and return a freshly minted one
         boost::shared_ptr<CRapidJsonPoolAllocator> getAllocator() const {
-            TPoolAllocatorPtr         allocator;
+            TPoolAllocatorPtr        allocator;
             CRapidJsonPoolAllocator  *rawAllocator = nullptr;
             while (!m_JsonPoolAllocators.empty()) {
                 allocator = m_JsonPoolAllocators.top();
@@ -541,7 +541,7 @@ class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM, SOURCE_ENCODING, 
 
     private:
         //! cache allocators for potential reuse
-        TStrPoolAllocatorPtrMap m_AllocatorCache;
+        TStrPoolAllocatorPtrMap        m_AllocatorCache;
 
         //! Allow for different batches of documents to use independent allocators
         mutable TPoolAllocatorPtrStack m_JsonPoolAllocators;

@@ -267,7 +267,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
         core::CStringSimilarityTester m_SimilarityTester;
 
         //! Function used to increase weighting for dictionary words
-        DICTIONARY_WEIGHT_FUNC m_DictionaryWeightFunc;
+        DICTIONARY_WEIGHT_FUNC        m_DictionaryWeightFunc;
 };
 
 

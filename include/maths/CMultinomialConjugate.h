@@ -393,18 +393,18 @@ class MATHS_EXPORT CMultinomialConjugate : public CPrior {
         static const double NON_INFORMATIVE_CONCENTRATION;
 
         //! Set to true if we overflow the permitted number of categories.
-        int m_NumberAvailableCategories;
+        int                 m_NumberAvailableCategories;
 
         //! The category values.
-        TDoubleVec m_Categories;
+        TDoubleVec          m_Categories;
 
         //! The concentration parameters of the Dirichlet prior.
-        TDoubleVec m_Concentrations;
+        TDoubleVec          m_Concentrations;
 
         //! The total concentration. Note that if we have observed more
         //! categories than we were permitted this is not equal to the
         //! sum of the concentration parameters.
-        double m_TotalConcentration;
+        double              m_TotalConcentration;
 };
 
 }

@@ -172,10 +172,10 @@ double CDecayRateController::multiplier(const TDouble1Vec &prediction,
     // bang control, with some hysteresis, on the rate of change of the
     // decay rate does this.
 
-    std::size_t           dimension{m_PredictionMean.size()};
-    double                count{this->count()};
+    std::size_t          dimension{m_PredictionMean.size()};
+    double               count{this->count()};
     TMeanAccumulator1Vec *stats_[]{&m_Bias, &m_RecentAbsError, &m_HistoricalAbsError};
-    double                numberPredictionErrors{static_cast<double>(predictionErrors.size())};
+    double               numberPredictionErrors{static_cast<double>(predictionErrors.size())};
 
     for (auto predictionError : predictionErrors) {
         if (predictionError.empty()) {

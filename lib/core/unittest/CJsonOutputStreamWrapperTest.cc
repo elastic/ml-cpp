@@ -93,7 +93,7 @@ void CJsonOutputStreamWrapperTest::testShrink(void) {
 
     size_t                                                 memoryUsageBase = wrapper.memoryUsage();
     ml::core::CJsonOutputStreamWrapper::TGenericLineWriter writer;
-    rapidjson::StringBuffer *                              stringBuffer;
+    rapidjson::StringBuffer                                *                              stringBuffer;
 
     wrapper.acquireBuffer(writer, stringBuffer);
 

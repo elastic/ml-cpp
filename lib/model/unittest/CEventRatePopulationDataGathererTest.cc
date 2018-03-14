@@ -582,7 +582,7 @@ void CEventRatePopulationDataGathererTest::testCompressedLength(void) {
         for (TSizeStrSetMapItr iter = bucketPeopleCategories.begin();
              iter != bucketPeopleCategories.end();
              ++iter) {
-            TSizeSizePr    key(iter->first, 0);
+            TSizeSizePr   key(iter->first, 0);
             const TStrSet &uniqueValues = iter->second;
 
             core::CCompressUtils compressor(false);

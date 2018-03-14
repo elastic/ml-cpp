@@ -459,9 +459,9 @@ void CCooccurrences::topNBySignificance(std::size_t n,
     significances.reserve(mostSignificant.count());
     for (std::size_t i = 0u; i < mostSignificant.count(); ++i) {
         const SCooccurrence &co = mostSignificant[i];
-        double               nxy = static_cast<double>(co.s_Nxy);
-        double               nx  = static_cast<double>(co.s_Nx);
-        double               ny  = static_cast<double>(co.s_Ny);
+        double              nxy = static_cast<double>(co.s_Nxy);
+        double              nx  = static_cast<double>(co.s_Nx);
+        double              ny  = static_cast<double>(co.s_Ny);
         top.emplace_back(co.s_X, co.s_Y);
         significances.push_back(significance(nxy, nx, ny, static_cast<double>(dimension)));
     }

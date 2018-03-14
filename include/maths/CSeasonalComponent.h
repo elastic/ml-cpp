@@ -209,7 +209,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent {
     private:
         //! Used to apply jitter to added value times so that we can accommodate
         //! small time translations of the trend.
-        CPRNG::CXorOShiro128Plus m_Rng;
+        CPRNG::CXorOShiro128Plus            m_Rng;
 
         //! Regression models for a collection of buckets covering the period.
         CSeasonalComponentAdaptiveBucketing m_Bucketing;

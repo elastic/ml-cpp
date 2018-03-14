@@ -193,14 +193,14 @@ class CMixtureDistribution {
         inline const TDoubleVec &weights(void) const {
             return m_Weights;
         }
-        inline TDoubleVec &weights(void) {
+        inline TDoubleVec       &weights(void) {
             return m_Weights;
         }
 
-        inline const TModeVec &modes(void) const {
+        inline const TModeVec   &modes(void) const {
             return m_Modes;
         }
-        inline TModeVec &modes(void) {
+        inline TModeVec         &modes(void) {
             return m_Modes;
         }
 
@@ -219,7 +219,7 @@ class CMixtureDistribution {
 
     private:
         TDoubleVec m_Weights;
-        TModeVec m_Modes;
+        TModeVec   m_Modes;
 };
 
 
@@ -288,7 +288,7 @@ double mode(const CMixtureDistribution<T> &distribution) {
     double result = 0.0;
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &  modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
     if (weights.empty()) {
         return result;
@@ -337,7 +337,7 @@ double pdf(const CMixtureDistribution<T> &distribution, double x) {
     double result = 0.0;
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &  modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
     if (weights.empty()) {
         return result;
@@ -378,7 +378,7 @@ double cdf(const CMixtureDistribution<T> &distribution, double x) {
     }
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &  modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
     if (weights.empty()) {
         return 0.0;
@@ -424,7 +424,7 @@ double cdfComplement(const CMixtureDistribution<T> &distribution, double x) {
     }
 
     const TDoubleVec &weights = distribution.weights();
-    const TModeVec &  modes = distribution.modes();
+    const TModeVec   &  modes = distribution.modes();
 
     if (weights.empty()) {
         return 1.0;

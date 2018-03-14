@@ -498,7 +498,7 @@ class CSampleQueue {
             bool          rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
             core_t::TTime leftDistance = time - left.s_End;
             core_t::TTime rightDistance = right.s_Start - time;
-            SSubSample &  candidate = maths::COrderings::lexicographical_compare(
+            SSubSample    &  candidate = maths::COrderings::lexicographical_compare(
                 -static_cast<int>(sameBucketWithLeft),
                 -static_cast<int>(leftHasSpace),
                 leftDistance,
@@ -526,10 +526,10 @@ class CSampleQueue {
         }
 
     private:
-        std::size_t m_Dimension;
-        TQueue m_Queue;
-        std::size_t m_SampleCountFactor;
-        double m_GrowthFactor;
+        std::size_t   m_Dimension;
+        TQueue        m_Queue;
+        std::size_t   m_SampleCountFactor;
+        double        m_GrowthFactor;
         core_t::TTime m_BucketLength;
         core_t::TTime m_Latency;
 };

@@ -288,29 +288,29 @@ class CMessageQueue {
 
             private:
                 CMessageQueue<MESSAGE, RECEIVER, NUM_TO_TIME> &m_MessageQueue;
-                bool m_ShuttingDown;
-                bool m_IsRunning;
+                bool                                          m_ShuttingDown;
+                bool                                          m_IsRunning;
         };
 
         CMessageQueueThread m_Thread;
-        mutable CMutex m_Mutex;
-        CCondition m_Condition;
+        mutable CMutex      m_Mutex;
+        CCondition          m_Condition;
         RECEIVER            &m_Receiver;
 
         typedef std::queue<MESSAGE>              TMessageQueue;
 
-        TMessageQueue m_Queue;
+        TMessageQueue       m_Queue;
 
         //! Function to be called on queue shutdown
-        TShutdownFunc m_ShutdownFunc;
+        TShutdownFunc       m_ShutdownFunc;
 
         //! A stop watch for timing how long it takes to process messages
-        CStopWatch m_StopWatch;
+        CStopWatch          m_StopWatch;
 
         typedef boost::circular_buffer<uint64_t> TUIntCircBuf;
 
         //! Stop watch readings
-        TUIntCircBuf m_Readings;
+        TUIntCircBuf        m_Readings;
 
         friend class CMessageQueueThread;
 };

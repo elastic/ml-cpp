@@ -636,12 +636,12 @@ class CSpline : public CSplineTypes {
         }
 
         //! Get the knot points of the spline.
-        inline const TNonConstKnots &knots(void) const {
+        inline const TNonConstKnots      &knots(void) const {
             return boost::unwrap_ref(m_Knots);
         }
 
         //! Get the values at the knot points of the spline.
-        inline const TNonConstValues &values(void) const {
+        inline const TNonConstValues     &values(void) const {
             return boost::unwrap_ref(m_Values);
         }
 
@@ -652,7 +652,7 @@ class CSpline : public CSplineTypes {
 
     private:
         //! Get the knot points of the spline.
-        inline TKnots &knotsRef(void) {
+        inline TKnots          &knotsRef(void) {
             return boost::unwrap_ref(m_Knots);
         }
 
@@ -662,17 +662,17 @@ class CSpline : public CSplineTypes {
         }
 
         //! Get the curvatures at the knot points of the spline.
-        inline TCurvatures &curvaturesRef(void) {
+        inline TCurvatures     &curvaturesRef(void) {
             return boost::unwrap_ref(m_Curvatures);
         }
 
     private:
         //! The type of spline.
-        EType m_Type;
+        EType      m_Type;
         //! The spline knot points.
-        KNOTS m_Knots;
+        KNOTS      m_Knots;
         //! The spline values at the knot points.
-        VALUES m_Values;
+        VALUES     m_Values;
         //! The spline curvatures at the knot points.
         CURVATURES m_Curvatures;
 };

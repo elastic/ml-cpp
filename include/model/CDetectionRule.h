@@ -106,19 +106,19 @@ class MODEL_EXPORT CDetectionRule {
         //! The rule action. It works as a bit mask so its value
         //! may not match any of the declared enum values but the
         //! corresponding bit will be 1 when an action is enabled.
-        int m_Action;
+        int                   m_Action;
 
         //! The conditions that trigger the rule.
-        TRuleConditionVec m_Conditions;
+        TRuleConditionVec     m_Conditions;
 
         //! The way the rule's conditions are logically connected (i.e. OR, AND).
         EConditionsConnective m_ConditionsConnective;
 
         //! The optional target field name. Empty when not specified.
-        std::string m_TargetFieldName;
+        std::string           m_TargetFieldName;
 
         //! The optional target field value. Empty when not specified.
-        std::string m_TargetFieldValue;
+        std::string           m_TargetFieldValue;
 };
 }
 }

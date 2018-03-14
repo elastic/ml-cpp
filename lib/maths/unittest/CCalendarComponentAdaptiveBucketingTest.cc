@@ -170,7 +170,7 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void) {
 
     TMeanAccumulator meanError1;
     TMaxAccumulator  maxError1;
-    const TFloatVec &endpoints1{bucketing1.endpoints()};
+    const TFloatVec  &endpoints1{bucketing1.endpoints()};
     TDoubleVec       values1{bucketing1.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{static_cast<core_t::TTime>(
@@ -189,7 +189,7 @@ void CCalendarComponentAdaptiveBucketingTest::testRefine(void) {
 
     TMeanAccumulator meanError2;
     TMaxAccumulator  maxError2;
-    const TFloatVec &endpoints2{bucketing2.endpoints()};
+    const TFloatVec  &endpoints2{bucketing2.endpoints()};
     TDoubleVec       values2{bucketing2.values(20 * 86400)};
     for (std::size_t i = 1; i < endpoints1.size(); ++i) {
         core_t::TTime t{static_cast<core_t::TTime>(

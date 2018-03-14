@@ -75,7 +75,7 @@ class API_EXPORT CLineifiedInputParser : public CInputParser {
         static const size_t WORK_BUFFER_SIZE;
 
         //! Reference to the stream we're going to read from
-        std::istream     &m_StrmIn;
+        std::istream        &m_StrmIn;
 
         typedef boost::scoped_array<char> TScopedCharArray;
 
@@ -91,7 +91,7 @@ class API_EXPORT CLineifiedInputParser : public CInputParser {
         //! characters is NOT zero terminated, which is something to be aware of
         //! when accessing it.
         TScopedCharArray m_WorkBuffer;
-        size_t m_WorkBufferCapacity;
+        size_t           m_WorkBufferCapacity;
         char             *m_WorkBufferPtr;
         char             *m_WorkBufferEnd;
 };

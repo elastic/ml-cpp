@@ -213,7 +213,7 @@ double CSeasonalComponent::delta(core_t::TTime time,
     // reducing the value in the short seasonal component.
 
     const CSeasonalTime &time_{this->time()};
-    core_t::TTime        longPeriod{time_.period()};
+    core_t::TTime       longPeriod{time_.period()};
 
     if (longPeriod > shortPeriod && longPeriod % shortPeriod == 0) {
         TMinAccumulator    min;
@@ -304,11 +304,11 @@ core_t::TTime CSeasonalComponent::jitter(core_t::TTime time) {
     core_t::TTime result{time};
     if (m_Bucketing.minimumBucketLength() > 0.0) {
         const CSeasonalTime &time_{this->time()};
-        double               f{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
-        core_t::TTime        a{time_.startOfWindow(time)};
-        core_t::TTime        b{a + time_.windowLength() - 1};
-        double               jitter{0.5 * m_Bucketing.minimumBucketLength()
-                                    * (f <= 0.5 ? ::sqrt(2.0 * f) - 1.0 : ::sqrt(2.0 * (f - 0.5)))};
+        double              f{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
+        core_t::TTime       a{time_.startOfWindow(time)};
+        core_t::TTime       b{a + time_.windowLength() - 1};
+        double              jitter{0.5 * m_Bucketing.minimumBucketLength()
+                                   * (f <= 0.5 ? ::sqrt(2.0 * f) - 1.0 : ::sqrt(2.0 * (f - 0.5)))};
         result = CTools::truncate(result + static_cast<core_t::TTime>(jitter + 0.5), a, b);
     }
     return result;

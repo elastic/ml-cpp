@@ -111,9 +111,9 @@ class MATHS_EXPORT CConstantWeights {
         //! A single seasonal variance weight style.
         static const maths_t::TWeightStyleVec SEASONAL_VARIANCE;
         //! A unit weight.
-        static const TDouble4Vec UNIT;
+        static const TDouble4Vec              UNIT;
         //! A single unit weight.
-        static const TDouble4Vec1Vec SINGLE_UNIT;
+        static const TDouble4Vec1Vec          SINGLE_UNIT;
         //! Get a unit weight for data with \p dimension.
         template<typename VECTOR>
         static core::CSmallVector<VECTOR, 4> unit(std::size_t dimension) {

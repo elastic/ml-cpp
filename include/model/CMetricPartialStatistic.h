@@ -156,7 +156,7 @@ class CMetricPartialStatistic {
         }
 
     private:
-        STATISTIC m_Value;
+        STATISTIC        m_Value;
         TMeanAccumulator m_Time;
 };
 

@@ -131,7 +131,7 @@ class CORE_EXPORT CStringCache {
         typedef TStrUSet::const_iterator TStrUSetCItr;
 
         //! The cache of strings
-        TStrUSet m_Cache;
+        TStrUSet                 m_Cache;
 
         //! String to return when passed a NULL pointer
         static const std::string EMPTY_STRING;

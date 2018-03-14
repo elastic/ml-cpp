@@ -106,7 +106,7 @@ class CDecreasingMeanInfluence {
         }
 
     private:
-        maths_t::ETail m_Tail;
+        maths_t::ETail   m_Tail;
         TMeanAccumulator m_Mean;
 };
 
@@ -139,7 +139,7 @@ class CDecreasingVarianceInfluence {
         }
 
     private:
-        maths_t::ETail m_Tail;
+        maths_t::ETail      m_Tail;
         TMeanVarAccumulator m_Variance;
 };
 

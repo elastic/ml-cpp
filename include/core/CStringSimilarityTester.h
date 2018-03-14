@@ -255,8 +255,8 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
             // of the memory block.
             typedef boost::scoped_array<size_t> TScopedSizeArray;
             TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
-            size_t *         currentCol(data.get());
-            size_t *         prevCol(currentCol + (secondLen + 1));
+            size_t           *         currentCol(data.get());
+            size_t           *         prevCol(currentCol + (secondLen + 1));
 
             // Populate the left column
             currentCol[0] = 0;
@@ -334,8 +334,8 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
             // pointers alternate between pointing and the first and second half
             // of the memory block.
             TScopedSizeArray data(new size_t[(secondLen + 1) * 2]);
-            size_t *         currentCol(data.get());
-            size_t *         prevCol(currentCol + (secondLen + 1));
+            size_t           *         currentCol(data.get());
+            size_t           *         prevCol(currentCol + (secondLen + 1));
 
             // Populate the left column
             for (size_t down = 0; down <= secondLen; ++down) {
@@ -394,7 +394,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
             // paper.
             TScopedIntArray  dataArray;
             TScopedIntPArray matrixArary;
-            int **           matrix;
+            int              **           matrix;
             matrix = this->setupBerghelRoachMatrix(maxDist,
                                                    dataArray,
                                                    matrixArary);
@@ -477,7 +477,7 @@ class CORE_EXPORT CStringSimilarityTester : private CNonCopyable {
     private:
         //! Required for initialisation of the Berghel-Roach matrix (don't call
         //! this MINUS_INFINITY because that can clash with 3rd party macros)
-        static const int MINUS_INFINITE_INT;
+        static const int       MINUS_INFINITE_INT;
 
         //! Used by the compression-based similarity measures
         mutable CCompressUtils m_Compressor;

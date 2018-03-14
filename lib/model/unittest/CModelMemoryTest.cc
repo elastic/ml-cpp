@@ -101,7 +101,7 @@ void CModelMemoryTest::testOnlineEventRateModel(void) {
     CAnomalyDetectorModel::TModelPtr        modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
-    CEventRateModel &model = static_cast<CEventRateModel&>(*modelPtr.get());
+    CEventRateModel  &model = static_cast<CEventRateModel&>(*modelPtr.get());
     std::size_t      startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
@@ -154,7 +154,7 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     CAnomalyDetectorModel::TModelPtr        modelPtr(factory.makeModel(initData));
     CPPUNIT_ASSERT(modelPtr);
     CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
-    CMetricModel &   model = static_cast<CMetricModel&>(*modelPtr.get());
+    CMetricModel     &   model = static_cast<CMetricModel&>(*modelPtr.get());
     std::size_t      startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 

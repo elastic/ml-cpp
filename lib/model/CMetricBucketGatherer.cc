@@ -1380,7 +1380,7 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
     if (!skipUpdates && time % this->bucketLength() == 0) {
         core_t::TTime earliestAvailableBucketStartTime = this->earliestBucketStartTime();
         if (this->dataAvailable(earliestAvailableBucketStartTime)) {
-            TSizeUInt64VecUMap           counts;
+            TSizeUInt64VecUMap          counts;
             const TSizeSizePrUInt64UMap &counts_ = this->bucketCounts(earliestAvailableBucketStartTime);
             for (const auto &count : counts_) {
                 if (m_DataGatherer.isPopulation()) {

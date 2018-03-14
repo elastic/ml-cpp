@@ -255,7 +255,7 @@ CEventRatePopulationModel::currentBucketValue(model_t::EFeature feature,
                                               std::size_t cid,
                                               core_t::TTime time) const {
     const TSizeSizePrFeatureDataPrVec &featureData = this->featureData(feature, time);
-    auto                               i = find(featureData, pid, cid);
+    auto                              i = find(featureData, pid, cid);
     return i != featureData.end() ? extractValue(feature, *i) : TDouble1Vec(1, 0.0);
 }
 
@@ -301,7 +301,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
                                                        core_t::TTime endTime,
                                                        CResourceMonitor &resourceMonitor) {
     CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime  bucketLength = gatherer.bucketLength();
+    core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.dataAvailable(startTime)) {
         return;
     }
@@ -321,7 +321,7 @@ void CEventRatePopulationModel::sampleBucketStatistics(core_t::TTime startTime,
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(time, bucketLength, featureData);
         for (auto &&featureData_ : featureData) {
-            model_t::EFeature            feature = featureData_.first;
+            model_t::EFeature           feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
@@ -334,7 +334,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                                        core_t::TTime endTime,
                                        CResourceMonitor &resourceMonitor) {
     CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime  bucketLength = gatherer.bucketLength();
+    core_t::TTime bucketLength = gatherer.bucketLength();
     if (!gatherer.validateSampleTimes(startTime, endTime)) {
         return;
     }
@@ -351,7 +351,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
         this->CPopulationModel::sample(time, time + bucketLength, resourceMonitor);
         const TTimeVec &preSampleAttributeLastBucketTimes = this->attributeLastBucketTimes();
-        TSizeTimeUMap   attributeLastBucketTimesMap;
+        TSizeTimeUMap  attributeLastBucketTimesMap;
         for (const auto &featureData_ : featureData) {
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[featureData_.first];
             for (const auto &data_ : data) {
@@ -368,7 +368,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
 
         for (auto &&featureData_ : featureData) {
-            model_t::EFeature            feature = featureData_.first;
+            model_t::EFeature           feature = featureData_.first;
             TSizeSizePrFeatureDataPrVec &data = m_CurrentBucketStats.s_FeatureData[feature];
             data.swap(featureData_.second);
             LOG_TRACE(model_t::print(feature) << ": " << core::CContainerPrinter::print(data));
@@ -441,9 +441,9 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                                     << " and attribute = " << gatherer.attributeName(cid));
 
                 SValuesAndWeights &attribute = attributes[cid];
-                std::size_t        duplicate = data.size() >= this->params().s_MinimumToDeduplicate ?
-                                               fuzzy[cid].duplicate(sampleTime, {value}) :
-                                               attribute.s_Values.size();
+                std::size_t       duplicate = data.size() >= this->params().s_MinimumToDeduplicate ?
+                                              fuzzy[cid].duplicate(sampleTime, {value}) :
+                                              attribute.s_Values.size();
 
                 if (duplicate < attribute.s_Values.size()) {
                     attribute.s_Weights[duplicate][0][0] +=  this->sampleRateWeight(pid, cid)
@@ -534,7 +534,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                                                    std::size_t numberAttributeProbabilities,
                                                    SAnnotatedProbability &result) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    core_t::TTime        bucketLength = gatherer.bucketLength();
+    core_t::TTime       bucketLength = gatherer.bucketLength();
 
     if (endTime != startTime + bucketLength) {
         LOG_ERROR("Can only compute probability for single bucket");
@@ -583,7 +583,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
 
         if (feature == model_t::E_PopulationAttributeTotalCountByPerson) {
             const TSizeSizePrFeatureDataPrVec &data = this->featureData(feature, startTime);
-            TSizeSizePr                        range = personRange(data, pid);
+            TSizeSizePr                       range = personRange(data, pid);
             for (std::size_t j = range.first; j < range.second; ++j) {
                 TDouble1Vec     category(1, static_cast<double>(CDataGatherer::extractAttributeId(data[j])));
                 TDouble4Vec1Vec weights(1, TDouble4Vec(1, static_cast<double>(CDataGatherer::extractData(data[j]).s_Count)));
@@ -596,7 +596,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
         }
 
         const TSizeSizePrFeatureDataPrVec &featureData = this->featureData(feature, startTime);
-        TSizeSizePr                        range = personRange(featureData, pid);
+        TSizeSizePr                       range = personRange(featureData, pid);
 
         for (std::size_t j = range.first; j < range.second; ++j) {
             std::size_t cid = CDataGatherer::extractAttributeId(featureData[j]);
@@ -734,8 +734,8 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     const TDoubleVec &concentrations = m_AttributeProbabilityPrior.concentrations();
     for (std::size_t i = 0u; i < categories.size(); ++i) {
         std::size_t cid = static_cast<std::size_t>(categories[i]);
-        uint64_t &  hash = hashes[{boost::cref(EMPTY_STRING),
-                                   boost::cref(this->attributeName(cid))}];
+        uint64_t    &  hash = hashes[{boost::cref(EMPTY_STRING),
+                                      boost::cref(this->attributeName(cid))}];
         hash = maths::CChecksum::calculate(hash, concentrations[i]);
     }
 
@@ -770,8 +770,8 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
             for (const auto &data : feature.second) {
                 std::size_t pid = CDataGatherer::extractPersonId(data);
                 std::size_t cid = CDataGatherer::extractAttributeId(data);
-                uint64_t &  hash = hashes[{boost::cref(this->personName(pid)),
-                                           boost::cref(this->attributeName(cid))}];
+                uint64_t    &  hash = hashes[{boost::cref(this->personName(pid)),
+                                              boost::cref(this->attributeName(cid))}];
                 hash = maths::CChecksum::calculate(hash, CDataGatherer::extractData(data).s_Count);
             }
         }
@@ -805,9 +805,9 @@ void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
 
 std::size_t CEventRatePopulationModel::memoryUsage(void) const {
     const CDataGatherer &gatherer = this->dataGatherer();
-    TOptionalSize        estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
-                                                              gatherer.numberActiveAttributes(),
-                                                              0); // # correlations
+    TOptionalSize       estimate = this->estimateMemoryUsage(gatherer.numberActivePeople(),
+                                                             gatherer.numberActiveAttributes(),
+                                                             0);  // # correlations
     return estimate ? estimate.get() : this->computeMemoryUsage();
 }
 
@@ -960,9 +960,9 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
         return false;
     }
 
-    const maths::CModel *              model{this->model(feature, cid)};
+    const maths::CModel               *              model{this->model(feature, cid)};
     const TSizeSizePrFeatureDataPrVec &data = this->featureData(feature, time);
-    TSizeSizePr                        range = personRange(data, pid);
+    TSizeSizePr                       range = personRange(data, pid);
 
     for (std::size_t j = range.first; j < range.second; ++j) {
         std::size_t cids[]{cid, CDataGatherer::extractAttributeId(data[j])};
@@ -982,12 +982,12 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
                                      core_t::TTime bucketTime,
                                      bool interim,
                                      CProbabilityAndInfluenceCalculator::SParams &params) const {
-    auto                 data = find(this->featureData(feature, bucketTime), pid, cid);
+    auto                data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel *model{this->model(feature, cid)};
-    core_t::TTime        time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    TDouble2Vec4Vec      weight{model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)};
-    double               value{model_t::offsetCountToZero(
-                                   feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
+    core_t::TTime       time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
+    TDouble2Vec4Vec     weight{model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)};
+    double              value{model_t::offsetCountToZero(
+                                  feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
 
     params.s_Feature = feature;
     params.s_Model = model;
