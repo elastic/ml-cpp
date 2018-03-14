@@ -24,6 +24,7 @@ class CTimeUtilsTest : public CppUnit::TestFixture
         void testNow(void);
         void testToIso8601(void);
         void testToLocal(void);
+        void testToEpochMs(void);
         void testStrptime(void);
         void testTimezone(void);
         void testDateWords(void);
