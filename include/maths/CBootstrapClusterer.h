@@ -929,7 +929,7 @@ class CBootstrapClusterer {
         //!
         //! In particular, the start of the i'th clustering clusters
         //! is encoded by the i'th element.
-        TSizeVec m_Offsets;
+        TSizeVec                         m_Offsets;
 };
 
 template<typename POINT>

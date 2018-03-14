@@ -18,4 +18,4 @@
 
 . `dirname $0`/format_utils.sh
 
-find $CPP_SRC_HOME -name 3rd_party -prune -o \( -name \*.cc -o -name \*.h \) -exec bash -c "format_in_place {}" \;
+find $CPP_SRC_HOME \( -name 3rd_party -o -name build-setup \) -prune -o \( -name \*.cc -o -name \*.h \) -exec bash -c "format_in_place {}" \;

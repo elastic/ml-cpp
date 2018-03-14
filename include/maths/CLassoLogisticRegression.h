@@ -385,15 +385,15 @@ class MATHS_EXPORT CLassoLogisticRegression {
 
     private:
         //! The feature vectors.
-        STORAGE     m_X;
+        STORAGE                 m_X;
         //! The dimension of the feature vectors.
-        std::size_t m_D;
+        std::size_t             m_D;
         //! The feature vector labels.
-        TDoubleVec  m_Y;
+        TDoubleVec              m_Y;
         //! The precision of the Laplace prior.
-        double      m_Lambda;
+        double                  m_Lambda;
         //! The (last) learned regression parameters.
-        TDoubleVec  m_Beta;
+        TDoubleVec              m_Beta;
 };
 
 typedef std::vector<std::vector<double> >                          TDenseStorage;

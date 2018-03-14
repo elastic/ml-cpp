@@ -71,7 +71,7 @@ class TEST_EXPORT CTestTimer : public CppUnit::TestListener {
         typedef TStrUInt64Map::const_iterator   TStrUInt64MapCItr;
 
         //! Map of test name to time taken (in ms)
-        TStrUInt64Map m_TestTimes;
+        TStrUInt64Map    m_TestTimes;
 };
 
 

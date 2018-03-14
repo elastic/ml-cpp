@@ -391,7 +391,7 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
         std::string printClusters(void) const;
 
         //! Get the index generator.
-        CIndexGenerator &indexGenerator(void);
+        CIndexGenerator   &indexGenerator(void);
 
     private:
         typedef CBasicStatistics::COrderStatisticsStack<double, 1>                        TMinAccumulator;
@@ -400,13 +400,13 @@ class MATHS_EXPORT CXMeansOnline1d : public CClusterer1d {
     private:
         //! The minimum Kullback-Leibler divergence at which we'll
         //! split a cluster.
-        static const double MINIMUM_SPLIT_DISTANCE;
+        static const double      MINIMUM_SPLIT_DISTANCE;
 
         //! The maximum Kullback-Leibler divergence for which we'll
         //! merge two cluster. This is intended to introduce hysteresis
         //! in the cluster creation and deletion process and so should
         //! be less than the minimum split distance.
-        static const double MAXIMUM_MERGE_DISTANCE;
+        static const double      MAXIMUM_MERGE_DISTANCE;
 
         //! The default fraction of the minimum cluster split count
         //! for which we'll delete a cluster. This is intended to

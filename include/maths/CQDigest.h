@@ -238,7 +238,7 @@ class MATHS_EXPORT CQDigest : private core::CNonCopyable {
 
         //! Represents a node of the q-digest with convenience
         //! operations for compression.
-        class MATHS_EXPORT CNode {
+        class MATHS_EXPORT  CNode {
             public:
                 //! \name XML Tag Names
                 //!

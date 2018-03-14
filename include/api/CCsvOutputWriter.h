@@ -140,7 +140,7 @@ class API_EXPORT CCsvOutputWriter : public COutputHandler {
         //! stream, so that invalid write requests can have no effect on the
         //! output stream.  Held as a member so that the capacity adjusts to
         //! an appropriate level, avoiding regular memory allocations.
-        std::string m_WorkRecord;
+        std::string         m_WorkRecord;
 
         typedef std::pair<std::string, std::string > TStrStrPr;
         typedef std::set<TStrStrPr>                  TStrStrPrSet;

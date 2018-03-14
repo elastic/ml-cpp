@@ -126,7 +126,7 @@ void CDualThreadStreamBufTest::testThroughput(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char      *    ptr(DATA);
+        const char      *ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -172,7 +172,7 @@ void CDualThreadStreamBufTest::testSlowConsumer(void) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char      *    ptr(DATA);
+        const char      *ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             CPPUNIT_ASSERT(written > 0);
@@ -208,7 +208,7 @@ void CDualThreadStreamBufTest::testPutback(void) {
     ml::core::CDualThreadStreamBuf buf;
 
     std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-    const char      *    ptr(DATA);
+    const char      *ptr(DATA);
     while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
         CPPUNIT_ASSERT(written > 0);
@@ -263,7 +263,7 @@ void CDualThreadStreamBufTest::testFatal(void) {
     size_t totalDataWritten(0);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char      *    ptr(DATA);
+        const char      *ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
             if (written == 0) {

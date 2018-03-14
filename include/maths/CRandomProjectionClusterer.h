@@ -688,16 +688,16 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> > {
 
     private:
         //! The x-means implementation.
-        TClusterer  m_Xmeans;
+        TClusterer        m_Xmeans;
         //! The number of iterations to use in k-means for a single
         //! round of improve parameters.
-        std::size_t m_ImproveParamsKmeansIterations;
+        std::size_t       m_ImproveParamsKmeansIterations;
         //! The number of random seeds to try when initializing k-means
         //! for a single round of improve structure.
-        std::size_t m_ImproveStructureClusterSeeds;
+        std::size_t       m_ImproveStructureClusterSeeds;
         //! The number of iterations to use in k-means for a single
         //! round of improve structure.
-        std::size_t m_ImproveStructureKmeansIterations;
+        std::size_t       m_ImproveStructureKmeansIterations;
 };
 
 //! Makes an x-means adapter for random projection clustering.

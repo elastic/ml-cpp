@@ -102,7 +102,7 @@ class CORE_EXPORT CTimeUtils : private CNonInstantiatable {
             private:
                 //! Protect the singleton's initialisation, preventing it from
                 //! being constructed simultaneously in different threads.
-                static CFastMutex ms_InitMutex;
+                static CFastMutex              ms_InitMutex;
 
                 //! This pointer is set after the singleton object has been
                 //! constructed, and avoids the need to lock the mutex on

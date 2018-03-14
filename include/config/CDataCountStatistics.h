@@ -94,7 +94,7 @@ class CONFIG_EXPORT CBucketCountStatistics {
         typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMean;
 
         //! \brief Bucket data stored about argument field.
-        struct CONFIG_EXPORT SBucketArgumentData {
+        struct CONFIG_EXPORT                 SBucketArgumentData {
             SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) :
                 s_DistinctValues(distinctValues) {
             }

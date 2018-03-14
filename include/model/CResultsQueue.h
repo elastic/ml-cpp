@@ -58,7 +58,7 @@ class MODEL_EXPORT CResultsQueue {
         std::size_t size(void) const;
 
         //! Get the latest result from the queue
-        CHierarchicalResults &latest(void);
+        CHierarchicalResults       &latest(void);
 
         //! Returns the latest bucket end time, as tracked by the queue
         core_t::TTime latestBucketEnd(void) const;

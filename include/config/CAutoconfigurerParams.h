@@ -284,31 +284,31 @@ class CONFIG_EXPORT CAutoconfigurerParams {
 
     private:
         //! The name of field holding the time.
-        std::string          m_TimeFieldName;
+        std::string           m_TimeFieldName;
 
         //! The time field format.
-        std::string          m_TimeFieldFormat;
+        std::string           m_TimeFieldFormat;
 
         //! If true then output information about all possible detectors including
         //! those that have been discarded.
-        bool                 m_Verbose;
+        bool                  m_Verbose;
 
         //! If true then output the top detector for each candidate in JSON format.
-        bool                 m_WriteDetectorConfigs;
+        bool                  m_WriteDetectorConfigs;
 
         //! The line ending to use when writing detectors in JSON format.
-        std::string          m_DetectorConfigLineEnding;
+        std::string           m_DetectorConfigLineEnding;
 
         //! \name Scoping
         //@{
         //! The only fields to use in auto-configuration.
-        TOptionalStrVec      m_FieldsOfInterest;
+        TOptionalStrVec       m_FieldsOfInterest;
 
         //! The only argument or partition fields to use in auto-configuration.
-        TOptionalStrVec      m_FieldsToUseInAutoconfigureByRole[constants::NUMBER_FIELD_INDICES];
+        TOptionalStrVec       m_FieldsToUseInAutoconfigureByRole[constants::NUMBER_FIELD_INDICES];
 
         //! The function categories to consider configuring.
-        TFunctionCategoryVec m_FunctionCategoriesToConfigure;
+        TFunctionCategoryVec  m_FunctionCategoriesToConfigure;
         //@}
 
         //! \name Statistics
@@ -328,10 +328,10 @@ class CONFIG_EXPORT CAutoconfigurerParams {
         //@{
         //! The minimum number of records needed to attempt generating search
         //! configurations.
-        uint64_t m_MinimumRecordsToAttemptConfig;
+        uint64_t    m_MinimumRecordsToAttemptConfig;
 
         //! The minimum permitted detector score.
-        double   m_MinimumDetectorScore;
+        double      m_MinimumDetectorScore;
         //@}
 
         //! \name Field Role Scoring

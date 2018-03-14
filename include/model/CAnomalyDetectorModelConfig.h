@@ -164,40 +164,40 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
         //! interval. This only applies to our metric statistics, which are
         //! computed on a fixed number of measurements rather than a fixed
         //! time interval. A value of zero implies no constraint.
-        static const double      DEFAULT_MAXIMUM_UPDATES_PER_BUCKET;
+        static const double        DEFAULT_MAXIMUM_UPDATES_PER_BUCKET;
 
         //! The default minimum value for the influence for which an influencing
         //! field value is judged to have any influence on a feature value.
-        static const double      DEFAULT_INFLUENCE_CUTOFF;
+        static const double        DEFAULT_INFLUENCE_CUTOFF;
 
         //! The default scale factor of the decayRate that determines the minimum
         //! size of the sliding prune window for purging older entries from the
         //! model.
-        static const double      DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM;
+        static const double        DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM;
 
         //! The default scale factor of the decayRate that determines the maximum
         //! size of the sliding prune window for purging older entries from the
         //! model.
-        static const double      DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM;
+        static const double        DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM;
 
         //! The default factor increase in priors used to model correlations.
-        static const double      DEFAULT_CORRELATION_MODELS_OVERHEAD;
+        static const double        DEFAULT_CORRELATION_MODELS_OVERHEAD;
 
         //! The default threshold for the Pearson correlation coefficient at
         //! which a correlate will be modeled.
-        static const double      DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION;
+        static const double        DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION;
 
         //! The default number of half buckets to store before choosing which
         //! overlapping bucket has the biggest anomaly
-        static const std::size_t DEFAULT_BUCKET_RESULTS_DELAY;
+        static const std::size_t   DEFAULT_BUCKET_RESULTS_DELAY;
 
         //! \name Anomaly Score Calculation
         //@{
         //! The default values for the aggregation styles' parameters.
-        static const double      DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
+        static const double        DEFAULT_AGGREGATION_STYLE_PARAMS[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
         //! The default maximum probability which is deemed to be anomalous.
-        static const double      DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY;
+        static const double        DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY;
         //@}
 
         //! \name Anomaly Score Normalization
@@ -476,10 +476,10 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig {
         //! \name Anomaly Score Calculation
         //@{
         //! The values for the aggregation styles' parameters.
-        double m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
+        double                           m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
         //! The maximum probability which is deemed to be anomalous.
-        double m_MaximumAnomalousProbability;
+        double                           m_MaximumAnomalousProbability;
         //@}
 
         //! \name Anomaly Score Normalization

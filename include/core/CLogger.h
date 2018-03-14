@@ -157,7 +157,7 @@ class CORE_EXPORT CLogger : private CNonCopyable {
         //! CLogger is a singleton, so we can not just create new instances
         void reset();
     private:
-        log4cxx::LoggerPtr m_Logger;
+        log4cxx::LoggerPtr        m_Logger;
 
         //! Has the logger ever been reconfigured?  This is not protected by a
         //! lock despite the fact that it may be accessed from different

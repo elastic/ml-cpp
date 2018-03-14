@@ -125,7 +125,7 @@ class CORE_EXPORT CStringCache {
     private:
         //! Flag to record whether the current platform has copy-on-write
         //! strings
-        bool m_HaveCopyOnWriteStrings;
+        bool                     m_HaveCopyOnWriteStrings;
 
         typedef boost::unordered_set<std::string, CStrHash> TStrUSet;
         typedef TStrUSet::const_iterator                    TStrUSetCItr;

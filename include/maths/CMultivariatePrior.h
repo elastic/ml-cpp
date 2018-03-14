@@ -65,7 +65,7 @@ class MATHS_EXPORT CMultivariatePrior {
     public:
         //! The value of the decay rate to fall back to using if the input
         //! value is inappropriate.
-        static const double FALLBACK_DECAY_RATE;
+        static const double      FALLBACK_DECAY_RATE;
 
         //! \name Persistence Tags
         //!

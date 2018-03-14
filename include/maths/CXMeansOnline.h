@@ -1230,33 +1230,33 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
     private:
         //! \name Tags for Persisting CXMeansOnline
         //@{
-        static const std::string WEIGHT_CALC_TAG;
-        static const std::string MINIMUM_CLUSTER_FRACTION_TAG;
-        static const std::string MINIMUM_CLUSTER_COUNT_TAG;
-        static const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG;
-        static const std::string CLUSTER_INDEX_GENERATOR_TAG;
-        static const std::string CLUSTER_TAG;
-        static const std::string RNG_TAG;
-        static const std::string DECAY_RATE_TAG;
-        static const std::string HISTORY_LENGTH_TAG;
+        static const std::string         WEIGHT_CALC_TAG;
+        static const std::string         MINIMUM_CLUSTER_FRACTION_TAG;
+        static const std::string         MINIMUM_CLUSTER_COUNT_TAG;
+        static const std::string         WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+        static const std::string         CLUSTER_INDEX_GENERATOR_TAG;
+        static const std::string         CLUSTER_TAG;
+        static const std::string         RNG_TAG;
+        static const std::string         DECAY_RATE_TAG;
+        static const std::string         HISTORY_LENGTH_TAG;
         //@}
 
         //! \name Tags for Persisting CXMeansOnline::CCluster
         //@{
-        static const std::string INDEX_TAG;
-        static const std::string COVARIANCES_TAG;
-        static const std::string STRUCTURE_TAG;
+        static const std::string         INDEX_TAG;
+        static const std::string         COVARIANCES_TAG;
+        static const std::string         STRUCTURE_TAG;
         //@}
 
         //! The minimum Kullback-Leibler divergence at which we'll
         //! split a cluster.
-        static const double      MINIMUM_SPLIT_DISTANCE;
+        static const double              MINIMUM_SPLIT_DISTANCE;
 
         //! The maximum Kullback-Leibler divergence for which we'll
         //! merge two cluster. This is intended to introduce hysteresis
         //! in the cluster creation and deletion process and so should
         //! be less than the minimum split distance.
-        static const double MAXIMUM_MERGE_DISTANCE;
+        static const double              MAXIMUM_MERGE_DISTANCE;
 
         //! The default fraction of the minimum cluster split count
         //! for which we'll delete a cluster. This is intended to

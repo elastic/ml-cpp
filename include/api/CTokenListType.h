@@ -158,14 +158,14 @@ class API_EXPORT CTokenListType {
         //! only represented one string)?  Remembering this means we can ensure
         //! that the degree of commonality doesn't fall below a certain level as
         //! the number of strings classified as this type grows.
-        size_t      m_OrigUniqueTokenWeight;
+        size_t         m_OrigUniqueTokenWeight;
 
         //! Number of matched strings
-        size_t      m_NumMatches;
+        size_t         m_NumMatches;
 
         //! Cache reverse searches to save repeated recalculations
-        std::string m_ReverseSearchPart1;
-        std::string m_ReverseSearchPart2;
+        std::string    m_ReverseSearchPart1;
+        std::string    m_ReverseSearchPart2;
 };
 
 
