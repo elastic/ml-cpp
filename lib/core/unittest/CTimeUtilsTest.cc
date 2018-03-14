@@ -37,6 +37,9 @@ CppUnit::Test *CTimeUtilsTest::suite()
                                    "CTimeUtilsTest::testToLocal",
                                    &CTimeUtilsTest::testToLocal) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeUtilsTest>(
+                                   "CTimeUtilsTest::testToEpochMs",
+                                   &CTimeUtilsTest::testToEpochMs) );
+    suiteOfTests->addTest( new CppUnit::TestCaller<CTimeUtilsTest>(
                                    "CTimeUtilsTest::testStrptime",
                                    &CTimeUtilsTest::testStrptime) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CTimeUtilsTest>(
@@ -112,6 +115,14 @@ void CTimeUtilsTest::testToLocal(void)
 
         CPPUNIT_ASSERT_EQUAL(expected, strRep);
     }
+}
+
+void CTimeUtilsTest::testToEpochMs(void)
+{
+    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)), int64_t(1000));
+    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)), int64_t(-1000));
+    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)), int64_t(1521035866000));
+    CPPUNIT_ASSERT_EQUAL(ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)), int64_t(-1521035866000));
 }
 
 void CTimeUtilsTest::testStrptime(void)
