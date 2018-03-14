@@ -51,11 +51,8 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport &report)
     m_Writer.String(SNAPSHOT_DOC_COUNT);
     m_Writer.Uint64(report.s_NumDocs);
 
-    // Write as a Java timestamp - ms since the epoch rather than seconds
-    int64_t javaTimestamp = int64_t(report.s_SnapshotTimestamp) * 1000;
-
     m_Writer.String(TIMESTAMP);
-    m_Writer.Int64(javaTimestamp);
+    m_Writer.Time(report.s_SnapshotTimestamp);
 
     m_Writer.String(DESCRIPTION);
     m_Writer.String(report.s_Description);
@@ -64,17 +61,13 @@ void CModelSnapshotJsonWriter::write(const SModelSnapshotReport &report)
 
     if (report.s_LatestRecordTime > 0)
     {
-        javaTimestamp = int64_t(report.s_LatestRecordTime) * 1000;
-
         m_Writer.String(LATEST_RECORD_TIME);
-        m_Writer.Int64(javaTimestamp);
+        m_Writer.Time(report.s_LatestRecordTime);
     }
     if (report.s_LatestFinalResultTime > 0)
     {
-        javaTimestamp = int64_t(report.s_LatestFinalResultTime) * 1000;
-
         m_Writer.String(LATEST_RESULT_TIME);
-        m_Writer.Int64(javaTimestamp);
+        m_Writer.Time(report.s_LatestFinalResultTime);
     }
 
     // write normalizerState here
@@ -102,7 +95,7 @@ void CModelSnapshotJsonWriter::writeQuantileState(const std::string &jobId,
     writer.String(QUANTILE_STATE);
     writer.String(state);
     writer.String(TIMESTAMP);
-    writer.Int64(time * 1000);
+    writer.Time(time);
     writer.EndObject();
 }
 
