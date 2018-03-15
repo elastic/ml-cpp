@@ -56,12 +56,12 @@ class MODEL_EXPORT CResourceMonitor
         //! The minimum time between prunes
         static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
 
+        //! Default memory limit for resource monitor
+        static const std::size_t DEFAULT_MEMORY_LIMIT_MB;
+
     public:
         //! Default constructor
         CResourceMonitor(void);
-
-        //! Constructor with a set memory limit
-        CResourceMonitor(std::size_t limit);
 
         //! Query the resource monitor to find out if the models are
         //! taking up too much memory and further allocations should be banned
@@ -93,7 +93,7 @@ class MODEL_EXPORT CResourceMonitor
         void forceRefresh(CAnomalyDetector &detector);
 
         //! Set the internal memory limit, as specified in a limits config file
-        void memoryLimit(std::size_t limit);
+        void memoryLimit(std::size_t limitMBs);
 
         //! Get the memory status
         model_t::EMemoryStatus getMemoryStatus();
@@ -133,6 +133,11 @@ class MODEL_EXPORT CResourceMonitor
         //! Clears all extra memory
         void clearExtraMemory(void);
     private:
+
+        //! Updates the memory limit fields and the prune threshold
+        //! to the given value.
+        void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
+
         //! Update the given model and recalculate the total usage
         void memUsage(CAnomalyDetectorModel *model);
 

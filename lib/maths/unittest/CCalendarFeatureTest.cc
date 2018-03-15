@@ -102,6 +102,9 @@ void CCalendarFeatureTest::testComparison(void)
         features.insert(features.end(), fi.begin(), fi.end());
     }
 
+    std::sort(features.begin(), features.end());
+    features.erase(std::unique(features.begin(), features.end()), features.end());
+
     for (std::size_t i = 0u; i < features.size(); ++i)
     {
         CPPUNIT_ASSERT(features[i] == features[i]);

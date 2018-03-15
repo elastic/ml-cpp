@@ -218,23 +218,6 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         static const TDoubleDoublePr DEFAULT_NORMALIZED_SCORE_KNOT_POINTS[9];
         //@}
 
-        //! For priors whose support isn't the whole real line we use an
-        //! offset, which is just a translation of the prior, to extend
-        //! the range over which it is valid. This is the default offset
-        //! for the log-normal distribution prior.
-        static const double DEFAULT_LOG_NORMAL_PRIOR_OFFSET;
-        //! For priors whose support isn't the whole real line we use an
-        //! offset, which is just a translation of the prior, to extend
-        //! the range over which it is valid. This is the default offset
-        //! for the gamma distribution prior.
-        static const double DEFAULT_GAMMA_PRIOR_OFFSET;
-
-        //! For priors whose support isn't the whole real line we use an
-        //! offset, which is just a translation of the prior, to extend
-        //! the range over which it is valid. This is the default offset
-        //! for the Poisson distribution prior.
-        static const double DEFAULT_POISSON_PRIOR_OFFSET;
-
         //! The maximum number of samples we use when re-sampling a prior.
         static const std::size_t DEFAULT_RESAMPLING_MAX_SAMPLES;
 

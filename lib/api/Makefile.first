@@ -45,6 +45,8 @@ CLineifiedJsonOutputWriter.cc \
 CLineifiedXmlInputParser.cc \
 CLineifiedXmlOutputWriter.cc \
 CModelPlotDataJsonWriter.cc \
+CModelSizeStatsJsonWriter.cc \
+CModelSnapshotJsonWriter.cc \
 CNullOutput.cc \
 COutputChainer.cc \
 COutputHandler.cc \

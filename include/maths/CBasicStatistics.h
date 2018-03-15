@@ -66,6 +66,23 @@ class MATHS_EXPORT CBasicStatistics
         //! Compute the sample median.
         static double median(const TDoubleVec &dataIn);
 
+        //! Compute the maximum of \p first, \p second and \p third.
+        template<typename T>
+        static T max(T first, T second, T third)
+        {
+            return  first >= second ?
+                   (third >= first  ? third : first) :
+                   (third >= second ? third : second);
+        }
+
+        //! Compute the minimum of \p first, \p second and \p third.
+        template<typename T>
+        static T min(T first, T second, T third)
+        {
+            return  first <= second ?
+                   (third <= first  ? third : first) :
+                   (third <= second ? third : second);
+        }
 
         /////////////////////////// ACCUMULATORS ///////////////////////////
 
@@ -1479,6 +1496,12 @@ class MATHS_EXPORT CBasicStatistics
                 T max(void) const
                 {
                     return m_Max[0];
+                }
+
+                //! Get the range.
+                T range(void) const
+                {
+                    return m_Max[0] - m_Min[0];
                 }
 
                 //! Get the margin by which all the values have the same sign.

@@ -821,7 +821,7 @@ class CRegressionPrediction
 
         bool operator()(double x, double &result) const
         {
-            result = maths::CRegression::predict(m_Regression, x);
+            result = m_Regression.predict(x);
             return true;
         }
 
@@ -1102,10 +1102,12 @@ void CRegressionTest::testParameterProcess(void)
                     v += a * 0.05;
                     a += da_;
                 }
+
+                bool sufficientHistoryBeforeUpdate = regression.range() >= 1.0;
                 TVector paramsDrift(regression.parameters(t + dt));
                 regression.add(t + dt, x);
                 paramsDrift -= TVector(regression.parameters(t + dt));
-                if (regression.sufficientHistoryToPredict())
+                if (sufficientHistoryBeforeUpdate && regression.range() >= 1.0)
                 {
                     parameterProcess.add(t + dt, paramsDrift, TVector(dt));
                 }
@@ -1155,7 +1157,7 @@ void CRegressionTest::testParameterProcess(void)
     }
 
     LOG_DEBUG("error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.06);
+    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(error)) < 0.08);
 }
 
 CppUnit::Test *CRegressionTest::suite(void)

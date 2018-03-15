@@ -55,6 +55,7 @@
 #include "COrdinalTest.h"
 #include "CPackedBitVectorTest.h"
 #include "CPcaTest.h"
+#include "CPeriodicityHypothesisTestsTest.h"
 #include "CPoissonMeanConjugateTest.h"
 #include "CPriorTest.h"
 #include "CPRNGTest.h"
@@ -76,6 +77,7 @@
 #include "CTimeSeriesDecompositionTest.h"
 #include "CTimeSeriesModelTest.h"
 #include "CToolsTest.h"
+#include "CTrendComponentTest.h"
 #include "CTrendTestsTest.h"
 #include "CXMeansTest.h"
 #include "CXMeansOnlineTest.h"
@@ -134,6 +136,7 @@ int main(int argc, const char **argv)
     runner.addTest( COrdinalTest::suite() );
     runner.addTest( CPackedBitVectorTest::suite() );
     runner.addTest( CPcaTest::suite() );
+    runner.addTest( CPeriodicityHypothesisTestsTest::suite() );
     runner.addTest( CPoissonMeanConjugateTest::suite() );
     runner.addTest( CPriorTest::suite() );
     runner.addTest( CPRNGTest::suite() );
@@ -155,6 +158,7 @@ int main(int argc, const char **argv)
     runner.addTest( CTimeSeriesDecompositionTest::suite() );
     runner.addTest( CTimeSeriesModelTest::suite() );
     runner.addTest( CToolsTest::suite() );
+    runner.addTest( CTrendComponentTest::suite() );
     runner.addTest( CTrendTestsTest::suite() );
     runner.addTest( CXMeansTest::suite() );
     runner.addTest( CXMeansOnlineTest::suite() );

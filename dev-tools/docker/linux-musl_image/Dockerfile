@@ -6,8 +6,7 @@
 
 FROM alpine:3.4
 
-# This is basically automating the non-Java portion of the setup instructions at
-# https://github.com/elastic/machine-learning-cpp/wiki/Machine-Learning-Development-Setup-for-Linux
+# This is basically automating the setup instructions in build-setup/linux.md
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
@@ -16,8 +15,8 @@ RUN \
   apk update && \
   apk add bash build-base bzip2 coreutils curl diffutils file git openssl sed tar tzdata unzip which xz-libs zip zlib-dev
 
-# For compiling in C++11 mode
-ENV CXX "g++ -std=gnu++0x"
+# For compiling in C++14 mode
+ENV CXX "g++ -std=gnu++14"
 
 # Build libxml2
 RUN \
@@ -73,7 +72,7 @@ RUN \
 RUN \
   wget -q -O - http://sourceforge.mirrorservice.org/b/bo/boost/boost/1.65.1/boost_1_65_1.tar.bz2 | tar jxf - && \
   cd boost_1_65_1 && \
-  ./bootstrap.sh cxxflags=-std=gnu++0x --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu && \
+  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-libraries=test --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp && \
   ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \

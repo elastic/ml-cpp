@@ -5,17 +5,17 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM droberts195/ml-linux-build:2
+FROM droberts195/ml-linux-build:3
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
 # Copy the current Git repository into the container
-COPY . /machine-learning-cpp/
+COPY . /ml-cpp/
 
 # Pass through whether this is a snapshot build (default yes if not specified)
 ARG SNAPSHOT=yes
 
 # Run the build
 RUN \
-  /machine-learning-cpp/dev-tools/docker/docker_entrypoint.sh
+  /ml-cpp/dev-tools/docker/docker_entrypoint.sh
 

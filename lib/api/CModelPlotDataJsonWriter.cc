@@ -108,7 +108,7 @@ void CModelPlotDataJsonWriter::writeFlatRow(core_t::TTime time,
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, detectorIndex, doc);
     m_Writer.addStringFieldCopyToObj(FEATURE, feature, doc, true);
     // time is in Java format - milliseconds since the epoch
-    m_Writer.addIntFieldToObj(TIME, time * 1000, doc);
+    m_Writer.addTimeFieldToObj(TIME, time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, bucketSpan, doc);
     if (!partitionFieldName.empty())
     {

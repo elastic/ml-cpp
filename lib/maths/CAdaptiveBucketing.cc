@@ -7,22 +7,18 @@
 #include <maths/CAdaptiveBucketing.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CHashing.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
-#include <maths/COrderings.h>
-#include <maths/CRegression.h>
-#include <maths/CSeasonalTime.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
+#include <boost/bind.hpp>
 #include <boost/range.hpp>
 
 #include <algorithm>
@@ -146,53 +142,37 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n)
     return true;
 }
 
-void CAdaptiveBucketing::initialValues(core_t::TTime time, const TTimeTimePrMeanVarPrVec &values)
+void CAdaptiveBucketing::initialValues(core_t::TTime start,
+                                       core_t::TTime end,
+                                       const TFloatMeanAccumulatorVec &values)
 {
     if (!this->initialized())
     {
         return;
     }
 
-    for (std::size_t i = 0u; i < values.size(); ++i)
+    core_t::TTime size{static_cast<core_t::TTime>(values.size())};
+    core_t::TTime dT{(end - start) / size};
+    core_t::TTime dt{static_cast<core_t::TTime>(
+            CTools::truncate(m_MinimumBucketLength, 1.0, static_cast<double>(dT)))};
+
+    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
+
+    for (core_t::TTime time = start + dt/2; time < end; time += dt)
     {
-        double ai{this->offset(values[i].first.first)};
-        double bi{this->offset(values[i].first.second - 1) + 1.0};
-        const TDoubleMeanVarAccumulator &vi{values[i].second};
-
-        std::size_t n{m_Endpoints.size()};
-        if (ai < m_Endpoints[0] || bi > m_Endpoints[n-1])
+        if (this->inWindow(time))
         {
-            LOG_ERROR("t = [" << ai << "," << bi << "]"
-                      << " out of range [" << m_Endpoints[0]
-                      << "," << m_Endpoints[n-1] << ")");
-            return;
-        }
-
-        std::size_t ka(std::upper_bound(m_Endpoints.begin(),
-                                        m_Endpoints.end(), ai) - m_Endpoints.begin());
-        std::size_t kb(std::lower_bound(m_Endpoints.begin(),
-                                        m_Endpoints.end(), bi) - m_Endpoints.begin());
-
-        double length{bi - ai};
-        for (std::size_t k = ka; k <= kb; ++k)
-        {
-            double xl{m_Endpoints[k-1]};
-            double xr{m_Endpoints[k]};
-            double ak{std::max(ai, xl)};
-            double bk{std::min(bi, xr)};
-            double w{(bk - ak) / length};
-            if (w > 0.0)
+            core_t::TTime i{(time - start) / dT};
+            double value{CBasicStatistics::mean(values[i])};
+            double weight{scale * CBasicStatistics::count(values[i])};
+            if (weight > 0.0)
             {
-                TDoubleMeanVarAccumulator vk{vi};
-                vk.age(w * w);
-                double nk = CBasicStatistics::count(vk);
-
-                auto centre =  CBasicStatistics::momentsAccumulator(this->count(k-1),
-                                                                    static_cast<double>(m_Centres[k-1]))
-                             + CBasicStatistics::momentsAccumulator(nk, (ak + bk) / 2.0);
-
-                m_Centres[k-1] = CBasicStatistics::mean(centre);
-                this->add(k-1, time, xl, vk);
+                std::size_t bucket;
+                if (this->bucket(time, bucket))
+                {
+                    this->add(bucket, time, weight);
+                    this->add(bucket, time, value, weight);
+                }
             }
         }
     }

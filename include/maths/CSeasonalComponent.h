@@ -44,11 +44,9 @@ namespace maths
 class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
 {
     public:
-        typedef CBasicStatistics::SSampleMeanVar<double>::TAccumulator TMeanVarAccumulator;
-        typedef std::pair<core_t::TTime, core_t::TTime> TTimeTimePr;
-        typedef std::pair<TTimeTimePr, TMeanVarAccumulator> TTimeTimePrMeanVarPr;
-        typedef std::vector<TTimeTimePrMeanVarPr> TTimeTimePrMeanVarPrVec;
-        typedef CSymmetricMatrixNxN<double, 2> TMatrix;
+        using TMatrix = CSymmetricMatrixNxN<double, 2>;
+        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
     public:
         //! \param[in] time The time provider.
@@ -87,9 +85,9 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         bool initialized(void) const;
 
         //! Initialize the adaptive bucketing.
-        bool initialize(core_t::TTime startTime,
-                        core_t::TTime endTime,
-                        const TTimeTimePrMeanVarPrVec &values);
+        bool initialize(core_t::TTime startTime = 0,
+                        core_t::TTime endTime = 0,
+                        const TFloatMeanAccumulatorVec &values = TFloatMeanAccumulatorVec());
 
         //! Get the size of this component.
         std::size_t size(void) const;
@@ -142,16 +140,18 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         //! Get the mean value of the component.
         double meanValue(void) const;
 
-        //! Get the difference from the mean of repeats at \p period.
+        //! This computes the delta to apply to the component with \p period.
         //!
-        //! This computes the quantity:
-        //! <pre class="fragment">
-        //!    \f$\sum_i f(t + p i)\f$
-        //! </pre>
+        //! This is used to adjust the decomposition when it contains components
+        //! whose periods are divisors of one another to get the most efficient
+        //! representation.
         //!
-        //! where \f$t\f$ is \p time and \f$p\f$ is \p period and must divide
-        //! this component's period \f$P\f$. The sum ranges over \f$[P/p]\f$.
-        double differenceFromMean(core_t::TTime time, core_t::TTime period) const;
+        //! \param[in] time The time at which to compute the delta.
+        //! \param[in] shortPeriod The period of the short component.
+        //! \param[in] shortPeriodValue The short component value at \p time.
+        double delta(core_t::TTime time,
+                     core_t::TTime shortPeriod,
+                     double shortPeriodValue) const;
 
         //! Get the variance of the residual about the prediction at \p time.
         //!
@@ -167,10 +167,6 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         //! residual variance.
         double heteroscedasticity(void) const;
 
-        //! Get the variance in the prediction due to drift in the regression
-        //! model parameters expected by \p time.
-        double varianceDueToParameterDrift(core_t::TTime time) const;
-
         //! Get the covariance matrix of the regression parameters' at \p time.
         //!
         //! \param[in] time The time of interest.
@@ -185,7 +181,7 @@ class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent
         double slope(void) const;
 
         //! Check if the bucket regression models have enough history to predict.
-        bool sufficientHistoryToPredict(core_t::TTime time) const;
+        bool slopeAccurate(core_t::TTime time) const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;

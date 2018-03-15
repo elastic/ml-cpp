@@ -29,7 +29,7 @@ Finally, you need to create an alias `make` for `gnumake`.
 For example, you might create a `.bashrc` file in your home directory containing this:
 
 ```
-export CPP_SRC_HOME=$HOME/machine-learning-cpp
+export CPP_SRC_HOME=$HOME/ml-cpp
 VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC | tail -1`
 VCBINDIR=/c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/PROGRA~2/MICROS~2/2017/Professional/Common7/IDE:/c/PROGRA~2/WINDOW~4/8.0/bin/x64:/c/PROGRA~2/WINDOW~4/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
@@ -161,9 +161,9 @@ nmake install
 
 ### APR
 
-Download the Windows source for version 1.5.2 of the Apache Portable Runtime (APR) from <http://apr.apache.org/download.cgi>.
+Download the Windows source for version 1.5.2 of the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.5.2-win32-src.zip>.
 
-The file should be called `apr-1.5.2-win32-src.zip`. Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-1.5.2`. Rename this to simply `apr`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-1.5.2`. Rename this to simply `apr`.
 
 Within the files `C:\tools\apr\apr.mak` and `C:\tools\apr\libapr.mak`, globally replace:
 
@@ -189,9 +189,9 @@ nmake -f Makefile.win PREFIX=C:\usr\local ARCH="x64 Release" install
 
 ### APR iconv
 
-Download the Windows source for version 1.2.1 of the Apache Portable Runtime (APR) version of iconv from <http://apr.apache.org/download.cgi>.
+Download the Windows source for version 1.2.1 of the Apache Portable Runtime (APR) version of iconv from <http://archive.apache.org/dist/apr/apr-iconv-1.2.1-win32-src.zip>.
 
-The file should be called `apr-iconv-1.2.1-win32-src.zip`. Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-iconv-1.2.1`. Rename this to simply `apr-iconv`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-iconv-1.2.1`. Rename this to simply `apr-iconv`.
 
 Within the files `C:\tools\apr-iconv\apriconv.mak` and `C:\tools\apr-iconv\libapriconv.mak`, globally replace:
 
@@ -229,9 +229,9 @@ Note that this does not install all the iconv utilities - this will be done when
 
 ### APR util
 
-Download the Windows source for version 1.5.4 of the Apache Portable Runtime (APR) utilities from <http://apr.apache.org/download.cgi> .
+Download the Windows source for version 1.5.4 of the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.5.4-win32-src.zip>.
 
-The file should be called `apr-util-1.5.4-win32-src.zip`. Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-util-1.5.4`. Rename this to simply `apr-util`.
+Unzip the file into `C:\tools`. You should end up with a subdirectory called `apr-util-1.5.4`. Rename this to simply `apr-util`.
 
 Within the files `C:\tools\apr-util\aprutil.mak` and `C:\tools\apr-util\libaprutil.mak`, globally replace:
 

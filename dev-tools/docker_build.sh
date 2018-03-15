@@ -66,7 +66,7 @@ do
     docker build -t $TEMP_TAG --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
-    docker run --workdir=/machine-learning-cpp $TEMP_TAG tar cf - build/distributions | tar xvf -
+    docker run --workdir=/ml-cpp $TEMP_TAG tar cf - build/distributions | tar xvf -
     docker rmi --force $TEMP_TAG
 
 done

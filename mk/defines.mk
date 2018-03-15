@@ -20,10 +20,10 @@ SNAPSHOT?=yes
 # If building in one of these directories we're building within a dedicated
 # container (Docker or Vagrant), and can skip certain checks like we would under
 # Jenkins
-ifeq ($(CPP_SRC_HOME),/machine-learning-cpp)
+ifeq ($(CPP_SRC_HOME),/ml-cpp)
 JOB_NAME?=container-build
 else
-ifeq ($(CPP_SRC_HOME),C:/Users/vagrant/projects/elasticsearch-extra/machine-learning-cpp)
+ifeq ($(CPP_SRC_HOME),C:/Users/vagrant/projects/elasticsearch-extra/ml-cpp)
 JOB_NAME?=container-build
 endif
 endif

@@ -34,15 +34,15 @@ namespace maths
 class MATHS_EXPORT CDecompositionComponent
 {
     public:
-        typedef maths_t::TDoubleDoublePr TDoubleDoublePr;
-        typedef std::vector<double> TDoubleVec;
-        typedef std::vector<CFloatStorage> TFloatVec;
-        typedef CSpline<boost::reference_wrapper<const TFloatVec>,
-                        boost::reference_wrapper<const TFloatVec>,
-                        boost::reference_wrapper<const TDoubleVec> > TSplineCRef;
-        typedef CSpline<boost::reference_wrapper<TFloatVec>,
-                        boost::reference_wrapper<TFloatVec>,
-                        boost::reference_wrapper<TDoubleVec> > TSplineRef;
+        using TDoubleDoublePr = maths_t::TDoubleDoublePr;
+        using TDoubleVec = std::vector<double>;
+        using TFloatVec = std::vector<CFloatStorage>;
+        using TSplineCRef = CSpline<boost::reference_wrapper<const TFloatVec>,
+                                    boost::reference_wrapper<const TFloatVec>,
+                                    boost::reference_wrapper<const TDoubleVec>>;
+        using TSplineRef = CSpline<boost::reference_wrapper<TFloatVec>,
+                                   boost::reference_wrapper<TFloatVec>,
+                                   boost::reference_wrapper<TDoubleVec>>;
 
     public:
         //! Persist state by passing information to \p inserter.
@@ -63,9 +63,9 @@ class MATHS_EXPORT CDecompositionComponent
                 };
 
             public:
-                typedef boost::array<CSplineTypes::EType, 2> TTypeArray;
-                typedef boost::array<TFloatVec, 2> TFloatVecArray;
-                typedef boost::array<TDoubleVec, 2> TDoubleVecArray;
+                using TTypeArray = boost::array<CSplineTypes::EType, 2>;
+                using TFloatVecArray = boost::array<TFloatVec, 2>;
+                using TDoubleVecArray = boost::array<TDoubleVec, 2>;
 
             public:
                 CPackedSplines(CSplineTypes::EType valueInterpolationType,

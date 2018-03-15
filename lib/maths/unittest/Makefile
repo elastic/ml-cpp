@@ -53,7 +53,7 @@ SRCS=\
 	CMathsMemoryTest.cc \
 	CMixtureDistributionTest.cc \
 	CModelTest.cc \
-	CMultimodalPriorTest.cc\
+	CMultimodalPriorTest.cc \
 	CMultinomialConjugateTest.cc \
 	CMultivariateConstantPriorTest.cc \
 	CMultivariateMultimodalPriorTest.cc \
@@ -66,6 +66,7 @@ SRCS=\
 	COrdinalTest.cc \
 	CPackedBitVectorTest.cc \
 	CPcaTest.cc \
+	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
 	CPRNGTest.cc \
@@ -87,6 +88,7 @@ SRCS=\
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CToolsTest.cc \
+	CTrendComponentTest.cc \
 	CTrendTestsTest.cc \
 	CXMeansOnlineTest.cc \
 	CXMeansOnline1dTest.cc \

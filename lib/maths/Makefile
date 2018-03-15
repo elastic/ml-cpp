@@ -32,6 +32,7 @@ CCountMinSketch.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \
 CEntropySketch.cc \
+CExpandingWindow.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
 CGramSchmidt.cc \
@@ -68,6 +69,7 @@ COrderings.cc \
 COrdinal.cc \
 CPackedBitVector.cc \
 CPca.cc \
+CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
 CPriorStateSerialiser.cc \
@@ -87,11 +89,11 @@ CSpline.cc \
 CStatisticalTests.cc \
 CTimeSeriesDecomposition.cc \
 CTimeSeriesDecompositionDetail.cc \
-CTimeSeriesDecompositionInterface.cc \
 CTimeSeriesDecompositionStateSerialiser.cc \
 CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
 CTools.cc \
+CTrendComponent.cc \
 CTrendTests.cc \
 CXMeansOnline1d.cc \
 CXMeansOnlineFactory.cc \

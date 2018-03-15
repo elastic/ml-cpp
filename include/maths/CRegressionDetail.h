@@ -320,6 +320,13 @@ double CRegression::CLeastSquaresOnlineParameterProcess<N, T>::predictionVarianc
 }
 
 template<std::size_t N, typename T>
+typename CRegression::CLeastSquaresOnlineParameterProcess<N, T>::TMatrix
+CRegression::CLeastSquaresOnlineParameterProcess<N, T>::covariance() const
+{
+    return CBasicStatistics::covariances(m_UnitTimeCovariances);
+}
+
+template<std::size_t N, typename T>
 uint64_t CRegression::CLeastSquaresOnlineParameterProcess<N, T>::checksum(void) const
 {
     return m_UnitTimeCovariances.checksum();

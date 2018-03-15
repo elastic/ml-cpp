@@ -17,6 +17,7 @@ class CFieldDataTyperTest : public CppUnit::TestFixture
         void testNodeReverseSearch(void);
         void testPassOnControlMessages(void);
         void testHandleControlMessages(void);
+        void testRestoreStateFailsWithEmptyState(void);
 
         static CppUnit::Test *suite();
 

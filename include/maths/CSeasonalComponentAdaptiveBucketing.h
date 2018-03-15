@@ -37,7 +37,7 @@ class CSeasonalTime;
 class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucketing
 {
     public:
-        using TTimeTimePrMeanVarPrVec = CAdaptiveBucketing::TTimeTimePrMeanVarPrVec;
+        using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
         using TDoubleRegression = CRegression::CLeastSquaresOnline<1, double>;
         using TRegression = CRegression::CLeastSquaresOnline<1, CFloatStorage>;
 
@@ -79,7 +79,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! value moments.
         void initialValues(core_t::TTime startTime,
                            core_t::TTime endTime,
-                           const TTimeTimePrMeanVarPrVec &values);
+                           const TFloatMeanAccumulatorVec &values);
 
         //! Get the number of buckets.
         std::size_t size(void) const;
@@ -104,10 +104,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! \param[in] prediction The prediction for \p value.
         //! \param[in] weight The weight of function point. The smaller
         //! this is the less influence it has on the bucket.
-        void add(core_t::TTime time,
-                 double value,
-                 double prediction,
-                 double weight = 1.0);
+        void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
         //! Get the time provider.
         const CSeasonalTime &time(void) const;
@@ -156,11 +153,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         double slope(void) const;
 
         //! Check if this regression models have enough history to predict.
-        bool sufficientHistoryToPredict(core_t::TTime time) const;
-
-        //! Get the variance in the prediction due to drift in the regression
-        //! model parameters expected by \p time.
-        double varianceDueToParameterDrift(core_t::TTime time) const;
+        bool slopeAccurate(core_t::TTime time) const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -179,7 +172,7 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! Get the total count of in the bucketing.
         double count(void) const;
 
-        //! Get the bucket regressions.
+        //! Get the bucket regression predictions at \p time.
         TDoubleVec values(core_t::TTime time) const;
 
         //! Get the bucket variances.
@@ -187,10 +180,28 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //@}
 
     private:
-        using TTimeVec = std::vector<core_t::TTime>;
-        using TRegressionVec = std::vector<TRegression>;
         using TSeasonalTimePtr = boost::shared_ptr<CSeasonalTime>;
-        using TRegressionParameterProcess = CRegression::CLeastSquaresOnlineParameterProcess<2, double>;
+
+        //! \brief The state maintained for each bucket.
+        struct SBucket
+        {
+            SBucket(void);
+            SBucket(const TRegression &regression,
+                    double variance,
+                    core_t::TTime firstUpdate,
+                    core_t::TTime lastUpdate);
+
+            bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+            void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
+
+            uint64_t checksum(uint64_t seed) const;
+
+            TRegression s_Regression;
+            CFloatStorage s_Variance;
+            core_t::TTime s_FirstUpdate;
+            core_t::TTime s_LastUpdate;
+        };
+        using TBucketVec = std::vector<SBucket>;
 
     private:
         //! Restore by traversing a state document
@@ -204,11 +215,11 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! \param[in] endpoints The old end points.
         void refresh(const TFloatVec &endpoints);
 
+        //! Check if \p time is in the this component's window.
+        virtual bool inWindow(core_t::TTime time) const;
+
         //! Add the function value at \p time.
-        virtual void add(std::size_t bucket,
-                         core_t::TTime time,
-                         double offset,
-                         const TDoubleMeanVarAccumulator &value);
+        virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight);
 
         //! Get the offset w.r.t. the start of the bucketing of \p time.
         virtual double offset(core_t::TTime time) const;
@@ -222,28 +233,15 @@ class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing : private CAdaptiveBucket
         //! Get the variance of \p bucket.
         virtual double variance(std::size_t bucket) const;
 
-        //! Get the age of the bucketing at \p time.
-        double bucketingAgeAt(core_t::TTime time) const;
+        //! Get the interval which has been observed at \p time.
+        double observedInterval(core_t::TTime time) const;
 
     private:
         //! The time provider.
         TSeasonalTimePtr m_Time;
 
-        //! The time that the bucketing was initialized.
-        core_t::TTime m_InitialTime;
-
-        //! The bucket regressions.
-        TRegressionVec m_Regressions;
-
-        //! The bucket variances.
-        TFloatVec m_Variances;
-
-        //! The time that the regressions were last updated.
-        TTimeVec m_LastUpdates;
-
-        //! The Wiener process which describes the evolution of the
-        //! regression model parameters.
-        TRegressionParameterProcess m_ParameterProcess;
+        //! The buckets.
+        TBucketVec m_Buckets;
 };
 
 //! Create a free function which will be found by Koenig lookup.

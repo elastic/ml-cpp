@@ -83,7 +83,7 @@ struct SClusterCentreLess
 };
 
 //! Get \p x time \p x.
-double square(double x)
+double pow2(double x)
 {
     return x * x;
 }
@@ -103,16 +103,11 @@ logLikelihoodFromCluster(double point,
 {
     result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
-    static const maths_t::TWeightStyleVec COUNT_WEIGHT(1, maths_t::E_SampleCountWeight);
-    static const TDouble4Vec1Vec UNIT_WEIGHT(1, TDouble4Vec(1, 1.0));
-
     double likelihood;
 
     maths_t::EFloatingPointErrorStatus status =
-        normal.jointLogMarginalLikelihood(COUNT_WEIGHT,
-                                          TDouble1Vec(1, point),
-                                          UNIT_WEIGHT,
-                                          likelihood);
+        normal.jointLogMarginalLikelihood(CConstantWeights::COUNT, {point},
+                                          CConstantWeights::SINGLE_UNIT, likelihood);
     if (status & maths_t::E_FpFailed)
     {
         LOG_ERROR("Unable to compute likelihood for: " << point);
@@ -258,12 +253,15 @@ void BICGain(maths_t::EDataType dataType,
     TMeanVarAccumulator mvl;
     TMeanVarAccumulator mvr;
     candidates(categories, start, split, end, mv, mvl, mvr);
-    double offset = std::max(0.0, 0.2 - smallest);
+    double logNormalOffset = std::max(0.0, GAMMA_OFFSET_MARGIN - smallest);
+    double gammaOffset = std::max(0.0, LOG_NORMAL_OFFSET_MARGIN - smallest);
     for (std::size_t i = start; i < end; ++i)
     {
-        offset = std::max(offset, 0.2 - mean(dataType, categories[i]));
+        double x = mean(dataType, categories[i]);
+        logNormalOffset = std::max(logNormalOffset, LOG_NORMAL_OFFSET_MARGIN - x);
+        gammaOffset = std::max(gammaOffset, GAMMA_OFFSET_MARGIN - x);
     }
-    LOG_TRACE("offset = " << offset);
+    LOG_TRACE("offsets = [" << gammaOffset << "," << logNormalOffset << "]");
 
     distance = 0.0;
     nl = CBasicStatistics::count(mvl);
@@ -271,9 +269,9 @@ void BICGain(maths_t::EDataType dataType,
 
     // Compute the BIC gain for splitting the mode.
 
-    double ll1n = 0.0;
-    double ll1l = 0.0;
-    double ll1g = 0.0;
+    double ll1n  = 0.0;
+    double ll1l  = 0.0;
+    double ll1g  = 0.0;
     double ll2nl = 0.0;
     double ll2ll = 0.0;
     double ll2gl = 0.0;
@@ -291,13 +289,14 @@ void BICGain(maths_t::EDataType dataType,
     }
 
     // Log-normal (method of moments)
-    double s = ::log(1.0 + v / square(m + offset));
-    double l = ::log(m + offset) - s / 2.0;
+    double s = ::log(1.0 + v / pow2(m + logNormalOffset));
+    double l = ::log(m + logNormalOffset) - s / 2.0;
     // Gamma (method of moments)
-    double a = square(m + offset) / v;
-    double b = (m + offset) / v;
+    double a = pow2(m + gammaOffset) / v;
+    double b = (m + gammaOffset) / v;
 
-    double vmin = std::min(MIN_RELATIVE_VARIANCE * v, MIN_ABSOLUTE_VARIANCE);
+    double smin = std::max(logNormalOffset, gammaOffset);
+    double vmin = std::min(MIN_RELATIVE_VARIANCE * std::max(v, pow2(smin)), MIN_ABSOLUTE_VARIANCE);
 
     // Mixture of normals
     double wl = CBasicStatistics::count(mvl) / n;
@@ -310,23 +309,23 @@ void BICGain(maths_t::EDataType dataType,
     try
     {
         // Mixture of log-normals (method of moments)
-        double sl = ::log(1.0 + vl / square(ml + offset));
-        double ll = ::log(ml + offset) - sl / 2.0;
-        double sr = ::log(1.0 + vr / square(mr + offset));
-        double lr = ::log(mr + offset) - sr / 2.0;
+        double sl = ::log(1.0 + vl / pow2(ml + logNormalOffset));
+        double ll = ::log(ml + logNormalOffset) - sl / 2.0;
+        double sr = ::log(1.0 + vr / pow2(mr + logNormalOffset));
+        double lr = ::log(mr + logNormalOffset) - sr / 2.0;
         // Mixture of gammas (method of moments)
-        double al = square(ml + offset) / vl;
-        double bl = (ml + offset) / vl;
-        double ar = square(mr + offset) / vr;
-        double br = (mr + offset) / vr;
+        double al = pow2(ml + gammaOffset) / vl;
+        double bl = (ml + gammaOffset) / vl;
+        double ar = pow2(mr + gammaOffset) / vr;
+        double br = (mr + gammaOffset) / vr;
 
         double log2piv  = ::log(boost::math::double_constants::two_pi * v);
         double log2pis  = ::log(boost::math::double_constants::two_pi * s);
         double loggn    = boost::math::lgamma(a) - a * ::log(b);
-        double log2pivl = ::log(boost::math::double_constants::two_pi * vl / square(wl));
-        double log2pivr = ::log(boost::math::double_constants::two_pi * vr / square(wr));
-        double log2pisl = ::log(boost::math::double_constants::two_pi * sl / square(wl));
-        double log2pisr = ::log(boost::math::double_constants::two_pi * sr / square(wr));
+        double log2pivl = ::log(boost::math::double_constants::two_pi * vl / pow2(wl));
+        double log2pivr = ::log(boost::math::double_constants::two_pi * vr / pow2(wr));
+        double log2pisl = ::log(boost::math::double_constants::two_pi * sl / pow2(wl));
+        double log2pisr = ::log(boost::math::double_constants::two_pi * sr / pow2(wr));
         double loggnl   = boost::math::lgamma(al) - al * ::log(bl) - ::log(wl);
         double loggnr   = boost::math::lgamma(ar) - ar * ::log(br) - ::log(wr);
 
@@ -338,24 +337,24 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + offset);
-                ll1n  += ni * ((vi + square(mi - m)) / v + log2piv);
-                ll1l  += ni * (square(li - l) / s + 2.0 * li + log2pis);
-                ll1g  += ni * 2.0 * (b * (mi + offset) - (a - 1.0) * li + loggn);
-                ll2nl += ni * ((vi + square(mi - ml)) / vl + log2pivl);
-                ll2ll += ni * (square(li - ll) / sl + 2.0 * li + log2pisl);
-                ll2gl += ni * 2.0 * (bl * (mi + offset) - (al - 1.0) * li + loggnl);
+                double li = ::log(mi + logNormalOffset);
+                ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
+                ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
+                ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
+                ll2nl += ni * ((vi + pow2(mi - ml)) / vl + log2pivl);
+                ll2ll += ni * (pow2(li - ll) / sl + 2.0 * li + log2pisl);
+                ll2gl += ni * 2.0 * (bl * (mi + gammaOffset) - (al - 1.0) * li + loggnl);
             }
             else
             {
-                double si = ::log(1.0 + vi / square(mi + offset));
-                double li = ::log(mi + offset) - si / 2.0;
-                ll1n  += ni * ((vi + square(mi - m)) / v + log2piv);
-                ll1l  += ni * ((si + square(li - l)) / s + 2.0 * li + log2pis);
-                ll1g  += ni * 2.0 * (b * (mi + offset) - (a - 1.0) * li + loggn);
-                ll2nl += ni * ((vi + square(mi - ml)) / vl + log2pivl);
-                ll2ll += ni * ((si + square(li - ll)) / sl + 2.0 * li + log2pisl);
-                ll2gl += ni * 2.0 * (bl * (mi + offset) - (al - 1.0) * li + loggnl);
+                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
+                ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
+                ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
+                ll2nl += ni * ((vi + pow2(mi - ml)) / vl + log2pivl);
+                ll2ll += ni * ((si + pow2(li - ll)) / sl + 2.0 * li + log2pisl);
+                ll2gl += ni * 2.0 * (bl * (mi + gammaOffset) - (al - 1.0) * li + loggnl);
             }
         }
 
@@ -367,24 +366,24 @@ void BICGain(maths_t::EDataType dataType,
 
             if (vi == 0.0)
             {
-                double li = ::log(mi + offset);
-                ll1n  += ni * ((vi + square(mi - m)) / v + log2piv);
-                ll1l  += ni * (square(li - l) / s + 2.0 * li + log2pis);
-                ll1g  += ni * 2.0 * (b * (mi + offset) - (a - 1.0) * li + loggn);
-                ll2nr += ni * ((vi + square(mi - mr)) / vr + log2pivr);
-                ll2lr += ni * (square(li - lr) / sr + 2.0 * li + log2pisr);
-                ll2gr += ni * 2.0 * (br * (mi + offset) - (ar - 1.0) * li + loggnr);
+                double li = ::log(mi + logNormalOffset);
+                ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
+                ll1l  += ni * (pow2(li - l) / s + 2.0 * li + log2pis);
+                ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
+                ll2nr += ni * ((vi + pow2(mi - mr)) / vr + log2pivr);
+                ll2lr += ni * (pow2(li - lr) / sr + 2.0 * li + log2pisr);
+                ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
             }
             else
             {
-                double si = ::log(1.0 + vi / square(mi + offset));
-                double li = ::log(mi + offset) - si / 2.0;
-                ll1n  += ni * ((vi + square(mi - m)) / v + log2piv);
-                ll1l  += ni * ((si + square(li - l)) / s + 2.0 * li + log2pis);
-                ll1g  += ni * 2.0 * (b * (mi + offset) - (a - 1.0) * li + loggn);
-                ll2nr += ni * ((vi + square(mi - mr)) / vr + log2pivr);
-                ll2lr += ni * ((si + square(li - lr)) / sr + 2.0 * li + log2pisr);
-                ll2gr += ni * 2.0 * (br * (mi + offset) - (ar - 1.0) * li + loggnr);
+                double si = ::log(1.0 + vi / pow2(mi + logNormalOffset));
+                double li = ::log(mi + logNormalOffset) - si / 2.0;
+                ll1n  += ni * ((vi + pow2(mi - m)) / v + log2piv);
+                ll1l  += ni * ((si + pow2(li - l)) / s + 2.0 * li + log2pis);
+                ll1g  += ni * 2.0 * (b * (mi + gammaOffset) - (a - 1.0) * li + loggn);
+                ll2nr += ni * ((vi + pow2(mi - mr)) / vr + log2pivr);
+                ll2lr += ni * ((si + pow2(li - lr)) / sr + 2.0 * li + log2pisr);
+                ll2gr += ni * 2.0 * (br * (mi + gammaOffset) - (ar - 1.0) * li + loggnr);
             }
         }
     }
