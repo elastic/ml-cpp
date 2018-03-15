@@ -27,6 +27,7 @@
 #include <functional>
 #include <list>
 
+class CBackgroundPersisterTest;
 
 namespace ml
 {
@@ -177,6 +178,9 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
     // Allow the background thread to access the member variables of the owning
     // object
     friend class CBackgroundThread;
+
+    // For testing
+    friend class ::CBackgroundPersisterTest;
 };
 
 
