@@ -100,7 +100,7 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
 
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -122,14 +122,14 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
 
 bool CBackgroundPersister::startPersist(void)
 {
-    if (m_PersistFuncs.empty())
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy())
     {
         return false;
     }
 
-    core::CScopedFastLock lock(m_Mutex);
-
-    if (m_IsBusy)
+    if (m_PersistFuncs.empty())
     {
         return false;
     }
@@ -154,7 +154,7 @@ bool CBackgroundPersister::clear(void)
 {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -168,7 +168,7 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
 {
     core::CScopedFastLock lock(m_Mutex);
 
-    if (m_IsBusy)
+    if (this->isBusy())
     {
         return false;
     }
@@ -232,8 +232,8 @@ CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister 
 
 void CBackgroundPersister::CBackgroundThread::run(void)
 {
-    core::CScopedFastLock lock(m_Owner.m_Mutex);
-
+    // The isBusy check will prevent concurrent access to
+    // m_Owner.m_PersistFuncs here
     while (!m_Owner.m_PersistFuncs.empty())
     {
         if (!m_Owner.m_IsShutdown)
@@ -243,6 +243,7 @@ void CBackgroundPersister::CBackgroundThread::run(void)
         m_Owner.m_PersistFuncs.pop_front();
     }
 
+    core::CScopedFastLock lock(m_Owner.m_Mutex);
     m_Owner.m_IsBusy = false;
 }
 
