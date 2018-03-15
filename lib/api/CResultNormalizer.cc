@@ -107,7 +107,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap &dataRowFields)
     {
         const model::CAnomalyScore::CNormalizer *levelNormalizer = 0;
         double score = probability > m_ModelConfig.maximumAnomalousProbability() ?
-                0.0 : maths::CTools::deviation(probability);
+                0.0 : maths::CTools::anomalyScore(probability);
         if (level == ROOT_LEVEL)
         {
             levelNormalizer = &m_Normalizer.bucketNormalizer();

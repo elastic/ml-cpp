@@ -1130,7 +1130,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample(void)
     }
 }
 
-void CToolsTest::testDeviation(void)
+void CToolsTest::testAnomalyScore(void)
 {
     LOG_DEBUG("+-----------------------------+");
     LOG_DEBUG("|  CToolsTest::testDeviation  |");
@@ -1141,9 +1141,9 @@ void CToolsTest::testDeviation(void)
     double p = 0.04;
     for (std::size_t i = 0u; i < 305; ++i, p *= 0.1)
     {
-        double deviation = CTools::deviation(p);
-        LOG_DEBUG("p = " << p << ", deviation = " << deviation);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(p, CTools::inverseDeviation(deviation), 1e-3 * p);
+        double anomalyScore = CTools::anomalyScore(p);
+        LOG_DEBUG("p = " << p << ", anomalyScore = " << anomalyScore);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
     }
 }
 
@@ -1328,8 +1328,8 @@ CppUnit::Test *CToolsTest::suite(void)
                                    "CToolsTest::testMixtureProbabilityOfLessLikelySample",
                                    &CToolsTest::testMixtureProbabilityOfLessLikelySample) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CToolsTest>(
-                                   "CToolsTest::testDeviation",
-                                   &CToolsTest::testDeviation) );
+                                   "CToolsTest::testAnomalyScore",
+                                   &CToolsTest::testAnomalyScore) );
     suiteOfTests->addTest( new CppUnit::TestCaller<CToolsTest>(
                                    "CToolsTest::testSpread",
                                    &CToolsTest::testSpread) );

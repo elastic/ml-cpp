@@ -554,14 +554,14 @@ void CTimeSeriesAnomalyModel::probability(const CModelProbabilityParams &params,
             double alpha{0.5 * std::min(  (logp - LOG_LARGEST_ANOMALOUS_PROBABILITY)
                                         / (LOG_SMALL_PROBABILITY - LOG_LARGEST_ANOMALOUS_PROBABILITY), 1.0)};
             double pGivenAnomalous{(pl + pu) / 2.0};
-            double pScore{CTools::deviation(probability)};
-            double pScoreGivenAnomalous{CTools::deviation(pGivenAnomalous)};
+            double pScore{CTools::anomalyScore(probability)};
+            double pScoreGivenAnomalous{CTools::anomalyScore(pGivenAnomalous)};
             LOG_TRACE("features = " << features
                       << " score(.) = " << pScore
                       << " score(.|anomalous) = " << pScoreGivenAnomalous
                       << " p = " << probability);
-            probability = std::min(CTools::inverseDeviation( (1.0 - alpha) * pScore
-                                                            + alpha * pScoreGivenAnomalous),
+            probability = std::min(CTools::inverseAnomalyScore( (1.0 - alpha) * pScore
+                                                                + alpha * pScoreGivenAnomalous),
                                    LARGEST_ANOMALOUS_PROBABILITY);
         }
     }

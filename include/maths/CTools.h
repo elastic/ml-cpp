@@ -371,9 +371,9 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         static double safeCdfComplement(const chi_squared &chi2, double x);
         //@}
 
-        //! Compute the deviation from the probability of seeing a more
-        //! extreme event for a distribution, i.e. for a sample \f$x\f$
-        //! from a R.V. the probability \f$P(R)\f$ of the set:
+        //! Compute the anomalousness from the probability of seeing a
+        //! more extreme event for a distribution, i.e. for a sample
+        //! \f$x\f$ from a R.V. the probability \f$P(R)\f$ of the set:
         //! <pre class="fragment">
         //!   \f$ R = \{y\ |\ f(y) \leq f(x)\} \f$
         //! </pre>
@@ -382,10 +382,10 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //! This is a monotonically decreasing function of \f$P(R)\f$ and
         //! is chosen so that for \f$P(R)\f$ near one it is zero and as
         //! \f$P(R) \rightarrow 0\f$ it saturates at 100.
-        static double deviation(double p);
+        static double anomalyScore(double p);
 
-        //! The inverse of the deviation function.
-        static double inverseDeviation(double deviation);
+        //! The inverse of the anomalyScore function.
+        static double inverseAnomalyScore(double deviation);
 
         //! \name Differential Entropy
         //! Compute the differential entropy of the specified distribution.\n\n
