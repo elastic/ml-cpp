@@ -45,7 +45,8 @@ const char PAIR_DELIMITER(';');
 }
 
 CCountMinSketch::CCountMinSketch(std::size_t rows, std::size_t columns)
-    : m_Rows(rows), m_Columns(columns), m_TotalCount(0.0), m_Sketch(TUInt32FloatPrVec()) {}
+    : m_Rows(rows), m_Columns(columns), m_TotalCount(0.0), m_Sketch(TUInt32FloatPrVec()) {
+}
 
 CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
     : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {

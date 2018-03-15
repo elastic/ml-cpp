@@ -81,7 +81,8 @@ CProcess::CProcess(void)
       m_Initialised(false),
       m_Running(false),
       m_MlMainFunc(0),
-      m_ServiceHandle(0) {}
+      m_ServiceHandle(0) {
+}
 
 CProcess& CProcess::instance(void) {
     static CProcess instance;

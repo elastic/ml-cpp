@@ -45,7 +45,8 @@ SAttributeProbability::SAttributeProbability(void)
     : s_Cid(0),
       s_Probability(1.0),
       s_Type(model_t::CResultType::E_Unconditional),
-      s_Feature(model_t::E_IndividualCountByBucketAndPerson) {}
+      s_Feature(model_t::E_IndividualCountByBucketAndPerson) {
+}
 
 SAttributeProbability::SAttributeProbability(std::size_t cid,
                                              const core::CStoredStringPtr& attribute,
@@ -60,7 +61,8 @@ SAttributeProbability::SAttributeProbability(std::size_t cid,
       s_Type(type),
       s_Feature(feature),
       s_CorrelatedAttributes(correlatedAttributes),
-      s_Correlated(correlated) {}
+      s_Correlated(correlated) {
+}
 
 bool SAttributeProbability::operator<(const SAttributeProbability& other) const {
     return maths::COrderings::lexicographical_compare(s_Probability,
@@ -153,10 +155,12 @@ void SAttributeProbability::addDescriptiveData(annotated_probability::EDescripti
 }
 
 SAnnotatedProbability::SAnnotatedProbability(void)
-    : s_Probability(1.0), s_ResultType(model_t::CResultType::E_Final) {}
+    : s_Probability(1.0), s_ResultType(model_t::CResultType::E_Final) {
+}
 
 SAnnotatedProbability::SAnnotatedProbability(double p)
-    : s_Probability(p), s_ResultType(model_t::CResultType::E_Final) {}
+    : s_Probability(p), s_ResultType(model_t::CResultType::E_Final) {
+}
 
 void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescriptiveData key,
                                                double value) {

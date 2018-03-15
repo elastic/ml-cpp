@@ -103,7 +103,8 @@ inverseQuadraticProduct(double x, double centre1, double centre2, double scale1,
 }
 }
 
-CRadialBasisFunction::~CRadialBasisFunction(void) {}
+CRadialBasisFunction::~CRadialBasisFunction(void) {
+}
 
 CGaussianBasisFunction* CGaussianBasisFunction::clone(void) const {
     return new CGaussianBasisFunction();

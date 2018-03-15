@@ -371,7 +371,8 @@ const TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 //////// SMessage ////////
 
 CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::TTime lastTime)
-    : s_Time{time}, s_LastTime{lastTime} {}
+    : s_Time{time}, s_LastTime{lastTime} {
+}
 
 //////// SAddValue ////////
 
@@ -394,7 +395,8 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
       s_Seasonal{seasonal},
       s_Calendar{calendar},
       s_Predictor{predictor},
-      s_PeriodicityTestConfig{periodicityTestConfig} {}
+      s_PeriodicityTestConfig{periodicityTestConfig} {
+}
 
 //////// SDetectedSeasonal ////////
 
@@ -404,34 +406,43 @@ CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor)
-    : SMessage{time, lastTime}, s_Result{result}, s_Window{window}, s_Predictor{predictor} {}
+    : SMessage{time, lastTime}, s_Result{result}, s_Window{window}, s_Predictor{predictor} {
+}
 
 //////// SDetectedCalendar ////////
 
 CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(core_t::TTime time,
                                                                      core_t::TTime lastTime,
                                                                      CCalendarFeature feature)
-    : SMessage{time, lastTime}, s_Feature{feature} {}
+    : SMessage{time, lastTime}, s_Feature{feature} {
+}
 
 //////// SNewComponent ////////
 
 CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime time,
                                                                core_t::TTime lastTime,
                                                                EComponent component)
-    : SMessage{time, lastTime}, s_Component{component} {}
+    : SMessage{time, lastTime}, s_Component{component} {
+}
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler(void) : m_Mediator{0} {}
-CTimeSeriesDecompositionDetail::CHandler::~CHandler(void) {}
+CTimeSeriesDecompositionDetail::CHandler::CHandler(void) : m_Mediator{0} {
+}
+CTimeSeriesDecompositionDetail::CHandler::~CHandler(void) {
+}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue& /*message*/) {}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue& /*message*/) {
+}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedSeasonal& /*message*/) {}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedSeasonal& /*message*/) {
+}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedCalendar& /*message*/) {}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedCalendar& /*message*/) {
+}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SNewComponents& /*message*/) {}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SNewComponents& /*message*/) {
+}
 
 void CTimeSeriesDecompositionDetail::CHandler::mediator(CMediator* mediator) {
     m_Mediator = mediator;
@@ -477,7 +488,8 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayR
                                                 ? PT_NOT_TESTING
                                                 : PT_INITIAL)},
       m_DecayRate{decayRate},
-      m_BucketLength{bucketLength} {}
+      m_BucketLength{bucketLength} {
+}
 
 CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriodicityTest& other)
     : m_Machine{other.m_Machine},
@@ -762,13 +774,15 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
                                             CC_TRANSITION_FUNCTION,
                                             bucketLength > DAY ? CC_NOT_TESTING : CC_INITIAL)},
       m_DecayRate{decayRate},
-      m_LastMonth{} {}
+      m_LastMonth{} {
+}
 
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest& other)
     : m_Machine{other.m_Machine},
       m_DecayRate{other.m_DecayRate},
       m_LastMonth{other.m_LastMonth},
-      m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : 0} {}
+      m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : 0} {
+}
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(
     core::CStateRestoreTraverser& traverser) {
@@ -967,7 +981,8 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate,
       m_CalendarComponentSize{seasonalComponentSize / 3},
       m_Trend{decayRate},
       m_UsingTrendForPrediction{false},
-      m_Watcher{0} {}
+      m_Watcher{0} {
+}
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
     : m_Machine{other.m_Machine},
@@ -982,7 +997,8 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_Moments{other.m_Moments},
       m_MomentsMinusTrend{other.m_MomentsMinusTrend},
       m_UsingTrendForPrediction{other.m_UsingTrendForPrediction},
-      m_Watcher{0} {}
+      m_Watcher{0} {
+}
 
 bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
     core::CStateRestoreTraverser& traverser) {

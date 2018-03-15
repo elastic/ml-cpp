@@ -217,7 +217,8 @@ namespace lasso_logistic_regression_detail {
 
 ////// CDenseMatrix //////
 
-CDenseMatrix::CDenseMatrix(void) {}
+CDenseMatrix::CDenseMatrix(void) {
+}
 
 CDenseMatrix::CDenseMatrix(TDoubleVecVec& elements) {
     m_Elements.swap(elements);
@@ -229,7 +230,8 @@ void CDenseMatrix::swap(CDenseMatrix& other) {
 
 ////// CSparseMatrix //////
 
-CSparseMatrix::CSparseMatrix(void) : m_Rows(0), m_Columns(0) {}
+CSparseMatrix::CSparseMatrix(void) : m_Rows(0), m_Columns(0) {
+}
 
 CSparseMatrix::CSparseMatrix(std::size_t rows,
                              std::size_t columns,
@@ -248,7 +250,8 @@ void CSparseMatrix::swap(CSparseMatrix& other) {
 ////// CCyclicCoordinateDescent //////
 
 CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, double eps)
-    : m_MaxIterations(maxIterations), m_Eps(eps) {}
+    : m_MaxIterations(maxIterations), m_Eps(eps) {
+}
 
 template <typename MATRIX>
 bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x,
@@ -361,7 +364,8 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
 
 ////// CLogisticRegressionModel //////
 
-CLogisticRegressionModel::CLogisticRegressionModel(void) : m_Beta0(0.0), m_Beta() {}
+CLogisticRegressionModel::CLogisticRegressionModel(void) : m_Beta0(0.0), m_Beta() {
+}
 
 CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta)
     : m_Beta0(beta0), m_Beta() {
@@ -647,7 +651,8 @@ private:
 
 template <typename STORAGE>
 CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void)
-    : m_X(), m_D(0), m_Y(), m_Lambda(1.0), m_Beta() {}
+    : m_X(), m_D(0), m_Y(), m_Lambda(1.0), m_Beta() {
+}
 
 template <typename STORAGE>
 template <typename MATRIX>

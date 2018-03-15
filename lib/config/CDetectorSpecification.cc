@@ -524,6 +524,7 @@ CDetectorSpecification::SParamScores::SParamScores(core_t::TTime bucketLength,
     : s_BucketLength(bucketLength),
       s_IgnoreEmpty(ignoreEmpty),
       s_Score(score),
-      s_Descriptions(descriptions) {}
+      s_Descriptions(descriptions) {
+}
 }
 }

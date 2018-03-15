@@ -72,7 +72,8 @@ const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
 
 ////// SEventRateFeatureData //////
 
-SEventRateFeatureData::SEventRateFeatureData(uint64_t count) : s_Count(count) {}
+SEventRateFeatureData::SEventRateFeatureData(uint64_t count) : s_Count(count) {
+}
 
 void SEventRateFeatureData::swap(SEventRateFeatureData& other) {
     std::swap(s_Count, other.s_Count);
@@ -119,7 +120,8 @@ SMetricFeatureData::SMetricFeatureData(core_t::TTime bucketTime,
 SMetricFeatureData::SMetricFeatureData(bool isInteger,
                                        bool isNonNegative,
                                        const TSampleVec& samples)
-    : s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {}
+    : s_IsInteger(isInteger), s_IsNonNegative(isNonNegative), s_Samples(samples) {
+}
 
 std::string SMetricFeatureData::print() const {
     std::ostringstream result;

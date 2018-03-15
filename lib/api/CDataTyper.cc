@@ -21,9 +21,11 @@ namespace api {
 const CDataTyper::TStrStrUMap CDataTyper::EMPTY_FIELDS;
 
 CDataTyper::CDataTyper(const std::string& fieldName)
-    : m_FieldName(fieldName), m_LastPersistTime(0) {}
+    : m_FieldName(fieldName), m_LastPersistTime(0) {
+}
 
-CDataTyper::~CDataTyper(void) {}
+CDataTyper::~CDataTyper(void) {
+}
 
 int CDataTyper::computeType(bool isDryRun, const std::string& str, size_t rawStringLen) {
     return this->computeType(isDryRun, EMPTY_FIELDS, str, rawStringLen);

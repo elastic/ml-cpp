@@ -37,7 +37,8 @@ const std::string MEDIAN_TAG("c");
 const std::string VALUES_PER_OVERFIELD_TAG("d");
 }
 
-CModelPlotData::CModelPlotData(void) : m_Time(0) {}
+CModelPlotData::CModelPlotData(void) : m_Time(0) {
+}
 
 CModelPlotData::CModelPlotData(core_t::TTime time,
                                const std::string& partitionFieldName,
@@ -52,16 +53,16 @@ CModelPlotData::CModelPlotData(core_t::TTime time,
       m_OverFieldName(overFieldName),
       m_ByFieldName(byFieldName),
       m_BucketSpan(bucketSpan),
-      m_DetectorIndex(detectorIndex) {}
+      m_DetectorIndex(detectorIndex) {
+}
 
 CModelPlotData::SByFieldData::SByFieldData(void)
-    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {}
+    : s_LowerBound(0.0), s_UpperBound(0.0), s_Median(0.0), s_ValuesPerOverField() {
+}
 
 CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound, double median)
-    : s_LowerBound(lowerBound),
-      s_UpperBound(upperBound),
-      s_Median(median),
-      s_ValuesPerOverField() {}
+    : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median), s_ValuesPerOverField() {
+}
 
 void CModelPlotData::SByFieldData::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {

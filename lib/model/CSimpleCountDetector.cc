@@ -43,7 +43,8 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
 }
 
 CSimpleCountDetector::CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other)
-    : CAnomalyDetector(isForPersistence, other) {}
+    : CAnomalyDetector(isForPersistence, other) {
+}
 
 bool CSimpleCountDetector::isSimpleCount(void) const {
     return true;

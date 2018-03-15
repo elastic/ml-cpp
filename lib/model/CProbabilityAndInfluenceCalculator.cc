@@ -550,7 +550,8 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
       m_InfluenceCalculator(0),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-      m_ProbabilityCache(0) {}
+      m_ProbabilityCache(0) {
+}
 
 bool CProbabilityAndInfluenceCalculator::empty(void) const {
     return m_Probability.empty();
@@ -895,7 +896,8 @@ CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields& 
       s_Probability(1.0),
       s_PartitioningFields(partitioningFields),
       s_Cutoff(1.0),
-      s_IncludeCutoff(false) {}
+      s_IncludeCutoff(false) {
+}
 
 std::string CProbabilityAndInfluenceCalculator::SParams::describe(void) const {
     return core::CContainerPrinter::print(s_Value) + " | feature = " + model_t::print(s_Feature) +
@@ -911,7 +913,8 @@ CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(
       s_Probability(1.0),
       s_PartitioningFields(partitioningFields),
       s_Cutoff(1.0),
-      s_IncludeCutoff(false) {}
+      s_IncludeCutoff(false) {
+}
 
 std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void) const {
     return core::CContainerPrinter::print(s_Values) + " | feature = " + model_t::print(s_Feature) +
@@ -921,7 +924,8 @@ std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void)
 
 ////// CInfluenceCalculator //////
 
-CInfluenceCalculator::~CInfluenceCalculator(void) {}
+CInfluenceCalculator::~CInfluenceCalculator(void) {
+}
 
 double CInfluenceCalculator::intersectionInfluence(double logp, double logpi) {
     return maths::CTools::truncate(ratio(logpi, logp, 1.0), 0.0, 1.0);

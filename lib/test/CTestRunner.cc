@@ -66,7 +66,8 @@ CTestRunner::CTestRunner(int argc, const char** argv) {
     this->processCmdLine(argc, argv);
 }
 
-CTestRunner::~CTestRunner(void) {}
+CTestRunner::~CTestRunner(void) {
+}
 
 void CTestRunner::processCmdLine(int argc, const char** argv) {
     std::string exeName(argv[0]);

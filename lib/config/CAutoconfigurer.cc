@@ -157,7 +157,8 @@ private:
 //////// CAutoconfigurer ////////
 
 CAutoconfigurer::CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter)
-    : m_Impl(new CAutoconfigurerImpl(params, reportWriter)) {}
+    : m_Impl(new CAutoconfigurerImpl(params, reportWriter)) {
+}
 
 void CAutoconfigurer::newOutputStream(void) {
     m_Impl->reportWriter().newOutputStream();
@@ -201,7 +202,8 @@ CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params,
       m_FieldRolePenalties(m_Params),
       m_DetectorPenalties(m_Params, m_FieldRolePenalties),
       m_GeneratedCandidateFieldNames(false),
-      m_ReportWriter(reportWriter) {}
+      m_ReportWriter(reportWriter) {
+}
 
 bool CAutoconfigurerImpl::handleRecord(const TStrStrUMap& fieldValues) {
     ++m_NumberRecords;

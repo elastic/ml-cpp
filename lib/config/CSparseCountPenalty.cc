@@ -72,7 +72,8 @@ const uint64_t MINIMUM_BUCKETS_TO_TEST = 20;
 const bool IGNORE_EMPTY[] = {false, true};
 }
 
-CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {}
+CSparseCountPenalty::CSparseCountPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
+}
 
 CSparseCountPenalty* CSparseCountPenalty::clone(void) const {
     return new CSparseCountPenalty(*this);

@@ -1088,6 +1088,7 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
 
 CEventRatePopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime)
-    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {}
+    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {
+}
 }
 }

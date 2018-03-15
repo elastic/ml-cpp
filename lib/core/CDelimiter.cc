@@ -29,7 +29,8 @@ CDelimiter::CDelimiter(void)
       m_HaveFollowingRegex(false),
       m_WaiveFollowingRegexAfterTime(false),
       m_Quote('\0'),
-      m_Escape('\0') {}
+      m_Escape('\0') {
+}
 
 CDelimiter::CDelimiter(const std::string& delimiter)
     : m_Valid(m_Delimiter.init(delimiter)),

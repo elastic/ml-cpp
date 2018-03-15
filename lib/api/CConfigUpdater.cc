@@ -31,7 +31,8 @@ const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
 CConfigUpdater::CConfigUpdater(CFieldConfig& fieldConfig,
                                model::CAnomalyDetectorModelConfig& modelConfig)
-    : m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {}
+    : m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {
+}
 
 bool CConfigUpdater::update(const std::string& config) {
     boost::property_tree::ptree propTree;

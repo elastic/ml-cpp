@@ -227,7 +227,8 @@ CBucketGatherer::CBucketGatherer(CDataGatherer& dataGatherer, core_t::TTime star
                                      TSizeSizePrUSet(1)),
       m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                          dataGatherer.params().s_BucketLength,
-                         startTime) {}
+                         startTime) {
+}
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence, const CBucketGatherer& other)
     : m_DataGatherer(other.m_DataGatherer),

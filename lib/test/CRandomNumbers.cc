@@ -211,7 +211,8 @@ void CRandomNumbers::discard(std::size_t n) {
 }
 
 CRandomNumbers::CUniform0nGenerator::CUniform0nGenerator(const TGenerator& generator)
-    : m_Generator(new TGenerator(generator)) {}
+    : m_Generator(new TGenerator(generator)) {
+}
 
 std::size_t CRandomNumbers::CUniform0nGenerator::operator()(std::size_t n) const {
     boost::random::uniform_int_distribution<std::size_t> uniform(0, n - 1);

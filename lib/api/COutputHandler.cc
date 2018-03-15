@@ -21,9 +21,11 @@ namespace api {
 const COutputHandler::TStrVec COutputHandler::EMPTY_FIELD_NAMES;
 const COutputHandler::TStrStrUMap COutputHandler::EMPTY_FIELD_OVERRIDES;
 
-COutputHandler::COutputHandler(void) {}
+COutputHandler::COutputHandler(void) {
+}
 
-COutputHandler::~COutputHandler(void) {}
+COutputHandler::~COutputHandler(void) {
+}
 
 void COutputHandler::newOutputStream(void) {
     // NOOP unless overridden
@@ -59,7 +61,8 @@ bool COutputHandler::periodicPersistState(CBackgroundPersister& /* persister */)
     return true;
 }
 
-COutputHandler::CPreComputedHash::CPreComputedHash(size_t hash) : m_Hash(hash) {}
+COutputHandler::CPreComputedHash::CPreComputedHash(size_t hash) : m_Hash(hash) {
+}
 
 size_t COutputHandler::CPreComputedHash::operator()(const std::string&) const {
     return m_Hash;

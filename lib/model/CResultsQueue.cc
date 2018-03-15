@@ -29,7 +29,8 @@ const std::string INITIALISATION_TIME_TAG("c");
 }
 
 CResultsQueue::CResultsQueue(std::size_t delayBuckets, core_t::TTime bucketLength)
-    : m_Results(delayBuckets, bucketLength, 0), m_LastResultsIndex(2) {}
+    : m_Results(delayBuckets, bucketLength, 0), m_LastResultsIndex(2) {
+}
 
 void CResultsQueue::push(const CHierarchicalResults& result, core_t::TTime time) {
     if (m_Results.latestBucketEnd() + 1 - m_Results.bucketLength() == 0) {

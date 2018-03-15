@@ -84,7 +84,8 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
 namespace ml {
 namespace core {
 
-CRegex::CRegex(void) : m_Initialised(false) {}
+CRegex::CRegex(void) : m_Initialised(false) {
+}
 
 bool CRegex::init(const std::string& regex) {
     // Allow expression to be initialised twice

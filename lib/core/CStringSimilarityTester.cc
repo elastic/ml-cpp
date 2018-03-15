@@ -21,7 +21,8 @@ namespace core {
 
 const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::min());
 
-CStringSimilarityTester::CStringSimilarityTester(void) : m_Compressor(true) {}
+CStringSimilarityTester::CStringSimilarityTester(void) : m_Compressor(true) {
+}
 
 bool CStringSimilarityTester::similarity(const std::string& first,
                                          const std::string& second,

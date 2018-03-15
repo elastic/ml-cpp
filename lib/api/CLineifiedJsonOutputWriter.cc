@@ -23,23 +23,27 @@ namespace ml {
 namespace api {
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(void)
-    : m_OutStream(m_StringOutputBuf), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {}
+    : m_OutStream(m_StringOutputBuf), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
+}
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields)
     : m_NumericFields(numericFields),
       m_OutStream(m_StringOutputBuf),
       m_WriteStream(m_OutStream),
-      m_Writer(m_WriteStream) {}
+      m_Writer(m_WriteStream) {
+}
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(std::ostream& strmOut)
-    : m_OutStream(strmOut), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {}
+    : m_OutStream(strmOut), m_WriteStream(m_OutStream), m_Writer(m_WriteStream) {
+}
 
 CLineifiedJsonOutputWriter::CLineifiedJsonOutputWriter(const TStrSet& numericFields,
                                                        std::ostream& strmOut)
     : m_NumericFields(numericFields),
       m_OutStream(strmOut),
       m_WriteStream(m_OutStream),
-      m_Writer(m_WriteStream) {}
+      m_Writer(m_WriteStream) {
+}
 
 CLineifiedJsonOutputWriter::~CLineifiedJsonOutputWriter(void) {
     // Since we didn't flush the stream whilst working, we flush it on

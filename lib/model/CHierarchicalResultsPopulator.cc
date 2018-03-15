@@ -25,7 +25,8 @@ namespace ml {
 namespace model {
 
 CHierarchicalResultsPopulator::CHierarchicalResultsPopulator(const CLimits& limits)
-    : m_Limits(limits) {}
+    : m_Limits(limits) {
+}
 
 void CHierarchicalResultsPopulator::visit(const CHierarchicalResults& results,
                                           const TNode& node,

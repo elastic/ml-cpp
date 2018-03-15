@@ -31,7 +31,8 @@ const double LOG_MIN =
 }
 
 CLowInformationContentPenalty::CLowInformationContentPenalty(const CAutoconfigurerParams& params)
-    : CPenalty(params) {}
+    : CPenalty(params) {
+}
 
 CLowInformationContentPenalty* CLowInformationContentPenalty::clone(void) const {
     return new CLowInformationContentPenalty(*this);

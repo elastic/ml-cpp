@@ -39,7 +39,8 @@ const std::string CModelPlotDataJsonWriter::ACTUAL("actual");
 const std::string CModelPlotDataJsonWriter::BUCKET_SPAN("bucket_span");
 
 CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream)
-    : m_Writer(outStream) {}
+    : m_Writer(outStream) {
+}
 
 void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
                                          const model::CModelPlotData& data) {

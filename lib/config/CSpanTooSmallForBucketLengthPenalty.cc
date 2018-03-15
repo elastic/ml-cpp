@@ -25,7 +25,8 @@ namespace config {
 
 CSpanTooSmallForBucketLengthPenalty::CSpanTooSmallForBucketLengthPenalty(
     const CAutoconfigurerParams& params)
-    : CPenalty(params) {}
+    : CPenalty(params) {
+}
 
 CSpanTooSmallForBucketLengthPenalty* CSpanTooSmallForBucketLengthPenalty::clone(void) const {
     return new CSpanTooSmallForBucketLengthPenalty(*this);

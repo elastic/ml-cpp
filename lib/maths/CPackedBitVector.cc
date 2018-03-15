@@ -25,10 +25,12 @@
 namespace ml {
 namespace maths {
 
-CPackedBitVector::CPackedBitVector(void) : m_Dimension(0), m_First(false), m_Parity(true) {}
+CPackedBitVector::CPackedBitVector(void) : m_Dimension(0), m_First(false), m_Parity(true) {
+}
 
 CPackedBitVector::CPackedBitVector(bool bit)
-    : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {}
+    : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
+}
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
     : m_Dimension(static_cast<uint32_t>(dimension)), m_First(bit), m_Parity(true) {

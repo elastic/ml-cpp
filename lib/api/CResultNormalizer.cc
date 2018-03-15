@@ -45,7 +45,8 @@ CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& m
       m_OutputHandler(outputHandler),
       m_WriteFieldNames(true),
       m_OutputFieldNormalizedScore(m_OutputFields[NORMALIZED_SCORE_NAME]),
-      m_Normalizer(m_ModelConfig) {}
+      m_Normalizer(m_ModelConfig) {
+}
 
 bool CResultNormalizer::initNormalizer(const std::string& stateFileName) {
     std::ifstream inputStream(stateFileName.c_str());

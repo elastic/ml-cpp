@@ -63,7 +63,8 @@ CDecompositionComponent::CDecompositionComponent(std::size_t maxSize,
       m_BoundaryCondition{boundaryCondition},
       m_Splines{valueInterpolationType, varianceInterpolationType},
       m_MeanValue{0.0},
-      m_MeanVariance{0.0} {}
+      m_MeanVariance{0.0} {
+}
 
 bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {

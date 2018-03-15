@@ -45,7 +45,8 @@ using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SRefer
 }
 
 CSampleCounts::CSampleCounts(unsigned int sampleCountOverride)
-    : m_SampleCountOverride(sampleCountOverride) {}
+    : m_SampleCountOverride(sampleCountOverride) {
+}
 
 CSampleCounts::CSampleCounts(bool isForPersistence, const CSampleCounts& other)
     : m_SampleCountOverride(other.m_SampleCountOverride),

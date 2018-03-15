@@ -54,7 +54,8 @@ CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,
                               boundaryCondition,
                               valueInterpolationType,
                               varianceInterpolationType},
-      m_Bucketing{feature, decayRate, minimumBucketLength} {}
+      m_Bucketing{feature, decayRate, minimumBucketLength} {
+}
 
 CCalendarComponent::CCalendarComponent(double decayRate,
                                        double minimumBucketLength,

@@ -36,7 +36,8 @@ namespace {
 const double LOG_TENTH_NUMBER_POLLING_INTERVALS = 10.0;
 }
 
-CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {}
+CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
+}
 
 CPolledDataPenalty* CPolledDataPenalty::clone(void) const {
     return new CPolledDataPenalty(*this);

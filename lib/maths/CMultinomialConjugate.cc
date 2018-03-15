@@ -269,7 +269,8 @@ const std::string EMPTY_STRING;
 }
 
 CMultinomialConjugate::CMultinomialConjugate(void)
-    : m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {}
+    : m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {
+}
 
 CMultinomialConjugate::CMultinomialConjugate(std::size_t maximumNumberOfCategories,
                                              const TDoubleVec& categories,

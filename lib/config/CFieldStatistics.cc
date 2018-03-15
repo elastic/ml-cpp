@@ -52,7 +52,8 @@ CFieldStatistics::CFieldStatistics(const std::string& fieldName,
       m_FieldName(fieldName),
       m_NumberExamples(0),
       m_Semantics(params.dataType(fieldName)),
-      m_SummaryStatistics(CDataSummaryStatistics()) {}
+      m_SummaryStatistics(CDataSummaryStatistics()) {
+}
 
 const std::string& CFieldStatistics::name(void) const {
     return m_FieldName;

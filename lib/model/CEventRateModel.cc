@@ -88,7 +88,8 @@ CEventRateModel::CEventRateModel(
                        featureCorrelatesModels,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
-      m_ProbabilityPrior(probabilityPrior) {}
+      m_ProbabilityPrior(probabilityPrior) {
+}
 
 CEventRateModel::CEventRateModel(
     const SModelParams& params,
@@ -766,6 +767,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
 ////////// CEventRateModel::SBucketStats Implementation //////////
 
 CEventRateModel::SBucketStats::SBucketStats(core_t::TTime startTime)
-    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {}
+    : s_StartTime(startTime), s_TotalCount(0), s_InterimCorrections(1) {
+}
 }
 }

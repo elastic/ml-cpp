@@ -54,7 +54,8 @@ private:
 };
 }
 
-CMemoryUsage::CMemoryUsage() : m_Description("", 0ull) {}
+CMemoryUsage::CMemoryUsage() : m_Description("", 0ull) {
+}
 
 CMemoryUsage::~CMemoryUsage() {
     for (TMemoryUsagePtrListItr i = m_Children.begin(); i != m_Children.end(); ++i) {

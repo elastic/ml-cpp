@@ -189,7 +189,8 @@ operator()(const TTimeDouble2VecPr& value) const {
 }
 
 CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style)
-    : m_Style(style), m_TotalWeight(0.0) {}
+    : m_Style(style), m_TotalWeight(0.0) {
+}
 
 bool CModelTools::CProbabilityAggregator::empty(void) const {
     return m_TotalWeight == 0.0;
@@ -273,11 +274,13 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
 }
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void)
-    : m_Prior(0), m_SmallestProbability(1.0) {}
+    : m_Prior(0), m_SmallestProbability(1.0) {
+}
 
 CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(
     const maths::CMultinomialConjugate& prior)
-    : m_Prior(&prior), m_SmallestProbability(1.0) {}
+    : m_Prior(&prior), m_SmallestProbability(1.0) {
+}
 
 bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, double& result) const {
     result = 1.0;
@@ -324,7 +327,8 @@ std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage(void) const {
 }
 
 CModelTools::CProbabilityCache::CProbabilityCache(double maximumError)
-    : m_MaximumError(maximumError) {}
+    : m_MaximumError(maximumError) {
+}
 
 void CModelTools::CProbabilityCache::clear(void) {
     m_Caches.clear();

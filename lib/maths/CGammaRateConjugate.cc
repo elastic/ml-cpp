@@ -770,7 +770,8 @@ CGammaRateConjugate::CGammaRateConjugate(maths_t::EDataType dataType,
       m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0),
       m_PriorShape(shape),
-      m_PriorRate(rate) {}
+      m_PriorRate(rate) {
+}
 
 CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& params,
                                          core::CStateRestoreTraverser& traverser,

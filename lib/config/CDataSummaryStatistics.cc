@@ -51,7 +51,8 @@ double PROBABILITY_TO_SAMPLE_ENTROPY = 0.5;
 double PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
 }
 
-CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {}
+CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {
+}
 
 uint64_t CDataSummaryStatistics::count(void) const {
     return m_Count;
@@ -87,7 +88,8 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t
       m_LowestTopN(m_TopN.end()),
       m_EmpiricalEntropy(ES_K),
       m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-      m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
+      m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
+}
 
 CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(
     const CDataSummaryStatistics& other,
@@ -104,7 +106,8 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(
       m_LowestTopN(m_TopN.end()),
       m_EmpiricalEntropy(ES_K),
       m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-      m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
+      m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
+}
 
 void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::string& example) {
     this->CDataSummaryStatistics::add(time);
@@ -289,7 +292,8 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(bool integer)
                                            // comprise at least 0.5% of the data.
                  CLUSTER_MINIMUM_COUNT)    // We need a few points to get a reasonable
                                            // variance estimate.
-{}
+{
+}
 
 CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryStatistics& other,
                                                              bool integer)
@@ -304,7 +308,8 @@ CNumericDataSummaryStatistics::CNumericDataSummaryStatistics(const CDataSummaryS
                                            // comprise at least 0.5% of the data.
                  CLUSTER_MINIMUM_COUNT)    // Need a few points to get a reasonable
                                            // variance estimate.
-{}
+{
+}
 
 void CNumericDataSummaryStatistics::add(core_t::TTime time, const std::string& example) {
     std::string trimmed = example;

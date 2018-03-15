@@ -47,7 +47,8 @@ CMultivariatePrior::CMultivariatePrior(void)
     : m_Forecasting(false),
       m_DataType(maths_t::E_DiscreteData),
       m_DecayRate(0.0),
-      m_NumberSamples(0) {}
+      m_NumberSamples(0) {
+}
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
     : m_Forecasting(false), m_DataType(dataType), m_NumberSamples(0) {

@@ -452,7 +452,8 @@ std::string CPeriodicityHypothesisTestsResult::print() const {
 }
 
 CPeriodicityHypothesisTestsResult::SComponent::SComponent()
-    : s_Description(""), s_Diurnal(false), s_StartOfPartition(0), s_Period(0), s_Precedence(0.0) {}
+    : s_Description(""), s_Diurnal(false), s_StartOfPartition(0), s_Period(0), s_Precedence(0.0) {
+}
 
 CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& description,
                                                           bool diurnal,
@@ -465,7 +466,8 @@ CPeriodicityHypothesisTestsResult::SComponent::SComponent(const std::string& des
       s_StartOfPartition(startOfPartition),
       s_Period(period),
       s_Window(window),
-      s_Precedence(precedence) {}
+      s_Precedence(precedence) {
+}
 
 bool CPeriodicityHypothesisTestsResult::SComponent::operator==(const SComponent& other) const {
     return s_Description == other.s_Description && s_StartOfPartition == other.s_StartOfPartition;
@@ -487,7 +489,8 @@ CPeriodicityHypothesisTestsConfig::CPeriodicityHypothesisTestsConfig()
       m_HasDaily(false),
       m_HasWeekend(false),
       m_HasWeekly(false),
-      m_StartOfWeek(0) {}
+      m_StartOfWeek(0) {
+}
 
 void CPeriodicityHypothesisTestsConfig::disableDiurnal() {
     m_TestForDiurnal = false;
@@ -530,10 +533,12 @@ core_t::TTime CPeriodicityHypothesisTestsConfig::startOfWeek() const {
 }
 
 CPeriodicityHypothesisTests::CPeriodicityHypothesisTests()
-    : m_BucketLength(0), m_WindowLength(0), m_Period(0) {}
+    : m_BucketLength(0), m_WindowLength(0), m_Period(0) {
+}
 CPeriodicityHypothesisTests::CPeriodicityHypothesisTests(
     const CPeriodicityHypothesisTestsConfig& config)
-    : m_Config(config), m_BucketLength(0), m_WindowLength(0), m_Period(0) {}
+    : m_Config(config), m_BucketLength(0), m_WindowLength(0), m_Period(0) {
+}
 
 bool CPeriodicityHypothesisTests::initialized() const {
     return m_BucketValues.size() > 0;
@@ -1628,7 +1633,8 @@ CPeriodicityHypothesisTests::STestStats::STestStats()
       s_M(0.0),
       s_V0(0.0),
       s_DF0(0.0),
-      s_StartOfPartition(0) {}
+      s_StartOfPartition(0) {
+}
 
 void CPeriodicityHypothesisTests::STestStats::setThresholds(double vt, double at, double Rt) {
     s_Vt = vt;
@@ -1651,7 +1657,8 @@ bool CPeriodicityHypothesisTests::STestStats::nullHypothesisGoodEnough() const {
 }
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CNestedHypotheses(TTestFunc test)
-    : m_Test(test), m_AlwaysTestNested(false) {}
+    : m_Test(test), m_AlwaysTestNested(false) {
+}
 
 CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder
 CPeriodicityHypothesisTests::CNestedHypotheses::null(TTestFunc test) {

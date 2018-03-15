@@ -631,7 +631,8 @@ const double CKMostCorrelated::MINIMUM_SPARSENESS = 0.5;
 const double CKMostCorrelated::REPLACE_FRACTION = 0.1;
 
 CKMostCorrelated::SCorrelation::SCorrelation(void)
-    : s_X(std::numeric_limits<std::size_t>::max()), s_Y(std::numeric_limits<std::size_t>::max()) {}
+    : s_X(std::numeric_limits<std::size_t>::max()), s_Y(std::numeric_limits<std::size_t>::max()) {
+}
 
 CKMostCorrelated::SCorrelation::SCorrelation(std::size_t X,
                                              const TVector& px,
@@ -777,7 +778,8 @@ std::string CKMostCorrelated::SCorrelation::print(void) const {
            ' ' + core::CStringUtils::typeToString(s_Y);
 }
 
-CKMostCorrelated::CMatches::CMatches(std::size_t x) : m_X(x) {}
+CKMostCorrelated::CMatches::CMatches(std::size_t x) : m_X(x) {
+}
 
 bool CKMostCorrelated::CMatches::operator()(const SCorrelation& correlation) const {
     return correlation.s_X == m_X || correlation.s_Y == m_X;

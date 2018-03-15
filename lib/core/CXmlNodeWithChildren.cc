@@ -21,22 +21,28 @@
 namespace ml {
 namespace core {
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(void) : CXmlNode() {}
+CXmlNodeWithChildren::CXmlNodeWithChildren(void) : CXmlNode() {
+}
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {}
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {
+}
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value)
-    : CXmlNode(name, value) {}
+    : CXmlNode(name, value) {
+}
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name,
                                            const std::string& value,
                                            const CXmlNode::TStrStrMap& attributes)
-    : CXmlNode(name, value, attributes) {}
+    : CXmlNode(name, value, attributes) {
+}
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const CXmlNodeWithChildren& arg)
-    : CXmlNode(arg), m_Children(arg.m_Children) {}
+    : CXmlNode(arg), m_Children(arg.m_Children) {
+}
 
-CXmlNodeWithChildren::~CXmlNodeWithChildren(void) {}
+CXmlNodeWithChildren::~CXmlNodeWithChildren(void) {
+}
 
 CXmlNodeWithChildren& CXmlNodeWithChildren::operator=(const CXmlNodeWithChildren& rhs) {
     if (this != &rhs) {

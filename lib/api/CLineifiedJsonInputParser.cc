@@ -24,7 +24,8 @@ namespace api {
 
 CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream& strmIn,
                                                      bool allDocsSameStructure)
-    : CLineifiedInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {}
+    : CLineifiedInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {
+}
 
 bool CLineifiedJsonInputParser::readStream(const TReaderFunc& readerFunc) {
     TStrVec& fieldNames = this->fieldNames();

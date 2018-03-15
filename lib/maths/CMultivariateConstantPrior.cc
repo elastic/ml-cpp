@@ -111,7 +111,8 @@ void CMultivariateConstantPrior::setToNonInformative(double /*offset*/, double /
 
 void CMultivariateConstantPrior::adjustOffset(const TWeightStyleVec& /*weightStyle*/,
                                               const TDouble10Vec1Vec& /*samples*/,
-                                              const TDouble10Vec4Vec1Vec& /*weights*/) {}
+                                              const TDouble10Vec4Vec1Vec& /*weights*/) {
+}
 
 void CMultivariateConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle*/,
                                             const TDouble10Vec1Vec& samples,
@@ -122,7 +123,8 @@ void CMultivariateConstantPrior::addSamples(const TWeightStyleVec& /*weightStyle
     setConstant(m_Dimension, samples[0], m_Constant);
 }
 
-void CMultivariateConstantPrior::propagateForwardsByTime(double /*time*/) {}
+void CMultivariateConstantPrior::propagateForwardsByTime(double /*time*/) {
+}
 
 CMultivariateConstantPrior::TUnivariatePriorPtrDoublePr
 CMultivariateConstantPrior::univariate(const TSize10Vec& marginalize,

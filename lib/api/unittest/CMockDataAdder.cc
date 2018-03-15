@@ -19,7 +19,8 @@
 
 #include "CMockSearcher.h"
 
-CMockDataAdder::CMockDataAdder(void) {}
+CMockDataAdder::CMockDataAdder(void) {
+}
 
 CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index,
                                                       const std::string& /*id*/) {

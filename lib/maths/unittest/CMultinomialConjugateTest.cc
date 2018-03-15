@@ -862,7 +862,8 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples(void) {
     }
 }
 
-void CMultinomialConjugateTest::testAnomalyScore(void) {}
+void CMultinomialConjugateTest::testAnomalyScore(void) {
+}
 
 void CMultinomialConjugateTest::testRemoveCategories(void) {
     LOG_DEBUG("+---------------------------------------------------+");
@@ -1001,7 +1002,8 @@ void CMultinomialConjugateTest::testPersist(void) {
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
 }
 
-void CMultinomialConjugateTest::testOverflow(void) {}
+void CMultinomialConjugateTest::testOverflow(void) {
+}
 
 void CMultinomialConjugateTest::testConcentration(void) {
     CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(5u));

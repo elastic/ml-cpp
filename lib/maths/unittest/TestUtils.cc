@@ -100,7 +100,8 @@ private:
 };
 }
 
-CPriorTestInterface::CPriorTestInterface(CPrior& prior) : m_Prior(&prior) {}
+CPriorTestInterface::CPriorTestInterface(CPrior& prior) : m_Prior(&prior) {
+}
 
 void CPriorTestInterface::addSamples(const TDouble1Vec& samples) {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);

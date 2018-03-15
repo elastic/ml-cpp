@@ -301,7 +301,8 @@ const char DELIMITER(':');
 //////// CJointProbabilityOfLessLikelySample Implementation ////////
 
 CJointProbabilityOfLessLikelySamples::CJointProbabilityOfLessLikelySamples(void)
-    : m_Distance(0.0), m_NumberSamples(0.0) {}
+    : m_Distance(0.0), m_NumberSamples(0.0) {
+}
 
 bool CJointProbabilityOfLessLikelySamples::fromDelimited(const std::string& value) {
     core::CPersistUtils::CBuiltinFromString converter(DELIMITER);
@@ -516,7 +517,8 @@ operator()(CJointProbabilityOfLessLikelySamples& jointProbability,
 
 //////// CLogJointProbabilityOfLessLikelySample Implementation ////////
 
-CLogJointProbabilityOfLessLikelySamples::CLogJointProbabilityOfLessLikelySamples(void) {}
+CLogJointProbabilityOfLessLikelySamples::CLogJointProbabilityOfLessLikelySamples(void) {
+}
 
 const CLogJointProbabilityOfLessLikelySamples& CLogJointProbabilityOfLessLikelySamples::
 operator+=(const CLogJointProbabilityOfLessLikelySamples& other) {
@@ -803,7 +805,8 @@ bool CLogJointProbabilityOfLessLikelySamples::calculateUpperBound(double& result
 
 //////// CProbabilityOfExtremeSample Implementation ////////
 
-CProbabilityOfExtremeSample::CProbabilityOfExtremeSample(void) : m_NumberSamples(0.0) {}
+CProbabilityOfExtremeSample::CProbabilityOfExtremeSample(void) : m_NumberSamples(0.0) {
+}
 
 bool CProbabilityOfExtremeSample::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);
@@ -855,7 +858,8 @@ std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& pro
 //////// CProbabilityOfMFromNMostExtremeSamples Implementation ////////
 
 CLogProbabilityOfMFromNExtremeSamples::CLogProbabilityOfMFromNExtremeSamples(std::size_t m)
-    : m_MinValues(m), m_NumberSamples(0u) {}
+    : m_MinValues(m), m_NumberSamples(0u) {
+}
 
 bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string& value) {
     std::size_t i = value.find_first_of(DELIMITER);

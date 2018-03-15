@@ -28,11 +28,13 @@ const std::string EMPTY_STRING;
 }
 
 CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName)
-    : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {}
+    : m_RootName(rootName), m_OutStream(m_StringOutputBuf) {
+}
 
 CLineifiedXmlOutputWriter::CLineifiedXmlOutputWriter(const std::string& rootName,
                                                      std::ostream& strmOut)
-    : m_RootName(rootName), m_OutStream(strmOut) {}
+    : m_RootName(rootName), m_OutStream(strmOut) {
+}
 
 CLineifiedXmlOutputWriter::~CLineifiedXmlOutputWriter(void) {
     // Since we didn't flush the stream whilst working, we flush it on

@@ -17,17 +17,22 @@
 namespace ml {
 namespace core {
 
-CXmlNode::CXmlNode(void) {}
+CXmlNode::CXmlNode(void) {
+}
 
-CXmlNode::CXmlNode(const std::string& name) : m_Name(name) {}
+CXmlNode::CXmlNode(const std::string& name) : m_Name(name) {
+}
 
 CXmlNode::CXmlNode(const std::string& name, const std::string& value)
-    : m_Name(name), m_Value(value) {}
+    : m_Name(name), m_Value(value) {
+}
 
 CXmlNode::CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes)
-    : m_Name(name), m_Value(value), m_Attributes(attributes.begin(), attributes.end()) {}
+    : m_Name(name), m_Value(value), m_Attributes(attributes.begin(), attributes.end()) {
+}
 
-CXmlNode::~CXmlNode(void) {}
+CXmlNode::~CXmlNode(void) {
+}
 
 const std::string& CXmlNode::name(void) const {
     return m_Name;

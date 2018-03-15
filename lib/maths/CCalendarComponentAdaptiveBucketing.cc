@@ -54,12 +54,14 @@ const std::string EMPTY_STRING;
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(void)
-    : CAdaptiveBucketing{0.0, 0.0} {}
+    : CAdaptiveBucketing{0.0, 0.0} {
+}
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
                                                                          double decayRate,
                                                                          double minimumBucketLength)
-    : CAdaptiveBucketing{decayRate, minimumBucketLength}, m_Feature{feature} {}
+    : CAdaptiveBucketing{decayRate, minimumBucketLength}, m_Feature{feature} {
+}
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
     double decayRate,

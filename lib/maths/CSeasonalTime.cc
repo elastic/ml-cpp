@@ -40,10 +40,12 @@ const std::string ARBITRARY_PERIOD_TIME_TAG("b");
 
 //////// CSeasonalTime ////////
 
-CSeasonalTime::CSeasonalTime(void) : m_Period(0), m_RegressionOrigin(0), m_Precedence(0) {}
+CSeasonalTime::CSeasonalTime(void) : m_Period(0), m_RegressionOrigin(0), m_Precedence(0) {
+}
 
 CSeasonalTime::CSeasonalTime(core_t::TTime period, double precedence)
-    : m_Period(period), m_RegressionOrigin(0), m_Precedence(precedence) {}
+    : m_Period(period), m_RegressionOrigin(0), m_Precedence(precedence) {
+}
 
 bool CSeasonalTime::operator<(const CSeasonalTime& rhs) const {
     return COrderings::lexicographical_compare(m_Period,
@@ -122,7 +124,8 @@ core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime offset, core_t::T
 
 //////// CDiurnalTime ////////
 
-CDiurnalTime::CDiurnalTime(void) : m_StartOfWeek(0), m_WindowStart(0), m_WindowEnd(0) {}
+CDiurnalTime::CDiurnalTime(void) : m_StartOfWeek(0), m_WindowStart(0), m_WindowEnd(0) {
+}
 
 CDiurnalTime::CDiurnalTime(core_t::TTime startOfWeek,
                            core_t::TTime windowStart,
@@ -132,7 +135,8 @@ CDiurnalTime::CDiurnalTime(core_t::TTime startOfWeek,
     : CSeasonalTime(period, precedence),
       m_StartOfWeek(startOfWeek),
       m_WindowStart(windowStart),
-      m_WindowEnd(windowEnd) {}
+      m_WindowEnd(windowEnd) {
+}
 
 CDiurnalTime* CDiurnalTime::clone(void) const {
     return new CDiurnalTime(*this);
@@ -196,7 +200,8 @@ core_t::TTime CDiurnalTime::regressionTimeScale(void) const {
 //////// CGeneralPeriodTime ////////
 
 CGeneralPeriodTime::CGeneralPeriodTime(core_t::TTime period, double precedence)
-    : CSeasonalTime(period, precedence) {}
+    : CSeasonalTime(period, precedence) {
+}
 
 CGeneralPeriodTime* CGeneralPeriodTime::clone(void) const {
     return new CGeneralPeriodTime(*this);

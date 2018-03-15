@@ -222,7 +222,8 @@ CDataCountStatistics::CDataCountStatistics(const CAutoconfigurerParams& params)
     }
 }
 
-CDataCountStatistics::~CDataCountStatistics(void) {}
+CDataCountStatistics::~CDataCountStatistics(void) {
+}
 
 void CDataCountStatistics::add(TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords) {
     ++m_RecordCount;
@@ -327,7 +328,8 @@ void CDataCountStatistics::fillLastBucketEndTimes(core_t::TTime time) {
 //////// CPartitionDataCountStatistics ////////
 
 CPartitionDataCountStatistics::CPartitionDataCountStatistics(const CAutoconfigurerParams& params)
-    : CDataCountStatistics(params) {}
+    : CDataCountStatistics(params) {
+}
 
 void CPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
                                         TDetectorRecordCItr endRecords) {
@@ -340,7 +342,8 @@ void CPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
 
 CByAndPartitionDataCountStatistics::CByAndPartitionDataCountStatistics(
     const CAutoconfigurerParams& params)
-    : CDataCountStatistics(params) {}
+    : CDataCountStatistics(params) {
+}
 
 void CByAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
                                              TDetectorRecordCItr endRecords) {
@@ -353,7 +356,8 @@ void CByAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
 
 CByOverAndPartitionDataCountStatistics::CByOverAndPartitionDataCountStatistics(
     const CAutoconfigurerParams& params)
-    : CDataCountStatistics(params) {}
+    : CDataCountStatistics(params) {
+}
 
 void CByOverAndPartitionDataCountStatistics::add(TDetectorRecordCItr beginRecords,
                                                  TDetectorRecordCItr endRecords) {
@@ -384,7 +388,8 @@ CByOverAndPartitionDataCountStatistics::sampledByAndPartitionDistinctOverCounts(
 
 CDataCountStatisticsDirectAddressTable::CDataCountStatisticsDirectAddressTable(
     const CAutoconfigurerParams& params)
-    : m_Params(params) {}
+    : m_Params(params) {
+}
 
 void CDataCountStatisticsDirectAddressTable::build(const TDetectorSpecificationVec& specs) {
     typedef boost::unordered_map<CCountStatisticsKey, std::size_t, CCountStatisticsKeyHasher>

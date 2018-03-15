@@ -29,7 +29,8 @@
 const size_t CMapPopulationTest::FILL_SIZE(20);
 const size_t CMapPopulationTest::TEST_SIZE(200000);
 
-CMapPopulationTest::CMapPopulationTest(void) : m_TestData(0) {}
+CMapPopulationTest::CMapPopulationTest(void) : m_TestData(0) {
+}
 
 CppUnit::Test* CMapPopulationTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMapPopulationTest");

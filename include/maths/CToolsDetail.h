@@ -36,7 +36,8 @@ template <typename LOGF>
 CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::CSmoothedKernel(LOGF logf,
                                                                                       double logF0,
                                                                                       double k)
-    : m_LogF(logf), m_LogF0(logF0), m_K(k), m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k))) {}
+    : m_LogF(logf), m_LogF0(logF0), m_K(k), m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k))) {
+}
 
 template <typename LOGF>
 void CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::k(double k) {

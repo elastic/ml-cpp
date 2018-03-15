@@ -19,9 +19,11 @@
 namespace ml {
 namespace core {
 
-CWindowsError::CWindowsError(void) : m_ErrorCode(0) {}
+CWindowsError::CWindowsError(void) : m_ErrorCode(0) {
+}
 
-CWindowsError::CWindowsError(uint32_t /* errorCode */) : m_ErrorCode(0) {}
+CWindowsError::CWindowsError(uint32_t /* errorCode */) : m_ErrorCode(0) {
+}
 
 uint32_t CWindowsError::errorCode(void) const {
     return m_ErrorCode;

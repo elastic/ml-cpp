@@ -41,7 +41,8 @@ CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(
       m_TimeFieldName(timeFieldName),
       m_EntropyFieldName(entropyFieldName),
       m_DomainNameFieldIndex(0),
-      m_TimeFieldIndex(0) {}
+      m_TimeFieldIndex(0) {
+}
 
 bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     core::CTextFileWatcher watcher;

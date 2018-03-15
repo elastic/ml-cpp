@@ -681,7 +681,8 @@ std::string CMultimodalPrior::debugWeights(void) const {
 ////////// CMultimodalPrior::CModeSplitCallback Implementation //////////
 
 CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior& prior)
-    : m_Prior(&prior) {}
+    : m_Prior(&prior) {
+}
 
 void CMultimodalPrior::CModeSplitCallback::
 operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t rightSplitIndex) const {
@@ -768,7 +769,8 @@ operator()(std::size_t sourceIndex, std::size_t leftSplitIndex, std::size_t righ
 ////////// CMultimodalPrior::CModeMergeCallback Implementation //////////
 
 CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior& prior)
-    : m_Prior(&prior) {}
+    : m_Prior(&prior) {
+}
 
 void CMultimodalPrior::CModeMergeCallback::
 operator()(std::size_t leftMergeIndex, std::size_t rightMergeIndex, std::size_t targetIndex) const {

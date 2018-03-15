@@ -22,7 +22,8 @@ namespace api {
 // statics
 const std::string CDataProcessor::CONTROL_FIELD_NAME(1, CONTROL_FIELD_NAME_CHAR);
 
-CDataProcessor::CDataProcessor(void) {}
+CDataProcessor::CDataProcessor(void) {
+}
 
 CDataProcessor::~CDataProcessor(void) {
     // Most compilers put the vtable in the object file containing the

@@ -251,7 +251,8 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
 }
 
 CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t maxSize)
-    : m_MaxSize(maxSize), m_NumberHashes(numberHashes), m_Sketch(TUInt32Vec()) {}
+    : m_MaxSize(maxSize), m_NumberHashes(numberHashes), m_Sketch(TUInt32Vec()) {
+}
 
 CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
     : m_MaxSize(0), m_NumberHashes(0) {
@@ -477,7 +478,8 @@ void CBjkstUniqueValues::sketch(void) {
     }
 }
 
-CBjkstUniqueValues::SSketch::SSketch(void) {}
+CBjkstUniqueValues::SSketch::SSketch(void) {
+}
 
 CBjkstUniqueValues::SSketch::SSketch(std::size_t numberHashes) {
     core::CHashing::CUniversalHash::generateHashes(numberHashes, s_G);

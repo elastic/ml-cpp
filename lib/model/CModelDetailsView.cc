@@ -209,7 +209,8 @@ bool CModelDetailsView::isByFieldIdActive(std::size_t byFieldId) const {
 ////////// CEventRateModelDetailsView Implementation //////////
 
 CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel& model)
-    : m_Model(&model) {}
+    : m_Model(&model) {
+}
 
 const maths::CModel* CEventRateModelDetailsView::model(model_t::EFeature feature,
                                                        std::size_t byFieldId) const {
@@ -230,7 +231,8 @@ double CEventRateModelDetailsView::countVarianceScale(model_t::EFeature /*featur
 
 CEventRatePopulationModelDetailsView::CEventRatePopulationModelDetailsView(
     const CEventRatePopulationModel& model)
-    : m_Model(&model) {}
+    : m_Model(&model) {
+}
 
 const maths::CModel* CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
                                                                  std::size_t byFieldId) const {
@@ -249,7 +251,8 @@ double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeatur
 
 ////////// CMetricModelDetailsView Implementation //////////
 
-CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel& model) : m_Model(&model) {}
+CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel& model) : m_Model(&model) {
+}
 
 const maths::CModel* CMetricModelDetailsView::model(model_t::EFeature feature,
                                                     std::size_t byFieldId) const {
@@ -276,7 +279,8 @@ double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
 
 CMetricPopulationModelDetailsView::CMetricPopulationModelDetailsView(
     const CMetricPopulationModel& model)
-    : m_Model(&model) {}
+    : m_Model(&model) {
+}
 
 const maths::CModel* CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
                                                               std::size_t byFieldId) const {

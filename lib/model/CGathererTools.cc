@@ -114,7 +114,8 @@ struct SInfluencerSumSerializer {
 
 } // unnamed::
 
-CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME) {}
+CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer(void) : m_LastTime(FIRST_TIME) {
+}
 
 CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData(void) const {
     return maths::CBasicStatistics::count(m_Value) > 0.0
@@ -179,7 +180,8 @@ CGathererTools::CSumGatherer::CSumGatherer(const SModelParams& params,
                              TStoredStringPtrDoubleUMapQueue(params.s_LatencyBuckets + 3,
                                                              bucketLength,
                                                              startTime,
-                                                             TStoredStringPtrDoubleUMap(1))) {}
+                                                             TStoredStringPtrDoubleUMap(1))) {
+}
 
 std::size_t CGathererTools::CSumGatherer::dimension(void) const {
     return 1;

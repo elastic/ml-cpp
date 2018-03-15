@@ -45,7 +45,8 @@ CEventRateModelFactory::CEventRateModelFactory(const SModelParams& params,
       m_SummaryMode(summaryMode),
       m_SummaryCountFieldName(summaryCountFieldName),
       m_UseNull(false),
-      m_BucketResultsDelay(0) {}
+      m_BucketResultsDelay(0) {
+}
 
 CEventRateModelFactory* CEventRateModelFactory::clone(void) const {
     return new CEventRateModelFactory(*this);

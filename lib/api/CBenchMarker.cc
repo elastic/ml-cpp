@@ -26,7 +26,8 @@
 namespace ml {
 namespace api {
 
-CBenchMarker::CBenchMarker(void) : m_TotalMessages(0), m_ScoredMessages(0) {}
+CBenchMarker::CBenchMarker(void) : m_TotalMessages(0), m_ScoredMessages(0) {
+}
 
 bool CBenchMarker::init(const std::string& regexFilename) {
     // Reset in case of reinitialisation

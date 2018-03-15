@@ -24,7 +24,8 @@ namespace ml {
 namespace maths {
 
 CGradientDescent::CGradientDescent(double learnRate, double momentum)
-    : m_LearnRate(learnRate), m_Momentum(momentum) {}
+    : m_LearnRate(learnRate), m_Momentum(momentum) {
+}
 
 void CGradientDescent::learnRate(double learnRate) {
     m_LearnRate = learnRate;
@@ -81,13 +82,16 @@ bool CGradientDescent::run(std::size_t n,
     return true;
 }
 
-CGradientDescent::CFunction::~CFunction(void) {}
+CGradientDescent::CFunction::~CFunction(void) {
+}
 
-CGradientDescent::CGradient::~CGradient(void) {}
+CGradientDescent::CGradient::~CGradient(void) {
+}
 
 CGradientDescent::CEmpiricalCentralGradient::CEmpiricalCentralGradient(const CFunction& f,
                                                                        double eps)
-    : m_Eps(eps), m_F(f) {}
+    : m_Eps(eps), m_F(f) {
+}
 
 bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
                                                              TVector& result) const {

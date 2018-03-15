@@ -63,7 +63,8 @@ void add(std::size_t p,
 }
 }
 
-CDetectorEnumerator::CDetectorEnumerator(const CAutoconfigurerParams& params) : m_Params(params) {}
+CDetectorEnumerator::CDetectorEnumerator(const CAutoconfigurerParams& params) : m_Params(params) {
+}
 
 void CDetectorEnumerator::addFunction(config_t::EFunctionCategory category) {
     m_Functions.push_back(category);

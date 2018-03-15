@@ -699,7 +699,8 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType data
       m_GaussianMean(gaussianMean),
       m_GaussianPrecision(gaussianPrecision),
       m_GammaShape(gammaShape),
-      m_GammaRate(gammaRate) {}
+      m_GammaRate(gammaRate) {
+}
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRestoreParams& params,
                                                          core::CStateRestoreTraverser& traverser,

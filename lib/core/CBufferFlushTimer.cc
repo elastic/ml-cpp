@@ -21,7 +21,8 @@
 namespace ml {
 namespace core {
 
-CBufferFlushTimer::CBufferFlushTimer(void) : m_LastMaxTime(0), m_LastFlushTime(0) {}
+CBufferFlushTimer::CBufferFlushTimer(void) : m_LastMaxTime(0), m_LastFlushTime(0) {
+}
 
 core_t::TTime CBufferFlushTimer::flushTime(core_t::TTime bufferDelay, core_t::TTime bufferMaxTime) {
     core_t::TTime now(CTimeUtils::now());

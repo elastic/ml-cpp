@@ -125,7 +125,8 @@ CDataSemantics::CDataSemantics(TOptionalUserDataType override)
       m_Count(0.0),
       m_NumericProportion(0.0),
       m_IntegerProportion(0.0),
-      m_EmpiricalDistributionOverflowed(false) {}
+      m_EmpiricalDistributionOverflowed(false) {
+}
 
 void CDataSemantics::add(const std::string& example) {
     m_Count += 1.0;

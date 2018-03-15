@@ -26,9 +26,11 @@ static const size_t BUFFER_SIZE(1024);
 namespace ml {
 namespace core {
 
-CWindowsError::CWindowsError(void) : m_ErrorCode(GetLastError()) {}
+CWindowsError::CWindowsError(void) : m_ErrorCode(GetLastError()) {
+}
 
-CWindowsError::CWindowsError(uint32_t errorCode) : m_ErrorCode(errorCode) {}
+CWindowsError::CWindowsError(uint32_t errorCode) : m_ErrorCode(errorCode) {
+}
 
 uint32_t CWindowsError::errorCode(void) const {
     return m_ErrorCode;

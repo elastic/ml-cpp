@@ -28,9 +28,11 @@
 namespace ml {
 namespace core {
 
-CRapidXmlParser::CRapidXmlParser(void) : m_XmlBufSize(0), m_NavigatedNode(0) {}
+CRapidXmlParser::CRapidXmlParser(void) : m_XmlBufSize(0), m_NavigatedNode(0) {
+}
 
-CRapidXmlParser::~CRapidXmlParser(void) {}
+CRapidXmlParser::~CRapidXmlParser(void) {
+}
 
 bool CRapidXmlParser::parseString(const std::string& xml) {
     return this->parseBufferNonDestructive<rapidxml::parse_no_string_terminators>(xml.c_str(),

@@ -372,7 +372,8 @@ std::string INDICATOR_TAG("d");
 }
 
 CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorWidth)
-    : m_MaximumLength(maximumLength), m_Length(0), m_IndicatorWidth(indicatorWidth), m_Offset(0) {}
+    : m_MaximumLength(maximumLength), m_Length(0), m_IndicatorWidth(indicatorWidth), m_Offset(0) {
+}
 
 bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {

@@ -171,22 +171,26 @@ std::size_t CStateMachine::find(std::size_t begin, std::size_t end, const SLooku
     return end;
 }
 
-CStateMachine::CStateMachine(void) : m_Machine(BAD_MACHINE), m_State(0) {}
+CStateMachine::CStateMachine(void) : m_Machine(BAD_MACHINE), m_State(0) {
+}
 
 CStateMachine::SMachine::SMachine(const TStrVec& alphabet,
                                   const TStrVec& states,
                                   const TSizeVecVec& transitionFunction)
-    : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {}
+    : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {
+}
 
 CStateMachine::SMachine::SMachine(const SMachine& other)
     : s_Alphabet(other.s_Alphabet),
       s_States(other.s_States),
-      s_TransitionFunction(other.s_TransitionFunction) {}
+      s_TransitionFunction(other.s_TransitionFunction) {
+}
 
 CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
                                               const TStrVec& states,
                                               const TSizeVecVec& transitionFunction)
-    : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {}
+    : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {
+}
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine& rhs) const {
     return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&

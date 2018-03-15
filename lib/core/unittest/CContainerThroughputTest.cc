@@ -237,4 +237,5 @@ void CContainerThroughputTest::testMultiIndex(void) {
 }
 
 CContainerThroughputTest::SContent::SContent(size_t count)
-    : s_Size(count), s_Ptr(this), s_Double(double(count)) {}
+    : s_Size(count), s_Ptr(this), s_Double(double(count)) {
+}

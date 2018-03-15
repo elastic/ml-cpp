@@ -23,7 +23,8 @@
 namespace ml {
 namespace core {
 
-CFileDeleter::CFileDeleter(const std::string& fileName) : m_FileName(fileName) {}
+CFileDeleter::CFileDeleter(const std::string& fileName) : m_FileName(fileName) {
+}
 
 CFileDeleter::~CFileDeleter(void) {
     if (m_FileName.empty()) {

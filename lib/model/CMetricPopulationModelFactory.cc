@@ -44,7 +44,8 @@ CMetricPopulationModelFactory::CMetricPopulationModelFactory(
       m_SummaryMode(summaryMode),
       m_SummaryCountFieldName(summaryCountFieldName),
       m_UseNull(false),
-      m_BucketResultsDelay(0) {}
+      m_BucketResultsDelay(0) {
+}
 
 CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone(void) const {
     return new CMetricPopulationModelFactory(*this);

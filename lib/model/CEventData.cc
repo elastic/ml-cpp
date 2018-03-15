@@ -28,7 +28,8 @@ const CEventData::TDouble1VecArray DUMMY_ARRAY = CEventData::TDouble1VecArray();
 const std::string DASH("-");
 }
 
-CEventData::CEventData(void) : m_Time(0), m_Pid(), m_Cids(), m_Values(), m_IsExplicitNull(false) {}
+CEventData::CEventData(void) : m_Time(0), m_Pid(), m_Cids(), m_Values(), m_IsExplicitNull(false) {
+}
 
 void CEventData::swap(CEventData& other) {
     std::swap(m_Time, other.m_Time);

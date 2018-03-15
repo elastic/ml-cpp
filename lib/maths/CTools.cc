@@ -312,7 +312,8 @@ double CTools::SMinusLogCdfComplement::operator()(const beta& beta_, double x) c
 
 CTools::CProbabilityOfLessLikelySample::CProbabilityOfLessLikelySample(
     maths_t::EProbabilityCalculation calculation)
-    : m_Calculation(calculation) {}
+    : m_Calculation(calculation) {
+}
 
 double CTools::CProbabilityOfLessLikelySample::
 operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const {

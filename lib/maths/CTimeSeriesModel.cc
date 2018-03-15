@@ -1460,7 +1460,8 @@ bool CUnivariateTimeSeriesModel::correlationModels(
 CTimeSeriesCorrelations::CTimeSeriesCorrelations(double minimumSignificantCorrelation,
                                                  double decayRate)
     : m_MinimumSignificantCorrelation(minimumSignificantCorrelation),
-      m_Correlations(MAXIMUM_CORRELATIONS, decayRate) {}
+      m_Correlations(MAXIMUM_CORRELATIONS, decayRate) {
+}
 
 CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations& other,
                                                  bool isForPersistence)

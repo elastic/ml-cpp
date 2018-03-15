@@ -79,7 +79,8 @@ const std::string EMPTY_STRING;
 namespace hierarchical_results_normalizer_detail {
 
 SNormalizer::SNormalizer(const std::string& description, const TNormalizerPtr& normalizer)
-    : s_Description(description), s_Normalizer(normalizer) {}
+    : s_Description(description), s_Normalizer(normalizer) {
+}
 
 void SNormalizer::clear(void) {
     s_Normalizer->clear();
@@ -101,7 +102,8 @@ CHierarchicalResultsNormalizer::CHierarchicalResultsNormalizer(
           TNormalizer(std::string(), boost::make_shared<CAnomalyScore::CNormalizer>(modelConfig))),
       m_Job(E_NoOp),
       m_ModelConfig(modelConfig),
-      m_HasLastUpdateCausedBigChange(false) {}
+      m_HasLastUpdateCausedBigChange(false) {
+}
 
 void CHierarchicalResultsNormalizer::setJob(EJob job) {
     m_Job = job;

@@ -85,7 +85,8 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_NormalizedAnomalyScore(normalizedAnomalyScore),
       s_Probability(probability),
       s_Influences(influences),
-      s_Identifier(identifier) {}
+      s_Identifier(identifier) {
+}
 
 CHierarchicalResultsWriter::SResults::SResults(
     EResultType resultType,
@@ -142,7 +143,8 @@ CHierarchicalResultsWriter::SResults::SResults(
       s_Probability(probability),
       s_Influences(influences),
       s_Identifier(identifier),
-      s_ScheduledEventDescriptions(scheduledEventDescriptions) {}
+      s_ScheduledEventDescriptions(scheduledEventDescriptions) {
+}
 
 CHierarchicalResultsWriter::CHierarchicalResultsWriter(
     const model::CLimits& limits,
@@ -153,7 +155,8 @@ CHierarchicalResultsWriter::CHierarchicalResultsWriter(
       m_ModelConfig(modelConfig),
       m_ResultWriterFunc(resultWriterFunc),
       m_PivotWriterFunc(pivotWriterFunc),
-      m_BucketTime(0) {}
+      m_BucketTime(0) {
+}
 
 void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults& results,
                                        const TNode& node,

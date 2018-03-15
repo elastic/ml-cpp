@@ -20,9 +20,8 @@ namespace ml {
 namespace api {
 
 CStateRestoreStreamFilter::CStateRestoreStreamFilter()
-    : boost::iostreams::basic_line_filter<char>(true),
-      m_DocCount(0),
-      m_RewrotePreviousLine(false) {}
+    : boost::iostreams::basic_line_filter<char>(true), m_DocCount(0), m_RewrotePreviousLine(false) {
+}
 
 CStateRestoreStreamFilter::string_type
 CStateRestoreStreamFilter::do_filter(const string_type& line) {

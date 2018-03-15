@@ -25,7 +25,8 @@
 namespace ml {
 namespace core {
 
-CThread::CThread(void) : m_ThreadId(0), m_ThreadHandle(INVALID_HANDLE_VALUE) {}
+CThread::CThread(void) : m_ThreadId(0), m_ThreadHandle(INVALID_HANDLE_VALUE) {
+}
 
 CThread::~CThread(void) {
     CScopedLock lock(m_IdMutex);

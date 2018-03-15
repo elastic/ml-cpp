@@ -21,7 +21,8 @@
 namespace ml {
 namespace domain_name_entropy {
 
-CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized) {}
+CCompressUtils::CCompressUtils(void) : m_State(E_Uninitialized) {
+}
 
 CCompressUtils::~CCompressUtils(void) {
     ::deflateEnd(&m_ZlibStrm);

@@ -49,7 +49,8 @@ const std::string FILTER_ID("filter_id");
 }
 
 CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap)
-    : m_FiltersByIdMap(filtersByIdMap) {}
+    : m_FiltersByIdMap(filtersByIdMap) {
+}
 
 bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRuleVec& rules) {
     LOG_DEBUG("Parsing detection rules");

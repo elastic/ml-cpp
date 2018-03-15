@@ -27,13 +27,15 @@ namespace ml {
 namespace core {
 
 CHexUtils::CHexUtils(const uint8_t* pkt, size_t pktLen, bool printHeader, bool printAscii)
-    : m_Pkt(pkt), m_PktLen(pktLen), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {}
+    : m_Pkt(pkt), m_PktLen(pktLen), m_PrintHeader(printHeader), m_PrintAscii(printAscii) {
+}
 
 CHexUtils::CHexUtils(const TDataVec& data, bool printHeader, bool printAscii)
     : m_Pkt((data.size() > 0) ? &data[0] : 0),
       m_PktLen(data.size()),
       m_PrintHeader(printHeader),
-      m_PrintAscii(printAscii) {}
+      m_PrintAscii(printAscii) {
+}
 
 void CHexUtils::dump(const uint8_t* pkt, size_t pktLen) {
     CHexUtils hex(pkt, pktLen);

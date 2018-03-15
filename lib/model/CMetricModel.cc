@@ -88,7 +88,8 @@ CMetricModel::CMetricModel(const SModelParams& params,
                        newFeatureCorrelateModelPriors,
                        featureCorrelatesModels,
                        influenceCalculators),
-      m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {}
+      m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {
+}
 
 CMetricModel::CMetricModel(const SModelParams& params,
                            const TDataGathererPtr& dataGatherer,
@@ -738,6 +739,7 @@ CMetricModel::SBucketStats::SBucketStats(core_t::TTime startTime)
       s_PersonCounts(),
       s_TotalCount(0),
       s_FeatureData(),
-      s_InterimCorrections(1) {}
+      s_InterimCorrections(1) {
+}
 }
 }

@@ -44,7 +44,8 @@ CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
       m_BucketLengths(bucketLengths),
       m_BucketLengthIndex(0),
       m_StartTime(boost::numeric::bounds<core_t::TTime>::lowest()),
-      m_BucketValues(size % 2 == 0 ? size : size + 1) {}
+      m_BucketValues(size % 2 == 0 ? size : size + 1) {
+}
 
 bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_BucketValues.clear();

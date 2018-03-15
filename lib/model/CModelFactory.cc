@@ -46,7 +46,8 @@ namespace model {
 
 const std::string CModelFactory::EMPTY_STRING("");
 
-CModelFactory::CModelFactory(const SModelParams& params) : m_ModelParams(params) {}
+CModelFactory::CModelFactory(const SModelParams& params) : m_ModelParams(params) {
+}
 
 const CModelFactory::TFeatureMathsModelPtrPrVec&
 CModelFactory::defaultFeatureModels(const TFeatureVec& features,
@@ -386,7 +387,8 @@ const SModelParams& CModelFactory::modelParams(void) const {
 
 CModelFactory::SModelInitializationData::SModelInitializationData(
     const TDataGathererPtr& dataGatherer)
-    : s_DataGatherer(dataGatherer) {}
+    : s_DataGatherer(dataGatherer) {
+}
 
 CModelFactory::SGathererInitializationData::SGathererInitializationData(
     core_t::TTime startTime,
@@ -394,9 +396,11 @@ CModelFactory::SGathererInitializationData::SGathererInitializationData(
     unsigned int sampleOverrideCount)
     : s_StartTime(startTime),
       s_PartitionFieldValue(partitionFieldValue),
-      s_SampleOverrideCount(sampleOverrideCount) {}
+      s_SampleOverrideCount(sampleOverrideCount) {
+}
 
 CModelFactory::SGathererInitializationData::SGathererInitializationData(core_t::TTime startTime)
-    : s_StartTime(startTime), s_PartitionFieldValue(EMPTY_STRING), s_SampleOverrideCount(0u) {}
+    : s_StartTime(startTime), s_PartitionFieldValue(EMPTY_STRING), s_SampleOverrideCount(0u) {
+}
 }
 }

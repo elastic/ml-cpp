@@ -57,7 +57,8 @@ CStateDecompressor::CDechunkFilter::CDechunkFilter(CDataSearcher& searcher)
       m_CurrentDocNum(1),
       m_EndOfStream(false),
       m_BufferOffset(0),
-      m_NestedLevel(1) {}
+      m_NestedLevel(1) {
+}
 
 std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsize n) {
     if (m_EndOfStream) {
@@ -251,7 +252,8 @@ std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
     return (bytesDone == 0) ? -1 : bytesDone;
 }
 
-void CStateDecompressor::CDechunkFilter::close(void) {}
+void CStateDecompressor::CDechunkFilter::close(void) {
+}
 
 bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::Bool(bool) {
     s_Type = E_TokenBool;

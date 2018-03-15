@@ -17,7 +17,8 @@
 namespace ml {
 namespace core {
 
-CStatePersistInserter::~CStatePersistInserter(void) {}
+CStatePersistInserter::~CStatePersistInserter(void) {
+}
 
 void CStatePersistInserter::insertValue(const std::string& name,
                                         double value,

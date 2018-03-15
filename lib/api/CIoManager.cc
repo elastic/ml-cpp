@@ -89,7 +89,8 @@ CIoManager::CIoManager(const std::string& inputFileName,
     std::cerr.tie(0);
 }
 
-CIoManager::~CIoManager(void) {}
+CIoManager::~CIoManager(void) {
+}
 
 bool CIoManager::initIo(void) {
     m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&

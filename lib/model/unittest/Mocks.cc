@@ -23,9 +23,11 @@ namespace model {
 CMockModel::CMockModel(const SModelParams& params,
                        const TDataGathererPtr& dataGatherer,
                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
-    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators), m_IsPopulation(false) {}
+    : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators), m_IsPopulation(false) {
+}
 
-void CMockModel::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {}
+void CMockModel::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {
+}
 
 bool CMockModel::acceptRestoreTraverser(core::CStateRestoreTraverser& /*traverser*/) {
     return false;
@@ -84,21 +86,26 @@ bool CMockModel::bucketStatsAvailable(core_t::TTime /*time*/) const {
     return false;
 }
 
-void CMockModel::currentBucketPersonIds(core_t::TTime /*time*/, TSizeVec& /*result*/) const {}
+void CMockModel::currentBucketPersonIds(core_t::TTime /*time*/, TSizeVec& /*result*/) const {
+}
 
 void CMockModel::sampleBucketStatistics(core_t::TTime /*startTime*/,
                                         core_t::TTime /*endTime*/,
-                                        CResourceMonitor& /*resourceMonitor*/) {}
+                                        CResourceMonitor& /*resourceMonitor*/) {
+}
 
 void CMockModel::sample(core_t::TTime /*startTime*/,
                         core_t::TTime /*endTime*/,
-                        CResourceMonitor& /*resourceMonitor*/) {}
+                        CResourceMonitor& /*resourceMonitor*/) {
+}
 
 void CMockModel::sampleOutOfPhase(core_t::TTime /*startTime*/,
                                   core_t::TTime /*endTime*/,
-                                  CResourceMonitor& /*resourceMonitor*/) {}
+                                  CResourceMonitor& /*resourceMonitor*/) {
+}
 
-void CMockModel::prune(std::size_t /*maximumAge*/) {}
+void CMockModel::prune(std::size_t /*maximumAge*/) {
+}
 
 bool CMockModel::computeProbability(std::size_t /*pid*/,
                                     core_t::TTime /*startTime*/,
@@ -121,7 +128,8 @@ uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
     return 0;
 }
 
-void CMockModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {}
+void CMockModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
+}
 
 std::size_t CMockModel::memoryUsage(void) const {
     return 0;
@@ -148,17 +156,23 @@ core_t::TTime CMockModel::currentBucketStartTime(void) const {
     return 0;
 }
 
-void CMockModel::currentBucketStartTime(core_t::TTime /*time*/) {}
+void CMockModel::currentBucketStartTime(core_t::TTime /*time*/) {
+}
 
-void CMockModel::createNewModels(std::size_t /*n*/, std::size_t /*m*/) {}
+void CMockModel::createNewModels(std::size_t /*n*/, std::size_t /*m*/) {
+}
 
-void CMockModel::updateRecycledModels(void) {}
+void CMockModel::updateRecycledModels(void) {
+}
 
-void CMockModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& /*attributes*/) {}
+void CMockModel::clearPrunedResources(const TSizeVec& /*people*/, const TSizeVec& /*attributes*/) {
+}
 
-void CMockModel::currentBucketTotalCount(uint64_t /*totalCount*/) {}
+void CMockModel::currentBucketTotalCount(uint64_t /*totalCount*/) {
+}
 
-void CMockModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {}
+void CMockModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {
+}
 
 const maths::CModel* CMockModel::model(std::size_t id) const {
     return m_Models[id].get();
@@ -192,7 +206,8 @@ CMemoryUsageEstimator* CMockModel::memoryUsageEstimator(void) const {
     return 0;
 }
 
-CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model) : m_Model{&model} {}
+CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model) : m_Model{&model} {
+}
 
 const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
                                                   std::size_t byFieldId) const {

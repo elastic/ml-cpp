@@ -64,22 +64,26 @@ const std::string CForecastDataSink::STATUS("forecast_status");
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(model_t::EFeature feature,
                                                                 TMathsModelPtr&& forecastModel,
                                                                 const std::string& byFieldValue)
-    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {}
+    : s_Feature(feature), s_ForecastModel(std::move(forecastModel)), s_ByFieldValue(byFieldValue) {
+}
 
 CForecastDataSink::SForecastModelWrapper::SForecastModelWrapper(SForecastModelWrapper&& other)
     : s_Feature(other.s_Feature),
       s_ForecastModel(std::move(other.s_ForecastModel)),
-      s_ByFieldValue(std::move(other.s_ByFieldValue)) {}
+      s_ByFieldValue(std::move(other.s_ByFieldValue)) {
+}
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries()
-    : s_DetectorIndex(), s_ToForecast(), s_PartitionFieldValue(), s_ByFieldName() {}
+    : s_DetectorIndex(), s_ToForecast(), s_PartitionFieldValue(), s_ByFieldName() {
+}
 
 CForecastDataSink::SForecastResultSeries::SForecastResultSeries(SForecastResultSeries&& other)
     : s_DetectorIndex(other.s_DetectorIndex),
       s_ToForecast(std::move(other.s_ToForecast)),
       s_PartitionFieldName(std::move(other.s_PartitionFieldName)),
       s_PartitionFieldValue(std::move(other.s_PartitionFieldValue)),
-      s_ByFieldName(std::move(other.s_ByFieldName)) {}
+      s_ByFieldName(std::move(other.s_ByFieldName)) {
+}
 
 CForecastDataSink::CForecastDataSink(const std::string& jobId,
                                      const std::string& forecastId,
@@ -99,7 +103,8 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
       m_StartTime(startTime),
       m_EndTime(endTime),
       m_ExpiryTime(expiryTime),
-      m_MemoryUsage(memoryUsage) {}
+      m_MemoryUsage(memoryUsage) {
+}
 
 void CForecastDataSink::writeStats(const double progress,
                                    uint64_t runtime,

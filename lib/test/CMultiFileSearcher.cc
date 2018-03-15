@@ -32,7 +32,8 @@ CMultiFileSearcher::CMultiFileSearcher(std::string baseFilename,
                                        std::string fileExtension)
     : m_BaseFilename(std::move(baseFilename)),
       m_BaseDocId(std::move(baseDocId)),
-      m_FileExtension(std::move(fileExtension)) {}
+      m_FileExtension(std::move(fileExtension)) {
+}
 
 CMultiFileSearcher::TIStreamP CMultiFileSearcher::search(size_t currentDocNum, size_t limit) {
     if (limit != 1) {

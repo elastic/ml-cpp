@@ -20,10 +20,12 @@ namespace model {
 
 CPersonFrequencyGreaterThan::CPersonFrequencyGreaterThan(const CAnomalyDetectorModel& model,
                                                          double threshold)
-    : m_Model(&model), m_Threshold(threshold) {}
+    : m_Model(&model), m_Threshold(threshold) {
+}
 
 CAttributeFrequencyGreaterThan::CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel& model,
                                                                double threshold)
-    : m_Model(&model), m_Threshold(threshold) {}
+    : m_Model(&model), m_Threshold(threshold) {
+}
 }
 }

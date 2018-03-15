@@ -31,7 +31,8 @@ const char WILDCARD = '*';
 }
 
 CPatternSet::CPatternSet(void)
-    : m_FullMatchPatterns(), m_PrefixPatterns(), m_SuffixPatterns(), m_ContainsPatterns() {}
+    : m_FullMatchPatterns(), m_PrefixPatterns(), m_SuffixPatterns(), m_ContainsPatterns() {
+}
 
 bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec fullPatterns;

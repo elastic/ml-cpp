@@ -36,7 +36,8 @@ const std::string CCommandProcessor::START("start");
 const std::string CCommandProcessor::KILL("kill");
 
 CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths)
-    : m_Spawner(permittedProcessPaths) {}
+    : m_Spawner(permittedProcessPaths) {
+}
 
 void CCommandProcessor::processCommands(std::istream& stream) {
     std::string command;

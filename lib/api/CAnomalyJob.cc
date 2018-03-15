@@ -1567,6 +1567,7 @@ CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
       s_ModelSizeStats(modelSizeStats),
       s_Aggregator(aggregator),
       s_LatestRecordTime(latestRecordTime),
-      s_LastResultsTime(lastResultsTime) {}
+      s_LastResultsTime(lastResultsTime) {
+}
 }
 }

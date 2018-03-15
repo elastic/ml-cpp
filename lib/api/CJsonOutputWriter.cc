@@ -1110,7 +1110,8 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
       s_BucketSpan(0),
       s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0),
-      s_LowestBucketInfluencerScore(101.0) {}
+      s_LowestBucketInfluencerScore(101.0) {
+}
 
 CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(
     core_t::TTime snapshotTimestamp,
@@ -1128,6 +1129,7 @@ CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(
       s_ModelSizeStats(modelSizeStats),
       s_NormalizerState(normalizerState),
       s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime) {}
+      s_LatestFinalResultTime(latestFinalResultTime) {
+}
 }
 }

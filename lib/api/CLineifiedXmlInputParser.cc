@@ -27,7 +27,8 @@ CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
                                                    bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn),
       m_Parser(parser),
-      m_AllDocsSameStructure(allDocsSameStructure) {}
+      m_AllDocsSameStructure(allDocsSameStructure) {
+}
 
 bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
     TStrVec& fieldNames = this->fieldNames();

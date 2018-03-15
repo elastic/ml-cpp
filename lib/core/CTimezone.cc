@@ -32,9 +32,11 @@ const ml::core::CTimezone& DO_NOT_USE_THIS_VARIABLE = ml::core::CTimezone::insta
 namespace ml {
 namespace core {
 
-CTimezone::CTimezone(void) {}
+CTimezone::CTimezone(void) {
+}
 
-CTimezone::~CTimezone(void) {}
+CTimezone::~CTimezone(void) {
+}
 
 CTimezone& CTimezone::instance(void) {
     static CTimezone instance;
