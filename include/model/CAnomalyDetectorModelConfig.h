@@ -35,20 +35,18 @@ class CSearchKey;
 class CModelAutoConfigurer;
 class CModelFactory;
 
-//! \brief Holds configuration for the anomaly detection models.
+//! \brief Responsible for configuring anomaly detection models.
 //!
 //! DESCRIPTION:\n
-//! Holds configuration state for anomaly detection models.
+//! Responsible for configuring classes for performing anomaly detection.
+//! It also defines all parameter defaults.
 //!
 //! IMPLEMENTATION:\n
-//! This wraps up the configuration of the models to encapsulate
-//! the details from the calling code. It is intended that at least
-//! some of this information will be exposed to the user via a
-//! configuration file.
-//!
-//! Default settings for various modes of operation are provided
-//! by the default* factory methods.
-
+//! This wraps up the configuration of anomaly detection to encapsulate
+//! the details from calling code. It is anticipated that:
+//!   -# Some of this information will be exposed to the user via a
+//!      configuration file,
+//!   -# Some may be calculated from data characteristics and so on.
 class MODEL_EXPORT CAnomalyDetectorModelConfig
 {
     public:
@@ -93,6 +91,8 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         typedef boost::reference_wrapper<const TStrDetectionRulePrVec> TStrDetectionRulePrVecCRef;
 
     public:
+        //! \name Data Gathering
+        //@{
         //! The default value used to separate components of a multivariate feature
         //! in its string value.
         static const std::string DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
@@ -117,6 +117,13 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         //! Bucket length corresponding to the default decay and learn rates.
         static const core_t::TTime STANDARD_BUCKET_LENGTH;
 
+        //! The default number of half buckets to store before choosing which
+        //! overlapping bucket has the biggest anomaly
+        static const std::size_t DEFAULT_BUCKET_RESULTS_DELAY;
+        //@}
+
+        //! \name Modelling
+        //@{
         //! The default rate at which the model priors decay to non-informative
         //! per standard bucket length.
         static const double DEFAULT_DECAY_RATE;
@@ -140,20 +147,22 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         //! The default minimum count in a cluster we'll permit in a cluster.
         static const double DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT;
 
-        //! The default minimum frequency of non-empty buckets at which we model
-        //! all buckets.
-        static const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS;
-
         //! The default proportion of initial count at which we'll delete a
         //! category from the sketch to cluster.
         static const double DEFAULT_CATEGORY_DELETE_FRACTION;
 
+        //! The default minimum frequency of non-empty buckets at which we model
+        //! all buckets.
+        static const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS;
+
         //! The default size of the seasonal components we will model.
         static const std::size_t DEFAULT_COMPONENT_SIZE;
 
-        //! The default number of times to sample a person model when computing
-        //! total probabilities for population models.
-        static const std::size_t DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE;
+        //! The default minimum time to detect a change point in a time series.
+        static const core_t::TTime DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE;
+
+        //! The default maximum time to test for a change point in a time series.
+        static const core_t::TTime DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE;
 
         //! The maximum number of times we'll update a model in a bucketing
         //! interval. This only applies to our metric statistics, which are
@@ -181,10 +190,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         //! The default threshold for the Pearson correlation coefficient at
         //! which a correlate will be modeled.
         static const double DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION;
-
-        //! The default number of half buckets to store before choosing which
-        //! overlapping bucket has the biggest anomaly
-        static const std::size_t DEFAULT_BUCKET_RESULTS_DELAY;
+        //@}
 
         //! \name Anomaly Score Calculation
         //@{
@@ -217,9 +223,6 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
         //! Here, \f$y(.)\f$ denote the corresponding knot point Y- values.
         static const TDoubleDoublePr DEFAULT_NORMALIZED_SCORE_KNOT_POINTS[9];
         //@}
-
-        //! The maximum number of samples we use when re-sampling a prior.
-        static const std::size_t DEFAULT_RESAMPLING_MAX_SAMPLES;
 
     public:
         //! Create the default configuration.
@@ -444,6 +447,7 @@ class MODEL_EXPORT CAnomalyDetectorModelConfig
 
         //! The time window during which samples are accepted.
         core_t::TTime samplingAgeCutoff(void) const;
+
     private:
         //! Bucket length.
         core_t::TTime m_BucketLength;

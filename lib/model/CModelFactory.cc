@@ -82,7 +82,9 @@ CModelFactory::TMathsModelPtr
     maths::CModelParams params{bucketLength,
                                m_ModelParams.s_LearnRate,
                                m_ModelParams.s_DecayRate,
-                               minimumSeasonalVarianceScale};
+                               minimumSeasonalVarianceScale,
+                               m_ModelParams.s_MinimumTimeToDetectChange,
+                               m_ModelParams.s_MaximumTimeToTestForChange};
 
     std::size_t dimension{model_t::dimension(feature)};
 
@@ -282,11 +284,6 @@ void CModelFactory::pruneWindowScaleMinimum(double factor)
 void CModelFactory::pruneWindowScaleMaximum(double factor)
 {
     m_ModelParams.s_PruneWindowScaleMaximum = factor;
-}
-
-void CModelFactory::totalProbabilityCalcSamplingSize(std::size_t samplingSize)
-{
-    m_ModelParams.s_TotalProbabilityCalcSamplingSize = samplingSize;
 }
 
 void CModelFactory::multivariateByFields(bool enabled)

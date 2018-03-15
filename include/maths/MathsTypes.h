@@ -107,6 +107,16 @@ TDouble10Vec countForUpdate(std::size_t dimension,
                             const TWeightStyleVec &weightStyles,
                             const TDouble10Vec4Vec &weights);
 
+//! Extract the winsorisation weight from a collection of weights.
+MATHS_EXPORT
+double winsorisationWeight(const TWeightStyleVec &weightStyles,
+                           const TDouble4Vec &weights);
+
+//! Extract the winsorisation weight from a collection of weights.
+MATHS_EXPORT
+TDouble10Vec winsorisationWeight(const TWeightStyleVec &weightStyles,
+                                const TDouble10Vec4Vec &weights);
+
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
 double seasonalVarianceScale(const TWeightStyleVec &weightStyles,

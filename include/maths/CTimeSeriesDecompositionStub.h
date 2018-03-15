@@ -26,7 +26,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
 {
     public:
         //! Clone this decomposition.
-        virtual CTimeSeriesDecompositionStub *clone(void) const;
+        virtual CTimeSeriesDecompositionStub *clone(bool isForForecast = false) const;
+
+        //! No-op.
+        virtual void dataType(maths_t::EDataType dataType);
 
         //! No-op.
         virtual void decayRate(double decayRate);
@@ -44,6 +47,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
                               const maths_t::TDouble4Vec &weights = TWeights::UNIT);
 
         //! No-op.
+        virtual void applyChange(core_t::TTime time, double value,
+                                 const SChangeDescription &change);
+
+        //! No-op.
         virtual void propagateForwardsTo(core_t::TTime time);
 
         //! Returns 0.
@@ -55,16 +62,19 @@ class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositio
                                                int components = E_All,
                                                bool smooth = true) const;
 
-        //! Clears \p result.
+        //! No-op.
         virtual void forecast(core_t::TTime startTime,
                               core_t::TTime endTime,
                               core_t::TTime step,
                               double confidence,
                               double minimumScale,
-                              TDouble3VecVec &result);
+                              const TWriteForecastResult &writer);
 
         //! Returns \p value.
-        virtual double detrend(core_t::TTime time, double value, double confidence) const;
+        virtual double detrend(core_t::TTime time,
+                               double value,
+                               double confidence,
+                               int components = E_All) const;
 
         //! Returns 0.0.
         virtual double meanVariance(void) const;

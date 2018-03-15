@@ -198,7 +198,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         {
             public:
                 CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-                CPeriodicityTest(const CPeriodicityTest &other);
+                CPeriodicityTest(const CPeriodicityTest &other, bool isForForecast = false);
 
                 //! Initialize by reading state from \p traverser.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -280,7 +280,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
         {
             public:
                 CCalendarTest(double decayRate, core_t::TTime bucketLength);
-                CCalendarTest(const CCalendarTest &other);
+                CCalendarTest(const CCalendarTest &other, bool isForForecast = false);
 
                 //! Initialize by reading state from \p traverser.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
@@ -371,7 +371,8 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 };
 
                 //! Initialize by reading state from \p traverser.
-                bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+                bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+                                            core::CStateRestoreTraverser &traverser);
 
                 //! Persist state by passing information to \p inserter.
                 void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
@@ -388,8 +389,17 @@ class MATHS_EXPORT CTimeSeriesDecompositionDetail
                 //! Create a new calendar component.
                 virtual void handle(const SDetectedCalendar &message);
 
+                //! Apply \p change at \p time.
+                void shiftLevel(core_t::TTime time, double value, double shift);
+
                 //! Maybe re-interpolate the components.
-                void interpolate(const SMessage &message, bool refine = true);
+                void interpolate(const SMessage &message);
+
+                //! Maybe re-interpolate the components.
+                void interpolateForForecast(core_t::TTime time);
+
+                //! Set the data type.
+                void dataType(maths_t::EDataType dataType);
 
                 //! Set the decay rate.
                 void decayRate(double decayRate);

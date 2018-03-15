@@ -222,6 +222,16 @@ class MATHS_EXPORT CBasicStatistics
             }
 
             //! Update the moments with the collection \p x.
+            template<typename U, std::size_t N>
+            void add(const core::CSmallVector<U, N> &x)
+            {
+                for (const auto &xi : x)
+                {
+                    this->add(xi);
+                }
+            }
+
+            //! Update the moments with the collection \p x.
             template<typename U>
             void add(const std::vector<SSampleCentralMoments<U, ORDER>> &x)
             {

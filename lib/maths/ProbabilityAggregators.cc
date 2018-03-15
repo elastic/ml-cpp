@@ -25,11 +25,11 @@ namespace ml
 {
 namespace maths
 {
-
 namespace
 {
-using TDoubleVec = std::vector<double>;
+
 using TDoubleDoublePr = std::pair<double, double>;
+using TDoubleVec = std::vector<double>;
 
 //! Compute the deviation corresponding to a probability of less likely
 //! samples \p p.

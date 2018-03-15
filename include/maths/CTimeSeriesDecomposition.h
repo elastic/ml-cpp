@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 #define INCLUDED_ml_maths_CTimeSeriesDecomposition_h
 
+#include <maths/Constants.h>
 #include <maths/CTimeSeriesDecompositionDetail.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
 #include <maths/ImportExport.h>
@@ -25,6 +26,7 @@ class CStateRestoreTraverser;
 namespace maths
 {
 class CPrior;
+struct STimeSeriesDecompositionRestoreParams;
 
 //! \brief Decomposes a time series into a linear combination
 //! of periodic functions and a stationary random process.
@@ -56,26 +58,20 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         using TSizeVec = std::vector<std::size_t>;
 
     public:
-        //! The default size to use for the seasonal components.
-        static const std::size_t DEFAULT_COMPONENT_SIZE;
-
-    public:
         //! \param[in] decayRate The rate at which information is lost.
         //! \param[in] bucketLength The data bucketing length.
         //! \param[in] seasonalComponentSize The number of buckets to
         //! use estimate a seasonal component.
         explicit CTimeSeriesDecomposition(double decayRate = 0.0,
                                           core_t::TTime bucketLength = 0,
-                                          std::size_t seasonalComponentSize = DEFAULT_COMPONENT_SIZE);
+                                          std::size_t seasonalComponentSize = DECOMPOSITION_COMPONENT_SIZE);
 
         //! Construct from part of a state document.
-        CTimeSeriesDecomposition(double decayRate,
-                                 core_t::TTime bucketLength,
-                                 std::size_t seasonalComponentSize,
+        CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams &params,
                                  core::CStateRestoreTraverser &traverser);
 
         //! Deep copy.
-        CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other);
+        CTimeSeriesDecomposition(const CTimeSeriesDecomposition &other, bool isForForecast = false);
 
         //! An efficient swap of the state of this and \p other.
         void swap(CTimeSeriesDecomposition &other);
@@ -87,7 +83,10 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         void acceptPersistInserter(core::CStatePersistInserter &inserter) const;
 
         //! Clone this decomposition.
-        virtual CTimeSeriesDecomposition *clone(void) const;
+        virtual CTimeSeriesDecomposition *clone(bool isForForecast = false) const;
+
+        //! Set the data type.
+        virtual void dataType(maths_t::EDataType dataType);
 
         //! Set the decay rate.
         virtual void decayRate(double decayRate);
@@ -115,6 +114,15 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
                               const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
                               const maths_t::TDouble4Vec &weights = TWeights::UNIT);
 
+        //! Apply \p change at \p time.
+        //!
+        //! \param[in] time The time of the change point.
+        //! \param[in] value The value immediately before the change
+        //! point.
+        //! \param[in] change A description of the change to apply.
+        virtual void applyChange(core_t::TTime time, double value,
+                                 const SChangeDescription &change);
+
         //! Propagate the decomposition forwards to \p time.
         void propagateForwardsTo(core_t::TTime time);
 
@@ -139,18 +147,20 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         //! \param[in] step The time increment.
         //! \param[in] confidence The forecast confidence interval.
         //! \param[in] minimumScale The minimum permitted seasonal scale.
-        //! \param[in] result Filled in with the forecast lower bound, prediction
-        //! and upper bound.
+        //! \param[in] writer Forecast results are passed to this callback.
         virtual void forecast(core_t::TTime startTime,
                               core_t::TTime endTime,
                               core_t::TTime step,
                               double confidence,
                               double minimumScale,
-                              TDouble3VecVec &result);
+                              const TWriteForecastResult &writer);
 
         //! Detrend \p value from the time series being modeled by removing
         //! any trend and periodic component at \p time.
-        virtual double detrend(core_t::TTime time, double value, double confidence) const;
+        virtual double detrend(core_t::TTime time,
+                               double value,
+                               double confidence,
+                               int components = E_All) const;
 
         //! Get the mean variance of the baseline.
         virtual double meanVariance(void) const;
@@ -196,7 +206,8 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         void initializeMediator(void);
 
         //! Create from part of a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
+                                    core::CStateRestoreTraverser &traverser);
 
         //! The correction to produce a smooth join between periodic
         //! repeats and partitions.
@@ -219,6 +230,9 @@ class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInt
         static const core_t::TTime SMOOTHING_INTERVAL;
 
     private:
+        //! Any time shift to supplied times.
+        core_t::TTime m_TimeShift;
+
         //! The time of the latest value added.
         core_t::TTime m_LastValueTime;
 

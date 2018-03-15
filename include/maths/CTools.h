@@ -729,7 +729,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
             return 1.0 / (1.0 + 1.0 / p);
         }
 
-        //! A smooth Heaviside function centred at one.
+        //! A smooth Heaviside function.
         //!
         //! This is a smooth version of the Heaviside function implemented
         //! as \f$sigmoid\left(\frac{sign (x - 1)}{wb}\right)\f$ normalized
@@ -739,10 +739,11 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable
         //!
         //! \param[in] x The argument.
         //! \param[in] width The step width.
+        //! \param[in] x0 The centre of the step.
         //! \param[in] sign Determines whether it's a step up or down.
-        static double smoothHeaviside(double x, double width, double sign = 1.0)
+        static double smoothHeaviside(double x, double width, double x0 = 0.0, double sign = 1.0)
         {
-            return  sigmoid(std::exp(sign * (x - 1.0) / width))
+            return  sigmoid(std::exp(sign * (x - x0) / width))
                   / sigmoid(std::exp(1.0 / width));
         }
 

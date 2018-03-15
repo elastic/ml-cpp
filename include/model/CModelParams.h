@@ -27,6 +27,7 @@ namespace ml
 namespace maths
 {
 struct SDistributionRestoreParams;
+struct STimeSeriesDecompositionRestoreParams;
 }
 namespace model
 {
@@ -34,8 +35,8 @@ namespace model
 //!
 //! DESCIRIPTION:\n
 //! The idea of this class is to encapsulate global model configuration
-//! to avoid the need of updating the constructor signatures of all the
-//! classes in the CModel hierarchy when new parameters added.
+//! parameters to avoid the need of updating the constructor signatures
+//! of all the classes in the CModel hierarchy when new parameters added.
 //!
 //! IMPLEMENTATION:\n
 //! This is purposely not implemented as a nested class so that it can
@@ -47,7 +48,6 @@ struct MODEL_EXPORT SModelParams
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
     using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
     using TStrDetectionRulePrVecCRef = boost::reference_wrapper<const TStrDetectionRulePrVec>;
-
     using TTimeVec = std::vector<core_t::TTime>;
 
     explicit SModelParams(core_t::TTime bucketLength);
@@ -57,6 +57,9 @@ struct MODEL_EXPORT SModelParams
 
     //! Get the minimum permitted number of points in a sketched point.
     double minimumCategoryCount(void) const;
+
+    //! Get the parameters supplied when restoring time series decompositions.
+    maths::STimeSeriesDecompositionRestoreParams decompositionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get the parameters supplied when restoring distribution models.
     maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;
@@ -96,6 +99,12 @@ struct MODEL_EXPORT SModelParams
     //! The number of points to use for approximating each seasonal component.
     std::size_t s_ComponentSize;
 
+    //! The minimum time to detect a change point in a time series.
+    core_t::TTime s_MinimumTimeToDetectChange;
+
+    //! The maximum time to test for a change point in a time series.
+    core_t::TTime s_MaximumTimeToTestForChange;
+
     //! Controls whether to exclude heavy hitters.
     model_t::EExcludeFrequent s_ExcludeFrequent;
 
@@ -107,10 +116,6 @@ struct MODEL_EXPORT SModelParams
 
     //! The maximum number of times we'll update a metric model in a bucket.
     double s_MaximumUpdatesPerBucket;
-
-    //! The number of times we sample the people's attribute distributions
-    //! to compute raw total probabilities for population models.
-    std::size_t s_TotalProbabilityCalcSamplingSize;
 
     //! The minimum value for the influence for which an influencing field
     //! value is judged to have any influence on a feature value.

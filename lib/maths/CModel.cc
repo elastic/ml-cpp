@@ -8,6 +8,9 @@
 #include <maths/CModelDetail.h>
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
+
+#include <maths/CTools.h>
 
 #include <boost/range.hpp>
 
@@ -60,26 +63,28 @@ double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculatio
     return 0.0;
 }
 
-const double EFFECTIVE_COUNT[] = { 1.0, 0.8, 0.7, 0.65, 0.6, 0.57, 0.54, 0.52, 0.51 };
-const double LEARN_RATE = 1.0;
-const double DECAY_RATE = 0.0;
+const double EFFECTIVE_COUNT[]{ 1.0, 0.8, 0.7, 0.65, 0.6, 0.57, 0.54, 0.52, 0.51 };
 
 //! Get the parameters for the stub model.
 CModelParams stubParameters(void)
 {
-    return CModelParams(0, LEARN_RATE, DECAY_RATE, 0.0);
+    return CModelParams{0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY};
 }
 
 }
 
 CModelParams::CModelParams(core_t::TTime bucketLength,
-                           const double &learnRate,
-                           const double &decayRate,
-                           double minimumSeasonalVarianceScale) :
+                           double learnRate,
+                           double decayRate,
+                           double minimumSeasonalVarianceScale,
+                           core_t::TTime minimumTimeToDetectChange,
+                           core_t::TTime maximumTimeToTestForChange) :
         m_BucketLength(bucketLength),
         m_LearnRate(learnRate),
         m_DecayRate(decayRate),
         m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
+        m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 12 * bucketLength)),
+        m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 48 * bucketLength)),
         m_ProbabilityBucketEmpty(0.0)
 {}
 
@@ -106,6 +111,27 @@ double CModelParams::averagingDecayRate(void) const
 double CModelParams::minimumSeasonalVarianceScale(void) const
 {
     return m_MinimumSeasonalVarianceScale;
+}
+
+bool CModelParams::testForChange(core_t::TTime changeInterval) const
+{
+    return changeInterval >= std::max(3 * m_BucketLength, 10 * core::constants::MINUTE);
+}
+
+core_t::TTime CModelParams::minimumTimeToDetectChange(core_t::TTime timeSinceLastChangePoint) const
+{
+    // If there was a recent change then there is a chance that this is
+    // a reversion of the previous change. We reversions to occur faster.
+    double revertFactor{CTools::smoothHeaviside(  static_cast<double>(timeSinceLastChangePoint)
+                                                / static_cast<double>(m_MaximumTimeToTestForChange),
+                                                0.1, 1.0)};
+    return static_cast<core_t::TTime>(std::ceil( (0.3 + 0.7 * revertFactor)
+                                                * static_cast<double>(m_MinimumTimeToDetectChange)));
+}
+
+core_t::TTime CModelParams::maximumTimeToTestForChange(void) const
+{
+    return m_MaximumTimeToTestForChange;
 }
 
 void CModelParams::probabilityBucketEmpty(double probability)
@@ -318,6 +344,17 @@ bool CModelProbabilityParams::updateAnomalyModel(void) const
 }
 
 
+CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs)
+{
+    switch (lhs)
+    {
+    case E_Success: return rhs;
+    case E_Reset:   return rhs == E_Failure ? E_Failure : E_Reset;
+    case E_Failure: return E_Failure;
+    }
+    return E_Failure;
+}
+
 CModel::CModel(const CModelParams &params) : m_Params(params) {}
 
 double CModel::effectiveCount(std::size_t n)
@@ -341,11 +378,11 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
                                      double probabilityBucketEmpty,
                                      double probability)
 {
-    double pCorrected = (1.0 - probabilityBucketEmpty) * probability;
+    double pCorrected{(1.0 - probabilityBucketEmpty) * probability};
 
     if (!bucketEmpty)
     {
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty);
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty)};
         return std::min(pOneSided + pCorrected, 1.0);
     }
 
@@ -360,22 +397,22 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
 {
     if (!bucketEmpty[0] && !bucketEmpty[1])
     {
-        double pState = (1.0 - probabilityEmptyBucket[0]) * (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, 1.0 - pState);
+        double pState{(1.0 - probabilityEmptyBucket[0]) * (1.0 - probabilityEmptyBucket[1])};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value}, 1.0 - pState)};
         return std::min(pOneSided + pState * probability, 1.0);
     }
 
     if (!bucketEmpty[0])
     {
-        double pState = (1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1];
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, probabilityEmptyBucket[0]);
+        double pState{(1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1]};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value}, probabilityEmptyBucket[0])};
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
     }
 
     if (!bucketEmpty[1])
     {
-        double pState = probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, probabilityEmptyBucket[1]);
+        double pState{probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1])};
+        double pOneSided{oneSidedEmptyBucketCorrection(calculation, {value}, probabilityEmptyBucket[1])};
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
 
     }

@@ -7,6 +7,7 @@
 #include "CModelDetailsViewTest.h"
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CTimeSeriesDecomposition.h>
@@ -68,7 +69,9 @@ void CModelDetailsViewTest::testModelPlot()
             maths::CTimeSeriesDecomposition trend;
             maths::CNormalMeanPrecConjugate prior{
                 maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-            maths::CModelParams timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2};
+            maths::CModelParams timeSeriesModelParams{bucketLength, 1.0, 0.001, 0.2,
+                                                       6 * core::constants::HOUR,
+                                                      24 * core::constants::HOUR};
             maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 0, trend, prior};
             model->mockTimeSeriesModels({model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(0)),
                                          model::CMockModel::TMathsModelPtr(timeSeriesModel.clone(1)),

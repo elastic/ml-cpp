@@ -7,6 +7,7 @@
 #include "CProbabilityAndInfluenceCalculatorTest.h"
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 
 #include <maths/CMultivariateNormalConjugate.h>
 #include <maths/CMultivariateNormalConjugateFactory.h>
@@ -82,7 +83,8 @@ maths::CModelParams params(core_t::TTime bucketLength)
 {
     double learnRate{static_cast<double>(bucketLength) / 1800.0};
     double minimumSeasonalVarianceScale{0.4};
-    return maths::CModelParams{bucketLength, learnRate, 0.0, minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength, learnRate, 0.0, minimumSeasonalVarianceScale,
+                               6 * core::constants::HOUR, 24 * core::constants::HOUR};
 }
 
 std::size_t dimension(double) { return 1; }
