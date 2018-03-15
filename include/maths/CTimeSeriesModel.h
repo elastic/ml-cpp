@@ -36,6 +36,8 @@ class CMultivariatePrior;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
+class CUnivariateTimeSeriesChangeDetector;
+struct SChangeDescription;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
@@ -43,8 +45,10 @@ struct SModelRestoreParams;
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
 {
     public:
+        using TDouble4Vec = core::CSmallVector<double, 4>;
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePrCBuf = boost::circular_buffer<TTimeDoublePr>;
+        using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TDecayRateController2Ary = boost::array<CDecayRateController, 2>;
 
     public:
@@ -177,6 +181,19 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! Get the type of data being modeled.
         virtual maths_t::EDataType dataType(void) const;
 
+        //! \name Helpers
+        //@{
+        //! Unpack the weights in \p weights.
+        static TDouble4Vec unpack(const TDouble2Vec4Vec &weights);
+
+        //! Reinitialize \p residualModel using the detrended values
+        //! from \p slidingWindow.
+        static void reinitializeResidualModel(double learnRate,
+                                              const TDecompositionPtr &trend,
+                                              const TTimeDoublePrCBuf &slidingWindow,
+                                              CPrior &residualModel);
+        //@}
+
         //! \name Test Functions
         //@{
         //! Get the sliding window of recent values.
@@ -190,29 +207,45 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //@}
 
     private:
+        using TSizeVec = std::vector<std::size_t>;
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDouble1VecVec = std::vector<TDouble1Vec>;
         using TDouble2Vec4VecVec = std::vector<TDouble2Vec4Vec>;
         using TVector = CVectorNx1<double, 2>;
         using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
         using TDecayRateController2AryPtr = boost::shared_ptr<TDecayRateController2Ary>;
-        using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
         using TPriorPtr = boost::shared_ptr<CPrior>;
         using TAnomalyModelPtr = boost::shared_ptr<CTimeSeriesAnomalyModel>;
         using TMultivariatePriorCPtrSizePr = std::pair<const CMultivariatePrior*, std::size_t>;
         using TMultivariatePriorCPtrSizePr1Vec = core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
         using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
+        using TChangeDetectorPtr = boost::shared_ptr<CUnivariateTimeSeriesChangeDetector>;
 
     private:
-        CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel &other, std::size_t id);
+        CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel &other,
+                                   std::size_t id,
+                                   bool isForForecast = false);
+
+        //! Test for and apply any change we find.
+        EUpdateResult testAndApplyChange(const CModelAddSamplesParams &params,
+                                         const TSizeVec &order,
+                                         const TTimeDouble2VecSizeTrVec &samples);
+
+        //! Apply \p change to this model.
+        EUpdateResult applyChange(const SChangeDescription &change);
 
         //! Update the trend with \p samples.
         EUpdateResult updateTrend(const maths_t::TWeightStyleVec &trendStyles,
                                   const TTimeDouble2VecSizeTrVec &samples,
                                   const TDouble2Vec4VecVec &trendWeights);
 
+
         //! Compute the prediction errors for \p sample.
         void appendPredictionErrors(double interval, double sample, TDouble1VecVec (&result)[2]);
+
+        //! Reinitialize state after detecting a new component of the trend
+        //! decomposition.
+        void reinitializeStateGivenNewComponent(void);
 
         //! Get the models for the correlations and the models of the correlated
         //! time series.
@@ -247,6 +280,19 @@ class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel
         //! A model for time periods when the basic model can't predict the
         //! value of the time series.
         TAnomalyModelPtr m_AnomalyModel;
+
+        //! The last "normal" time and median value.
+        TTimeDoublePr m_CandidateChangePoint;
+
+        //! If the time series appears to be undergoing change, the contiguous
+        //! interval of unpredictable values.
+        core_t::TTime m_CurrentChangeInterval;
+
+        //! The time of the last change point.
+        core_t::TTime m_TimeOfLastChangePoint;
+
+        //! Used to test for changes in the time series.
+        TChangeDetectorPtr m_ChangeDetector;
 
         //! A sliding window of the recent samples (used to reinitialize the
         //! residual model when a new trend component is detected).
@@ -414,10 +460,8 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 
         //! Add a sample for the time series identified by \p id.
         void addSamples(std::size_t id,
-                        maths_t::EDataType type,
+                        const CModelAddSamplesParams &params,
                         const TTimeDouble2VecSizeTrVec &samples,
-                        const TDouble4Vec1Vec &weights,
-                        double interval,
                         double multiplier);
 
         //! Get the ids of the time series correlated with \p id.
@@ -464,6 +508,8 @@ class MATHS_EXPORT CTimeSeriesCorrelations
 class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
 {
     public:
+        using TDouble10Vec = core::CSmallVector<double, 10>;
+        using TDouble10Vec4Vec = core::CSmallVector<TDouble10Vec, 4>;
         using TTimeDouble2VecPr = std::pair<core_t::TTime, TDouble2Vec>;
         using TTimeDouble2VecPrCBuf = boost::circular_buffer<TTimeDouble2VecPr>;
         using TDecompositionPtr = boost::shared_ptr<CTimeSeriesDecompositionInterface>;
@@ -595,6 +641,19 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         //! Get the type of data being modeled.
         virtual maths_t::EDataType dataType(void) const;
 
+        //! \name Helpers
+        //@{
+        //! Unpack the weights in \p weights.
+        static TDouble10Vec4Vec unpack(const TDouble2Vec4Vec &weights);
+
+        //! Reinitialize \p residualModel using the detrended values
+        //! from \p slidingWindow.
+        static void reinitializeResidualModel(double learnRate,
+                                              const TDecompositionPtr10Vec &trend,
+                                              const TTimeDouble2VecPrCBuf &slidingWindow,
+                                              CMultivariatePrior &residualModel);
+        //@}
+
         //! \name Test Functions
         //@{
         //! Get the sliding window of recent values.
@@ -627,6 +686,10 @@ class MATHS_EXPORT CMultivariateTimeSeriesModel : public CModel
         void appendPredictionErrors(double interval,
                                     const TDouble2Vec &sample,
                                     TDouble1VecVec (&result)[2]);
+
+        //! Reinitialize state after detecting a new component of the trend
+        //! decomposition.
+        void reinitializeStateGivenNewComponent(void);
 
         //! Get the model dimension.
         std::size_t dimension(void) const;

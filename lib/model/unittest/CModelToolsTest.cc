@@ -16,6 +16,7 @@
 #include "CModelToolsTest.h"
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 #include <core/CSmallVector.h>
 
 #include <maths/CMultimodalPrior.h>
@@ -50,7 +51,9 @@ maths::CModelParams params(core_t::TTime bucketLength)
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{MINIMUM_SEASONAL_SCALE};
-    return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength, learnRates[bucketLength],
+                               DECAY_RATE, minimumSeasonalVarianceScale,
+                               6 * core::constants::HOUR, 24 * core::constants::HOUR};
 }
 
 maths::CNormalMeanPrecConjugate normal(void)

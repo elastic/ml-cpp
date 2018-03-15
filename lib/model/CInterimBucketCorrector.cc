@@ -19,6 +19,7 @@
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegerTools.h>
+#include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -51,15 +52,13 @@ double trendDecayRate(core_t::TTime bucketLength)
 CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
         : m_BucketLength(bucketLength),
           m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE)
-{
-}
+{}
 
 CInterimBucketCorrector::CInterimBucketCorrector(const CInterimBucketCorrector &other)
         : m_BucketLength(other.m_BucketLength),
           m_CountTrend(other.m_CountTrend),
           m_CountMean(other.m_CountMean)
-{
-}
+{}
 
 core_t::TTime CInterimBucketCorrector::calcBucketMidPoint(core_t::TTime time) const
 {
@@ -141,15 +140,23 @@ bool CInterimBucketCorrector::acceptRestoreTraverser(core::CStateRestoreTraverse
     do
     {
         const std::string &name = traverser.name();
-        RESTORE_NO_ERROR(COUNT_TREND_TAG,
-                         maths::CTimeSeriesDecomposition restored(trendDecayRate(m_BucketLength),
-                                                                  m_BucketLength, COMPONENT_SIZE,
-                                                                  traverser);
-                         m_CountTrend.swap(restored))
+        if (name == COUNT_TREND_TAG)
+        {
+            maths::SDistributionRestoreParams changeModelParams{maths_t::E_ContinuousData,
+                                                                decayRate(m_BucketLength)};
+            maths::STimeSeriesDecompositionRestoreParams params{trendDecayRate(m_BucketLength),
+                                                                m_BucketLength,
+                                                                COMPONENT_SIZE,
+                                                                changeModelParams};
+            maths::CTimeSeriesDecomposition restored(params, traverser);
+            m_CountTrend.swap(restored);
+            continue;
+        }
         RESTORE(COUNT_MEAN_TAG, m_CountMean.fromDelimited(traverser.value()))
     }
     while (traverser.next());
     return true;
 }
+
 }
 }

@@ -132,7 +132,7 @@ void CDecayRateController::reset(void)
     m_PredictionMean = TMeanAccumulator1Vec(m_PredictionMean.size());
     m_Bias           = TMeanAccumulator1Vec(m_Bias.size());
     m_RecentAbsError = TMeanAccumulator1Vec(m_RecentAbsError.size());
-    m_HistoricalAbsError  = TMeanAccumulator1Vec(m_HistoricalAbsError.size());
+    m_HistoricalAbsError = TMeanAccumulator1Vec(m_HistoricalAbsError.size());
     m_Multiplier.add(m_Target);
 }
 

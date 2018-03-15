@@ -88,6 +88,10 @@ const double MINIMUM_ACCURATE_VARIANCE_SCALE{0.5};
 //! introduced for some priors.
 const double MAXIMUM_ACCURATE_VARIANCE_SCALE{2.0};
 
+//! The default number of regression models used in periodic and
+//! calendar cyclic components of the trend decomposition.
+const std::size_t DECOMPOSITION_COMPONENT_SIZE{36u};
+
 //! The confidence interval to use for the seasonal trend and
 //! variation. We detrend to the nearest point in the confidence
 //! interval and use the upper confidence interval variance when
@@ -95,6 +99,15 @@ const double MAXIMUM_ACCURATE_VARIANCE_SCALE{2.0};
 //! anomalies after detecting a periodic trend (when the trend
 //! can be in significant error).
 const double DEFAULT_SEASONAL_CONFIDENCE_INTERVAL{50.0};
+
+//! The minimum fractional count of points in a cluster.
+const double MINIMUM_CLUSTER_SPLIT_FRACTION{0.0};
+
+//! The default minimum count of points in a cluster.
+const double MINIMUM_CLUSTER_SPLIT_COUNT{24.0};
+
+//! The minimum count of a category in the sketch to cluster.
+const double MINIMUM_CATEGORY_COUNT{0.5};
 
 //! \brief A collection of weight styles and weights.
 class MATHS_EXPORT CConstantWeights
@@ -131,15 +144,6 @@ class MATHS_EXPORT CConstantWeights
                        core::CSmallVector<VECTOR, 4>{VECTOR(dimension, 1.0)}};
         }
 };
-
-//! The minimum fractional count of points in a cluster.
-const double MINIMUM_CLUSTER_SPLIT_FRACTION{0.0};
-
-//! The default minimum count of points in a cluster.
-const double MINIMUM_CLUSTER_SPLIT_COUNT{24.0};
-
-//! The minimum count of a category in the sketch to cluster.
-const double MINIMUM_CATEGORY_COUNT{0.5};
 
 //! Get the maximum amount we'll penalize a model in addSamples.
 MATHS_EXPORT double maxModelPenalty(double numberSamples);

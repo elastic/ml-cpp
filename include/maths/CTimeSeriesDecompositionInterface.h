@@ -39,6 +39,7 @@ namespace maths
 class CMultivariatePrior;
 class CPrior;
 class CSeasonalComponent;
+struct SChangeDescription;
 
 //! \brief The interface for decomposing times series into periodic,
 //! calendar periodic and trend components.
@@ -49,6 +50,7 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         using TDouble3VecVec = std::vector<TDouble3Vec>;
         using TDoubleAry = boost::array<double, 2>;
         using TWeights = CConstantWeights;
+        using TWriteForecastResult = std::function<void (core_t::TTime, const TDouble3Vec &)>;
 
         //! The components of the decomposition.
         enum EComponents
@@ -68,7 +70,10 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         virtual ~CTimeSeriesDecompositionInterface(void) = default;
 
         //! Clone this decomposition.
-        virtual CTimeSeriesDecompositionInterface *clone(void) const = 0;
+        virtual CTimeSeriesDecompositionInterface *clone(bool isForForecast = false) const = 0;
+
+        //! Set the data type.
+        virtual void dataType(maths_t::EDataType dataType) = 0;
 
         //! Set the decay rate.
         virtual void decayRate(double decayRate) = 0;
@@ -96,6 +101,15 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
                               const maths_t::TWeightStyleVec &weightStyles = TWeights::COUNT,
                               const maths_t::TDouble4Vec &weights = TWeights::UNIT) = 0;
 
+        //! Apply \p change at \p time.
+        //!
+        //! \param[in] time The time of the change point.
+        //! \param[in] value The value immediately before the change
+        //! point.
+        //! \param[in] change A description of the change to apply.
+        virtual void applyChange(core_t::TTime time, double value,
+                                 const SChangeDescription &change) = 0;
+
         //! Propagate the decomposition forwards to \p time.
         virtual void propagateForwardsTo(core_t::TTime time) = 0;
 
@@ -120,20 +134,22 @@ class MATHS_EXPORT CTimeSeriesDecompositionInterface
         //! \param[in] step The time increment.
         //! \param[in] confidence The forecast confidence interval.
         //! \param[in] minimumScale The minimum permitted seasonal scale.
-        //! \param[in] result Filled in with the forecast lower bound, prediction
-        //! and upper bound.
+        //! \param[in] writer Forecast results are passed to this callback.
         virtual void forecast(core_t::TTime startTime,
                               core_t::TTime endTime,
                               core_t::TTime step,
                               double confidence,
                               double minimumScale,
-                              TDouble3VecVec &result) = 0;
+                              const TWriteForecastResult &writer) = 0;
 
         //! Detrend \p value from the time series being modeled by removing
         //! any periodic component at \p time.
         //!
         //! \note That detrending preserves the time series mean.
-        virtual double detrend(core_t::TTime time, double value, double confidence) const = 0;
+        virtual double detrend(core_t::TTime time,
+                               double value,
+                               double confidence,
+                               int components = E_All) const = 0;
 
         //! Get the mean variance of the baseline.
         virtual double meanVariance(void) const = 0;

@@ -25,6 +25,8 @@
 #include <maths/CDecayRateController.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CNormalMeanPrecConjugate.h>
+#include <maths/Constants.h>
+#include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecomposition.h>
 
@@ -295,7 +297,6 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
                  tt += HOUR)
             {
                 TDoubleDoublePr prediction = decomposition.value(tt, 70.0);
-
                 double residual = ::fabs(timeseries[tt / HOUR] - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -303,7 +304,6 @@ void CTimeSeriesDecompositionTest::testDistortedPeriodic(void)
                 maxValue = std::max(maxValue, ::fabs(timeseries[tt / HOUR]));
                 percentileError += std::max(std::max(prediction.first - timeseries[tt / HOUR],
                                                      timeseries[tt / HOUR] - prediction.second), 0.0);
-
                 //t.push_back(tt);
                 //f.push_back(timeseries[tt / HOUR]);
                 //fe.push_back(mean(value));
@@ -409,7 +409,6 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
             for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR)
             {
                 TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-
                 double residual = ::fabs(trend[t / HALF_HOUR] - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -417,7 +416,6 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
                 maxValue = std::max(maxValue, ::fabs(trend[t / HALF_HOUR]));
                 percentileError += std::max(std::max(prediction.first - trend[t / HALF_HOUR],
                                                      trend[t / HALF_HOUR] - prediction.second), 0.0);
-
                 //f.push_back(mean(value));
                 //r.push_back(residual);
             }
@@ -466,7 +464,7 @@ void CTimeSeriesDecompositionTest::testMinimizeLongComponents(void)
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
     CPPUNIT_ASSERT(totalSumResidual < 0.06 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.27 * totalMaxValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.28 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;
@@ -536,7 +534,6 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
             for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HALF_HOUR)
             {
                 TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-
                 double residual = ::fabs(trend[t / HALF_HOUR] - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -544,7 +541,6 @@ void CTimeSeriesDecompositionTest::testWeekend(void)
                 maxValue = std::max(maxValue, ::fabs(trend[t / HALF_HOUR]));
                 percentileError += std::max(std::max(prediction.first - trend[t / HALF_HOUR],
                                                      trend[t / HALF_HOUR] - prediction.second), 0.0);
-
                 //f.push_back(mean(value));
                 //r.push_back(residual);
             }
@@ -647,7 +643,6 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
                  t += HALF_HOUR)
             {
                 TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-
                 double residual = ::fabs(trend[t / HALF_HOUR] + noiseMean - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -655,7 +650,6 @@ void CTimeSeriesDecompositionTest::testSinglePeriodicity(void)
                 maxValue = std::max(maxValue, ::fabs(trend[t / HALF_HOUR]));
                 percentileError += std::max(std::max(prediction.first - (trend[t / HALF_HOUR] + noiseMean),
                                                      (trend[t / HALF_HOUR] + noiseMean) - prediction.second), 0.0);
-
                 //f.push_back(mean(value));
                 //r.push_back(residual);
             }
@@ -779,7 +773,6 @@ void CTimeSeriesDecompositionTest::testSeasonalOnset(void)
             for (core_t::TTime t = lastWeek; t < lastWeek + WEEK; t += HOUR)
             {
                 TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-
                 double residual = ::fabs(trend[t / HOUR] - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -1051,7 +1044,6 @@ void CTimeSeriesDecompositionTest::testSpikeyDataProblemCase(void)
             for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
             {
                 TDoubleDoublePr prediction = decomposition.value(lastWeekTimeseries[j].first, 70.0);
-
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -1214,7 +1206,6 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
             for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
             {
                 TDoubleDoublePr prediction = decomposition.value(lastWeekTimeseries[j].first, 70.0);
-
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -1222,7 +1213,6 @@ void CTimeSeriesDecompositionTest::testDiurnalProblemCase(void)
                 maxValue = std::max(maxValue, ::fabs(lastWeekTimeseries[j].second));
                 percentileError += std::max(std::max(prediction.first - lastWeekTimeseries[j].second,
                                                      lastWeekTimeseries[j].second - prediction.second), 0.0);
-
                 //times.push_back(lastWeekTimeseries[j].first);
                 //values.push_back(lastWeekTimeseries[j].second);
                 //f.push_back(mean(value));
@@ -1340,7 +1330,6 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
             for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j)
             {
                 TDoubleDoublePr prediction = decomposition.value(lastWeekTimeseries[j].first, 70.0);
-
                 double residual = ::fabs(lastWeekTimeseries[j].second - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
@@ -1348,7 +1337,6 @@ void CTimeSeriesDecompositionTest::testComplexDiurnalProblemCase(void)
                 maxValue = std::max(maxValue, ::fabs(lastWeekTimeseries[j].second));
                 percentileError += std::max(std::max(prediction.first - lastWeekTimeseries[j].second,
                                                      lastWeekTimeseries[j].second - prediction.second), 0.0);
-
                 //times.push_back(lastWeekTimeseries[j].first);
                 //values.push_back(lastWeekTimeseries[j].second);
                 //f.push_back(mean(value));
@@ -2266,11 +2254,11 @@ void CTimeSeriesDecompositionTest::testPersist(void)
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
+    maths::STimeSeriesDecompositionRestoreParams params{
+        decayRate + 0.1, bucketLength,
+        maths::SDistributionRestoreParams{maths_t::E_ContinuousData, decayRate + 0.1}};
 
-    maths::CTimeSeriesDecomposition restoredDecomposition(decayRate + 0.1,
-                                                          bucketLength,
-                                                          maths::CTimeSeriesDecomposition::DEFAULT_COMPONENT_SIZE,
-                                                          traverser);
+    maths::CTimeSeriesDecomposition restoredDecomposition(params, traverser);
 
     std::string newXml;
     {
@@ -2309,6 +2297,8 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
             return TDoubleDoublePr{first, second};
         };
 
+    maths::STimeSeriesDecompositionRestoreParams params{
+        0.1, HALF_HOUR, maths::SDistributionRestoreParams{maths_t::E_ContinuousData, 0.1}};
     std::string empty;
 
     LOG_DEBUG("*** Seasonal and Calendar Components ***");
@@ -2335,9 +2325,7 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-        maths::CTimeSeriesDecomposition decomposition(0.1, HALF_HOUR,
-                                                      maths::CTimeSeriesDecomposition::DEFAULT_COMPONENT_SIZE,
-                                                      traverser);
+        maths::CTimeSeriesDecomposition decomposition(params, traverser);
 
         // Check that the decay rates match and the values and variances
         // predictions match the values obtained from 6.2.
@@ -2398,9 +2386,7 @@ void CTimeSeriesDecompositionTest::testUpgrade(void)
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-        maths::CTimeSeriesDecomposition decomposition(0.1, HALF_HOUR,
-                                                      maths::CTimeSeriesDecomposition::DEFAULT_COMPONENT_SIZE,
-                                                      traverser);
+        maths::CTimeSeriesDecomposition decomposition(params, traverser);
 
         // Check that the decay rates match and the values and variances
         // predictions are close to the values obtained from 6.2. We can't
