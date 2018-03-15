@@ -67,8 +67,7 @@ CTimezone::CTimezone(void) {
     }
 }
 
-CTimezone::~CTimezone(void) {
-}
+CTimezone::~CTimezone(void) {}
 
 CTimezone &CTimezone::instance(void) {
     static CTimezone instance;

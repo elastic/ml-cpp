@@ -56,8 +56,7 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
 
     public:
         CKMostCorrelatedForTest(std::size_t size, double decayRate) :
-            maths::CKMostCorrelated(size, decayRate) {
-        }
+                                               maths::CKMostCorrelated(size, decayRate) {}
 
         void mostCorrelated(TCorrelationVec &result) const {
             this->maths::CKMostCorrelated::mostCorrelated(result);

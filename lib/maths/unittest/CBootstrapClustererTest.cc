@@ -60,8 +60,7 @@ class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
 
     public:
         CBootstrapClustererForTest(double overlapThreshold, double chainingFactor) :
-            maths::CBootstrapClusterer<POINT>(overlapThreshold, chainingFactor) {
-        }
+            maths::CBootstrapClusterer<POINT>(overlapThreshold, chainingFactor) {}
 
         void buildClusterGraph(TSizeVecVecVec &bootstrapClusters,
                                TGraph &graph) const {

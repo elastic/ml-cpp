@@ -202,8 +202,7 @@ CPoissonMeanConjugate::CPoissonMeanConjugate(double offset,
     CPrior(maths_t::E_IntegerData, decayRate),
     m_Offset(offset),
     m_Shape(shape),
-    m_Rate(rate) {
-}
+    m_Rate(rate) {}
 
 CPoissonMeanConjugate::CPoissonMeanConjugate(const SDistributionRestoreParams &params,
                                              core::CStateRestoreTraverser &traverser) :

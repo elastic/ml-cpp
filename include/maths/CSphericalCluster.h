@@ -34,8 +34,7 @@ struct MATHS_EXPORT SCountAndVariance {
     SCountAndVariance(double count = 0.0,
                       double variance = 0.0) :
         s_Count(count),
-        s_Variance(variance) {
-    }
+        s_Variance(variance) {}
 
     //! The count of point in the cluster.
     double s_Count;

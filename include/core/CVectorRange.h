@@ -87,8 +87,7 @@ class CVectorRange {
 
     public:
         CVectorRange(VECTOR &vector, size_type a, size_type b) :
-            m_Vector(&vector), m_A(a), m_B(b) {
-        }
+            m_Vector(&vector), m_A(a), m_B(b) {}
 
         //! Copy assignment.
         const CVectorRange &operator=(const CVectorRange &other) {

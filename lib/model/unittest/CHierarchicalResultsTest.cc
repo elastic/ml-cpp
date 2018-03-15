@@ -72,8 +72,7 @@ class CBreadthFirstCheck : public model::CHierarchicalResultsVisitor {
     public:
         CBreadthFirstCheck(void) :
             m_Layer(0),
-            m_Layers(1, TNodeCPtrSet()) {
-        }
+            m_Layers(1, TNodeCPtrSet()) {}
 
         virtual void visit(const model::CHierarchicalResults & /*results*/,
                            const TNode &node,
@@ -175,12 +174,10 @@ class CDepthFirstCheck : public model::CHierarchicalResultsVisitor {
 //! \brief A pretty print of the hierarchical results.
 class CPrinter : public model::CHierarchicalResultsVisitor {
     public:
-        CPrinter() : m_ShouldPrintWrittenNodesOnly(false) {
-        }
+        CPrinter() : m_ShouldPrintWrittenNodesOnly(false) {}
 
         CPrinter(bool shouldOnlyPrintWrittenNodes)
-            : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {
-        }
+            : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
         virtual void visit(const model::CHierarchicalResults &results,
                            const TNode &node,
@@ -278,8 +275,7 @@ class CCheckScores : public model::CHierarchicalResultsVisitor {
 class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
     public:
         CWriteConsistencyChecker(const model::CLimits &limits) :
-            m_Limits(limits) {
-        }
+            m_Limits(limits) {}
 
         virtual void visit(const model::CHierarchicalResults &results,
                            const TNode &node,
@@ -316,8 +312,7 @@ typedef TIntDoubleVecMap::const_iterator TIntDoubleVecMapCItr;
 
 //! \brief Node probability container.
 struct SNodeProbabilities {
-    SNodeProbabilities(const std::string &name) : s_Name(name) {
-    }
+    SNodeProbabilities(const std::string &name) : s_Name(name) {}
 
     std::string s_Name;
     TIntDoubleVecMap s_Probabilities;
@@ -349,8 +344,7 @@ class CProbabilityGatherer : public model::CHierarchicalResultsLevelSet<SNodePro
         };
 
     public:
-        CProbabilityGatherer(void) : TBase(SNodeProbabilities("bucket")) {
-        }
+        CProbabilityGatherer(void) : TBase(SNodeProbabilities("bucket")) {}
 
         virtual void visit(const model::CHierarchicalResults & /*results*/, const TNode &node, bool pivot) {
             if (isLeaf(node)) {

@@ -60,8 +60,7 @@ class CUnprotectedAdder : public ml::core::CThread {
             : m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {
-        }
+              m_Variable(variable) {}
 
     protected:
         void run(void) {
@@ -91,8 +90,7 @@ class CAtomicAdder : public ml::core::CThread {
             : m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {
-        }
+              m_Variable(variable) {}
 
     protected:
         void run(void) {
@@ -124,8 +122,7 @@ class CFastMutexProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {
-        }
+              m_Variable(variable) {}
 
     protected:
         void run(void) {
@@ -160,8 +157,7 @@ class CMutexProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {
-        }
+              m_Variable(variable) {}
 
     protected:
         void run(void) {
@@ -196,8 +192,7 @@ class CWriteLockProtectedAdder : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Increment(increment),
-              m_Variable(variable) {
-        }
+              m_Variable(variable) {}
 
     protected:
         void run(void) {
@@ -231,8 +226,7 @@ class CReadLockProtectedReader : public ml::core::CThread {
               m_SleepTime(sleepTime),
               m_Iterations(iterations),
               m_Variable(variable),
-              m_LastRead(variable) {
-        }
+              m_LastRead(variable) {}
 
         uint32_t lastRead(void) const {
             return m_LastRead;

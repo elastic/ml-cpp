@@ -226,7 +226,7 @@ bool CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       CBasicStatistics::mean(this->baseline(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->baseline(time, 0.0, E_Seasonal)),
                       CBasicStatistics::mean(this->baseline(time, 0.0, E_Calendar)),
-                      [this](core_t::TTime time_) {
+                      [this] (core_t::TTime time_) {
                           return CBasicStatistics::mean(this->baseline(
                                                             time_, 0.0, E_Seasonal | E_Calendar));
                       },
@@ -307,7 +307,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         return;
     }
 
-    auto predictor = [this, confidence](core_t::TTime time) {
+    auto predictor = [this, confidence] (core_t::TTime time) {
                          TVector2x1 prediction(0.0);
                          for (const auto &component : m_Components.seasonal()) {
                              if (component.initialized() && component.time().inWindow(time)) {
@@ -459,7 +459,7 @@ template<typename F>
 TDoubleDoublePr CTimeSeriesDecomposition::smooth(const F &f,
                                                  core_t::TTime time,
                                                  int components) const {
-    auto offset = [&f, time](core_t::TTime discontinuity) {
+    auto offset = [&f, time] (core_t::TTime discontinuity) {
                       TVector2x1 baselineMinusEps{vector2x1(f(discontinuity - 1))};
                       TVector2x1 baselinePlusEps{ vector2x1(f(discontinuity + 1))};
                       return 0.5 * (1.0 - static_cast<double>(std::abs(time - discontinuity))

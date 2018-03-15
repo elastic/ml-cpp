@@ -87,21 +87,18 @@ const double        SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE{2.5};
 }
 
 CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(void) :
-    CAdaptiveBucketing{0.0, 0.0} {
-}
+    CAdaptiveBucketing{0.0, 0.0} {}
 
 CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(const CSeasonalTime &time,
                                                                          double decayRate,
                                                                          double minimumBucketLength) :
     CAdaptiveBucketing{decayRate, minimumBucketLength},
-    m_Time{time.clone()} {
-}
+    m_Time{time.clone()} {}
 
 CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(const CSeasonalComponentAdaptiveBucketing &other) :
     CAdaptiveBucketing(other),
     m_Time{other.m_Time->clone()},
-    m_Buckets(other.m_Buckets) {
-}
+    m_Buckets(other.m_Buckets) {}
 
 CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(double decayRate,
                                                                          double minimumBucketLength,
@@ -589,7 +586,7 @@ double CSeasonalComponentAdaptiveBucketing::variance(std::size_t bucket) const {
 double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time) const {
     return m_Time->regressionInterval(std::min_element(
                                           m_Buckets.begin(), m_Buckets.end(),
-                                          [](const SBucket &lhs, const SBucket &rhs) {
+                                          [] (const SBucket &lhs, const SBucket &rhs) {
                 return lhs.s_FirstUpdate < rhs.s_FirstUpdate;
             })->s_FirstUpdate, time);
 }
@@ -597,8 +594,7 @@ double CSeasonalComponentAdaptiveBucketing::observedInterval(core_t::TTime time)
 CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(void) :
     s_Variance{0.0},
     s_FirstUpdate{UNSET_TIME},
-    s_LastUpdate{UNSET_TIME} {
-}
+    s_LastUpdate{UNSET_TIME} {}
 
 CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(const TRegression &regression,
                                                       double variance,
@@ -607,8 +603,7 @@ CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(const TRegression &regress
     s_Regression{regression},
     s_Variance{variance},
     s_FirstUpdate{firstUpdate},
-    s_LastUpdate{lastUpdate} {
-}
+    s_LastUpdate{lastUpdate} {}
 
 bool CSeasonalComponentAdaptiveBucketing::SBucket::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {

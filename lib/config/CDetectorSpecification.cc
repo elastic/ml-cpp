@@ -41,8 +41,7 @@ typedef std::vector<double>      TDoubleVec;
 //! \brief Checks if the name of some statistics matches a specified value.
 class CNameEquals {
     public:
-        CNameEquals(const std::string &value) : m_Value(&value) {
-        }
+        CNameEquals(const std::string &value) : m_Value(&value) {}
 
         bool operator()(const CFieldStatistics &stats) const {
             return stats.name() == *m_Value;
@@ -517,8 +516,7 @@ CDetectorSpecification::SParamScores::SParamScores(core_t::TTime bucketLength,
     s_BucketLength(bucketLength),
     s_IgnoreEmpty(ignoreEmpty),
     s_Score(score),
-    s_Descriptions(descriptions) {
-}
+    s_Descriptions(descriptions) {}
 
 }
 }

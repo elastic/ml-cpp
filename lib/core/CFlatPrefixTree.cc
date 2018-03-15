@@ -39,8 +39,7 @@ const std::string EMPTY_STRING = "";
 
 struct SCharNotEqualTo {
     SCharNotEqualTo(char c, std::size_t pos)
-        : s_Char(c), s_Pos(pos) {
-    }
+        : s_Char(c), s_Pos(pos) {}
 
     bool operator() (const std::string &str) {
         return str[s_Pos] != s_Char;
@@ -52,8 +51,7 @@ struct SCharNotEqualTo {
 }
 
 CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next)
-    : s_Char(c), s_Type(type), s_Next(next) {
-}
+    : s_Char(c), s_Type(type), s_Next(next) {}
 
 bool CFlatPrefixTree::SNode::operator<(char rhs) const {
     return s_Char < rhs;
@@ -63,12 +61,10 @@ CFlatPrefixTree::SDistinctChar::SDistinctChar(char c,
                                               char type,
                                               std::size_t start,
                                               std::size_t end)
-    : s_Char(c), s_Type(type), s_Start(start), s_End(end) {
-}
+    : s_Char(c), s_Type(type), s_Start(start), s_End(end) {}
 
 CFlatPrefixTree::CFlatPrefixTree(void)
-    : m_FlatTree() {
-}
+    : m_FlatTree() {}
 
 bool CFlatPrefixTree::build(const TStrVec &prefixes) {
     m_FlatTree.clear();

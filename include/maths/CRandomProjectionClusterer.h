@@ -232,8 +232,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
 
     public:
         CRandomProjectionClustererBatch(double compression) :
-            m_Compression(compression) {
-        }
+            m_Compression(compression) {}
 
         virtual ~CRandomProjectionClustererBatch(void) = default;
 
@@ -646,8 +645,7 @@ class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
 //! \brief Adapts clustering implementations for use by the random
 //! projection clusterer.
 template<typename CLUSTERER>
-class CRandomProjectionClustererFacade {
-};
+class CRandomProjectionClustererFacade {};
 
 //! \brief Adapts x-means for use by the random projection clusterer.
 template<std::size_t N, typename COST>
@@ -666,8 +664,7 @@ class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST> > {
             m_Xmeans(xmeans),
             m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
             m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
-            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {
-        }
+            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {}
 
         //! Set the points to cluster.
         void setPoints(TVectorNx1Vec &points) {
@@ -729,8 +726,7 @@ class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N> > > {
                                          std::size_t maxIterations) :
             m_Kmeans(kmeans),
             m_K(k),
-            m_MaxIterations(maxIterations) {
-        }
+            m_MaxIterations(maxIterations) {}
 
         //! Set the points to cluster.
         void setPoints(TVectorNx1Vec &points) {

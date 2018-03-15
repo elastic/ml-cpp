@@ -1032,9 +1032,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
             points.emplace_back(100.0, 100.0);
             this->normalizedScoreKnotPoints(points);
-        } else if (propName == PER_PARTITION_NORMALIZATION_PROPERTY) {
-
-        } else {
+        } else if (propName == PER_PARTITION_NORMALIZATION_PROPERTY) {} else {
             LOG_WARN("Ignoring unknown property " << propName);
         }
     }

@@ -117,12 +117,10 @@ class MATHS_EXPORT CRegression {
                 static const std::string STATISTIC_TAG;
 
             public:
-                CLeastSquaresOnline() : m_S() {
-                }
+                CLeastSquaresOnline() : m_S() {}
                 template<typename U>
                 CLeastSquaresOnline(const CLeastSquaresOnline<N_, U> &other) :
-                    m_S(other.statistic()) {
-                }
+                    m_S(other.statistic()) {}
 
                 //! Restore by traversing a state document.
                 bool acceptRestoreTraverser(core::CStateRestoreTraverser &traverser);

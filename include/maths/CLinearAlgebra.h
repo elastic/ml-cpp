@@ -146,7 +146,7 @@ struct SSymmetricMatrix {
     //! Check if this is zero.
     bool isZero(void) const {
         return std::find_if(m_LowerTriangle.begin(), m_LowerTriangle.end(),
-                            [](double ei) {
+                            [] (double ei) {
                         return ei != 0.0;
                     }) == m_LowerTriangle.end();
     }
@@ -881,7 +881,7 @@ struct SVector {
     //! Check if this is zero.
     bool isZero(void) const {
         return std::find_if(m_X.begin(), m_X.end(),
-                            [](double xi) {
+                            [] (double xi) {
                         return xi != 0.0;
                     }) == m_X.end();
     }

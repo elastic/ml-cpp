@@ -62,8 +62,7 @@ class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 
     protected:
         explicit CHierarchicalResultsLevelSet(const T &bucketElement) :
-            m_BucketElement(bucketElement) {
-        }
+            m_BucketElement(bucketElement) {}
 
         //! Get the root unique element.
         const T &bucketElement(void) const {

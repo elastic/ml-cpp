@@ -146,8 +146,7 @@ const std::string CFieldConfig::NONE_TOKEN("none");
 
 const std::string CFieldConfig::CLEAR("clear");
 
-CFieldConfig::CFieldConfig(void) {
-}
+CFieldConfig::CFieldConfig(void) {}
 
 CFieldConfig::CFieldConfig(const std::string &categorizationFieldName)
     : m_CategorizationFieldName(categorizationFieldName) {
@@ -1355,8 +1354,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_ConfigKey(configKey),
       m_ByHasExcludeFrequent(false),
       m_OverHasExcludeFrequent(false),
-      m_UseNull(true) {
-}
+      m_UseNull(true) {}
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
                                            int configKey,
@@ -1376,8 +1374,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_ByFieldName(byFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(false),
-      m_UseNull(useNull) {
-}
+      m_UseNull(useNull) {}
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
                                            int configKey,
@@ -1400,8 +1397,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string &fieldName,
       m_PartitionFieldName(partitionFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(overHasExcludeFrequent),
-      m_UseNull(useNull) {
-}
+      m_UseNull(useNull) {}
 
 CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function,
                                            const std::string &fieldName,
@@ -1420,8 +1416,7 @@ CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function
       m_PartitionFieldName(partitionFieldName),
       m_ByHasExcludeFrequent(byHasExcludeFrequent),
       m_OverHasExcludeFrequent(overHasExcludeFrequent),
-      m_UseNull(useNull) {
-}
+      m_UseNull(useNull) {}
 
 void CFieldConfig::CFieldOptions::description(std::string description) {
     m_Description.swap(description);

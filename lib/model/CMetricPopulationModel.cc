@@ -67,8 +67,7 @@ using TSizeFuzzyDeduplicateUMap = boost::unordered_map<std::size_t, CModelTools:
 
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights {
-    SValuesAndWeights(void) : s_IsInteger(false), s_IsNonNegative(false) {
-    }
+    SValuesAndWeights(void) : s_IsInteger(false), s_IsNonNegative(false) {}
     bool s_IsInteger, s_IsNonNegative;
     maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
@@ -128,8 +127,8 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelPtrPrVec &newFea
         m_FeatureModels.emplace_back(model.first, model.second);
     }
     std::sort(m_FeatureModels.begin(), m_FeatureModels.end(),
-              [](const SFeatureModels &lhs,
-                 const SFeatureModels &rhs) {
+              [] (const SFeatureModels &lhs,
+                  const SFeatureModels &rhs) {
                 return lhs.s_Feature < rhs.s_Feature;
             } );
 
@@ -141,8 +140,8 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelPtrPrVec &newFea
                                                    featureCorrelatesModels[i].second);
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
-                  [](const SFeatureCorrelateModels &lhs,
-                     const SFeatureCorrelateModels &rhs) {
+                  [] (const SFeatureCorrelateModels &lhs,
+                      const SFeatureCorrelateModels &rhs) {
                     return lhs.s_Feature < rhs.s_Feature;
                 });
     }
@@ -410,7 +409,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 }
 
                 std::size_t n = std::count_if(samples.begin(), samples.end(),
-                                              [cutoff](const CSample &sample) {
+                                              [cutoff] (const CSample &sample) {
                             return sample.time() >= cutoff;
                         });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
@@ -434,12 +433,12 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     if (duplicate < attribute.s_Values.size()) {
                         std::for_each(attribute.s_TrendWeights[duplicate][0].begin(),
                                       attribute.s_TrendWeights[duplicate][0].end(),
-                                      [countWeight, vs](double &weight) {
+                                      [countWeight, vs] (double &weight) {
                                     weight += countWeight / vs;
                                 });
                         std::for_each(attribute.s_PriorWeights[duplicate][0].begin(),
                                       attribute.s_PriorWeights[duplicate][0].end(),
-                                      [countWeight](double &weight) {
+                                      [countWeight] (double &weight) {
                                     weight += countWeight;
                                 });
                     } else {
@@ -872,7 +871,7 @@ const maths::CModel *CMetricPopulationModel::model(model_t::EFeature feature, st
 
 maths::CModel *CMetricPopulationModel::model(model_t::EFeature feature, std::size_t cid) {
     auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(),
-                          [feature](const SFeatureModels &model) {
+                          [feature] (const SFeatureModels &model) {
                 return model.s_Feature == feature;
             });
     return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : 0;
@@ -942,8 +941,7 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
 CMetricPopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime) :
     s_StartTime(startTime),
     s_TotalCount(0),
-    s_InterimCorrections(1) {
-}
+    s_InterimCorrections(1) {}
 
 }
 }

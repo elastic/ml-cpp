@@ -48,14 +48,11 @@ void CThreadFarmTest::testNumCpus(void) {
 namespace {
 class CString {
     public:
-        CString(void) {
-        }
+        CString(void) {}
 
-        CString(const std::string &str) : m_Str(str) {
-        }
+        CString(const std::string &str) : m_Str(str) {}
 
-        CString(const CString &arg) : m_Str(arg.m_Str) {
-        }
+        CString(const CString &arg) : m_Str(arg.m_Str) {}
 
         CString &operator=(const CString &arg) {
             m_Str = arg.m_Str;
@@ -110,8 +107,7 @@ class CHandler {
 
 class CProcessor {
     public:
-        CProcessor(const std::string &id) : m_Id(id) {
-        }
+        CProcessor(const std::string &id) : m_Id(id) {}
 
         void msgToResult(const std::string &str, CString &result) {
             LOG_DEBUG("messageToResult " << str);

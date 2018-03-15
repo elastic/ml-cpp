@@ -34,8 +34,7 @@ namespace information_criteria_detail {
 
 //! \brief Defines the sample covariance accumulator.
 template<typename T>
-struct SSampleCovariances {
-};
+struct SSampleCovariances {};
 
 //! \brief Defines the sample covariance accumulator for a CVectorNx1.
 template<typename T, std::size_t N>
@@ -124,8 +123,7 @@ class CSphericalGaussianInfoCriterion {
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
-            m_Likelihood(0.0) {
-        }
+            m_Likelihood(0.0) {}
         explicit CSphericalGaussianInfoCriterion(const TPointVecVec &x) :
             m_D(0.0),
             m_K(0.0),
@@ -242,8 +240,7 @@ class CGaussianInfoCriterion {
             m_D(0.0),
             m_K(0.0),
             m_N(0.0),
-            m_Likelihood(0.0) {
-        }
+            m_Likelihood(0.0) {}
         explicit CGaussianInfoCriterion(const TPointVecVec &x) :
             m_D(0.0),
             m_K(0.0),

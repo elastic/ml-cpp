@@ -54,8 +54,7 @@ struct SMeanLess {
 //! Checks if a tuple count is less than a specified value.
 class CCountLessThan {
     public:
-        CCountLessThan(double count) : m_Count(count) {
-        }
+        CCountLessThan(double count) : m_Count(count) {}
 
         bool operator()(const CNaturalBreaksClassifier::TTuple &tuple) const {
             return CBasicStatistics::count(tuple) < m_Count;

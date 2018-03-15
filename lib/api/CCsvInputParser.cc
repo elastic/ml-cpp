@@ -44,8 +44,7 @@ CCsvInputParser::CCsvInputParser(const std::string &input,
       m_WorkBufferPtr(0),
       m_WorkBufferEnd(0),
       m_NoMoreRecords(false),
-      m_LineParser(separator) {
-}
+      m_LineParser(separator) {}
 
 CCsvInputParser::CCsvInputParser(std::istream &strmIn,
                                  char separator)
@@ -55,8 +54,7 @@ CCsvInputParser::CCsvInputParser(std::istream &strmIn,
       m_WorkBufferPtr(0),
       m_WorkBufferEnd(0),
       m_NoMoreRecords(false),
-      m_LineParser(separator) {
-}
+      m_LineParser(separator) {}
 
 const std::string &CCsvInputParser::fieldNameStr(void) const {
     return m_FieldNameStr;
@@ -271,8 +269,7 @@ CCsvInputParser::CCsvLineParser::CCsvLineParser(char separator)
       m_LineCurrent(nullptr),
       m_LineEnd(nullptr),
       m_WorkFieldEnd(nullptr),
-      m_WorkFieldCapacity(0) {
-}
+      m_WorkFieldCapacity(0) {}
 
 void CCsvInputParser::CCsvLineParser::reset(const std::string &line) {
     m_SeparatorAfterLastField = false;

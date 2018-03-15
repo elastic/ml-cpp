@@ -87,8 +87,7 @@ const CInfluencesLess INFLUENCE_LESS = CInfluencesLess();
 class CInfluencerGreater {
     public:
         CInfluencerGreater(const std::string &field)
-            : m_Field(field) {
-        }
+            : m_Field(field) {}
 
         bool operator()(const CJsonOutputWriter::TDocumentWeakPtr &lhs,
                         const CJsonOutputWriter::TDocumentWeakPtr &rhs) const {
@@ -1069,8 +1068,7 @@ CJsonOutputWriter::SBucketData::SBucketData(void)
       s_BucketSpan(0),
       s_HighestProbability(-1),
       s_LowestInfluencerScore(101.0),
-      s_LowestBucketInfluencerScore(101.0) {
-}
+      s_LowestBucketInfluencerScore(101.0) {}
 
 CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snapshotTimestamp,
                                                               const std::string &description,
@@ -1087,8 +1085,7 @@ CJsonOutputWriter::SModelSnapshotReport::SModelSnapshotReport(core_t::TTime snap
       s_ModelSizeStats(modelSizeStats),
       s_NormalizerState(normalizerState),
       s_LatestRecordTime(latestRecordTime),
-      s_LatestFinalResultTime(latestFinalResultTime) {
-}
+      s_LatestFinalResultTime(latestFinalResultTime) {}
 
 }
 }

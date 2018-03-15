@@ -19,8 +19,7 @@
 #include "CMockDataAdder.h"
 
 CMockSearcher::CMockSearcher(const CMockDataAdder &mockDataAdder) :
-    m_MockDataAdder(mockDataAdder) {
-}
+    m_MockDataAdder(mockDataAdder) {}
 
 CMockSearcher::TIStreamP CMockSearcher::search(size_t currentDocNum, size_t /*limit*/) {
     if (currentDocNum == 0) {

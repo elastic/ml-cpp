@@ -1967,7 +1967,7 @@ void CTimeSeriesDecompositionTest::testCalendar(void) {
     core_t::TTime end = months.back();
     TDoubleVec    errors{ 5.0, 15.0, 35.0, 32.0, 25.0, 36.0, 22.0, 12.0, 3.0 };
 
-    auto trend = [&months, &errors](core_t::TTime t) {
+    auto trend = [&months, &errors] (core_t::TTime t) {
                      double result = 20.0 + 10.0 * ::sin(  boost::math::double_constants::two_pi
                                                            * static_cast<double>(t)
                                                            / static_cast<double>(DAY));
@@ -2034,7 +2034,7 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend(void) {
     LOG_DEBUG("|  CTimeSeriesDecompositionTest::testConditionOfTrend  |");
     LOG_DEBUG("+------------------------------------------------------+");
 
-    auto trend = [](core_t::TTime time) {
+    auto trend = [] (core_t::TTime time) {
                      return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
                  };
 
@@ -2161,14 +2161,14 @@ void CTimeSeriesDecompositionTest::testUpgrade(void) {
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;
-    auto load = [](const std::string &name, std::string &result) {
+    auto load = [] (const std::string &name, std::string &result) {
                     std::ifstream file;
                     file.open(name);
                     std::stringbuf buf;
                     file >> &buf;
                     result = buf.str();
                 };
-    auto stringToPair = [](const std::string &str) {
+    auto stringToPair = [] (const std::string &str) {
                             double      first;
                             double      second;
                             std::size_t n{str.find(",")};

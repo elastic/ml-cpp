@@ -230,8 +230,7 @@ class CSmoothHeavySide {
     public:
         CSmoothHeavySide(double slope, double offset) :
             m_Slope(slope),
-            m_Offset(offset) {
-        }
+            m_Offset(offset) {}
 
         bool operator()(double x, double &result) const {
             result =    ::exp(m_Slope * (x - m_Offset))
@@ -251,8 +250,7 @@ class CNormal {
     public:
         CNormal(double mean, double std) :
             m_Mean(mean),
-            m_Std(std) {
-        }
+            m_Std(std) {}
 
         bool operator()(double x, double &result) const {
             if (m_Std <= 0.0) {

@@ -54,8 +54,7 @@ class CMaskIterator : private boost::incrementable< CMaskIterator<ITR>,
 
     public:
         CMaskIterator(ITR begin, const TDifferenceVec &mask, difference_type index) :
-            m_Begin(begin), m_Mask(&mask), m_Index(index) {
-        }
+            m_Begin(begin), m_Mask(&mask), m_Index(index) {}
 
         template<typename OTHER_ITR>
         bool operator==(const CMaskIterator<OTHER_ITR> &rhs) const {

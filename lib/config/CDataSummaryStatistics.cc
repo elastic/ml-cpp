@@ -52,8 +52,7 @@ double                             PROBABILITY_TO_SAMPLE_N_GRAMS = 0.02;
 
 }
 
-CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {
-}
+CDataSummaryStatistics::CDataSummaryStatistics(void) : m_Count(0) {}
 
 uint64_t CDataSummaryStatistics::count(void) const {
     return m_Count;
@@ -90,8 +89,7 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(std::size_t
     m_LowestTopN(m_TopN.end()),
     m_EmpiricalEntropy(ES_K),
     m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
-}
+    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
 
 CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(const CDataSummaryStatistics &other,
                                                                      std::size_t n,
@@ -107,8 +105,7 @@ CCategoricalDataSummaryStatistics::CCategoricalDataSummaryStatistics(const CData
     m_LowestTopN(m_TopN.end()),
     m_EmpiricalEntropy(ES_K),
     m_DistinctNGrams(NUMBER_N_GRAMS, maths::CBjkstUniqueValues(DS_NUMBER_HASHES, DS_MAX_SIZE)),
-    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {
-}
+    m_NGramEmpricalEntropy(NUMBER_N_GRAMS, maths::CEntropySketch(ES_K)) {}
 
 void CCategoricalDataSummaryStatistics::add(core_t::TTime time, const std::string &example) {
     this->CDataSummaryStatistics::add(time);

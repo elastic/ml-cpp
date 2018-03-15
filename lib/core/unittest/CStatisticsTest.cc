@@ -32,8 +32,7 @@ const int TEST_STAT = 0u;
 
 class CStatisticsTestRunner : public ml::core::CThread {
     public:
-        CStatisticsTestRunner(void) : m_I(0), m_N(0) {
-        }
+        CStatisticsTestRunner(void) : m_I(0), m_N(0) {}
 
         void initialise(int i, int n) {
             m_N = n;
@@ -49,8 +48,7 @@ class CStatisticsTestRunner : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
         int m_I;
         int m_N;

@@ -24,8 +24,7 @@ namespace api {
 
 
 COutputChainer::COutputChainer(CDataProcessor &dataProcessor)
-    : m_DataProcessor(dataProcessor) {
-}
+    : m_DataProcessor(dataProcessor) {}
 
 void COutputChainer::newOutputStream(void) {
     m_DataProcessor.newOutputStream();

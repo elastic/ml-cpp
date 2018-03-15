@@ -53,8 +53,7 @@ class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT> {
 
     public:
         CKMeansOnlineTestForTest(std::size_t k, double decayRate = 0.0) :
-            maths::CKMeansOnline<POINT>(k, decayRate) {
-        }
+            maths::CKMeansOnline<POINT>(k, decayRate) {}
 
         static void add(const POINT &x,
                         double count,

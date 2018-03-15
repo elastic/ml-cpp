@@ -81,8 +81,7 @@ struct SMessage {
     SMessage(core_t::TTime time,
              const std::string &person,
              const std::string &attribute) :
-        s_Time(time), s_Person(person), s_Attribute(attribute) {
-    }
+        s_Time(time), s_Person(person), s_Attribute(attribute) {}
 
     bool operator<(const SMessage &other) const {
         return maths::COrderings::lexicographical_compare(s_Time, s_Person, s_Attribute,
@@ -95,13 +94,11 @@ struct SMessage {
 };
 
 struct SAnomaly {
-    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {
-    }
+    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {}
     SAnomaly(std::size_t bucket,
              const std::string &person,
              const TDoubleStrPrVec &attributes) :
-        s_Bucket(bucket), s_Person(person), s_Attributes(attributes) {
-    }
+        s_Bucket(bucket), s_Person(person), s_Attributes(attributes) {}
 
     std::size_t s_Bucket;
     std::string s_Person;

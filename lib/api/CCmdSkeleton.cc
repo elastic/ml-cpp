@@ -35,8 +35,7 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher *restoreSearcher,
     : m_RestoreSearcher(restoreSearcher),
       m_Persister(persister),
       m_InputParser(inputParser),
-      m_Processor(processor) {
-}
+      m_Processor(processor) {}
 
 bool CCmdSkeleton::ioLoop(void) {
     if (m_RestoreSearcher == 0) {

@@ -97,14 +97,10 @@ class MODEL_EXPORT CResultType {
         };
 
     public:
-        CResultType(void) : m_Type(0) {
-        }
-        CResultType(EInterimOrFinal type) : m_Type(type) {
-        }
-        CResultType(EConditionalOrUnconditional type) : m_Type(type) {
-        }
-        explicit CResultType(unsigned int type) : m_Type(type) {
-        }
+        CResultType(void) : m_Type(0) {}
+        CResultType(EInterimOrFinal type) : m_Type(type) {}
+        CResultType(EConditionalOrUnconditional type) : m_Type(type) {}
+        explicit CResultType(unsigned int type) : m_Type(type) {}
 
         //! Set whether or not this is interim.
         void set(EInterimOrFinal type) {

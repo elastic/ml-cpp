@@ -128,7 +128,7 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
 
     bool isPopulation{gatherer.isPopulation()};
 
-    auto addCurrentBucketValue = [&](std::size_t pid, std::size_t cid) {
+    auto addCurrentBucketValue = [&] (std::size_t pid, std::size_t cid) {
                                      const std::string &byFieldValue{this->byFieldValue(pid, cid)};
                                      if (this->contains(terms, byFieldValue)) {
                                          TDouble1Vec value(this->base().currentBucketValue(feature, pid, cid, time));
@@ -207,8 +207,7 @@ bool CModelDetailsView::isByFieldIdActive(std::size_t byFieldId) const {
 ////////// CEventRateModelDetailsView Implementation //////////
 
 CEventRateModelDetailsView::CEventRateModelDetailsView(const CEventRateModel &model) :
-    m_Model(&model) {
-}
+    m_Model(&model) {}
 
 const maths::CModel *CEventRateModelDetailsView::model(model_t::EFeature feature,
                                                        std::size_t byFieldId) const {
@@ -228,8 +227,7 @@ double CEventRateModelDetailsView::countVarianceScale(model_t::EFeature /*featur
 ////////// CEventRatePopulationModelDetailsView Implementation //////////
 
 CEventRatePopulationModelDetailsView::CEventRatePopulationModelDetailsView(const CEventRatePopulationModel &model) :
-    m_Model(&model) {
-}
+    m_Model(&model) {}
 
 const maths::CModel *CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
                                                                  std::size_t byFieldId) const {
@@ -249,8 +247,7 @@ double CEventRatePopulationModelDetailsView::countVarianceScale(model_t::EFeatur
 ////////// CMetricModelDetailsView Implementation //////////
 
 CMetricModelDetailsView::CMetricModelDetailsView(const CMetricModel &model) :
-    m_Model(&model) {
-}
+    m_Model(&model) {}
 
 const maths::CModel *CMetricModelDetailsView::model(model_t::EFeature feature,
                                                     std::size_t byFieldId) const {
@@ -276,8 +273,7 @@ double CMetricModelDetailsView::countVarianceScale(model_t::EFeature feature,
 ////////// CMetricPopulationModelDetailsView Implementation //////////
 
 CMetricPopulationModelDetailsView::CMetricPopulationModelDetailsView(const CMetricPopulationModel &model) :
-    m_Model(&model) {
-}
+    m_Model(&model) {}
 
 const maths::CModel *CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
                                                               std::size_t byFieldId) const {

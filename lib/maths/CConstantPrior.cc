@@ -117,8 +117,7 @@ void CConstantPrior::addSamples(const TWeightStyleVec & /*weightStyle*/,
     setConstant(samples[0], m_Constant);
 }
 
-void CConstantPrior::propagateForwardsByTime(double /*time*/) {
-}
+void CConstantPrior::propagateForwardsByTime(double /*time*/) {}
 
 CConstantPrior::TDoubleDoublePr
 CConstantPrior::marginalLikelihoodSupport(void) const {

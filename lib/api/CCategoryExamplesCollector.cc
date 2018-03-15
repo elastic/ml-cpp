@@ -45,8 +45,7 @@ const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
-    : m_MaxExamples(maxExamples) {
-}
+    : m_MaxExamples(maxExamples) {}
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser &traverser)
     : m_MaxExamples(maxExamples) {

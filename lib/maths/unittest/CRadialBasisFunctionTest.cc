@@ -37,8 +37,7 @@ class CValueAdaptor {
                       double scale) :
             m_Function(&function),
             m_Centre(centre),
-            m_Scale(scale) {
-        }
+            m_Scale(scale) {}
 
         bool operator()(double x, double &result) const {
             result = m_Function->value(x, m_Centre, m_Scale);
@@ -58,8 +57,7 @@ class CSquareDerivativeAdaptor {
                                  double scale) :
             m_Function(&function),
             m_Centre(centre),
-            m_Scale(scale) {
-        }
+            m_Scale(scale) {}
 
         bool operator()(double x, double &result) const {
             double d = m_Function->derivative(x, m_Centre, m_Scale);

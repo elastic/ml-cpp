@@ -602,8 +602,7 @@ const std::string EMPTY_STRING;
 
 }
 
-CAvailableModeDistributions::CAvailableModeDistributions(int value) : m_Value(value) {
-}
+CAvailableModeDistributions::CAvailableModeDistributions(int value) : m_Value(value) {}
 
 const CAvailableModeDistributions &
 CAvailableModeDistributions::operator+(const CAvailableModeDistributions &rhs) {
@@ -658,8 +657,7 @@ CXMeansOnline1d::CXMeansOnline1d(maths_t::EDataType dataType,
     m_MinimumClusterCount(minimumClusterCount),
     m_MinimumCategoryCount(minimumCategoryCount),
     m_WinsorisationConfidenceInterval(winsorisationConfidenceInterval),
-    m_Clusters(1, CCluster(*this)) {
-}
+    m_Clusters(1, CCluster(*this)) {}
 
 CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams &params,
                                  core::CStateRestoreTraverser &traverser) :
@@ -712,8 +710,7 @@ CXMeansOnline1d::CXMeansOnline1d(const CXMeansOnline1d &other) :
     m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
     m_Smallest(other.m_Smallest),
     m_Largest(other.m_Largest),
-    m_Clusters(other.m_Clusters) {
-}
+    m_Clusters(other.m_Clusters) {}
 
 CXMeansOnline1d &CXMeansOnline1d::operator=(const CXMeansOnline1d &other) {
     if (this != &other) {
@@ -1320,16 +1317,14 @@ CXMeansOnline1d::CCluster::CCluster(const CXMeansOnline1d &clusterer) :
     m_Index(clusterer.m_ClusterIndexGenerator.next()),
     m_Prior(CNormalMeanPrecConjugate::nonInformativePrior(clusterer.m_DataType,
                                                           clusterer.m_DecayRate)),
-    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate, clusterer.m_MinimumCategoryCount) {
-}
+    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate, clusterer.m_MinimumCategoryCount) {}
 
 CXMeansOnline1d::CCluster::CCluster(std::size_t index,
                                     const CNormalMeanPrecConjugate &prior,
                                     const CNaturalBreaksClassifier &structure) :
     m_Index(index),
     m_Prior(prior),
-    m_Structure(structure) {
-}
+    m_Structure(structure) {}
 
 bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestoreParams &params,
                                                        core::CStateRestoreTraverser &traverser) {

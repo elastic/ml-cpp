@@ -336,10 +336,8 @@ class API_EXPORT CFieldConfig {
 
     public:
         //! Key specifiers for the multi-index
-        struct SUniqueKey {
-        };
-        struct SConfigKey {
-        };
+        struct SUniqueKey {};
+        struct SConfigKey {};
 
         //! Index of field names to field options.
         //! Uniqueness is enforced by config key and also by the combination of

@@ -68,8 +68,7 @@ class CTokenListDataTyper : public CBaseTokenListDataTyper {
             : CBaseTokenListDataTyper(reverseSearchCreator,
                                       threshold,
                                       fieldName),
-              m_Dict(core::CWordDictionary::instance()) {
-        }
+              m_Dict(core::CWordDictionary::instance()) {}
 
     protected:
         //! Split the string into a list of tokens.  The result of the

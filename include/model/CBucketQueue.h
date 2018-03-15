@@ -58,8 +58,7 @@ class CBucketQueue {
                 CSerializer(const T &initial = T(),
                             const F &serializer = F()) :
                     m_InitialValue(initial),
-                    m_Serializer(serializer) {
-                }
+                    m_Serializer(serializer) {}
 
                 void operator()(const CBucketQueue &queue,
                                 core::CStatePersistInserter &inserter) const {

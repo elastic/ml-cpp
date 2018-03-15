@@ -98,8 +98,7 @@ class CCentreFilterChecker {
                              std::size_t &numberAdmitted) :
             m_Centres(centres),
             m_CentreFilter(centres),
-            m_NumberAdmitted(numberAdmitted) {
-        }
+            m_NumberAdmitted(numberAdmitted) {}
 
         bool operator()(const typename maths::CKdTree<POINT, TData>::SNode &node) const {
             typedef std::pair<double, std::size_t> TDoubleSizePr;

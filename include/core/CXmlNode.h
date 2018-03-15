@@ -57,8 +57,7 @@ class CORE_EXPORT CXmlNode {
         class CFirstElementEquals {
             public:
                 CFirstElementEquals(const std::string &str)
-                    : m_Str(str) {
-                }
+                    : m_Str(str) {}
 
                 template <typename PAIR>
                 bool operator()(const PAIR &pr) {

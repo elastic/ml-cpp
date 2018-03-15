@@ -1179,10 +1179,10 @@ void CMetricModelTest::testInfluence(void) {
         }
     }
 
-    auto testFeature = [this](model_t::EFeature feature,
-                              const TDoubleVecVec &values,
-                              const TStrVecVec &influencers,
-                              const TStrDoubleDoubleTrVecVec &influences) {
+    auto testFeature = [this] (model_t::EFeature feature,
+                               const TDoubleVecVec &values,
+                               const TStrVecVec &influencers,
+                               const TStrDoubleDoubleTrVecVec &influences) {
                            core_t::TTime startTime{0};
                            core_t::TTime bucketLength{10};
 

@@ -103,8 +103,7 @@ class MATHS_EXPORT CSolvers {
         template<typename F>
         class CTrapNaNArgument {
             public:
-                CTrapNaNArgument(const F &f) : m_F(f) {
-                }
+                CTrapNaNArgument(const F &f) : m_F(f) {}
 
                 inline double operator()(const double x) const {
                     if (CMathsFuncs::isNan(x)) {

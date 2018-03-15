@@ -258,8 +258,7 @@ class CORE_EXPORT CBase64Decoder {
 
         //! Interface method - unused
         template<typename SOURCE>
-        void close(SOURCE & /*src*/) {
-        }
+        void close(SOURCE & /*src*/) {}
 
     private:
 

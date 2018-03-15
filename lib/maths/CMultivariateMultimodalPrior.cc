@@ -162,7 +162,7 @@ void sampleMarginalLikelihood(const TModeVec &modes,
 
 void print(const TModeVec &modes, const std::string &separator, std::string &result) {
     double Z = std::accumulate(modes.begin(), modes.end(), 0.0,
-                               [](double sum, const TMode &mode) {
+                               [] (double sum, const TMode &mode) {
                     return sum + mode.weight();
                 });
 

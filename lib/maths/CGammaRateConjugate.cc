@@ -134,8 +134,7 @@ class CLikelihoodDerivativeFunction : public std::unary_function<double, double>
         CLikelihoodDerivativeFunction(double numberSamples,
                                       double target) :
             m_NumberSamples(numberSamples),
-            m_Target(target) {
-        }
+            m_Target(target) {}
 
         double operator()(double x) const {
             return boost::math::digamma(m_NumberSamples * x)
@@ -528,8 +527,7 @@ class CEvaluateOnSamples : core::CNonCopyable {
             m_Offset(offset),
             m_LikelihoodShape(likelihoodShape),
             m_PriorShape(priorShape),
-            m_PriorRate(priorRate) {
-        }
+            m_PriorRate(priorRate) {}
 
         bool operator()(double x, double &result) const {
             return evaluateFunctionOnJointDistribution(m_WeightStyles,
@@ -582,8 +580,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
             m_LikelihoodShape(likelihoodShape),
             m_PriorShape(priorShape),
             m_PriorRate(priorRate),
-            m_Tail(0) {
-        }
+            m_Tail(0) {}
 
         bool operator()(double x, double &result) const {
             CJointProbabilityOfLessLikelySamples probability;
@@ -814,8 +811,7 @@ CGammaRateConjugate::CGammaRateConjugate(maths_t::EDataType dataType,
     m_OffsetMargin(offsetMargin),
     m_LikelihoodShape(1.0),
     m_PriorShape(shape),
-    m_PriorRate(rate) {
-}
+    m_PriorRate(rate) {}
 
 CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams &params,
                                          core::CStateRestoreTraverser &traverser,
@@ -1616,8 +1612,7 @@ void CGammaRateConjugate::print(const std::string &indent, std::string &result) 
                       + " sd = " + core::CStringUtils::typeToStringPretty(deviation);
             return;
         }
-    } catch (const std::exception &) {
-    }
+    } catch (const std::exception &) {}
     double mean = CBasicStatistics::mean(m_SampleMoments);
     double deviation = ::sqrt(CBasicStatistics::variance(m_SampleMoments));
     result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset)

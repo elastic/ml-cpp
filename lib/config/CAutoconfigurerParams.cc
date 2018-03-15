@@ -41,8 +41,7 @@ typedef std::vector<std::string> TStrVec;
 template<typename T>
 class CConstraint {
     public:
-        virtual ~CConstraint(void) {
-        }
+        virtual ~CConstraint(void) {}
         virtual bool operator()(const T & /*value*/) const {
             return true;
         }
@@ -140,8 +139,7 @@ template<typename T> class CGreaterEqual : public std::greater_equal<T> {
 template<typename T, template<typename> class PREDICATE>
 class CValueIs : public CConstraint<T> {
     public:
-        CValueIs(const T &rhs) : m_Rhs(&rhs) {
-        }
+        CValueIs(const T &rhs) : m_Rhs(&rhs) {}
         bool operator()(const T &lhs) const {
             return m_Pred(lhs, *m_Rhs);
         }
@@ -157,8 +155,7 @@ class CValueIs : public CConstraint<T> {
 template<typename T, template<typename> class PREDICATE>
 class CVectorValueIs : public CConstraint<T> {
     public:
-        CVectorValueIs(const std::vector<T> &rhs) : m_Rhs(&rhs) {
-        }
+        CVectorValueIs(const std::vector<T> &rhs) : m_Rhs(&rhs) {}
         bool operator()(const std::vector<T> &lhs) const {
             std::size_t n = std::min(lhs.size(), m_Rhs->size());
             for (std::size_t i = 0u; i < n; ++i) {
@@ -193,8 +190,7 @@ class CNotEmpty : public CConstraint<T> {
 template<typename T>
 class CSizeIs : public CConstraint<T> {
     public:
-        CSizeIs(std::size_t size) : m_Size(size) {
-        }
+        CSizeIs(std::size_t size) : m_Size(size) {}
         bool operator()(const std::vector<T> &value) const {
             return value.size() == m_Size;
         }
@@ -210,8 +206,7 @@ class CSizeIs : public CConstraint<T> {
 //! \brief Wrapper around parameters so we can process an array in init.
 class CParameter : private core::CNonCopyable {
     public:
-        virtual ~CParameter(void) {
-        }
+        virtual ~CParameter(void) {}
         bool fromString(std::string value) {
             core::CStringUtils::trimWhitespace(value);
             value = core::CStringUtils::normaliseWhitespace(value);
@@ -231,16 +226,13 @@ class CBuiltinParameter : public CParameter {
     public:
         CBuiltinParameter(T &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<T>) {
-        }
+            m_Constraint(new CUnconstrained<T>) {}
         CBuiltinParameter(T &value, const CConstraint<T> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {
-        }
+            m_Constraint(constraint) {}
         CBuiltinParameter(T &value, TConstraintCPtr constraint) :
             m_Value(value),
-            m_Constraint(constraint) {
-        }
+            m_Constraint(constraint) {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
@@ -274,12 +266,10 @@ class CBuiltinVectorParameter : public CParameter {
     public:
         CBuiltinVectorParameter(std::vector<T> &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<T>) {
-        }
+            m_Constraint(new CUnconstrained<T>) {}
         CBuiltinVectorParameter(std::vector<T> &value, const CConstraint<T> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {
-        }
+            m_Constraint(constraint) {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
@@ -315,13 +305,11 @@ class COptionalStrVecParameter : public CParameter {
     public:
         COptionalStrVecParameter(CAutoconfigurerParams::TOptionalStrVec &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<std::string>) {
-        }
+            m_Constraint(new CUnconstrained<std::string>) {}
         COptionalStrVecParameter(CAutoconfigurerParams::TOptionalStrVec &value,
                                  const CConstraint<std::string> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {
-        }
+            m_Constraint(constraint) {}
 
         virtual bool fromStringImpl(const std::string &value) {
             std::string remainder;
@@ -348,8 +336,7 @@ class COptionalStrVecParameter : public CParameter {
 //! \brief The field data type parameter.
 class CFieldDataTypeParameter : public CParameter {
     public:
-        CFieldDataTypeParameter(CAutoconfigurerParams::TStrUserDataTypePrVec &value) : m_Value(value) {
-        }
+        CFieldDataTypeParameter(CAutoconfigurerParams::TStrUserDataTypePrVec &value) : m_Value(value) {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {
@@ -400,13 +387,11 @@ class CFunctionCategoryParameter : public CParameter {
     public:
         CFunctionCategoryParameter(CAutoconfigurerParams::TFunctionCategoryVec &value) :
             m_Value(value),
-            m_Constraint(new CUnconstrained<config_t::EFunctionCategory>) {
-        }
+            m_Constraint(new CUnconstrained<config_t::EFunctionCategory>) {}
         CFunctionCategoryParameter(CAutoconfigurerParams::TFunctionCategoryVec &value,
                                    const CConstraint<config_t::EFunctionCategory> *constraint) :
             m_Value(value),
-            m_Constraint(constraint) {
-        }
+            m_Constraint(constraint) {}
 
     private:
         virtual bool fromStringImpl(const std::string &value) {

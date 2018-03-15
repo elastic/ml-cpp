@@ -75,8 +75,7 @@ class CKMeansOnline {
         class CShouldDelete {
             public:
                 CShouldDelete(double minimumCategoryCount) :
-                    m_MinimumCategoryCount(minimumCategoryCount) {
-                }
+                    m_MinimumCategoryCount(minimumCategoryCount) {}
 
                 template<typename CLUSTER>
                 bool operator()(const CLUSTER &cluster) const {

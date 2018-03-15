@@ -44,8 +44,7 @@ typedef CQuantileSketch::TFloatFloatPrVec TFloatFloatPrVec;
 //! \brief Orders two indices of a value vector by increasing value.
 class CIndexingGreater {
     public:
-        CIndexingGreater(const TDoubleDoublePrVec &values) : m_Values(&values) {
-        }
+        CIndexingGreater(const TDoubleDoublePrVec &values) : m_Values(&values) {}
 
         bool operator()(std::size_t lhs, std::size_t rhs) const {
             return COrderings::lexicographical_compare(-(*m_Values)[lhs].first,
@@ -64,8 +63,7 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
                                                                        boost::equality_comparable< CUniqueIterator > > > {
     public:
         CUniqueIterator(TFloatFloatPrVec &knots, std::size_t i) :
-            m_Knots(&knots), m_I(i) {
-        }
+            m_Knots(&knots), m_I(i) {}
 
         bool operator==(const CUniqueIterator &rhs) const {
             return m_I == rhs.m_I && m_Knots == rhs.m_Knots;
@@ -81,15 +79,13 @@ class CUniqueIterator : private boost::addable2< CUniqueIterator, ptrdiff_t,
         const CUniqueIterator &operator++(void) {
             double    x = (*m_Knots)[m_I].first;
             ptrdiff_t n = m_Knots->size();
-            while (++m_I < n && (*m_Knots)[m_I].first == x) {
-            }
+            while (++m_I < n && (*m_Knots)[m_I].first == x) {}
             return *this;
         }
 
         const CUniqueIterator &operator--(void) {
             double x = (*m_Knots)[m_I].first;
-            while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {
-            }
+            while (--m_I >= 0 && (*m_Knots)[m_I].first == x) {}
             return *this;
         }
 

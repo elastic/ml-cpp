@@ -252,7 +252,7 @@ class CPersistFeatureData {
                     dataItrs.push_back(i);
                 }
                 std::sort(dataItrs.begin(), dataItrs.end(),
-                          [](TSizeSizeTUMapUMapCItr lhs, TSizeSizeTUMapUMapCItr rhs) {
+                          [] (TSizeSizeTUMapUMapCItr lhs, TSizeSizeTUMapUMapCItr rhs) {
                             return lhs->first < rhs->first;
                         });
 
@@ -274,7 +274,7 @@ class CPersistFeatureData {
                     pidItrs.push_back(i);
                 }
                 std::sort(pidItrs.begin(), pidItrs.end(),
-                          [](TSizeTUMapCItr lhs, TSizeTUMapCItr rhs) {
+                          [] (TSizeTUMapCItr lhs, TSizeTUMapCItr rhs) {
                             return lhs->first < rhs->first;
                         });
 
@@ -336,8 +336,7 @@ class CRestoreFeatureData {
         //! \brief Responsible for restoring individual gatherers.
         class CDoNewRestore {
             public:
-                CDoNewRestore(std::size_t dimension) : m_Dimension(dimension) {
-                }
+                CDoNewRestore(std::size_t dimension) : m_Dimension(dimension) {}
 
                 template<typename T>
                 bool operator()(core::CStateRestoreTraverser &traverser,
@@ -436,8 +435,7 @@ class CRestoreFeatureData {
         //! \brief Responsible for restoring individual gatherers.
         class CDoOldRestore {
             public:
-                CDoOldRestore(std::size_t dimension) : m_Dimension(dimension) {
-                }
+                CDoOldRestore(std::size_t dimension) : m_Dimension(dimension) {}
 
                 template<typename T>
                 bool operator()(core::CStateRestoreTraverser &traverser,

@@ -35,8 +35,7 @@ struct SDistributionRestoreParams;
 
 namespace xmeans_online_factory_detail {
 template<typename T, std::size_t N>
-class CFactory {
-};
+class CFactory {};
 
 #define XMEANS_FACTORY(T, N)                                                                        \
     template<>                                                                                          \

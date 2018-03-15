@@ -36,8 +36,7 @@ CLineifiedInputParser::CLineifiedInputParser(std::istream &strmIn)
       m_WorkBuffer(0),
       m_WorkBufferCapacity(0),
       m_WorkBufferPtr(0),
-      m_WorkBufferEnd(0) {
-}
+      m_WorkBufferEnd(0) {}
 
 CLineifiedInputParser::TCharPSizePr
 CLineifiedInputParser::parseLine(void) {

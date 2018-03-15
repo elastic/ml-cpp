@@ -106,8 +106,7 @@ size_t CStringCache::CCharPHash::operator()(const char *) const {
 
 inline
 CStringCache::CCharPStrEqual::CCharPStrEqual(size_t length)
-    : m_Length(length) {
-}
+    : m_Length(length) {}
 
 // Caller is responsible for ensuring that lhs is not NULL
 inline

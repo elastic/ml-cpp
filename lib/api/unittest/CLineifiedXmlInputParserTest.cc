@@ -54,8 +54,7 @@ class CSetupVisitor {
     public:
         CSetupVisitor(void)
             : m_RecordsPerBlock(0),
-              m_OutputWriter("root") {
-        }
+              m_OutputWriter("root") {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -93,8 +92,7 @@ class CSetupVisitor {
 class CVisitor {
     public:
         CVisitor(void)
-            : m_RecordCount(0) {
-        }
+            : m_RecordCount(0) {}
 
         //! Handle a record
         bool operator()(const ml::api::CLineifiedXmlInputParser::TStrStrUMap & /*dataRowFields*/) {

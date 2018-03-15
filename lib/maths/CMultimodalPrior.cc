@@ -363,7 +363,7 @@ void CMultimodalPrior::addSamples(const TWeightStyleVec &weightStyles_,
 
             double Z = std::accumulate(m_Modes.begin(), m_Modes.end(),
                                        weight[0][count],
-                                       [](double sum, const TMode &mode) {
+                                       [] (double sum, const TMode &mode) {
                         return sum + mode.weight();
                     });
 
@@ -662,8 +662,7 @@ std::string CMultimodalPrior::debugWeights(void) const {
 ////////// CMultimodalPrior::CModeSplitCallback Implementation //////////
 
 CMultimodalPrior::CModeSplitCallback::CModeSplitCallback(CMultimodalPrior &prior) :
-    m_Prior(&prior) {
-}
+    m_Prior(&prior) {}
 
 void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
                                                       std::size_t leftSplitIndex,
@@ -757,8 +756,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
 ////////// CMultimodalPrior::CModeMergeCallback Implementation //////////
 
 CMultimodalPrior::CModeMergeCallback::CModeMergeCallback(CMultimodalPrior &prior) :
-    m_Prior(&prior) {
-}
+    m_Prior(&prior) {}
 
 void CMultimodalPrior::CModeMergeCallback::operator()(std::size_t leftMergeIndex,
                                                       std::size_t rightMergeIndex,

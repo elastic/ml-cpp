@@ -83,8 +83,7 @@ class CORE_EXPORT CFloatStorage {
 
     public:
         //! Default construction of the floating point value.
-        CFloatStorage(void) : m_Value() {
-        }
+        CFloatStorage(void) : m_Value() {}
 
         //! Integer promotion. So one can write things like CFloatStorage(1).
         CFloatStorage(int value) : m_Value(float(value)) {
@@ -97,8 +96,7 @@ class CORE_EXPORT CFloatStorage {
         }
 
         //! Implicit construction from a float.
-        CFloatStorage(float value) : m_Value(value) {
-        }
+        CFloatStorage(float value) : m_Value(value) {}
 
         //! Implicit construction from a double.
         CFloatStorage(double value) : m_Value() {

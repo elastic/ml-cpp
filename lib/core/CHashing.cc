@@ -42,14 +42,12 @@ boost::random::mt11213b CHashing::CUniversalHash::ms_Generator;
 CFastMutex              CHashing::CUniversalHash::ms_Mutex;
 
 CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(void) :
-    m_M(1000), m_A(1), m_B(0) {
-}
+    m_M(1000), m_A(1), m_B(0) {}
 
 CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(uint32_t m,
                                                    uint32_t a,
                                                    uint32_t b) :
-    m_M(m), m_A(a), m_B(b) {
-}
+    m_M(m), m_A(a), m_B(b) {}
 
 uint32_t CHashing::CUniversalHash::CUInt32Hash::m(void) const
 {
@@ -76,13 +74,11 @@ std::string CHashing::CUniversalHash::CUInt32Hash::print(void) const
 
 
 CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(void) :
-    m_A(1), m_B(0) {
-}
+    m_A(1), m_B(0) {}
 
 CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(uint32_t a,
                                                                            uint32_t b) :
-    m_A(a), m_B(b) {
-}
+    m_A(a), m_B(b) {}
 
 uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a(void) const
 {
@@ -105,8 +101,7 @@ std::string CHashing::CUniversalHash::CUInt32UnrestrictedHash::print(void) const
 CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(uint32_t m,
                                                          const TUInt32Vec &a,
                                                          uint32_t b) :
-    m_M(m), m_A(a), m_B(b) {
-}
+    m_M(m), m_A(a), m_B(b) {}
 
 uint32_t CHashing::CUniversalHash::CUInt32VecHash::m(void) const
 {
@@ -137,8 +132,7 @@ std::string CHashing::CUniversalHash::CUInt32VecHash::print(void) const
 
 
 CHashing::CUniversalHash::CToString::CToString(const char delimiter) :
-    m_Delimiter(delimiter) {
-}
+    m_Delimiter(delimiter) {}
 
 std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32UnrestrictedHash &hash) const {
     return CStringUtils::typeToString(hash.a())
@@ -156,8 +150,7 @@ std::string CHashing::CUniversalHash::CToString::operator()(const CUInt32Hash &h
 
 
 CHashing::CUniversalHash::CFromString::CFromString(const char delimiter) :
-    m_Delimiter(delimiter) {
-}
+    m_Delimiter(delimiter) {}
 
 bool CHashing::CUniversalHash::CFromString::operator()(const std::string &token,
                                                        CUInt32UnrestrictedHash &hash) const {

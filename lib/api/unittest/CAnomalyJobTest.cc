@@ -64,11 +64,9 @@ class CEmptySearcher : public ml::core::CDataSearcher {
 
 class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CSingleResultVisitor(void) : m_LastResult(0.0) {
-        }
+        CSingleResultVisitor(void) : m_LastResult(0.0) {}
 
-        virtual ~CSingleResultVisitor(void) {
-        }
+        virtual ~CSingleResultVisitor(void) {}
 
         virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,
@@ -98,11 +96,9 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 
 class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CMultiResultVisitor(void) : m_LastResult(0.0) {
-        }
+        CMultiResultVisitor(void) : m_LastResult(0.0) {}
 
-        virtual ~CMultiResultVisitor(void) {
-        }
+        virtual ~CMultiResultVisitor(void) {}
 
         virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,
@@ -140,11 +136,9 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 
 class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
     public:
-        CResultsScoreVisitor(int score) : m_Score(score) {
-        }
+        CResultsScoreVisitor(int score) : m_Score(score) {}
 
-        virtual ~CResultsScoreVisitor(void) {
-        }
+        virtual ~CResultsScoreVisitor(void) {}
 
         virtual void visit(const ml::model::CHierarchicalResults & /*results*/,
                            const TNode &node,

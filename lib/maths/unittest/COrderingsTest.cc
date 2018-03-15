@@ -42,8 +42,7 @@ class CDictionary {
         static std::size_t ms_Copies;
 
     public:
-        CDictionary(const TStrVec &words) : m_Words(words) {
-        }
+        CDictionary(const TStrVec &words) : m_Words(words) {}
 
         CDictionary &operator=(const CDictionary &other) {
             ++ms_Copies;

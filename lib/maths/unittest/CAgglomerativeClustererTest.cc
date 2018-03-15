@@ -44,8 +44,7 @@ class CCluster {
     public:
         explicit CCluster(std::size_t p) :
             m_Height(0.0),
-            m_Points(1, p) {
-        }
+            m_Points(1, p) {}
 
         void swap(CCluster &other) {
             m_Points.swap(other.m_Points);
@@ -76,8 +75,7 @@ class CCluster {
         }
 
     private:
-        explicit CCluster(void) : m_Height(0.0) {
-        }
+        explicit CCluster(void) : m_Height(0.0) {}
 
     private:
         double   m_Height;
@@ -89,8 +87,7 @@ typedef std::vector<CCluster> TClusterVec;
 class CSlinkObjective {
     public:
         CSlinkObjective(const TDoubleVecVec &distanceMatrix) :
-            m_DistanceMatrix(&distanceMatrix) {
-        }
+            m_DistanceMatrix(&distanceMatrix) {}
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
             double         result = std::numeric_limits<double>::max();
@@ -116,8 +113,7 @@ class CSlinkObjective {
 class CClinkObjective {
     public:
         CClinkObjective(const TDoubleVecVec &distanceMatrix) :
-            m_DistanceMatrix(&distanceMatrix) {
-        }
+            m_DistanceMatrix(&distanceMatrix) {}
 
         double operator()(const CCluster &lhs, const CCluster &rhs) {
             double         result = -std::numeric_limits<double>::max();

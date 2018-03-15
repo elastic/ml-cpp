@@ -495,7 +495,7 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
         m_ErrorSums.erase(m_ErrorSums.begin(),
                           std::find_if(m_ErrorSums.begin(), m_ErrorSums.end(),
-                                       [bucket](const TTimeFloatPr &error_) {
+                                       [bucket] (const TTimeFloatPr &error_) {
                     return error_.first + WINDOW > bucket;
                 }));
         if (error >= high) {
@@ -512,8 +512,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
     // features.
     struct SStats {
         SStats(void) :
-            s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {
-        }
+            s_Offset(0), s_Repeats(0), s_Sum(0.0), s_Count(0.0), s_Significance(0.0) {}
         core_t::TTime s_Offset;
         unsigned int s_Repeats;
         double s_Sum;

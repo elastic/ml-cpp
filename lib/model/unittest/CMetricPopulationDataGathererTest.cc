@@ -64,8 +64,7 @@ struct SMessage {
         s_Person(person),
         s_Attribute(attribute),
         s_Value(value),
-        s_Influences(influences) {
-    }
+        s_Influences(influences) {}
 
     core_t::TTime s_Time;
     std::string s_Person;

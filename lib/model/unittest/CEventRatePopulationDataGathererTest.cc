@@ -50,8 +50,7 @@ struct SMessage {
              const std::string &person) :
         s_Time(time),
         s_Attribute(attribute),
-        s_Person(person) {
-    }
+        s_Person(person) {}
 
     bool operator<(const SMessage &other) const {
         return s_Time < other.s_Time;

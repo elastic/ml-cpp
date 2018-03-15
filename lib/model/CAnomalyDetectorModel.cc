@@ -281,7 +281,7 @@ bool CAnomalyDetectorModel::addResults(int detector,
             partitioningFields.back().second = boost::cref(this->personName(pid));
             std::for_each(m_DataGatherer->beginInfluencers(),
                           m_DataGatherer->endInfluencers(),
-                          [&results](const std::string &influencer) {
+                          [&results] (const std::string &influencer) {
                         results.addInfluencer(influencer);
                     });
             SAnnotatedProbability annotatedProbability;
@@ -533,8 +533,7 @@ const std::string   CAnomalyDetectorModel::EMPTY_STRING;
 
 
 CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel) :
-    s_Feature(feature), s_NewModel(newModel) {
-}
+    s_Feature(feature), s_NewModel(newModel) {}
 
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams &params_,
                                                                    core::CStateRestoreTraverser &traverser) {
@@ -585,8 +584,7 @@ CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(model_t:
                                                                         TCorrelationsPtr model) :
     s_Feature(feature),
     s_ModelPrior(modelPrior),
-    s_Models(model->clone()) {
-}
+    s_Models(model->clone()) {}
 
 bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(const SModelParams &params_,
                                                                             core::CStateRestoreTraverser &traverser) {
@@ -632,8 +630,7 @@ CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::CTimeSeriesCorrelateM
     m_ResourceMonitor(&resourceMonitor),
     m_MemoryUsage(memoryUsage),
     m_ResourceLimit(resourceLimit),
-    m_MaxNumberCorrelations(maxNumberCorrelations) {
-}
+    m_MaxNumberCorrelations(maxNumberCorrelations) {}
 
 bool CAnomalyDetectorModel::CTimeSeriesCorrelateModelAllocator::areAllocationsAllowed(void) const
 {

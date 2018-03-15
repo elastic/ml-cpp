@@ -250,8 +250,7 @@ class CEvaluateOnSamples : core::CNonCopyable {
             m_Mean(mean),
             m_Precision(precision),
             m_Shape(shape),
-            m_Rate(rate) {
-        }
+            m_Rate(rate) {}
 
         bool operator()(double x, double &result) const {
             return evaluateFunctionOnJointDistribution(m_WeightStyles,
@@ -296,8 +295,7 @@ class CMeanKernel {
 
     public:
         CMeanKernel(double m, double p, double a, double b) :
-            m_M(m), m_P(p), m_A(a), m_B(b) {
-        }
+            m_M(m), m_P(p), m_A(a), m_B(b) {}
 
         bool operator()(double x, TValue &result) const {
             try {
@@ -330,8 +328,7 @@ class CVarianceKernel {
 
     public:
         CVarianceKernel(double mean, double m, double p, double a, double b) :
-            m_Mean(mean), m_M(m), m_P(p), m_A(a), m_B(b) {
-        }
+            m_Mean(mean), m_M(m), m_P(p), m_A(a), m_B(b) {}
 
         bool operator()(const TValue &x, TValue &result) const {
             try {
@@ -383,8 +380,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
             m_Precision(precision),
             m_Shape(shape),
             m_Rate(rate),
-            m_Tail(0) {
-        }
+            m_Tail(0) {}
 
         bool operator()(double x, double &result) const {
             CJointProbabilityOfLessLikelySamples probability;
@@ -642,8 +638,7 @@ class CLogSampleSquareDeviation : core::CNonCopyable {
             m_WeightStyles(weightStyles),
             m_Samples(samples),
             m_Weights(weights),
-            m_Mean(mean) {
-        }
+            m_Mean(mean) {}
 
         bool operator()(double x, double &result) const {
             result = 0.0;
@@ -696,8 +691,7 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(maths_t::EDataType data
     m_GaussianMean(gaussianMean),
     m_GaussianPrecision(gaussianPrecision),
     m_GammaShape(gammaShape),
-    m_GammaRate(gammaRate) {
-}
+    m_GammaRate(gammaRate) {}
 
 CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRestoreParams &params,
                                                          core::CStateRestoreTraverser &traverser,
@@ -1569,8 +1563,7 @@ void CLogNormalMeanPrecConjugate::print(const std::string &indent,
         result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset)
                   + " sd = " + core::CStringUtils::typeToStringPretty(deviation);
         return;
-    } catch (const std::exception &) {
-    }
+    } catch (const std::exception &) {}
     result += "mean = <unknown> variance = <unknown>";
 }
 

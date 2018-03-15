@@ -48,8 +48,7 @@ CMultivariatePrior::CMultivariatePrior(void) :
     m_Forecasting(false),
     m_DataType(maths_t::E_DiscreteData),
     m_DecayRate(0.0),
-    m_NumberSamples(0) {
-}
+    m_NumberSamples(0) {}
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType,
                                        double decayRate) :
@@ -186,7 +185,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         std::copy_if(boost::make_counting_iterator(std::size_t(0)),
                      boost::make_counting_iterator(d),
                      marginalize.begin(),
-                     [coordinate](std::size_t j) {
+                     [coordinate] (std::size_t j) {
                     return j != coordinate;
                 });
         TUnivariatePriorPtr margin(this->univariate(marginalize, NO_CONDITIONS).first);
@@ -448,7 +447,7 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec &samples,
 
 bool CMultivariatePrior::check(const TSize10Vec &marginalize,
                                const TSizeDoublePr10Vec &condition) const {
-    static const auto FIRST = [](const TSizeDoublePr &pair) {
+    static const auto FIRST = [] (const TSizeDoublePr &pair) {
                                   return pair.first;
                               };
     std::size_t d = this->dimension();

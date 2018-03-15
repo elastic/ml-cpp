@@ -47,8 +47,7 @@ class CRapidJsonPoolAllocator {
         using TDocumentPtrVec  = std::vector<TDocumentPtr>;
     public:
         CRapidJsonPoolAllocator()
-            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {
-        }
+            : m_JsonPoolAllocator(m_FixedBuffer, FIXED_BUFFER_SIZE) {}
 
         ~CRapidJsonPoolAllocator() {
             this->clear();

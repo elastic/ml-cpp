@@ -24,8 +24,7 @@ namespace ml {
 namespace core {
 
 CMemoryUsageJsonWriter::CMemoryUsageJsonWriter(std::ostream &outStream) :
-    m_WriteStream(outStream), m_Writer(m_WriteStream), m_Finalised(false) {
-}
+    m_WriteStream(outStream), m_Writer(m_WriteStream), m_Finalised(false) {}
 
 CMemoryUsageJsonWriter::~CMemoryUsageJsonWriter() {
     this->finalise();

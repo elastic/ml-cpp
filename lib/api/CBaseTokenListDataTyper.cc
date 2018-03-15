@@ -58,8 +58,7 @@ CBaseTokenListDataTyper::CBaseTokenListDataTyper(const TTokenListReverseSearchCr
       m_LowerThreshold(std::min(0.99, std::max(0.01, threshold))),
       // Upper threshold is half way between the lower threshold and 1
       m_UpperThreshold((1.0 + m_LowerThreshold) / 2.0),
-      m_HasChanged(false) {
-}
+      m_HasChanged(false) {}
 
 void CBaseTokenListDataTyper::dumpStats(void) const {
     // Type number is vector index plus one
@@ -572,8 +571,7 @@ CBaseTokenListDataTyper::CTokenInfoItem::CTokenInfoItem(const std::string &str,
                                                         size_t index)
     : m_Str(str),
       m_Index(index),
-      m_TypeCount(0) {
-}
+      m_TypeCount(0) {}
 
 const std::string &CBaseTokenListDataTyper::CTokenInfoItem::str(void) const {
     return m_Str;
@@ -598,16 +596,14 @@ void CBaseTokenListDataTyper::CTokenInfoItem::incTypeCount(void) {
 }
 
 CBaseTokenListDataTyper::CSizePairFirstElementEquals::CSizePairFirstElementEquals(size_t value)
-    : m_Value(value) {
-}
+    : m_Value(value) {}
 
 CBaseTokenListDataTyper::SIdTranslater::SIdTranslater(const CBaseTokenListDataTyper &typer,
                                                       const TSizeSizePrVec &tokenIds,
                                                       char separator)
     : s_Typer(typer),
       s_TokenIds(tokenIds),
-      s_Separator(separator) {
-}
+      s_Separator(separator) {}
 
 std::ostream &operator<<(std::ostream &strm,
                          const CBaseTokenListDataTyper::SIdTranslater &translator) {

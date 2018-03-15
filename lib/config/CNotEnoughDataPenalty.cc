@@ -61,8 +61,7 @@ const bool IGNORE_EMPTY[] = { false, true };
 }
 
 CNotEnoughDataPenalty::CNotEnoughDataPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CNotEnoughDataPenalty *CNotEnoughDataPenalty::clone(void) const {
     return new CNotEnoughDataPenalty(*this);

@@ -418,8 +418,7 @@ CAgglomerativeClusterer::CNode::CNode(std::size_t index,
     m_LeftChild(0),
     m_RightChild(0),
     m_Index(index),
-    m_Height(height) {
-}
+    m_Height(height) {}
 
 bool CAgglomerativeClusterer::CNode::addChild(CNode &child) {
     if (!m_LeftChild) {

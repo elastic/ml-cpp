@@ -63,8 +63,7 @@ CForecastRunner::SForecast::SForecast()
       s_NumberOfModels(0),
       s_NumberOfForecastableModels(0),
       s_MemoryUsage(0),
-      s_Messages() {
-}
+      s_Messages() {}
 
 CForecastRunner::SForecast::SForecast(SForecast &&other)
     : s_ForecastId(std::move(other.s_ForecastId)),
@@ -78,8 +77,7 @@ CForecastRunner::SForecast::SForecast(SForecast &&other)
       s_NumberOfModels(other.s_NumberOfModels),
       s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
       s_MemoryUsage(other.s_MemoryUsage),
-      s_Messages(other.s_Messages) {
-}
+      s_Messages(other.s_Messages) {}
 
 CForecastRunner::SForecast &CForecastRunner::SForecast::operator=(SForecast &&other) {
     s_ForecastId = std::move(other.s_ForecastId);

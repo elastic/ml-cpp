@@ -44,10 +44,8 @@ class MATHS_EXPORT CSetTools {
                 typedef std::set<std::size_t> TSizeSet;
 
             public:
-                CIndexInSet(std::size_t index) : m_IndexSet(index) {
-                }
-                CIndexInSet(const TSizeSet &indexSet) : m_IndexSet(indexSet) {
-                }
+                CIndexInSet(std::size_t index) : m_IndexSet(index) {}
+                CIndexInSet(const TSizeSet &indexSet) : m_IndexSet(indexSet) {}
 
                 template<typename T>
                 bool operator()(const T &indexedObject) const {

@@ -63,8 +63,7 @@ class CThreadFarm : private CNonCopyable {
               m_LastPrint(0),
               m_MessagesAdded(0),
               m_Started(false),
-              m_Name(name) {
-        }
+              m_Name(name) {}
 
         virtual ~CThreadFarm(void) {
             // Shared_ptr cleans up

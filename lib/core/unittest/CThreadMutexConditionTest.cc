@@ -37,8 +37,7 @@ CppUnit::Test *CThreadMutexConditionTest::suite() {
 void CThreadMutexConditionTest::testThread(void) {
     class CThread : public ml::core::CThread {
         public:
-            CThread(void) : m_Running(false) {
-            }
+            CThread(void) : m_Running(false) {}
 
             bool isRunning(void) {
                 m_Mutex.lock();
@@ -98,8 +97,7 @@ void CThreadMutexConditionTest::testThread(void) {
 void CThreadMutexConditionTest::testThreadCondition(void) {
     class CThread : public ml::core::CThread {
         public:
-            CThread(void) : m_Condition(m_Mutex) {
-            }
+            CThread(void) : m_Condition(m_Mutex) {}
 
             void lock(void) {
                 LOG_DEBUG("lock start " << this->currentThreadId());

@@ -227,8 +227,7 @@ class CEvaluateOnSamples : core::CNonCopyable {
             m_Precision(precision),
             m_Shape(shape),
             m_Rate(rate),
-            m_PredictionMean(predictionMean) {
-        }
+            m_PredictionMean(predictionMean) {}
 
         bool operator()(double x, double &result) const {
             return evaluateFunctionOnJointDistribution(m_WeightStyles,
@@ -285,8 +284,7 @@ class CProbabilityOfLessLikelySamples : core::CNonCopyable {
             m_Shape(shape),
             m_Rate(rate),
             m_PredictionMean(predictionMean),
-            m_Tail(0) {
-        }
+            m_Tail(0) {}
 
         bool operator()(double x, double &result) const {
             CJointProbabilityOfLessLikelySamples probability;

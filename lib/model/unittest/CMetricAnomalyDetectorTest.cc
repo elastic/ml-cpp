@@ -64,8 +64,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
                       core_t::TTime bucketLength) :
             m_ModelConfig(modelConfig),
             m_Limits(limits),
-            m_BucketLength(bucketLength) {
-        }
+            m_BucketLength(bucketLength) {}
 
         void operator()(ml::model::CAnomalyDetector &detector,
                         ml::core_t::TTime start,

@@ -56,8 +56,7 @@ typedef std::vector<TPointSizePr>                                  TPointSizePrV
 //! to labeled points, are not equal to a specified variable.
 class CNotEqual : public std::unary_function<TPointSizePr, bool> {
     public:
-        CNotEqual(std::size_t X) : m_X(X) {
-        }
+        CNotEqual(std::size_t X) : m_X(X) {}
 
         bool operator()(const TPointSizePr &y) const {
             std::size_t Y = y.second;
@@ -75,8 +74,7 @@ class CPairNotIn : public std::unary_function<TPointSizePr, bool> {
     public:
         CPairNotIn(const TSizeSizePrUSet &lookup, std::size_t X) :
             m_Lookup(&lookup),
-            m_X(X) {
-        }
+            m_X(X) {}
 
         bool operator()(const TPointSizePr &y) const {
             std::size_t Y = y.second;
@@ -95,8 +93,7 @@ class CCloserThan : public std::unary_function<TPointSizePr, bool> {
     public:
         CCloserThan(double threshold, const TPoint &x) :
             m_Threshold(threshold),
-            m_X(x) {
-        }
+            m_X(x) {}
 
         bool operator()(const TPointSizePr &y) const {
             return pow2(bg::distance(m_X, y.first)) < m_Threshold;
@@ -640,8 +637,7 @@ const double      CKMostCorrelated::REPLACE_FRACTION = 0.1;
 
 CKMostCorrelated::SCorrelation::SCorrelation(void) :
     s_X(std::numeric_limits<std::size_t>::max()),
-    s_Y(std::numeric_limits<std::size_t>::max()) {
-}
+    s_Y(std::numeric_limits<std::size_t>::max()) {}
 
 CKMostCorrelated::SCorrelation::SCorrelation(std::size_t X,
                                              const TVector &px,
@@ -789,8 +785,7 @@ std::string CKMostCorrelated::SCorrelation::print(void) const
            + ' ' + core::CStringUtils::typeToString(s_Y);
 }
 
-CKMostCorrelated::CMatches::CMatches(std::size_t x) : m_X(x) {
-}
+CKMostCorrelated::CMatches::CMatches(std::size_t x) : m_X(x) {}
 
 bool CKMostCorrelated::CMatches::operator()(const SCorrelation &correlation) const {
     return correlation.s_X == m_X || correlation.s_Y == m_X;

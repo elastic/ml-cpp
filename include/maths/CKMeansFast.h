@@ -101,8 +101,7 @@ class CKMeansFast {
         //! points for stable comparison.
         class CCluster {
             public:
-                CCluster(void) : m_Checksum(0) {
-                }
+                CCluster(void) : m_Checksum(0) {}
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.
@@ -177,8 +176,7 @@ class CKMeansFast {
         //! node together with their centroid.
         class CKdTreeNodeData {
             public:
-                CKdTreeNodeData(void) {
-                }
+                CKdTreeNodeData(void) {}
                 explicit CKdTreeNodeData(const POINT &x) :
                     m_BoundingBox(x),
                     m_Centroid() {
@@ -268,8 +266,7 @@ class CKMeansFast {
                         CFurtherFrom(const TBoundingBox &bb_,
                                      std::size_t x_,
                                      const TPointVec &centres_) :
-                            bb(&bb_), x(x_), centres(&centres_) {
-                        }
+                            bb(&bb_), x(x_), centres(&centres_) {}
 
                         bool operator()(std::size_t y) const {
                             return y == x ? false : bb->closerToX((*centres)[x],
@@ -286,8 +283,7 @@ class CKMeansFast {
                 explicit CCentreFilter(const TPointVec &centres) :
                     m_Centres(&centres),
                     m_Filter(boost::counting_iterator<std::size_t>(0),
-                             boost::counting_iterator<std::size_t>(centres.size())) {
-                }
+                             boost::counting_iterator<std::size_t>(centres.size())) {}
 
                 //! Get the centres.
                 const TPointVec &centres(void) const {
@@ -351,8 +347,7 @@ class CKMeansFast {
                 CCentroidComputer(const TPointVec &centres,
                                   TMeanAccumulatorVec &centroids) :
                     m_Centres(centres),
-                    m_Centroids(&centroids) {
-                }
+                    m_Centroids(&centroids) {}
 
                 //! Update the centres with \p node.
                 //!
@@ -538,8 +533,7 @@ class CKMeansPlusPlusInitialization : private core::CNonCopyable {
         typedef std::vector<POINT>       TPointVec;
 
     public:
-        CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {
-        }
+        CKMeansPlusPlusInitialization(RNG &rng) : m_Rng(rng) {}
 
         //! Run the k-means++ centre selection algorithm on \p points.
         //!

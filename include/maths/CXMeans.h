@@ -73,8 +73,7 @@ class CXMeans {
         class CCluster {
             public:
                 CCluster(void) :
-                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {
-                }
+                    m_Cost(std::numeric_limits<double>::max()), m_Checksum(0) {}
 
                 //! Check for equality using checksum and then points if the
                 //! checksum is ambiguous.

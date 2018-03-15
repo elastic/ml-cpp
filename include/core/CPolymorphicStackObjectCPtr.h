@@ -23,8 +23,7 @@
 
 namespace ml {
 namespace core {
-class CORE_EXPORT CNullPolymorphicStackObjectCPtr {
-};
+class CORE_EXPORT CNullPolymorphicStackObjectCPtr {};
 
 //! \brief A stack based pointer to polymorphic object emulator.
 //!
@@ -45,12 +44,10 @@ class CPolymorphicStackObjectCPtr {
         typedef const typename boost::remove_const<D4>::type   TConstD4;
 
     public:
-        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {
-        }
+        CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
 
         template<typename T>
-        explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {
-        }
+        explicit CPolymorphicStackObjectCPtr(const T &d) : m_Storage(d) {}
 
         template<typename O1, typename O2, typename O3, typename O4>
         CPolymorphicStackObjectCPtr(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4> &other) {

@@ -600,8 +600,7 @@ struct SAddValue {
 //! \brief Updates the feature data for the start of a new bucket.
 struct SNewBucket {
     void operator()(TSizeUSetVec & /*attributePeople*/,
-                    core_t::TTime /*time*/) const {
-    }
+                    core_t::TTime /*time*/) const {}
     void operator()(TSizeSizePrStrDataUMapQueue &personAttributeUniqueCounts,
                     core_t::TTime time) const {
         if (time > personAttributeUniqueCounts.latestBucketEnd()) {
@@ -1780,7 +1779,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         }
         std::sort(strings.begin(), strings.end(), maths::COrderings::SLess());
         std::for_each(strings.begin(), strings.end(),
-                      [&compressor](const std::string &string) {
+                      [&compressor] (const std::string &string) {
                     compressor.addString(string);
                 });
 
@@ -1803,7 +1802,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
                 }
                 std::sort(strings.begin(), strings.end(), maths::COrderings::SLess());
                 std::for_each(strings.begin(), strings.end(),
-                              [&compressor](const std::string &string) {
+                              [&compressor] (const std::string &string) {
                             compressor.addString(string);
                         });
                 length = 0u;

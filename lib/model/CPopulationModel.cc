@@ -584,8 +584,7 @@ CPopulationModel::CCorrectionKey::CCorrectionKey(model_t::EFeature feature,
                                                  std::size_t pid,
                                                  std::size_t cid,
                                                  std::size_t correlated) :
-    m_Feature(feature), m_Pid(pid), m_Cid(cid), m_Correlate(correlated) {
-}
+    m_Feature(feature), m_Pid(pid), m_Cid(cid), m_Correlate(correlated) {}
 
 bool CPopulationModel::CCorrectionKey::operator==(const CCorrectionKey &rhs) const {
     return m_Feature == rhs.m_Feature &&

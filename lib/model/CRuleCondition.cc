@@ -34,8 +34,7 @@ using TDouble1Vec = CAnomalyDetectorModel::TDouble1Vec;
 
 CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
     : s_Op(op),
-      s_Threshold(threshold) {
-}
+      s_Threshold(threshold) {}
 
 bool CRuleCondition::SCondition::test(double value) const
 {
@@ -57,8 +56,7 @@ CRuleCondition::CRuleCondition(void)
       m_Condition(E_LT, 0.0),
       m_FieldName(),
       m_FieldValue(),
-      m_ValueFilter(EMPTY_FILTER) {
-}
+      m_ValueFilter(EMPTY_FILTER) {}
 
 void CRuleCondition::type(ERuleConditionType ruleType) {
     m_Type = ruleType;

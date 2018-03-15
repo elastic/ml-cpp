@@ -228,8 +228,7 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec &weightStyles,
                               const TDouble4Vec &weights) {
     try {
         return seasonalVarianceScale(weightStyles, weights) != 1.0;
-    } catch (const std::exception &) {
-    }
+    } catch (const std::exception &) {}
     return true;
 }
 
@@ -282,8 +281,7 @@ bool hasCountVarianceScale(const TWeightStyleVec &weightStyles,
                            const TDouble4Vec &weights) {
     try {
         return countVarianceScale(weightStyles, weights) != 1.0;
-    } catch (const std::exception &) {
-    }
+    } catch (const std::exception &) {}
     return true;
 }
 

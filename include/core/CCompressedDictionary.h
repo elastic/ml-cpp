@@ -96,8 +96,7 @@ class CCompressedDictionary {
                 CWord(void) {
                     std::fill(m_Hash.begin(), m_Hash.end(), 0);
                 }
-                CWord(const TUInt64Array &hash) : m_Hash(hash) {
-                }
+                CWord(const TUInt64Array &hash) : m_Hash(hash) {}
 
                 bool operator==(const CWord &other) const {
                     return m_Hash == other.m_Hash;

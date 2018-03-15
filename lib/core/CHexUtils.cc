@@ -35,8 +35,7 @@ CHexUtils::CHexUtils(const uint8_t *pkt,
     : m_Pkt(pkt),
       m_PktLen(pktLen),
       m_PrintHeader(printHeader),
-      m_PrintAscii(printAscii) {
-}
+      m_PrintAscii(printAscii) {}
 
 CHexUtils::CHexUtils(const TDataVec &data,
                      bool printHeader,
@@ -44,8 +43,7 @@ CHexUtils::CHexUtils(const TDataVec &data,
     : m_Pkt((data.size() > 0) ? &data[0] : 0),
       m_PktLen(data.size()),
       m_PrintHeader(printHeader),
-      m_PrintAscii(printAscii) {
-}
+      m_PrintAscii(printAscii) {}
 
 void CHexUtils::dump(const uint8_t *pkt, size_t pktLen) {
     CHexUtils hex(pkt, pktLen);

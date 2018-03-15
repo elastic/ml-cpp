@@ -151,8 +151,7 @@ class CSpline : public CSplineTypes {
         typedef typename boost::remove_const<TCurvatures>::type    TNonConstCurvatures;
 
     public:
-        CSpline(EType type) : m_Type(type) {
-        }
+        CSpline(EType type) : m_Type(type) {}
 
         CSpline(EType type,
                 const KNOTS &knots,
@@ -161,8 +160,7 @@ class CSpline : public CSplineTypes {
             m_Type(type),
             m_Knots(knots),
             m_Values(values),
-            m_Curvatures(curvatures) {
-        }
+            m_Curvatures(curvatures) {}
 
         //! Efficiently swap the contents of two spline objects.
         void swap(CSpline &other) {
@@ -438,8 +436,7 @@ class CSpline : public CSplineTypes {
             for (std::size_t i = 1u; i <= n; ++i) {
                 std::size_t i_ = i-1;
                 double      knot = this->knots()[i_];
-                for (/**/; i < n && this->knots()[i] == knot; ++i) {
-                }
+                for (/**/; i < n && this->knots()[i] == knot; ++i) {}
                 if (i - i_ > 1) {
                     TMeanAccumulator value;
                     for (std::size_t j = i_; j < i; ++j) {

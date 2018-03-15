@@ -46,8 +46,7 @@ class CTicker : public CThread {
             : m_Condition(m_Mutex),
               m_Quit(false),
               m_TimeOut(timeOut),
-              m_Receiver(receiver) {
-        }
+              m_Receiver(receiver) {}
 
         //! Destructor will stop the ticker thread if it's already running
         ~CTicker(void) {

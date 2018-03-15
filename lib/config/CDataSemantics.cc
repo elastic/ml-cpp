@@ -38,8 +38,7 @@ typedef std::vector<std::size_t> TSizeVec;
 //! verses a categorical model for the data.
 class CMixtureData {
     public:
-        CMixtureData(double count, std::size_t N) : m_Count(count), m_Classifier(N) {
-        }
+        CMixtureData(double count, std::size_t N) : m_Count(count), m_Classifier(N) {}
 
         //! Add the data point \p xi with count \p ni.
         void add(double xi, double ni) {
@@ -132,8 +131,7 @@ CDataSemantics::CDataSemantics(TOptionalUserDataType override) :
     m_Count(0.0),
     m_NumericProportion(0.0),
     m_IntegerProportion(0.0),
-    m_EmpiricalDistributionOverflowed(false) {
-}
+    m_EmpiricalDistributionOverflowed(false) {}
 
 void CDataSemantics::add(const std::string &example) {
     m_Count += 1.0;

@@ -32,8 +32,7 @@ namespace composition_detail {
 
 //! Type used to deduce the result type for a function.
 template<typename T>
-struct function_result_type {
-};
+struct function_result_type {};
 
 //! Vanilla function type 1: "result type" is the return type.
 template<typename R, typename A1>
@@ -71,8 +70,7 @@ struct has_result_type<T, typename enable_if_type<typename T::result_type>::type
 
 //! Extracts the result type of a function (object) for composition.
 template<typename F, typename SELECTOR>
-struct result_type_impl {
-};
+struct result_type_impl {};
 
 //! \brief Read the typedef from the function.
 //!
@@ -93,8 +91,7 @@ struct result_type_impl<F, false_> {
 //! in various ways.
 template<typename F>
 struct result_type : public result_type_impl<typename boost::remove_reference<F>::type,
-                                             typename has_result_type<typename boost::remove_reference<F>::type>::value> {
-};
+                                             typename has_result_type<typename boost::remove_reference<F>::type>::value> {};
 
 } // composition_detail::
 
@@ -135,8 +132,7 @@ class MATHS_EXPORT CCompositeFunctions {
             public:
                 CMinusConstant(const F &f, double offset) :
                     m_F(f),
-                    m_Offset(offset) {
-                }
+                    m_Offset(offset) {}
 
                 //! For function returning value.
                 inline T operator()(double x) const {
@@ -166,8 +162,7 @@ class MATHS_EXPORT CCompositeFunctions {
                 typedef T                                          result_type;
 
             public:
-                explicit CMinus(const F &f = F()) : m_F(f) {
-                }
+                explicit CMinus(const F &f = F()) : m_F(f) {}
 
                 //! For function returning value.
                 inline T operator()(double x) const {
@@ -196,8 +191,7 @@ class MATHS_EXPORT CCompositeFunctions {
                 typedef T                                          result_type;
 
             public:
-                explicit CExp(const F &f = F()) : m_F(f) {
-                }
+                explicit CExp(const F &f = F()) : m_F(f) {}
 
                 //! For function returning value.
                 inline T operator()(double x) const {
@@ -236,8 +230,7 @@ class MATHS_EXPORT CCompositeFunctions {
             public:
                 explicit CProduct(const F &f = F(),
                                   const G &g = G()) :
-                    m_F(f), m_G(g) {
-                }
+                    m_F(f), m_G(g) {}
 
                 //! For function returning value.
                 inline U operator()(double x) const {

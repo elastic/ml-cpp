@@ -29,8 +29,7 @@ namespace {
 class CEofThread : public ml::core::CThread {
     public:
         CEofThread(ml::core::CDualThreadStreamBuf &buf)
-            : m_Buf(buf) {
-        }
+            : m_Buf(buf) {}
 
     protected:
         virtual void run(void) {
@@ -39,8 +38,7 @@ class CEofThread : public ml::core::CThread {
             m_Buf.signalEndOfFile();
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         ml::core::CDualThreadStreamBuf &m_Buf;

@@ -46,15 +46,13 @@ class CAnnotatedVector : public VECTOR {
         CAnnotatedVector(const VECTOR &vector = VECTOR(),
                          const ANNOTATION &annotation = ANNOTATION()) :
             VECTOR(vector),
-            m_Annotation(annotation) {
-        }
+            m_Annotation(annotation) {}
 
         //! Construct with a vector initialized with \p coordinate
         //! and some default constructed annotation data.
         explicit CAnnotatedVector(TCoordinate coordinate) :
             VECTOR(coordinate),
-            m_Annotation() {
-        }
+            m_Annotation() {}
 
         //! Get the annotation data by constant reference.
         const ANNOTATION &annotation(void) const {

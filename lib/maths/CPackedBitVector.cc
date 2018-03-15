@@ -26,12 +26,10 @@ namespace ml {
 namespace maths {
 
 CPackedBitVector::CPackedBitVector(void) :
-    m_Dimension(0), m_First(false), m_Parity(true) {
-}
+    m_Dimension(0), m_First(false), m_Parity(true) {}
 
 CPackedBitVector::CPackedBitVector(bool bit) :
-    m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
-}
+    m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {}
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit) :
     m_Dimension(static_cast<uint32_t>(dimension)),
@@ -83,8 +81,7 @@ void CPackedBitVector::contract(void) {
         std::size_t i = 1u;
         for (/**/;
                  m_RunLengths[i] == MAX_RUN_LENGTH && i < m_RunLengths.size();
-                 ++i) {
-        }
+                 ++i) {}
         if (m_RunLengths[i] == 0) {
             m_RunLengths.erase(m_RunLengths.begin() + i);
             --m_RunLengths[i - 1];

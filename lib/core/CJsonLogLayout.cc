@@ -64,8 +64,7 @@ IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
 
 CJsonLogLayout::CJsonLogLayout(void)
     : m_LocationInfo(true),
-      m_Properties(false) {
-}
+      m_Properties(false) {}
 
 void CJsonLogLayout::locationInfo(bool locationInfo) {
     m_LocationInfo = locationInfo;

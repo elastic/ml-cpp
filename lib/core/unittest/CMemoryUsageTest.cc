@@ -61,8 +61,7 @@ struct SFoo {
         return true;
     }
 
-    explicit SFoo(std::size_t key = 0) : s_Key(key) {
-    }
+    explicit SFoo(std::size_t key = 0) : s_Key(key) {}
     bool operator<(const SFoo &rhs) const {
         return s_Key < rhs.s_Key;
     }
@@ -75,8 +74,7 @@ struct SFoo {
 };
 
 struct SFooWithMemoryUsage {
-    explicit SFooWithMemoryUsage(std::size_t key = 0) : s_Key(key) {
-    }
+    explicit SFooWithMemoryUsage(std::size_t key = 0) : s_Key(key) {}
     bool operator<(const SFooWithMemoryUsage &rhs) const {
         return s_Key < rhs.s_Key;
     }
@@ -106,8 +104,7 @@ struct SFooWrapper {
 struct SBar {
     typedef std::vector<SFoo> TFooVec;
 
-    explicit SBar(std::size_t key = 0) : s_Key(key), s_State() {
-    }
+    explicit SBar(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBar &rhs) const {
         return s_Key < rhs.s_Key;
     }
@@ -125,8 +122,7 @@ struct SBar {
 struct SBarDebug {
     typedef std::vector<SFoo> TFooVec;
 
-    explicit SBarDebug(std::size_t key = 0) : s_Key(key), s_State() {
-    }
+    explicit SBarDebug(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBarDebug &rhs) const {
         return s_Key < rhs.s_Key;
     }
@@ -149,8 +145,7 @@ struct SBarDebug {
 struct SBarVectorDebug {
     typedef std::vector<SFooWithMemoryUsage> TFooVec;
 
-    explicit SBarVectorDebug(std::size_t key = 0) : s_Key(key), s_State() {
-    }
+    explicit SBarVectorDebug(std::size_t key = 0) : s_Key(key), s_State() {}
     bool operator<(const SBarVectorDebug &rhs) const {
         return s_Key < rhs.s_Key;
     }
@@ -184,8 +179,7 @@ struct SHash {
 
 class CBase {
     public:
-        CBase(std::size_t i) : m_Vec(i, 0) {
-        }
+        CBase(std::size_t i) : m_Vec(i, 0) {}
 
         virtual ~CBase(void) = default;
 
@@ -209,8 +203,7 @@ class CBase {
 
 class CDerived : public CBase {
     public:
-        CDerived(std::size_t i) : CBase(i), m_Strings(i, "This is a secret string") {
-        }
+        CDerived(std::size_t i) : CBase(i), m_Strings(i, "This is a secret string") {}
 
         virtual ~CDerived(void) = default;
 
@@ -259,8 +252,7 @@ class CTrackingAllocator {
         CTrackingAllocator(const CTrackingAllocator &) = default;
 
         template<typename U>
-        inline CTrackingAllocator(const CTrackingAllocator<U> &) {
-        }
+        inline CTrackingAllocator(const CTrackingAllocator<U> &) {}
 
         // address
         inline pointer address(reference r) {

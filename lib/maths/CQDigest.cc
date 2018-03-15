@@ -530,8 +530,7 @@ CQDigest::CNode::CNode(void) :
     m_Min(0xDEADBEEF),
     m_Max(0xDEADBEEF),
     m_Count(0xDEADBEEF),
-    m_SubtreeCount(0xDEADBEEF) {
-}
+    m_SubtreeCount(0xDEADBEEF) {}
 
 CQDigest::CNode::CNode(uint32_t min,
                        uint32_t max,
@@ -542,8 +541,7 @@ CQDigest::CNode::CNode(uint32_t min,
     m_Min(min),
     m_Max(max),
     m_Count(count),
-    m_SubtreeCount(subtreeCount) {
-}
+    m_SubtreeCount(subtreeCount) {}
 
 std::size_t CQDigest::CNode::size(void) const
 {

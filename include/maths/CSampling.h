@@ -450,8 +450,7 @@ class MATHS_EXPORT CSampling : private core::CNonInstantiatable {
         template<typename RNG>
         class CUniform0nGenerator {
             public:
-                CUniform0nGenerator(RNG &generator) : m_Generator(&generator) {
-                }
+                CUniform0nGenerator(RNG &generator) : m_Generator(&generator) {}
                 std::size_t operator()(std::size_t n) const {
                     boost::random::uniform_int_distribution<std::size_t> uniform(0, n - 1);
                     return uniform(*m_Generator);

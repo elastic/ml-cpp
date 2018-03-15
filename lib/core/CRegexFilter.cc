@@ -20,8 +20,7 @@ namespace ml {
 namespace core {
 
 CRegexFilter::CRegexFilter(void)
-    : m_Regex() {
-}
+    : m_Regex() {}
 
 bool CRegexFilter::configure(const TStrVec &regularExpressions) {
     m_Regex.clear();

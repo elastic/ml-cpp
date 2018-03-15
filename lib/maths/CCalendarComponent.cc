@@ -51,8 +51,7 @@ CCalendarComponent::CCalendarComponent(const CCalendarFeature &feature,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType) :
     CDecompositionComponent{maxSize, boundaryCondition, valueInterpolationType, varianceInterpolationType},
-    m_Bucketing{feature, decayRate, minimumBucketLength} {
-}
+    m_Bucketing{feature, decayRate, minimumBucketLength} {}
 
 CCalendarComponent::CCalendarComponent(double decayRate,
                                        double minimumBucketLength,

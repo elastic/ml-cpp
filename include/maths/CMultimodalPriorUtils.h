@@ -816,8 +816,7 @@ class MATHS_EXPORT CMultimodalPriorUtils : private core::CNonInstantiatable {
                     m_Prior(&prior),
                     m_WeightStyles(&weightStyles),
                     m_Weights(1, weights),
-                    m_X(1u, 0.0) {
-                }
+                    m_X(1u, 0.0) {}
 
                 double operator()(double x) const {
                     m_X[0] = x;

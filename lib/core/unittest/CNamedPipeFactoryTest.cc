@@ -45,8 +45,7 @@ class CThreadDataWriter : public ml::core::CThread {
     public:
         CThreadDataWriter(const std::string &fileName, size_t size)
             : m_FileName(fileName),
-              m_Size(size) {
-        }
+              m_Size(size) {}
 
     protected:
         virtual void run(void) {
@@ -59,8 +58,7 @@ class CThreadDataWriter : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         std::string m_FileName;
@@ -70,8 +68,7 @@ class CThreadDataWriter : public ml::core::CThread {
 class CThreadDataReader : public ml::core::CThread {
     public:
         CThreadDataReader(const std::string &fileName)
-            : m_FileName(fileName) {
-        }
+            : m_FileName(fileName) {}
 
         const std::string &data(void) const {
             return m_Data;
@@ -114,8 +111,7 @@ class CThreadDataReader : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         std::string m_FileName;
@@ -125,8 +121,7 @@ class CThreadDataReader : public ml::core::CThread {
 class CThreadBlockCanceller : public ml::core::CThread {
     public:
         CThreadBlockCanceller(ml::core::CThread::TThreadId threadId)
-            : m_ThreadId(threadId) {
-        }
+            : m_ThreadId(threadId) {}
 
     protected:
         virtual void run(void) {
@@ -137,8 +132,7 @@ class CThreadBlockCanceller : public ml::core::CThread {
             CPPUNIT_ASSERT(ml::core::CThread::cancelBlockedIo(m_ThreadId));
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         ml::core::CThread::TThreadId m_ThreadId;

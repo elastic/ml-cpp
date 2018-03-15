@@ -47,11 +47,9 @@ typedef std::vector<CPackedBitVector>       TPackedBitVectorVec;
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence {
     SCooccurrence(void) :
-        s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {
-    }
+        s_Nxy(0.0), s_Nx(0.0), s_Ny(0.0), s_X(0), s_Y(0) {}
     SCooccurrence(double nxy, double nx, double ny, std::size_t x, std::size_t y) :
-        s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {
-    }
+        s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
 
     bool operator<(const SCooccurrence &rhs) const {
         return s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y)
@@ -376,8 +374,7 @@ CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorW
     m_MaximumLength(maximumLength),
     m_Length(0),
     m_IndicatorWidth(indicatorWidth),
-    m_Offset(0) {
-}
+    m_Offset(0) {}
 
 bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {

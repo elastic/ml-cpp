@@ -53,8 +53,7 @@ class CThreadDataWriter : public ml::core::CThread {
     public:
         CThreadDataWriter(const std::string &fileName, size_t size)
             : m_FileName(fileName),
-              m_Size(size) {
-        }
+              m_Size(size) {}
 
     protected:
         virtual void run(void) {
@@ -67,8 +66,7 @@ class CThreadDataWriter : public ml::core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         std::string m_FileName;
@@ -79,8 +77,7 @@ class CThreadDataReader : public ml::core::CThread {
     public:
         CThreadDataReader(const std::string &fileName)
             : m_FileName(fileName),
-              m_Shutdown(false) {
-        }
+              m_Shutdown(false) {}
 
         const std::string &data(void) const {
             // The memory barriers associated with the mutex lock should ensure

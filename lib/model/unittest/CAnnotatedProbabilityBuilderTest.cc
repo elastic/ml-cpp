@@ -52,8 +52,7 @@ const TSizeDoublePr1Vec      NO_CORRELATES;
 class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder {
     public:
         CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability) :
-            CAnnotatedProbabilityBuilder(annotatedProbability) {
-        }
+            CAnnotatedProbabilityBuilder(annotatedProbability) {}
 
         CAnnotatedProbabilityBuilderForTest(SAnnotatedProbability &annotatedProbability,
                                             std::size_t numberAttributeProbabilities,
@@ -62,8 +61,7 @@ class CAnnotatedProbabilityBuilderForTest : public CAnnotatedProbabilityBuilder 
             CAnnotatedProbabilityBuilder(annotatedProbability,
                                          numberAttributeProbabilities,
                                          function,
-                                         numberOfPeople) {
-        }
+                                         numberOfPeople) {}
 
 
 };

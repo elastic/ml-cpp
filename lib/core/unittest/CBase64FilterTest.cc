@@ -45,8 +45,7 @@ class CMockSource {
         {};
 
     public:
-        CMockSource(const std::string &s) : m_Data(s), m_Read(0) {
-        }
+        CMockSource(const std::string &s) : m_Data(s), m_Read(0) {}
 
         std::streamsize read(char* s, std::streamsize n) {
             if (m_Read >= std::streamsize(m_Data.size())) {
@@ -59,8 +58,7 @@ class CMockSource {
             return toCopy;
         }
 
-        void close(void) {
-        }
+        void close(void) {}
 
     private:
         std::string     m_Data;
@@ -79,16 +77,14 @@ class CMockSink {
         {};
 
     public:
-        CMockSink() {
-        }
+        CMockSink() {}
 
         std::streamsize write(const char* s, std::streamsize n) {
             m_Data.append(s, n);
             return n;
         }
 
-        void close(void) {
-        }
+        void close(void) {}
 
         const std::string getData(void) const {
             return m_Data;

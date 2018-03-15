@@ -30,8 +30,7 @@ const double LOG_MIN = 0.5 * ::log(0.9 * constants::DETECTOR_SCORE_EPSILON / con
 }
 
 CLowInformationContentPenalty::CLowInformationContentPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CLowInformationContentPenalty *CLowInformationContentPenalty::clone(void) const {
     return new CLowInformationContentPenalty(*this);

@@ -1404,7 +1404,7 @@ void CTimeSeriesModelTest::testProbability(void) {
         TSizeVec anomalies_;
         std::transform(smallest.begin(), smallest.end(),
                        std::back_inserter(anomalies_),
-                       [](const TDoubleSizePr &value) {
+                       [] (const TDoubleSizePr &value) {
             return value.second;
         });
         std::sort(anomalies_.begin(), anomalies_.end());
@@ -1783,7 +1783,7 @@ void CTimeSeriesModelTest::testUpgrade(void) {
     LOG_DEBUG("+-------------------------------------+");
 
     using TStrVec = std::vector<std::string>;
-    auto load = [](const std::string &name, std::string &result) {
+    auto load = [] (const std::string &name, std::string &result) {
                     std::ifstream file;
                     file.open(name);
                     std::stringbuf buf;

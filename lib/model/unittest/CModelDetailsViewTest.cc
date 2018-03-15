@@ -54,7 +54,7 @@ void CModelDetailsViewTest::testModelPlot() {
     model::CAnomalyDetectorModel::TDataGathererPtr gatherer;
     TMockModelPtr                                  model;
 
-    auto setupTest = [&]() {
+    auto setupTest = [&] () {
                          gatherer.reset(new model::CDataGatherer{model_t::analysisCategory(features[0]),
                                                                  model_t::E_None, params,
                                                                  EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, "p", EMPTY_STRING, EMPTY_STRING,

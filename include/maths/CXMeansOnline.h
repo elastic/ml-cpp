@@ -112,8 +112,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     m_Index(clusterer.m_ClusterIndexGenerator.next()),
                     m_DataType(clusterer.m_DataType),
                     m_DecayRate(clusterer.m_DecayRate),
-                    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {
-                }
+                    m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
 
                 //! Initialize by traversing a state document.
                 bool acceptRestoreTraverser(const SDistributionRestoreParams &params,
@@ -364,8 +363,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
                     m_DataType(dataType),
                     m_DecayRate(decayRate),
                     m_Covariances(covariances),
-                    m_Structure(structure) {
-                }
+                    m_Structure(structure) {}
 
                 //! Search for a split of the data that satisfies the constraints
                 //! on both the BIC divergence and minimum count.
@@ -614,8 +612,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             m_MinimumClusterFraction(minimumClusterFraction),
             m_MinimumClusterCount(minimumClusterCount),
             m_MinimumCategoryCount(minimumCategoryCount),
-            m_Clusters(1, CCluster(*this)) {
-        }
+            m_Clusters(1, CCluster(*this)) {}
 
         //! Construct by traversing a state document.
         CXMeansOnline(const SDistributionRestoreParams &params,
@@ -664,8 +661,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
             m_MinimumClusterCount(other.m_MinimumClusterCount),
             m_MinimumCategoryCount(other.m_MinimumCategoryCount),
             m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
-            m_Clusters(other.m_Clusters) {
-        }
+            m_Clusters(other.m_Clusters) {}
 
         //! The x-means clusterer has value semantics.
         CXMeansOnline &operator=(const CXMeansOnline &other) {
@@ -677,8 +673,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
         }
         //@}
 
-        virtual ~CXMeansOnline(void) {
-        }
+        virtual ~CXMeansOnline(void) {}
 
         //! Efficiently swap the contents of two k-means objects.
         void swap(CXMeansOnline &other) {
@@ -1216,8 +1211,7 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N> > {
         //! \brief Checks if probabilities are less than a specified threshold.
         class CProbabilityLessThan {
             public:
-                CProbabilityLessThan(double threshold) : m_Threshold(threshold) {
-                }
+                CProbabilityLessThan(double threshold) : m_Threshold(threshold) {}
 
                 bool operator()(const TSizeDoublePr &p) const {
                     return p.second < m_Threshold;

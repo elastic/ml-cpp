@@ -87,8 +87,7 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter &inse
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLength) :
     m_DecayRate{std::max(decayRate, MINIMUM_DECAY_RATE)},
-    m_MinimumBucketLength{minimumBucketLength} {
-}
+    m_MinimumBucketLength{minimumBucketLength} {}
 
 CAdaptiveBucketing::CAdaptiveBucketing(double decayRate,
                                        double minimumBucketLength,

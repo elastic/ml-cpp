@@ -77,8 +77,7 @@ CSample::CSample(void) :
     m_Time(0),
     m_Value(),
     m_VarianceScale(0.0),
-    m_Count(0) {
-}
+    m_Count(0) {}
 
 CSample::CSample(core_t::TTime time,
                  const TDouble1Vec &value,
@@ -87,8 +86,7 @@ CSample::CSample(core_t::TTime time,
     m_Time(time),
     m_Value(value),
     m_VarianceScale(varianceScale),
-    m_Count(count) {
-}
+    m_Count(count) {}
 
 CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     typedef std::vector<std::size_t> TSizeVec;

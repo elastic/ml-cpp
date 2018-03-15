@@ -29,8 +29,7 @@ const std::string CTopLevelDomainDb::PERIOD = ".";
 
 
 CTopLevelDomainDb::CTopLevelDomainDb(const std::string &effectiveTldNamesFileName) :
-    m_EffectiveTldNamesFileName(effectiveTldNamesFileName) {
-}
+    m_EffectiveTldNamesFileName(effectiveTldNamesFileName) {}
 
 bool CTopLevelDomainDb::init(void) {
     core::CTextFileWatcher watcher;

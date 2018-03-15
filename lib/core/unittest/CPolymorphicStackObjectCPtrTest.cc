@@ -25,8 +25,7 @@ namespace {
 
 class CBase {
     public:
-        virtual ~CBase(void) {
-        }
+        virtual ~CBase(void) {}
         virtual std::string iam(void) const = 0;
 };
 

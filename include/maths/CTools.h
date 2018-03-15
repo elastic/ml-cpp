@@ -406,8 +406,7 @@ class MATHS_EXPORT CTools : private core::CNonInstantiatable {
         class CDifferentialEntropyKernel {
             public:
                 CDifferentialEntropyKernel(const CMixtureDistribution<T> &mixture) :
-                    m_Mixture(&mixture) {
-                }
+                    m_Mixture(&mixture) {}
 
                 inline bool operator()(double x, double &result) const {
                     double                         fx = pdf(*m_Mixture, x);

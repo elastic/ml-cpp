@@ -42,14 +42,12 @@ double trendDecayRate(core_t::TTime bucketLength) {
 
 CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
     : m_BucketLength(bucketLength),
-      m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {
-}
+      m_CountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {}
 
 CInterimBucketCorrector::CInterimBucketCorrector(const CInterimBucketCorrector &other)
     : m_BucketLength(other.m_BucketLength),
       m_CountTrend(other.m_CountTrend),
-      m_CountMean(other.m_CountMean) {
-}
+      m_CountMean(other.m_CountMean) {}
 
 core_t::TTime CInterimBucketCorrector::calcBucketMidPoint(core_t::TTime time) const {
     return maths::CIntegerTools::floor(time, m_BucketLength) + m_BucketLength / 2;

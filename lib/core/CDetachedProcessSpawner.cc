@@ -96,8 +96,7 @@ class CTrackerThread : public CThread {
     public:
         CTrackerThread(void)
             : m_Shutdown(false),
-              m_Condition(m_Mutex) {
-        }
+              m_Condition(m_Mutex) {}
 
         //! Mutex is accessible so the code outside the class can avoid race
         //! conditions.

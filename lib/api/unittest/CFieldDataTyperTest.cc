@@ -54,11 +54,9 @@ class CEmptySearcher : public ml::core::CDataSearcher {
 class CTestOutputHandler : public COutputHandler {
     public:
         CTestOutputHandler(void) : COutputHandler(), m_NewStream(false),
-                                   m_Finalised(false), m_Records(0) {
-        }
+                                   m_Finalised(false), m_Records(0) {}
 
-        virtual ~CTestOutputHandler(void) {
-        }
+        virtual ~CTestOutputHandler(void) {}
 
         virtual void finalise(void) {
             m_Finalised = true;
@@ -108,8 +106,7 @@ class CTestOutputHandler : public COutputHandler {
 class CTestDataSearcher : public core::CDataSearcher {
     public:
         CTestDataSearcher(const std::string &data)
-            : m_Stream(new std::istringstream(data)) {
-        }
+            : m_Stream(new std::istringstream(data)) {}
 
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
             return m_Stream;
@@ -122,8 +119,7 @@ class CTestDataSearcher : public core::CDataSearcher {
 class CTestDataAdder : public core::CDataAdder {
     public:
         CTestDataAdder(void)
-            : m_Stream(new std::ostringstream) {
-        }
+            : m_Stream(new std::ostringstream) {}
 
         virtual TOStreamP addStreamed(const std::string & /*index*/,
                                       const std::string & /*id*/) {

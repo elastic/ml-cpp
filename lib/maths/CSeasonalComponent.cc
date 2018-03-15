@@ -56,8 +56,7 @@ CSeasonalComponent::CSeasonalComponent(const CSeasonalTime &time,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType) :
     CDecompositionComponent{maxSize, boundaryCondition, valueInterpolationType, varianceInterpolationType},
-    m_Bucketing{time, decayRate, minimumBucketLength} {
-}
+    m_Bucketing{time, decayRate, minimumBucketLength} {}
 
 CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        double minimumBucketLength,

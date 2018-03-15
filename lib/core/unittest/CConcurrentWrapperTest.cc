@@ -43,10 +43,10 @@ void CConcurrentWrapperTest::testBasic(void) {
     {
         TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
 
-        wrappedStringStream( [](std::ostream& o) {
+        wrappedStringStream( [] (std::ostream& o) {
             o << "Hello 1"; o << " world 1\n";
         } );
-        wrappedStringStream( [](std::ostream& o) {
+        wrappedStringStream( [] (std::ostream& o) {
             o << "Hello 2"; o << " world 2\n";
         } );
     }
@@ -56,7 +56,7 @@ void CConcurrentWrapperTest::testBasic(void) {
 namespace {
 
 void task(CConcurrentWrapper<std::ostringstream> &sink, int i, std::chrono::microseconds pause) {
-    sink ( [i, pause](std::ostream& o) {
+    sink ( [i, pause] (std::ostream& o) {
             o << "ta";
             std::this_thread::sleep_for(pause);
             o << "sk ";
@@ -68,7 +68,7 @@ void task(CConcurrentWrapper<std::ostringstream> &sink, int i, std::chrono::micr
 
 void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper &sink, int i,
                           std::chrono::microseconds pause) {
-    sink ( [i, pause](std::ostream& o) {
+    sink ( [i, pause] (std::ostream& o) {
             o << "ta";
             std::this_thread::sleep_for(pause);
             o << "sk ";

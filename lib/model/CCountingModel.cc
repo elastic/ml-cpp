@@ -42,8 +42,7 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("e");
 CCountingModel::CCountingModel(const SModelParams &params,
                                const TDataGathererPtr &dataGatherer) :
     CAnomalyDetectorModel(params, dataGatherer, TFeatureInfluenceCalculatorCPtrPrVecVec()),
-    m_StartTime(CAnomalyDetectorModel::TIME_UNSET) {
-}
+    m_StartTime(CAnomalyDetectorModel::TIME_UNSET) {}
 
 CCountingModel::CCountingModel(const SModelParams &params,
                                const TDataGathererPtr &dataGatherer,
@@ -280,8 +279,7 @@ void CCountingModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /
     // Do nothing
 }
 
-void CCountingModel::prune(std::size_t /*maximumAge*/) {
-}
+void CCountingModel::prune(std::size_t /*maximumAge*/) {}
 
 bool CCountingModel::computeProbability(std::size_t pid,
                                         core_t::TTime startTime,

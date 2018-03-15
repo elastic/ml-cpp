@@ -31,11 +31,9 @@ namespace maths {
 //! when a bucket time value is stored in a double (~1e9)
 class CDoublePrecisionStorage {
     public:
-        CDoublePrecisionStorage() : m_Value(0) {
-        }
+        CDoublePrecisionStorage() : m_Value(0) {}
 
-        CDoublePrecisionStorage(double v) : m_Value(v) {
-        }
+        CDoublePrecisionStorage(double v) : m_Value(v) {}
 
         //! Implicit conversion to a double.
         operator double (void) const

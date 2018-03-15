@@ -109,8 +109,7 @@ class CSampleGatherer {
                                     TStoredStringPtrStatUMapBucketQueue(params.s_LatencyBuckets + 3,
                                                                         bucketLength,
                                                                         startTime,
-                                                                        TStoredStringPtrStatUMap(1))) {
-        }
+                                                                        TStoredStringPtrStatUMap(1))) {}
 
         //! \name Persistence
         //@{
@@ -365,8 +364,7 @@ class CSampleGatherer {
         class CStoredStringPtrStatUMapSerializer {
             public:
                 CStoredStringPtrStatUMapSerializer(std::size_t dimension) :
-                    m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {
-                }
+                    m_Initial(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
                 void operator()(const TStoredStringPtrStatUMap &map, core::CStatePersistInserter &inserter) const {
                     using TStatCRef = boost::reference_wrapper<const STATISTIC>;

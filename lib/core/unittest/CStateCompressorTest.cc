@@ -67,8 +67,7 @@ class CMockDataAdder : public ml::core::CDataAdder {
     public:
         CMockDataAdder(std::size_t maxDocSize)
             : m_CurrentDocNum(0),
-              m_MaxDocumentSize(maxDocSize) {
-        }
+              m_MaxDocumentSize(maxDocSize) {}
 
         virtual TOStreamP addStreamed(const std::string & /*index*/,
                                       const std::string & /*id*/) {
@@ -105,8 +104,7 @@ class CMockDataAdder : public ml::core::CDataAdder {
 
 class CMockDataSearcher : public ml::core::CDataSearcher {
     public:
-        CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0) {
-        }
+        CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0) {}
 
         virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
             TIStreamP         stream;
@@ -241,8 +239,7 @@ void CStateCompressorTest::testStreaming(void) {
         }
         CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
-        while (traverser.next()) {
-        }
+        while (traverser.next()) {}
         ;
         LOG_TRACE("Asked for: " << mockKvSearcher.askedFor());
         CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());

@@ -33,8 +33,7 @@ namespace maths {
 namespace kdtree_detail {
 
 //! \brief Stubs out the node data parameter for k-d tree.
-struct SEmptyNodeData {
-};
+struct SEmptyNodeData {};
 
 //! Euclidean norm implementation for our internal vector classes.
 //!
@@ -82,8 +81,7 @@ class CKdTree {
         //! Less on a specific coordinate of point position vector.
         class CCoordinateLess {
             public:
-                CCoordinateLess(std::size_t i) : m_I(i) {
-                }
+                CCoordinateLess(std::size_t i) : m_I(i) {}
                 bool operator()(const POINT &lhs, const POINT &rhs) const {
                     return lhs(m_I) < rhs(m_I);
                 }
@@ -98,8 +96,7 @@ class CKdTree {
                 s_Parent(parent),
                 s_LeftChild(0),
                 s_RightChild(0),
-                s_Point(point) {
-            }
+                s_Point(point) {}
 
             //! Check node invariants.
             bool checkInvariants(std::size_t dimension) const {

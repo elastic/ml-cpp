@@ -50,8 +50,7 @@ class MATHS_EXPORT CClustererTypes {
             public:
                 void operator()(std::size_t,
                                 std::size_t,
-                                std::size_t) const {
-                }
+                                std::size_t) const {}
         };
 
         // Callback function signature for when clusters are split.
@@ -156,11 +155,9 @@ class CClusterer : public CClustererTypes {
         explicit CClusterer(const TSplitFunc &splitFunc = CDoNothing(),
                             const TMergeFunc &mergeFunc = CDoNothing()) :
             m_SplitFunc(splitFunc),
-            m_MergeFunc(mergeFunc) {
-        }
+            m_MergeFunc(mergeFunc) {}
 
-        virtual ~CClusterer(void) {
-        }
+        virtual ~CClusterer(void) {}
 
         //! \name Clusterer Contract
         //@{

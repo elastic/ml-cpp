@@ -79,15 +79,13 @@ typedef core::CSmallVector<double, 2>                                           
 const std::string EMPTY_STRING;
 
 struct SAnomaly {
-    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {
-    }
+    SAnomaly(void) : s_Bucket(0u), s_Person(), s_Attributes() {}
     SAnomaly(std::size_t bucket,
              const std::string &person,
              const TDoubleStrPrVec &attributes) :
         s_Bucket(bucket),
         s_Person(person),
-        s_Attributes(attributes) {
-    }
+        s_Attributes(attributes) {}
 
     std::size_t s_Bucket;
     std::string s_Person;
@@ -118,8 +116,7 @@ struct SMessage {
         s_Time(time),
         s_Person(person),
         s_Attribute(attribute),
-        s_Value(value) {
-    }
+        s_Value(value) {}
 
     bool operator<(const SMessage &other) const {
         return maths::COrderings::lexicographical_compare(s_Time,

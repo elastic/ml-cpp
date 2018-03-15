@@ -41,8 +41,7 @@ class CStringThread : public core::CThread {
     public:
         CStringThread(std::size_t i, const TStrVec &strings)
             : m_I(i),
-              m_Strings(strings) {
-        }
+              m_Strings(strings) {}
 
         void uniques(TStrCPtrUSet &result) const {
             result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
@@ -82,8 +81,7 @@ class CStringThread : public core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         std::size_t         m_I;

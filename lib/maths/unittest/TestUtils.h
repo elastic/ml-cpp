@@ -173,16 +173,13 @@ class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface {
     public:
         CPriorTestInterfaceMixin(const PRIOR &prior) :
             PRIOR(prior),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {
-        }
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
         CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin &other) :
             PRIOR(static_cast<const PRIOR&>(other)),
-            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {
-        }
+            CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
-        virtual ~CPriorTestInterfaceMixin(void) {
-        }
+        virtual ~CPriorTestInterfaceMixin(void) {}
 
         //! Swap the contents efficiently.
         void swap(CPriorTestInterfaceMixin &other) {
@@ -208,8 +205,7 @@ class C1dUnitKernel {
 //! \brief Kernel for computing the variance with CPrior::expectation.
 class CVarianceKernel {
     public:
-        CVarianceKernel(double mean) : m_Mean(mean) {
-        }
+        CVarianceKernel(double mean) : m_Mean(mean) {}
 
         bool operator()(double x, double &result) const {
             result = (x - m_Mean) * (x - m_Mean);
@@ -226,8 +222,7 @@ class CUnitKernel {
     public:
         CUnitKernel(const maths::CMultivariatePrior &prior) :
             m_Prior(&prior),
-            m_X(1) {
-        }
+            m_X(1) {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x, double &result) const {
             m_X[0].assign(x.begin(), x.end());
@@ -253,8 +248,7 @@ class CMeanKernel {
     public:
         CMeanKernel(const maths::CMultivariatePrior &prior) :
             m_Prior(&prior),
-            m_X(1) {
-        }
+            m_X(1) {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
                         maths::CVectorNx1<double, N> &result) const {
@@ -285,8 +279,7 @@ class CCovarianceKernel {
                           const maths::CVectorNx1<double, N> &mean) :
             m_Prior(&prior),
             m_Mean(mean),
-            m_X(1) {
-        }
+            m_X(1) {}
 
         bool operator()(const maths::CVectorNx1<double, N> &x,
                         maths::CSymmetricMatrixNxN<double, N> &result) const {

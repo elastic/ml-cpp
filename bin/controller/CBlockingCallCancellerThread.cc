@@ -27,8 +27,7 @@ CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThrea
                                                            std::istream &monitorStream)
     : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
       m_MonitorStream(monitorStream),
-      m_Shutdown(false) {
-}
+      m_Shutdown(false) {}
 
 void CBlockingCallCancellerThread::run(void) {
     char c;

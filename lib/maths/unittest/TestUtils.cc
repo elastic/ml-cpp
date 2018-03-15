@@ -47,8 +47,7 @@ class CCdf : public std::unary_function<double, double> {
             m_Style(style),
             m_Prior(&prior),
             m_Target(target),
-            m_X(1u) {
-        }
+            m_X(1u) {}
 
         double operator()(double x) const {
             double lowerBound, upperBound;
@@ -92,8 +91,7 @@ class CResidual {
         using result_type = double;
 
     public:
-        CResidual(double mean) : m_Mean(mean) {
-        }
+        CResidual(double mean) : m_Mean(mean) {}
 
         bool operator()(double x, double &result) const {
             result = (x - m_Mean) * (x - m_Mean);
@@ -106,8 +104,7 @@ class CResidual {
 }
 
 CPriorTestInterface::CPriorTestInterface(CPrior &prior) :
-    m_Prior(&prior) {
-}
+    m_Prior(&prior) {}
 
 void CPriorTestInterface::addSamples(const TDouble1Vec &samples) {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);

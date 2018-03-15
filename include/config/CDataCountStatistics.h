@@ -96,8 +96,7 @@ class CONFIG_EXPORT CBucketCountStatistics {
         //! \brief Bucket data stored about argument field.
         struct CONFIG_EXPORT                 SBucketArgumentData {
             SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) :
-                s_DistinctValues(distinctValues) {
-            }
+                s_DistinctValues(distinctValues) {}
             //! The approximate distinct values.
             maths::CBjkstUniqueValues s_DistinctValues;
             //! A sample of the unique strings in the bucket.

@@ -56,8 +56,7 @@ const TDouble10Vec4Vec1Vec     SINGLE_UNIT_WEIGHT_2(1, UNIT_WEIGHT_2);
 class CMinusLogLikelihood : public maths::CGradientDescent::CFunction {
     public:
         CMinusLogLikelihood(const maths::CMultivariateOneOfNPrior &prior) :
-            m_Prior(&prior) {
-        }
+            m_Prior(&prior) {}
 
         bool operator()(const maths::CGradientDescent::TVector &x, double &result) const {
             if (m_Prior->jointLogMarginalLikelihood(

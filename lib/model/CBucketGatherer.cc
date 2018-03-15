@@ -90,7 +90,7 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
         ordered.push_back(i);
     }
     std::sort(ordered.begin(), ordered.end(),
-              [](TSizeSizePrStoredStringPtrPrUInt64UMapCItr lhs, TSizeSizePrStoredStringPtrPrUInt64UMapCItr rhs) {
+              [] (TSizeSizePrStoredStringPtrPrUInt64UMapCItr lhs, TSizeSizePrStoredStringPtrPrUInt64UMapCItr rhs) {
                         return maths::COrderings::lexicographical_compare(lhs->first.first, *lhs->first.second, lhs->second,
                                                                           rhs->first.first, *rhs->first.second, rhs->second);
                     });
@@ -208,8 +208,7 @@ CBucketGatherer::CBucketGatherer(CDataGatherer &dataGatherer,
                                    TSizeSizePrUSet(1)),
     m_InfluencerCounts(dataGatherer.params().s_LatencyBuckets + 3,
                        dataGatherer.params().s_BucketLength,
-                       startTime) {
-}
+                       startTime) {}
 
 CBucketGatherer::CBucketGatherer(bool isForPersistence,
                                  const CBucketGatherer &other) :

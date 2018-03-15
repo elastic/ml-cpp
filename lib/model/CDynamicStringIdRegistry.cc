@@ -42,8 +42,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string &nameType,
     m_AddedStat(addedStat),
     m_AddNotAllowedStat(addNotAllowedStat),
     m_RecycledStat(recycledStat),
-    m_Uids(1) {
-}
+    m_Uids(1) {}
 
 CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
                                                    const CDynamicStringIdRegistry &other) :

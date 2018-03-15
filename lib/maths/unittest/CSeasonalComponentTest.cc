@@ -66,8 +66,7 @@ class CTestSeasonalComponent : public maths::CSeasonalComponent {
                                       boundaryCondition,
                                       valueInterpolationType,
                                       varianceInterpolationType),
-            m_StartTime(startTime) {
-        }
+            m_StartTime(startTime) {}
 
         void addPoint(core_t::TTime time,
                       double value,

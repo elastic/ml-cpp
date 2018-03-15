@@ -783,8 +783,7 @@ class CRegressionPrediction {
 
     public:
         CRegressionPrediction(const maths::CRegression::CLeastSquaresOnline<N, double> &regression) :
-            m_Regression(regression) {
-        }
+            m_Regression(regression) {}
 
         bool operator()(double x, double &result) const {
             result = m_Regression.predict(x);

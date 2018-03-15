@@ -140,8 +140,7 @@ template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
 class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
     CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS> &vector,
                                std::size_t index) :
-        m_Vector(&vector), m_Base(vector, index) {
-    }
+        m_Vector(&vector), m_Base(vector, index) {}
 
     bool operator==(const CSparseVectorIndexIterator &rhs) const {
         return m_Vector == rhs.m_Vector &&
@@ -300,8 +299,7 @@ CDenseVector<double> toDynamicDenseVector(const VECTOR &vector) {
 template<typename MATRIX>
 class CDenseMatrixInitializer {
     public:
-        explicit CDenseMatrixInitializer(const MATRIX &type) : m_Type(&type) {
-        }
+        explicit CDenseMatrixInitializer(const MATRIX &type) : m_Type(&type) {}
 
         std::size_t rows(void) const {
             return m_Type->rows();
@@ -333,8 +331,7 @@ CDenseMatrixInitializer<MATRIX> fromDenseMatrix(const MATRIX &type) {
 template<typename VECTOR>
 class CDenseVectorInitializer {
     public:
-        explicit CDenseVectorInitializer(const VECTOR &type) : m_Type(&type) {
-        }
+        explicit CDenseVectorInitializer(const VECTOR &type) : m_Type(&type) {}
 
         std::size_t dimension(void) const {
             return m_Type->size();

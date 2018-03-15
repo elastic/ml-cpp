@@ -38,8 +38,7 @@ const double      LOG_SMALLEST_WEIGHT = ::log(CTools::smallestProbability());
 
 CModelWeight::CModelWeight(double weight) :
     m_LogWeight(::log(weight)),
-    m_LongTermLogWeight(m_LogWeight) {
-}
+    m_LongTermLogWeight(m_LogWeight) {}
 
 CModelWeight::operator double(void) const {
     return m_LogWeight < LOG_SMALLEST_WEIGHT ? 0.0 : ::exp(m_LogWeight);

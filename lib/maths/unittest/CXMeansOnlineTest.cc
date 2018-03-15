@@ -57,8 +57,7 @@ class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N> {
                              maths_t::EClusterWeightCalc weightCalc,
                              double decayRate = 0.0,
                              double minimumClusterFraction = 0.0) :
-            maths::CXMeansOnline<T, N>(dataType, weightCalc, decayRate, minimumClusterFraction) {
-        }
+            maths::CXMeansOnline<T, N>(dataType, weightCalc, decayRate, minimumClusterFraction) {}
 
         void add(const TPoint &x, double count = 1.0) {
             TSizeDoublePr2Vec dummy;

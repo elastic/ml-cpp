@@ -39,8 +39,7 @@ const std::string VALUES_TAG("a");
 CMemoryUsageEstimator::CMemoryUsageEstimator(void)
     : m_Values(2 * E_NumberPredictors),
       // Initialise this so that the first estimate triggers a calculation
-      m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1) {
-}
+      m_NumEstimatesSinceValue(MAXIMUM_ESTIMATES_BEFORE_NEW_VALUE - 1) {}
 
 CMemoryUsageEstimator::TOptionalSize
 CMemoryUsageEstimator::estimate(const TSizeArray &predictors) {

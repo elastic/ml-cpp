@@ -84,11 +84,9 @@ class CMessageQueue {
               // If timing is enabled, we need a buffer one bigger than the
               // number of times to average over.  If timing is disabled, the
               // buffer can have capacity zero.
-              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0) {
-        }
+              m_Readings((NUM_TO_TIME > 0) ? (NUM_TO_TIME + 1) : 0) {}
 
-        virtual ~CMessageQueue(void) {
-        }
+        virtual ~CMessageQueue(void) {}
 
         //! Initialise - create the receiving thread
         bool start(void) {
@@ -180,8 +178,7 @@ class CMessageQueue {
 
     private:
         //! No-op shutdown function if no other is provided
-        static void defaultShutdownFunc(void) {
-        }
+        static void defaultShutdownFunc(void) {}
 
     private:
         class CMessageQueueThread : public CThread {
@@ -191,8 +188,7 @@ class CMessageQueue {
                                                   NUM_TO_TIME> &messageQueue)
                     : m_MessageQueue(messageQueue),
                       m_ShuttingDown(false),
-                      m_IsRunning(false) {
-                }
+                      m_IsRunning(false) {}
 
                 //! The queue must have the mutex for this to be called
                 bool isRunning(void) const {

@@ -27,8 +27,7 @@ CMonotonicTime::CMonotonicTime(void)
 // Scaling factors never vary for clock_gettime()
     : m_ScalingFactor1(0),
       m_ScalingFactor2(0),
-      m_ScalingFactor3(0) {
-}
+      m_ScalingFactor3(0) {}
 
 uint64_t CMonotonicTime::milliseconds(void) const {
     struct timespec ts;

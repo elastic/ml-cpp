@@ -39,16 +39,11 @@ namespace maths {
 
 namespace checksum_detail {
 
-class BasicChecksum {
-};
-class ContainerChecksum {
-};
-class MemberChecksumWithSeed {
-};
-class MemberChecksumWithoutSeed {
-};
-class MemberHash {
-};
+class BasicChecksum {};
+class ContainerChecksum {};
+class MemberChecksumWithSeed {};
+class MemberChecksumWithoutSeed {};
+class MemberHash {};
 
 //! Auxiliary type used by has_const_iterator to test for a nested
 //! typedef.
@@ -116,8 +111,7 @@ struct selector<T, typename enable_if_is_type<std::size_t (T::*)(void) const, &T
 };
 //@}
 
-template<typename SELECTOR> class CChecksumImpl {
-};
+template<typename SELECTOR> class CChecksumImpl {};
 
 //! Basic checksum functionality implementation.
 template<>

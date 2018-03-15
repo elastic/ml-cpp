@@ -33,8 +33,7 @@ namespace {
 class CReceiver {
     public:
         CReceiver(void)
-            : m_Ticks(0) {
-        }
+            : m_Ticks(0) {}
 
         void tick(void) {
             ++m_Ticks;

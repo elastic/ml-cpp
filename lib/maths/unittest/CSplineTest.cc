@@ -36,8 +36,7 @@ typedef std::vector<std::size_t> TSizeVec;
 class CSplineFunctor {
     public:
         CSplineFunctor(const maths::CSpline<> &spline) :
-            m_Spline(&spline) {
-        }
+            m_Spline(&spline) {}
 
         bool operator()(double x, double &fx) const {
             fx = m_Spline->value(x);

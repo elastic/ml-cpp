@@ -22,11 +22,9 @@ namespace core {
 
 
 CStateRestoreTraverser::CStateRestoreTraverser(void)
-    : m_BadState(false) {
-}
+    : m_BadState(false) {}
 
-CStateRestoreTraverser::~CStateRestoreTraverser(void) {
-}
+CStateRestoreTraverser::~CStateRestoreTraverser(void) {}
 
 bool CStateRestoreTraverser::haveBadState(void) const {
     return m_BadState;
@@ -39,8 +37,7 @@ void CStateRestoreTraverser::setBadState(void) {
 CStateRestoreTraverser::CAutoLevel::CAutoLevel(CStateRestoreTraverser &traverser)
     : m_Traverser(traverser),
       m_Descended(traverser.descend()),
-      m_BadState(false) {
-}
+      m_BadState(false) {}
 
 void CStateRestoreTraverser::CAutoLevel::setBadState(void) {
     m_BadState = true;

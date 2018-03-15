@@ -34,8 +34,7 @@ CEventData::CEventData(void) :
     m_Pid(),
     m_Cids(),
     m_Values(),
-    m_IsExplicitNull(false) {
-}
+    m_IsExplicitNull(false) {}
 
 void CEventData::swap(CEventData &other) {
     std::swap(m_Time, other.m_Time);

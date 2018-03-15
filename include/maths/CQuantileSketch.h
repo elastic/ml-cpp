@@ -151,8 +151,7 @@ class MATHS_EXPORT CQuantileSketch : private boost::addable< CQuantileSketch > {
 template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
 class CFixedQuantileSketch : public CQuantileSketch {
     public:
-        CFixedQuantileSketch(void) : CQuantileSketch(INTERPOLATION, N) {
-        }
+        CFixedQuantileSketch(void) : CQuantileSketch(INTERPOLATION, N) {}
 
         //! NB1: Needs to be redeclared to work with CChecksum.
         //! NB2: This method is not currently virtual - needs changing if any of the

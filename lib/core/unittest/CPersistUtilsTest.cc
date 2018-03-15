@@ -48,10 +48,8 @@ typedef boost::circular_buffer<TSizeDoublePr>            TSizeDoublePrBuf;
 
 namespace {
 
-class BasicCompare {
-};
-class ContainerCompare {
-};
+class BasicCompare {};
+class ContainerCompare {};
 
 template<typename T, typename R = void>
 struct enable_if_type {
@@ -67,8 +65,7 @@ struct compare_container_selector<T, typename enable_if_type<typename T::const_i
     typedef ContainerCompare value;
 };
 
-template<typename SELECTOR> class CCompareImpl {
-};
+template<typename SELECTOR> class CCompareImpl {};
 
 //! Convenience function to select implementation.
 template<typename T>

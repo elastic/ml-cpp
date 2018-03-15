@@ -67,8 +67,7 @@ std::string print_(int count, bool suffix) {
 
 }
 
-CCalendarFeature::CCalendarFeature(void) : m_Feature(INVALID), m_Value(INVALID) {
-}
+CCalendarFeature::CCalendarFeature(void) : m_Feature(INVALID), m_Value(INVALID) {}
 
 CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time) :
     m_Feature(INVALID), m_Value(INVALID) {

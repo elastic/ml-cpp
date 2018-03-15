@@ -615,8 +615,7 @@ class COrderings : private core::CNonInstantiatable {
             public:
                 CIndexLess(const KEY_VECTOR &keys, const COMP &comp = COMP()) :
                     m_Keys(&keys),
-                    m_Comp(comp) {
-                }
+                    m_Comp(comp) {}
 
                 bool operator()(std::size_t lhs, std::size_t rhs) {
                     return m_Comp((*m_Keys)[lhs], (*m_Keys)[rhs]);

@@ -41,8 +41,7 @@ std::string prefix(const std::string &description) {
 //////// CCantBeNumeric ////////
 
 CCantBeNumeric::CCantBeNumeric(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CCantBeNumeric *CCantBeNumeric::clone(void) const {
     return new CCantBeNumeric(*this);
@@ -65,8 +64,7 @@ void CCantBeNumeric::penaltyFromMe(const CFieldStatistics &stats,
 //////// CCantBeCategorical ////////
 
 CCantBeCategorical::CCantBeCategorical(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CCantBeCategorical *CCantBeCategorical::clone(void) const {
     return new CCantBeCategorical(*this);
@@ -89,8 +87,7 @@ void CCantBeCategorical::penaltyFromMe(const CFieldStatistics &stats,
 //////// CDontUseUnaryField ////////
 
 CDontUseUnaryField::CDontUseUnaryField(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CDontUseUnaryField *CDontUseUnaryField::clone(void) const {
     return new CDontUseUnaryField(*this);
@@ -119,8 +116,7 @@ CDistinctCountThresholdPenalty::CDistinctCountThresholdPenalty(const CAutoconfig
                                                                std::size_t distinctCountForPenaltyOfZero) :
     CPenalty(params),
     m_DistinctCountForPenaltyOfOne(static_cast<double>(distinctCountForPenaltyOfOne)),
-    m_DistinctCountForPenaltyOfZero(static_cast<double>(distinctCountForPenaltyOfZero)) {
-}
+    m_DistinctCountForPenaltyOfZero(static_cast<double>(distinctCountForPenaltyOfZero)) {}
 
 CDistinctCountThresholdPenalty *CDistinctCountThresholdPenalty::clone(void) const {
     return new CDistinctCountThresholdPenalty(*this);

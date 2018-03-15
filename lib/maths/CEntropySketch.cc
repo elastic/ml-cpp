@@ -26,8 +26,7 @@
 namespace ml {
 namespace maths {
 
-CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0) {
-}
+CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0) {}
 
 void CEntropySketch::add(std::size_t category, uint64_t count) {
     m_Y += count;

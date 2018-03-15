@@ -267,11 +267,9 @@ class CTimeSeriesAnomalyModel {
                 }
 
             public:
-                CAnomaly(void) : m_Tag(0), m_OpenTime(0), m_Sign(0.0) {
-                }
+                CAnomaly(void) : m_Tag(0), m_OpenTime(0), m_Sign(0.0) {}
                 CAnomaly(std::size_t tag, core_t::TTime time) :
-                    m_Tag(tag), m_OpenTime(time), m_Sign(0.0) {
-                }
+                    m_Tag(tag), m_OpenTime(time), m_Sign(0.0) {}
 
                 //! Get the anomaly tag.
                 std::size_t tag(void) const {
@@ -408,13 +406,13 @@ void CTimeSeriesAnomalyModel::updateAnomaly(const CModelProbabilityParams &param
     if (params.updateAnomalyModel()) {
         std::size_t tag{params.tag()};
         auto        anomaly = std::find_if(m_Anomalies.begin(), m_Anomalies.end(),
-                                           [tag](const CAnomaly &anomaly_) {
+                                           [tag] (const CAnomaly &anomaly_) {
                     return anomaly_.tag() == tag;
                 });
 
         if (probability < LARGEST_ANOMALOUS_PROBABILITY) {
             m_MeanError.add(std::sqrt(std::accumulate(errors.begin(), errors.end(), 0.0,
-                                                      [](double n, double x) {
+                                                      [] (double n, double x) {
                         return n + x*x;
                     })));
 
@@ -439,7 +437,7 @@ void CTimeSeriesAnomalyModel::sampleAnomaly(const CModelProbabilityParams &param
     if (params.updateAnomalyModel()) {
         std::size_t tag{params.tag()};
         auto        anomaly = std::find_if(m_Anomalies.begin(), m_Anomalies.end(),
-                                           [tag](const CAnomaly &anomaly_) {
+                                           [tag] (const CAnomaly &anomaly_) {
                     return anomaly_.tag() == tag;
                 });
         if (anomaly != m_Anomalies.end()) {
@@ -459,7 +457,7 @@ void CTimeSeriesAnomalyModel::probability(const CModelProbabilityParams &params,
                                           core_t::TTime time, double &probability) const {
     std::size_t tag{params.tag()};
     auto        anomaly = std::find_if(m_Anomalies.begin(), m_Anomalies.end(),
-                                       [tag](const CAnomaly &anomaly_) {
+                                       [tag] (const CAnomaly &anomaly_) {
                 return anomaly_.tag() == tag;
             });
     if (anomaly != m_Anomalies.end()) {
@@ -647,7 +645,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     TSizeVec valueorder(samples.size());
     std::iota(valueorder.begin(), valueorder.end(), 0);
     std::stable_sort(valueorder.begin(), valueorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return samples[lhs].second < samples[rhs].second;
             });
 
@@ -669,7 +667,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     }
 
     std::stable_sort(valueorder.begin(), valueorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return samples[lhs].second < samples[rhs].second;
             });
 
@@ -1297,7 +1295,7 @@ CUnivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weightSt
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return COrderings::lexicographical_compare(samples[lhs].first,
                                                            samples[lhs].second,
                                                            samples[rhs].first,
@@ -1377,8 +1375,7 @@ bool CUnivariateTimeSeriesModel::correlationModels(TSize1Vec &correlated,
 CTimeSeriesCorrelations::CTimeSeriesCorrelations(double minimumSignificantCorrelation,
                                                  double decayRate) :
     m_MinimumSignificantCorrelation(minimumSignificantCorrelation),
-    m_Correlations(MAXIMUM_CORRELATIONS, decayRate) {
-}
+    m_Correlations(MAXIMUM_CORRELATIONS, decayRate) {}
 
 CTimeSeriesCorrelations::CTimeSeriesCorrelations(const CTimeSeriesCorrelations &other,
                                                  bool isForPersistence) :
@@ -1515,7 +1512,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator &
 
         ptrdiff_t cutoff{std::upper_bound(correlationCoeffs.begin(), correlationCoeffs.end(),
                                           0.5 * m_MinimumSignificantCorrelation,
-                                          [](double lhs, double rhs) {
+                                          [] (double lhs, double rhs) {
                         return std::fabs(lhs) > std::fabs(rhs);
                     }) - correlationCoeffs.begin()};
         LOG_TRACE("cutoff = " << cutoff);
@@ -1897,7 +1894,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     TSizeVec valueorder(samples.size());
     std::iota(valueorder.begin(), valueorder.end(), 0);
     std::stable_sort(valueorder.begin(), valueorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return samples[lhs].second < samples[rhs].second;
             });
 
@@ -1929,7 +1926,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams &params,
     }
 
     std::stable_sort(valueorder.begin(), valueorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return samples[lhs].second < samples[rhs].second;
             });
 
@@ -2438,7 +2435,7 @@ CMultivariateTimeSeriesModel::updateTrend(const maths_t::TWeightStyleVec &weight
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
-                     [&samples](std::size_t lhs, std::size_t rhs) {
+                     [&samples] (std::size_t lhs, std::size_t rhs) {
                 return COrderings::lexicographical_compare(samples[lhs].first,
                                                            samples[lhs].second,
                                                            samples[rhs].first,

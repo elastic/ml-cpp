@@ -29,8 +29,7 @@ namespace memory_detail {
 //! their description
 class CMemoryUsageComparison : public std::unary_function<std::string, bool> {
     public:
-        explicit CMemoryUsageComparison(const std::string &baseline) : m_Baseline(baseline) {
-        }
+        explicit CMemoryUsageComparison(const std::string &baseline) : m_Baseline(baseline) {}
 
         bool operator() (const CMemoryUsage *rhs) {
             return m_Baseline == rhs->m_Description.s_Name;
@@ -48,8 +47,7 @@ class CMemoryUsageComparisonTwo : public std::binary_function<std::string,
     public:
         explicit CMemoryUsageComparisonTwo(const std::string &baseline,
                                            const CMemoryUsage * firstItem) : m_Baseline(baseline),
-                                                                             m_FirstItem(firstItem) {
-        }
+                                                                             m_FirstItem(firstItem) {}
 
         bool operator() (const CMemoryUsage *rhs) {
             return (rhs != m_FirstItem) && (m_Baseline == rhs->m_Description.s_Name);
@@ -62,8 +60,7 @@ class CMemoryUsageComparisonTwo : public std::binary_function<std::string,
 
 }
 
-CMemoryUsage::CMemoryUsage() : m_Description("", 0ull) {
-}
+CMemoryUsage::CMemoryUsage() : m_Description("", 0ull) {}
 
 CMemoryUsage::~CMemoryUsage() {
     for (TMemoryUsagePtrListItr i = m_Children.begin(); i != m_Children.end(); ++i) {

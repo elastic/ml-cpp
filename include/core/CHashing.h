@@ -402,8 +402,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
 
             public:
                 CMurmurHash2BT(std::size_t seed = 0x5bd1e995) :
-                    m_Seed(seed) {
-                }
+                    m_Seed(seed) {}
 
                 std::size_t operator()(const T &key) const;
 
@@ -424,8 +423,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                 typedef boost::reference_wrapper<const std::string> TStrCRef;
 
             public:
-                CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {
-                }
+                CMurmurHash2String(std::size_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
                 std::size_t operator()(const std::string &key) const;
                 std::size_t operator()(TStrCRef key) const {
@@ -456,8 +454,7 @@ class CORE_EXPORT CHashing : private CNonInstantiatable {
                 typedef boost::reference_wrapper<const std::string> TStrCRef;
 
             public:
-                CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {
-                }
+                CSafeMurmurHash2String64(uint64_t seed = 0x5bd1e995) : m_Seed(seed) {}
 
                 uint64_t operator()(const std::string &key) const;
                 std::size_t operator()(TStrCRef key) const {

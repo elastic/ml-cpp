@@ -130,8 +130,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
             m_GaussianMean(gaussianMean),
             m_GaussianPrecision(gaussianPrecision),
             m_WishartDegreesFreedom(wishartDegreesFreedom),
-            m_WishartScaleMatrix(wishartScaleMatrix) {
-        }
+            m_WishartScaleMatrix(wishartScaleMatrix) {}
 
         //! Construct from sample central moments.
         CMultivariateNormalConjugate(maths_t::EDataType dataType,
@@ -152,8 +151,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
             traverser.traverseSubLevel(boost::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
         }
 
-        virtual ~CMultivariateNormalConjugate(void) {
-        }
+        virtual ~CMultivariateNormalConjugate(void) {}
 
         // Default copy constructor and assignment operator work.
 
@@ -196,8 +194,7 @@ class CMultivariateNormalConjugate : public CMultivariatePrior {
         //! No-op.
         virtual void adjustOffset(const TWeightStyleVec & /*weightStyles*/,
                                   const TDouble10Vec1Vec & /*samples*/,
-                                  const TDouble10Vec4Vec1Vec & /*weights*/) {
-        }
+                                  const TDouble10Vec4Vec1Vec & /*weights*/) {}
 
         //! Update the prior with a collection of independent samples from the
         //! process.

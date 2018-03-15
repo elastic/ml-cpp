@@ -58,8 +58,7 @@ std::string descriptionPrefix(const CDetectorSpecification &spec,
 }
 
 CTooMuchDataPenalty::CTooMuchDataPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CTooMuchDataPenalty *CTooMuchDataPenalty::clone(void) const {
     return new CTooMuchDataPenalty(*this);

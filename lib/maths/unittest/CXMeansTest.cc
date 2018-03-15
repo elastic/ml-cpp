@@ -62,8 +62,7 @@ class CXMeansForTest : public maths::CXMeans<POINT, COST> {
 
     public:
         CXMeansForTest(std::size_t kmax) :
-            maths::CXMeans<POINT, COST>(kmax) {
-        }
+            maths::CXMeans<POINT, COST>(kmax) {}
 
         void improveParams(std::size_t kmeansIterations) {
             this->maths::CXMeans<POINT, COST>::improveParams(kmeansIterations);

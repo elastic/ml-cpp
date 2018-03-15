@@ -26,8 +26,7 @@ namespace api {
 const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
 CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP &stream)
-    : m_Stream(stream) {
-}
+    : m_Stream(stream) {}
 
 CSingleStreamDataAdder::TOStreamP
 CSingleStreamDataAdder::addStreamed(const std::string & /*index*/,

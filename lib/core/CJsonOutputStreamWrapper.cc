@@ -32,13 +32,13 @@ CJsonOutputStreamWrapper::CJsonOutputStreamWrapper(std::ostream &outStream)
         m_StringBufferQueue.push(&m_StringBuffers[i]);
     }
 
-    m_ConcurrentOutputStream([](std::ostream &o) {
+    m_ConcurrentOutputStream([] (std::ostream &o) {
                 o.put(JSON_ARRAY_START);
             } );
 }
 
 CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
-    m_ConcurrentOutputStream([](std::ostream &o) {
+    m_ConcurrentOutputStream([] (std::ostream &o) {
                 o.put(JSON_ARRAY_END);
             } );
 }
@@ -53,7 +53,7 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter &writer, rapidjs
 
     // check for data that has to be written
     if (buffer->GetLength() > 0) {
-        m_ConcurrentOutputStream([this, buffer](std::ostream &o) {
+        m_ConcurrentOutputStream([this, buffer] (std::ostream &o) {
                     if (m_FirstObject) {
                         m_FirstObject = false;
                     } else {
@@ -73,7 +73,7 @@ void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter &writer,
                                            rapidjson::StringBuffer *&buffer) {
     writer.Flush();
 
-    m_ConcurrentOutputStream([this, buffer](std::ostream &o) {
+    m_ConcurrentOutputStream([this, buffer] (std::ostream &o) {
                 if (m_FirstObject) {
                     m_FirstObject = false;
                 } else {
@@ -99,7 +99,7 @@ void CJsonOutputStreamWrapper::returnAndCheckBuffer(rapidjson::StringBuffer *buf
 }
 
 void CJsonOutputStreamWrapper::flush() {
-    m_ConcurrentOutputStream([](std::ostream &o) {
+    m_ConcurrentOutputStream([] (std::ostream &o) {
                 o.flush();
             } );
 }
@@ -109,7 +109,7 @@ void CJsonOutputStreamWrapper::syncFlush() {
     std::condition_variable      c;
     std::unique_lock<std::mutex> lock(m);
 
-    m_ConcurrentOutputStream([&m, &c](std::ostream &o) {
+    m_ConcurrentOutputStream([&m, &c] (std::ostream &o) {
                 o.flush();
                 std::unique_lock<std::mutex> waitLock(m);
                 c.notify_all();

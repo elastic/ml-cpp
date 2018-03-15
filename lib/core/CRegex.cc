@@ -88,8 +88,7 @@ namespace core {
 
 
 CRegex::CRegex(void)
-    : m_Initialised(false) {
-}
+    : m_Initialised(false) {}
 
 bool CRegex::init(const std::string &regex) {
     // Allow expression to be initialised twice
@@ -351,8 +350,7 @@ size_t CRegex::literalCount(void) const {
                         minSubCount = subCount;
                     }
                     subCount = 0;
-                } else {
-                }
+                } else {}
                 break;
             case '(':
                 inSubMatch = true;

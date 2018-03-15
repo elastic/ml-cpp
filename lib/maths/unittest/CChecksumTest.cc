@@ -48,8 +48,7 @@ enum EAnEnum {
 };
 
 struct SFoo {
-    SFoo(uint64_t key) : s_Key(key) {
-    }
+    SFoo(uint64_t key) : s_Key(key) {}
     uint64_t checksum(void) const {
         return s_Key;
     }
@@ -57,8 +56,7 @@ struct SFoo {
 };
 
 struct SBar {
-    SBar(uint64_t key) : s_Key(key) {
-    }
+    SBar(uint64_t key) : s_Key(key) {}
     uint64_t checksum(uint64_t seed) const {
         return core::CHashing::hashCombine(seed, s_Key);
     }

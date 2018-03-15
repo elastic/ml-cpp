@@ -59,22 +59,14 @@ struct remove_const<std::pair<U, V> > {
 
 //! Template specialisation utility classes for selecting various
 //! approaches for persisting and restoring objects.
-class BasicPersist {
-};
-class ContainerPersist {
-};
-class MemberPersist {
-};
-class MemberToDelimited {
-};
-class BasicRestore {
-};
-class ContainerRestore {
-};
-class MemberRestore {
-};
-class MemberFromDelimited {
-};
+class BasicPersist {};
+class ContainerPersist {};
+class MemberPersist {};
+class MemberToDelimited {};
+class BasicRestore {};
+class ContainerRestore {};
+class MemberRestore {};
+class MemberFromDelimited {};
 
 //! Auxiliary type used by has_const_iterator to test for a nested
 //! typedef.
@@ -121,8 +113,7 @@ struct persist_selector<T, typename enable_if_is<std::string (T::*)(void) const,
 //@}
 
 //! Detail of the persist class selected by the object features
-template<typename SELECTOR> class CPersisterImpl {
-};
+template<typename SELECTOR> class CPersisterImpl {};
 
 //! Convenience function to select implementation.
 template<typename T>
@@ -162,8 +153,7 @@ struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string &
 //@}
 
 //! Detail of the restorer implementation based on object features
-template<typename SELECTOR> class CRestorerImpl {
-};
+template<typename SELECTOR> class CRestorerImpl {};
 
 //! Convenience function to select implementation.
 template<typename T>
@@ -175,8 +165,7 @@ bool restore(const std::string &tag, T &target, CStateRestoreTraverser &traverse
 //! or not a collection has a void rehash(size_t) method and failing
 //! that a void reserve(size_t) method (boost unordered_* have both
 //! and we prefer rehashing in this case).
-class CanReserve {
-};
+class CanReserve {};
 
 //! \name Class used to select appropriate reserve implementation.
 //!
@@ -198,8 +187,7 @@ struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::r
 template<typename SELECTOR> class CReserveImpl {
     public:
         template<typename T>
-        static void dispatch(const T &, std::size_t) {
-        }
+        static void dispatch(const T &, std::size_t) {}
 };
 
 //! \brief Implementation of the pre-allocation class for objects
@@ -243,8 +231,7 @@ class CORE_EXPORT CPersistUtils {
         class CORE_EXPORT CBuiltinToString {
             public:
                 CBuiltinToString(const char pairDelimiter) :
-                    m_PairDelimiter(pairDelimiter) {
-                }
+                    m_PairDelimiter(pairDelimiter) {}
 
                 std::string operator()(double value) const {
                     return CStringUtils::typeToStringPrecise(value, CIEEE754::E_SinglePrecision);
@@ -779,7 +766,7 @@ class CPersisterImpl<ContainerPersist> {
 
                 // Sort the values to ensure consistent persist state.
                 std::sort(iterators.begin(), iterators.end(),
-                          [](TCItr lhs, TCItr rhs) {
+                          [] (TCItr lhs, TCItr rhs) {
                             return *lhs < *rhs;
                         });
                 doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
@@ -802,7 +789,7 @@ class CPersisterImpl<ContainerPersist> {
 
             // Sort the keys to ensure consistent persist state.
             std::sort(iterators.begin(), iterators.end(),
-                      [](TCItr lhs, TCItr rhs) {
+                      [] (TCItr lhs, TCItr rhs) {
                         return lhs->first < rhs->first;
                     });
             doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());

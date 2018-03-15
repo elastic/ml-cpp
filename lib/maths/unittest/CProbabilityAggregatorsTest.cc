@@ -39,8 +39,7 @@ typedef std::vector<double> TDoubleVec;
 class CGammaKernel {
     public:
         CGammaKernel(const double &s, const double &x) :
-            m_S(s), m_X(x) {
-        }
+            m_S(s), m_X(x) {}
 
         bool operator()(const double &u, double &result) const {
             result = ::pow(m_X - ::log(1.0 - u/m_S), m_S - 1.0);
@@ -100,8 +99,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples {
                               std::size_t n,
                               std::size_t m,
                               std::size_t i) :
-                    m_Limits(limits), m_N(n), m_M(m), m_I(i) {
-                }
+                    m_Limits(limits), m_N(n), m_M(m), m_I(i) {}
 
                 bool operator()(double x, double &result) const {
                     result = this->evaluate(x);
@@ -128,8 +126,7 @@ class CExpectedLogProbabilityOfMFromNExtremeSamples {
     public:
         CExpectedLogProbabilityOfMFromNExtremeSamples(std::size_t m) :
             m_P(m),
-            m_N(0u) {
-        }
+            m_N(0u) {}
 
         void add(const double &probability) {
             m_P.add(probability);

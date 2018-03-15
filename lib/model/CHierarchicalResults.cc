@@ -265,8 +265,7 @@ SResultSpec::SResultSpec(void) :
     s_ValueFieldName(UNSET_STRING),
     s_FunctionName(UNSET_STRING),
     s_ByFieldName(UNSET_STRING),
-    s_Function(function_t::E_IndividualCount) {
-}
+    s_Function(function_t::E_IndividualCount) {}
 
 std::string SResultSpec::print(void) const {
     return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount)
@@ -349,8 +348,7 @@ SNode::SNode(void) :
     s_NormalizedAnomalyScore(0.0),
     s_Model(0),
     s_BucketStartTime(0),
-    s_BucketLength(0) {
-}
+    s_BucketLength(0) {}
 
 SNode::SNode(const SResultSpec &simpleSearch, SAnnotatedProbability &annotatedProbability) :
     s_Parent(0),
@@ -536,8 +534,7 @@ using namespace hierarchical_results_detail;
 
 
 CHierarchicalResults::CHierarchicalResults(void) :
-    m_ResultType(model_t::CResultType::E_Final) {
-}
+    m_ResultType(model_t::CResultType::E_Final) {}
 
 void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability &annotatedProbability,
                                                 const CAnomalyDetectorModel *model,
@@ -980,8 +977,7 @@ void CHierarchicalResults::postorderDepthFirst(const TNode *node,
     visitor.visit(*this, *node, /*pivot =*/ false);
 }
 
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void) {
-}
+CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor(void) {}
 
 bool CHierarchicalResultsVisitor::isRoot(const TNode &node) {
     return !node.s_Parent;
@@ -1040,8 +1036,7 @@ CHierarchicalResultsVisitor::nearestAncestorForWhichWeWriteResults(const TNode &
     const TNode *result = &node;
     for (result = result->s_Parent;
          result && !isTypeForWhichWeWriteResults(*result, false);
-         result = result->s_Parent) {
-    }
+         result = result->s_Parent) {}
     return result;
 }
 

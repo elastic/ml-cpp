@@ -26,11 +26,9 @@ namespace core {
 const std::string CXmlParserIntf::XML_HEADER("<?xml version=\"1.0\"?>");
 
 
-CXmlParserIntf::CXmlParserIntf(void) {
-}
+CXmlParserIntf::CXmlParserIntf(void) {}
 
-CXmlParserIntf::~CXmlParserIntf(void) {
-}
+CXmlParserIntf::~CXmlParserIntf(void) {}
 
 std::string CXmlParserIntf::makeValidName(const std::string &str) {
     std::string result(str);

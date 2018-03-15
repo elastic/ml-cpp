@@ -109,8 +109,7 @@ class CPdf {
     public:
         CPdf(const DISTRIBUTION &distribution, double target) :
             m_Distribution(distribution),
-            m_Target(target) {
-        }
+            m_Target(target) {}
 
         double operator()(double x) const {
             return adapters::pdf(m_Distribution, x) - m_Target;
@@ -338,8 +337,7 @@ double CTools::SMinusLogCdfComplement::operator()(const beta &beta_, double x) c
 
 CTools::CProbabilityOfLessLikelySample::CProbabilityOfLessLikelySample(
     maths_t::EProbabilityCalculation calculation) :
-    m_Calculation(calculation) {
-}
+    m_Calculation(calculation) {}
 
 double CTools::CProbabilityOfLessLikelySample::operator()(const SImproperDistribution &,
                                                           double,

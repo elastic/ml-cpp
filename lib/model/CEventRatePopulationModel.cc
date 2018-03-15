@@ -125,8 +125,8 @@ void CEventRatePopulationModel::initialize(const TFeatureMathsModelPtrPrVec &new
         m_FeatureModels.emplace_back(model.first, model.second);
     }
     std::sort(m_FeatureModels.begin(), m_FeatureModels.end(),
-              [](const SFeatureModels &lhs,
-                 const SFeatureModels &rhs) {
+              [] (const SFeatureModels &lhs,
+                  const SFeatureModels &rhs) {
                 return lhs.s_Feature < rhs.s_Feature;
             } );
 
@@ -138,8 +138,8 @@ void CEventRatePopulationModel::initialize(const TFeatureMathsModelPtrPrVec &new
                                                    featureCorrelatesModels[i].second);
         }
         std::sort(m_FeatureCorrelatesModels.begin(), m_FeatureCorrelatesModels.end(),
-                  [](const SFeatureCorrelateModels &lhs,
-                     const SFeatureCorrelateModels &rhs) {
+                  [] (const SFeatureCorrelateModels &lhs,
+                      const SFeatureCorrelateModels &rhs) {
                     return lhs.s_Feature < rhs.s_Feature;
                 });
     }
@@ -946,7 +946,7 @@ const maths::CModel *CEventRatePopulationModel::model(model_t::EFeature feature,
 
 maths::CModel *CEventRatePopulationModel::model(model_t::EFeature feature, std::size_t cid) {
     auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(),
-                          [feature](const SFeatureModels &model) {
+                          [feature] (const SFeatureModels &model) {
                 return model.s_Feature == feature;
             });
     return i != m_FeatureModels.end() && cid < i->s_Models.size() ? i->s_Models[cid].get() : 0;
@@ -1014,8 +1014,7 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
 CEventRatePopulationModel::SBucketStats::SBucketStats(core_t::TTime startTime) :
     s_StartTime(startTime),
     s_TotalCount(0),
-    s_InterimCorrections(1) {
-}
+    s_InterimCorrections(1) {}
 
 }
 }

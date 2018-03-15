@@ -44,8 +44,7 @@ CMetricModelFactory::CMetricModelFactory(const SModelParams &params,
     m_SummaryCountFieldName(summaryCountFieldName),
     m_UseNull(false),
     m_BucketLength(CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH),
-    m_BucketResultsDelay(0) {
-}
+    m_BucketResultsDelay(0) {}
 
 CMetricModelFactory *CMetricModelFactory::clone(void) const {
     return new CMetricModelFactory(*this);

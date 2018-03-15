@@ -377,7 +377,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
                     double Z = std::accumulate(m_Modes.begin(), m_Modes.end(),
                                                smallestCountWeight,
-                                               [](double sum, const TMode &mode) {
+                                               [] (double sum, const TMode &mode) {
                             return sum + mode.weight();
                         });
 
@@ -934,8 +934,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             public:
                 CModeSplitCallback(CMultivariateMultimodalPrior &prior) :
-                    m_Prior(&prior) {
-                }
+                    m_Prior(&prior) {}
 
                 void operator()(std::size_t sourceIndex,
                                 std::size_t leftSplitIndex,
@@ -1037,8 +1036,7 @@ class CMultivariateMultimodalPrior : public CMultivariatePrior {
 
             public:
                 CModeMergeCallback(CMultivariateMultimodalPrior &prior) :
-                    m_Prior(&prior) {
-                }
+                    m_Prior(&prior) {}
 
                 void operator()(std::size_t leftMergeIndex,
                                 std::size_t rightMergeIndex,

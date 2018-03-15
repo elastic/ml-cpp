@@ -238,8 +238,7 @@ CAnomalyScore::CComputer::CComputer(double jointProbabilityWeight,
     m_ExtremeProbabilityWeight(extremeProbabilityWeight),
     m_MinExtremeSamples(std::min(minExtremeSamples, maxExtremeSamples)),
     m_MaxExtremeSamples(maxExtremeSamples),
-    m_MaximumAnomalousProbability(maximumAnomalousProbability) {
-}
+    m_MaximumAnomalousProbability(maximumAnomalousProbability) {}
 
 bool CAnomalyScore::CComputer::operator()(const TDoubleVec &probabilities,
                                           double &overallAnomalyScore,
@@ -268,8 +267,7 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig &confi
     m_DecayRate(config.decayRate()
                 * std::max(  static_cast<double>(config.bucketLength())
                              / static_cast<double>(CAnomalyDetectorModelConfig::STANDARD_BUCKET_LENGTH), 1.0)),
-    m_TimeToQuantileDecay(QUANTILE_DECAY_TIME) {
-}
+    m_TimeToQuantileDecay(QUANTILE_DECAY_TIME) {}
 
 bool CAnomalyScore::CNormalizer::canNormalize(void) const
 {

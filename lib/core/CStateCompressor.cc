@@ -58,8 +58,7 @@ CStateCompressor::CChunkFilter::CChunkFilter(CDataAdder &adder)
       m_CurrentDocNum(1),
       m_BytesDone(0),
       m_MaxDocSize(adder.maxDocumentSize()),
-      m_WritesSuccessful(true) {
-}
+      m_WritesSuccessful(true) {}
 
 std::streamsize CStateCompressor::CChunkFilter::write(const char *s, std::streamsize n) {
     // Write up to n characters from the buffer

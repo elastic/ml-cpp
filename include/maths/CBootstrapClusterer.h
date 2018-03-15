@@ -97,8 +97,7 @@ class CBootstrapClusterer {
     public:
         CBootstrapClusterer(double overlapThreshold, double chainingFactor) :
             m_OverlapThreshold(overlapThreshold),
-            m_ChainingFactor(std::max(chainingFactor, 1.0)) {
-        }
+            m_ChainingFactor(std::max(chainingFactor, 1.0)) {}
 
         //! Run clustering on \p b bootstrap samples of \p points
         //! and find persistent clusters of the data.
@@ -613,8 +612,7 @@ class CBootstrapClusterer {
                     TEdgeItr seed = boost::edges(graph).first;
                     for (std::size_t j = 0u;
                          j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E));
-                         ++j, ++seed) {
-                    }
+                         ++j, ++seed) {}
                     cut.push_back(std::make_pair(boost::source(*seed, graph), boost::target(*seed, graph)));
                 }
 
@@ -772,13 +770,11 @@ class CBootstrapClusterer {
         //! This is intended for use with boost::filtered_graph.
         class CParityFilter {
             public:
-                CParityFilter(void) : m_Graph(0), m_Parities(0), m_Parity(false) {
-                }
+                CParityFilter(void) : m_Graph(0), m_Parities(0), m_Parity(false) {}
                 CParityFilter(const TGraph &graph, const TBoolVec &parities, bool parity) :
                     m_Graph(&graph),
                     m_Parities(&parities),
-                    m_Parity(parity) {
-                }
+                    m_Parity(parity) {}
 
                 //! Check the vertex parity.
                 bool operator()(const TVertex &v) const {
@@ -1001,8 +997,7 @@ class CBootstrapClustererFacadeExtractClusters {
 //! \brief Adapts clustering implementations for use by the bootstrap
 //! clusterer.
 template<typename CLUSTERER>
-class CBootstrapClustererFacade {
-};
+class CBootstrapClustererFacade {};
 
 //! \brief Adapts the x-means implementation for use by the bootstrap
 //! clusterer.
@@ -1021,8 +1016,7 @@ class CBootstrapClustererFacade<CXMeans<POINT, COST> > : private CBootstrapClust
             m_Xmeans(xmeans),
             m_ImproveParamsKmeansIterations(improveParamsKmeansIterations),
             m_ImproveStructureClusterSeeds(improveStructureClusterSeeds),
-            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {
-        }
+            m_ImproveStructureKmeansIterations(improveStructureKmeansIterations) {}
 
         //! \note Assumes \p points are sorted.
         void cluster(const TPointVec &points, TSizeVecVec &result) {
@@ -1075,8 +1069,7 @@ class CBootstrapClustererFacade<CKMeansFast<POINT> > : private CBootstrapCluster
                                   std::size_t maxIterations) :
             m_Kmeans(kmeans),
             m_K(k),
-            m_MaxIterations(maxIterations) {
-        }
+            m_MaxIterations(maxIterations) {}
 
         //! \note Assumes \p points are sorted.
         void cluster(const TPointVec &points, TSizeVecVec &result) {

@@ -49,8 +49,7 @@ class CX {
 
 class CVariance {
     public:
-        CVariance(const double mean) : m_Mean(mean) {
-        }
+        CVariance(const double mean) : m_Mean(mean) {}
 
         bool operator()(const double &x, double &result) const {
             result = (x - m_Mean) * (x - m_Mean);
@@ -70,8 +69,7 @@ class CMinusLogLikelihood {
             m_Prior(&prior),
             m_WeightStyle(1, maths_t::E_SampleCountWeight),
             m_X(1, 0.0),
-            m_Weight(1, TDoubleVec(1, 1.0)) {
-        }
+            m_Weight(1, TDoubleVec(1, 1.0)) {}
 
         bool operator()(const double &x, double &result) const {
             m_X[0] = x;

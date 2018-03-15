@@ -77,8 +77,7 @@ class CSampleQueue {
             SSubSample(std::size_t dimension, core_t::TTime time) :
                 s_Statistic(dimension),
                 s_Start(time),
-                s_End(time) {
-            }
+                s_End(time) {}
 
             void add(const TDouble1Vec &measurement,
                      core_t::TTime time,
@@ -219,8 +218,7 @@ class CSampleQueue {
             m_SampleCountFactor(sampleCountFactor),
             m_GrowthFactor(growthFactor),
             m_BucketLength(bucketLength),
-            m_Latency(static_cast<core_t::TTime>(latencyBuckets) * bucketLength) {
-        }
+            m_Latency(static_cast<core_t::TTime>(latencyBuckets) * bucketLength) {}
 
         //! Adds a measurement to the queue.
         //!

@@ -111,8 +111,7 @@ struct has_print_function<T, typename enable_if_is<std::string (T::*)(void) cons
 //!
 //! \note Partial specializations can't be nested classes.
 //@{
-template<typename SELECTOR> class CLeafPrinter {
-};
+template<typename SELECTOR> class CLeafPrinter {};
 template<>
 class CLeafPrinter<false_> {
     public:
@@ -172,8 +171,7 @@ class CLeafPrinter<true_> {
 //!
 //! \note Partial specializations can't be nested classes.
 //@{
-template<typename SELECTOR, typename PRINTER> class CNodePrinter {
-};
+template<typename SELECTOR, typename PRINTER> class CNodePrinter {};
 template<typename PRINTER>
 class CNodePrinter<false_, PRINTER> {
     public:

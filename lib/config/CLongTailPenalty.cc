@@ -45,8 +45,7 @@ uint64_t count(const maths::CBjkstUniqueValues &distinct) {
 }
 
 CLongTailPenalty::CLongTailPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CLongTailPenalty *CLongTailPenalty::clone(void) const {
     return new CLongTailPenalty(*this);

@@ -84,8 +84,7 @@ CHierarchicalResultsWriter::SResults::SResults(bool isAllTimeResult,
       s_NormalizedAnomalyScore(normalizedAnomalyScore),
       s_Probability(probability),
       s_Influences(influences),
-      s_Identifier(identifier) {
-}
+      s_Identifier(identifier) {}
 
 CHierarchicalResultsWriter::SResults::SResults(EResultType resultType,
                                                const std::string &partitionFieldName,
@@ -140,8 +139,7 @@ CHierarchicalResultsWriter::SResults::SResults(EResultType resultType,
       s_Probability(probability),
       s_Influences(influences),
       s_Identifier(identifier),
-      s_ScheduledEventDescriptions(scheduledEventDescriptions) {
-}
+      s_ScheduledEventDescriptions(scheduledEventDescriptions) {}
 
 CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits &limits,
                                                        const model::CAnomalyDetectorModelConfig &modelConfig,
@@ -151,8 +149,7 @@ CHierarchicalResultsWriter::CHierarchicalResultsWriter(const model::CLimits &lim
     m_ModelConfig(modelConfig),
     m_ResultWriterFunc(resultWriterFunc),
     m_PivotWriterFunc(pivotWriterFunc),
-    m_BucketTime(0) {
-}
+    m_BucketTime(0) {}
 
 void CHierarchicalResultsWriter::visit(const model::CHierarchicalResults &results,
                                        const TNode &node,

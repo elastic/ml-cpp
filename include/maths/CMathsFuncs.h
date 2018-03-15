@@ -117,8 +117,7 @@ class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
                 using reference = typename std::iterator_traits<ITR>::reference;
 
             public:
-                CFiniteIterator(void) : m_Base(), m_End() {
-                }
+                CFiniteIterator(void) : m_Base(), m_End() {}
                 CFiniteIterator(const ITR &base, const ITR &end) :
                     m_Base(base),
                     m_End(end) {

@@ -55,8 +55,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
                       const ml::model::CLimits &limits)
             : m_ModelConfig(modelConfig),
               m_Limits(limits),
-              m_Calls(0) {
-        }
+              m_Calls(0) {}
 
         void operator()(ml::model::CAnomalyDetector &detector,
                         ml::core_t::TTime start,

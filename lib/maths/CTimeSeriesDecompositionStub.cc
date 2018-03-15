@@ -27,8 +27,7 @@ CTimeSeriesDecompositionStub *CTimeSeriesDecompositionStub::clone(void) const {
     return new CTimeSeriesDecompositionStub(*this);
 }
 
-void CTimeSeriesDecompositionStub::decayRate(double /*decayRate*/) {
-}
+void CTimeSeriesDecompositionStub::decayRate(double /*decayRate*/) {}
 
 double CTimeSeriesDecompositionStub::decayRate(void) const {
     return 0.0;
@@ -45,8 +44,7 @@ bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
     return false;
 }
 
-void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/) {
-}
+void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/) {}
 
 double CTimeSeriesDecompositionStub::mean(core_t::TTime /*time*/) const {
     return 0.0;
@@ -85,8 +83,7 @@ maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*tim
     return {1.0, 1.0};
 }
 
-void CTimeSeriesDecompositionStub::skipTime(core_t::TTime /*skipInterval*/) {
-}
+void CTimeSeriesDecompositionStub::skipTime(core_t::TTime /*skipInterval*/) {}
 
 uint64_t CTimeSeriesDecompositionStub::checksum(uint64_t seed) const {
     return seed;

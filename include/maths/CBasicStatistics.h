@@ -733,28 +733,24 @@ class MATHS_EXPORT CBasicStatistics {
             using TVector = CVectorNx1<T, N>;
             using TMatrix = CSymmetricMatrixNxN<T, N>;
 
-            SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0} {
-            }
+            SSampleCovariances(void) : s_Count{0}, s_Mean{0}, s_Covariances{0} {}
 
             SSampleCovariances(T count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {
-            }
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {}
 
             SSampleCovariances(const TVector &count,
                                const TVector &mean,
                                const TMatrix &covariances) :
-                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {
-            }
+                s_Count{count}, s_Mean{mean}, s_Covariances{covariances} {}
 
             //! Copy construction from implicitly convertible type.
             template<typename U>
             SSampleCovariances(const SSampleCovariances<U, N> &other) :
                 s_Count{other.s_Count},
                 s_Mean{other.s_Mean},
-                s_Covariances{other.s_Covariances} {
-            }
+                s_Covariances{other.s_Covariances} {}
 
             //! Assignment from implicitly convertible type.
             template<typename U>
@@ -1055,8 +1051,7 @@ class MATHS_EXPORT CBasicStatistics {
                 COrderStatisticsImpl(const CONTAINER &statistics, const LESS &less) :
                     m_Less(less),
                     m_Statistics(statistics),
-                    m_UnusedCount(statistics.size()) {
-                }
+                    m_UnusedCount(statistics.size()) {}
 
                 //! \name Persistence
                 //@{
@@ -1363,8 +1358,7 @@ class MATHS_EXPORT CBasicStatistics {
 
             public:
                 explicit COrderStatisticsHeap(std::size_t n, const LESS &less = LESS{}) :
-                    TImpl{std::vector<T>(n, T{}), less} {
-                }
+                    TImpl{std::vector<T>(n, T{}), less} {}
 
                 //! Reset the number of statistics to gather to \p n.
                 void resize(std::size_t n) {
@@ -1419,8 +1413,7 @@ class MATHS_EXPORT CBasicStatistics {
 
             public:
                 explicit CMinMax(const LESS &less = LESS{}, const GREATER &greater = GREATER{}) :
-                    m_Min{less}, m_Max{greater} {
-                }
+                    m_Min{less}, m_Max{greater} {}
 
                 //! Define a function operator for use with std:: algorithms.
                 inline bool operator()(const T &x) {

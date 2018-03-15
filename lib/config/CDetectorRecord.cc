@@ -59,8 +59,7 @@ CDetectorRecord::CDetectorRecord(core_t::TTime time,
     m_Function(function),
     m_FieldNames(fieldNames),
     m_FieldValues(fieldValues),
-    m_HashedFieldValues(hashedFieldValues) {
-}
+    m_HashedFieldValues(hashedFieldValues) {}
 
 core_t::TTime CDetectorRecord::time(void) const {
     return m_Time;

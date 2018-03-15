@@ -39,8 +39,7 @@ class CTrackerThread : public CThread {
     public:
         CTrackerThread(void)
             : m_Shutdown(false),
-              m_Condition(m_Mutex) {
-        }
+              m_Condition(m_Mutex) {}
 
         virtual ~CTrackerThread(void) {
             // Close the handles to any child processes that outlived us

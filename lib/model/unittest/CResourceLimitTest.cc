@@ -57,8 +57,7 @@ class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
         CResultWriter(const CAnomalyDetectorModelConfig &modelConfig,
                       const CLimits &limits) :
             m_ModelConfig(modelConfig),
-            m_Limits(limits) {
-        }
+            m_Limits(limits) {}
 
         void operator()(CAnomalyDetector &detector,
                         core_t::TTime start,
@@ -305,8 +304,7 @@ class CMockEventRateModel : public ml::model::CEventRateModel {
                             influenceCalculators),
             m_ResourceMonitor(resourceMonitor),
             m_NewPeople(0),
-            m_NewAttributes(0) {
-        }
+            m_NewAttributes(0) {}
 
         virtual void updateRecycledModels(void) {
             // Do nothing
@@ -353,8 +351,7 @@ class CMockMetricModel : public ml::model::CMetricModel {
                          influenceCalculators),
             m_ResourceMonitor(resourceMonitor),
             m_NewPeople(0),
-            m_NewAttributes(0) {
-        }
+            m_NewAttributes(0) {}
 
         virtual void updateRecycledModels(void) {
             // Do nothing

@@ -87,8 +87,7 @@ CMetricModel::CMetricModel(const SModelParams &params,
                      newFeatureCorrelateModelPriors,
                      featureCorrelatesModels,
                      influenceCalculators),
-    m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {
-}
+    m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET) {}
 
 CMetricModel::CMetricModel(const SModelParams &params,
                            const TDataGathererPtr &dataGatherer,
@@ -639,7 +638,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                     std::size_t match = static_cast<std::size_t>(
                         std::find_if(data[1]->s_InfluenceValues[j].begin(),
                                      data[1]->s_InfluenceValues[j].end(),
-                                     [influence](const TStrCRefDouble1VecDoublePrPr &value_) {
+                                     [influence] (const TStrCRefDouble1VecDoublePrPr &value_) {
                                 return value_.first.get() == influence.get();
                             }) - data[1]->s_InfluenceValues[j].begin());
                     if (match < data[1]->s_InfluenceValues[j].size()) {
@@ -689,8 +688,7 @@ CMetricModel::SBucketStats::SBucketStats(core_t::TTime startTime) :
     s_PersonCounts(),
     s_TotalCount(0),
     s_FeatureData(),
-    s_InterimCorrections(1) {
-}
+    s_InterimCorrections(1) {}
 
 }
 }

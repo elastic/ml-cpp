@@ -267,8 +267,7 @@ class CPdf {
 
     public:
         CPdf(const DISTRIBUTION &distribution) :
-            m_Distribution(distribution) {
-        }
+            m_Distribution(distribution) {}
 
         bool operator()(double x, double &result) const {
             result = boost::math::pdf(m_Distribution, x);
@@ -318,8 +317,7 @@ class CTruncatedPdf {
         CTruncatedPdf(const maths::CMixtureDistribution<T> &mixture,
                       double cutoff) :
             m_Mixture(mixture),
-            m_Cutoff(cutoff) {
-        }
+            m_Cutoff(cutoff) {}
 
         bool operator()(double x, double &fx) const {
             fx = maths::pdf(m_Mixture, x);
@@ -338,8 +336,7 @@ template<typename T>
 class CLogPdf {
     public:
         CLogPdf(const maths::CMixtureDistribution<T> &mixture) :
-            m_Mixture(mixture) {
-        }
+            m_Mixture(mixture) {}
 
         double operator()(double x) const {
             return ::log(maths::pdf(m_Mixture, x));

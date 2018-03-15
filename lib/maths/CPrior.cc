@@ -62,8 +62,7 @@ const std::size_t ADJUST_OFFSET_TRIALS = 20;
 CPrior::CPrior(void) :
     m_DataType(maths_t::E_DiscreteData),
     m_DecayRate(0.0),
-    m_NumberSamples(0) {
-}
+    m_NumberSamples(0) {}
 
 CPrior::CPrior(maths_t::EDataType dataType, double decayRate) :
     m_DataType(dataType),
@@ -101,8 +100,7 @@ void CPrior::decayRate(double value) {
     detail::setDecayRate(value, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CPrior::removeModels(CModelFilter & /*filter*/) {
-}
+void CPrior::removeModels(CModelFilter & /*filter*/) {}
 
 double CPrior::offsetMargin(void) const {
     return 0.0;
@@ -327,8 +325,7 @@ const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
 
 ////////// CPrior::CModelFilter Implementation //////////
 
-CPrior::CModelFilter::CModelFilter(void) : m_Filter(0) {
-}
+CPrior::CModelFilter::CModelFilter(void) : m_Filter(0) {}
 
 CPrior::CModelFilter &CPrior::CModelFilter::remove(EPrior model) {
     m_Filter = m_Filter | model;
@@ -348,8 +345,7 @@ CPrior::CLogMarginalLikelihood::CLogMarginalLikelihood(const CPrior &prior,
     m_Prior(&prior),
     m_WeightStyles(&weightStyles),
     m_Weights(&weights),
-    m_X(1) {
-}
+    m_X(1) {}
 
 double CPrior::CLogMarginalLikelihood::operator()(double x) const {
     double result;
@@ -376,8 +372,7 @@ CPrior::COffsetParameters::COffsetParameters(CPrior &prior) :
     m_Samples(0),
     m_Weights(0),
     m_Resamples(0),
-    m_ResamplesWeights(0) {
-}
+    m_ResamplesWeights(0) {}
 
 void CPrior::COffsetParameters::samples(const maths_t::TWeightStyleVec &weightStyles,
                                         const TDouble1Vec &samples,
@@ -418,8 +413,7 @@ const CPrior::TDouble4Vec1Vec &CPrior::COffsetParameters::resamplesWeights(void)
 
 ////////// CPrior::COffsetCost Implementation //////////
 
-CPrior::COffsetCost::COffsetCost(CPrior &prior) : COffsetParameters(prior) {
-}
+CPrior::COffsetCost::COffsetCost(CPrior &prior) : COffsetParameters(prior) {}
 
 double CPrior::COffsetCost::operator()(double offset) const {
     this->resetPriors(offset);
@@ -468,8 +462,7 @@ double CPrior::COffsetCost::computeCost(double offset) const
 
 ////////// CPrior::CApplyOffset Implementation //////////
 
-CPrior::CApplyOffset::CApplyOffset(CPrior &prior) : COffsetParameters(prior) {
-}
+CPrior::CApplyOffset::CApplyOffset(CPrior &prior) : COffsetParameters(prior) {}
 
 void CPrior::CApplyOffset::operator()(double offset) const {
     this->prior().setToNonInformative(offset, this->prior().decayRate());

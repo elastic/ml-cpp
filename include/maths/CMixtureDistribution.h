@@ -158,8 +158,7 @@ class CMixtureDistribution {
         typedef std::vector<T>      TModeVec;
 
     public:
-        CMixtureDistribution(void) {
-        }
+        CMixtureDistribution(void) {}
 
         //! \note The length of \p weights should match \p modes.
         CMixtureDistribution(const TDoubleVec &weights, const TModeVec &modes) :
@@ -233,8 +232,7 @@ class CPdfAdpater {
 
     public:
         CPdfAdpater(const CMixtureDistribution<T> &distribution) :
-            m_Distribution(&distribution) {
-        }
+            m_Distribution(&distribution) {}
 
         double operator()(double x) const {
             return pdf(*m_Distribution, x);
@@ -467,8 +465,7 @@ class CCdfAdapter {
 
     public:
         CCdfAdapter(const CMixtureDistribution<T> &distribution) :
-            m_Distribution(&distribution) {
-        }
+            m_Distribution(&distribution) {}
 
         double operator()(const double x) const {
             return cdf(*m_Distribution, x);

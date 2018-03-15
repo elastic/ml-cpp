@@ -57,8 +57,7 @@ class CMetricMultivariateStatistic {
         static const std::string VALUE_TAG;
 
     public:
-        CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {
-        }
+        CMetricMultivariateStatistic(std::size_t n) : m_Values(n) {}
 
         //! Persist to a state document.
         void persist(core::CStatePersistInserter &inserter) const {

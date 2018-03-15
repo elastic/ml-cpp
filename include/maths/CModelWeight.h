@@ -92,8 +92,7 @@ class CScopeCanonicalizeWeights : private core::CNonCopyable {
         typedef std::vector<TWeightPriorPr>    TWeightPriorPrVec;
 
     public:
-        CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {
-        }
+        CScopeCanonicalizeWeights(TWeightPriorPrVec &models) : m_Models(models) {}
 
         ~CScopeCanonicalizeWeights(void) {
             CBasicStatistics::SMax<double>::TAccumulator logMaxWeight;

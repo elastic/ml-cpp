@@ -193,8 +193,7 @@ CStringStore::CStringStore(void)
     : m_Reading(0),
       m_Writing(0),
       m_EmptyString(core::CStoredStringPtr::makeStoredString(std::string())),
-      m_StoredStringsMemUse(0) {
-}
+      m_StoredStringsMemUse(0) {}
 
 void CStringStore::clearEverythingTestOnly(void) {
     // For tests that assert on memory usage it's important that these

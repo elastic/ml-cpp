@@ -50,8 +50,7 @@ class CORE_EXPORT CFunctional : CNonInstantiatable {
         //! and calls the predicate \p PRED on them.
         template<typename PRED>
         struct SDereference {
-            SDereference(const PRED &pred = PRED()) : s_Pred(pred) {
-            }
+            SDereference(const PRED &pred = PRED()) : s_Pred(pred) {}
 
             //! Version for unary predicates.
             //!

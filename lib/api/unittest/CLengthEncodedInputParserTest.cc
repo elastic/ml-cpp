@@ -55,8 +55,7 @@ namespace {
 class CSetupVisitor {
     public:
         CSetupVisitor(void)
-            : m_RecordsPerBlock(0) {
-        }
+            : m_RecordsPerBlock(0) {}
 
         //! Handle a record
         bool operator()(const ml::api::CCsvInputParser::TStrStrUMap &dataRowFields) {
@@ -121,14 +120,12 @@ class CVisitor {
     public:
         CVisitor(void)
             : m_Fast(true),
-              m_RecordCount(0) {
-        }
+              m_RecordCount(0) {}
 
         CVisitor(const ml::api::CCsvInputParser::TStrVec &expectedFieldNames)
             : m_Fast(false),
               m_RecordCount(0),
-              m_ExpectedFieldNames(expectedFieldNames) {
-        }
+              m_ExpectedFieldNames(expectedFieldNames) {}
 
         //! Handle a record
         bool operator()(const ml::api::CLengthEncodedInputParser::TStrStrUMap &dataRowFields) {

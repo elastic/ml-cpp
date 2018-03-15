@@ -73,8 +73,7 @@ class CTestThread : public core::CThread {
     public:
         CTestThread(const TMachineVec &machines) :
             m_Machines(machines),
-            m_Failures(0) {
-        }
+            m_Failures(0) {}
 
         std::size_t failures(void) const {
             return m_Failures;
@@ -102,8 +101,7 @@ class CTestThread : public core::CThread {
             }
         }
 
-        virtual void shutdown(void) {
-        }
+        virtual void shutdown(void) {}
 
     private:
         test::CRandomNumbers m_Rng;

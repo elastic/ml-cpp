@@ -22,8 +22,7 @@ const std::string INDEX_TAG("a");
 }
 
 CClustererTypes::CIndexGenerator::CIndexGenerator(void) :
-    m_IndexHeap(new TSizeVec(1u, 0u)) {
-}
+    m_IndexHeap(new TSizeVec(1u, 0u)) {}
 
 bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     m_IndexHeap->clear();

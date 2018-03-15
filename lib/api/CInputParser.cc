@@ -21,11 +21,9 @@ namespace api {
 
 CInputParser::CInputParser(void)
     : m_GotFieldNames(false),
-      m_GotData(false) {
-}
+      m_GotData(false) {}
 
-CInputParser::~CInputParser(void) {
-}
+CInputParser::~CInputParser(void) {}
 
 bool CInputParser::gotFieldNames(void) const {
     return m_GotFieldNames;

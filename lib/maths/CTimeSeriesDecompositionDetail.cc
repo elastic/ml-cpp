@@ -378,8 +378,7 @@ const TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 //////// SMessage ////////
 
 CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::TTime lastTime) :
-    s_Time{time}, s_LastTime{lastTime} {
-}
+    s_Time{time}, s_LastTime{lastTime} {}
 
 //////// SAddValue ////////
 
@@ -401,8 +400,7 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
     s_Seasonal{seasonal},
     s_Calendar{calendar},
     s_Predictor{predictor},
-    s_PeriodicityTestConfig{periodicityTestConfig} {
-}
+    s_PeriodicityTestConfig{periodicityTestConfig} {}
 
 //////// SDetectedSeasonal ////////
 
@@ -414,43 +412,34 @@ CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(core_t::TTi
     SMessage{time, lastTime},
     s_Result{result},
     s_Window{window},
-    s_Predictor{predictor} {
-}
+    s_Predictor{predictor} {}
 
 //////// SDetectedCalendar ////////
 
 CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(core_t::TTime time,
                                                                      core_t::TTime lastTime,
                                                                      CCalendarFeature feature) :
-    SMessage{time, lastTime}, s_Feature{feature} {
-}
+    SMessage{time, lastTime}, s_Feature{feature} {}
 
 //////// SNewComponent ////////
 
 CTimeSeriesDecompositionDetail::SNewComponents::SNewComponents(core_t::TTime time,
                                                                core_t::TTime lastTime,
                                                                EComponent component) :
-    SMessage{time, lastTime}, s_Component{component} {
-}
+    SMessage{time, lastTime}, s_Component{component} {}
 
 //////// CHandler ////////
 
-CTimeSeriesDecompositionDetail::CHandler::CHandler(void) : m_Mediator{0} {
-}
-CTimeSeriesDecompositionDetail::CHandler::~CHandler(void) {
-}
+CTimeSeriesDecompositionDetail::CHandler::CHandler(void) : m_Mediator{0} {}
+CTimeSeriesDecompositionDetail::CHandler::~CHandler(void) {}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue & /*message*/) {
-}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SAddValue & /*message*/) {}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedSeasonal & /*message*/) {
-}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedSeasonal & /*message*/) {}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedCalendar & /*message*/) {
-}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SDetectedCalendar & /*message*/) {}
 
-void CTimeSeriesDecompositionDetail::CHandler::handle(const SNewComponents & /*message*/) {
-}
+void CTimeSeriesDecompositionDetail::CHandler::handle(const SNewComponents & /*message*/) {}
 
 void CTimeSeriesDecompositionDetail::CHandler::mediator(CMediator *mediator) {
     m_Mediator = mediator;
@@ -494,8 +483,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayR
                   PT_ALPHABET, PT_STATES, PT_TRANSITION_FUNCTION,
                   bucketLength > LONG_BUCKET_LENGTHS.back() ? PT_NOT_TESTING : PT_INITIAL)},
     m_DecayRate{decayRate},
-    m_BucketLength{bucketLength} {
-}
+    m_BucketLength{bucketLength} {}
 
 CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriodicityTest &other) :
     m_Machine{other.m_Machine},
@@ -670,7 +658,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     if (state != old) {
         LOG_TRACE(PT_STATES[old] << "," << PT_ALPHABET[symbol] << " -> " << PT_STATES[state]);
 
-        auto initialize = [this](core_t::TTime time_) {
+        auto initialize = [this] (core_t::TTime time_) {
                               for (auto i : {E_Short, E_Long}) {
                                   m_Windows[i].reset(this->newWindow(i));
                                   if (m_Windows[i]) {
@@ -682,7 +670,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
         switch (state) {
             case PT_TEST:
                 if (std::all_of(m_Windows.begin(), m_Windows.end(),
-                                [](const TExpandingWindowPtr &window) {
+                                [] (const TExpandingWindowPtr &window) {
                         return !window;
                     })) {
                     initialize(time);
@@ -711,7 +699,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandi
     // significantly delay when we first detect a daily periodic for
     // longer bucket lengths otherwise.
 
-    auto shouldTest = [this, time](const TExpandingWindowPtr &window_) {
+    auto shouldTest = [this, time] (const TExpandingWindowPtr &window_) {
                           core_t::TTime length{time - window_->startTime()};
                           for (auto lengthToTest : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
                               if (length >= lengthToTest && length < lengthToTest + m_BucketLength) {
@@ -726,7 +714,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(const TExpandi
 CExpandingWindow *CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test) const {
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    auto newWindow = [this](const TTimeVec &bucketLengths) {
+    auto newWindow = [this] (const TTimeVec &bucketLengths) {
                          if (m_BucketLength <= bucketLengths.back()) {
                              std::ptrdiff_t a{std::lower_bound(bucketLengths.begin(),
                                                                bucketLengths.end(),
@@ -761,15 +749,13 @@ CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(double decayRate,
     m_Machine{core::CStateMachine::create(CC_ALPHABET, CC_STATES, CC_TRANSITION_FUNCTION,
                                           bucketLength > DAY ? CC_NOT_TESTING : CC_INITIAL)},
     m_DecayRate{decayRate},
-    m_LastMonth{} {
-}
+    m_LastMonth{} {}
 
 CTimeSeriesDecompositionDetail::CCalendarTest::CCalendarTest(const CCalendarTest &other) :
     m_Machine{other.m_Machine},
     m_DecayRate{other.m_DecayRate},
     m_LastMonth{other.m_LastMonth},
-    m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : 0} {
-}
+    m_Test{other.m_Test ? new CCalendarCyclicTest(*other.m_Test) : 0} {}
 
 bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     do {
@@ -962,8 +948,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate,
     m_CalendarComponentSize{seasonalComponentSize / 3},
     m_Trend{decayRate},
     m_UsingTrendForPrediction{false},
-    m_Watcher{0} {
-}
+    m_Watcher{0} {}
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents &other) :
     m_Machine{other.m_Machine},
@@ -978,8 +963,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents &othe
     m_Moments{other.m_Moments},
     m_MomentsMinusTrend{other.m_MomentsMinusTrend},
     m_UsingTrendForPrediction{other.m_UsingTrendForPrediction},
-    m_Watcher{0} {
-}
+    m_Watcher{0} {}
 
 bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
     if (traverser.name() == VERSION_6_3_TAG) {
@@ -1415,7 +1399,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CP
     for (const auto &candidate_ : result.components()) {
         TSeasonalTimePtr seasonalTime(candidate_.seasonalTime());
         if (std::find_if(components.begin(), components.end(),
-                         [&seasonalTime](const CSeasonalComponent &component) {
+                         [&seasonalTime] (const CSeasonalComponent &component) {
                     return component.time().excludes(*seasonalTime);
                 }) == components.end()) {
             LOG_DEBUG("Detected '" << candidate_.s_Description << "'");
@@ -1426,7 +1410,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CP
     if (newSeasonalTimes.size() > 0) {
         for (const auto &seasonalTime : newSeasonalTimes) {
             components.erase(std::remove_if(components.begin(), components.end(),
-                                            [&seasonalTime](const CSeasonalComponent &component) {
+                                            [&seasonalTime] (const CSeasonalComponent &component) {
                         return seasonalTime->excludes(component.time());
                     }), components.end());
         }
@@ -1461,7 +1445,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CP
 
         errors.resize(components.size());
         COrderings::simultaneousSort(components, errors,
-                                     [](const CSeasonalComponent &lhs, const CSeasonalComponent &rhs) {
+                                     [] (const CSeasonalComponent &lhs, const CSeasonalComponent &rhs) {
                     return lhs.time() < rhs.time();
                 });
     }
@@ -1835,7 +1819,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
         }
 
         CSetTools::simultaneousRemoveIf(
-            remove, s_Components, s_PredictionErrors, [](bool remove_) {
+            remove, s_Components, s_PredictionErrors, [] (bool remove_) {
                     return remove_;
                 });
 
@@ -1862,7 +1846,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SSeasonal::prune(core_t::TTime
                     for (auto &&component : s_Components) {
                         const CSeasonalTime &time_ = component.time();
                         if (std::find_if(shifted.begin(), shifted.end(),
-                                         [&time_](const TTimeTimePr &window) {
+                                         [&time_] (const TTimeTimePr &window) {
                                     return !(   time_.windowEnd() <= window.first ||
                                                 time_.windowStart() >= window.second);
                                 }) == shifted.end()) {
@@ -2033,7 +2017,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::SCalendar::prune(core_t::TTime
     }
 
     CSetTools::simultaneousRemoveIf(
-        remove, s_Components, s_PredictionErrors, [](bool remove_) {
+        remove, s_Components, s_PredictionErrors, [] (bool remove_) {
                 return remove_;
             });
 

@@ -65,8 +65,7 @@ core::CStoredStringPtr canonical(const std::string &influence) {
 //! \brief Orders two value influences by decreasing influence.
 class CDecreasingValueInfluence {
     public:
-        CDecreasingValueInfluence(maths_t::ETail tail) : m_Tail(tail) {
-        }
+        CDecreasingValueInfluence(maths_t::ETail tail) : m_Tail(tail) {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const {
@@ -87,8 +86,7 @@ class CDecreasingMeanInfluence {
     public:
         CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
             m_Tail(tail),
-            m_Mean(maths::CBasicStatistics::accumulator(count, value[0])) {
-        }
+            m_Mean(maths::CBasicStatistics::accumulator(count, value[0])) {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const {
@@ -118,8 +116,7 @@ class CDecreasingVarianceInfluence {
     public:
         CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec &value, double count) :
             m_Tail(tail),
-            m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0])) {
-        }
+            m_Variance(maths::CBasicStatistics::accumulator(count, value[1], value[0])) {}
 
         bool operator()(const TStrCRefDouble1VecDoublePrPr &lhs,
                         const TStrCRefDouble1VecDoublePrPr &rhs) const {
@@ -511,8 +508,7 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     m_InfluenceCalculator(0),
     m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
     m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-    m_ProbabilityCache(0) {
-}
+    m_ProbabilityCache(0) {}
 
 bool CProbabilityAndInfluenceCalculator::empty(void) const {
     return m_Probability.empty();
@@ -813,8 +809,7 @@ CProbabilityAndInfluenceCalculator::SParams::SParams(const CPartitioningFields &
     s_Probability(1.0),
     s_PartitioningFields(partitioningFields),
     s_Cutoff(1.0),
-    s_IncludeCutoff(false) {
-}
+    s_IncludeCutoff(false) {}
 
 std::string CProbabilityAndInfluenceCalculator::SParams::describe(void) const
 {
@@ -831,8 +826,7 @@ CProbabilityAndInfluenceCalculator::SCorrelateParams::SCorrelateParams(const CPa
     s_Probability(1.0),
     s_PartitioningFields(partitioningFields),
     s_Cutoff(1.0),
-    s_IncludeCutoff(false) {
-}
+    s_IncludeCutoff(false) {}
 
 std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void) const
 {
@@ -845,8 +839,7 @@ std::string CProbabilityAndInfluenceCalculator::SCorrelateParams::describe(void)
 
 ////// CInfluenceCalculator //////
 
-CInfluenceCalculator::~CInfluenceCalculator(void) {
-}
+CInfluenceCalculator::~CInfluenceCalculator(void) {}
 
 double CInfluenceCalculator::intersectionInfluence(double logp, double logpi) {
     return maths::CTools::truncate(ratio(logpi, logp, 1.0), 0.0, 1.0);

@@ -41,8 +41,7 @@ CTimingXmlOutputterHook::CTimingXmlOutputterHook(const CTestTimer &testTimer,
                                                  const std::string &testPath)
     : m_TestTimer(testTimer),
       m_TopPath(topPath),
-      m_TestPath(testPath) {
-}
+      m_TestPath(testPath) {}
 
 void CTimingXmlOutputterHook::failTestAdded(CppUnit::XmlDocument * /*document*/,
                                             CppUnit::XmlElement *testElement,

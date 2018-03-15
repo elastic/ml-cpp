@@ -37,8 +37,7 @@ const double LOG_TENTH_NUMBER_POLLING_INTERVALS = 10.0;
 }
 
 CPolledDataPenalty::CPolledDataPenalty(const CAutoconfigurerParams &params) :
-    CPenalty(params) {
-}
+    CPenalty(params) {}
 
 CPolledDataPenalty *CPolledDataPenalty::clone(void) const {
     return new CPolledDataPenalty(*this);
@@ -120,8 +119,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics &stats) const {
     if (    mass > this->params().polledDataMinimumMassAtInterval() &&
             lower < this->params().polledDataJitter() * upper) {
         return static_cast<core_t::TTime>(upper);
-    } else {
-    }
+    } else {}
 
     return TOptionalTime();
 }

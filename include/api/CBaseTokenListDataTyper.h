@@ -245,8 +245,7 @@ class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
         using TTokenListTypeVec = std::vector<CTokenListType>;
 
         //! Tag for the token index
-        struct SToken {
-        };
+        struct SToken {};
 
         using TTokenMIndex = boost::multi_index::multi_index_container<
             CTokenInfoItem,

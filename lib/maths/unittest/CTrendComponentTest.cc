@@ -286,9 +286,9 @@ void CTrendComponentTest::testForecast() {
 
     test::CRandomNumbers rng;
 
-    auto testForecast = [&rng](TGenerator generate,
-                               core_t::TTime start,
-                               core_t::TTime end) {
+    auto testForecast = [&rng] (TGenerator generate,
+                                core_t::TTime start,
+                                core_t::TTime end) {
                             //std::ofstream file;
                             //file.open("results.m");
                             //TDoubleVec predictions;

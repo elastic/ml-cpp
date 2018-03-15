@@ -58,8 +58,7 @@ class CInputThread : public ml::core::CThread {
             : m_Buffer(buffer),
               m_Delay(delay),
               m_FatalAfter(fatalAfter),
-              m_TotalData(0) {
-        }
+              m_TotalData(0) {}
 
         size_t totalData(void) const {
             return m_TotalData;

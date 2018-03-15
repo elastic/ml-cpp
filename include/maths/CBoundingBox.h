@@ -42,11 +42,9 @@ class CBoundingBox {
         typedef typename SFloatingPoint<POINT, double>::Type TPointPrecise;
 
     public:
-        CBoundingBox(void) : m_Empty(true), m_A(), m_B() {
-        }
+        CBoundingBox(void) : m_Empty(true), m_A(), m_B() {}
 
-        CBoundingBox(const POINT &x) : m_Empty(false), m_A(x), m_B(x) {
-        }
+        CBoundingBox(const POINT &x) : m_Empty(false), m_A(x), m_B(x) {}
 
         //! Clear the bounding box.
         void clear(void) {

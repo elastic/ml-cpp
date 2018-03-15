@@ -19,8 +19,7 @@ namespace ml {
 namespace vflib {
 
 
-CIncrementer::~CIncrementer(void) {
-}
+CIncrementer::~CIncrementer(void) {}
 
 size_t CIncrementer::nonVirtualIncrement(size_t val) {
     return val + 1;

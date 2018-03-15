@@ -65,8 +65,7 @@ class CMetricPartialStatistic {
 
     public:
         CMetricPartialStatistic(std::size_t dimension) :
-            m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {
-        }
+            m_Value(CMetricStatisticWrappers::template make<STATISTIC>(dimension)) {}
 
         //! Persist to a state document.
         void persist(core::CStatePersistInserter &inserter) const {

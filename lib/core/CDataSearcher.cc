@@ -22,11 +22,9 @@ const std::string CDataSearcher::EMPTY_STRING;
 
 
 CDataSearcher::CDataSearcher(void)
-    : m_SearchTerms(2) {
-}
+    : m_SearchTerms(2) {}
 
-CDataSearcher::~CDataSearcher(void) {
-}
+CDataSearcher::~CDataSearcher(void) {}
 
 void CDataSearcher::setStateRestoreSearch(const std::string &index) {
     m_SearchTerms[0] = index;
