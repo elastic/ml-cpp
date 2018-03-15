@@ -6,6 +6,7 @@
 #ifndef INCLUDED_ml_api_CBackgroundPersister_h
 #define INCLUDED_ml_api_CBackgroundPersister_h
 
+#include <core/AtomicTypes.h>
 #include <core/CDataAdder.h>
 #include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
@@ -17,6 +18,7 @@
 #include <functional>
 #include <list>
 
+class CBackgroundPersisterTest;
 
 namespace ml
 {
@@ -89,19 +91,11 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         //! \return true if the function was added; false if not.
         bool addPersistFunc(core::CDataAdder::TPersistFunc persistFunc);
 
-        //! When this function is called a background persistence will be
-        //! triggered unless there is already one in progress.
-        bool startPersist(void);
-
-        //! Clear any persistence functions that have been added but not yet
-        //! invoked.  This will be rejected if a background persistence is
-        //! currently in progress.
-        //! \return true if the list of functions is clear; false if not.
-        bool clear(void);
-
         //! Set the first processor persist function, which is used to start the
         //! chain of background persistence.  This will be rejected if a
         //! background persistence is currently in progress.
+        //! This should be set once before startBackgroundPersistIfAppropriate is
+        //! called.
         bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc);
 
         //! Check whether a background persist is appropriate now, and if it is
@@ -127,6 +121,17 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         };
 
     private:
+        //! When this function is called a background persistence will be
+        //! triggered unless there is already one in progress.
+        bool startPersist(void);
+
+        //! Clear any persistence functions that have been added but not yet
+        //! invoked.  This will be rejected if a background persistence is
+        //! currently in progress.
+        //! \return true if the list of functions is clear; false if not.
+        bool clear(void);
+
+    private:
         //! How frequently should background persistence be attempted?
         core_t::TTime                      m_PeriodicPersistInterval;
 
@@ -148,10 +153,10 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         core::CFastMutex                   m_Mutex;
 
         //! Is the background thread currently busy persisting data?
-        volatile bool                      m_IsBusy;
+        atomic_t::atomic_bool              m_IsBusy;
 
         //! Have we been told to shut down?
-        volatile bool                      m_IsShutdown;
+        atomic_t::atomic_bool              m_IsShutdown;
 
         using TPersistFuncList = std::list<core::CDataAdder::TPersistFunc>;
 
@@ -164,6 +169,9 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
     // Allow the background thread to access the member variables of the owning
     // object
     friend class CBackgroundThread;
+
+    // For testing
+    friend class ::CBackgroundPersisterTest;
 };
 
 
