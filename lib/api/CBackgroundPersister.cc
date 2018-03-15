@@ -178,6 +178,11 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
     return true;
 }
 
+bool CBackgroundPersister::startBackgroundPersist(void)
+{
+    return this->startBackgroundPersist(core::CTimeUtils::now());
+}
+
 bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
 {
     core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
@@ -201,6 +206,11 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
         return false;
     }
 
+    return this->startBackgroundPersist(now);
+}
+
+bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistence)
+{
     bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
     if (!backgroundPersistSetupOk)
     {
@@ -211,7 +221,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void)
         return false;
     }
 
-    m_LastPeriodicPersistTime = now;
+    m_LastPeriodicPersistTime = timeOfPersistence;
 
     LOG_INFO("Background persist starting background thread");
 

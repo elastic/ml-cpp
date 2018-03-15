@@ -107,9 +107,13 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         //! called.
         bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc);
 
-        //! Check whether a background persist is appropriate now, and if it is
-        //! then start it by calling the first processor periodic persist
-        //! function.
+        //! Start a background persist is one is not running.
+        //! Calls the first processor periodic persist function first.
+        bool startBackgroundPersist(void);
+
+        //! If the periodic persist interval has passed since the last persist
+        //! then it is appropriate to persist now.  Start it by calling the
+        //! first processor periodic persist function.
         bool startBackgroundPersistIfAppropriate(void);
 
     private:
@@ -130,6 +134,10 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         };
 
     private:
+        //! Persist in the background setting the last persist time
+        //! to timeOfPersistence
+        bool startBackgroundPersist(core_t::TTime timeOfPersistence);
+
         //! When this function is called a background persistence will be
         //! triggered unless there is already one in progress.
         bool startPersist(void);
