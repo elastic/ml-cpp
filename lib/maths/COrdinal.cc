@@ -43,91 +43,91 @@ COrdinal::COrdinal(double value) : m_Type(E_Real) {
 
 bool COrdinal::operator==(COrdinal rhs) const {
     switch (m_Type) {
+    case E_Integer:
+        switch (rhs.m_Type) {
         case E_Integer:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return m_Value.integer == rhs.m_Value.integer;
-                case E_PositiveInteger:
-                    return this->equal(m_Value.integer, rhs.m_Value.positiveInteger);
-                case E_Real:
-                    return this->equal(m_Value.integer, rhs.m_Value.real);
-                case E_Nan:
-                    break;
-            }
-            break;
+            return m_Value.integer == rhs.m_Value.integer;
         case E_PositiveInteger:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return this->equal(rhs.m_Value.integer, m_Value.positiveInteger);
-                case E_PositiveInteger:
-                    return m_Value.positiveInteger == rhs.m_Value.positiveInteger;
-                case E_Real:
-                    return this->equal(m_Value.positiveInteger, rhs.m_Value.real);
-                case E_Nan:
-                    break;
-            }
-            break;
+            return this->equal(m_Value.integer, rhs.m_Value.positiveInteger);
         case E_Real:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return this->equal(rhs.m_Value.integer, m_Value.real);
-                case E_PositiveInteger:
-                    return this->equal(rhs.m_Value.positiveInteger, m_Value.real);
-                case E_Real:
-                    return m_Value.real == rhs.m_Value.real;
-                case E_Nan:
-                    break;
-            }
-            break;
+            return this->equal(m_Value.integer, rhs.m_Value.real);
         case E_Nan:
             break;
+        }
+        break;
+    case E_PositiveInteger:
+        switch (rhs.m_Type) {
+        case E_Integer:
+            return this->equal(rhs.m_Value.integer, m_Value.positiveInteger);
+        case E_PositiveInteger:
+            return m_Value.positiveInteger == rhs.m_Value.positiveInteger;
+        case E_Real:
+            return this->equal(m_Value.positiveInteger, rhs.m_Value.real);
+        case E_Nan:
+            break;
+        }
+        break;
+    case E_Real:
+        switch (rhs.m_Type) {
+        case E_Integer:
+            return this->equal(rhs.m_Value.integer, m_Value.real);
+        case E_PositiveInteger:
+            return this->equal(rhs.m_Value.positiveInteger, m_Value.real);
+        case E_Real:
+            return m_Value.real == rhs.m_Value.real;
+        case E_Nan:
+            break;
+        }
+        break;
+    case E_Nan:
+        break;
     }
     return false;
 }
 
 bool COrdinal::operator<(COrdinal rhs) const {
     switch (m_Type) {
+    case E_Integer:
+        switch (rhs.m_Type) {
         case E_Integer:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return m_Value.integer < rhs.m_Value.integer;
-                case E_PositiveInteger:
-                    return this->less(m_Value.integer, rhs.m_Value.positiveInteger);
-                case E_Real:
-                    return this->less(m_Value.integer, rhs.m_Value.real);
-                case E_Nan:
-                    break;
-            }
-            break;
+            return m_Value.integer < rhs.m_Value.integer;
         case E_PositiveInteger:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) &&
-                           !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
-                case E_PositiveInteger:
-                    return m_Value.positiveInteger < rhs.m_Value.positiveInteger;
-                case E_Real:
-                    return this->less(m_Value.positiveInteger, rhs.m_Value.real);
-                case E_Nan:
-                    break;
-            }
-            break;
+            return this->less(m_Value.integer, rhs.m_Value.positiveInteger);
         case E_Real:
-            switch (rhs.m_Type) {
-                case E_Integer:
-                    return !this->equal(rhs.m_Value.integer, m_Value.real) &&
-                           !this->less(rhs.m_Value.integer, m_Value.real);
-                case E_PositiveInteger:
-                    return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) &&
-                           !this->less(rhs.m_Value.positiveInteger, m_Value.real);
-                case E_Real:
-                    return m_Value.real < rhs.m_Value.real;
-                case E_Nan:
-                    break;
-            }
-            break;
+            return this->less(m_Value.integer, rhs.m_Value.real);
         case E_Nan:
             break;
+        }
+        break;
+    case E_PositiveInteger:
+        switch (rhs.m_Type) {
+        case E_Integer:
+            return !this->equal(rhs.m_Value.integer, m_Value.positiveInteger) &&
+                   !this->less(rhs.m_Value.integer, m_Value.positiveInteger);
+        case E_PositiveInteger:
+            return m_Value.positiveInteger < rhs.m_Value.positiveInteger;
+        case E_Real:
+            return this->less(m_Value.positiveInteger, rhs.m_Value.real);
+        case E_Nan:
+            break;
+        }
+        break;
+    case E_Real:
+        switch (rhs.m_Type) {
+        case E_Integer:
+            return !this->equal(rhs.m_Value.integer, m_Value.real) &&
+                   !this->less(rhs.m_Value.integer, m_Value.real);
+        case E_PositiveInteger:
+            return !this->equal(rhs.m_Value.positiveInteger, m_Value.real) &&
+                   !this->less(rhs.m_Value.positiveInteger, m_Value.real);
+        case E_Real:
+            return m_Value.real < rhs.m_Value.real;
+        case E_Nan:
+            break;
+        }
+        break;
+    case E_Nan:
+        break;
     }
     return false;
 }
@@ -138,14 +138,14 @@ bool COrdinal::isNan(void) const {
 
 double COrdinal::asDouble(void) const {
     switch (m_Type) {
-        case E_Integer:
-            return static_cast<double>(m_Value.integer);
-        case E_PositiveInteger:
-            return static_cast<double>(m_Value.positiveInteger);
-        case E_Real:
-            return m_Value.real;
-        case E_Nan:
-            break;
+    case E_Integer:
+        return static_cast<double>(m_Value.integer);
+    case E_PositiveInteger:
+        return static_cast<double>(m_Value.positiveInteger);
+    case E_Real:
+        return m_Value.real;
+    case E_Nan:
+        break;
     }
     return std::numeric_limits<double>::quiet_NaN();
 }
@@ -209,18 +209,18 @@ bool COrdinal::less(uint64_t lhs, double rhs) const {
 
 std::ostream& operator<<(std::ostream& o, COrdinal ord) {
     switch (ord.m_Type) {
-        case COrdinal::E_Integer:
-            o << ord.m_Value.integer;
-            break;
-        case COrdinal::E_PositiveInteger:
-            o << ord.m_Value.positiveInteger;
-            break;
-        case COrdinal::E_Real:
-            o << ord.m_Value.real;
-            break;
-        case COrdinal::E_Nan:
-            o << "nan";
-            break;
+    case COrdinal::E_Integer:
+        o << ord.m_Value.integer;
+        break;
+    case COrdinal::E_PositiveInteger:
+        o << ord.m_Value.positiveInteger;
+        break;
+    case COrdinal::E_Real:
+        o << ord.m_Value.real;
+        break;
+    case COrdinal::E_Nan:
+        o << "nan";
+        break;
     }
     return o;
 }

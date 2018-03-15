@@ -121,7 +121,7 @@ void CLongTailPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& 
                                     : "");
 }
 
-template <typename STATS, typename MAP>
+template<typename STATS, typename MAP>
 void CLongTailPenalty::extractTailCounts(const MAP& counts,
                                          TSizeUInt64UMap& totals,
                                          TSizeUInt64UMap& tail) const {

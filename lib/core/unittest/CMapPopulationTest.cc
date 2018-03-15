@@ -261,7 +261,7 @@ void CMapPopulationTest::testUMapOpSqBracCharP(void) {
              << " seconds");
 }
 
-template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
+template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
 void CMapPopulationTest::addInsert(const INPUT_CONTAINER& keys,
                                    const INPUT_CONTAINER& values,
                                    MAP_CONTAINER& maps) const {
@@ -277,7 +277,7 @@ void CMapPopulationTest::addInsert(const INPUT_CONTAINER& keys,
     }
 }
 
-template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
+template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
 void CMapPopulationTest::addOpSqBrac(const INPUT_CONTAINER& keys,
                                      const INPUT_CONTAINER& values,
                                      MAP_CONTAINER& maps) const {

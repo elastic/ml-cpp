@@ -27,7 +27,7 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    template <typename PARSER>
+    template<typename PARSER>
     void runTest(bool allDocsSameStructure);
 };
 

@@ -32,21 +32,21 @@
 namespace ml {
 namespace maths {
 
-template <typename LOGF>
+template<typename LOGF>
 CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::CSmoothedKernel(LOGF logf,
                                                                                       double logF0,
                                                                                       double k)
     : m_LogF(logf), m_LogF0(logF0), m_K(k), m_Scale(::exp(m_LogF0) * (1.0 + ::exp(-k))) {
 }
 
-template <typename LOGF>
+template<typename LOGF>
 void CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::k(double k) {
     double f0 = m_Scale / (1.0 + ::exp(-m_K));
     m_K = k;
     m_Scale = f0 * (1.0 + ::exp(-k));
 }
 
-template <typename LOGF>
+template<typename LOGF>
 bool CTools::CMixtureProbabilityOfLessLikelySample::CSmoothedKernel<LOGF>::
 operator()(double x, double& result) const {
     // We use the fact that if:
@@ -80,7 +80,7 @@ operator()(double x, double& result) const {
     return true;
 }
 
-template <typename LOGF, typename EQUAL>
+template<typename LOGF, typename EQUAL>
 bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
                                                              std::size_t iterations,
                                                              const EQUAL& equal,
@@ -124,7 +124,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::leftTail(const LOGF& logf,
     return true;
 }
 
-template <typename LOGF, typename EQUAL>
+template<typename LOGF, typename EQUAL>
 bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
                                                               std::size_t iterations,
                                                               const EQUAL& equal,
@@ -166,7 +166,7 @@ bool CTools::CMixtureProbabilityOfLessLikelySample::rightTail(const LOGF& logf,
     return true;
 }
 
-template <typename LOGF>
+template<typename LOGF>
 double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf, double pTails) {
     TDoubleDoublePrVec intervals;
     this->intervals(intervals);
@@ -196,7 +196,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     return truncate(p - pTails, 0.0, 1.0);
 }
 
-template <typename T>
+template<typename T>
 double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
@@ -247,7 +247,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     return result;
 }
 
-template <typename T>
+template<typename T>
 void CTools::spread(double a, double b, double separation, T& points) {
     if (points.empty()) {
         return;

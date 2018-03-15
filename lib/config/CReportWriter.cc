@@ -46,7 +46,7 @@ const std::string& print(const std::string& s) {
 }
 
 //! Convert to a string.
-template <typename T>
+template<typename T>
 inline std::string print(const T& t) {
     return core::CStringUtils::typeToString(t);
 }
@@ -57,7 +57,7 @@ inline std::string print(double t) {
 }
 
 //! Write out a pair space delimited.
-template <typename U, typename V>
+template<typename U, typename V>
 inline std::string print(const std::pair<U, V>& p, std::size_t padTo = 0) {
     std::string first = print(p.first);
     std::string second = print(p.second);
@@ -66,7 +66,7 @@ inline std::string print(const std::pair<U, V>& p, std::size_t padTo = 0) {
 }
 
 //! Write out a vector of pairs new line delimited.
-template <typename U, typename V>
+template<typename U, typename V>
 inline std::string print(const std::vector<std::pair<U, V>>& v, std::size_t padTo = 0) {
     std::string result;
     for (std::size_t i = 0u; i < v.size(); ++i) {
@@ -97,7 +97,7 @@ std::size_t longest(const TStrVecVec& fields, std::size_t statistic) {
 }
 
 //! Write a row of the summary statistic table.
-template <std::size_t N, typename ROW>
+template<std::size_t N, typename ROW>
 void writeTableRow(std::ostream& o,
                    const TSizeVec& padTo,
                    const std::size_t (&stats)[N],
@@ -119,7 +119,7 @@ void writeTableRow(std::ostream& o,
 }
 
 //! Write the summary statistic table.
-template <std::size_t M, std::size_t N>
+template<std::size_t M, std::size_t N>
 void writeTable(std::ostream& o,
                 const std::string (&labels)[M],
                 const std::size_t (&stats)[N],

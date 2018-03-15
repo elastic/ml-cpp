@@ -36,7 +36,7 @@ std::string s2;
 std::string s3;
 size_t totalLength = 0;
 
-template <char OP>
+template<char OP>
 void transfer(std::string&& from, std::string& to) {
     if (OP == 'm') {
         to = std::move(from);
@@ -49,28 +49,28 @@ void transfer(std::string&& from, std::string& to) {
     }
 }
 
-template <char OP>
+template<char OP>
 DONT_INLINE_THIS_FUNCTION void func3(std::string&& s) {
     transfer<OP>(std::move(s), s3);
     s3[0] = '3';
     totalLength += s3.length();
 }
 
-template <char OP>
+template<char OP>
 DONT_INLINE_THIS_FUNCTION void func2(std::string&& s) {
     transfer<OP>(std::move(s), s2);
     s2[0] = '2';
     func3<OP>(std::move(s2));
 }
 
-template <char OP>
+template<char OP>
 DONT_INLINE_THIS_FUNCTION void func1(std::string&& s) {
     transfer<OP>(std::move(s), s1);
     s1[0] = '1';
     func2<OP>(std::move(s1));
 }
 
-template <char OP>
+template<char OP>
 void generate(size_t minSize, size_t iterations) {
     for (size_t count = 0; count < iterations; ++count) {
         s0.assign(minSize + count % 15, char('A' + count % 26));

@@ -186,9 +186,8 @@ void persistFeatureData(const TCategoryAnyMap& featureData, core::CStatePersistI
         const boost::any& data = data_.second;
         try {
             switch (category) {
-                case model_t::E_DiurnalTimes:
-                    inserter
-                        .insertLevel(TIMES_OF_DAY_TAG,
+            case model_t::E_DiurnalTimes:
+                inserter.insertLevel(TIMES_OF_DAY_TAG,
                                      boost::bind<
                                          void>(TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<
                                                    STimesBucketSerializer>(),
@@ -197,21 +196,19 @@ void persistFeatureData(const TCategoryAnyMap& featureData, core::CStatePersistI
                                                        const TSizeSizePrMeanAccumulatorUMapQueue&>(
                                                        data)),
                                                _1));
-                    break;
-                case model_t::E_MeanArrivalTimes:
-                    // TODO
-                    break;
-                case model_t::E_AttributePeople:
-                    inserter.insertLevel(ATTRIBUTE_PEOPLE_TAG,
-                                         boost::bind(&persistAttributePeopleData,
-                                                     boost::cref(
-                                                         boost::any_cast<const TSizeUSetVec&>(
-                                                             data)),
-                                                     _1));
-                    break;
-                case model_t::E_UniqueValues:
-                    inserter
-                        .insertLevel(UNIQUE_VALUES_TAG,
+                break;
+            case model_t::E_MeanArrivalTimes:
+                // TODO
+                break;
+            case model_t::E_AttributePeople:
+                inserter.insertLevel(ATTRIBUTE_PEOPLE_TAG,
+                                     boost::bind(&persistAttributePeopleData,
+                                                 boost::cref(
+                                                     boost::any_cast<const TSizeUSetVec&>(data)),
+                                                 _1));
+                break;
+            case model_t::E_UniqueValues:
+                inserter.insertLevel(UNIQUE_VALUES_TAG,
                                      boost::bind<void>(TSizeSizePrStrDataUMapQueue::CSerializer<
                                                            SStrDataBucketSerializer>(),
                                                        boost::cref(
@@ -219,7 +216,7 @@ void persistFeatureData(const TCategoryAnyMap& featureData, core::CStatePersistI
                                                                const TSizeSizePrStrDataUMapQueue&>(
                                                                data)),
                                                        _1));
-                    break;
+                break;
             }
         } catch (const std::exception& e) {
             LOG_ERROR("Failed to serialize data for " << category << ": " << e.what());
@@ -330,42 +327,42 @@ const std::string& overField(bool population, const TStrVec& fieldNames) {
     return population ? fieldNames[0] : EMPTY_STRING;
 }
 
-template <typename ITR, typename T>
+template<typename ITR, typename T>
 struct SMaybeConst {};
-template <typename T>
+template<typename T>
 struct SMaybeConst<TCategoryAnyMap::iterator, T> {
     typedef T& TRef;
 };
-template <typename T>
+template<typename T>
 struct SMaybeConst<TCategoryAnyMap::const_iterator, T> {
     typedef const T& TRef;
 };
 
 //! Apply a function \p f to all the data held in [\p begin, \p end).
-template <typename ITR, typename F>
+template<typename ITR, typename F>
 void apply(ITR begin, ITR end, const F& f) {
     for (ITR itr = begin; itr != end; ++itr) {
         model_t::EEventRateCategory category = itr->first;
         try {
             switch (category) {
-                case model_t::E_DiurnalTimes: {
-                    f(boost::any_cast<
-                        typename SMaybeConst<ITR, TSizeSizePrMeanAccumulatorUMapQueue>::TRef>(
-                        itr->second));
-                    break;
-                }
-                case model_t::E_MeanArrivalTimes: {
-                    // TODO
-                    break;
-                }
-                case model_t::E_AttributePeople: {
-                    f(boost::any_cast<typename SMaybeConst<ITR, TSizeUSetVec>::TRef>(itr->second));
-                    break;
-                }
-                case model_t::E_UniqueValues:
-                    f(boost::any_cast<typename SMaybeConst<ITR, TSizeSizePrStrDataUMapQueue>::TRef>(
-                        itr->second));
-                    break;
+            case model_t::E_DiurnalTimes: {
+                f(boost::any_cast<
+                    typename SMaybeConst<ITR, TSizeSizePrMeanAccumulatorUMapQueue>::TRef>(
+                    itr->second));
+                break;
+            }
+            case model_t::E_MeanArrivalTimes: {
+                // TODO
+                break;
+            }
+            case model_t::E_AttributePeople: {
+                f(boost::any_cast<typename SMaybeConst<ITR, TSizeUSetVec>::TRef>(itr->second));
+                break;
+            }
+            case model_t::E_UniqueValues:
+                f(boost::any_cast<typename SMaybeConst<ITR, TSizeSizePrStrDataUMapQueue>::TRef>(
+                    itr->second));
+                break;
             }
         } catch (const std::exception& e) {
             LOG_ERROR("Apply failed for " << category << ": " << e.what());
@@ -374,7 +371,7 @@ void apply(ITR begin, ITR end, const F& f) {
 }
 
 //! Apply a function \p f to all the data held in \p featureData.
-template <typename T, typename F>
+template<typename T, typename F>
 void apply(T& featureData, const F& f) {
     apply(featureData.begin(), featureData.end(), f);
 }
@@ -525,7 +522,7 @@ struct SChecksum {
             this->checksum(time, gatherer, hashes);
         }
     }
-    template <typename DATA>
+    template<typename DATA>
     void checksum(const boost::unordered_map<TSizeSizePr, DATA>& bucket,
                   const CDataGatherer& gatherer,
                   TStrUInt64Map& hashes) const {
@@ -731,7 +728,7 @@ bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
 
 //! Register the callbacks for computing the size of feature data gatherers
 //! with \p visitor.
-template <typename VISITOR>
+template<typename VISITOR>
 void registerMemoryCallbacks(VISITOR& visitor) {
     visitor.template registerCallback<TSizeUSetVec>();
     visitor.template registerCallback<TSizeSizePrStrDataUMapQueue>();
@@ -1096,107 +1093,107 @@ void CEventRateBucketGatherer::featureData(core_t::TTime time,
         const model_t::EFeature feature = m_DataGatherer.feature(i);
 
         switch (feature) {
-            case model_t::E_IndividualCountByBucketAndPerson:
-                this->personCounts(feature, time, result);
-                break;
-            case model_t::E_IndividualNonZeroCountByBucketAndPerson:
-            case model_t::E_IndividualTotalBucketCountByPerson:
-                this->nonZeroPersonCounts(feature, time, result);
-                break;
-            case model_t::E_IndividualIndicatorOfBucketPerson:
-                this->personIndicator(feature, time, result);
-                break;
-            case model_t::E_IndividualLowCountsByBucketAndPerson:
-            case model_t::E_IndividualHighCountsByBucketAndPerson:
-                this->personCounts(feature, time, result);
-                break;
-            case model_t::E_IndividualArrivalTimesByPerson:
-            case model_t::E_IndividualLongArrivalTimesByPerson:
-            case model_t::E_IndividualShortArrivalTimesByPerson:
-                this->personArrivalTimes(feature, time, result);
-                break;
-            case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:
-            case model_t::E_IndividualHighNonZeroCountByBucketAndPerson:
-                this->nonZeroPersonCounts(feature, time, result);
-                break;
-            case model_t::E_IndividualUniqueCountByBucketAndPerson:
-            case model_t::E_IndividualLowUniqueCountByBucketAndPerson:
-            case model_t::E_IndividualHighUniqueCountByBucketAndPerson:
-                this->bucketUniqueValuesPerPerson(feature, time, result);
-                break;
-            case model_t::E_IndividualInfoContentByBucketAndPerson:
-            case model_t::E_IndividualHighInfoContentByBucketAndPerson:
-            case model_t::E_IndividualLowInfoContentByBucketAndPerson:
-                this->bucketCompressedLengthPerPerson(feature, time, result);
-                break;
-            case model_t::E_IndividualTimeOfDayByBucketAndPerson:
-            case model_t::E_IndividualTimeOfWeekByBucketAndPerson:
-                this->bucketMeanTimesPerPerson(feature, time, result);
-                break;
+        case model_t::E_IndividualCountByBucketAndPerson:
+            this->personCounts(feature, time, result);
+            break;
+        case model_t::E_IndividualNonZeroCountByBucketAndPerson:
+        case model_t::E_IndividualTotalBucketCountByPerson:
+            this->nonZeroPersonCounts(feature, time, result);
+            break;
+        case model_t::E_IndividualIndicatorOfBucketPerson:
+            this->personIndicator(feature, time, result);
+            break;
+        case model_t::E_IndividualLowCountsByBucketAndPerson:
+        case model_t::E_IndividualHighCountsByBucketAndPerson:
+            this->personCounts(feature, time, result);
+            break;
+        case model_t::E_IndividualArrivalTimesByPerson:
+        case model_t::E_IndividualLongArrivalTimesByPerson:
+        case model_t::E_IndividualShortArrivalTimesByPerson:
+            this->personArrivalTimes(feature, time, result);
+            break;
+        case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:
+        case model_t::E_IndividualHighNonZeroCountByBucketAndPerson:
+            this->nonZeroPersonCounts(feature, time, result);
+            break;
+        case model_t::E_IndividualUniqueCountByBucketAndPerson:
+        case model_t::E_IndividualLowUniqueCountByBucketAndPerson:
+        case model_t::E_IndividualHighUniqueCountByBucketAndPerson:
+            this->bucketUniqueValuesPerPerson(feature, time, result);
+            break;
+        case model_t::E_IndividualInfoContentByBucketAndPerson:
+        case model_t::E_IndividualHighInfoContentByBucketAndPerson:
+        case model_t::E_IndividualLowInfoContentByBucketAndPerson:
+            this->bucketCompressedLengthPerPerson(feature, time, result);
+            break;
+        case model_t::E_IndividualTimeOfDayByBucketAndPerson:
+        case model_t::E_IndividualTimeOfWeekByBucketAndPerson:
+            this->bucketMeanTimesPerPerson(feature, time, result);
+            break;
 
-            CASE_INDIVIDUAL_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(feature));
-                break;
+        CASE_INDIVIDUAL_METRIC:
+            LOG_ERROR("Unexpected feature = " << model_t::print(feature));
+            break;
 
-            case model_t::E_PopulationAttributeTotalCountByPerson:
-            case model_t::E_PopulationCountByBucketPersonAndAttribute:
-                this->nonZeroAttributeCounts(feature, time, result);
-                break;
-            case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:
-                this->attributeIndicator(feature, time, result);
-                break;
-            case model_t::E_PopulationUniquePersonCountByAttribute:
-                this->peoplePerAttribute(feature, result);
-                break;
-            case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute:
-                this->bucketUniqueValuesPerPersonAttribute(feature, time, result);
-                break;
-            case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:
-                this->nonZeroAttributeCounts(feature, time, result);
-                break;
-            case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute:
-                this->bucketCompressedLengthPerPersonAttribute(feature, time, result);
-                break;
-            case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:
-            case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-                this->bucketMeanTimesPerPersonAttribute(feature, time, result);
-                break;
+        case model_t::E_PopulationAttributeTotalCountByPerson:
+        case model_t::E_PopulationCountByBucketPersonAndAttribute:
+            this->nonZeroAttributeCounts(feature, time, result);
+            break;
+        case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:
+            this->attributeIndicator(feature, time, result);
+            break;
+        case model_t::E_PopulationUniquePersonCountByAttribute:
+            this->peoplePerAttribute(feature, result);
+            break;
+        case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute:
+            this->bucketUniqueValuesPerPersonAttribute(feature, time, result);
+            break;
+        case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:
+            this->nonZeroAttributeCounts(feature, time, result);
+            break;
+        case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute:
+            this->bucketCompressedLengthPerPersonAttribute(feature, time, result);
+            break;
+        case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:
+        case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute:
+            this->bucketMeanTimesPerPersonAttribute(feature, time, result);
+            break;
 
-            CASE_POPULATION_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(feature));
-                break;
+        CASE_POPULATION_METRIC:
+            LOG_ERROR("Unexpected feature = " << model_t::print(feature));
+            break;
 
-            case model_t::E_PeersAttributeTotalCountByPerson:
-            case model_t::E_PeersCountByBucketPersonAndAttribute:
-                this->nonZeroAttributeCounts(feature, time, result);
-                break;
-            case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
-                this->bucketUniqueValuesPerPersonAttribute(feature, time, result);
-                break;
-            case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
-            case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
-                this->nonZeroAttributeCounts(feature, time, result);
-                break;
-            case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
-                this->bucketCompressedLengthPerPersonAttribute(feature, time, result);
-                break;
-            case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
-            case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
-                this->bucketMeanTimesPerPersonAttribute(feature, time, result);
-                break;
+        case model_t::E_PeersAttributeTotalCountByPerson:
+        case model_t::E_PeersCountByBucketPersonAndAttribute:
+            this->nonZeroAttributeCounts(feature, time, result);
+            break;
+        case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
+            this->bucketUniqueValuesPerPersonAttribute(feature, time, result);
+            break;
+        case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
+        case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
+            this->nonZeroAttributeCounts(feature, time, result);
+            break;
+        case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
+            this->bucketCompressedLengthPerPersonAttribute(feature, time, result);
+            break;
+        case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
+        case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
+            this->bucketMeanTimesPerPersonAttribute(feature, time, result);
+            break;
 
-            CASE_PEERS_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(feature));
-                break;
+        CASE_PEERS_METRIC:
+            LOG_ERROR("Unexpected feature = " << model_t::print(feature));
+            break;
         }
     }
 }
@@ -1587,11 +1584,11 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFie
 
     m_BeginSummaryFields = m_FieldNames.size();
     switch (m_DataGatherer.summaryMode()) {
-        case model_t::E_None:
-            break;
-        case model_t::E_Manual:
-            m_FieldNames.push_back(summaryCountFieldName);
-            break;
+    case model_t::E_None:
+        break;
+    case model_t::E_Manual:
+        m_FieldNames.push_back(summaryCountFieldName);
+        break;
     };
 
     // swap trick to reduce unused capacity
@@ -1601,105 +1598,105 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFie
 void CEventRateBucketGatherer::initializeFeatureData(void) {
     for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
         switch (m_DataGatherer.feature(i)) {
-            case model_t::E_IndividualCountByBucketAndPerson:
-            case model_t::E_IndividualNonZeroCountByBucketAndPerson:
-            case model_t::E_IndividualTotalBucketCountByPerson:
-            case model_t::E_IndividualIndicatorOfBucketPerson:
-            case model_t::E_IndividualLowCountsByBucketAndPerson:
-            case model_t::E_IndividualHighCountsByBucketAndPerson:
-                // We always gather person counts.
-                break;
-            case model_t::E_IndividualArrivalTimesByPerson:
-            case model_t::E_IndividualLongArrivalTimesByPerson:
-            case model_t::E_IndividualShortArrivalTimesByPerson:
-                // TODO
-                break;
-            case model_t::E_IndividualTimeOfDayByBucketAndPerson:
-            case model_t::E_IndividualTimeOfWeekByBucketAndPerson:
-                m_FeatureData[model_t::E_DiurnalTimes] =
-                    TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                        this->bucketLength(),
-                                                        this->currentBucketStartTime());
-                break;
+        case model_t::E_IndividualCountByBucketAndPerson:
+        case model_t::E_IndividualNonZeroCountByBucketAndPerson:
+        case model_t::E_IndividualTotalBucketCountByPerson:
+        case model_t::E_IndividualIndicatorOfBucketPerson:
+        case model_t::E_IndividualLowCountsByBucketAndPerson:
+        case model_t::E_IndividualHighCountsByBucketAndPerson:
+            // We always gather person counts.
+            break;
+        case model_t::E_IndividualArrivalTimesByPerson:
+        case model_t::E_IndividualLongArrivalTimesByPerson:
+        case model_t::E_IndividualShortArrivalTimesByPerson:
+            // TODO
+            break;
+        case model_t::E_IndividualTimeOfDayByBucketAndPerson:
+        case model_t::E_IndividualTimeOfWeekByBucketAndPerson:
+            m_FeatureData[model_t::E_DiurnalTimes] =
+                TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                                    this->bucketLength(),
+                                                    this->currentBucketStartTime());
+            break;
 
-            case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:
-            case model_t::E_IndividualHighNonZeroCountByBucketAndPerson:
-                // We always gather person counts.
-                break;
-            case model_t::E_IndividualUniqueCountByBucketAndPerson:
-            case model_t::E_IndividualLowUniqueCountByBucketAndPerson:
-            case model_t::E_IndividualHighUniqueCountByBucketAndPerson:
-            case model_t::E_IndividualInfoContentByBucketAndPerson:
-            case model_t::E_IndividualHighInfoContentByBucketAndPerson:
-            case model_t::E_IndividualLowInfoContentByBucketAndPerson:
-                m_FeatureData[model_t::E_UniqueValues] =
-                    TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                this->bucketLength(),
-                                                this->currentBucketStartTime(),
-                                                TSizeSizePrStrDataUMap(1));
-                break;
+        case model_t::E_IndividualLowNonZeroCountByBucketAndPerson:
+        case model_t::E_IndividualHighNonZeroCountByBucketAndPerson:
+            // We always gather person counts.
+            break;
+        case model_t::E_IndividualUniqueCountByBucketAndPerson:
+        case model_t::E_IndividualLowUniqueCountByBucketAndPerson:
+        case model_t::E_IndividualHighUniqueCountByBucketAndPerson:
+        case model_t::E_IndividualInfoContentByBucketAndPerson:
+        case model_t::E_IndividualHighInfoContentByBucketAndPerson:
+        case model_t::E_IndividualLowInfoContentByBucketAndPerson:
+            m_FeatureData[model_t::E_UniqueValues] =
+                TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                            this->bucketLength(),
+                                            this->currentBucketStartTime(),
+                                            TSizeSizePrStrDataUMap(1));
+            break;
 
-            case model_t::E_PopulationAttributeTotalCountByPerson:
-            case model_t::E_PopulationCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:
-            case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:
-                // We always gather person attribute counts.
-                break;
-            case model_t::E_PopulationUniquePersonCountByAttribute:
-                m_FeatureData[model_t::E_AttributePeople] = TSizeUSetVec();
-                break;
-            case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute:
-                m_FeatureData[model_t::E_UniqueValues] =
-                    TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                this->bucketLength(),
-                                                this->currentBucketStartTime(),
-                                                TSizeSizePrStrDataUMap(1));
-                break;
-            case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:
-            case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute:
-                m_FeatureData[model_t::E_DiurnalTimes] =
-                    TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                        this->bucketLength(),
-                                                        this->currentBucketStartTime());
-                break;
+        case model_t::E_PopulationAttributeTotalCountByPerson:
+        case model_t::E_PopulationCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationIndicatorOfBucketPersonAndAttribute:
+        case model_t::E_PopulationLowCountsByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighCountsByBucketPersonAndAttribute:
+            // We always gather person attribute counts.
+            break;
+        case model_t::E_PopulationUniquePersonCountByAttribute:
+            m_FeatureData[model_t::E_AttributePeople] = TSizeUSetVec();
+            break;
+        case model_t::E_PopulationUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationLowUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PopulationInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PopulationLowInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PopulationHighInfoContentByBucketPersonAndAttribute:
+            m_FeatureData[model_t::E_UniqueValues] =
+                TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                            this->bucketLength(),
+                                            this->currentBucketStartTime(),
+                                            TSizeSizePrStrDataUMap(1));
+            break;
+        case model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute:
+        case model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute:
+            m_FeatureData[model_t::E_DiurnalTimes] =
+                TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                                    this->bucketLength(),
+                                                    this->currentBucketStartTime());
+            break;
 
-            case model_t::E_PeersAttributeTotalCountByPerson:
-            case model_t::E_PeersCountByBucketPersonAndAttribute:
-            case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
-            case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
-                // We always gather person attribute counts.
-                break;
-            case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
-            case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
-            case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
-                m_FeatureData[model_t::E_UniqueValues] =
-                    TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                this->bucketLength(),
-                                                this->currentBucketStartTime(),
-                                                TSizeSizePrStrDataUMap(1));
-                break;
-            case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
-            case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
-                m_FeatureData[model_t::E_DiurnalTimes] =
-                    TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
-                                                        this->bucketLength(),
-                                                        this->currentBucketStartTime());
-                break;
+        case model_t::E_PeersAttributeTotalCountByPerson:
+        case model_t::E_PeersCountByBucketPersonAndAttribute:
+        case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
+        case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
+            // We always gather person attribute counts.
+            break;
+        case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
+        case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
+        case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
+            m_FeatureData[model_t::E_UniqueValues] =
+                TSizeSizePrStrDataUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                            this->bucketLength(),
+                                            this->currentBucketStartTime(),
+                                            TSizeSizePrStrDataUMap(1));
+            break;
+        case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
+        case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
+            m_FeatureData[model_t::E_DiurnalTimes] =
+                TSizeSizePrMeanAccumulatorUMapQueue(m_DataGatherer.params().s_LatencyBuckets,
+                                                    this->bucketLength(),
+                                                    this->currentBucketStartTime());
+            break;
 
-            CASE_INDIVIDUAL_METRIC:
-            CASE_POPULATION_METRIC:
-            CASE_PEERS_METRIC:
-                LOG_ERROR("Unexpected feature = " << model_t::print(m_DataGatherer.feature(i)))
-                break;
+        CASE_INDIVIDUAL_METRIC:
+        CASE_POPULATION_METRIC:
+        CASE_PEERS_METRIC:
+            LOG_ERROR("Unexpected feature = " << model_t::print(m_DataGatherer.feature(i)))
+            break;
         }
     }
 }

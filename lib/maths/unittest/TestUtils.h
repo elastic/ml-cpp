@@ -153,7 +153,7 @@ protected:
 //! Note that this also uses double inheritance, contravening the coding
 //! standards, because it's the cleanest way to implement this functionality.
 //! DON'T use this elsewhere.
-template <typename PRIOR>
+template<typename PRIOR>
 class CPriorTestInterfaceMixin : public PRIOR, public CPriorTestInterface {
 public:
     using CPriorTestInterface::addSamples;
@@ -210,7 +210,7 @@ private:
 };
 
 //! \brief A constant unit kernel.
-template <std::size_t N>
+template<std::size_t N>
 class CUnitKernel {
 public:
     CUnitKernel(const maths::CMultivariatePrior& prior) : m_Prior(&prior), m_X(1) {}
@@ -233,13 +233,13 @@ private:
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(
     1,
     handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the mean of a multivariate prior.
-template <std::size_t N>
+template<std::size_t N>
 class CMeanKernel {
 public:
     CMeanKernel(const maths::CMultivariatePrior& prior) : m_Prior(&prior), m_X(1) {}
@@ -265,13 +265,13 @@ private:
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(
     1,
     handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the variance of a multivariate prior.
-template <std::size_t N>
+template<std::size_t N>
 class CCovarianceKernel {
 public:
     CCovarianceKernel(const maths::CMultivariatePrior& prior,
@@ -300,7 +300,7 @@ private:
     mutable handy_typedefs::TDouble10Vec1Vec m_X;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 handy_typedefs::TDouble10Vec4Vec1Vec CCovarianceKernel<N>::SINGLE_UNIT(
     1,
     handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));

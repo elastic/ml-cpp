@@ -27,7 +27,7 @@ namespace linear_algebra_detail {
 
 //! \brief Extracts a vector component / matrix element from a string.
 struct SFromString {
-    template <typename T>
+    template<typename T>
     bool operator()(const std::string& token, T& value) const {
         return core::CStringUtils::stringToType(token, value);
     }
@@ -38,7 +38,7 @@ struct SFromString {
 
 //! \brief Converts a vector component / matrix element to a string.
 struct SToString {
-    template <typename T>
+    template<typename T>
     std::string operator()(const T& value) const {
         return core::CStringUtils::typeToString(value);
     }
@@ -48,7 +48,7 @@ struct SToString {
     std::string operator()(CFloatStorage value) const { return value.toString(); }
 };
 
-template <typename STORAGE>
+template<typename STORAGE>
 bool SSymmetricMatrix<STORAGE>::fromDelimited(const std::string& str) {
     return core::CPersistUtils::fromString(str,
                                            SFromString(),
@@ -56,17 +56,17 @@ bool SSymmetricMatrix<STORAGE>::fromDelimited(const std::string& str) {
                                            CLinearAlgebra::DELIMITER);
 }
 
-template <typename STORAGE>
+template<typename STORAGE>
 std::string SSymmetricMatrix<STORAGE>::toDelimited(void) const {
     return core::CPersistUtils::toString(m_LowerTriangle, SToString(), CLinearAlgebra::DELIMITER);
 }
 
-template <typename STORAGE>
+template<typename STORAGE>
 bool SVector<STORAGE>::fromDelimited(const std::string& str) {
     return core::CPersistUtils::fromString(str, SFromString(), m_X, CLinearAlgebra::DELIMITER);
 }
 
-template <typename STORAGE>
+template<typename STORAGE>
 std::string SVector<STORAGE>::toDelimited(void) const {
     return core::CPersistUtils::toString(m_X, SToString(), CLinearAlgebra::DELIMITER);
 }

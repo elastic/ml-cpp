@@ -132,7 +132,7 @@ public:
 //! This defines an object to generate unique cluster indices, which
 //! supports recycling indices to avoid overflowing std::size_t, since
 //! this is requirement for all implementations.
-template <typename POINT>
+template<typename POINT>
 class CClusterer : public CClustererTypes {
 public:
     typedef boost::shared_ptr<CClusterer> TClustererPtr;

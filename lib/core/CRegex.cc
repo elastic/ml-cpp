@@ -29,50 +29,50 @@ const char* translateErrorCode(boost::regex_constants::error_type code) {
     // option to g++ should warn if future versions of Boost introduce new enum
     // values.
     switch (code) {
-        case boost::regex_constants::error_ok:
-            return "No error."; // Not used in Boost 1.47
-        case boost::regex_constants::error_no_match:
-            return "No match."; // Not used in Boost 1.47
-        case boost::regex_constants::error_bad_pattern:
-            return "Other unspecified errors.";
-        case boost::regex_constants::error_collate:
-            return "An invalid collating element was specified in a [[.name.]] block.";
-        case boost::regex_constants::error_ctype:
-            return "An invalid character class name was specified in a [[:name:]] block.";
-        case boost::regex_constants::error_escape:
-            return "An invalid or trailing escape was encountered.";
-        case boost::regex_constants::error_backref:
-            return "A back-reference to a non-existant marked sub-expression was encountered.";
-        case boost::regex_constants::error_brack:
-            return "An invalid character set [...] was encountered.";
-        case boost::regex_constants::error_paren:
-            return "Mismatched '(' and ')'.";
-        case boost::regex_constants::error_brace:
-            return "Mismatched '{' and '}'.";
-        case boost::regex_constants::error_badbrace:
-            return "Invalid contents of a {...} block.";
-        case boost::regex_constants::error_range:
-            return "A character range was invalid, for example [d-a].";
-        case boost::regex_constants::error_space:
-            return "Out of memory.";
-        case boost::regex_constants::error_badrepeat:
-            return "An attempt to repeat something that can not be repeated - for example a*+";
-        case boost::regex_constants::error_end:
-            return "Unexpected end of regular expression."; // Not used in Boost 1.47
-        case boost::regex_constants::error_size:
-            return "Regular expression too big.";
-        case boost::regex_constants::error_right_paren:
-            return "Unmatched ')'."; // Not used in Boost 1.47
-        case boost::regex_constants::error_empty:
-            return "Regular expression starts or ends with the alternation operator |.";
-        case boost::regex_constants::error_complexity:
-            return "The expression became too complex to handle.";
-        case boost::regex_constants::error_stack:
-            return "Out of program stack space.";
-        case boost::regex_constants::error_perl_extension:
-            return "An invalid Perl extension was encountered.";
-        case boost::regex_constants::error_unknown:
-            return "Unknown error.";
+    case boost::regex_constants::error_ok:
+        return "No error."; // Not used in Boost 1.47
+    case boost::regex_constants::error_no_match:
+        return "No match."; // Not used in Boost 1.47
+    case boost::regex_constants::error_bad_pattern:
+        return "Other unspecified errors.";
+    case boost::regex_constants::error_collate:
+        return "An invalid collating element was specified in a [[.name.]] block.";
+    case boost::regex_constants::error_ctype:
+        return "An invalid character class name was specified in a [[:name:]] block.";
+    case boost::regex_constants::error_escape:
+        return "An invalid or trailing escape was encountered.";
+    case boost::regex_constants::error_backref:
+        return "A back-reference to a non-existant marked sub-expression was encountered.";
+    case boost::regex_constants::error_brack:
+        return "An invalid character set [...] was encountered.";
+    case boost::regex_constants::error_paren:
+        return "Mismatched '(' and ')'.";
+    case boost::regex_constants::error_brace:
+        return "Mismatched '{' and '}'.";
+    case boost::regex_constants::error_badbrace:
+        return "Invalid contents of a {...} block.";
+    case boost::regex_constants::error_range:
+        return "A character range was invalid, for example [d-a].";
+    case boost::regex_constants::error_space:
+        return "Out of memory.";
+    case boost::regex_constants::error_badrepeat:
+        return "An attempt to repeat something that can not be repeated - for example a*+";
+    case boost::regex_constants::error_end:
+        return "Unexpected end of regular expression."; // Not used in Boost 1.47
+    case boost::regex_constants::error_size:
+        return "Regular expression too big.";
+    case boost::regex_constants::error_right_paren:
+        return "Unmatched ')'."; // Not used in Boost 1.47
+    case boost::regex_constants::error_empty:
+        return "Regular expression starts or ends with the alternation operator |.";
+    case boost::regex_constants::error_complexity:
+        return "The expression became too complex to handle.";
+    case boost::regex_constants::error_stack:
+        return "Out of program stack space.";
+    case boost::regex_constants::error_perl_extension:
+        return "An invalid Perl extension was encountered.";
+    case boost::regex_constants::error_unknown:
+        return "Unknown error.";
     }
 
     LOG_ERROR("Unexpected error code " << code);
@@ -277,80 +277,25 @@ size_t CRegex::literalCount(void) const {
         char thisChar(*iter);
 
         switch (thisChar) {
-            case '$':
-                // Perl can expand variables, so should really skip over
-                // variable names at this point
-                break;
-            case '.':
-            case '^':
-            case '*':
-            case '+':
-            case '?':
-                break;
-            case '\\':
-                ++iter;
-                if (iter == regexStr.end()) {
-                    LOG_ERROR("Inconsistency - backslash at the end of regex");
-                    return count;
-                }
-                thisChar = *iter;
-                if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' && thisChar != 'D' &&
-                    thisChar != 'S' && thisChar != 'W' && (thisChar < '0' || thisChar > '9')) {
-                    if (squareBracketCount == 0 && braceCount == 0) {
-                        std::string::iterator nextIter(iter + 1);
-                        if (nextIter == regexStr.end() ||
-                            (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
-                            if (inSubMatch) {
-                                ++subCount;
-                            } else {
-                                ++count;
-                            }
-                        }
-                    }
-                }
-                break;
-            case '[':
-                ++squareBracketCount;
-                break;
-            case ']':
-                if (squareBracketCount == 0) {
-                    LOG_ERROR("Inconsistency - more ] than [");
-                } else {
-                    --squareBracketCount;
-                }
-                break;
-            case '{':
-                ++braceCount;
-                break;
-            case '}':
-                if (braceCount == 0) {
-                    LOG_ERROR("Inconsistency - more } than {");
-                } else {
-                    --braceCount;
-                }
-                break;
-            case '|':
-                if (inSubMatch) {
-                    if (subCount < minSubCount) {
-                        minSubCount = subCount;
-                    }
-                    subCount = 0;
-                } else {
-                }
-                break;
-            case '(':
-                inSubMatch = true;
-                break;
-            case ')':
-                inSubMatch = false;
-                if (subCount < minSubCount) {
-                    minSubCount = subCount;
-                }
-                count += minSubCount;
-                subCount = 0;
-                minSubCount = std::numeric_limits<size_t>::max();
-                break;
-            default:
+        case '$':
+            // Perl can expand variables, so should really skip over
+            // variable names at this point
+            break;
+        case '.':
+        case '^':
+        case '*':
+        case '+':
+        case '?':
+            break;
+        case '\\':
+            ++iter;
+            if (iter == regexStr.end()) {
+                LOG_ERROR("Inconsistency - backslash at the end of regex");
+                return count;
+            }
+            thisChar = *iter;
+            if (thisChar != 'd' && thisChar != 's' && thisChar != 'w' && thisChar != 'D' &&
+                thisChar != 'S' && thisChar != 'W' && (thisChar < '0' || thisChar > '9')) {
                 if (squareBracketCount == 0 && braceCount == 0) {
                     std::string::iterator nextIter(iter + 1);
                     if (nextIter == regexStr.end() ||
@@ -362,7 +307,62 @@ size_t CRegex::literalCount(void) const {
                         }
                     }
                 }
-                break;
+            }
+            break;
+        case '[':
+            ++squareBracketCount;
+            break;
+        case ']':
+            if (squareBracketCount == 0) {
+                LOG_ERROR("Inconsistency - more ] than [");
+            } else {
+                --squareBracketCount;
+            }
+            break;
+        case '{':
+            ++braceCount;
+            break;
+        case '}':
+            if (braceCount == 0) {
+                LOG_ERROR("Inconsistency - more } than {");
+            } else {
+                --braceCount;
+            }
+            break;
+        case '|':
+            if (inSubMatch) {
+                if (subCount < minSubCount) {
+                    minSubCount = subCount;
+                }
+                subCount = 0;
+            } else {
+            }
+            break;
+        case '(':
+            inSubMatch = true;
+            break;
+        case ')':
+            inSubMatch = false;
+            if (subCount < minSubCount) {
+                minSubCount = subCount;
+            }
+            count += minSubCount;
+            subCount = 0;
+            minSubCount = std::numeric_limits<size_t>::max();
+            break;
+        default:
+            if (squareBracketCount == 0 && braceCount == 0) {
+                std::string::iterator nextIter(iter + 1);
+                if (nextIter == regexStr.end() ||
+                    (*nextIter != '*' && *nextIter != '+' && *nextIter != '?')) {
+                    if (inSubMatch) {
+                        ++subCount;
+                    } else {
+                        ++count;
+                    }
+                }
+            }
+            break;
         }
     }
 
@@ -377,35 +377,35 @@ std::string CRegex::escapeRegexSpecial(const std::string& literal) {
         char thisChar = *iter;
 
         switch (thisChar) {
-            case '.':
-            case '*':
-            case '+':
-            case '?':
-            case '|':
-            case '^':
-            case '$':
-            case '(':
-            case ')':
-            case '[':
-            case ']':
-            case '{':
-            case '}':
-            case '\\':
-                result += '\\';
-                result += thisChar;
-                break;
-            case '\n':
-                result += "\\n";
-                break;
-            case '\r':
-                // Carriage returns are made optional to prevent the regex
-                // having a silly incompatibility between Windows text and Unix
-                // text files
-                result += "\\r?";
-                break;
-            default:
-                result += thisChar;
-                break;
+        case '.':
+        case '*':
+        case '+':
+        case '?':
+        case '|':
+        case '^':
+        case '$':
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case '{':
+        case '}':
+        case '\\':
+            result += '\\';
+            result += thisChar;
+            break;
+        case '\n':
+            result += "\\n";
+            break;
+        case '\r':
+            // Carriage returns are made optional to prevent the regex
+            // having a silly incompatibility between Windows text and Unix
+            // text files
+            result += "\\r?";
+            break;
+        default:
+            result += thisChar;
+            break;
         }
     }
 

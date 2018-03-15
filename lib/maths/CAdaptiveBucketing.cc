@@ -43,7 +43,7 @@ namespace {
 using TDoubleMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Clear a vector and recover its memory.
-template <typename T>
+template<typename T>
 void clearAndShrink(std::vector<T>& vector) {
     std::vector<T> empty;
     empty.swap(vector);
@@ -404,20 +404,20 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             }
 
             switch (boundary) {
-                case CSplineTypes::E_Natural:
-                case CSplineTypes::E_ParabolicRunout:
-                    knots.push_back(m_Endpoints[n]);
-                    values.push_back(values.back());
-                    variances.push_back(variances.back());
-                    break;
+            case CSplineTypes::E_Natural:
+            case CSplineTypes::E_ParabolicRunout:
+                knots.push_back(m_Endpoints[n]);
+                values.push_back(values.back());
+                variances.push_back(variances.back());
+                break;
 
-                case CSplineTypes::E_Periodic:
-                    values[0] = (values[0] + values.back()) / 2.0;
-                    variances[0] = (variances[0] + variances.back()) / 2.0;
-                    knots.push_back(m_Endpoints[n]);
-                    values.push_back(values[0]);
-                    variances.push_back(variances[0]);
-                    break;
+            case CSplineTypes::E_Periodic:
+                values[0] = (values[0] + values.back()) / 2.0;
+                variances[0] = (variances[0] + variances.back()) / 2.0;
+                knots.push_back(m_Endpoints[n]);
+                values.push_back(values[0]);
+                variances.push_back(variances[0]);
+                break;
             }
         }
     }

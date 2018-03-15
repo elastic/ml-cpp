@@ -49,7 +49,7 @@ public:
     static uint64_t reverseBits(uint64_t x);
 
     //! Check if \p value is \p alignment aligned.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static inline bool aligned(INT_TYPE value, INT_TYPE alignment) {
         return (value % alignment) == static_cast<INT_TYPE>(0);
     }
@@ -59,7 +59,7 @@ public:
     //! \param[in] value The value to align to a multiple of \p alignment.
     //! \param[in] alignment The alignment.
     //! \note It is assumed that \p value and \p alignment are integral types.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static inline INT_TYPE ceil(INT_TYPE value, INT_TYPE alignment) {
         INT_TYPE result = CIntegerTools::floor(value, alignment);
         if (result != value) {
@@ -73,7 +73,7 @@ public:
     //! \param[in] value The value to align to a multiple of \p alignment.
     //! \param[in] alignment The alignment.
     //! \note It is assumed that \p value and \p alignment are integral types.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static inline INT_TYPE floor(INT_TYPE value, INT_TYPE alignment) {
         INT_TYPE result = (value / alignment) * alignment;
         return result == value ? result : (value < 0 ? result - alignment : result);
@@ -85,7 +85,7 @@ public:
     //! \param[in] value The value for which to compute the infimum.
     //! \param[in] alignment The alignment.
     //! \note It is assumed that \p value and \p alignment are integral types.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static inline INT_TYPE strictInfimum(INT_TYPE value, INT_TYPE alignment) {
         INT_TYPE result = floor(value, alignment);
 
@@ -104,7 +104,7 @@ public:
     //! of two integers.
     //!
     //! \note The tail recursion will be optimized away.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static INT_TYPE gcd(INT_TYPE a, INT_TYPE b) {
         if (a < b) {
             std::swap(a, b);
@@ -119,7 +119,7 @@ public:
     //!   \f$gcd(a, b, c) = gcd(gcd(a, b), c)\f$
     //! </pre>
     //! to extend Euclid's algorithm to a collection of integers.
-    template <typename INT_TYPE>
+    template<typename INT_TYPE>
     static INT_TYPE gcd(std::vector<INT_TYPE> c) {
         if (c.empty()) {
             return INT_TYPE(1);

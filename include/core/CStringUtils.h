@@ -53,7 +53,7 @@ public:
     static int utf8ByteType(char c);
 
     //! Convert a type to a string
-    template <typename T>
+    template<typename T>
     static std::string typeToString(const T& type) {
         return CStringUtils::_typeToString(type);
     }
@@ -62,7 +62,7 @@ public:
     static std::string typeToStringPretty(double d);
 
     //! For types other than double, use the default conversions
-    template <typename T>
+    template<typename T>
     static std::string typeToStringPretty(const T& type) {
         return CStringUtils::_typeToString(type);
     }
@@ -71,27 +71,27 @@ public:
     static std::string typeToStringPrecise(double d, CIEEE754::EPrecision precision);
 
     //! For types other than double, default conversions are precise
-    template <typename T>
+    template<typename T>
     static std::string typeToStringPrecise(const T& type, CIEEE754::EPrecision /*precision*/) {
         return CStringUtils::_typeToString(type);
     }
 
     //! Convert a string to a type
-    template <typename T>
+    template<typename T>
     static bool stringToType(const std::string& str, T& ret) {
         return CStringUtils::_stringToType(false, str, ret);
     }
 
     //! Convert a string to a type, and don't print an
     //! error message if the conversion fails
-    template <typename T>
+    template<typename T>
     static bool stringToTypeSilent(const std::string& str, T& ret) {
         return CStringUtils::_stringToType(true, str, ret);
     }
 
     //! Joins the strings in the container with the \p delimiter.
     //! CONTAINER must be a container of std::string.
-    template <typename CONTAINER>
+    template<typename CONTAINER>
     static std::string join(const CONTAINER& strings, const std::string& delimiter) {
         if (strings.empty()) {
             return std::string();
@@ -109,7 +109,7 @@ public:
 
     //! Joins the strings in the range with the \p delimiter.
     //! ITR must be a forward iterator that dereferences to std::string.
-    template <typename ITR>
+    template<typename ITR>
     static void join(ITR begin, ITR end, const std::string& delimiter, std::string& output) {
         if (begin == end) {
             return;
@@ -244,7 +244,7 @@ private:
     //! more easily
     static bool _stringToType(bool, const std::string&, std::string&);
 
-    template <typename ITR>
+    template<typename ITR>
     static std::size_t computeStringLength(ITR begin, ITR end) {
         std::size_t length(0);
         while (begin != end) {

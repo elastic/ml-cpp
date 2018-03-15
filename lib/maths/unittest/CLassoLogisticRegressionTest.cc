@@ -39,7 +39,7 @@ typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
 typedef std::pair<TSizeSizePr, double> TSizeSizePrDoublePr;
 typedef std::vector<TSizeSizePrDoublePr> TSizeSizePrDoublePrVec;
 
-template <typename ARRAY>
+template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
     x.resize(boost::size(x_[0]), TDoubleVec(boost::size(x_), 0.0));
     for (std::size_t i = 0u; i < boost::size(x_); ++i) {
@@ -49,7 +49,7 @@ void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
     }
 }
 
-template <typename ARRAY>
+template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
     for (std::size_t i = 0u; i < boost::size(x_); ++i) {
         for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {

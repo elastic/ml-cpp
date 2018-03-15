@@ -82,7 +82,7 @@ private:
 };
 
 //! \brief Re-normalizes weights (so that the sum to one) on destruction.
-template <typename PRIOR>
+template<typename PRIOR>
 class CScopeCanonicalizeWeights : private core::CNonCopyable {
 public:
     typedef std::pair<CModelWeight, PRIOR> TWeightPriorPr;

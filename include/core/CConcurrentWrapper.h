@@ -38,7 +38,7 @@ namespace core {
 //! @tparam T the wrapped object
 //! @tparam QUEUE_CAPACITY internal queue capacity
 //! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template <typename T, size_t QUEUE_CAPACITY = 100, size_t NOTIFY_CAPACITY = 50>
+template<typename T, size_t QUEUE_CAPACITY = 100, size_t NOTIFY_CAPACITY = 50>
 class CConcurrentWrapper final : private CNonCopyable {
 public:
     //! Wrap and return the wrapped object
@@ -61,7 +61,7 @@ public:
 
     //! Push something into the queue of the wrapped object
     //! The code inside of this lambda is guaranteed to be executed in an atomic fashion.
-    template <typename F>
+    template<typename F>
     void operator()(F f) const {
         m_Queue.push([=] { f(m_Resource); });
     }

@@ -36,7 +36,7 @@ namespace core {
 //! The method is templated - we could use boost function
 //! objects for this but there is complexity with scope.
 //!
-template <typename RECEIVER>
+template<typename RECEIVER>
 class CTicker : public CThread {
 public:
     //! Timeout is in milliseconds

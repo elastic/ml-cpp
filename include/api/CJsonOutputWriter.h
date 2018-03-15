@@ -47,7 +47,7 @@ namespace model {
 class CHierarchicalResultsNormalizer;
 }
 namespace core {
-template <typename>
+template<typename>
 class CScopedRapidJsonPoolAllocator;
 }
 namespace api {
@@ -370,7 +370,7 @@ public:
                            core_t::TTime& persistTime);
 
 private:
-    template <typename>
+    template<typename>
     friend class core::CScopedRapidJsonPoolAllocator;
     // hooks for the CScopedRapidJsonPoolAllocator interface
 

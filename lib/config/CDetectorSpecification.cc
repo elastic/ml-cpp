@@ -56,28 +56,28 @@ std::string fullFunctionName(config_t::ESide side,
                              config_t::EFunctionCategory function) {
     std::string result;
     switch (side) {
-        case config_t::E_LowSide:
-            result += "low_";
-            break;
-        case config_t::E_HighSide:
-            result += "high_";
-            break;
-        case config_t::E_TwoSide:
-            break;
-        case config_t::E_UndeterminedSide:
-            result += "[low_|high_]";
-            break;
+    case config_t::E_LowSide:
+        result += "low_";
+        break;
+    case config_t::E_HighSide:
+        result += "high_";
+        break;
+    case config_t::E_TwoSide:
+        break;
+    case config_t::E_UndeterminedSide:
+        result += "[low_|high_]";
+        break;
     }
     if (!isPopulation && config_t::hasDoAndDontIgnoreEmptyVersions(function)) {
         switch (ignoreEmpty) {
-            case CDetectorSpecification::E_True:
-                result += function == config_t::E_Count ? "non_zero_" : "non_null_";
-                break;
-            case CDetectorSpecification::E_False:
-                break;
-            case CDetectorSpecification::E_Maybe:
-                result += function == config_t::E_Count ? "[non_zero_]" : "[non_null_]";
-                break;
+        case CDetectorSpecification::E_True:
+            result += function == config_t::E_Count ? "non_zero_" : "non_null_";
+            break;
+        case CDetectorSpecification::E_False:
+            break;
+        case CDetectorSpecification::E_Maybe:
+            result += function == config_t::E_Count ? "[non_zero_]" : "[non_null_]";
+            break;
         }
     }
     result += config_t::print(function);
@@ -479,18 +479,18 @@ CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesIn
     static const TSizeVec EMPTY;
     TSizeVecCPtrAry result;
     switch (m_IgnoreEmpty) {
-        case E_True:
-            result[ignoreEmptyId(true)] = &this->params().penaltyIndicesFor(true);
-            result[ignoreEmptyId(false)] = &EMPTY;
-            break;
-        case E_False:
-            result[ignoreEmptyId(true)] = &EMPTY;
-            result[ignoreEmptyId(false)] = &this->params().penaltyIndicesFor(false);
-            break;
-        case E_Maybe:
-            result[ignoreEmptyId(true)] = &this->params().penaltyIndicesFor(true);
-            result[ignoreEmptyId(false)] = &this->params().penaltyIndicesFor(false);
-            break;
+    case E_True:
+        result[ignoreEmptyId(true)] = &this->params().penaltyIndicesFor(true);
+        result[ignoreEmptyId(false)] = &EMPTY;
+        break;
+    case E_False:
+        result[ignoreEmptyId(true)] = &EMPTY;
+        result[ignoreEmptyId(false)] = &this->params().penaltyIndicesFor(false);
+        break;
+    case E_Maybe:
+        result[ignoreEmptyId(true)] = &this->params().penaltyIndicesFor(true);
+        result[ignoreEmptyId(false)] = &this->params().penaltyIndicesFor(false);
+        break;
     }
     return result;
 }

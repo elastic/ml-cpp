@@ -70,24 +70,24 @@ bool CDetectionRule::apply(ERuleAction action,
             m_Conditions[i]
                 .test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
         switch (m_ConditionsConnective) {
-            case E_Or:
-                if (conditionResult == true) {
-                    return true;
-                }
-                break;
-            case E_And:
-                if (conditionResult == false) {
-                    return false;
-                }
-                break;
+        case E_Or:
+            if (conditionResult == true) {
+                return true;
+            }
+            break;
+        case E_And:
+            if (conditionResult == false) {
+                return false;
+            }
+            break;
         }
     }
 
     switch (m_ConditionsConnective) {
-        case E_Or:
-            return false;
-        case E_And:
-            return true;
+    case E_Or:
+        return false;
+    case E_And:
+        return true;
     }
     return false;
 }
@@ -149,10 +149,10 @@ std::string CDetectionRule::printAction(void) const {
 
 std::string CDetectionRule::printConditionsConnective(void) const {
     switch (m_ConditionsConnective) {
-        case E_And:
-            return "AND";
-        case E_Or:
-            return "OR";
+    case E_And:
+        return "AND";
+    case E_Or:
+        return "OR";
     }
     return std::string();
 }

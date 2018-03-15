@@ -37,14 +37,14 @@ CRuleCondition::SCondition::SCondition(EConditionOperator op, double threshold)
 
 bool CRuleCondition::SCondition::test(double value) const {
     switch (s_Op) {
-        case E_LT:
-            return value < s_Threshold;
-        case E_LTE:
-            return value <= s_Threshold;
-        case E_GT:
-            return value > s_Threshold;
-        case E_GTE:
-            return value >= s_Threshold;
+    case E_LT:
+        return value < s_Threshold;
+    case E_LTE:
+        return value <= s_Threshold;
+    case E_GT:
+        return value > s_Threshold;
+    case E_GTE:
+        return value >= s_Threshold;
     }
     return false;
 }
@@ -146,44 +146,44 @@ bool CRuleCondition::checkCondition(const CAnomalyDetectorModel& model,
                                     core_t::TTime time) const {
     TDouble1Vec value;
     switch (m_Type) {
-        case E_Categorical: {
-            LOG_ERROR("Should never check numerical condition for categorical rule condition");
+    case E_Categorical: {
+        LOG_ERROR("Should never check numerical condition for categorical rule condition");
+        return false;
+    }
+    case E_NumericalActual: {
+        value = model.currentBucketValue(feature, pid, cid, time);
+        break;
+    }
+    case E_NumericalTypical: {
+        value = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        if (value.empty()) {
+            // Means prior is non-informative
             return false;
         }
-        case E_NumericalActual: {
-            value = model.currentBucketValue(feature, pid, cid, time);
-            break;
+        break;
+    }
+    case E_NumericalDiffAbs: {
+        value = model.currentBucketValue(feature, pid, cid, time);
+        TDouble1Vec typical =
+            model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
+        if (typical.empty()) {
+            // Means prior is non-informative
+            return false;
         }
-        case E_NumericalTypical: {
-            value = model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
-            if (value.empty()) {
-                // Means prior is non-informative
-                return false;
-            }
-            break;
+        if (value.size() != typical.size()) {
+            LOG_ERROR("Cannot apply rule condition: cannot calculate difference between "
+                      << "actual and typical values due to different dimensions.");
+            return false;
         }
-        case E_NumericalDiffAbs: {
-            value = model.currentBucketValue(feature, pid, cid, time);
-            TDouble1Vec typical =
-                model.baselineBucketMean(feature, pid, cid, resultType, EMPTY_CORRELATED, time);
-            if (typical.empty()) {
-                // Means prior is non-informative
-                return false;
-            }
-            if (value.size() != typical.size()) {
-                LOG_ERROR("Cannot apply rule condition: cannot calculate difference between "
-                          << "actual and typical values due to different dimensions.");
-                return false;
-            }
-            for (std::size_t i = 0; i < value.size(); ++i) {
-                value[i] = ::fabs(value[i] - typical[i]);
-            }
-            break;
+        for (std::size_t i = 0; i < value.size(); ++i) {
+            value[i] = ::fabs(value[i] - typical[i]);
         }
-        case E_Time: {
-            value.push_back(time);
-            break;
-        }
+        break;
+    }
+    case E_Time: {
+        value.push_back(time);
+        break;
+    }
     }
     if (value.empty()) {
         LOG_ERROR("Value for rule comparison could not be calculated");
@@ -218,30 +218,30 @@ std::string CRuleCondition::print(void) const {
 
 std::string CRuleCondition::print(ERuleConditionType type) const {
     switch (type) {
-        case E_Categorical:
-            return "";
-        case E_NumericalActual:
-            return "ACTUAL";
-        case E_NumericalTypical:
-            return "TYPICAL";
-        case E_NumericalDiffAbs:
-            return "DIFF_ABS";
-        case E_Time:
-            return "TIME";
+    case E_Categorical:
+        return "";
+    case E_NumericalActual:
+        return "ACTUAL";
+    case E_NumericalTypical:
+        return "TYPICAL";
+    case E_NumericalDiffAbs:
+        return "DIFF_ABS";
+    case E_Time:
+        return "TIME";
     }
     return std::string();
 }
 
 std::string CRuleCondition::print(EConditionOperator op) const {
     switch (op) {
-        case E_LT:
-            return "<";
-        case E_LTE:
-            return "<=";
-        case E_GT:
-            return ">";
-        case E_GTE:
-            return ">=";
+    case E_LT:
+        return "<";
+    case E_LTE:
+        return "<=";
+    case E_GT:
+        return ">";
+    case E_GTE:
+        return ">=";
     }
     return std::string();
 }

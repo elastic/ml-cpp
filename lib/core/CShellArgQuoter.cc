@@ -34,25 +34,25 @@ std::string CShellArgQuoter::quote(const std::string& arg) {
 
     for (std::string::const_iterator iter = arg.begin(); iter != arg.end(); ++iter) {
         switch (*iter) {
-            case '\'':
-            case '!':
-                // Take single quotes and exclamation marks outside of the main
-                // single quoted string and escape them individually using
-                // backslashes
-                if (insideSingleQuote) {
-                    result += '\'';
-                    insideSingleQuote = false;
-                }
-                result += '\\';
-                result += *iter;
-                break;
-            default:
-                if (!insideSingleQuote) {
-                    result += '\'';
-                    insideSingleQuote = true;
-                }
-                result += *iter;
-                break;
+        case '\'':
+        case '!':
+            // Take single quotes and exclamation marks outside of the main
+            // single quoted string and escape them individually using
+            // backslashes
+            if (insideSingleQuote) {
+                result += '\'';
+                insideSingleQuote = false;
+            }
+            result += '\\';
+            result += *iter;
+            break;
+        default:
+            if (!insideSingleQuote) {
+                result += '\'';
+                insideSingleQuote = true;
+            }
+            result += *iter;
+            break;
         }
     }
 

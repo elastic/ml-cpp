@@ -38,7 +38,7 @@ namespace model {
 //! bucket-associated data and their retrieval by providing a time.
 //! The queue manages the matching of the time to the corresponding
 //! bucket.
-template <typename T>
+template<typename T>
 class CBucketQueue {
 public:
     typedef boost::circular_buffer<T> TQueue;
@@ -52,7 +52,7 @@ public:
     static const std::string INDEX_TAG;
 
     //! \brief Wraps persist and restore so they can be used with boost::bind.
-    template <typename F>
+    template<typename F>
     class CSerializer {
     public:
         CSerializer(const T& initial = T(), const F& serializer = F())
@@ -228,7 +228,7 @@ public:
 
 private:
     //! Persist the buckets in the queue using \p bucketPersist.
-    template <typename F>
+    template<typename F>
     void persist(F bucketPersist, core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0; i < m_Queue.size(); i++) {
             inserter.insertValue(INDEX_TAG, i);
@@ -238,7 +238,7 @@ private:
     }
 
     //! Restore the buckets in the queue using \p bucketRestore.
-    template <typename F>
+    template<typename F>
     bool restore(F bucketRestore, const T& initial, core::CStateRestoreTraverser& traverser) {
         std::size_t i = 0;
         do {
@@ -304,10 +304,10 @@ private:
     core_t::TTime m_BucketLength;
 };
 
-template <typename T>
+template<typename T>
 const std::string CBucketQueue<T>::BUCKET_TAG("a");
 
-template <typename T>
+template<typename T>
 const std::string CBucketQueue<T>::INDEX_TAG("b");
 }
 }

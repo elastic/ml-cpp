@@ -48,7 +48,7 @@ namespace model {
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
-template <class STATISTIC>
+template<class STATISTIC>
 class CMetricMultivariateStatistic {
 public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
@@ -168,10 +168,10 @@ private:
     TStatistic2Vec m_Values;
 };
 
-template <class STATISTIC>
+template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
-template <class STATISTIC>
+template<class STATISTIC>
 std::ostream& operator<<(std::ostream& o,
                          const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();

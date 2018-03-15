@@ -55,7 +55,7 @@ public:
 public:
     //! \brief Generate random samples from the specified distribution
     //! using a custom random number generator.
-    template <typename RNG, typename Distribution, typename Container>
+    template<typename RNG, typename Distribution, typename Container>
     static void generateSamples(RNG& randomNumberGenerator,
                                 const Distribution& distribution,
                                 std::size_t numberSamples,
@@ -70,7 +70,7 @@ public:
     //! based on the libc++ implementation because this is different from
     //! the libstdc++ implementation which can cause platform specific test
     //! failures.
-    template <typename ITR>
+    template<typename ITR>
     void random_shuffle(ITR first, ITR last);
 
     //! Generate normal random samples with the specified mean and
@@ -149,7 +149,7 @@ public:
     //! \param[out] covariances Filled in with the distribution covariance
     //! matrix for each cluster.
     //! \param[out] points Filled in with the samples from each cluster.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     void
     generateRandomMultivariateNormals(const TSizeVec& sizes,
                                       std::vector<maths::CVectorNx1<T, N>>& means,

@@ -172,23 +172,23 @@ std::string CUname::machine(void) {
     std::string result;
 
     switch (systemInfo.wProcessorArchitecture) {
-        case PROCESSOR_ARCHITECTURE_AMD64:
-            result = "x64";
-            break;
-        case PROCESSOR_ARCHITECTURE_IA64:
-            result = "itanium";
-            break;
-        case PROCESSOR_ARCHITECTURE_INTEL:
-            result = "x86";
-            break;
-        case PROCESSOR_ARCHITECTURE_UNKNOWN:
-            result = "unknown";
-            break;
-        default:
-            LOG_ERROR("Unexpected result from GetNativeSystemInfo() : "
-                      "wProcessorArchitecture = "
-                      << systemInfo.wProcessorArchitecture);
-            break;
+    case PROCESSOR_ARCHITECTURE_AMD64:
+        result = "x64";
+        break;
+    case PROCESSOR_ARCHITECTURE_IA64:
+        result = "itanium";
+        break;
+    case PROCESSOR_ARCHITECTURE_INTEL:
+        result = "x86";
+        break;
+    case PROCESSOR_ARCHITECTURE_UNKNOWN:
+        result = "unknown";
+        break;
+    default:
+        LOG_ERROR("Unexpected result from GetNativeSystemInfo() : "
+                  "wProcessorArchitecture = "
+                  << systemInfo.wProcessorArchitecture);
+        break;
     }
 
     return result;

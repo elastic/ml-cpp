@@ -137,22 +137,21 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
                        : maths::CTools::deviation(node.probability());
 
     switch (m_Job) {
-        case E_Update:
-            for (std::size_t i = 0u; i < normalizers.size(); ++i) {
-                m_HasLastUpdateCausedBigChange |=
-                    normalizers[i]->s_Normalizer->updateQuantiles(score);
-            }
-            break;
-        case E_Normalize:
-            // Normalize with the lowest suitable normalizer.
-            if (!normalizers[0]->s_Normalizer->normalize(score)) {
-                LOG_ERROR("Failed to normalize " << score << " for " << node.s_Spec.print());
-            }
-            node.s_NormalizedAnomalyScore = score;
-            break;
-        case E_NoOp:
-            LOG_ERROR("Calling normalize without setting job");
-            break;
+    case E_Update:
+        for (std::size_t i = 0u; i < normalizers.size(); ++i) {
+            m_HasLastUpdateCausedBigChange |= normalizers[i]->s_Normalizer->updateQuantiles(score);
+        }
+        break;
+    case E_Normalize:
+        // Normalize with the lowest suitable normalizer.
+        if (!normalizers[0]->s_Normalizer->normalize(score)) {
+            LOG_ERROR("Failed to normalize " << score << " for " << node.s_Spec.print());
+        }
+        node.s_NormalizedAnomalyScore = score;
+        break;
+    case E_NoOp:
+        LOG_ERROR("Calling normalize without setting job");
+        break;
     }
 }
 

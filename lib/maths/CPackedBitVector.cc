@@ -217,15 +217,15 @@ double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) 
          /**/) {
         std::size_t run = std::min(pos, copos) - std::max(pos - length, copos - colength);
         switch (op) {
-            case E_AND:
-                result += static_cast<double>((value & covalue) * run);
-                break;
-            case E_OR:
-                result += static_cast<double>((value | covalue) * run);
-                break;
-            case E_XOR:
-                result += static_cast<double>((value ^ covalue) * run);
-                break;
+        case E_AND:
+            result += static_cast<double>((value & covalue) * run);
+            break;
+        case E_OR:
+            result += static_cast<double>((value | covalue) * run);
+            break;
+        case E_XOR:
+            result += static_cast<double>((value ^ covalue) * run);
+            break;
         }
 
         if (pos < copos) {
@@ -254,15 +254,15 @@ double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) 
 
     std::size_t run = std::min(length, colength);
     switch (op) {
-        case E_AND:
-            result += static_cast<double>((value & covalue) * run);
-            break;
-        case E_OR:
-            result += static_cast<double>((value | covalue) * run);
-            break;
-        case E_XOR:
-            result += static_cast<double>((value ^ covalue) * run);
-            break;
+    case E_AND:
+        result += static_cast<double>((value & covalue) * run);
+        break;
+    case E_OR:
+        result += static_cast<double>((value | covalue) * run);
+        break;
+    case E_XOR:
+        result += static_cast<double>((value ^ covalue) * run);
+        break;
     }
 
     return result;

@@ -29,7 +29,7 @@ namespace {
 namespace detail {
 
 //! Discard a sequence of \p n random numbers.
-template <typename PRNG>
+template<typename PRNG>
 inline void discard(uint64_t n, PRNG& rng) {
     for (/**/; n > 0; --n) {
         rng();

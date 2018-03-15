@@ -53,14 +53,14 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 
 //! Defines the appropriate integer random number generator.
-template <typename INTEGER>
+template<typename INTEGER>
 struct SRng {
     using Type = boost::random::uniform_int_distribution<INTEGER>;
     static INTEGER min(INTEGER a) { return a; }
     static INTEGER max(INTEGER b) { return b - 1; }
 };
 //! Specialization for a real uniform random number generator.
-template <>
+template<>
 struct SRng<double> {
     using Type = boost::random::uniform_real_distribution<double>;
     static double min(double a) { return a; }
@@ -68,14 +68,14 @@ struct SRng<double> {
 };
 
 //! Implementation of uniform sampling.
-template <typename RNG, typename TYPE>
+template<typename RNG, typename TYPE>
 TYPE doUniformSample(RNG& rng, TYPE a, TYPE b) {
     typename SRng<TYPE>::Type uniform(SRng<TYPE>::min(a), SRng<TYPE>::max(b));
     return uniform(rng);
 }
 
 //! Implementation of uniform sampling.
-template <typename RNG, typename TYPE>
+template<typename RNG, typename TYPE>
 void doUniformSample(RNG& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {
     result.clear();
     result.reserve(n);
@@ -86,7 +86,7 @@ void doUniformSample(RNG& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>&
 }
 
 //! Implementation of normal sampling.
-template <typename RNG>
+template<typename RNG>
 double doNormalSample(RNG& rng, double mean, double variance) {
     if (variance < 0.0) {
         LOG_ERROR("Invalid variance " << variance);
@@ -97,7 +97,7 @@ double doNormalSample(RNG& rng, double mean, double variance) {
 }
 
 //! Implementation of normal sampling.
-template <typename RNG>
+template<typename RNG>
 void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoubleVec& result) {
     result.clear();
     if (variance < 0.0) {
@@ -115,7 +115,7 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
 }
 
 //! Implementation of chi^2 sampling.
-template <typename RNG>
+template<typename RNG>
 void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
     result.clear();
     result.reserve(n);
@@ -126,7 +126,7 @@ void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
 }
 
 //! Implementation of categorical sampling.
-template <typename RNG>
+template<typename RNG>
 std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
     // We use inverse transform sampling to generate the categorical
     // samples from a random samples on [0,1].
@@ -153,7 +153,7 @@ std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
 }
 
 //! Implementation of categorical sampling with replacement.
-template <typename RNG>
+template<typename RNG>
 void doCategoricalSampleWithReplacement(RNG& rng,
                                         TDoubleVec& probabilities,
                                         std::size_t n,
@@ -191,7 +191,7 @@ void doCategoricalSampleWithReplacement(RNG& rng,
 }
 
 //! Implementation of categorical sampling without replacement.
-template <typename RNG>
+template<typename RNG>
 void doCategoricalSampleWithoutReplacement(RNG& rng,
                                            TDoubleVec& probabilities,
                                            std::size_t n,
@@ -247,7 +247,7 @@ void doCategoricalSampleWithoutReplacement(RNG& rng,
 }
 
 //! Implementation of multivariate normal sampling.
-template <typename RNG>
+template<typename RNG>
 bool doMultivariateNormalSample(RNG& rng,
                                 const TDoubleVec& mean,
                                 const TDoubleVecVec& covariance,
@@ -340,7 +340,7 @@ bool doMultivariateNormalSample(RNG& rng,
 }
 
 //! Implementation of multivariate normal sampling.
-template <typename RNG, typename T, std::size_t N>
+template<typename RNG, typename T, std::size_t N>
 void doMultivariateNormalSample(RNG& rng,
                                 const CVectorNx1<T, N>& mean,
                                 const CSymmetricMatrixNxN<T, N>& covariance,
@@ -387,7 +387,7 @@ void doMultivariateNormalSample(RNG& rng,
 }
 
 //! Implementation of distribution quantile sampling.
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 void sampleQuantiles(const DISTRIBUTION& distribution, std::size_t n, TDoubleVec& result) {
     CTools::SIntervalExpectation expectation;
     double dq = 1.0 / static_cast<double>(n);

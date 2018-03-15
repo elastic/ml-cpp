@@ -111,7 +111,7 @@ private:
                          std::string& valueFieldName,
                          double& probability);
 
-    template <typename T>
+    template<typename T>
     bool parseDataField(const TStrStrUMap& dataRowFields,
                         const std::string& fieldName,
                         T& result) const {

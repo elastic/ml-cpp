@@ -182,7 +182,7 @@ bool CFlatPrefixTree::matchesFully(TStrCRItr start, TStrCRItr end) const {
     return this->matches(start, end, true);
 }
 
-template <typename ITR>
+template<typename ITR>
 bool CFlatPrefixTree::matches(ITR start, ITR end, bool requireFullMatch) const {
     if (m_FlatTree.empty() || start == end) {
         return false;

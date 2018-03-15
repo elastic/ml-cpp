@@ -24,7 +24,7 @@
 namespace ml {
 namespace model {
 
-template <typename T>
+template<typename T>
 void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
                                               const T& featureData,
                                               TSizeVec& result) const {
@@ -48,7 +48,7 @@ void CIndividualModel::currentBucketPersonIds(core_t::TTime time,
     result.assign(people.begin(), people.end());
 }
 
-template <typename T>
+template<typename T>
 const T* CIndividualModel::featureData(
     model_t::EFeature feature,
     std::size_t pid,
@@ -75,7 +75,7 @@ const T* CIndividualModel::featureData(
     return (j != i->second.end() && j->first == pid) ? &j->second : 0;
 }
 
-template <typename T, typename FILTER>
+template<typename T, typename FILTER>
 void CIndividualModel::sampleBucketStatistics(
     core_t::TTime startTime,
     core_t::TTime endTime,
@@ -102,7 +102,7 @@ void CIndividualModel::sampleBucketStatistics(
     }
 }
 
-template <typename PARAMS, typename INFLUENCES>
+template<typename PARAMS, typename INFLUENCES>
 bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
                                                    PARAMS& params,
                                                    const INFLUENCES& influences,

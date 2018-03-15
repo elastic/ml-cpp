@@ -193,70 +193,69 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
     LOG_TRACE("k = " << k);
 
     switch (m_Interpolation) {
-        case E_Linear: {
-            if (k == 0) {
-                double xl = m_Knots[0].first;
-                double xr = m_Knots[1].first;
-                double f = m_Knots[0].second / m_Count;
-                LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
-                result = f * std::max(x - 1.5 * xl + 0.5 * xr, 0.0) / (xr - xl);
-            } else if (k == n) {
-                double xl = m_Knots[n - 2].first;
-                double xr = m_Knots[n - 1].first;
-                double f = m_Knots[n - 1].second / m_Count;
-                LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
-                result = 1.0 - f * std::max(1.5 * xr - 0.5 * xl - x, 0.0) / (xr - xl);
-            } else {
-                double xl = m_Knots[k - 1].first;
-                double xr = m_Knots[k].first;
-                bool left = (2 * k < n);
-                bool loc = (2.0 * x < xl + xr);
-                double partial = 0.0;
-                for (ptrdiff_t i = left ? 0 : (loc ? k : k + 1), m = left ? (loc ? k - 1 : k) : n;
-                     i < m;
-                     ++i) {
-                    partial += m_Knots[i].second;
-                }
-                partial /= m_Count;
-                double dn;
-                if (loc) {
-                    double xll = k > 1 ? static_cast<double>(m_Knots[k - 2].first) : 2.0 * xl - xr;
-                    xr = 0.5 * (xl + xr);
-                    xl = 0.5 * (xll + xl);
-                    dn = m_Knots[k - 1].second / m_Count;
-                } else {
-                    double xrr =
-                        k + 1 < n ? static_cast<double>(m_Knots[k + 1].first) : 2.0 * xr - xl;
-                    xl = 0.5 * (xl + xr);
-                    xr = 0.5 * (xr + xrr);
-                    dn = m_Knots[k].second / m_Count;
-                }
-                LOG_TRACE("left = " << left << ", loc = " << loc << ", partial = " << partial
-                                    << ", xl = " << xl << ", xr = " << xr << ", dn = " << dn);
-                result = left ? partial + dn * (x - xl) / (xr - xl)
-                              : 1.0 - partial - dn * (xr - x) / (xr - xl);
+    case E_Linear: {
+        if (k == 0) {
+            double xl = m_Knots[0].first;
+            double xr = m_Knots[1].first;
+            double f = m_Knots[0].second / m_Count;
+            LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
+            result = f * std::max(x - 1.5 * xl + 0.5 * xr, 0.0) / (xr - xl);
+        } else if (k == n) {
+            double xl = m_Knots[n - 2].first;
+            double xr = m_Knots[n - 1].first;
+            double f = m_Knots[n - 1].second / m_Count;
+            LOG_TRACE("xl = " << xl << ", xr = " << xr << ", f = " << f);
+            result = 1.0 - f * std::max(1.5 * xr - 0.5 * xl - x, 0.0) / (xr - xl);
+        } else {
+            double xl = m_Knots[k - 1].first;
+            double xr = m_Knots[k].first;
+            bool left = (2 * k < n);
+            bool loc = (2.0 * x < xl + xr);
+            double partial = 0.0;
+            for (ptrdiff_t i = left ? 0 : (loc ? k : k + 1), m = left ? (loc ? k - 1 : k) : n;
+                 i < m;
+                 ++i) {
+                partial += m_Knots[i].second;
             }
-            return true;
-        }
-        case E_PiecewiseConstant: {
-            if (k == 0) {
-                double f = m_Knots[0].second / m_Count;
-                result = x < m_Knots[0].first ? 0.0 : 0.5 * f;
-            } else if (k == n) {
-                double f = m_Knots[n - 1].second / m_Count;
-                result = x > m_Knots[0].first ? 1.0 : 1.0 - 0.5 * f;
+            partial /= m_Count;
+            double dn;
+            if (loc) {
+                double xll = k > 1 ? static_cast<double>(m_Knots[k - 2].first) : 2.0 * xl - xr;
+                xr = 0.5 * (xl + xr);
+                xl = 0.5 * (xll + xl);
+                dn = m_Knots[k - 1].second / m_Count;
             } else {
-                bool left = (2 * k < n);
-                double partial = x < m_Knots[0].first ? 0.0 : 0.5 * m_Knots[0].second;
-                for (ptrdiff_t i = left ? 0 : k + 1, m = left ? k : n; i < m; ++i) {
-                    partial += m_Knots[i].second;
-                }
-                partial /= m_Count;
-                LOG_TRACE("left = " << left << ", partial = " << partial);
-                result = left ? partial : 1.0 - partial;
+                double xrr = k + 1 < n ? static_cast<double>(m_Knots[k + 1].first) : 2.0 * xr - xl;
+                xl = 0.5 * (xl + xr);
+                xr = 0.5 * (xr + xrr);
+                dn = m_Knots[k].second / m_Count;
             }
-            return true;
+            LOG_TRACE("left = " << left << ", loc = " << loc << ", partial = " << partial
+                                << ", xl = " << xl << ", xr = " << xr << ", dn = " << dn);
+            result = left ? partial + dn * (x - xl) / (xr - xl)
+                          : 1.0 - partial - dn * (xr - x) / (xr - xl);
         }
+        return true;
+    }
+    case E_PiecewiseConstant: {
+        if (k == 0) {
+            double f = m_Knots[0].second / m_Count;
+            result = x < m_Knots[0].first ? 0.0 : 0.5 * f;
+        } else if (k == n) {
+            double f = m_Knots[n - 1].second / m_Count;
+            result = x > m_Knots[0].first ? 1.0 : 1.0 - 0.5 * f;
+        } else {
+            bool left = (2 * k < n);
+            double partial = x < m_Knots[0].first ? 0.0 : 0.5 * m_Knots[0].second;
+            for (ptrdiff_t i = left ? 0 : k + 1, m = left ? k : n; i < m; ++i) {
+                partial += m_Knots[i].second;
+            }
+            partial /= m_Count;
+            LOG_TRACE("left = " << left << ", partial = " << partial);
+            result = left ? partial : 1.0 - partial;
+        }
+        return true;
+    }
     }
     return true;
 }
@@ -307,33 +306,32 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         partial += m_Knots[i].second;
         if (partial >= cutoff - m_Count * EPS) {
             switch (m_Interpolation) {
-                case E_Linear:
-                    if (n == 1) {
-                        result = m_Knots[0].first;
-                    } else {
-                        double x0 = m_Knots[0].first;
-                        double x1 = m_Knots[1].first;
-                        double xa =
-                            i == 0 ? 2.0 * x0 - x1 : static_cast<double>(m_Knots[i - 1].first);
-                        double xb = m_Knots[i].first;
-                        double xc =
-                            i + 1 == n ? 2.0 * xb - xa : static_cast<double>(m_Knots[i + 1].first);
-                        xa += 0.5 * (xb - xa);
-                        xb += 0.5 * (xc - xb);
-                        double dx = (xb - xa);
-                        double nb = m_Knots[i].second;
-                        double m = nb / dx;
-                        result = xb + (cutoff - partial) / m;
-                    }
-                    return true;
+            case E_Linear:
+                if (n == 1) {
+                    result = m_Knots[0].first;
+                } else {
+                    double x0 = m_Knots[0].first;
+                    double x1 = m_Knots[1].first;
+                    double xa = i == 0 ? 2.0 * x0 - x1 : static_cast<double>(m_Knots[i - 1].first);
+                    double xb = m_Knots[i].first;
+                    double xc =
+                        i + 1 == n ? 2.0 * xb - xa : static_cast<double>(m_Knots[i + 1].first);
+                    xa += 0.5 * (xb - xa);
+                    xb += 0.5 * (xc - xb);
+                    double dx = (xb - xa);
+                    double nb = m_Knots[i].second;
+                    double m = nb / dx;
+                    result = xb + (cutoff - partial) / m;
+                }
+                return true;
 
-                case E_PiecewiseConstant:
-                    if (i + 1 == n || partial > cutoff + m_Count * EPS) {
-                        result = m_Knots[i].first;
-                    } else {
-                        result = (m_Knots[i].first + m_Knots[i + 1].first) / 2.0;
-                    }
-                    return true;
+            case E_PiecewiseConstant:
+                if (i + 1 == n || partial > cutoff + m_Count * EPS) {
+                    result = m_Knots[i].first;
+                } else {
+                    result = (m_Knots[i].first + m_Knots[i + 1].first) / 2.0;
+                }
+                return true;
             }
         }
     }
@@ -444,14 +442,14 @@ void CQuantileSketch::reduce(void) {
 
                 double xm = 0.0, nm = 0.0;
                 switch (m_Interpolation) {
-                    case E_Linear:
-                        xm = (nl * xl + nr * xr) / (nl + nr);
-                        nm = nl + nr;
-                        break;
-                    case E_PiecewiseConstant:
-                        xm = nl < nr ? xr : (nl > nr ? xl : u01(rng) < 0.5 ? xl : xr);
-                        nm = nl + nr;
-                        break;
+                case E_Linear:
+                    xm = (nl * xl + nr * xr) / (nl + nr);
+                    nm = nl + nr;
+                    break;
+                case E_PiecewiseConstant:
+                    xm = nl < nr ? xr : (nl > nr ? xl : u01(rng) < 0.5 ? xl : xr);
+                    nm = nl + nr;
+                    break;
                 }
                 for (std::size_t i = ll + 1; i < rr; ++i) {
                     m_Knots[i].first = xm;

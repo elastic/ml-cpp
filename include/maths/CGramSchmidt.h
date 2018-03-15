@@ -64,7 +64,7 @@ public:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N>
+    template<std::size_t N>
     static bool basis(boost::array<TDoubleVec, N>& x) {
         return basisImpl(x);
     }
@@ -74,7 +74,7 @@ public:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N>
+    template<std::size_t N>
     static bool basis(boost::array<TVector, N>& x) {
         return basisImpl(x);
     }
@@ -84,7 +84,7 @@ public:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <std::size_t N>
+    template<std::size_t N>
     static bool basis(std::vector<CVectorNx1<double, N>>& x) {
         return basisImpl(x);
     }
@@ -95,7 +95,7 @@ private:
     //! \param[in,out] x The vectors from which to compute the
     //! orthonormal basis. Overwritten with the orthonormal
     //! basis.
-    template <typename VECTORS>
+    template<typename VECTORS>
     static bool basisImpl(VECTORS& x) {
         std::size_t i = 0u;
         std::size_t current = 0u;
@@ -156,7 +156,7 @@ private:
     static void swap(TVector& x, TVector& y);
 
     //! Efficiently swap \p x and \p y.
-    template <std::size_t N>
+    template<std::size_t N>
     static void swap(CVectorNx1<double, N>& x, CVectorNx1<double, N>& y) {
         std::swap(x, y);
     }
@@ -168,7 +168,7 @@ private:
     static const TVector& minusProjection(TVector& x, const TVector& e);
 
     //! Subtract the projection of \p x onto \p e from \p x.
-    template <std::size_t N>
+    template<std::size_t N>
     static const CVectorNx1<double, N>& minusProjection(CVectorNx1<double, N>& x,
                                                         const CVectorNx1<double, N>& e) {
         double n = e.inner(x);
@@ -182,7 +182,7 @@ private:
     static const TVector& divide(TVector& x, double s);
 
     //! Divide the vector \p x by the scalar \p s.
-    template <std::size_t N>
+    template<std::size_t N>
     static const CVectorNx1<double, N>& divide(CVectorNx1<double, N>& x, double s) {
         return x /= s;
     }
@@ -194,7 +194,7 @@ private:
     static double norm(const TVector& x);
 
     //! Compute the norm of the vector \p x.
-    template <std::size_t N>
+    template<std::size_t N>
     static double norm(const CVectorNx1<double, N>& x) {
         return x.euclidean();
     }
@@ -206,7 +206,7 @@ private:
     static double inner(const TVector& x, const TVector& y);
 
     //! Compute the inner product of \p x and \p y.
-    template <std::size_t N>
+    template<std::size_t N>
     static double inner(const CVectorNx1<double, N>& x, const CVectorNx1<double, N>& y) {
         return x.inner(y);
     }
@@ -218,7 +218,7 @@ private:
     static void sameDimension(const TVector& x, const TVector& y);
 
     //! Remove [\p begin, \p end) from \p x.
-    template <typename VECTOR>
+    template<typename VECTOR>
     static void erase(std::vector<VECTOR>& x,
                       typename std::vector<VECTOR>::iterator begin,
                       typename std::vector<VECTOR>::iterator end) {
@@ -226,7 +226,7 @@ private:
     }
 
     //! Remove [\p begin, \p end) from \p x.
-    template <typename VECTOR, std::size_t N>
+    template<typename VECTOR, std::size_t N>
     static void erase(boost::array<VECTOR, N>& /*x*/,
                       typename boost::array<VECTOR, N>::iterator begin,
                       typename boost::array<VECTOR, N>::iterator end) {
@@ -242,7 +242,7 @@ private:
     static void zero(TVector& x);
 
     //! Zero the components of \p x.
-    template <std::size_t N>
+    template<std::size_t N>
     static void zero(CVectorNx1<double, N>& x) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             x(i) = 0.0;
@@ -256,7 +256,7 @@ private:
     static std::string print(const TVector& x);
 
     //! Print \p x for debug.
-    template <std::size_t N>
+    template<std::size_t N>
     static std::string print(const CVectorNx1<double, N>& x) {
         std::ostringstream result;
         result << x;

@@ -182,13 +182,13 @@ public:
     const TBucketStatisticsVec& bucketStatistics(void) const;
 
     //! Extract the by field value.
-    template <typename T>
+    template<typename T>
     static std::size_t by(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.first;
     }
 
     //! Extract the partition field value.
-    template <typename T>
+    template<typename T>
     static std::size_t partition(const std::pair<const std::pair<std::size_t, std::size_t>, T>& p) {
         return p.first.second;
     }

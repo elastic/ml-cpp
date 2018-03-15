@@ -47,7 +47,7 @@ namespace model {
 //! a make function return T by value and taking the strings identifying
 //! the level. T must have a clear function and propagateForwardByTime
 //! functions.
-template <typename T>
+template<typename T>
 class CHierarchicalResultsLevelSet : public CHierarchicalResultsVisitor {
 protected:
     typedef T Type;
@@ -157,7 +157,7 @@ protected:
     }
 
     //! Age the level set elements.
-    template <typename F>
+    template<typename F>
     void age(F doAge) {
         doAge(m_BucketElement);
         age(m_InfluencerBucketSet, doAge);
@@ -168,7 +168,7 @@ protected:
     }
 
     //! Get and possibly add a normalizer for \p node.
-    template <typename FACTORY>
+    template<typename FACTORY>
     void elements(const TNode& node,
                   bool pivot,
                   const FACTORY& factory,
@@ -282,7 +282,7 @@ private:
     }
 
     //! Propagate the set elements forwards by \p time.
-    template <typename F>
+    template<typename F>
     static void age(TWordTypePrVec& set, F doAge) {
         for (std::size_t i = 0u; i < set.size(); ++i) {
             doAge(set[i].second);
@@ -316,7 +316,7 @@ private:
     TWordTypePrVec m_LeafSet;
 };
 
-template <typename T>
+template<typename T>
 typename CHierarchicalResultsLevelSet<T>::TDictionary
     CHierarchicalResultsLevelSet<T>::ms_Dictionary;
 }

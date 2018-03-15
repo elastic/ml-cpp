@@ -44,7 +44,7 @@ namespace core {
 //!
 class CORE_EXPORT CByteSwapper : private CNonInstantiatable {
 public:
-    template <typename TYPE>
+    template<typename TYPE>
     static TYPE swapBytes(TYPE var) {
         void* varAddress(&var);
         uint8_t* begin(static_cast<uint8_t*>(varAddress));

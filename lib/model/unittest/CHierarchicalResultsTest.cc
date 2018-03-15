@@ -381,7 +381,7 @@ public:
 };
 
 //! Compute the probability of the samples [\p begin, \p end).
-template <typename ITR>
+template<typename ITR>
 void addAggregateValues(double w1,
                         double w2,
                         std::size_t n,

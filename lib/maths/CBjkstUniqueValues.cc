@@ -199,20 +199,20 @@ const std::string Z_TAG("c");
 const std::string B_TAG("d");
 
 //! Casting conversion to a string.
-template <typename U>
+template<typename U>
 class CToString {
 public:
-    template <typename V>
+    template<typename V>
     std::string operator()(V value) const {
         return core::CStringUtils::typeToString(static_cast<U>(value));
     }
 };
 
 //! Casting initialization from string.
-template <typename U>
+template<typename U>
 class CFromString {
 public:
-    template <typename V>
+    template<typename V>
     bool operator()(const std::string& token, V& value) const {
         U value_;
         if (core::CStringUtils::stringToType(token, value_)) {
@@ -238,12 +238,12 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
     uint8_t result = 0u;
     for (std::size_t i = 0u; i < 5; ++i) {
         switch (value & MASKS[i]) {
-            case 0:
-                value >>= SHIFTS[i];
-                result = static_cast<uint8_t>(result + SHIFTS[i]);
-                break;
-            default:
-                break;
+        case 0:
+            value >>= SHIFTS[i];
+            result = static_cast<uint8_t>(result + SHIFTS[i]);
+            break;
+        default:
+            break;
         }
     }
 

@@ -52,7 +52,7 @@ namespace boost {
 namespace math {
 namespace policies {
 
-template <class T>
+template<class T>
 T user_overflow_error(const char* /*function*/, const char* /*message*/, const T& /*val*/) {
     return boost::numeric::bounds<T>::highest();
 }
@@ -71,7 +71,7 @@ using TOptionalDoubleDoublePr = boost::optional<TDoubleDoublePr>;
 
 namespace adapters {
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 inline double pdf(const DISTRIBUTION& distribution, double x) {
     return CTools::safePdf(distribution, x);
 }
@@ -101,7 +101,7 @@ inline double square(double x) {
 //! Wrapper around a distribution object which evaluates the safe version
 //! of the p.d.f. function. This is used to adapt the function for use
 //! with the boost::math solvers.
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 class CPdf {
 public:
     CPdf(const DISTRIBUTION& distribution, double target)
@@ -115,12 +115,12 @@ private:
 };
 
 //! Convenience factory method for the CPdf object for \p distribution.
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 inline CPdf<DISTRIBUTION> makePdf(const DISTRIBUTION& distribution, double target) {
     return CPdf<DISTRIBUTION>(distribution, target);
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double continuousSafePdf(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first || x >= support.second) {
@@ -132,7 +132,7 @@ inline double continuousSafePdf(const Distribution& distribution, double x) {
     return boost::math::pdf(distribution, x);
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double discreteSafePdf(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
@@ -148,7 +148,7 @@ inline double discreteSafePdf(const Distribution& distribution, double x) {
     return boost::math::pdf(distribution, x);
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double continuousSafeCdf(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first) {
@@ -162,7 +162,7 @@ inline double continuousSafeCdf(const Distribution& distribution, double x) {
     return boost::math::cdf(distribution, x);
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double discreteSafeCdf(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
@@ -180,7 +180,7 @@ inline double discreteSafeCdf(const Distribution& distribution, double x) {
     return boost::math::cdf(distribution, x);
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double continuousSafeCdfComplement(const Distribution& distribution, double x) {
     TDoubleDoublePr support = boost::math::support(distribution);
     if (x <= support.first) {
@@ -194,7 +194,7 @@ inline double continuousSafeCdfComplement(const Distribution& distribution, doub
     return boost::math::cdf(boost::math::complement(distribution, x));
 }
 
-template <typename Distribution>
+template<typename Distribution>
 inline double discreteSafeCdfComplement(const Distribution& distribution, double x) {
     // Note that the inequalities are strict this is needed because
     // the distribution is discrete and can have mass at the support
@@ -332,32 +332,32 @@ operator()(const normal& normal_, double x, maths_t::ETail& tail) const {
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
+    case maths_t::E_OneSidedBelow:
+        px = truncate(2.0 * safeCdf(normal_, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        break;
+
+    case maths_t::E_TwoSided: {
+        // The normal distribution is symmetric and single mode so the
+        // probability of less likely events than x is:
+        //   2 * std::min(cdf(x), 1 - cdf(x)).
+        //
+        // Note, we use the complement function to compute the 1 - cdf(x)
+        // so that we aren't restricted to epsilon precision.
+
+        double m = boost::math::mode(normal_);
+        if (x < m) {
             px = truncate(2.0 * safeCdf(normal_, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            break;
-
-        case maths_t::E_TwoSided: {
-            // The normal distribution is symmetric and single mode so the
-            // probability of less likely events than x is:
-            //   2 * std::min(cdf(x), 1 - cdf(x)).
-            //
-            // Note, we use the complement function to compute the 1 - cdf(x)
-            // so that we aren't restricted to epsilon precision.
-
-            double m = boost::math::mode(normal_);
-            if (x < m) {
-                px = truncate(2.0 * safeCdf(normal_, x), 0.0, 1.0);
-            } else {
-                px = truncate(2.0 * safeCdfComplement(normal_, x), 0.0, 1.0);
-            }
-            this->tail(x, m, tail);
-            break;
-        }
-        case maths_t::E_OneSidedAbove:
+        } else {
             px = truncate(2.0 * safeCdfComplement(normal_, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            break;
+        }
+        this->tail(x, m, tail);
+        break;
+    }
+    case maths_t::E_OneSidedAbove:
+        px = truncate(2.0 * safeCdfComplement(normal_, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        break;
     }
 
     return px;
@@ -373,31 +373,31 @@ operator()(const students_t& students, double x, maths_t::ETail& tail) const {
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            px = truncate(2.0 * safeCdf(students, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            break;
+    case maths_t::E_OneSidedBelow:
+        px = truncate(2.0 * safeCdf(students, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        break;
 
-        case maths_t::E_TwoSided: {
-            // Student's t distribution is symmetric and single mode so the
-            // probability of less likely events than x is:
-            //   2 * std::min(cdf(x), 1 - cdf(x)).
-            //
-            // Note, we use the complement function to compute the 1 - cdf(x)
-            // so that we aren't restricted to epsilon precision.
-            double m = boost::math::mode(students);
-            if (x < m) {
-                px = truncate(2.0 * safeCdf(students, x), 0.0, 1.0);
-            } else {
-                px = truncate(2.0 * safeCdfComplement(students, x), 0.0, 1.0);
-            }
-            this->tail(x, m, tail);
-            break;
-        }
-        case maths_t::E_OneSidedAbove:
+    case maths_t::E_TwoSided: {
+        // Student's t distribution is symmetric and single mode so the
+        // probability of less likely events than x is:
+        //   2 * std::min(cdf(x), 1 - cdf(x)).
+        //
+        // Note, we use the complement function to compute the 1 - cdf(x)
+        // so that we aren't restricted to epsilon precision.
+        double m = boost::math::mode(students);
+        if (x < m) {
+            px = truncate(2.0 * safeCdf(students, x), 0.0, 1.0);
+        } else {
             px = truncate(2.0 * safeCdfComplement(students, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            break;
+        }
+        this->tail(x, m, tail);
+        break;
+    }
+    case maths_t::E_OneSidedAbove:
+        px = truncate(2.0 * safeCdfComplement(students, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        break;
     }
 
     return px;
@@ -415,20 +415,20 @@ operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& 
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            return truncate(2.0 * safeCdf(negativeBinomial, x), 0.0, 1.0);
+    case maths_t::E_OneSidedBelow:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        return truncate(2.0 * safeCdf(negativeBinomial, x), 0.0, 1.0);
 
-        case maths_t::E_TwoSided:
-            // Fall through.
-            break;
+    case maths_t::E_TwoSided:
+        // Fall through.
+        break;
 
-        case maths_t::E_OneSidedAbove:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            return truncate(2.0 * (safeCdfComplement(negativeBinomial, x) +
-                                   safePdf(negativeBinomial, x)),
-                            0.0,
-                            1.0);
+    case maths_t::E_OneSidedAbove:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        return truncate(2.0 *
+                            (safeCdfComplement(negativeBinomial, x) + safePdf(negativeBinomial, x)),
+                        0.0,
+                        1.0);
     }
 
     double fx = safePdf(negativeBinomial, x);
@@ -592,40 +592,40 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            px = truncate(2.0 * safeCdf(logNormal, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            break;
+    case maths_t::E_OneSidedBelow:
+        px = truncate(2.0 * safeCdf(logNormal, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        break;
 
-        case maths_t::E_TwoSided: {
-            // Changing variables to x = exp(m) * exp(x') where m is the location
-            // of the log normal distribution it is possible to show that the
-            // equal point on the p.d.f. is at:
-            //   exp(m) * exp(-s^2 + (s^4 + (log(x) - m)^2
-            //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x < mode
-            //
-            // and
-            //   exp(m) * exp(-s^2 - (s^4 + (log(x) - m)^2
-            //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
+    case maths_t::E_TwoSided: {
+        // Changing variables to x = exp(m) * exp(x') where m is the location
+        // of the log normal distribution it is possible to show that the
+        // equal point on the p.d.f. is at:
+        //   exp(m) * exp(-s^2 + (s^4 + (log(x) - m)^2
+        //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x < mode
+        //
+        // and
+        //   exp(m) * exp(-s^2 - (s^4 + (log(x) - m)^2
+        //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
-            double logx = std::log(x);
-            double squareScale = square(logNormal.scale());
-            double discriminant =
-                std::sqrt(square(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
-                                                    (logx - logNormal.location()));
-            double m = boost::math::mode(logNormal);
-            this->tail(x, m, tail);
-            double y = m * ::exp(x > m ? -discriminant : discriminant);
-            if (x > y) {
-                std::swap(x, y);
-            }
-            px = truncate(safeCdf(logNormal, x) + safeCdfComplement(logNormal, y), 0.0, 1.0);
-            break;
+        double logx = std::log(x);
+        double squareScale = square(logNormal.scale());
+        double discriminant =
+            std::sqrt(square(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
+                                                (logx - logNormal.location()));
+        double m = boost::math::mode(logNormal);
+        this->tail(x, m, tail);
+        double y = m * ::exp(x > m ? -discriminant : discriminant);
+        if (x > y) {
+            std::swap(x, y);
         }
-        case maths_t::E_OneSidedAbove:
-            px = truncate(2.0 * safeCdfComplement(logNormal, x), 0.0, 1.0);
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            break;
+        px = truncate(safeCdf(logNormal, x) + safeCdfComplement(logNormal, y), 0.0, 1.0);
+        break;
+    }
+    case maths_t::E_OneSidedAbove:
+        px = truncate(2.0 * safeCdfComplement(logNormal, x), 0.0, 1.0);
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        break;
     }
 
     return px;
@@ -641,17 +641,17 @@ operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const 
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            return truncate(2.0 * cdf(logt, x), 0.0, 1.0);
+    case maths_t::E_OneSidedBelow:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        return truncate(2.0 * cdf(logt, x), 0.0, 1.0);
 
-        case maths_t::E_TwoSided:
-            // Fall through.
-            break;
+    case maths_t::E_TwoSided:
+        // Fall through.
+        break;
 
-        case maths_t::E_OneSidedAbove:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            return truncate(2.0 * cdfComplement(logt, x), 0.0, 1.0);
+    case maths_t::E_OneSidedAbove:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        return truncate(2.0 * cdfComplement(logt, x), 0.0, 1.0);
     }
 
     const unsigned int MAX_ITERATIONS = 20u;
@@ -861,17 +861,17 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            return truncate(2.0 * safeCdf(gamma_, x), 0.0, 1.0);
+    case maths_t::E_OneSidedBelow:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        return truncate(2.0 * safeCdf(gamma_, x), 0.0, 1.0);
 
-        case maths_t::E_TwoSided:
-            // Fall through.
-            break;
+    case maths_t::E_TwoSided:
+        // Fall through.
+        break;
 
-        case maths_t::E_OneSidedAbove:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            return truncate(2.0 * safeCdfComplement(gamma_, x), 0.0, 1.0);
+    case maths_t::E_OneSidedAbove:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        return truncate(2.0 * safeCdfComplement(gamma_, x), 0.0, 1.0);
     }
 
     // For alpha <= 1 the distribution is single sided.
@@ -1058,17 +1058,17 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
     }
 
     switch (m_Calculation) {
-        case maths_t::E_OneSidedBelow:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
-            return truncate(2.0 * safeCdf(beta_, x), 0.0, 1.0);
+    case maths_t::E_OneSidedBelow:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
+        return truncate(2.0 * safeCdf(beta_, x), 0.0, 1.0);
 
-        case maths_t::E_TwoSided:
-            // Fall through.
-            break;
+    case maths_t::E_TwoSided:
+        // Fall through.
+        break;
 
-        case maths_t::E_OneSidedAbove:
-            tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
-            return truncate(2.0 * safeCdfComplement(beta_, x), 0.0, 1.0);
+    case maths_t::E_OneSidedAbove:
+        tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
+        return truncate(2.0 * safeCdfComplement(beta_, x), 0.0, 1.0);
     }
 
     if (beta_.alpha() < 1.0 && beta_.beta() < 1.0) {
@@ -1294,25 +1294,25 @@ bool CTools::CProbabilityOfLessLikelySample::check(const TDoubleDoublePr& suppor
         return false;
     } else if (x < support.first) {
         switch (m_Calculation) {
-            case maths_t::E_OneSidedBelow:
-            case maths_t::E_TwoSided:
-                px = 0.0;
-                break;
-            case maths_t::E_OneSidedAbove:
-                px = 1.0;
-                break;
+        case maths_t::E_OneSidedBelow:
+        case maths_t::E_TwoSided:
+            px = 0.0;
+            break;
+        case maths_t::E_OneSidedAbove:
+            px = 1.0;
+            break;
         }
         tail = static_cast<maths_t::ETail>(tail | maths_t::E_LeftTail);
         return false;
     } else if (x > support.second) {
         switch (m_Calculation) {
-            case maths_t::E_OneSidedBelow:
-                px = 1.0;
-                break;
-            case maths_t::E_TwoSided:
-            case maths_t::E_OneSidedAbove:
-                px = 0.0;
-                break;
+        case maths_t::E_OneSidedBelow:
+            px = 1.0;
+            break;
+        case maths_t::E_TwoSided:
+        case maths_t::E_OneSidedAbove:
+            px = 0.0;
+            break;
         }
         tail = static_cast<maths_t::ETail>(tail | maths_t::E_RightTail);
         return false;

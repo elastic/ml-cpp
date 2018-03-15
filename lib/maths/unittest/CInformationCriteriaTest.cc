@@ -42,14 +42,14 @@ typedef maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator TMeanVar
 typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
 typedef std::vector<TMatrix4> TMatrix4Vec;
 
-template <typename POINT>
+template<typename POINT>
 double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
     return -0.5 * (d * ::log(boost::math::double_constants::two_pi * variance) + r * r / variance);
 }
 
-template <typename POINT, typename MATRIX>
+template<typename POINT, typename MATRIX>
 double logfGaussian(const POINT& mean, const MATRIX& covariance, const POINT& x) {
     double result;
     maths::gaussianLogLikelihood(covariance, x - mean, result);

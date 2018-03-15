@@ -216,12 +216,12 @@ protected:
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
-    template <typename T>
+    template<typename T>
     void currentBucketPersonIds(core_t::TTime time, const T& featureData, TSizeVec& result) const;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
-    template <typename T>
+    template<typename T>
     const T* featureData(
         model_t::EFeature feature,
         std::size_t pid,
@@ -231,7 +231,7 @@ protected:
 
     //! Sample the bucket statistics and write the results in to
     //! \p featureData.
-    template <typename T, typename FILTER>
+    template<typename T, typename FILTER>
     void sampleBucketStatistics(core_t::TTime startTime,
                                 core_t::TTime endTime,
                                 const FILTER& filter,
@@ -239,7 +239,7 @@ protected:
                                 CResourceMonitor& resourceMonitor);
 
     //! Add the probability and influences for \p feature and \p pid.
-    template <typename PARAMS, typename INFLUENCES>
+    template<typename PARAMS, typename INFLUENCES>
     bool addProbabilityAndInfluences(std::size_t pid,
                                      PARAMS& params,
                                      const INFLUENCES& influences,

@@ -109,7 +109,7 @@ TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec& sample) {
     return core::make_triple(time, TDouble2Vec(sample), std::size_t{0});
 }
 
-template <typename SAMPLES>
+template<typename SAMPLES>
 core_t::TTime addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::CModel& model) {
     TDouble2Vec4VecVec weights{maths::CConstantWeights::unit<TDouble2Vec>(dimension(samples[0]))};
     maths::CModelAddSamplesParams params;
@@ -155,7 +155,7 @@ const std::string i2("i2");
 const std::string i3("i3");
 const std::string EMPTY_STRING;
 
-template <typename CALCULATOR>
+template<typename CALCULATOR>
 void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
                        const maths::CModel& model,
@@ -188,7 +188,7 @@ void computeInfluences(CALCULATOR& calculator,
     result.swap(params.s_Influences);
 }
 
-template <typename CALCULATOR>
+template<typename CALCULATOR>
 void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
                        const maths::CModel& model,

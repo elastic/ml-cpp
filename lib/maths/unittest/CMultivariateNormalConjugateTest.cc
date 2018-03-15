@@ -61,14 +61,14 @@ void empiricalProbabilityOfLessLikelySamples(const TDoubleVec& mean,
 
 std::string print(maths_t::EDataType dataType) {
     switch (dataType) {
-        case maths_t::E_DiscreteData:
-            return "Discrete";
-        case maths_t::E_IntegerData:
-            return "Integer";
-        case maths_t::E_ContinuousData:
-            return "Continuous";
-        case maths_t::E_MixedData:
-            return "Mixed";
+    case maths_t::E_DiscreteData:
+        return "Discrete";
+    case maths_t::E_IntegerData:
+        return "Integer";
+    case maths_t::E_ContinuousData:
+        return "Continuous";
+    case maths_t::E_MixedData:
+        return "Mixed";
     }
     return "";
 }

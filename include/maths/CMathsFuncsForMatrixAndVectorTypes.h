@@ -22,7 +22,7 @@
 namespace ml {
 namespace maths {
 
-template <typename VECTOR, typename F>
+template<typename VECTOR, typename F>
 bool CMathsFuncs::aComponent(const F& f, const VECTOR& val) {
     for (std::size_t i = 0u; i < val.dimension(); ++i) {
         if (f(val(i))) {
@@ -32,7 +32,7 @@ bool CMathsFuncs::aComponent(const F& f, const VECTOR& val) {
     return false;
 }
 
-template <typename VECTOR, typename F>
+template<typename VECTOR, typename F>
 bool CMathsFuncs::everyComponent(const F& f, const VECTOR& val) {
     for (std::size_t i = 0u; i < val.dimension(); ++i) {
         if (!f(val(i))) {
@@ -42,7 +42,7 @@ bool CMathsFuncs::everyComponent(const F& f, const VECTOR& val) {
     return true;
 }
 
-template <typename SYMMETRIC_MATRIX, typename F>
+template<typename SYMMETRIC_MATRIX, typename F>
 bool CMathsFuncs::anElement(const F& f, const SYMMETRIC_MATRIX& val) {
     for (std::size_t i = 0u; i < val.rows(); ++i) {
         for (std::size_t j = i; j < val.columns(); ++j) {
@@ -54,7 +54,7 @@ bool CMathsFuncs::anElement(const F& f, const SYMMETRIC_MATRIX& val) {
     return false;
 }
 
-template <typename SYMMETRIC_MATRIX, typename F>
+template<typename SYMMETRIC_MATRIX, typename F>
 bool CMathsFuncs::everyElement(const F& f, const SYMMETRIC_MATRIX& val) {
     for (std::size_t i = 0u; i < val.rows(); ++i) {
         for (std::size_t j = i; j < val.columns(); ++j) {
@@ -66,32 +66,32 @@ bool CMathsFuncs::everyElement(const F& f, const SYMMETRIC_MATRIX& val) {
     return true;
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isNan(const CVectorNx1<double, N>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isNan), val);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isNan(const CSymmetricMatrixNxN<double, N>& val) {
     return anElement(static_cast<bool (*)(double)>(&isNan), val);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isInf(const CVectorNx1<double, N>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isInf), val);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isInf(const CSymmetricMatrixNxN<double, N>& val) {
     return anElement(static_cast<bool (*)(double)>(&isInf), val);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isFinite(const CVectorNx1<double, N>& val) {
     return everyComponent(static_cast<bool (*)(double)>(&isFinite), val);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 bool CMathsFuncs::isFinite(const CSymmetricMatrixNxN<double, N>& val) {
     return everyElement(static_cast<bool (*)(double)>(&isFinite), val);
 }

@@ -101,7 +101,7 @@ public:
     size_t recordsPerBlock(void) const { return m_RecordsPerBlock; }
 
 private:
-    template <typename NUM_TYPE>
+    template<typename NUM_TYPE>
     void appendNumber(NUM_TYPE num, std::string& str) {
         uint32_t netNum(htonl(static_cast<uint32_t>(num)));
         str.append(reinterpret_cast<char*>(&netNum), sizeof(netNum));

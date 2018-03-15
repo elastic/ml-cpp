@@ -666,7 +666,7 @@ void CAnomalyDetector::skipSampling(core_t::TTime endTime) {
     m_LastBucketEndTime = endTime;
 }
 
-template <typename SAMPLE_FUNC, typename LAST_SAMPLED_BUCKET_UPDATE_FUNC>
+template<typename SAMPLE_FUNC, typename LAST_SAMPLED_BUCKET_UPDATE_FUNC>
 void CAnomalyDetector::buildResultsHelper(
     core_t::TTime bucketStartTime,
     core_t::TTime bucketEndTime,

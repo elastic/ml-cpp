@@ -37,7 +37,7 @@ typedef std::vector<TVector4> TVector4Vec;
 
 namespace {
 
-template <typename T>
+template<typename T>
 void generate(test::CRandomNumbers& rng, std::size_t n, std::size_t d, std::vector<T>& x) {
     LOG_DEBUG("n = " << n << ", d = " << d);
 

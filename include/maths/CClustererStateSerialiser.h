@@ -28,7 +28,7 @@
 
 namespace ml {
 namespace maths {
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CXMeansOnline;
 struct SDistributionRestoreParams;
 
@@ -80,7 +80,7 @@ public:
     //! document representation.
     //!
     //! \note Sets \p ptr to NULL on failure.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     bool operator()(const SDistributionRestoreParams& params,
                     boost::shared_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
                     core::CStateRestoreTraverser& traverser) {
@@ -95,7 +95,7 @@ public:
     //! document representation.
     //!
     //! \note Sets \p ptr to NULL on failure.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     bool operator()(const SDistributionRestoreParams& params,
                     const CClustererTypes::TSplitFunc& splitFunc,
                     const CClustererTypes::TMergeFunc& mergeFunc,
@@ -124,7 +124,7 @@ public:
     }
 
     //! Persist state by passing information to the supplied inserter.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
                     core::CStatePersistInserter& inserter) {
         inserter.insertLevel(clusterer.persistenceTag(),

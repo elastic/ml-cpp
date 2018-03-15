@@ -32,7 +32,7 @@ namespace maths {
 //! DESCRIPTION\n
 //! Holds the bottom left and top right corners and provides
 //! various utility functions need by the x-means algorithm.
-template <typename POINT>
+template<typename POINT>
 class CBoundingBox {
 public:
     //! See core::CMemory.

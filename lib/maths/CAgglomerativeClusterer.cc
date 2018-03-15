@@ -198,7 +198,7 @@ void mstCluster(const TDoubleVecVec& distanceMatrix, TDoubleSizeSizePrPrVec& L) 
 //! \note This has worst case O(N^2) complexity.
 //! \note For maximum efficiency modifications are made in
 //! place to \p distanceMatrix.
-template <typename UPDATE>
+template<typename UPDATE>
 void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPrVec& L) {
     // In departure from the scheme given by Mullner we make all
     // our updates in-place by using a direct address table from
@@ -382,21 +382,21 @@ void CAgglomerativeClusterer::run(EObjective objective, TNodeVec& tree) {
     TDoubleSizeSizePrPrVec heights;
 
     switch (objective) {
-        case E_Single:
-            mstCluster(m_DistanceMatrix, heights);
-            break;
-        case E_Complete:
-            nnCluster(m_DistanceMatrix, SComplete(), heights);
-            break;
-        case E_Average:
-            nnCluster(m_DistanceMatrix, SAverage(), heights);
-            break;
-        case E_Weighted:
-            nnCluster(m_DistanceMatrix, SWeighted(), heights);
-            break;
-        case E_Ward:
-            nnCluster(m_DistanceMatrix, SWard(), heights);
-            break;
+    case E_Single:
+        mstCluster(m_DistanceMatrix, heights);
+        break;
+    case E_Complete:
+        nnCluster(m_DistanceMatrix, SComplete(), heights);
+        break;
+    case E_Average:
+        nnCluster(m_DistanceMatrix, SAverage(), heights);
+        break;
+    case E_Weighted:
+        nnCluster(m_DistanceMatrix, SWeighted(), heights);
+        break;
+    case E_Ward:
+        nnCluster(m_DistanceMatrix, SWard(), heights);
+        break;
     }
 
     buildTree(heights, tree);

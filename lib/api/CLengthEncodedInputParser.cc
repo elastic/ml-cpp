@@ -111,7 +111,7 @@ bool CLengthEncodedInputParser::readStream(const TReaderFunc& readerFunc) {
     return true;
 }
 
-template <bool RESIZE_ALLOWED, typename STR_VEC>
+template<bool RESIZE_ALLOWED, typename STR_VEC>
 bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& results) {
     // For maximum performance, read the stream in large chunks that can be
     // moved around by memcpy().  Using memcpy() is an order of magnitude faster

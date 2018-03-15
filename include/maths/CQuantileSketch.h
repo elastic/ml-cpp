@@ -143,7 +143,7 @@ private:
 
 //! \brief Template wrapper for fixed size sketches which can be
 //! default constructed.
-template <CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
+template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
 class CFixedQuantileSketch : public CQuantileSketch {
 public:
     CFixedQuantileSketch(void) : CQuantileSketch(INTERPOLATION, N) {}

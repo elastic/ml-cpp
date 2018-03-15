@@ -406,19 +406,19 @@ protected:
     CModel(const CModel&) = default;
 
     //! Get the nearest mean of \p prior to \p detrended.
-    template <typename VECTOR>
+    template<typename VECTOR>
     static VECTOR marginalLikelihoodMean(const CPrior& prior);
 
     //! Get the nearest mean of \p prior to \p detrended.
-    template <typename VECTOR>
+    template<typename VECTOR>
     static VECTOR marginalLikelihoodMean(const CMultivariatePrior& prior);
 
     //! Get the error in the trend prediction for \p sample.
-    template <typename TREND, typename VECTOR>
+    template<typename TREND, typename VECTOR>
     static boost::optional<VECTOR> predictionError(const TREND& trend, const VECTOR& sample);
 
     //! Get the error in the prior prediction for \p sample.
-    template <typename PRIOR, typename VECTOR>
+    template<typename PRIOR, typename VECTOR>
     static boost::optional<VECTOR>
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 

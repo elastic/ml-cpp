@@ -41,7 +41,7 @@ const double MIN = 0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_
 const double INF = boost::numeric::bounds<double>::highest();
 
 //! Compute the coefficient of variation from \p moments.
-template <typename MOMENTS>
+template<typename MOMENTS>
 double cov(const MOMENTS& moments) {
     double m = ::fabs(maths::CBasicStatistics::mean(moments));
     double sd = ::sqrt(maths::CBasicStatistics::maximumLikelihoodVariance(moments));
@@ -49,7 +49,7 @@ double cov(const MOMENTS& moments) {
 }
 
 //! Compute the penalty for the partition moments \p moments.
-template <typename MOMENTS>
+template<typename MOMENTS>
 void penaltyImpl(const CAutoconfigurerParams& params,
                  const MOMENTS& moments,
                  double& penalty,
@@ -73,7 +73,7 @@ void penaltyImpl(const CAutoconfigurerParams& params,
 
 //! Compute the distinct count penalty for the partition moments \p moments.
 struct SDistinctCountPenalty {
-    template <typename MOMENTS>
+    template<typename MOMENTS>
     void operator()(const CAutoconfigurerParams& params,
                     const MOMENTS& moments,
                     double& penalty,
@@ -98,7 +98,7 @@ struct SDistinctCountPenalty {
 
 //! Compute the info content penalty for the partition moments \p moments.
 struct SInfoContentPenalty {
-    template <typename MOMENTS>
+    template<typename MOMENTS>
     void operator()(const CAutoconfigurerParams& params,
                     const MOMENTS& moments,
                     double& penalty,
@@ -142,7 +142,7 @@ std::string descriptionPrefix(const CDetectorSpecification& spec,
 }
 
 //! Apply the penalties for count analysis from \p stats.
-template <typename STATS>
+template<typename STATS>
 void penaltyForCountImpl(const CAutoconfigurerParams& params,
                          const STATS& stats,
                          CDetectorSpecification& spec) {
@@ -183,7 +183,7 @@ void penaltyForCountImpl(const CAutoconfigurerParams& params,
 }
 
 //! Apply the penalties for distinct count analysis from \p stats.
-template <typename STATS, typename PENALTY>
+template<typename STATS, typename PENALTY>
 void penaltyForImpl(const CAutoconfigurerParams& params,
                     const STATS& stats,
                     PENALTY computePenalty,
@@ -254,21 +254,21 @@ void CLowVariationPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     }
 
     switch (spec.function()) {
-        case config_t::E_Count:
-            APPLY_COUNTING_PENALTY(penaltiesForCount) break;
-        case config_t::E_Rare:
-            break;
-        case config_t::E_DistinctCount:
-            APPLY_COUNTING_PENALTY(penaltyForDistinctCount) break;
-        case config_t::E_InfoContent:
-            APPLY_COUNTING_PENALTY(penaltyForInfoContent) break;
-        case config_t::E_Mean:
-        case config_t::E_Min:
-        case config_t::E_Max:
-        case config_t::E_Sum:
-        case config_t::E_Varp:
-        case config_t::E_Median:
-            break;
+    case config_t::E_Count:
+        APPLY_COUNTING_PENALTY(penaltiesForCount) break;
+    case config_t::E_Rare:
+        break;
+    case config_t::E_DistinctCount:
+        APPLY_COUNTING_PENALTY(penaltyForDistinctCount) break;
+    case config_t::E_InfoContent:
+        APPLY_COUNTING_PENALTY(penaltyForInfoContent) break;
+    case config_t::E_Mean:
+    case config_t::E_Min:
+    case config_t::E_Max:
+    case config_t::E_Sum:
+    case config_t::E_Varp:
+    case config_t::E_Median:
+        break;
     }
 }
 

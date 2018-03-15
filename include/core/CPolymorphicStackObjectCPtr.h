@@ -34,7 +34,7 @@ class CORE_EXPORT CNullPolymorphicStackObjectCPtr {};
 //! object by value, but access its members through the interface, i.e.
 //! it behaves exactly like a pointer to the base class in terms of usage.
 //! This is to support runtime polymorphism without using the heap.
-template <typename BASE, typename D1, typename D2, typename D3 = D2, typename D4 = D2>
+template<typename BASE, typename D1, typename D2, typename D3 = D2, typename D4 = D2>
 class CPolymorphicStackObjectCPtr {
 private:
     typedef const typename boost::remove_const<BASE>::type TConstBase;
@@ -46,10 +46,10 @@ private:
 public:
     CPolymorphicStackObjectCPtr(void) : m_Storage(CNullPolymorphicStackObjectCPtr()) {}
 
-    template <typename T>
+    template<typename T>
     explicit CPolymorphicStackObjectCPtr(const T& d) : m_Storage(d) {}
 
-    template <typename O1, typename O2, typename O3, typename O4>
+    template<typename O1, typename O2, typename O3, typename O4>
     CPolymorphicStackObjectCPtr(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4>& other) {
 #define MAYBE_SET(TYPE)                                                                            \
     {                                                                                              \
@@ -67,7 +67,7 @@ public:
         m_Storage = CNullPolymorphicStackObjectCPtr();
     }
 
-    template <typename O1, typename O2, typename O3, typename O4>
+    template<typename O1, typename O2, typename O3, typename O4>
     const CPolymorphicStackObjectCPtr&
     operator=(const CPolymorphicStackObjectCPtr<BASE, O1, O2, O3, O4>& other) {
         CPolymorphicStackObjectCPtr tmp(other);
@@ -97,7 +97,7 @@ public:
 
     TConstBase& operator*(void)const { return *(this->operator->()); }
 
-    template <typename T>
+    template<typename T>
     const T* get(void) const {
         return boost::relaxed_get<T>(&m_Storage);
     }

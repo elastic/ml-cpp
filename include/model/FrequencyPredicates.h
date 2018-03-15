@@ -31,7 +31,7 @@ public:
     //! Test whether the person's frequency, whose identifier
     //! is the first element of \p t, is greater than the
     //! threshold supplied to the constructor.
-    template <typename T>
+    template<typename T>
     bool operator()(const std::pair<std::size_t, T>& t) {
         return m_Model->personFrequency(t.first) > m_Threshold;
     }
@@ -39,7 +39,7 @@ public:
     //! Test whether the person's frequency, whose identifier
     //! is encoded in the first element of \p t, is greater
     //! than the threshold supplied to the constructor.
-    template <typename T>
+    template<typename T>
     bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T>& t) {
         return m_Model->personFrequency(CDataGatherer::extractPersonId(t)) > m_Threshold;
     }
@@ -60,7 +60,7 @@ public:
     //! Test whether the person's frequency, whose identifier
     //! is encoded in the first element of \p t, is greater
     //! than the threshold supplied to the constructor.
-    template <typename T>
+    template<typename T>
     bool operator()(const std::pair<std::pair<std::size_t, std::size_t>, T>& t) {
         return m_Model->attributeFrequency(CDataGatherer::extractAttributeId(t)) > m_Threshold;
     }

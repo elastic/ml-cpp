@@ -89,7 +89,7 @@ private:
     //@}
 
     //! Function wrapper which checks for NaN argument.
-    template <typename F>
+    template<typename F>
     class CTrapNaNArgument {
     public:
         CTrapNaNArgument(const F& f) : m_F(f) {}
@@ -108,7 +108,7 @@ private:
 private:
     //! Minimizes \p f in the interval [\p a, \p b] subject
     //! to the constraint that \p fx > \p lb.
-    template <typename F>
+    template<typename F>
     static void minimize(double a,
                          double b,
                          double fa,
@@ -208,7 +208,7 @@ private:
 
     //! Attempt to bracket a root of \p f using [\p a, \p b]
     //! as a starting point.
-    template <typename F>
+    template<typename F>
     static bool bracket(double& a,
                         double& b,
                         double& fa,
@@ -295,7 +295,7 @@ public:
     //! evaluated.
     //! \param[in] min The minimum value in the function domain.
     //! \param[in] max The maximum value in the function domain.
-    template <typename F>
+    template<typename F>
     static inline bool leftBracket(double& a,
                                    double& b,
                                    double& fa,
@@ -332,7 +332,7 @@ public:
     //! evaluated.
     //! \param[in] min The minimum value in the function domain.
     //! \param[in] max The maximum value in the function domain.
-    template <typename F>
+    template<typename F>
     static inline bool rightBracket(double& a,
                                     double& b,
                                     double& fa,
@@ -367,7 +367,7 @@ public:
     //! The test is applied to the interval end points a and b.
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static inline void solve(double& a,
                              double& b,
                              const F& f,
@@ -410,7 +410,7 @@ public:
     //! The test is applied to the interval end points a and b.
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static void solve(double& a,
                       double& b,
                       double fa,
@@ -474,7 +474,7 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     //! \return True if a, b bracket the root.
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static bool brent(double& a,
                       double& b,
                       const F& f,
@@ -518,7 +518,7 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     //! \return True if a, b bracket the root.
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static bool brent(double& a,
                       double& b,
                       double fa,
@@ -631,7 +631,7 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static bool bisection(double& a,
                           double& b,
                           const F& f,
@@ -677,7 +677,7 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
-    template <typename F, typename EQUAL>
+    template<typename F, typename EQUAL>
     static bool bisection(double& a,
                           double& b,
                           double fa,
@@ -758,7 +758,7 @@ public:
     //! evaluated.
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
-    template <typename F>
+    template<typename F>
     static inline void minimize(double a,
                                 double b,
                                 double fa,
@@ -805,7 +805,7 @@ public:
     //! evaluated.
     //! \param[out] x Set to argmax of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
-    template <typename F>
+    template<typename F>
     static inline void maximize(double a,
                                 double b,
                                 double fa,
@@ -831,7 +831,7 @@ public:
     //! returning a double.
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
-    template <typename T, typename F>
+    template<typename T, typename F>
     static bool globalMinimize(const T& p, const F& f, double& x, double& fx) {
         typedef std::pair<double, std::size_t> TDoubleSizePr;
         typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> TMinAccumulator;
@@ -883,7 +883,7 @@ public:
     //! returning a double.
     //! \param[out] x Set to argmin of f on [\p a, \p b].
     //! \param[out] fx Set to the value of f at \p x.
-    template <typename T, typename F>
+    template<typename T, typename F>
     static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
         CCompositeFunctions::CMinus<F> f_(f);
         bool result = globalMinimize(p, f_, x, fx);
@@ -921,7 +921,7 @@ public:
     //! \return True if the sublevel set could be computed and
     //! false otherwise.
     //! \note This will evaluate \p f at most 3 * \p maxIterations.
-    template <typename F>
+    template<typename F>
     static bool sublevelSet(double a,
                             double b,
                             double fa,

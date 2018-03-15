@@ -92,9 +92,9 @@ using TCategorySizePrAnyMapItr = CMetricBucketGatherer::TCategorySizePrAnyMapItr
 using TCategorySizePrAnyMapCItr = CMetricBucketGatherer::TCategorySizePrAnyMapCItr;
 using TStoredStringPtrVec = CBucketGatherer::TStoredStringPtrVec;
 
-template <typename T>
+template<typename T>
 using TSizeTUMap = boost::unordered_map<std::size_t, T>;
-template <typename T>
+template<typename T>
 using TSizeSizeTUMapUMap = boost::unordered_map<std::size_t, TSizeTUMap<T>>;
 
 const std::string CURRENT_VERSION("1");
@@ -129,58 +129,58 @@ const std::string& overField(bool population, const TStrVec& fieldNames) {
     return population ? fieldNames[0] : EMPTY_STRING;
 }
 
-template <model_t::EMetricCategory>
+template<model_t::EMetricCategory>
 struct SDataType {};
-template <>
+template<>
 struct SDataType<model_t::E_Mean> {
     typedef TSizeSizeMeanGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_Median> {
     typedef TSizeSizeMedianGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_Min> {
     typedef TSizeSizeMinGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_Max> {
     typedef TSizeSizeMaxGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_Sum> {
     typedef TSizeSizeSumGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_Variance> {
     typedef TSizeSizeVarianceGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_MultivariateMean> {
     typedef TSizeSizeMultivariateMeanGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_MultivariateMin> {
     typedef TSizeSizeMultivariateMinGathererUMapUMap Type;
 };
-template <>
+template<>
 struct SDataType<model_t::E_MultivariateMax> {
     typedef TSizeSizeMultivariateMaxGathererUMapUMap Type;
 };
-template <typename ITR, typename T>
+template<typename ITR, typename T>
 struct SMaybeConst {};
-template <typename T>
+template<typename T>
 struct SMaybeConst<TCategorySizePrAnyMapItr, T> {
     typedef T Type;
 };
-template <typename T>
+template<typename T>
 struct SMaybeConst<TCategorySizePrAnyMapCItr, T> {
     typedef const T Type;
 };
 
 //! Register the callbacks for computing the size of feature data gatherers
 //! with \p visitor.
-template <typename VISITOR>
+template<typename VISITOR>
 void registerMemoryCallbacks(VISITOR& visitor) {
     visitor.template registerCallback<TSizeSizeMeanGathererUMapUMap>();
     visitor.template registerCallback<TSizeSizeMedianGathererUMapUMap>();
@@ -204,46 +204,46 @@ void registerMemoryCallbacks(void) {
 
 //! Apply a function \p f to a gatherer held as a value by map entry \p i
 //! of an explicit metric category
-template <model_t::EMetricCategory CATEGORY, typename ITR, typename F>
+template<model_t::EMetricCategory CATEGORY, typename ITR, typename F>
 void apply(ITR i, const F& f) {
     using TDataType = typename SDataType<CATEGORY>::Type;
     f(i->first, boost::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
 }
 
 //! Apply a function \p f to all the gatherers held in [\p begin, \p end).
-template <typename ITR, typename F>
+template<typename ITR, typename F>
 bool apply(ITR begin, ITR end, const F& f) {
     for (ITR i = begin; i != end; ++i) {
         model_t::EMetricCategory category = i->first.first;
         try {
             switch (category) {
-                case model_t::E_Mean:
-                    apply<model_t::E_Mean>(i, f);
-                    break;
-                case model_t::E_Median:
-                    apply<model_t::E_Median>(i, f);
-                    break;
-                case model_t::E_Min:
-                    apply<model_t::E_Min>(i, f);
-                    break;
-                case model_t::E_Max:
-                    apply<model_t::E_Max>(i, f);
-                    break;
-                case model_t::E_Variance:
-                    apply<model_t::E_Variance>(i, f);
-                    break;
-                case model_t::E_Sum:
-                    apply<model_t::E_Sum>(i, f);
-                    break;
-                case model_t::E_MultivariateMean:
-                    apply<model_t::E_MultivariateMean>(i, f);
-                    break;
-                case model_t::E_MultivariateMin:
-                    apply<model_t::E_MultivariateMin>(i, f);
-                    break;
-                case model_t::E_MultivariateMax:
-                    apply<model_t::E_MultivariateMax>(i, f);
-                    break;
+            case model_t::E_Mean:
+                apply<model_t::E_Mean>(i, f);
+                break;
+            case model_t::E_Median:
+                apply<model_t::E_Median>(i, f);
+                break;
+            case model_t::E_Min:
+                apply<model_t::E_Min>(i, f);
+                break;
+            case model_t::E_Max:
+                apply<model_t::E_Max>(i, f);
+                break;
+            case model_t::E_Variance:
+                apply<model_t::E_Variance>(i, f);
+                break;
+            case model_t::E_Sum:
+                apply<model_t::E_Sum>(i, f);
+                break;
+            case model_t::E_MultivariateMean:
+                apply<model_t::E_MultivariateMean>(i, f);
+                break;
+            case model_t::E_MultivariateMin:
+                apply<model_t::E_MultivariateMin>(i, f);
+                break;
+            case model_t::E_MultivariateMax:
+                apply<model_t::E_MultivariateMax>(i, f);
+                break;
             }
         } catch (const std::exception& e) {
             LOG_ERROR("Apply failed for " << category << ": " << e.what());
@@ -255,13 +255,13 @@ bool apply(ITR begin, ITR end, const F& f) {
 }
 
 //! Apply a function \p f to all the gatherers held in \p data.
-template <typename T, typename F>
+template<typename T, typename F>
 bool apply(T& data, const F& f) {
     return apply(data.begin(), data.end(), f);
 }
 
 //! Initialize feature data for a specific category
-template <model_t::EMetricCategory CATEGORY>
+template<model_t::EMetricCategory CATEGORY>
 void initializeFeatureDataInstance(std::size_t dimension, TCategorySizePrAnyMap& featureData) {
     using Type = typename SDataType<CATEGORY>::Type;
     featureData[{CATEGORY, dimension}] = Type();
@@ -270,7 +270,7 @@ void initializeFeatureDataInstance(std::size_t dimension, TCategorySizePrAnyMap&
 //! Persists the data gatherers (for individual metric categories).
 class CPersistFeatureData {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& category,
                     const TSizeSizeTUMapUMap<T>& data,
                     core::CStatePersistInserter& inserter) const {
@@ -286,30 +286,30 @@ public:
 private:
     std::string tagName(const TCategorySizePr& category) const {
         switch (category.first) {
-            case model_t::E_Mean:
-                return MEAN_TAG;
-            case model_t::E_Median:
-                return MEDIAN_TAG;
-            case model_t::E_Min:
-                return MIN_TAG;
-            case model_t::E_Max:
-                return MAX_TAG;
-            case model_t::E_Variance:
-                return VARIANCE_TAG;
-            case model_t::E_Sum:
-                return SUM_TAG;
-            case model_t::E_MultivariateMean:
-                return MULTIVARIATE_MEAN_TAG + core::CStringUtils::typeToString(category.second);
-            case model_t::E_MultivariateMin:
-                return MULTIVARIATE_MIN_TAG + core::CStringUtils::typeToString(category.second);
-            case model_t::E_MultivariateMax:
-                return MULTIVARIATE_MAX_TAG + core::CStringUtils::typeToString(category.second);
+        case model_t::E_Mean:
+            return MEAN_TAG;
+        case model_t::E_Median:
+            return MEDIAN_TAG;
+        case model_t::E_Min:
+            return MIN_TAG;
+        case model_t::E_Max:
+            return MAX_TAG;
+        case model_t::E_Variance:
+            return VARIANCE_TAG;
+        case model_t::E_Sum:
+            return SUM_TAG;
+        case model_t::E_MultivariateMean:
+            return MULTIVARIATE_MEAN_TAG + core::CStringUtils::typeToString(category.second);
+        case model_t::E_MultivariateMin:
+            return MULTIVARIATE_MIN_TAG + core::CStringUtils::typeToString(category.second);
+        case model_t::E_MultivariateMax:
+            return MULTIVARIATE_MAX_TAG + core::CStringUtils::typeToString(category.second);
         }
         return EMPTY_STRING;
     }
 
     struct SDoPersist {
-        template <typename T>
+        template<typename T>
         void operator()(const TSizeSizeTUMapUMap<T>& data,
                         core::CStatePersistInserter& inserter) const {
             using TSizeSizeTUMapUMapCItr = typename TSizeSizeTUMapUMap<T>::const_iterator;
@@ -333,7 +333,7 @@ private:
             }
         }
 
-        template <typename T>
+        template<typename T>
         void operator()(std::size_t cid,
                         const TSizeTUMap<T>& pidMap,
                         core::CStatePersistInserter& inserter) const {
@@ -358,7 +358,7 @@ private:
             }
         }
 
-        template <typename T>
+        template<typename T>
         void
         operator()(std::size_t pid, const T& data, core::CStatePersistInserter& inserter) const {
             inserter.insertValue(PERSON_TAG, pid);
@@ -368,7 +368,7 @@ private:
 };
 
 //! Restores the data gatherers (for individual metric categories).
-template <model_t::EMetricCategory CATEGORY>
+template<model_t::EMetricCategory CATEGORY>
 class CRestoreFeatureData {
 public:
     bool operator()(core::CStateRestoreTraverser& traverser,
@@ -416,7 +416,7 @@ private:
     public:
         CDoNewRestore(std::size_t dimension) : m_Dimension(dimension) {}
 
-        template <typename T>
+        template<typename T>
         bool operator()(core::CStateRestoreTraverser& traverser,
                         const CMetricBucketGatherer& gatherer,
                         TSizeSizeTUMapUMap<T>& result) const {
@@ -438,7 +438,7 @@ private:
             return true;
         }
 
-        template <typename T>
+        template<typename T>
         bool restoreAttributes(core::CStateRestoreTraverser& traverser,
                                const CMetricBucketGatherer& gatherer,
                                TSizeSizeTUMapUMap<T>& result) const {
@@ -475,7 +475,7 @@ private:
             return true;
         }
 
-        template <typename T>
+        template<typename T>
         bool restorePeople(core::CStateRestoreTraverser& traverser,
                            const CMetricBucketGatherer& gatherer,
                            TSizeTUMap<T>& result) const {
@@ -523,7 +523,7 @@ private:
     public:
         CDoOldRestore(std::size_t dimension) : m_Dimension(dimension) {}
 
-        template <typename T>
+        template<typename T>
         bool operator()(core::CStateRestoreTraverser& traverser,
                         const CMetricBucketGatherer& gatherer,
                         TSizeSizeTUMapUMap<T>& result) const {
@@ -536,7 +536,7 @@ private:
             return true;
         }
 
-        template <typename T>
+        template<typename T>
         bool restoreIndividual(core::CStateRestoreTraverser& traverser,
                                const CMetricBucketGatherer& gatherer,
                                TSizeSizeTUMapUMap<T>& result) const {
@@ -563,7 +563,7 @@ private:
             return true;
         }
 
-        template <typename T>
+        template<typename T>
         bool restorePopulation(core::CStateRestoreTraverser& traverser,
                                const CMetricBucketGatherer& gatherer,
                                TSizeSizeTUMapUMap<T>& result) const {
@@ -616,7 +616,7 @@ private:
 //! Removes the people from the data gatherers.
 struct SRemovePeople {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     std::size_t begin,
@@ -628,7 +628,7 @@ public:
         }
     }
 
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     const TSizeVec& peopleToRemove) const {
@@ -642,7 +642,7 @@ public:
 
 //! Removes attributes from the data gatherers.
 struct SRemoveAttributes {
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     const TSizeVec& attributesToRemove) const {
@@ -651,7 +651,7 @@ struct SRemoveAttributes {
         }
     }
 
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     std::size_t begin,
@@ -665,7 +665,7 @@ struct SRemoveAttributes {
 //! Sample the metric statistics.
 struct SDoSample {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     core_t::TTime time,
@@ -697,7 +697,7 @@ public:
 //! Stably hashes the collection of data gatherers.
 struct SHash {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     const TSizeSizeTUMapUMap<T>& data,
                     const CMetricBucketGatherer& gatherer,
@@ -727,7 +727,7 @@ public:
     using TFeatureAnyPrVec = std::vector<TFeatureAnyPr>;
 
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     const TSizeSizeTUMapUMap<T>& data,
                     const CMetricBucketGatherer& gatherer,
@@ -766,7 +766,7 @@ private:
                feature == model_t::E_IndividualHighSumByBucketAndPerson;
     }
 
-    template <typename T, typename U>
+    template<typename T, typename U>
     void featureData(const TSizeSizeTUMapUMap<T>& data,
                      const CMetricBucketGatherer& gatherer,
                      core_t::TTime time,
@@ -820,7 +820,7 @@ private:
     }
 
     //! Individual model specialization
-    template <typename T>
+    template<typename T>
     void featureData(const T& data,
                      const CMetricBucketGatherer& gatherer,
                      std::size_t pid,
@@ -836,7 +836,7 @@ private:
     }
 
     //! Population model specialization
-    template <typename T>
+    template<typename T>
     void featureData(const T& data,
                      const CMetricBucketGatherer& gatherer,
                      std::size_t pid,
@@ -858,7 +858,7 @@ private:
         return data.featureData(time, bucketLength, ZERO_SAMPLE);
     }
 
-    template <typename T>
+    template<typename T>
     inline SMetricFeatureData featureData(const T& data,
                                           core_t::TTime time,
                                           core_t::TTime bucketLength,
@@ -879,7 +879,7 @@ struct SAddValue {
         const TStoredStringPtrVec* s_Influences;
     };
 
-    template <typename T>
+    template<typename T>
     inline void operator()(const TCategorySizePr& category,
                            TSizeSizeTUMapUMap<T>& data,
                            std::size_t pid,
@@ -907,7 +907,7 @@ struct SAddValue {
 //! Updates gatherers with the start of a new bucket.
 struct SStartNewBucket {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     core_t::TTime time) const {
@@ -922,7 +922,7 @@ public:
 //! Resets data stored for buckets containing a specified time.
 struct SResetBucket {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     core_t::TTime bucketStart) const {
@@ -937,7 +937,7 @@ public:
 //! Releases memory that is no longer needed.
 struct SReleaseMemory {
 public:
-    template <typename T>
+    template<typename T>
     void operator()(const TCategorySizePr& /*category*/,
                     TSizeSizeTUMapUMap<T>& data,
                     core_t::TTime samplingCutoffTime) const {
@@ -1536,44 +1536,44 @@ void CMetricBucketGatherer::initializeFieldNamesPart1(const std::string& personF
                                                       const std::string& attributeFieldName,
                                                       const TStrVec& influenceFieldNames) {
     switch (m_DataGatherer.summaryMode()) {
-        case model_t::E_None:
-            m_FieldNames.reserve(2 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
-                                 influenceFieldNames.size());
-            m_FieldNames.push_back(personFieldName);
-            if (m_DataGatherer.isPopulation())
-                m_FieldNames.push_back(attributeFieldName);
-            m_BeginInfluencingFields = m_FieldNames.size();
-            m_FieldNames.insert(m_FieldNames.end(),
-                                influenceFieldNames.begin(),
-                                influenceFieldNames.end());
-            m_BeginValueFields = m_FieldNames.size();
-            break;
-        case model_t::E_Manual:
-            m_FieldNames.reserve(3 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
-                                 influenceFieldNames.size());
-            m_FieldNames.push_back(personFieldName);
-            if (m_DataGatherer.isPopulation())
-                m_FieldNames.push_back(attributeFieldName);
-            m_BeginInfluencingFields = m_FieldNames.size();
-            m_FieldNames.insert(m_FieldNames.end(),
-                                influenceFieldNames.begin(),
-                                influenceFieldNames.end());
-            m_BeginValueFields = m_FieldNames.size();
-            break;
+    case model_t::E_None:
+        m_FieldNames.reserve(2 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
+                             influenceFieldNames.size());
+        m_FieldNames.push_back(personFieldName);
+        if (m_DataGatherer.isPopulation())
+            m_FieldNames.push_back(attributeFieldName);
+        m_BeginInfluencingFields = m_FieldNames.size();
+        m_FieldNames.insert(m_FieldNames.end(),
+                            influenceFieldNames.begin(),
+                            influenceFieldNames.end());
+        m_BeginValueFields = m_FieldNames.size();
+        break;
+    case model_t::E_Manual:
+        m_FieldNames.reserve(3 + static_cast<std::size_t>(m_DataGatherer.isPopulation()) +
+                             influenceFieldNames.size());
+        m_FieldNames.push_back(personFieldName);
+        if (m_DataGatherer.isPopulation())
+            m_FieldNames.push_back(attributeFieldName);
+        m_BeginInfluencingFields = m_FieldNames.size();
+        m_FieldNames.insert(m_FieldNames.end(),
+                            influenceFieldNames.begin(),
+                            influenceFieldNames.end());
+        m_BeginValueFields = m_FieldNames.size();
+        break;
     };
 }
 
 void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string& valueFieldName,
                                                       const std::string& summaryCountFieldName) {
     switch (m_DataGatherer.summaryMode()) {
-        case model_t::E_None:
-            m_FieldNames.push_back(valueFieldName);
-            break;
-        case model_t::E_Manual:
-            m_FieldNames.push_back(summaryCountFieldName);
-            m_FieldNames.push_back(valueFieldName);
-            m_DataGatherer.determineMetricCategory(m_FieldMetricCategories);
-            break;
+    case model_t::E_None:
+        m_FieldNames.push_back(valueFieldName);
+        break;
+    case model_t::E_Manual:
+        m_FieldNames.push_back(summaryCountFieldName);
+        m_FieldNames.push_back(valueFieldName);
+        m_DataGatherer.determineMetricCategory(m_FieldMetricCategories);
+        break;
     };
 }
 
@@ -1584,36 +1584,34 @@ void CMetricBucketGatherer::initializeFeatureData(void) {
         if (model_t::metricCategory(feature, category)) {
             std::size_t dimension = model_t::dimension(feature);
             switch (category) {
-                case model_t::E_Mean:
-                    initializeFeatureDataInstance<model_t::E_Mean>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_Median:
-                    initializeFeatureDataInstance<model_t::E_Median>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_Min:
-                    initializeFeatureDataInstance<model_t::E_Min>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_Max:
-                    initializeFeatureDataInstance<model_t::E_Max>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_Variance:
-                    initializeFeatureDataInstance<model_t::E_Variance>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_Sum:
-                    initializeFeatureDataInstance<model_t::E_Sum>(dimension, m_FeatureData);
-                    break;
-                case model_t::E_MultivariateMean:
-                    initializeFeatureDataInstance<model_t::E_MultivariateMean>(dimension,
-                                                                               m_FeatureData);
-                    break;
-                case model_t::E_MultivariateMin:
-                    initializeFeatureDataInstance<model_t::E_MultivariateMin>(dimension,
-                                                                              m_FeatureData);
-                    break;
-                case model_t::E_MultivariateMax:
-                    initializeFeatureDataInstance<model_t::E_MultivariateMax>(dimension,
-                                                                              m_FeatureData);
-                    break;
+            case model_t::E_Mean:
+                initializeFeatureDataInstance<model_t::E_Mean>(dimension, m_FeatureData);
+                break;
+            case model_t::E_Median:
+                initializeFeatureDataInstance<model_t::E_Median>(dimension, m_FeatureData);
+                break;
+            case model_t::E_Min:
+                initializeFeatureDataInstance<model_t::E_Min>(dimension, m_FeatureData);
+                break;
+            case model_t::E_Max:
+                initializeFeatureDataInstance<model_t::E_Max>(dimension, m_FeatureData);
+                break;
+            case model_t::E_Variance:
+                initializeFeatureDataInstance<model_t::E_Variance>(dimension, m_FeatureData);
+                break;
+            case model_t::E_Sum:
+                initializeFeatureDataInstance<model_t::E_Sum>(dimension, m_FeatureData);
+                break;
+            case model_t::E_MultivariateMean:
+                initializeFeatureDataInstance<model_t::E_MultivariateMean>(dimension,
+                                                                           m_FeatureData);
+                break;
+            case model_t::E_MultivariateMin:
+                initializeFeatureDataInstance<model_t::E_MultivariateMin>(dimension, m_FeatureData);
+                break;
+            case model_t::E_MultivariateMax:
+                initializeFeatureDataInstance<model_t::E_MultivariateMax>(dimension, m_FeatureData);
+                break;
             }
         } else {
             LOG_ERROR("Unexpected feature = " << model_t::print(m_DataGatherer.feature(i)));

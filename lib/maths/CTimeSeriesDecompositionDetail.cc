@@ -87,7 +87,7 @@ double pow2(double x) {
 }
 
 //! Compute the mean of \p mean of \p components.
-template <typename MEAN_FUNCTION>
+template<typename MEAN_FUNCTION>
 double meanOf(MEAN_FUNCTION mean, const TSeasonalComponentVec& components) {
     // We can choose to partition the trend model into windows.
     // In particular, we check for the presence of weekday/end
@@ -194,7 +194,7 @@ void decompose(const CTrendComponent& trend,
 
 //! Propagate a test forwards to account for \p end - \p start
 //! elapsed time in steps or size \p step.
-template <typename T>
+template<typename T>
 void stepwisePropagateForwards(core_t::TTime step,
                                core_t::TTime start,
                                core_t::TTime end,
@@ -455,7 +455,7 @@ CTimeSeriesDecompositionDetail::CHandler::mediator(void) const {
 
 //////// CMediator ////////
 
-template <typename M>
+template<typename M>
 void CTimeSeriesDecompositionDetail::CMediator::forward(const M& message) const {
     for (CHandler& handler : m_Handlers) {
         handler.handle(message);
@@ -566,23 +566,23 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& m
     this->test(message);
 
     switch (m_Machine.state()) {
-        case PT_TEST:
-            for (auto&& window : m_Windows) {
-                if (window) {
-                    window->add(time, value, weight);
-                }
+    case PT_TEST:
+        for (auto&& window : m_Windows) {
+            if (window) {
+                window->add(time, value, weight);
             }
-            break;
-        case PT_NOT_TESTING:
-            break;
-        case PT_INITIAL:
-            this->apply(PT_NEW_VALUE, message);
-            this->handle(message);
-            break;
-        default:
-            LOG_ERROR("Test in a bad state: " << m_Machine.state());
-            this->apply(PT_RESET, message);
-            break;
+        }
+        break;
+    case PT_NOT_TESTING:
+        break;
+    case PT_INITIAL:
+        this->apply(PT_NEW_VALUE, message);
+        this->handle(message);
+        break;
+    default:
+        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        this->apply(PT_RESET, message);
+        break;
     }
 }
 
@@ -599,28 +599,28 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     const CPeriodicityHypothesisTestsConfig& config{message.s_PeriodicityTestConfig};
 
     switch (m_Machine.state()) {
-        case PT_TEST:
-            for (const auto& window : m_Windows) {
-                if (this->shouldTest(window, time)) {
-                    TFloatMeanAccumulatorVec values(window->valuesMinusPrediction(predictor));
-                    core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
-                    core_t::TTime bucketLength{window->bucketLength()};
-                    CPeriodicityHypothesisTestsResult result{
-                        testForPeriods(config, start, bucketLength, values)};
-                    if (result.periodic()) {
-                        this->mediator()->forward(
-                            SDetectedSeasonal{time, lastTime, result, *window, predictor});
-                    }
+    case PT_TEST:
+        for (const auto& window : m_Windows) {
+            if (this->shouldTest(window, time)) {
+                TFloatMeanAccumulatorVec values(window->valuesMinusPrediction(predictor));
+                core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
+                core_t::TTime bucketLength{window->bucketLength()};
+                CPeriodicityHypothesisTestsResult result{
+                    testForPeriods(config, start, bucketLength, values)};
+                if (result.periodic()) {
+                    this->mediator()->forward(
+                        SDetectedSeasonal{time, lastTime, result, *window, predictor});
                 }
             }
-            break;
-        case PT_NOT_TESTING:
-        case PT_INITIAL:
-            break;
-        default:
-            LOG_ERROR("Test in a bad state: " << m_Machine.state());
-            this->apply(PT_RESET, message);
-            break;
+        }
+        break;
+    case PT_NOT_TESTING:
+    case PT_INITIAL:
+        break;
+    default:
+        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        this->apply(PT_RESET, message);
+        break;
     }
 }
 
@@ -684,24 +684,24 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
         };
 
         switch (state) {
-            case PT_TEST:
-                if (std::all_of(m_Windows.begin(),
-                                m_Windows.end(),
-                                [](const TExpandingWindowPtr& window) { return !window; })) {
-                    initialize(time);
-                }
-                break;
-            case PT_INITIAL:
+        case PT_TEST:
+            if (std::all_of(m_Windows.begin(),
+                            m_Windows.end(),
+                            [](const TExpandingWindowPtr& window) { return !window; })) {
                 initialize(time);
-                break;
-            case PT_NOT_TESTING:
-                m_Windows[0].reset();
-                m_Windows[1].reset();
-                break;
-            default:
-                LOG_ERROR("Test in a bad state: " << state);
-                this->apply(PT_RESET, message);
-                break;
+            }
+            break;
+        case PT_INITIAL:
+            initialize(time);
+            break;
+        case PT_NOT_TESTING:
+            m_Windows[0].reset();
+            m_Windows[1].reset();
+            break;
+        default:
+            LOG_ERROR("Test in a bad state: " << state);
+            this->apply(PT_RESET, message);
+            break;
         }
     }
 }
@@ -741,10 +741,10 @@ CExpandingWindow* CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ET
     };
 
     switch (test) {
-        case E_Short:
-            return newWindow(SHORT_BUCKET_LENGTHS);
-        case E_Long:
-            return newWindow(LONG_BUCKET_LENGTHS);
+    case E_Short:
+        return newWindow(SHORT_BUCKET_LENGTHS);
+    case E_Long:
+        return newWindow(LONG_BUCKET_LENGTHS);
     }
     return 0;
 }
@@ -832,31 +832,31 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
     this->test(message);
 
     switch (m_Machine.state()) {
-        case CC_TEST:
-            m_Test->add(time, error, maths_t::countForUpdate(weightStyles, weights));
-            break;
-        case CC_NOT_TESTING:
-            break;
-        case CC_INITIAL:
-            this->apply(CC_NEW_VALUE, message);
-            this->handle(message);
-            break;
-        default:
-            LOG_ERROR("Test in a bad state: " << m_Machine.state());
-            this->apply(CC_RESET, message);
-            break;
+    case CC_TEST:
+        m_Test->add(time, error, maths_t::countForUpdate(weightStyles, weights));
+        break;
+    case CC_NOT_TESTING:
+        break;
+    case CC_INITIAL:
+        this->apply(CC_NEW_VALUE, message);
+        this->handle(message);
+        break;
+    default:
+        LOG_ERROR("Test in a bad state: " << m_Machine.state());
+        this->apply(CC_RESET, message);
+        break;
     }
 }
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SNewComponents& message) {
     if (m_Machine.state() != CC_NOT_TESTING) {
         switch (message.s_Component) {
-            case SNewComponents::E_GeneralSeasonal:
-            case SNewComponents::E_DiurnalSeasonal:
-                this->apply(CC_RESET, message);
-                break;
-            case SNewComponents::E_CalendarCyclic:
-                break;
+        case SNewComponents::E_GeneralSeasonal:
+        case SNewComponents::E_DiurnalSeasonal:
+            this->apply(CC_RESET, message);
+            break;
+        case SNewComponents::E_CalendarCyclic:
+            break;
         }
     }
 }
@@ -867,19 +867,19 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
 
     if (this->shouldTest(time)) {
         switch (m_Machine.state()) {
-            case CC_TEST: {
-                if (CCalendarCyclicTest::TOptionalFeature feature = m_Test->test()) {
-                    this->mediator()->forward(SDetectedCalendar(time, lastTime, *feature));
-                }
-                break;
+        case CC_TEST: {
+            if (CCalendarCyclicTest::TOptionalFeature feature = m_Test->test()) {
+                this->mediator()->forward(SDetectedCalendar(time, lastTime, *feature));
             }
-            case CC_NOT_TESTING:
-            case CC_INITIAL:
-                break;
-            default:
-                LOG_ERROR("Test in a bad state: " << m_Machine.state());
-                this->apply(CC_RESET, message);
-                break;
+            break;
+        }
+        case CC_NOT_TESTING:
+        case CC_INITIAL:
+            break;
+        default:
+            LOG_ERROR("Test in a bad state: " << m_Machine.state());
+            this->apply(CC_RESET, message);
+            break;
         }
     }
 }
@@ -931,21 +931,21 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::apply(std::size_t symbol,
         LOG_TRACE(CC_STATES[old] << "," << CC_ALPHABET[symbol] << " -> " << CC_STATES[state]);
 
         switch (state) {
-            case CC_TEST:
-                if (!m_Test) {
-                    m_Test.reset(new CCalendarCyclicTest(m_DecayRate));
-                    m_LastMonth = this->month(time) + 2;
-                }
-                break;
-            case CC_NOT_TESTING:
-            case CC_INITIAL:
-                m_Test.reset();
-                m_LastMonth = int{};
-                break;
-            default:
-                LOG_ERROR("Test in a bad state: " << state);
-                this->apply(CC_RESET, message);
-                break;
+        case CC_TEST:
+            if (!m_Test) {
+                m_Test.reset(new CCalendarCyclicTest(m_DecayRate));
+                m_LastMonth = this->month(time) + 2;
+            }
+            break;
+        case CC_NOT_TESTING:
+        case CC_INITIAL:
+            m_Test.reset();
+            m_LastMonth = int{};
+            break;
+        default:
+            LOG_ERROR("Test in a bad state: " << state);
+            this->apply(CC_RESET, message);
+            break;
         }
     }
 }
@@ -1118,90 +1118,87 @@ void CTimeSeriesDecompositionDetail::CComponents::swap(CComponents& other) {
 
 void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& message) {
     switch (m_Machine.state()) {
-        case SC_NORMAL:
-        case SC_NEW_COMPONENTS: {
-            this->interpolate(message);
+    case SC_NORMAL:
+    case SC_NEW_COMPONENTS: {
+        this->interpolate(message);
 
-            core_t::TTime time{message.s_Time};
-            double value{message.s_Value};
-            double trend{message.s_Trend};
-            double seasonal{message.s_Seasonal};
-            double calendar{message.s_Calendar};
-            const maths_t::TWeightStyleVec& weightStyles{message.s_WeightStyles};
-            const maths_t::TDouble4Vec& weights{message.s_Weights};
+        core_t::TTime time{message.s_Time};
+        double value{message.s_Value};
+        double trend{message.s_Trend};
+        double seasonal{message.s_Seasonal};
+        double calendar{message.s_Calendar};
+        const maths_t::TWeightStyleVec& weightStyles{message.s_WeightStyles};
+        const maths_t::TDouble4Vec& weights{message.s_Weights};
 
-            TSeasonalComponentPtrVec seasonalComponents;
-            TCalendarComponentPtrVec calendarComponents;
-            TComponentErrorsPtrVec seasonalErrors;
-            TComponentErrorsPtrVec calendarErrors;
-            TDoubleVec deltas;
+        TSeasonalComponentPtrVec seasonalComponents;
+        TCalendarComponentPtrVec calendarComponents;
+        TComponentErrorsPtrVec seasonalErrors;
+        TComponentErrorsPtrVec calendarErrors;
+        TDoubleVec deltas;
 
-            if (m_Seasonal) {
-                m_Seasonal->componentsErrorsAndDeltas(time,
-                                                      seasonalComponents,
-                                                      seasonalErrors,
-                                                      deltas);
-            }
-            if (m_Calendar) {
-                m_Calendar->componentsAndErrors(time, calendarComponents, calendarErrors);
-            }
+        if (m_Seasonal) {
+            m_Seasonal->componentsErrorsAndDeltas(time, seasonalComponents, seasonalErrors, deltas);
+        }
+        if (m_Calendar) {
+            m_Calendar->componentsAndErrors(time, calendarComponents, calendarErrors);
+        }
 
-            double weight{maths_t::countForUpdate(weightStyles, weights)};
-            std::size_t m{seasonalComponents.size()};
-            std::size_t n{calendarComponents.size()};
+        double weight{maths_t::countForUpdate(weightStyles, weights)};
+        std::size_t m{seasonalComponents.size()};
+        std::size_t n{calendarComponents.size()};
 
-            TDoubleVec values(m + n + 1, value);
-            TDoubleVec predictions(m + n);
-            double error;
-            double scale;
-            decompose(m_Trend,
-                      seasonalComponents,
-                      calendarComponents,
-                      time,
-                      deltas,
-                      values,
-                      predictions,
-                      error,
-                      scale);
+        TDoubleVec values(m + n + 1, value);
+        TDoubleVec predictions(m + n);
+        double error;
+        double scale;
+        decompose(m_Trend,
+                  seasonalComponents,
+                  calendarComponents,
+                  time,
+                  deltas,
+                  values,
+                  predictions,
+                  error,
+                  scale);
 
-            core_t::TTime observedInterval{m_Trend.observedInterval()};
+        core_t::TTime observedInterval{m_Trend.observedInterval()};
 
-            m_Trend.add(time, values[0], weight);
-            for (std::size_t i = 1u; i <= m; ++i) {
-                CSeasonalComponent* component{seasonalComponents[i - 1]};
-                CComponentErrors* error_{seasonalErrors[i - 1]};
-                double wi{weight / component->time().fractionInWindow()};
-                component->add(time, values[i], wi);
-                error_->add(error, predictions[i - 1], wi);
-            }
-            for (std::size_t i = m + 1; i <= m + n; ++i) {
-                CCalendarComponent* component{calendarComponents[i - m - 1]};
-                CComponentErrors* error_{calendarErrors[i - m - 1]};
-                component->add(time, values[i], weight);
-                error_->add(error, predictions[i - 1], weight);
-            }
+        m_Trend.add(time, values[0], weight);
+        for (std::size_t i = 1u; i <= m; ++i) {
+            CSeasonalComponent* component{seasonalComponents[i - 1]};
+            CComponentErrors* error_{seasonalErrors[i - 1]};
+            double wi{weight / component->time().fractionInWindow()};
+            component->add(time, values[i], wi);
+            error_->add(error, predictions[i - 1], wi);
+        }
+        for (std::size_t i = m + 1; i <= m + n; ++i) {
+            CCalendarComponent* component{calendarComponents[i - m - 1]};
+            CComponentErrors* error_{calendarErrors[i - m - 1]};
+            component->add(time, values[i], weight);
+            error_->add(error, predictions[i - 1], weight);
+        }
 
-            m_MeanVarianceScale.add(scale, weight);
-            m_Moments.add(value - seasonal - calendar, weight);
-            m_MomentsMinusTrend.add(value - trend - seasonal - calendar, weight);
+        m_MeanVarianceScale.add(scale, weight);
+        m_Moments.add(value - seasonal - calendar, weight);
+        m_MomentsMinusTrend.add(value - trend - seasonal - calendar, weight);
 
-            if (!m_UsingTrendForPrediction && observedInterval > 6 * m_BucketLength) {
-                double v0{CBasicStatistics::variance(m_Moments)};
-                double v1{CBasicStatistics::variance(m_MomentsMinusTrend)};
-                double df0{CBasicStatistics::count(m_Moments) - 1.0};
-                double df1{CBasicStatistics::count(m_MomentsMinusTrend) - m_Trend.parameters()};
-                m_UsingTrendForPrediction =
-                    v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0 && df0 > 0.0 && df1 > 0.0 &&
-                    CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE;
-                *m_Watcher = m_UsingTrendForPrediction;
-            }
-        } break;
-        case SC_DISABLED:
-            break;
-        default:
-            LOG_ERROR("Components in a bad state: " << m_Machine.state());
-            this->apply(SC_RESET, message);
-            break;
+        if (!m_UsingTrendForPrediction && observedInterval > 6 * m_BucketLength) {
+            double v0{CBasicStatistics::variance(m_Moments)};
+            double v1{CBasicStatistics::variance(m_MomentsMinusTrend)};
+            double df0{CBasicStatistics::count(m_Moments) - 1.0};
+            double df1{CBasicStatistics::count(m_MomentsMinusTrend) - m_Trend.parameters()};
+            m_UsingTrendForPrediction =
+                v1 < SIGNIFICANT_VARIANCE_REDUCTION[0] * v0 && df0 > 0.0 && df1 > 0.0 &&
+                CStatisticalTests::leftTailFTest(v1 / v0, df1, df0) <= MAXIMUM_SIGNIFICANCE;
+            *m_Watcher = m_UsingTrendForPrediction;
+        }
+    } break;
+    case SC_DISABLED:
+        break;
+    default:
+        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        this->apply(SC_RESET, message);
+        break;
     }
 }
 
@@ -1211,47 +1208,42 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
     }
 
     switch (m_Machine.state()) {
-        case SC_NORMAL:
-        case SC_NEW_COMPONENTS: {
-            if (!m_Seasonal) {
-                m_Seasonal.reset(new SSeasonal);
-            }
+    case SC_NORMAL:
+    case SC_NEW_COMPONENTS: {
+        if (!m_Seasonal) {
+            m_Seasonal.reset(new SSeasonal);
+        }
 
-            core_t::TTime time{message.s_Time};
-            core_t::TTime lastTime{message.s_LastTime};
-            const CPeriodicityHypothesisTestsResult& result{message.s_Result};
-            const CExpandingWindow& window{message.s_Window};
-            const TPredictor& predictor{message.s_Predictor};
+        core_t::TTime time{message.s_Time};
+        core_t::TTime lastTime{message.s_LastTime};
+        const CPeriodicityHypothesisTestsResult& result{message.s_Result};
+        const CExpandingWindow& window{message.s_Window};
+        const TPredictor& predictor{message.s_Predictor};
 
-            TSeasonalComponentVec& components{m_Seasonal->s_Components};
-            TComponentErrorsVec& errors{m_Seasonal->s_PredictionErrors};
+        TSeasonalComponentVec& components{m_Seasonal->s_Components};
+        TComponentErrorsVec& errors{m_Seasonal->s_PredictionErrors};
 
-            if (!this->addSeasonalComponents(result,
-                                             window,
-                                             predictor,
-                                             m_Trend,
-                                             components,
-                                             errors)) {
-                break;
-            }
-            if (m_Watcher) {
-                *m_Watcher = true;
-            }
-            LOG_DEBUG("Detected seasonal components at " << time);
-
-            m_UsingTrendForPrediction = true;
-            this->clearComponentErrors();
-            this->apply(SC_ADDED_COMPONENTS, message);
-            this->mediator()->forward(
-                SNewComponents(time, lastTime, SNewComponents::E_GeneralSeasonal));
+        if (!this->addSeasonalComponents(result, window, predictor, m_Trend, components, errors)) {
             break;
         }
-        case SC_DISABLED:
-            break;
-        default:
-            LOG_ERROR("Components in a bad state: " << m_Machine.state());
-            this->apply(SC_RESET, message);
-            break;
+        if (m_Watcher) {
+            *m_Watcher = true;
+        }
+        LOG_DEBUG("Detected seasonal components at " << time);
+
+        m_UsingTrendForPrediction = true;
+        this->clearComponentErrors();
+        this->apply(SC_ADDED_COMPONENTS, message);
+        this->mediator()->forward(
+            SNewComponents(time, lastTime, SNewComponents::E_GeneralSeasonal));
+        break;
+    }
+    case SC_DISABLED:
+        break;
+    default:
+        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        this->apply(SC_RESET, message);
+        break;
     }
 }
 
@@ -1261,35 +1253,34 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     }
 
     switch (m_Machine.state()) {
-        case SC_NORMAL:
-        case SC_NEW_COMPONENTS: {
-            if (!m_Calendar) {
-                m_Calendar.reset(new SCalendar);
-            }
+    case SC_NORMAL:
+    case SC_NEW_COMPONENTS: {
+        if (!m_Calendar) {
+            m_Calendar.reset(new SCalendar);
+        }
 
-            core_t::TTime time{message.s_Time};
-            core_t::TTime lastTime{message.s_LastTime};
-            CCalendarFeature feature{message.s_Feature};
+        core_t::TTime time{message.s_Time};
+        core_t::TTime lastTime{message.s_LastTime};
+        CCalendarFeature feature{message.s_Feature};
 
-            if (m_Calendar->haveComponent(feature)) {
-                break;
-            }
-
-            TCalendarComponentVec& components{m_Calendar->s_Components};
-            TComponentErrorsVec& errors{m_Calendar->s_PredictionErrors};
-
-            this->addCalendarComponent(feature, time, components, errors);
-            this->apply(SC_ADDED_COMPONENTS, message);
-            this->mediator()->forward(
-                SNewComponents(time, lastTime, SNewComponents::E_CalendarCyclic));
+        if (m_Calendar->haveComponent(feature)) {
             break;
         }
-        case SC_DISABLED:
-            break;
-        default:
-            LOG_ERROR("Components in a bad state: " << m_Machine.state());
-            this->apply(SC_RESET, message);
-            break;
+
+        TCalendarComponentVec& components{m_Calendar->s_Components};
+        TComponentErrorsVec& errors{m_Calendar->s_PredictionErrors};
+
+        this->addCalendarComponent(feature, time, components, errors);
+        this->apply(SC_ADDED_COMPONENTS, message);
+        this->mediator()->forward(SNewComponents(time, lastTime, SNewComponents::E_CalendarCyclic));
+        break;
+    }
+    case SC_DISABLED:
+        break;
+    default:
+        LOG_ERROR("Components in a bad state: " << m_Machine.state());
+        this->apply(SC_RESET, message);
+        break;
     }
 }
 
@@ -1301,28 +1292,28 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
     std::size_t state{m_Machine.state()};
 
     switch (state) {
-        case SC_NORMAL:
-        case SC_NEW_COMPONENTS:
-            this->canonicalize(time);
-            if (this->shouldInterpolate(time, lastTime)) {
-                LOG_TRACE("Interpolating values at " << time);
+    case SC_NORMAL:
+    case SC_NEW_COMPONENTS:
+        this->canonicalize(time);
+        if (this->shouldInterpolate(time, lastTime)) {
+            LOG_TRACE("Interpolating values at " << time);
 
-                if (m_Seasonal) {
-                    m_Seasonal->interpolate(time, lastTime, refine);
-                }
-                if (m_Calendar) {
-                    m_Calendar->interpolate(time, lastTime, refine);
-                }
-
-                this->apply(SC_INTERPOLATED, message);
+            if (m_Seasonal) {
+                m_Seasonal->interpolate(time, lastTime, refine);
             }
-            break;
-        case SC_DISABLED:
-            break;
-        default:
-            LOG_ERROR("Components in a bad state: " << state);
-            this->apply(SC_RESET, message);
-            break;
+            if (m_Calendar) {
+                m_Calendar->interpolate(time, lastTime, refine);
+            }
+
+            this->apply(SC_INTERPOLATED, message);
+        }
+        break;
+    case SC_DISABLED:
+        break;
+    default:
+        LOG_ERROR("Components in a bad state: " << state);
+        this->apply(SC_RESET, message);
+        break;
     }
 }
 
@@ -1578,19 +1569,19 @@ void CTimeSeriesDecompositionDetail::CComponents::apply(std::size_t symbol,
         LOG_TRACE(SC_STATES[old] << "," << SC_ALPHABET[symbol] << " -> " << SC_STATES[state]);
 
         switch (state) {
-            case SC_NORMAL:
-            case SC_NEW_COMPONENTS:
-                this->interpolate(message);
-                break;
-            case SC_DISABLED:
-                m_Trend.clear();
-                m_Seasonal.reset();
-                m_Calendar.reset();
-                break;
-            default:
-                LOG_ERROR("Components in a bad state: " << m_Machine.state());
-                this->apply(SC_RESET, message);
-                break;
+        case SC_NORMAL:
+        case SC_NEW_COMPONENTS:
+            this->interpolate(message);
+            break;
+        case SC_DISABLED:
+            m_Trend.clear();
+            m_Seasonal.reset();
+            m_Calendar.reset();
+            break;
+        default:
+            LOG_ERROR("Components in a bad state: " << m_Machine.state());
+            this->apply(SC_RESET, message);
+            break;
         }
     }
 }

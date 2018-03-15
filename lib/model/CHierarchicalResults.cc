@@ -170,7 +170,7 @@ SNode* address(SNode& value) {
 }
 
 //! Aggregate the nodes in a layer.
-template <typename LESS, typename ITR, typename FACTORY>
+template<typename LESS, typename ITR, typename FACTORY>
 void aggregateLayer(ITR beginLayer,
                     ITR endLayer,
                     CHierarchicalResults& results,

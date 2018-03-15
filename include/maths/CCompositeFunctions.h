@@ -31,17 +31,17 @@ namespace maths {
 namespace composition_detail {
 
 //! Type used to deduce the result type for a function.
-template <typename T>
+template<typename T>
 struct function_result_type {};
 
 //! Vanilla function type 1: "result type" is the return type.
-template <typename R, typename A1>
+template<typename R, typename A1>
 struct function_result_type<R (*)(A1)> {
     typedef typename boost::remove_reference<R>::type type;
 };
 
 //! Vanilla function type 2: "result type" is the second argument type.
-template <typename R, typename A1, typename A2>
+template<typename R, typename A1, typename A2>
 struct function_result_type<R (*)(A1, A2)> {
     typedef typename boost::remove_reference<A2>::type type;
 };
@@ -51,45 +51,45 @@ typedef boost::false_type false_;
 
 //! \brief Auxiliary type used by has_result_type to test for
 //! a nested typedef.
-template <typename T, typename R = void>
+template<typename T, typename R = void>
 struct enable_if_type {
     typedef R type;
 };
 
 //! Checks for a nested typedef called result_type.
-template <typename T, typename ENABLE = void>
+template<typename T, typename ENABLE = void>
 struct has_result_type {
     typedef false_ value;
 };
 
 //! Has a nested typedef called result_type.
-template <typename T>
+template<typename T>
 struct has_result_type<T, typename enable_if_type<typename T::result_type>::type> {
     typedef true_ value;
 };
 
 //! Extracts the result type of a function (object) for composition.
-template <typename F, typename SELECTOR>
+template<typename F, typename SELECTOR>
 struct result_type_impl {};
 
 //! \brief Read the typedef from the function.
 //!
 //! This is needed to get result type for function objects: they must
 //! define a nested typedef called result_type as per our compositions.
-template <typename F>
+template<typename F>
 struct result_type_impl<F, true_> {
     typedef typename F::result_type type;
 };
 
 //! Deduce result type from function (object).
-template <typename F>
+template<typename F>
 struct result_type_impl<F, false_> {
     typedef typename function_result_type<F>::type type;
 };
 
 //! \brief Tries to deduce the result type of a function (object)
 //! in various ways.
-template <typename F>
+template<typename F>
 struct result_type
     : public result_type_impl<
           typename boost::remove_reference<F>::type,
@@ -123,7 +123,7 @@ struct result_type
 class MATHS_EXPORT CCompositeFunctions {
 public:
     //! Function composition with minus a constant.
-    template <typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CMinusConstant {
     public:
         typedef typename boost::remove_reference<F_>::type F;
@@ -150,7 +150,7 @@ public:
     };
 
     //! Function composition with negation.
-    template <typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CMinus {
     public:
         typedef typename boost::remove_reference<F_>::type F;
@@ -176,7 +176,7 @@ public:
     };
 
     //! Composition with exponentiation.
-    template <typename F_, typename T = typename composition_detail::result_type<F_>::type>
+    template<typename F_, typename T = typename composition_detail::result_type<F_>::type>
     class CExp {
     public:
         typedef typename boost::remove_reference<F_>::type F;
@@ -207,10 +207,10 @@ public:
     };
 
     //! Composition of two functions by multiplication.
-    template <typename F_,
-              typename G_,
-              typename U = typename composition_detail::result_type<F_>::type,
-              typename V = typename composition_detail::result_type<G_>::type>
+    template<typename F_,
+             typename G_,
+             typename U = typename composition_detail::result_type<F_>::type,
+             typename V = typename composition_detail::result_type<G_>::type>
     class CProduct {
     public:
         typedef typename boost::remove_reference<F_>::type F;

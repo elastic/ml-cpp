@@ -47,7 +47,7 @@ public:
     virtual void insertValue(const std::string& name, const std::string& value) = 0;
 
     //! Store an arbitrary type that can be converted to a string
-    template <typename TYPE>
+    template<typename TYPE>
     void insertValue(const std::string& name, const TYPE& value) {
         this->insertValue(name, CStringUtils::typeToString(value));
     }
@@ -57,7 +57,7 @@ public:
 
     //! Store a nested level of state, to be populated by the supplied
     //! function or function object
-    template <typename FUNC>
+    template<typename FUNC>
     void insertLevel(const std::string& name, FUNC f) {
         CAutoLevel level(name, *this);
         f(*this);

@@ -32,7 +32,7 @@ namespace {
 using TSizeVec = std::vector<std::size_t>;
 
 //! Get the sequence [0, N).
-template <std::size_t N>
+template<std::size_t N>
 const TSizeVec& sequence() {
     static const TSizeVec result(boost::counting_iterator<std::size_t>(0),
                                  boost::counting_iterator<std::size_t>(N));
@@ -44,27 +44,27 @@ const TSizeVec& sequence() {
 
 const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
     switch (dimension) {
-        case 1:
-            return sequence<1>();
-        case 2:
-            return sequence<2>();
-        case 3:
-            return sequence<3>();
-        case 4:
-            return sequence<4>();
-        case 5:
-            return sequence<5>();
-        case 6:
-            return sequence<6>();
-        case 7:
-            return sequence<7>();
-        case 8:
-            return sequence<8>();
-        case 9:
-            return sequence<9>();
-        default:
-            LOG_ERROR("Unsupported dimension " << dimension);
-            break;
+    case 1:
+        return sequence<1>();
+    case 2:
+        return sequence<2>();
+    case 3:
+        return sequence<3>();
+    case 4:
+        return sequence<4>();
+    case 5:
+        return sequence<5>();
+    case 6:
+        return sequence<6>();
+    case 7:
+        return sequence<7>();
+    case 8:
+        return sequence<8>();
+    case 9:
+        return sequence<9>();
+    default:
+        LOG_ERROR("Unsupported dimension " << dimension);
+        break;
     }
     static const TSizeVec EMPTY;
     return EMPTY;

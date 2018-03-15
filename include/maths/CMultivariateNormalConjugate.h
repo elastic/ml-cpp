@@ -81,7 +81,7 @@ namespace maths {
 //! is used by composite priors. This allows us to select the most appropriate model
 //! for the data when using one-of-n composition (see CMultivariateOneOfNPrior).
 //! From a design point of view this is the composite pattern.
-template <std::size_t N>
+template<std::size_t N>
 class CMultivariateNormalConjugate : public CMultivariatePrior {
 public:
     //! See core::CMemory.
@@ -1193,29 +1193,29 @@ private:
     TMatrix m_WishartScaleMatrix;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::NUMBER_SAMPLES_TAG("a");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::GAUSSIAN_MEAN_TAG("b");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::GAUSSIAN_PRECISION_TAG("c");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::WISHART_DEGREES_FREEDOM_TAG("d");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::WISHART_SCALE_MATRIX_TAG("e");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateNormalConjugate<N>::DECAY_RATE_TAG("f");
-template <std::size_t N>
+template<std::size_t N>
 const typename CMultivariateNormalConjugate<N>::TPoint
     CMultivariateNormalConjugate<N>::NON_INFORMATIVE_MEAN = TPoint(0);
-template <std::size_t N>
+template<std::size_t N>
 const double CMultivariateNormalConjugate<N>::NON_INFORMATIVE_PRECISION(0.0);
-template <std::size_t N>
+template<std::size_t N>
 const double CMultivariateNormalConjugate<N>::NON_INFORMATIVE_DEGREES_FREEDOM(0.0);
-template <std::size_t N>
+template<std::size_t N>
 const typename CMultivariateNormalConjugate<N>::TMatrix
     CMultivariateNormalConjugate<N>::NON_INFORMATIVE_SCALE = TMatrix(0);
-template <std::size_t N>
+template<std::size_t N>
 const double CMultivariateNormalConjugate<N>::MINIMUM_GAUSSIAN_DEGREES_FREEDOM(100.0);
 }
 }

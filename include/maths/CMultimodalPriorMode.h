@@ -37,7 +37,7 @@ namespace maths {
 //!
 //! DESCRIPTION:\n
 //! See, for example, CMultimodalPrior for usage.
-template <typename PRIOR_PTR>
+template<typename PRIOR_PTR>
 struct SMultimodalPriorMode {
     static const std::string INDEX_TAG;
     static const std::string PRIOR_TAG;
@@ -88,7 +88,7 @@ struct SMultimodalPriorMode {
     }
 
     //! Full debug dump of the mode weights.
-    template <typename T>
+    template<typename T>
     static std::string debugWeights(const std::vector<SMultimodalPriorMode<T>>& modes) {
         if (modes.empty()) {
             return std::string();
@@ -105,9 +105,9 @@ struct SMultimodalPriorMode {
     PRIOR_PTR s_Prior;
 };
 
-template <typename PRIOR>
+template<typename PRIOR>
 const std::string SMultimodalPriorMode<PRIOR>::INDEX_TAG("a");
-template <typename PRIOR>
+template<typename PRIOR>
 const std::string SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b");
 }
 }

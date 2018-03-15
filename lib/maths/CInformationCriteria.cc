@@ -26,7 +26,7 @@ namespace {
 
 //! The implementation of log determinant used for the Gaussian
 //! information criterion.
-template <typename MATRIX>
+template<typename MATRIX>
 double logDeterminant_(const MATRIX& covariance, double upper) {
     Eigen::JacobiSVD<MATRIX> svd(covariance);
     double result = 0.0;

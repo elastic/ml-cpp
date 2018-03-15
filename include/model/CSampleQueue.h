@@ -58,7 +58,7 @@ namespace model {
 //!
 //! The template STATISTIC has to comply with the requirements of
 //! the CMetricPartialStatistic template.
-template <typename STATISTIC>
+template<typename STATISTIC>
 class CSampleQueue {
 private:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
@@ -503,13 +503,13 @@ private:
     core_t::TTime m_Latency;
 };
 
-template <typename STATISTIC>
+template<typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SSubSample::SAMPLE_START_TAG("a");
-template <typename STATISTIC>
+template<typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SSubSample::SAMPLE_END_TAG("b");
-template <typename STATISTIC>
+template<typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SSubSample::SAMPLE_TAG("c");
-template <typename STATISTIC>
+template<typename STATISTIC>
 const std::string CSampleQueue<STATISTIC>::SUB_SAMPLE_TAG("a");
 }
 }

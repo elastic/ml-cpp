@@ -124,7 +124,7 @@ void CLineifiedXmlInputParserTest::testThroughputCommonRapid(void) {
     this->runTest<ml::core::CRapidXmlParser>(true);
 }
 
-template <typename PARSER>
+template<typename PARSER>
 void CLineifiedXmlInputParserTest::runTest(bool allDocsSameStructure) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical

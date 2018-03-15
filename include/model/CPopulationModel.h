@@ -116,13 +116,13 @@ protected:
     //! \p pid in the vector \p data. This relies on the fact that \p data
     //! is sort lexicographically by person then attribute identifier.
     //! This will return an empty range if the person is not present.
-    template <typename T>
+    template<typename T>
     static TSizeSizePr personRange(const T& data, std::size_t pid);
 
     //! Find the person attribute pair identified by \p pid and \p cid,
     //! respectively, in \p data if it exists. Returns the end of the
     //! vector if it doesn't.
-    template <typename T>
+    template<typename T>
     static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
@@ -259,7 +259,7 @@ protected:
 
     //! Remove heavy hitting people and attributes from the feature
     //! data if necessary.
-    template <typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
+    template<typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
     void applyFilters(bool updateStatistics,
                       const PERSON_FILTER& personFilter,
                       const ATTRIBUTE_FILTER& attributeFilter,

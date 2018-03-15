@@ -35,7 +35,7 @@ namespace {
 
 typedef std::vector<double> TDoubleVec;
 
-template <typename T>
+template<typename T>
 std::string precisePrint(T x) {
     std::ostringstream o;
     o << std::setprecision(18) << x;

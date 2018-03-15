@@ -28,7 +28,7 @@ double TOLERANCE = 1.0;
 double RATIO = 1.1 + 0.05;
 }
 
-template <typename T>
+template<typename T>
 void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();

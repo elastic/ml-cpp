@@ -237,38 +237,38 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
                                                          model_t::EAggregationParam param,
                                                          double value) {
     switch (param) {
-        case model_t::E_JointProbabilityWeight:
-            if (value < 0.0 || value > 1.0) {
-                LOG_ERROR("joint probability weight " << value << " out of in range [0,1]");
-                return false;
-            }
-            m_AggregationStyleParams[style][model_t::E_JointProbabilityWeight] = value;
-            break;
-        case model_t::E_ExtremeProbabilityWeight:
-            if (value < 0.0 || value > 1.0) {
-                LOG_ERROR("extreme probability weight " << value << " out of in range [0,1]");
-                return false;
-            }
-            m_AggregationStyleParams[style][model_t::E_ExtremeProbabilityWeight] = value;
-            break;
-        case model_t::E_MinExtremeSamples:
-            if (value < 1.0 || value > 10.0) {
-                LOG_ERROR("min extreme samples " << value << " out of in range [0,10]");
-                return false;
-            }
-            m_AggregationStyleParams[style][model_t::E_MinExtremeSamples] = value;
-            m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples] =
-                std::max(value, m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples]);
-            break;
-        case model_t::E_MaxExtremeSamples:
-            if (value < 1.0 || value > 10.0) {
-                LOG_ERROR("max extreme samples " << value << " out of in range [0,10]");
-                return false;
-            }
-            m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples] = value;
-            m_AggregationStyleParams[style][model_t::E_MinExtremeSamples] =
-                std::min(value, m_AggregationStyleParams[style][model_t::E_MinExtremeSamples]);
-            break;
+    case model_t::E_JointProbabilityWeight:
+        if (value < 0.0 || value > 1.0) {
+            LOG_ERROR("joint probability weight " << value << " out of in range [0,1]");
+            return false;
+        }
+        m_AggregationStyleParams[style][model_t::E_JointProbabilityWeight] = value;
+        break;
+    case model_t::E_ExtremeProbabilityWeight:
+        if (value < 0.0 || value > 1.0) {
+            LOG_ERROR("extreme probability weight " << value << " out of in range [0,1]");
+            return false;
+        }
+        m_AggregationStyleParams[style][model_t::E_ExtremeProbabilityWeight] = value;
+        break;
+    case model_t::E_MinExtremeSamples:
+        if (value < 1.0 || value > 10.0) {
+            LOG_ERROR("min extreme samples " << value << " out of in range [0,10]");
+            return false;
+        }
+        m_AggregationStyleParams[style][model_t::E_MinExtremeSamples] = value;
+        m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples] =
+            std::max(value, m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples]);
+        break;
+    case model_t::E_MaxExtremeSamples:
+        if (value < 1.0 || value > 10.0) {
+            LOG_ERROR("max extreme samples " << value << " out of in range [0,10]");
+            return false;
+        }
+        m_AggregationStyleParams[style][model_t::E_MaxExtremeSamples] = value;
+        m_AggregationStyleParams[style][model_t::E_MinExtremeSamples] =
+            std::min(value, m_AggregationStyleParams[style][model_t::E_MinExtremeSamples]);
+        break;
     }
     return true;
 }
@@ -516,126 +516,125 @@ CAnomalyDetectorModelConfig::TModelFactoryCPtr CAnomalyDetectorModelConfig::fact
     EFactoryType factory = E_UnknownFactory;
     for (std::size_t i = 0u; i < features.size(); ++i) {
         switch (factory) {
-            case E_EventRateFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                        break;
-                    case model_t::E_Metric:
-                        factory = E_MetricFactory;
-                        break;
-                    case model_t::E_PopulationEventRate:
-                    case model_t::E_PopulationMetric:
-                    case model_t::E_PeersEventRate:
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_EventRateFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
                 break;
+            case model_t::E_Metric:
+                factory = E_MetricFactory;
+                break;
+            case model_t::E_PopulationEventRate:
+            case model_t::E_PopulationMetric:
+            case model_t::E_PeersEventRate:
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_MetricFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                    case model_t::E_Metric:
-                        break;
-                    case model_t::E_PopulationEventRate:
-                    case model_t::E_PopulationMetric:
-                    case model_t::E_PeersEventRate:
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_MetricFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+            case model_t::E_Metric:
                 break;
+            case model_t::E_PopulationEventRate:
+            case model_t::E_PopulationMetric:
+            case model_t::E_PeersEventRate:
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_EventRatePopulationFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                    case model_t::E_Metric:
-                        factory = E_BadFactory;
-                        break;
-                    case model_t::E_PopulationEventRate:
-                        break;
-                    case model_t::E_PopulationMetric:
-                    case model_t::E_PeersEventRate:
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_EventRatePopulationFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+            case model_t::E_Metric:
+                factory = E_BadFactory;
                 break;
+            case model_t::E_PopulationEventRate:
+                break;
+            case model_t::E_PopulationMetric:
+            case model_t::E_PeersEventRate:
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_MetricPopulationFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                    case model_t::E_Metric:
-                    case model_t::E_PopulationEventRate:
-                        factory = E_BadFactory;
-                        break;
-                    case model_t::E_PopulationMetric:
-                        factory = E_MetricPopulationFactory;
-                        break;
-                    case model_t::E_PeersEventRate:
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_MetricPopulationFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+            case model_t::E_Metric:
+            case model_t::E_PopulationEventRate:
+                factory = E_BadFactory;
                 break;
+            case model_t::E_PopulationMetric:
+                factory = E_MetricPopulationFactory;
+                break;
+            case model_t::E_PeersEventRate:
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_EventRatePeersFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                    case model_t::E_Metric:
-                    case model_t::E_PopulationEventRate:
-                    case model_t::E_PopulationMetric:
-                        factory = E_BadFactory;
-                        break;
-                    case model_t::E_PeersEventRate:
-                        break;
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_EventRatePeersFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+            case model_t::E_Metric:
+            case model_t::E_PopulationEventRate:
+            case model_t::E_PopulationMetric:
+                factory = E_BadFactory;
                 break;
+            case model_t::E_PeersEventRate:
+                break;
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_CountingFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                    case model_t::E_Metric:
-                    case model_t::E_PopulationEventRate:
-                    case model_t::E_PopulationMetric:
-                    case model_t::E_PeersEventRate:
-                    case model_t::E_PeersMetric:
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_CountingFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+            case model_t::E_Metric:
+            case model_t::E_PopulationEventRate:
+            case model_t::E_PopulationMetric:
+            case model_t::E_PeersEventRate:
+            case model_t::E_PeersMetric:
+                factory = E_BadFactory;
                 break;
+            }
+            break;
 
-            case E_UnknownFactory:
-                switch (model_t::analysisCategory(features[i])) {
-                    case model_t::E_EventRate:
-                        factory = CSearchKey::isSimpleCount(function, byFieldName)
-                                      ? E_CountingFactory
-                                      : E_EventRateFactory;
-                        break;
-                    case model_t::E_Metric:
-                        factory = E_MetricFactory;
-                        break;
-                    case model_t::E_PopulationEventRate:
-                        factory = E_EventRatePopulationFactory;
-                        break;
-                    case model_t::E_PopulationMetric:
-                        factory = E_MetricPopulationFactory;
-                        break;
-                    case model_t::E_PeersEventRate:
-                        factory = E_EventRatePeersFactory;
-                        break;
-                    case model_t::E_PeersMetric:
-                        // TODO
-                        factory = E_BadFactory;
-                        break;
-                }
+        case E_UnknownFactory:
+            switch (model_t::analysisCategory(features[i])) {
+            case model_t::E_EventRate:
+                factory = CSearchKey::isSimpleCount(function, byFieldName) ? E_CountingFactory
+                                                                           : E_EventRateFactory;
                 break;
+            case model_t::E_Metric:
+                factory = E_MetricFactory;
+                break;
+            case model_t::E_PopulationEventRate:
+                factory = E_EventRatePopulationFactory;
+                break;
+            case model_t::E_PopulationMetric:
+                factory = E_MetricPopulationFactory;
+                break;
+            case model_t::E_PeersEventRate:
+                factory = E_EventRatePeersFactory;
+                break;
+            case model_t::E_PeersMetric:
+                // TODO
+                factory = E_BadFactory;
+                break;
+            }
+            break;
 
-            case E_BadFactory:
-                break;
+        case E_BadFactory:
+            break;
         }
     }
 

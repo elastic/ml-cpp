@@ -25,7 +25,7 @@ namespace maths {
 
 namespace {
 
-template <std::size_t N>
+template<std::size_t N>
 class CFactory {
 public:
     static CMultivariateMultimodalPrior<N>* make(const SDistributionRestoreParams& params,
@@ -54,21 +54,21 @@ public:
 
 #define CREATE_PRIOR(N)                                                                            \
     switch (N) {                                                                                   \
-        case 2:                                                                                    \
-            ptr.reset(CFactory<2>::make(FACTORY_ARGS));                                            \
-            break;                                                                                 \
-        case 3:                                                                                    \
-            ptr.reset(CFactory<3>::make(FACTORY_ARGS));                                            \
-            break;                                                                                 \
-        case 4:                                                                                    \
-            ptr.reset(CFactory<4>::make(FACTORY_ARGS));                                            \
-            break;                                                                                 \
-        case 5:                                                                                    \
-            ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                            \
-            break;                                                                                 \
-        default:                                                                                   \
-            LOG_ERROR("Unsupported dimension " << N);                                              \
-            break;                                                                                 \
+    case 2:                                                                                        \
+        ptr.reset(CFactory<2>::make(FACTORY_ARGS));                                                \
+        break;                                                                                     \
+    case 3:                                                                                        \
+        ptr.reset(CFactory<3>::make(FACTORY_ARGS));                                                \
+        break;                                                                                     \
+    case 4:                                                                                        \
+        ptr.reset(CFactory<4>::make(FACTORY_ARGS));                                                \
+        break;                                                                                     \
+    case 5:                                                                                        \
+        ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                                \
+        break;                                                                                     \
+    default:                                                                                       \
+        LOG_ERROR("Unsupported dimension " << N);                                                  \
+        break;                                                                                     \
     }
 
 CMultivariateMultimodalPriorFactory::TPriorPtr

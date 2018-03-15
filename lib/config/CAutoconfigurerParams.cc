@@ -38,7 +38,7 @@ namespace {
 typedef std::vector<std::string> TStrVec;
 
 //! \brief A constraint which applies to a value of type T.
-template <typename T>
+template<typename T>
 class CConstraint {
 public:
     virtual ~CConstraint(void) {}
@@ -48,7 +48,7 @@ public:
 };
 
 //! \brief Represents the fact that T is unconstrained.
-template <typename T>
+template<typename T>
 class CUnconstrained : public CConstraint<T> {
 public:
     bool operator()(const T& /*value*/) const { return true; }
@@ -57,7 +57,7 @@ public:
 
 //! \brief A collection constraint which apply in conjunction to a value
 //! of type T.
-template <typename T>
+template<typename T>
 class CConstraintConjunction : public CConstraint<T> {
 public:
     typedef boost::shared_ptr<const CConstraint<T>> TConstraintCPtr;
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    template <typename U>
+    template<typename U>
     bool evaluate(const U& value) const {
         for (std::size_t i = 0u; i < m_Constraints.size(); ++i) {
             if (!(*m_Constraints[i])(value)) {
@@ -96,31 +96,31 @@ private:
 };
 
 //! \brief Less than.
-template <typename T>
+template<typename T>
 class CLess : public std::less<T> {
 public:
     std::string print(void) const { return "<"; }
 };
 //! \brief Less than or equal to.
-template <typename T>
+template<typename T>
 class CLessEqual : public std::less_equal<T> {
 public:
     std::string print(void) const { return "<="; }
 };
 //! \brief Greater than.
-template <typename T>
+template<typename T>
 class CGreater : public std::greater<T> {
 public:
     std::string print(void) const { return ">"; }
 };
 //! \brief Greater than or equal to.
-template <typename T>
+template<typename T>
 class CGreaterEqual : public std::greater_equal<T> {
 public:
     std::string print(void) const { return ">="; }
 };
 //! \brief The constraint that a value of type T is greater than another.
-template <typename T, template <typename> class PREDICATE>
+template<typename T, template<typename> class PREDICATE>
 class CValueIs : public CConstraint<T> {
 public:
     CValueIs(const T& rhs) : m_Rhs(&rhs) {}
@@ -134,7 +134,7 @@ private:
     PREDICATE<T> m_Pred;
 };
 //! \brief The constraint that a value of type T is greater than another.
-template <typename T, template <typename> class PREDICATE>
+template<typename T, template<typename> class PREDICATE>
 class CVectorValueIs : public CConstraint<T> {
 public:
     CVectorValueIs(const std::vector<T>& rhs) : m_Rhs(&rhs) {}
@@ -157,7 +157,7 @@ private:
 };
 
 //! \brief The constraint that a vector isn't empty.
-template <typename T>
+template<typename T>
 class CNotEmpty : public CConstraint<T> {
 public:
     bool operator()(const std::vector<T>& value) const { return !value.empty(); }
@@ -165,7 +165,7 @@ public:
 };
 
 //! \brief The constraint that a vector has a fixed size.
-template <typename T>
+template<typename T>
 class CSizeIs : public CConstraint<T> {
 public:
     CSizeIs(std::size_t size) : m_Size(size) {}
@@ -191,7 +191,7 @@ private:
 };
 
 //! \brief A parameter which is a built-in type.
-template <typename T>
+template<typename T>
 class CBuiltinParameter : public CParameter {
 public:
     typedef boost::shared_ptr<const CConstraint<T>> TConstraintCPtr;
@@ -228,7 +228,7 @@ private:
 };
 
 //! \brief A parameter which is a vector of a built-in type.
-template <typename T>
+template<typename T>
 class CBuiltinVectorParameter : public CParameter {
 public:
     CBuiltinVectorParameter(std::vector<T>& value)

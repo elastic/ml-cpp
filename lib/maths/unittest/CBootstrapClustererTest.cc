@@ -49,7 +49,7 @@ struct SVector2Hash {
 };
 typedef boost::unordered_map<TVector2, std::size_t, SVector2Hash> TVector2SizeUMap;
 
-template <typename POINT>
+template<typename POINT>
 class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
 public:
     typedef typename maths::CBootstrapClusterer<POINT>::TBoolVec TBoolVec;

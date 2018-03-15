@@ -446,26 +446,25 @@ bool CFieldDataTyper::handleControlMessage(const std::string& controlMessage) {
     }
 
     switch (controlMessage[0]) {
-        case ' ':
-            // Spaces are just used to fill the buffers and force prior messages
-            // through the system - we don't need to do anything else
-            LOG_TRACE("Received space control message of length " << controlMessage.length());
-            break;
-        case CONTROL_FIELD_NAME_CHAR:
-            // Silent no-op.  This is a simple way to ignore repeated header
-            // rows in input.
-            break;
-        case 'f':
-            // Flush ID comes after the initial f
-            this->acknowledgeFlush(controlMessage.substr(1));
-            break;
-        default:
-            LOG_WARN("Ignoring unknown control message of length "
-                     << controlMessage.length() << " beginning with '" << controlMessage[0]
-                     << '\'');
-            // Don't return false here (for the time being at least), as it
-            // seems excessive to cause the entire job to fail
-            break;
+    case ' ':
+        // Spaces are just used to fill the buffers and force prior messages
+        // through the system - we don't need to do anything else
+        LOG_TRACE("Received space control message of length " << controlMessage.length());
+        break;
+    case CONTROL_FIELD_NAME_CHAR:
+        // Silent no-op.  This is a simple way to ignore repeated header
+        // rows in input.
+        break;
+    case 'f':
+        // Flush ID comes after the initial f
+        this->acknowledgeFlush(controlMessage.substr(1));
+        break;
+    default:
+        LOG_WARN("Ignoring unknown control message of length "
+                 << controlMessage.length() << " beginning with '" << controlMessage[0] << '\'');
+        // Don't return false here (for the time being at least), as it
+        // seems excessive to cause the entire job to fail
+        break;
     }
 
     return true;

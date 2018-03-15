@@ -29,7 +29,7 @@ namespace maths {
 //!
 //! \tparam VECTOR The vector type.
 //! \tparam ANNOTATION The annotated data type.
-template <typename VECTOR, typename ANNOTATION>
+template<typename VECTOR, typename ANNOTATION>
 class CAnnotatedVector : public VECTOR {
 public:
     typedef ANNOTATION TAnnotation;

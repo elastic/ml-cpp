@@ -201,32 +201,32 @@ void CTopLevelDomainDb::extract(const std::string& str,
         std::string maybeSuffix = str.substr(pos, std::string::npos);
 
         switch (this->isSuffixTld(maybeSuffix)) {
-            case E_Rule: {
-                CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
-                return;
+        case E_Rule: {
+            CTopLevelDomainDb::ruleDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_WildcardRule: {
+            CTopLevelDomainDb::wildcardDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_ExceptionRule: {
+            // Force an extra interation
+            pos = str.find(PERIOD, pos);
+            if (pos == std::string::npos) {
+                LOG_WARN("Unexpected domain for exception rule: '" << str);
             }
-            case E_WildcardRule: {
-                CTopLevelDomainDb::wildcardDomains(str, periods, subDomain, domain, suffix);
-                return;
-            }
-            case E_ExceptionRule: {
-                // Force an extra interation
-                pos = str.find(PERIOD, pos);
-                if (pos == std::string::npos) {
-                    LOG_WARN("Unexpected domain for exception rule: '" << str);
-                }
 
-                pos = pos + PERIOD.size();
+            pos = pos + PERIOD.size();
 
-                periods.push_back(pos);
+            periods.push_back(pos);
 
-                CTopLevelDomainDb::exceptionDomains(str, periods, subDomain, domain, suffix);
-                return;
-            }
-            case E_NoMatch: {
-                // fall through
-                break;
-            }
+            CTopLevelDomainDb::exceptionDomains(str, periods, subDomain, domain, suffix);
+            return;
+        }
+        case E_NoMatch: {
+            // fall through
+            break;
+        }
         }
 
         pos = str.find(PERIOD, pos);

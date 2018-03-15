@@ -51,31 +51,31 @@ namespace {
 class BasicCompare {};
 class ContainerCompare {};
 
-template <typename T, typename R = void>
+template<typename T, typename R = void>
 struct enable_if_type {
     typedef R type;
 };
 
-template <typename T, typename ITR = void>
+template<typename T, typename ITR = void>
 struct compare_container_selector {
     typedef BasicCompare value;
 };
-template <typename T>
+template<typename T>
 struct compare_container_selector<T, typename enable_if_type<typename T::const_iterator>::type> {
     typedef ContainerCompare value;
 };
 
-template <typename SELECTOR>
+template<typename SELECTOR>
 class CCompareImpl {};
 
 //! Convenience function to select implementation.
-template <typename T>
+template<typename T>
 bool compare(const T& lhs, const T& rhs) {
     return CCompareImpl<typename compare_container_selector<T>::value>::dispatch(lhs, rhs);
 }
 
 struct SFirstLess {
-    template <typename U, typename V>
+    template<typename U, typename V>
     inline bool operator()(const std::pair<U, V>& lhs, const std::pair<U, V>& rhs) const {
         return lhs.first < rhs.first;
     }
@@ -86,7 +86,7 @@ struct SEqual {
         return ::fabs(lhs - rhs) <= 1e-5 * std::max(::fabs(lhs), ::fabs(rhs));
     }
 
-    template <typename T>
+    template<typename T>
     bool operator()(T lhs, T rhs) const {
         return this->operator()(static_cast<double>(lhs), static_cast<double>(rhs));
     }
@@ -95,26 +95,26 @@ struct SEqual {
         return lhs.first == rhs.first && this->operator()(lhs.second, rhs.second);
     }
 
-    template <typename A, typename B>
+    template<typename A, typename B>
     bool operator()(const std::pair<A, B>& lhs, const std::pair<A, B>& rhs) {
         return compare(lhs.first, rhs.first) && compare(lhs.second, rhs.second);
     }
 };
 
-template <>
+template<>
 class CCompareImpl<BasicCompare> {
 public:
-    template <typename T>
+    template<typename T>
     static bool dispatch(const T& lhs, const T& rhs) {
         SEqual eq;
         return eq(lhs, rhs);
     }
 };
 
-template <>
+template<>
 class CCompareImpl<ContainerCompare> {
 public:
-    template <typename T>
+    template<typename T>
     static bool dispatch(const T& lhs, const T& rhs) {
         typedef typename T::const_iterator TCItr;
         if (lhs.size() != rhs.size()) {
@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    template <typename K, typename V>
+    template<typename K, typename V>
     static bool dispatch(const boost::unordered_map<K, V>& lhs,
                          const boost::unordered_map<K, V>& rhs) {
         typedef std::vector<std::pair<K, V>> TVec;
@@ -139,7 +139,7 @@ public:
         return compare(lKeys, rKeys);
     }
 
-    template <typename T>
+    template<typename T>
     static bool dispatch(const boost::unordered_set<T>& lhs, const boost::unordered_set<T>& rhs) {
         typedef std::vector<T> TVec;
         TVec lKeys(lhs.begin(), lhs.end());
@@ -150,12 +150,12 @@ public:
     }
 };
 
-template <typename T>
+template<typename T>
 bool equal(const T& lhs, const T& rhs) {
     return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin(), SEqual());
 }
 
-template <typename T>
+template<typename T>
 void testPersistRestore(const T& collection, const T& initial = T()) {
     const std::string tag("baseTag");
     std::stringstream origSs;

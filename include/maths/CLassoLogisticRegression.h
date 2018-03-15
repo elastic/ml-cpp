@@ -215,7 +215,7 @@ public:
 
 private:
     //! Check the validity of the training data and the prior parameters.
-    template <typename MATRIX>
+    template<typename MATRIX>
     static bool checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda);
 
 private:
@@ -302,7 +302,7 @@ private:
 //! models for different types of training data. This implements
 //! the functionality to train the hyperparameters, which can be
 //! shared between the two implementations.
-template <typename STORAGE>
+template<typename STORAGE>
 class MATHS_EXPORT CLassoLogisticRegression {
 public:
     typedef std::vector<double> TDoubleVec;
@@ -312,12 +312,12 @@ protected:
     CLassoLogisticRegression(void);
 
     //! Learn the value of precision of the Laplace prior.
-    template <typename MATRIX>
+    template<typename MATRIX>
     void doLearnHyperparameter(EHyperparametersStyle style);
 
     //! Learn the parameters of the logistic model based on the
     //! training data added so far.
-    template <typename MATRIX>
+    template<typename MATRIX>
     bool doLearn(CLogisticRegressionModel& result);
 
     //! Check whether it is possible to learn a model.

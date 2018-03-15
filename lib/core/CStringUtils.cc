@@ -369,30 +369,30 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
 
     int ret = 0;
     switch (precision) {
-        case CIEEE754::E_HalfPrecision:
-            ret = ::fabs(d) < 1.0 && d != 0.0
-                      ? ::sprintf(buf,
-                                  "%.2e",
-                                  clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                      : ::sprintf(buf,
-                                  "%.3g",
-                                  clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
-            break;
+    case CIEEE754::E_HalfPrecision:
+        ret = ::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf,
+                              "%.2e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
+                  : ::sprintf(buf,
+                              "%.3g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        break;
 
-        case CIEEE754::E_SinglePrecision:
-            ret = ::fabs(d) < 1.0 && d != 0.0
-                      ? ::sprintf(buf,
-                                  "%.6e",
-                                  clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                      : ::sprintf(buf,
-                                  "%.7g",
-                                  clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
-            break;
+    case CIEEE754::E_SinglePrecision:
+        ret = ::fabs(d) < 1.0 && d != 0.0
+                  ? ::sprintf(buf,
+                              "%.6e",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
+                  : ::sprintf(buf,
+                              "%.7g",
+                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        break;
 
-        case CIEEE754::E_DoublePrecision:
-            ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d))
-                                              : ::sprintf(buf, "%.15g", clampToReadable(d));
-            break;
+    case CIEEE754::E_DoublePrecision:
+        ret = ::fabs(d) < 1.0 && d != 0.0 ? ::sprintf(buf, "%.14e", clampToReadable(d))
+                                          : ::sprintf(buf, "%.15g", clampToReadable(d));
+        break;
     }
 
     // Workaround for Visual C++ 2010 misformatting - replace
@@ -736,59 +736,59 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, short& i) 
 
 bool CStringUtils::_stringToType(bool silent, const std::string& str, bool& ret) {
     switch (str.length()) {
-        case 0:
-            if (!silent) {
-                LOG_ERROR("Cannot convert empty string to bool");
-            }
-            return false;
-        case 1:
-            switch (str[0]) {
-                case 'T':
-                case 'Y':
-                case 't':
-                case 'y':
-                    ret = true;
-                    return true;
-                case 'F':
-                case 'N':
-                case 'f':
-                case 'n':
-                    ret = false;
-                    return true;
-            }
-            break;
-        case 2:
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "no") == 0) {
-                ret = false;
-                return true;
-            }
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "on") == 0) {
-                ret = true;
-                return true;
-            }
-            break;
-        case 3:
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "yes") == 0) {
-                ret = true;
-                return true;
-            }
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "off") == 0) {
-                ret = false;
-                return true;
-            }
-            break;
-        case 4:
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "true") == 0) {
-                ret = true;
-                return true;
-            }
-            break;
-        case 5:
-            if (CStrCaseCmp::strCaseCmp(str.c_str(), "false") == 0) {
-                ret = false;
-                return true;
-            }
-            break;
+    case 0:
+        if (!silent) {
+            LOG_ERROR("Cannot convert empty string to bool");
+        }
+        return false;
+    case 1:
+        switch (str[0]) {
+        case 'T':
+        case 'Y':
+        case 't':
+        case 'y':
+            ret = true;
+            return true;
+        case 'F':
+        case 'N':
+        case 'f':
+        case 'n':
+            ret = false;
+            return true;
+        }
+        break;
+    case 2:
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "no") == 0) {
+            ret = false;
+            return true;
+        }
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "on") == 0) {
+            ret = true;
+            return true;
+        }
+        break;
+    case 3:
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "yes") == 0) {
+            ret = true;
+            return true;
+        }
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "off") == 0) {
+            ret = false;
+            return true;
+        }
+        break;
+    case 4:
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "true") == 0) {
+            ret = true;
+            return true;
+        }
+        break;
+    case 5:
+        if (CStrCaseCmp::strCaseCmp(str.c_str(), "false") == 0) {
+            ret = false;
+            return true;
+        }
+        break;
     }
 
     long l(0);

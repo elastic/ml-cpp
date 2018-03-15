@@ -185,7 +185,7 @@ void add(double value, std::vector<double>& target) {
 }
 }
 
-template <typename T>
+template<typename T>
 bool CTimeSeriesTestData::parse(const std::string& fileName,
                                 const std::string& regex,
                                 const std::string& dateFormat,
@@ -228,7 +228,7 @@ bool CTimeSeriesTestData::parse(const std::string& fileName,
     return true;
 }
 
-template <typename T>
+template<typename T>
 bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
                                     const std::string& dateFormat,
                                     const std::string& line,

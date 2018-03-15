@@ -340,7 +340,7 @@ struct SPlusWeight {
 //! \param[in] priorRate The rate of the gamma prior of the rate parameter
 //! of the likelihood for \p samples.
 //! \param[out] result Filled in with the aggregation of results of \p func.
-template <typename FUNC, typename AGGREGATOR, typename RESULT>
+template<typename FUNC, typename AGGREGATOR, typename RESULT>
 bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                                          const TDouble1Vec& samples,
                                          const TDouble4Vec1Vec& weights,
@@ -477,7 +477,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
 //! This thin wrapper around the evaluateFunctionOnJointDistribution function
 //! so that it can be integrated over the hidden variable representing the
 //! actual value of a discrete datum which we assume is in the interval [n, n+1].
-template <typename F>
+template<typename F>
 class CEvaluateOnSamples : core::CNonCopyable {
 public:
     CEvaluateOnSamples(const TWeightStyleVec& weightStyles,
@@ -1278,18 +1278,18 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
         double root_two = boost::math::double_constants::root_two;
 
         switch (numberSamples) {
-            case 1u:
-                samples.push_back(mean);
-                break;
-            case 2u:
-                samples.push_back(mean - deviation / root_two);
-                samples.push_back(mean + deviation / root_two);
-                break;
-            default:
-                samples.push_back(mean - deviation);
-                samples.push_back(mean);
-                samples.push_back(mean + deviation);
-                break;
+        case 1u:
+            samples.push_back(mean);
+            break;
+        case 2u:
+            samples.push_back(mean - deviation / root_two);
+            samples.push_back(mean + deviation / root_two);
+            break;
+        default:
+            samples.push_back(mean - deviation);
+            samples.push_back(mean);
+            samples.push_back(mean + deviation);
+            break;
         }
 
         return;

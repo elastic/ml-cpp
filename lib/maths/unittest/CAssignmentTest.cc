@@ -38,7 +38,7 @@ typedef std::vector<std::size_t> TSizeVec;
 typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
 typedef std::vector<TSizeSizePr> TSizeSizePrVec;
 
-template <std::size_t N, std::size_t M>
+template<std::size_t N, std::size_t M>
 void fill(const double (&costs)[N][M], TDoubleVecVec& result) {
     for (std::size_t i = 0u; i < N; ++i) {
         result.push_back(TDoubleVec());

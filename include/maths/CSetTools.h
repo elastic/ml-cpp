@@ -47,7 +47,7 @@ public:
         CIndexInSet(std::size_t index) : m_IndexSet(index) {}
         CIndexInSet(const TSizeSet& indexSet) : m_IndexSet(indexSet) {}
 
-        template <typename T>
+        template<typename T>
         bool operator()(const T& indexedObject) const {
             const std::size_t* index = boost::get<std::size_t>(&m_IndexSet);
             if (index) {
@@ -65,7 +65,7 @@ public:
     };
 
     //! Compute the difference between \p S and [\p begin, \p end).
-    template <typename T, typename ITR>
+    template<typename T, typename ITR>
     static void inplace_set_difference(std::vector<T>& S, ITR begin, ITR end) {
         typename std::vector<T>::iterator i = S.begin(), last = i;
         for (ITR j = begin; i != S.end() && j != end; /**/) {
@@ -114,7 +114,7 @@ public:
 
     //! Remove all instances of \p values1 for which \p pred is true
     //! and corresponding values of \p values2.
-    template <typename T1, typename T2, typename F>
+    template<typename T1, typename T2, typename F>
     static bool
     simultaneousRemoveIf(std::vector<T1>& values1, std::vector<T2>& values2, const F& pred) {
         if (values1.size() != values2.size()) {
@@ -138,7 +138,7 @@ public:
 
     //! Remove all instances of \p values1 for which \p pred is true
     //! and corresponding values of \p values2 and \p values3.
-    template <typename T1, typename T2, typename T3, typename F>
+    template<typename T1, typename T2, typename T3, typename F>
     static bool simultaneousRemoveIf(std::vector<T1>& values1,
                                      std::vector<T2>& values2,
                                      std::vector<T3>& values3,
@@ -156,7 +156,7 @@ public:
 
     //! Compute the number of elements in the intersection of the
     //! ranges [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
-    template <typename ITR1, typename ITR2>
+    template<typename ITR1, typename ITR2>
     static std::size_t setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t result = 0u;
         while (beginLhs != endLhs && beginRhs != endRhs) {
@@ -175,7 +175,7 @@ public:
 
     //! Compute the number of elements in the union of the ranges
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
-    template <typename ITR1, typename ITR2>
+    template<typename ITR1, typename ITR2>
     static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t result = 0u;
         while (beginLhs != endLhs && beginRhs != endRhs) {
@@ -196,7 +196,7 @@ public:
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     //!
     //! This is defined as \f$\frac{|A\cap B|}{|A\cup B|}\f$.
-    template <typename ITR1, typename ITR2>
+    template<typename ITR1, typename ITR2>
     static double jaccard(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t numer = 0u;
         std::size_t denom = 0u;
@@ -221,7 +221,7 @@ public:
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     //!
     //! This is defined as \f$\frac{|A\cap B|}{\min(|A|,|B|)}\f$.
-    template <typename ITR1, typename ITR2>
+    template<typename ITR1, typename ITR2>
     static double overlap(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
         std::size_t numer = 0u;
         std::size_t nl = 0u;

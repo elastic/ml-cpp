@@ -117,26 +117,26 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
         }
 
         switch (iter->value.GetType()) {
-            case rapidjson::kNullType:
-                refIter->get().clear();
-                break;
-            case rapidjson::kFalseType:
-                refIter->get() = '0';
-                break;
-            case rapidjson::kTrueType:
-                refIter->get() = '1';
-                break;
-            case rapidjson::kObjectType:
-            case rapidjson::kArrayType:
-                LOG_ERROR(
-                    "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
-                return false;
-            case rapidjson::kStringType:
-                refIter->get().assign(iter->value.GetString(), iter->value.GetStringLength());
-                break;
-            case rapidjson::kNumberType:
-                core::CStringUtils::typeToString(iter->value.GetDouble()).swap(refIter->get());
-                break;
+        case rapidjson::kNullType:
+            refIter->get().clear();
+            break;
+        case rapidjson::kFalseType:
+            refIter->get() = '0';
+            break;
+        case rapidjson::kTrueType:
+            refIter->get() = '1';
+            break;
+        case rapidjson::kObjectType:
+        case rapidjson::kArrayType:
+            LOG_ERROR(
+                "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
+            return false;
+        case rapidjson::kStringType:
+            refIter->get().assign(iter->value.GetString(), iter->value.GetStringLength());
+            break;
+        case rapidjson::kNumberType:
+            core::CStringUtils::typeToString(iter->value.GetDouble()).swap(refIter->get());
+            break;
         }
     }
 
@@ -158,29 +158,29 @@ bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(
         fieldNames.push_back(std::string(iter->name.GetString(), iter->name.GetStringLength()));
 
         switch (iter->value.GetType()) {
-            case rapidjson::kNullType:
-                recordFields[fieldNames.back()];
-                break;
-            case rapidjson::kFalseType:
-                recordFields[fieldNames.back()] = '0';
-                break;
-            case rapidjson::kTrueType:
-                recordFields[fieldNames.back()] = '1';
-                break;
-            case rapidjson::kObjectType:
-            case rapidjson::kArrayType:
-                LOG_ERROR(
-                    "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
-                fieldNames.pop_back();
-                return false;
-            case rapidjson::kStringType:
-                recordFields[fieldNames.back()].assign(iter->value.GetString(),
-                                                       iter->value.GetStringLength());
-                break;
-            case rapidjson::kNumberType:
-                core::CStringUtils::typeToString(iter->value.GetDouble())
-                    .swap(recordFields[fieldNames.back()]);
-                break;
+        case rapidjson::kNullType:
+            recordFields[fieldNames.back()];
+            break;
+        case rapidjson::kFalseType:
+            recordFields[fieldNames.back()] = '0';
+            break;
+        case rapidjson::kTrueType:
+            recordFields[fieldNames.back()] = '1';
+            break;
+        case rapidjson::kObjectType:
+        case rapidjson::kArrayType:
+            LOG_ERROR(
+                "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
+            fieldNames.pop_back();
+            return false;
+        case rapidjson::kStringType:
+            recordFields[fieldNames.back()].assign(iter->value.GetString(),
+                                                   iter->value.GetStringLength());
+            break;
+        case rapidjson::kNumberType:
+            core::CStringUtils::typeToString(iter->value.GetDouble())
+                .swap(recordFields[fieldNames.back()]);
+            break;
         }
     }
 

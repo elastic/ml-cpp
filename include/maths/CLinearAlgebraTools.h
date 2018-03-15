@@ -42,12 +42,12 @@ struct MatrixScalarTag;
 struct ScalarVectorTag;
 struct ScalarMatrixTag;
 
-template <typename TAG>
+template<typename TAG>
 struct SSqrt {};
 //! Component-wise sqrt for a vector.
-template <>
+template<>
 struct SSqrt<VectorTag> {
-    template <typename VECTOR>
+    template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             result(i) = ::sqrt(result(i));
@@ -55,9 +55,9 @@ struct SSqrt<VectorTag> {
     }
 };
 //! Element-wise sqrt for a symmetric matrix.
-template <>
+template<>
 struct SSqrt<MatrixTag> {
-    template <typename MATRIX>
+    template<typename MATRIX>
     static void calculate(std::size_t d, MATRIX& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -67,12 +67,12 @@ struct SSqrt<MatrixTag> {
     }
 };
 
-template <typename TAG>
+template<typename TAG>
 struct SMin {};
 //! Component-wise minimum for a vector.
-template <>
+template<>
 struct SMin<VectorVectorTag> {
-    template <typename VECTOR>
+    template<typename VECTOR>
     static void calculate(std::size_t d, const VECTOR& lhs, VECTOR& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             rhs(i) = std::min(lhs(i), rhs(i));
@@ -80,9 +80,9 @@ struct SMin<VectorVectorTag> {
     }
 };
 //! Component-wise minimum for a vector.
-template <>
+template<>
 struct SMin<VectorScalarTag> {
-    template <typename VECTOR, typename T>
+    template<typename VECTOR, typename T>
     static void calculate(std::size_t d, VECTOR& lhs, const T& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             lhs(i) = std::min(lhs(i), rhs);
@@ -90,9 +90,9 @@ struct SMin<VectorScalarTag> {
     }
 };
 //! Component-wise minimum for a vector.
-template <>
+template<>
 struct SMin<ScalarVectorTag> {
-    template <typename T, typename VECTOR>
+    template<typename T, typename VECTOR>
     static void calculate(std::size_t d, const T& lhs, VECTOR& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             rhs(i) = std::min(rhs(i), lhs);
@@ -100,9 +100,9 @@ struct SMin<ScalarVectorTag> {
     }
 };
 //! Element-wise minimum for a symmetric matrix.
-template <>
+template<>
 struct SMin<MatrixMatrixTag> {
-    template <typename MATRIX>
+    template<typename MATRIX>
     static void calculate(std::size_t d, const MATRIX& lhs, MATRIX& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -112,9 +112,9 @@ struct SMin<MatrixMatrixTag> {
     }
 };
 //! Element-wise minimum for a symmetric matrix.
-template <>
+template<>
 struct SMin<MatrixScalarTag> {
-    template <typename MATRIX, typename T>
+    template<typename MATRIX, typename T>
     static void calculate(std::size_t d, MATRIX& lhs, const T& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -124,9 +124,9 @@ struct SMin<MatrixScalarTag> {
     }
 };
 //! Element-wise minimum for a symmetric matrix.
-template <>
+template<>
 struct SMin<ScalarMatrixTag> {
-    template <typename T, typename MATRIX>
+    template<typename T, typename MATRIX>
     static void calculate(std::size_t d, const T& lhs, MATRIX& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -136,12 +136,12 @@ struct SMin<ScalarMatrixTag> {
     }
 };
 
-template <typename TAG>
+template<typename TAG>
 struct SMax {};
 //! Component-wise maximum for a vector.
-template <>
+template<>
 struct SMax<VectorVectorTag> {
-    template <typename VECTOR>
+    template<typename VECTOR>
     static void calculate(std::size_t d, const VECTOR& lhs, VECTOR& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             rhs(i) = std::max(lhs(i), rhs(i));
@@ -149,9 +149,9 @@ struct SMax<VectorVectorTag> {
     }
 };
 //! Component-wise maximum for a vector.
-template <>
+template<>
 struct SMax<VectorScalarTag> {
-    template <typename VECTOR, typename T>
+    template<typename VECTOR, typename T>
     static void calculate(std::size_t d, VECTOR& lhs, const T& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             lhs(i) = std::max(lhs(i), rhs);
@@ -159,9 +159,9 @@ struct SMax<VectorScalarTag> {
     }
 };
 //! Component-wise maximum for a vector.
-template <>
+template<>
 struct SMax<ScalarVectorTag> {
-    template <typename T, typename VECTOR>
+    template<typename T, typename VECTOR>
     static void calculate(std::size_t d, const T& lhs, VECTOR& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             rhs(i) = std::max(rhs(i), lhs);
@@ -169,9 +169,9 @@ struct SMax<ScalarVectorTag> {
     }
 };
 //! Element-wise maximum for a symmetric matrix.
-template <>
+template<>
 struct SMax<MatrixMatrixTag> {
-    template <typename MATRIX>
+    template<typename MATRIX>
     static void calculate(std::size_t d, const MATRIX& lhs, MATRIX& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -181,9 +181,9 @@ struct SMax<MatrixMatrixTag> {
     }
 };
 //! Element-wise maximum for a symmetric matrix.
-template <>
+template<>
 struct SMax<MatrixScalarTag> {
-    template <typename MATRIX, typename T>
+    template<typename MATRIX, typename T>
     static void calculate(std::size_t d, MATRIX& lhs, const T& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -193,9 +193,9 @@ struct SMax<MatrixScalarTag> {
     }
 };
 //! Element-wise maximum for a symmetric matrix.
-template <>
+template<>
 struct SMax<ScalarMatrixTag> {
-    template <typename T, typename MATRIX>
+    template<typename T, typename MATRIX>
     static void calculate(std::size_t d, const T& lhs, MATRIX& rhs) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -205,12 +205,12 @@ struct SMax<ScalarMatrixTag> {
     }
 };
 
-template <typename TAG>
+template<typename TAG>
 struct SFabs {};
 //! Component-wise fabs for a vector.
-template <>
+template<>
 struct SFabs<VectorTag> {
-    template <typename VECTOR>
+    template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             result(i) = ::fabs(result(i));
@@ -218,9 +218,9 @@ struct SFabs<VectorTag> {
     }
 };
 //! Element-wise fabs for a symmetric matrix.
-template <>
+template<>
 struct SFabs<MatrixTag> {
-    template <typename MATRIX>
+    template<typename MATRIX>
     static void calculate(std::size_t d, MATRIX& result) {
         for (std::size_t i = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j) {
@@ -349,7 +349,7 @@ maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
 }
 
 //! Output for debug.
-template <typename T>
+template<typename T>
 std::ostream& operator<<(std::ostream& o, const CSymmetricMatrix<T>& m) {
     for (std::size_t i = 0u; i < m.rows(); ++i) {
         o << "\n    ";
@@ -362,7 +362,7 @@ std::ostream& operator<<(std::ostream& o, const CSymmetricMatrix<T>& m) {
 }
 
 //! Output for debug.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CSymmetricMatrixNxN<T, N>& m) {
     for (std::size_t i = 0u; i < N; ++i) {
         o << "\n    ";
@@ -375,7 +375,7 @@ std::ostream& operator<<(std::ostream& o, const CSymmetricMatrixNxN<T, N>& m) {
 }
 
 //! Output for debug.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CVectorNx1<T, N>& v) {
     o << "[";
     for (std::size_t i = 0u; i + 1 < N; ++i) {
@@ -386,7 +386,7 @@ std::ostream& operator<<(std::ostream& o, const CVectorNx1<T, N>& v) {
 }
 
 //! Output for debug.
-template <typename T>
+template<typename T>
 std::ostream& operator<<(std::ostream& o, const CVector<T>& v) {
     if (v.dimension() == 0) {
         return o << "[]";
@@ -400,7 +400,7 @@ std::ostream& operator<<(std::ostream& o, const CVector<T>& v) {
 }
 
 //! Overload sqrt for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> sqrt(const CVectorNx1<T, N>& v) {
     CVectorNx1<T, N> result(v);
     linear_algebra_tools_detail::SSqrt<linear_algebra_tools_detail::VectorTag>::calculate(N,
@@ -408,7 +408,7 @@ CVectorNx1<T, N> sqrt(const CVectorNx1<T, N>& v) {
     return result;
 }
 //! Overload sqrt for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> sqrt(const CSymmetricMatrixNxN<T, N>& m) {
     CSymmetricMatrixNxN<T, N> result(m);
     linear_algebra_tools_detail::SSqrt<linear_algebra_tools_detail::MatrixTag>::calculate(N,
@@ -417,7 +417,7 @@ CSymmetricMatrixNxN<T, N> sqrt(const CSymmetricMatrixNxN<T, N>& m) {
 }
 
 //! Overload minimum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> min(const CVectorNx1<T, N>& lhs, const CVectorNx1<T, N>& rhs) {
     CVectorNx1<T, N> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -425,7 +425,7 @@ CVectorNx1<T, N> min(const CVectorNx1<T, N>& lhs, const CVectorNx1<T, N>& rhs) {
     return result;
 }
 //! Overload minimum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> min(const CVectorNx1<T, N>& lhs, const T& rhs) {
     CVectorNx1<T, N> result(lhs);
     linear_algebra_tools_detail::SMin<
@@ -433,7 +433,7 @@ CVectorNx1<T, N> min(const CVectorNx1<T, N>& lhs, const T& rhs) {
     return result;
 }
 //! Overload minimum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> min(const T& lhs, const CVectorNx1<T, N>& rhs) {
     CVectorNx1<T, N> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -441,7 +441,7 @@ CVectorNx1<T, N> min(const T& lhs, const CVectorNx1<T, N>& rhs) {
     return result;
 }
 //! Overload minimum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> min(const CSymmetricMatrixNxN<T, N>& lhs,
                               const CSymmetricMatrixNxN<T, N>& rhs) {
     CSymmetricMatrixNxN<T, N> result(rhs);
@@ -450,7 +450,7 @@ CSymmetricMatrixNxN<T, N> min(const CSymmetricMatrixNxN<T, N>& lhs,
     return result;
 }
 //! Overload minimum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> min(const CSymmetricMatrixNxN<T, N>& lhs, const T& rhs) {
     CSymmetricMatrixNxN<T, N> result(lhs);
     linear_algebra_tools_detail::SMin<
@@ -458,7 +458,7 @@ CSymmetricMatrixNxN<T, N> min(const CSymmetricMatrixNxN<T, N>& lhs, const T& rhs
     return result;
 }
 //! Overload minimum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> min(const T& lhs, const CSymmetricMatrixNxN<T, N>& rhs) {
     CSymmetricMatrixNxN<T, N> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -467,7 +467,7 @@ CSymmetricMatrixNxN<T, N> min(const T& lhs, const CSymmetricMatrixNxN<T, N>& rhs
 }
 
 //! Overload maximum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> max(const CVectorNx1<T, N>& lhs, const CVectorNx1<T, N>& rhs) {
     CVectorNx1<T, N> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -475,7 +475,7 @@ CVectorNx1<T, N> max(const CVectorNx1<T, N>& lhs, const CVectorNx1<T, N>& rhs) {
     return result;
 }
 //! Overload maximum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> max(const CVectorNx1<T, N>& lhs, const T& rhs) {
     CVectorNx1<T, N> result(lhs);
     linear_algebra_tools_detail::SMax<
@@ -483,7 +483,7 @@ CVectorNx1<T, N> max(const CVectorNx1<T, N>& lhs, const T& rhs) {
     return result;
 }
 //! Overload maximum for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> max(const T& lhs, const CVectorNx1<T, N>& rhs) {
     CVectorNx1<T, N> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -491,7 +491,7 @@ CVectorNx1<T, N> max(const T& lhs, const CVectorNx1<T, N>& rhs) {
     return result;
 }
 //! Overload maximum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> max(const CSymmetricMatrixNxN<T, N>& lhs,
                               const CSymmetricMatrixNxN<T, N>& rhs) {
     CSymmetricMatrixNxN<T, N> result(rhs);
@@ -500,7 +500,7 @@ CSymmetricMatrixNxN<T, N> max(const CSymmetricMatrixNxN<T, N>& lhs,
     return result;
 }
 //! Overload maximum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> max(const CSymmetricMatrixNxN<T, N>& lhs, const T& rhs) {
     CSymmetricMatrixNxN<T, N> result(lhs);
     linear_algebra_tools_detail::SMax<
@@ -508,7 +508,7 @@ CSymmetricMatrixNxN<T, N> max(const CSymmetricMatrixNxN<T, N>& lhs, const T& rhs
     return result;
 }
 //! Overload maximum for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> max(const T& lhs, const CSymmetricMatrixNxN<T, N>& rhs) {
     CSymmetricMatrixNxN<T, N> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -517,7 +517,7 @@ CSymmetricMatrixNxN<T, N> max(const T& lhs, const CSymmetricMatrixNxN<T, N>& rhs
 }
 
 //! Overload ::fabs for CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> fabs(const CVectorNx1<T, N>& v) {
     CVectorNx1<T, N> result(v);
     linear_algebra_tools_detail::SFabs<linear_algebra_tools_detail::VectorTag>::calculate(N,
@@ -525,7 +525,7 @@ CVectorNx1<T, N> fabs(const CVectorNx1<T, N>& v) {
     return result;
 }
 //! Overload ::fabs for CSymmetricMatrixNxN.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> fabs(const CSymmetricMatrixNxN<T, N>& m) {
     CSymmetricMatrixNxN<T, N> result(m);
     linear_algebra_tools_detail::SFabs<linear_algebra_tools_detail::MatrixTag>::calculate(N,
@@ -534,7 +534,7 @@ CSymmetricMatrixNxN<T, N> fabs(const CSymmetricMatrixNxN<T, N>& m) {
 }
 
 //! Overload sqrt for CVector.
-template <typename T>
+template<typename T>
 CVector<T> sqrt(const CVector<T>& v) {
     CVector<T> result(v);
     linear_algebra_tools_detail::SSqrt<
@@ -542,7 +542,7 @@ CVector<T> sqrt(const CVector<T>& v) {
     return result;
 }
 //! Overload sqrt for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> sqrt(const CSymmetricMatrix<T>& m) {
     CSymmetricMatrix<T> result(m);
     linear_algebra_tools_detail::SSqrt<
@@ -551,7 +551,7 @@ CSymmetricMatrix<T> sqrt(const CSymmetricMatrix<T>& m) {
 }
 
 //! Overload minimum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> min(const CVector<T>& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -559,7 +559,7 @@ CVector<T> min(const CVector<T>& lhs, const CVector<T>& rhs) {
     return result;
 }
 //! Overload minimum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> min(const CVector<T>& lhs, const T& rhs) {
     CVector<T> result(lhs);
     linear_algebra_tools_detail::SMin<
@@ -567,7 +567,7 @@ CVector<T> min(const CVector<T>& lhs, const T& rhs) {
     return result;
 }
 //! Overload minimum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> min(const T& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -575,7 +575,7 @@ CVector<T> min(const T& lhs, const CVector<T>& rhs) {
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -583,7 +583,7 @@ CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     CSymmetricMatrix<T> result(lhs);
     linear_algebra_tools_detail::SMin<
@@ -591,7 +591,7 @@ CSymmetricMatrix<T> min(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     return result;
 }
 //! Overload minimum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> min(const T& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMin<
@@ -600,7 +600,7 @@ CSymmetricMatrix<T> min(const T& lhs, const CSymmetricMatrix<T>& rhs) {
 }
 
 //! Overload maximum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> max(const CVector<T>& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -608,7 +608,7 @@ CVector<T> max(const CVector<T>& lhs, const CVector<T>& rhs) {
     return result;
 }
 //! Overload maximum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> max(const CVector<T>& lhs, const T& rhs) {
     CVector<T> result(lhs);
     linear_algebra_tools_detail::SMax<
@@ -616,7 +616,7 @@ CVector<T> max(const CVector<T>& lhs, const T& rhs) {
     return result;
 }
 //! Overload maximum for CVector.
-template <typename T>
+template<typename T>
 CVector<T> max(const T& lhs, const CVector<T>& rhs) {
     CVector<T> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -624,7 +624,7 @@ CVector<T> max(const T& lhs, const CVector<T>& rhs) {
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -632,7 +632,7 @@ CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const CSymmetricMatrix<T
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     CSymmetricMatrix<T> result(lhs);
     linear_algebra_tools_detail::SMax<
@@ -640,7 +640,7 @@ CSymmetricMatrix<T> max(const CSymmetricMatrix<T>& lhs, const T& rhs) {
     return result;
 }
 //! Overload maximum for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> max(const T& lhs, const CSymmetricMatrix<T>& rhs) {
     CSymmetricMatrix<T> result(rhs);
     linear_algebra_tools_detail::SMax<
@@ -649,7 +649,7 @@ CSymmetricMatrix<T> max(const T& lhs, const CSymmetricMatrix<T>& rhs) {
 }
 
 //! Overload ::fabs for CVector.
-template <typename T>
+template<typename T>
 CVector<T> fabs(const CVector<T>& v) {
     CVector<T> result(v);
     linear_algebra_tools_detail::SFabs<
@@ -657,7 +657,7 @@ CVector<T> fabs(const CVector<T>& v) {
     return result;
 }
 //! Overload ::fabs for CSymmetricMatrix.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
     CSymmetricMatrix<T> result(m);
     linear_algebra_tools_detail::SFabs<
@@ -666,7 +666,7 @@ CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
 }
 
 //! Efficiently scale the \p i'th row and column by \p scale.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 void scaleCovariances(std::size_t i, T scale, CSymmetricMatrixNxN<T, N>& m) {
     scale = ::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j) {
@@ -678,7 +678,7 @@ void scaleCovariances(std::size_t i, T scale, CSymmetricMatrixNxN<T, N>& m) {
 }
 
 //! Efficiently scale the rows and columns by \p scale.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 void scaleCovariances(const CVectorNx1<T, N>& scale, CSymmetricMatrixNxN<T, N>& m) {
     for (std::size_t i = 0u; i < scale.dimension(); ++i) {
         scaleCovariances(i, scale(i), m);
@@ -686,7 +686,7 @@ void scaleCovariances(const CVectorNx1<T, N>& scale, CSymmetricMatrixNxN<T, N>& 
 }
 
 //! Efficiently scale the \p i'th row and column by \p scale.
-template <typename T>
+template<typename T>
 void scaleCovariances(std::size_t i, T scale, CSymmetricMatrix<T>& m) {
     scale = ::sqrt(scale);
     for (std::size_t j = 0u; j < m.columns(); ++j) {
@@ -698,7 +698,7 @@ void scaleCovariances(std::size_t i, T scale, CSymmetricMatrix<T>& m) {
 }
 
 //! Efficiently scale the rows and columns by \p scale.
-template <typename T>
+template<typename T>
 void scaleCovariances(const CVector<T>& scale, CSymmetricMatrix<T>& m) {
     for (std::size_t i = 0u; i < scale.dimension(); ++i) {
         scaleRowAndColumn(i, scale(i), m);
@@ -713,7 +713,7 @@ void scaleCovariances(const CVector<T>& scale, CSymmetricMatrix<T>& m) {
 //! \param[in] ignoreSingularSubspace If true then we ignore the
 //! residual on a singular subspace of m. Otherwise the result is
 //! minus infinity in this case.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrixNxN<T, N>& covariance,
                                                         const CVectorNx1<T, N>& residual,
                                                         double& result,
@@ -734,7 +734,7 @@ maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrixNx
 //! \param[in] ignoreSingularSubspace If true then we ignore the
 //! residual on a singular subspace of m. Otherwise the result is
 //! minus infinity in this case.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 maths_t::EFloatingPointErrorStatus
 gaussianLogLikelihood(const CSymmetricMatrixNxN<T, N>& covariance,
                       const CVectorNx1<T, N>& residual,
@@ -755,7 +755,7 @@ gaussianLogLikelihood(const CSymmetricMatrixNxN<T, N>& covariance,
 //! \param[in] mean The mean of the Gaussian.
 //! \param[in] covariance The covariance matrix of the Gaussian.
 //! \param[out] result Filled in with the samples.
-template <typename T, typename U, std::size_t N>
+template<typename T, typename U, std::size_t N>
 void sampleGaussian(std::size_t n,
                     const CVectorNx1<T, N>& mean,
                     const CSymmetricMatrixNxN<T, N>& covariance,
@@ -768,7 +768,7 @@ void sampleGaussian(std::size_t n,
 //! \param[in] matrix The matrix.
 //! \param[in] ignoreSingularSubspace If true then we ignore any
 //! singular subspace of m. Otherwise, the result is minus infinity.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrixNxN<T, N>& matrix,
                                                   double& result,
                                                   bool ignoreSingularSubspace = true) {
@@ -783,7 +783,7 @@ maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrixNxN<T, N
 //! \param[in] ignoreSingularSubspace If true then we ignore the
 //! residual on a singular subspace of m. Otherwise the result is
 //! minus infinity in this case.
-template <typename T>
+template<typename T>
 maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrix<T>& covariance,
                                                         const CVector<T>& residual,
                                                         double& result,
@@ -804,7 +804,7 @@ maths_t::EFloatingPointErrorStatus inverseQuadraticForm(const CSymmetricMatrix<T
 //! \param[in] ignoreSingularSubspace If true then we ignore the
 //! residual on a singular subspace of m. Otherwise the result is
 //! minus infinity in this case.
-template <typename T>
+template<typename T>
 maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(const CSymmetricMatrix<T>& covariance,
                                                          const CVector<T>& residual,
                                                          double& result,
@@ -824,7 +824,7 @@ maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(const CSymmetricMatrix<
 //! \param[in] mean The mean of the Gaussian.
 //! \param[in] covariance The covariance matrix of the Gaussian.
 //! \param[out] result Filled in with the samples.
-template <typename T, typename U>
+template<typename T, typename U>
 void sampleGaussian(std::size_t n,
                     const CVector<T>& mean,
                     const CSymmetricMatrix<T>& covariance,
@@ -837,7 +837,7 @@ void sampleGaussian(std::size_t n,
 //! \param[in] matrix The matrix.
 //! \param[in] ignoreSingularSubspace If true then we ignore any
 //! singular subspace of m. Otherwise, the result is minus infinity.
-template <typename T>
+template<typename T>
 maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrix<T>& matrix,
                                                   double& result,
                                                   bool ignoreSingularSubspace = true) {
@@ -848,7 +848,7 @@ maths_t::EFloatingPointErrorStatus logDeterminant(const CSymmetricMatrix<T>& mat
 }
 
 //! Project the matrix on to \p subspace.
-template <typename MATRIX>
+template<typename MATRIX>
 inline Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 projectedMatrix(const std::vector<std::size_t>& subspace, const MATRIX& matrix) {
     std::size_t d = subspace.size();
@@ -862,7 +862,7 @@ projectedMatrix(const std::vector<std::size_t>& subspace, const MATRIX& matrix) 
 }
 
 //! Project the vector on to \p subspace.
-template <typename VECTOR>
+template<typename VECTOR>
 inline Eigen::Matrix<double, Eigen::Dynamic, 1>
 projectedVector(const std::vector<std::size_t>& subspace, const VECTOR& vector) {
     std::size_t d = subspace.size();

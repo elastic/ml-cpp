@@ -65,72 +65,72 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
         switch (gathererType) {
-            case model_t::E_EventRate:
-            case model_t::E_PopulationEventRate:
-            case model_t::E_PeersEventRate:
-                switch (features[i]) {
-                CASE_INDIVIDUAL_COUNT:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-
-                CASE_INDIVIDUAL_METRIC:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
-                    break;
-
-                CASE_POPULATION_COUNT:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-
-                CASE_POPULATION_METRIC:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
-                    break;
-
-                CASE_PEERS_COUNT:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-
-                CASE_PEERS_METRIC:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
-                    break;
-                }
+        case model_t::E_EventRate:
+        case model_t::E_PopulationEventRate:
+        case model_t::E_PeersEventRate:
+            switch (features[i]) {
+            CASE_INDIVIDUAL_COUNT:
+                features[j] = features[i];
+                ++j;
                 break;
 
-            case model_t::E_Metric:
-            case model_t::E_PopulationMetric:
-            case model_t::E_PeersMetric:
-
-                switch (features[i]) {
-                CASE_INDIVIDUAL_COUNT:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
-                    break;
-
-                CASE_INDIVIDUAL_METRIC:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-
-                CASE_POPULATION_COUNT:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
-                    break;
-
-                CASE_POPULATION_METRIC:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-
-                CASE_PEERS_COUNT:
-                    LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
-                    break;
-
-                CASE_PEERS_METRIC:
-                    features[j] = features[i];
-                    ++j;
-                    break;
-                }
+            CASE_INDIVIDUAL_METRIC:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
                 break;
+
+            CASE_POPULATION_COUNT:
+                features[j] = features[i];
+                ++j;
+                break;
+
+            CASE_POPULATION_METRIC:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
+                break;
+
+            CASE_PEERS_COUNT:
+                features[j] = features[i];
+                ++j;
+                break;
+
+            CASE_PEERS_METRIC:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]));
+                break;
+            }
+            break;
+
+        case model_t::E_Metric:
+        case model_t::E_PopulationMetric:
+        case model_t::E_PeersMetric:
+
+            switch (features[i]) {
+            CASE_INDIVIDUAL_COUNT:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                break;
+
+            CASE_INDIVIDUAL_METRIC:
+                features[j] = features[i];
+                ++j;
+                break;
+
+            CASE_POPULATION_COUNT:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                break;
+
+            CASE_POPULATION_METRIC:
+                features[j] = features[i];
+                ++j;
+                break;
+
+            CASE_PEERS_COUNT:
+                LOG_ERROR("Unexpected feature = " << model_t::print(features[i]))
+                break;
+
+            CASE_PEERS_METRIC:
+                features[j] = features[i];
+                ++j;
+                break;
+            }
+            break;
         }
     }
 
@@ -151,15 +151,15 @@ CDataGatherer::TFeatureVec sanitize(const CDataGatherer::TFeatureVec& features,
 //! Check if the gatherer is for population modelling.
 bool isPopulation(model_t::EAnalysisCategory gathererType) {
     switch (gathererType) {
-        case model_t::E_EventRate:
-        case model_t::E_Metric:
-            return false;
+    case model_t::E_EventRate:
+    case model_t::E_Metric:
+        return false;
 
-        case model_t::E_PopulationEventRate:
-        case model_t::E_PeersEventRate:
-        case model_t::E_PopulationMetric:
-        case model_t::E_PeersMetric:
-            return true;
+    case model_t::E_PopulationEventRate:
+    case model_t::E_PeersEventRate:
+    case model_t::E_PopulationMetric:
+    case model_t::E_PeersMetric:
+        return true;
     }
     return false;
 }
@@ -996,29 +996,29 @@ void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType
                                          core_t::TTime startTime,
                                          unsigned int sampleCountOverride) {
     switch (gathererType) {
-        case model_t::E_EventRate:
-        case model_t::E_PopulationEventRate:
-        case model_t::E_PeersEventRate:
-            m_Gatherers.push_back(new CEventRateBucketGatherer(*this,
-                                                               summaryCountFieldName,
-                                                               personFieldName,
-                                                               attributeFieldName,
-                                                               valueFieldName,
-                                                               influenceFieldNames,
-                                                               startTime));
-            break;
-        case model_t::E_Metric:
-        case model_t::E_PopulationMetric:
-        case model_t::E_PeersMetric:
-            m_SampleCounts.reset(new CSampleCounts(sampleCountOverride));
-            m_Gatherers.push_back(new CMetricBucketGatherer(*this,
-                                                            summaryCountFieldName,
-                                                            personFieldName,
-                                                            attributeFieldName,
-                                                            valueFieldName,
-                                                            influenceFieldNames,
-                                                            startTime));
-            break;
+    case model_t::E_EventRate:
+    case model_t::E_PopulationEventRate:
+    case model_t::E_PeersEventRate:
+        m_Gatherers.push_back(new CEventRateBucketGatherer(*this,
+                                                           summaryCountFieldName,
+                                                           personFieldName,
+                                                           attributeFieldName,
+                                                           valueFieldName,
+                                                           influenceFieldNames,
+                                                           startTime));
+        break;
+    case model_t::E_Metric:
+    case model_t::E_PopulationMetric:
+    case model_t::E_PeersMetric:
+        m_SampleCounts.reset(new CSampleCounts(sampleCountOverride));
+        m_Gatherers.push_back(new CMetricBucketGatherer(*this,
+                                                        summaryCountFieldName,
+                                                        personFieldName,
+                                                        attributeFieldName,
+                                                        valueFieldName,
+                                                        influenceFieldNames,
+                                                        startTime));
+        break;
     }
 }
 }

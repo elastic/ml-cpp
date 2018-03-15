@@ -72,7 +72,7 @@ struct SSetTimeZone {
 };
 
 //! Generate \p n samples uniformly in the interval [\p a, \p b].
-template <typename ITR>
+template<typename ITR>
 void generateUniformSamples(boost::random::mt19937_64& rng,
                             double a,
                             double b,

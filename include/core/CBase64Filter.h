@@ -80,7 +80,7 @@ public:
     //! Note that up to n bytes should be read if possible, but we don't report
     //! here how many bytes were actually written to the stream, only how many
     //! we actually consumed from s.
-    template <typename SINK>
+    template<typename SINK>
     std::streamsize write(SINK& snk, const char_type* s, std::streamsize n) {
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
@@ -98,7 +98,7 @@ public:
 
     //! Interface method for terminating this filter class - flush
     //! any remaining bytes and pad the output if necessary.
-    template <typename SINK>
+    template<typename SINK>
     void close(SINK& snk) {
         this->Encode(snk, true);
     }
@@ -106,7 +106,7 @@ public:
 private:
     //! Do the actual work of encoding the data - take a chunck of buffered data and write
     //! the converted output into the stream snk
-    template <typename SINK>
+    template<typename SINK>
     void Encode(SINK& snk, bool isFinal) {
         typedef boost::archive::iterators::transform_width<TUInt8BufCItr, 6, 8>
             TUInt8BufCItrTransformItr;
@@ -189,7 +189,7 @@ public:
     //! The input bytes are buffered, decoded, and the decoded bytes
     //! written to s. Note that we return the number of bytes written to
     //! s, not the number of input bytes copied from src
-    template <typename SOURCE>
+    template<typename SOURCE>
     std::streamsize read(SOURCE& src, char_type* s, std::streamsize n) {
         // copy into the buffer while there is data to read and space in the buffer
         std::streamsize done = 0;
@@ -228,20 +228,20 @@ public:
                         // but we don't want to try and decode anything which might cause
                         // the decoder to choke
                         switch (buf[i]) {
-                            case ']':
-                            case '[':
-                            case ',':
-                            case '"':
-                            case '{':
-                            case '}':
-                            case '\\':
-                            case ' ':
-                            case ':':
-                                break;
+                        case ']':
+                        case '[':
+                        case ',':
+                        case '"':
+                        case '{':
+                        case '}':
+                        case '\\':
+                        case ' ':
+                        case ':':
+                            break;
 
-                            default:
-                                m_BufferIn.push_back(static_cast<uint8_t>(buf[i]));
-                                break;
+                        default:
+                            m_BufferIn.push_back(static_cast<uint8_t>(buf[i]));
+                            break;
                         }
                     }
                 }
@@ -257,7 +257,7 @@ public:
     }
 
     //! Interface method - unused
-    template <typename SOURCE>
+    template<typename SOURCE>
     void close(SOURCE& /*src*/) {}
 
 private:

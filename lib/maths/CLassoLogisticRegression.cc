@@ -87,7 +87,7 @@ double lassoStep(double beta, double lambda, double n, double d) {
 //!
 //! \note That this should decrease monotonically in each iteration
 //! of the inner solver loop.
-template <typename MATRIX>
+template<typename MATRIX>
 double logLikelihood(const MATRIX& x,
                      const TDoubleVec& y,
                      const TDoubleVec& lambda,
@@ -116,7 +116,7 @@ double logLikelihood(const MATRIX& x,
 
 //! Zhang and Oles cyclic coordinate descent scheme, CLG, adapted
 //! for Bayesian Logistic Regression with Laplace prior.
-template <typename MATRIX>
+template<typename MATRIX>
 void CLG(std::size_t maxIterations,
          double eps,
          const MATRIX& x,
@@ -253,7 +253,7 @@ CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, do
     : m_MaxIterations(maxIterations), m_Eps(eps) {
 }
 
-template <typename MATRIX>
+template<typename MATRIX>
 bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x,
                                            const TDoubleVec& y,
                                            const TDoubleVec& lambda) {
@@ -512,7 +512,7 @@ void setupTrainingData(const TSizeDoublePrVecVec& x,
 //! \param[in] y The feature vector labels.
 //! \param[in] lambda The precision of the Laplace prior.
 //! \param[out] beta Filled in with the learned regression parameters.
-template <typename MATRIX>
+template<typename MATRIX>
 bool learn(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda, TDoubleVec& beta) {
     using namespace lasso_logistic_regression_detail;
 
@@ -555,7 +555,7 @@ double element(const TSizeDoublePr& xij) {
 //!
 //! Here, \f$n\f$ is the number of rows and \f$d\f$ is the number
 //! of columns.
-template <typename STORAGE>
+template<typename STORAGE>
 double l22Norm(const STORAGE& x) {
     typedef CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
     TMeanAccumulator result;
@@ -584,7 +584,7 @@ double l22Norm(const STORAGE& x) {
 //! for example by ensuring that both subsets contain both positive
 //! and negative examples. This can be achieved by randomly splitting
 //! these sets independently.
-template <typename MATRIX>
+template<typename MATRIX>
 class C2FoldCrossValidatedLogLikelihood {
 public:
     typedef double result_type;
@@ -649,13 +649,13 @@ private:
 
 ////// CLassoLogisticRegression //////
 
-template <typename STORAGE>
+template<typename STORAGE>
 CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void)
     : m_X(), m_D(0), m_Y(), m_Lambda(1.0), m_Beta() {
 }
 
-template <typename STORAGE>
-template <typename MATRIX>
+template<typename STORAGE>
+template<typename MATRIX>
 void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersStyle style) {
     if (m_X.empty()) {
         return;
@@ -672,10 +672,10 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
         return;
     }
     switch (style) {
-        case E_LambdaNormBased:
-            return;
-        case E_LambdaCrossValidated:
-            break;
+    case E_LambdaNormBased:
+        return;
+    case E_LambdaCrossValidated:
+        break;
     }
 
     // Set up the cross-validation optimization objective.
@@ -746,8 +746,8 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     m_Lambda = logLikelihood > *max ? lambda : scales[max - logLikelihoods] * min;
 }
 
-template <typename STORAGE>
-template <typename MATRIX>
+template<typename STORAGE>
+template<typename MATRIX>
 bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result) {
     result = CLogisticRegressionModel();
 
@@ -781,7 +781,7 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result
     return true;
 }
 
-template <typename STORAGE>
+template<typename STORAGE>
 bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
     if (m_Y.empty()) {
         LOG_WARN("No training data");

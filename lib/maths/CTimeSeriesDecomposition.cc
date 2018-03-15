@@ -475,7 +475,7 @@ void CTimeSeriesDecomposition::initializeMediator(void) {
     m_Mediator->registerHandler(m_Components);
 }
 
-template <typename F>
+template<typename F>
 TDoubleDoublePr
 CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const {
     auto offset = [&f, time](core_t::TTime discontinuity) {

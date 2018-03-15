@@ -110,7 +110,7 @@ public:
                     TTimeDoublePrVec& results);
 
 private:
-    template <typename T>
+    template<typename T>
     static bool parse(const std::string& fileName,
                       const std::string& regex,
                       const std::string& dateFormat,
@@ -118,7 +118,7 @@ private:
                       core_t::TTime& minTime,
                       core_t::TTime& maxTime);
 
-    template <typename T>
+    template<typename T>
     static bool parseLine(const core::CRegex& tokenRegex,
                           const std::string& dateFormat,
                           const std::string& line,

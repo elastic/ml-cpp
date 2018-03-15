@@ -100,7 +100,7 @@ public:
 
 private:
     //! Helper method for init().
-    template <typename FIELDTYPE>
+    template<typename FIELDTYPE>
     static bool processSetting(const boost::property_tree::ptree& propTree,
                                const std::string& iniPath,
                                const FIELDTYPE& defaultValue,

@@ -53,7 +53,7 @@ namespace model {
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
-template <class STATISTIC>
+template<class STATISTIC>
 class CMetricPartialStatistic {
 public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
@@ -152,9 +152,9 @@ private:
     TMeanAccumulator m_Time;
 };
 
-template <class STATISTIC>
+template<class STATISTIC>
 const std::string CMetricPartialStatistic<STATISTIC>::VALUE_TAG("a");
-template <class STATISTIC>
+template<class STATISTIC>
 const std::string CMetricPartialStatistic<STATISTIC>::TIME_TAG("b");
 }
 }

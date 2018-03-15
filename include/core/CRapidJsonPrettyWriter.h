@@ -31,11 +31,11 @@ namespace core {
     \tparam STACK_ALLOCATOR Type of allocator for allocating memory of stack.
     \note implements Handler concept
 */
-template <typename OUTPUT_STREAM,
-          typename SOURCE_ENCODING = rapidjson::UTF8<>,
-          typename TARGET_ENCODING = rapidjson::UTF8<>,
-          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
-          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
+template<typename OUTPUT_STREAM,
+         typename SOURCE_ENCODING = rapidjson::UTF8<>,
+         typename TARGET_ENCODING = rapidjson::UTF8<>,
+         typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
+         unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
 class CRapidJsonPrettyWriter : public CRapidJsonWriterBase<OUTPUT_STREAM,
                                                            SOURCE_ENCODING,
                                                            TARGET_ENCODING,

@@ -22,32 +22,32 @@
 
 namespace ml {
 namespace core {
-template <typename VECTOR>
+template<typename VECTOR>
 class CVectorRange;
 
 namespace vector_range_detail {
 //! \brief Gets the reference type.
-template <typename VECTOR>
+template<typename VECTOR>
 struct SReferenceType {
     using type = typename VECTOR::reference;
 };
-template <typename VECTOR>
+template<typename VECTOR>
 struct SReferenceType<const VECTOR> {
     using type = typename VECTOR::const_reference;
 };
 
 //! \brief Gets the iterator type.
-template <typename VECTOR>
+template<typename VECTOR>
 struct SIteratorType {
     using type = typename VECTOR::iterator;
 };
-template <typename VECTOR>
+template<typename VECTOR>
 struct SIteratorType<const VECTOR> {
     using type = typename VECTOR::const_iterator;
 };
 
 //! \brief Implements assignment.
-template <typename VECTOR>
+template<typename VECTOR>
 struct SDoAssign {
     static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs,
                                                 const CVectorRange<VECTOR>& rhs) {
@@ -60,7 +60,7 @@ struct SDoAssign {
         return lhs;
     }
 };
-template <typename VECTOR>
+template<typename VECTOR>
 struct SDoAssign<const VECTOR> {
     static const CVectorRange<const VECTOR>& dispatch(CVectorRange<const VECTOR>& lhs,
                                                       const CVectorRange<const VECTOR>& rhs) {
@@ -76,7 +76,7 @@ struct SDoAssign<const VECTOR> {
 //! DESCRIPTION:\n
 //! A lightweight mostly c++11 compliant vector interface to a contiguous
 //! sub-range of a specified vector type.
-template <typename VECTOR>
+template<typename VECTOR>
 class CVectorRange {
 public:
     using allocator_type = typename VECTOR::allocator_type;
@@ -95,7 +95,7 @@ public:
     }
 
     //! Assign from value.
-    template <typename T>
+    template<typename T>
     void assign(size_type n, const T& value) {
         std::fill_n(this->begin(), std::min(this->size(), n), value);
         if (n > this->size()) {
@@ -106,7 +106,7 @@ public:
         m_B = m_A + n;
     }
     //! Assign from range.
-    template <typename ITR>
+    template<typename ITR>
     void assign(ITR begin, ITR end) {
         size_type size = std::distance(begin, end);
         std::copy(begin, begin + std::min(this->size(), size), this->begin());
@@ -191,19 +191,19 @@ public:
         return m_Vector->erase(begin, end);
     }
     //! Insert a value at \p pos.
-    template <typename T>
+    template<typename T>
     iterator insert(const_iterator pos, const T& value) {
         ++m_B;
         return m_Vector->insert(pos, value);
     }
     //! Insert \p n copies of \p value at \p pos.
-    template <typename T>
+    template<typename T>
     iterator insert(const_iterator pos, size_type n, const T& value) {
         m_B += n;
         return m_Vector->insert(pos, n, value);
     }
     //! Insert the value [\p begin, \p end) at \p pos.
-    template <typename ITR>
+    template<typename ITR>
     iterator insert(const_iterator pos, ITR begin, ITR end) {
         m_B += std::distance(begin, end);
         return m_Vector->insert(pos, begin, end);
@@ -211,7 +211,7 @@ public:
     //! Add an element at the end of the range.
     //!
     //! \warning This is not O(1).
-    template <typename T>
+    template<typename T>
     void push_back(const T& value) {
         this->insert(this->end(), value);
     }
@@ -224,7 +224,7 @@ public:
     void resize(size_type n) { this->resize(n, typename VECTOR::value_type()); }
     //! Resize adding default constructed values if \p n is greater
     //! than the current size.
-    template <typename T>
+    template<typename T>
     void resize(size_type n, const T& value) {
         if (n > this->size()) {
             this->insert(this->end(), n - this->size(), value);
@@ -266,44 +266,44 @@ private:
 };
 
 //! Check if \p lhs and \p rhs are equal.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator==(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 //! Check if \p lhs and \p rhs are not equal.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator!=(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return !(lhs == rhs);
 }
 //! Check if \p lhs is lexicographically less than \p rhs.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator<(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 //! Check if \p lhs is lexicographically less or equal to \p rhs.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator<=(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return lhs < rhs || lhs == rhs;
 }
 //! Check if \p lhs is lexicographically greater than \p rhs.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator>(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return rhs < lhs;
 }
 //! Check if \p lhs is lexicographically less or equal to \p rhs.
-template <typename VECTOR>
+template<typename VECTOR>
 bool operator>=(const CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
     return rhs <= lhs;
 }
 
 //! Free swap function to participate in Koenig lookup.
-template <typename VECTOR>
+template<typename VECTOR>
 void swap(CVectorRange<VECTOR>& lhs, CVectorRange<VECTOR>& rhs) {
     lhs.swap(rhs);
 }
 
 //! Make a vector subrange.
-template <typename VECTOR>
+template<typename VECTOR>
 CVectorRange<VECTOR> make_range(VECTOR& vector, std::size_t a, std::size_t b) {
     return CVectorRange<VECTOR>(vector, a, b);
 }

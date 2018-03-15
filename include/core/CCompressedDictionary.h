@@ -48,7 +48,7 @@ namespace core {
 //! IMPLMENTATION:\n
 //! This uses murmur hash 2 behind the scenes because its distributions
 //! are good enough and it is very fast to compute.
-template <std::size_t N>
+template<std::size_t N>
 class CCompressedDictionary {
 public:
     typedef boost::array<uint64_t, N> TUInt64Array;
@@ -144,7 +144,7 @@ public:
 
     //! A "template typedef" of an ordered map from words to
     //! objects of type T.
-    template <typename T>
+    template<typename T>
     class CWordMap {
     public:
         typedef std::map<CWord, T> Type;
@@ -152,7 +152,7 @@ public:
 
     //! A "template typedef" of an unordered map from words to
     //! objects of type T.
-    template <typename T>
+    template<typename T>
     class CWordUMap {
     public:
         typedef boost::unordered_map<CWord, T, CHash> Type;
@@ -204,7 +204,7 @@ public:
     }
 
 private:
-    template <std::size_t NUMBER_OF_WORDS>
+    template<std::size_t NUMBER_OF_WORDS>
     CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
         TUInt64Array hashes;
         for (std::size_t i = 0u; i < N; ++i) {
@@ -223,7 +223,7 @@ private:
     TUInt64Array m_Seeds;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 const char CCompressedDictionary<N>::CWord::DELIMITER(',');
 }
 }

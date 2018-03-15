@@ -122,7 +122,7 @@ private:
     const TDoubleVecVec* m_DistanceMatrix;
 };
 
-template <typename OBJECTIVE>
+template<typename OBJECTIVE>
 TClusterVec agglomerativeCluster(const TDoubleVecVec& distanceMatrix) {
     std::size_t n = distanceMatrix.size();
 
@@ -171,16 +171,16 @@ TClusterVec agglomerativeCluster(const TDoubleVecVec& distanceMatrix) {
 
 std::string print(maths::CAgglomerativeClusterer::EObjective o) {
     switch (o) {
-        case maths::CAgglomerativeClusterer::E_Single:
-            return "slink";
-        case maths::CAgglomerativeClusterer::E_Complete:
-            return "clink";
-        case maths::CAgglomerativeClusterer::E_Average:
-            return "average";
-        case maths::CAgglomerativeClusterer::E_Weighted:
-            return "weighted";
-        case maths::CAgglomerativeClusterer::E_Ward:
-            return "ward";
+    case maths::CAgglomerativeClusterer::E_Single:
+        return "slink";
+    case maths::CAgglomerativeClusterer::E_Complete:
+        return "clink";
+    case maths::CAgglomerativeClusterer::E_Average:
+        return "average";
+    case maths::CAgglomerativeClusterer::E_Weighted:
+        return "weighted";
+    case maths::CAgglomerativeClusterer::E_Ward:
+        return "ward";
     }
     return "unexpected";
 }
@@ -422,18 +422,18 @@ void CAgglomerativeClustererTest::testRandom(void) {
 
             TClusterVec expectedTree;
             switch (objectives[o]) {
-                case maths::CAgglomerativeClusterer::E_Single:
-                    expectedTree = agglomerativeCluster<CSlinkObjective>(distanceMatrix);
-                    break;
-                case maths::CAgglomerativeClusterer::E_Complete:
-                    expectedTree = agglomerativeCluster<CClinkObjective>(distanceMatrix);
-                    break;
-                case maths::CAgglomerativeClusterer::E_Average:
-                case maths::CAgglomerativeClusterer::E_Weighted:
-                case maths::CAgglomerativeClusterer::E_Ward:
-                    // TODO
-                    CPPUNIT_ASSERT(false);
-                    break;
+            case maths::CAgglomerativeClusterer::E_Single:
+                expectedTree = agglomerativeCluster<CSlinkObjective>(distanceMatrix);
+                break;
+            case maths::CAgglomerativeClusterer::E_Complete:
+                expectedTree = agglomerativeCluster<CClinkObjective>(distanceMatrix);
+                break;
+            case maths::CAgglomerativeClusterer::E_Average:
+            case maths::CAgglomerativeClusterer::E_Weighted:
+            case maths::CAgglomerativeClusterer::E_Ward:
+                // TODO
+                CPPUNIT_ASSERT(false);
+                break;
             }
 
             TDoubleSizeVecPrVec expectedClusters;

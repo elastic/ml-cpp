@@ -26,10 +26,10 @@ namespace linear_algebra_tools_detail {
 namespace {
 
 //! \brief Shared implementation of the inverse quadratic product.
-template <typename EIGENMATRIX, typename EIGENVECTOR>
+template<typename EIGENMATRIX, typename EIGENVECTOR>
 class CInverseQuadraticProduct {
 public:
-    template <typename MATRIX, typename VECTOR>
+    template<typename MATRIX, typename VECTOR>
     static maths_t::EFloatingPointErrorStatus compute(std::size_t d,
                                                       const MATRIX& covariance_,
                                                       const VECTOR& residual,
@@ -43,43 +43,42 @@ public:
         result = core::constants::LOG_MAX_DOUBLE + 1.0;
 
         switch (d) {
-            case 1:
-                if (covariance_(0, 0) == 0.0) {
+        case 1:
+            if (covariance_(0, 0) == 0.0) {
+                return maths_t::E_FpOverflowed;
+            }
+            result = residual(0) * residual(0) / covariance_(0, 0);
+            return maths_t::E_FpNoErrors;
+
+        default: {
+            // Note we use Jacobi SVD here so that we handle the case
+            // that m is singular to working precision.
+            Eigen::JacobiSVD<EIGENMATRIX> covariance(toDenseMatrix(covariance_),
+                                                     Eigen::ComputeFullU | Eigen::ComputeFullV);
+            EIGENVECTOR y(toDenseVector(residual));
+
+            // Check the residual is zero on the singular subspace.
+            std::size_t rank = static_cast<std::size_t>(covariance.rank());
+            if (!ignoreSingularSubspace && rank < d) {
+                double normC = (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
+                double normS = (y.transpose() * covariance.matrixU().rightCols(d - rank)).norm();
+                if (normS > std::numeric_limits<double>::epsilon() * normC) {
                     return maths_t::E_FpOverflowed;
                 }
-                result = residual(0) * residual(0) / covariance_(0, 0);
-                return maths_t::E_FpNoErrors;
-
-            default: {
-                // Note we use Jacobi SVD here so that we handle the case
-                // that m is singular to working precision.
-                Eigen::JacobiSVD<EIGENMATRIX> covariance(toDenseMatrix(covariance_),
-                                                         Eigen::ComputeFullU | Eigen::ComputeFullV);
-                EIGENVECTOR y(toDenseVector(residual));
-
-                // Check the residual is zero on the singular subspace.
-                std::size_t rank = static_cast<std::size_t>(covariance.rank());
-                if (!ignoreSingularSubspace && rank < d) {
-                    double normC = (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
-                    double normS =
-                        (y.transpose() * covariance.matrixU().rightCols(d - rank)).norm();
-                    if (normS > std::numeric_limits<double>::epsilon() * normC) {
-                        return maths_t::E_FpOverflowed;
-                    }
-                }
-                y = covariance.solve(y);
-                result = residual.inner(y);
-                return maths_t::E_FpNoErrors;
             }
+            y = covariance.solve(y);
+            result = residual.inner(y);
+            return maths_t::E_FpNoErrors;
+        }
         }
     }
 };
 
 //! \brief Shared implementation of the log-likelihood function.
-template <typename EIGENMATRIX, typename EIGENVECTOR>
+template<typename EIGENMATRIX, typename EIGENVECTOR>
 class CGaussianLogLikelihood {
 public:
-    template <typename MATRIX, typename VECTOR>
+    template<typename MATRIX, typename VECTOR>
     static maths_t::EFloatingPointErrorStatus compute(std::size_t d,
                                                       const MATRIX& covariance_,
                                                       const VECTOR& residual,
@@ -88,51 +87,50 @@ public:
         result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
         switch (d) {
-            case 1:
-                if (covariance_(0, 0) == 0.0) {
-                    return maths_t::E_FpOverflowed;
-                }
-                result = -0.5 * (residual(0) * residual(0) / covariance_(0, 0) +
-                                 core::constants::LOG_TWO_PI + ::log(covariance_(0, 0)));
-                return maths_t::E_FpNoErrors;
-
-            default: {
-                // Note we use Jacobi SVD here so that we handle the case
-                // that m is singular to working precision.
-                Eigen::JacobiSVD<EIGENMATRIX> covariance(toDenseMatrix(covariance_),
-                                                         Eigen::ComputeFullU | Eigen::ComputeFullV);
-                EIGENVECTOR y(toDenseVector(residual));
-
-                // Check the residual is zero on the singular subspace.
-                std::size_t rank = static_cast<std::size_t>(covariance.rank());
-                if (!ignoreSingularSubspace && rank < d) {
-                    double normC = (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
-                    double normS =
-                        (y.transpose() * covariance.matrixU().rightCols(d - rank)).norm();
-                    result = normS > std::numeric_limits<double>::epsilon() * normC
-                                 ? core::constants::LOG_MIN_DOUBLE - 1.0
-                                 : core::constants::LOG_MAX_DOUBLE + 1.0;
-                    return maths_t::E_FpOverflowed;
-                }
-                y = covariance.solve(y);
-                double logDeterminant = 0.0;
-                for (std::size_t i = 0u; i < rank; ++i) {
-                    logDeterminant += ::log(covariance.singularValues()(i));
-                }
-                result = -0.5 *
-                         (residual.inner(y) +
-                          static_cast<double>(rank) * core::constants::LOG_TWO_PI + logDeterminant);
-                return maths_t::E_FpNoErrors;
+        case 1:
+            if (covariance_(0, 0) == 0.0) {
+                return maths_t::E_FpOverflowed;
             }
+            result = -0.5 * (residual(0) * residual(0) / covariance_(0, 0) +
+                             core::constants::LOG_TWO_PI + ::log(covariance_(0, 0)));
+            return maths_t::E_FpNoErrors;
+
+        default: {
+            // Note we use Jacobi SVD here so that we handle the case
+            // that m is singular to working precision.
+            Eigen::JacobiSVD<EIGENMATRIX> covariance(toDenseMatrix(covariance_),
+                                                     Eigen::ComputeFullU | Eigen::ComputeFullV);
+            EIGENVECTOR y(toDenseVector(residual));
+
+            // Check the residual is zero on the singular subspace.
+            std::size_t rank = static_cast<std::size_t>(covariance.rank());
+            if (!ignoreSingularSubspace && rank < d) {
+                double normC = (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
+                double normS = (y.transpose() * covariance.matrixU().rightCols(d - rank)).norm();
+                result = normS > std::numeric_limits<double>::epsilon() * normC
+                             ? core::constants::LOG_MIN_DOUBLE - 1.0
+                             : core::constants::LOG_MAX_DOUBLE + 1.0;
+                return maths_t::E_FpOverflowed;
+            }
+            y = covariance.solve(y);
+            double logDeterminant = 0.0;
+            for (std::size_t i = 0u; i < rank; ++i) {
+                logDeterminant += ::log(covariance.singularValues()(i));
+            }
+            result =
+                -0.5 * (residual.inner(y) +
+                        static_cast<double>(rank) * core::constants::LOG_TWO_PI + logDeterminant);
+            return maths_t::E_FpNoErrors;
+        }
         }
     }
 };
 
 //! \brief Shared implementation of Gaussian sampling.
-template <typename EIGENMATRIX>
+template<typename EIGENMATRIX>
 class CSampleGaussian {
 public:
-    template <typename MATRIX, typename VECTOR, typename VECTOR_PRECISE>
+    template<typename MATRIX, typename VECTOR, typename VECTOR_PRECISE>
     static void generate(std::size_t n,
                          const VECTOR& mean_,
                          const MATRIX& covariance_,
@@ -199,40 +197,40 @@ public:
 };
 
 //! \brief Shared implementation of the log-determinant function.
-template <typename EIGENMATRIX>
+template<typename EIGENMATRIX>
 class CLogDeterminant {
 public:
-    template <typename MATRIX>
+    template<typename MATRIX>
     static maths_t::EFloatingPointErrorStatus
     compute(std::size_t d, const MATRIX& m_, double& result, bool ignoreSingularSubspace) {
         result = core::constants::LOG_MIN_DOUBLE - 1.0;
 
         switch (d) {
-            case 1:
-                if (m_(0, 0) == 0.0) {
-                    return maths_t::E_FpOverflowed;
-                }
-                result = ::log(m_(0, 0));
-                return maths_t::E_FpNoErrors;
-
-            default: {
-                // Note we use Jacobi SVD here so that we handle the case
-                // that m is singular to working precision.
-                Eigen::JacobiSVD<EIGENMATRIX> svd(toDenseMatrix(m_));
-
-                // Check the residual is zero on the singular subspace.
-                std::size_t rank = static_cast<std::size_t>(svd.rank());
-                if (!ignoreSingularSubspace && rank < d) {
-                    result = static_cast<double>(d - rank) *
-                             ::log(svd.threshold() * svd.singularValues()(0));
-                    return maths_t::E_FpOverflowed;
-                }
-                result = 0.0;
-                for (std::size_t i = 0u; i < rank; ++i) {
-                    result += ::log(svd.singularValues()(i));
-                }
-                return maths_t::E_FpNoErrors;
+        case 1:
+            if (m_(0, 0) == 0.0) {
+                return maths_t::E_FpOverflowed;
             }
+            result = ::log(m_(0, 0));
+            return maths_t::E_FpNoErrors;
+
+        default: {
+            // Note we use Jacobi SVD here so that we handle the case
+            // that m is singular to working precision.
+            Eigen::JacobiSVD<EIGENMATRIX> svd(toDenseMatrix(m_));
+
+            // Check the residual is zero on the singular subspace.
+            std::size_t rank = static_cast<std::size_t>(svd.rank());
+            if (!ignoreSingularSubspace && rank < d) {
+                result = static_cast<double>(d - rank) *
+                         ::log(svd.threshold() * svd.singularValues()(0));
+                return maths_t::E_FpOverflowed;
+            }
+            result = 0.0;
+            for (std::size_t i = 0u; i < rank; ++i) {
+                result += ::log(svd.singularValues()(i));
+            }
+            return maths_t::E_FpNoErrors;
+        }
         }
     }
 };

@@ -39,7 +39,7 @@ struct SEmptyNodeData {};
 //!
 //! Overload to adapt the Euclidean norm calculation for different
 //! point implementations.
-template <typename POINT>
+template<typename POINT>
 typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POINT& point) {
     return point.euclidean();
 }
@@ -67,7 +67,7 @@ typename SPromoted<typename SCoordinate<POINT>::Type>::Type euclidean(const POIN
 //! when it is not needed). This should be default constructible and
 //! have value semantics. This can be useful for implementing certain
 //! algorithms efficiently.
-template <typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
+template<typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
 public:
     typedef std::vector<POINT> TPointVec;
@@ -200,7 +200,7 @@ public:
     //! \param[in] f The function to apply to the nodes.
     //! \tparam F should have the signature bool (const SNode &).
     //! Traversal stops below point that \p f returns false.
-    template <typename F>
+    template<typename F>
     void preorderDepthFirst(F f) const {
         if (m_Nodes.empty()) {
             return;
@@ -212,7 +212,7 @@ public:
     //!
     //! \param[in] f The function to apply to the nodes.
     //! \tparam F should have the signature void (const SNode &).
-    template <typename F>
+    template<typename F>
     void postorderDepthFirst(F f) const {
         if (m_Nodes.empty()) {
             return;
@@ -319,7 +319,7 @@ private:
     }
 
     //! Visit the branch rooted at \p node with \p f in pre-order.
-    template <typename F>
+    template<typename F>
     static void preorderDepthFirst(const SNode& node, F f) {
         if (f(node)) {
             if (node.s_LeftChild) {
@@ -332,7 +332,7 @@ private:
     }
 
     //! Visit the branch rooted at \p node with \p f in post-order.
-    template <typename F>
+    template<typename F>
     static void postorderDepthFirst(const SNode& node, F f) {
         if (node.s_LeftChild) {
             postorderDepthFirst(*node.s_LeftChild, f);

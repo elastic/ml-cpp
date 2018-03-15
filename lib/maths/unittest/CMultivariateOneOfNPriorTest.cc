@@ -74,7 +74,7 @@ private:
     const maths::CMultivariateOneOfNPrior* m_Prior;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 maths::CMultivariateMultimodalPrior<N> makeMultimodal(maths_t::EDataType dataType,
                                                       double decayRate = 0.0) {
     maths::CXMeansOnline<maths::CFloatStorage, N> clusterer(dataType,
@@ -87,7 +87,7 @@ maths::CMultivariateMultimodalPrior<N> makeMultimodal(maths_t::EDataType dataTyp
            decayRate);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 maths::CMultivariateOneOfNPrior makeOneOfN(maths_t::EDataType dataType, double decayRate = 0.0) {
     TPriorPtrVec priors;
     priors.push_back(TPriorPtr(
@@ -124,14 +124,14 @@ double sum(const TDoubleVec& x) {
 
 std::string print(maths_t::EDataType dataType) {
     switch (dataType) {
-        case maths_t::E_DiscreteData:
-            return "Discrete";
-        case maths_t::E_IntegerData:
-            return "Integer";
-        case maths_t::E_ContinuousData:
-            return "Continuous";
-        case maths_t::E_MixedData:
-            return "Mixed";
+    case maths_t::E_DiscreteData:
+        return "Discrete";
+    case maths_t::E_IntegerData:
+        return "Integer";
+    case maths_t::E_ContinuousData:
+        return "Continuous";
+    case maths_t::E_MixedData:
+        return "Mixed";
     }
     return "";
 }

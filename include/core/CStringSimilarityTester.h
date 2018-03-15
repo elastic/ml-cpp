@@ -98,7 +98,7 @@ public:
     //! Remove those characters from a string that cause a provided
     //! predicate to return true (can be used with ctype.h functions
     //! like isalpha() etc, or with a functor)
-    template <typename PREDICATE>
+    template<typename PREDICATE>
     std::string strippedString(const std::string& original, PREDICATE excludePred) const {
         std::string stripped;
         stripped.reserve(original.size());
@@ -113,7 +113,7 @@ public:
 
     //! Calculate how similar two strings are, excluding
     //! certain characters
-    template <typename PREDICATE>
+    template<typename PREDICATE>
     bool similarityEx(const std::string& first,
                       const std::string& second,
                       PREDICATE excludePred,
@@ -129,7 +129,7 @@ public:
 
     //! Calculate the Levenshtein distance between two strings,
     //! excluding certain characters
-    template <typename STRINGLIKE, typename PREDICATE>
+    template<typename STRINGLIKE, typename PREDICATE>
     size_t levenshteinDistanceEx(const STRINGLIKE& first,
                                  const STRINGLIKE& second,
                                  PREDICATE excludePred) const {
@@ -142,7 +142,7 @@ public:
     //! Can be applied to any container that implements size() and
     //! operator[]() where the elements held in the container implement
     //! operator==().
-    template <typename STRINGLIKE>
+    template<typename STRINGLIKE>
     size_t levenshteinDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // Levenshtein distance is the number of operations required to
         // convert one string into another, where an operation means
@@ -213,7 +213,7 @@ public:
     //!
     //! TODO - It may be possible to apply some of the lesser optimisations
     //! from section 2 of Ukkonen's paper to this algorithm.
-    template <typename PAIRCONTAINER>
+    template<typename PAIRCONTAINER>
     size_t weightedEditDistance(const PAIRCONTAINER& first, const PAIRCONTAINER& second) const {
         // This is similar to the levenshteinDistanceSimple() method below,
         // but adding the concept of different costs for each element.  If
@@ -300,7 +300,7 @@ private:
     //! calculating the entire distance matrix.  This private method
     //! assumes that first.size() > 0 and second.size() > 0.  However,
     //! it's best if second.size() >= first.size() in addition.
-    template <typename STRINGLIKE>
+    template<typename STRINGLIKE>
     size_t levenshteinDistanceSimple(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // This method implements the simple algorithm for calculating
         // Levenshtein distance.
@@ -369,7 +369,7 @@ private:
     //! algorithm, described at http://berghel.net/publications/asm/asm.pdf
     //! This private method assumes that first.size() > 0 and
     //! second.size() >= first.size().
-    template <typename STRINGLIKE>
+    template<typename STRINGLIKE>
     size_t berghelRoachEditDistance(const STRINGLIKE& first, const STRINGLIKE& second) const {
         // We need to do the calculation using signed variables
         int shortLen(static_cast<int>(first.size()));
@@ -418,7 +418,7 @@ private:
 
     //! Helper function for the Berghel-Roach edit distance algorithm.  This
     //! is called f(k, p) in http://berghel.net/publications/asm/asm.pdf
-    template <typename STRINGLIKE>
+    template<typename STRINGLIKE>
     void calcDist(const STRINGLIKE& first,
                   const STRINGLIKE& second,
                   int row,

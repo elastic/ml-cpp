@@ -25,17 +25,17 @@
 namespace ml {
 namespace maths {
 
-template <typename VECTOR>
+template<typename VECTOR>
 VECTOR CModel::marginalLikelihoodMean(const maths::CPrior& prior) {
     return VECTOR{prior.marginalLikelihoodMean()};
 }
 
-template <typename VECTOR>
+template<typename VECTOR>
 VECTOR CModel::marginalLikelihoodMean(const maths::CMultivariatePrior& prior) {
     return prior.marginalLikelihoodMean();
 }
 
-template <typename TREND, typename VECTOR>
+template<typename TREND, typename VECTOR>
 boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
     boost::optional<VECTOR> result;
     std::size_t dimension = sample.size();
@@ -52,7 +52,7 @@ boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR
     return result;
 }
 
-template <typename PRIOR, typename VECTOR>
+template<typename PRIOR, typename VECTOR>
 boost::optional<VECTOR>
 CModel::predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample) {
     boost::optional<VECTOR> result;

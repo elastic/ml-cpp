@@ -38,7 +38,7 @@ using namespace maths;
 
 namespace {
 
-template <unsigned int ORDER>
+template<unsigned int ORDER>
 class CPolynomialFunction : public std::unary_function<double, double> {
 public:
     CPolynomialFunction(const double (&coefficients)[ORDER + 1]) {
@@ -63,7 +63,7 @@ std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<0u>& f) {
     return o << f.coefficient(0);
 }
 
-template <unsigned int ORDER>
+template<unsigned int ORDER>
 std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<ORDER>& f) {
     o << f.coefficient(0) << " + ";
     for (unsigned int i = 1u; i < ORDER; ++i) {
@@ -75,7 +75,7 @@ std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<ORDER>& f) {
     return o;
 }
 
-template <unsigned int ORDER>
+template<unsigned int ORDER>
 double integrate(const CPolynomialFunction<ORDER>& f, const double& a, const double& b) {
     double result = 0.0;
     for (unsigned int i = 0; i < ORDER + 1; ++i) {
@@ -85,7 +85,7 @@ double integrate(const CPolynomialFunction<ORDER>& f, const double& a, const dou
     return result;
 }
 
-template <unsigned int DIMENSION>
+template<unsigned int DIMENSION>
 class CMultivariatePolynomialFunction {
 public:
     typedef CVectorNx1<double, DIMENSION> TVector;
@@ -131,7 +131,7 @@ private:
     TMonomialVec m_Terms;
 };
 
-template <unsigned int DIMENSION>
+template<unsigned int DIMENSION>
 std::ostream& operator<<(std::ostream& o, const CMultivariatePolynomialFunction<DIMENSION>& f) {
     if (!f.terms().empty()) {
         o << (f.terms())[0].s_Coefficient;
@@ -154,7 +154,7 @@ std::ostream& operator<<(std::ostream& o, const CMultivariatePolynomialFunction<
 
 typedef std::vector<double> TDoubleVec;
 
-template <unsigned int DIMENSION>
+template<unsigned int DIMENSION>
 double integrate(const CMultivariatePolynomialFunction<DIMENSION>& f,
                  const TDoubleVec& a,
                  const TDoubleVec& b) {
@@ -1191,78 +1191,78 @@ void CIntegrationTest::testSparseGrid(void) {
 
 #define NUMBER_POINTS(dimension, n)                                                                \
     switch (order[j]) {                                                                            \
-        case 1:                                                                                    \
-            n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne,               \
-                                                             dimension>::instance()                \
-                    .points()                                                                      \
-                    .size();                                                                       \
-            break;                                                                                 \
-        case 2:                                                                                    \
-            n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo,               \
-                                                             dimension>::instance()                \
-                    .points()                                                                      \
-                    .size();                                                                       \
-            break;                                                                                 \
-        case 3:                                                                                    \
-            n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree,             \
-                                                             dimension>::instance()                \
-                    .points()                                                                      \
-                    .size();                                                                       \
-            break;                                                                                 \
-        case 4:                                                                                    \
-            n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour,              \
-                                                             dimension>::instance()                \
-                    .points()                                                                      \
-                    .size();                                                                       \
-            break;                                                                                 \
-        case 5:                                                                                    \
-            n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive,              \
-                                                             dimension>::instance()                \
-                    .points()                                                                      \
-                    .size();                                                                       \
-            break;                                                                                 \
-        default:                                                                                   \
-            n = 0;                                                                                 \
-            break;                                                                                 \
+    case 1:                                                                                        \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne,                   \
+                                                         dimension>::instance()                    \
+                .points()                                                                          \
+                .size();                                                                           \
+        break;                                                                                     \
+    case 2:                                                                                        \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo,                   \
+                                                         dimension>::instance()                    \
+                .points()                                                                          \
+                .size();                                                                           \
+        break;                                                                                     \
+    case 3:                                                                                        \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree,                 \
+                                                         dimension>::instance()                    \
+                .points()                                                                          \
+                .size();                                                                           \
+        break;                                                                                     \
+    case 4:                                                                                        \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour,                  \
+                                                         dimension>::instance()                    \
+                .points()                                                                          \
+                .size();                                                                           \
+        break;                                                                                     \
+    case 5:                                                                                        \
+        n = CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive,                  \
+                                                         dimension>::instance()                    \
+                .points()                                                                          \
+                .size();                                                                           \
+        break;                                                                                     \
+    default:                                                                                       \
+        n = 0;                                                                                     \
+        break;                                                                                     \
     }
         for (std::size_t j = 0u; j < boost::size(order); ++j) {
             LOG_DEBUG("ORDER = " << order[j]);
 
             std::size_t numberPoints = 0u;
             switch (dimensions[i]) {
-                case 1:
-                    NUMBER_POINTS(CIntegration::OneDimension, numberPoints);
-                    break;
-                case 2:
-                    NUMBER_POINTS(CIntegration::TwoDimensions, numberPoints);
-                    break;
-                case 3:
-                    NUMBER_POINTS(CIntegration::ThreeDimensions, numberPoints);
-                    break;
-                case 4:
-                    NUMBER_POINTS(CIntegration::FourDimensions, numberPoints);
-                    break;
-                case 5:
-                    NUMBER_POINTS(CIntegration::FiveDimensions, numberPoints);
-                    break;
-                case 6:
-                    NUMBER_POINTS(CIntegration::SixDimensions, numberPoints);
-                    break;
-                case 7:
-                    NUMBER_POINTS(CIntegration::SevenDimensions, numberPoints);
-                    break;
-                case 8:
-                    NUMBER_POINTS(CIntegration::EightDimensions, numberPoints);
-                    break;
-                case 9:
-                    NUMBER_POINTS(CIntegration::NineDimensions, numberPoints);
-                    break;
-                case 10:
-                    NUMBER_POINTS(CIntegration::TenDimensions, numberPoints);
-                    break;
-                default:
-                    numberPoints = 0u;
-                    break;
+            case 1:
+                NUMBER_POINTS(CIntegration::OneDimension, numberPoints);
+                break;
+            case 2:
+                NUMBER_POINTS(CIntegration::TwoDimensions, numberPoints);
+                break;
+            case 3:
+                NUMBER_POINTS(CIntegration::ThreeDimensions, numberPoints);
+                break;
+            case 4:
+                NUMBER_POINTS(CIntegration::FourDimensions, numberPoints);
+                break;
+            case 5:
+                NUMBER_POINTS(CIntegration::FiveDimensions, numberPoints);
+                break;
+            case 6:
+                NUMBER_POINTS(CIntegration::SixDimensions, numberPoints);
+                break;
+            case 7:
+                NUMBER_POINTS(CIntegration::SevenDimensions, numberPoints);
+                break;
+            case 8:
+                NUMBER_POINTS(CIntegration::EightDimensions, numberPoints);
+                break;
+            case 9:
+                NUMBER_POINTS(CIntegration::NineDimensions, numberPoints);
+                break;
+            case 10:
+                NUMBER_POINTS(CIntegration::TenDimensions, numberPoints);
+                break;
+            default:
+                numberPoints = 0u;
+                break;
             }
 #undef NUMBER_POINTS
 
@@ -1332,28 +1332,40 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                 double actual = 0.0;
                 bool successful = false;
                 switch (l) {
-                    case 2:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderTwo,
-                            CIntegration::TwoDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 3:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderThree,
-                            CIntegration::TwoDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 4:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderFour,
-                            CIntegration::TwoDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 5:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderFive,
-                            CIntegration::TwoDimensions>(polynomial, a, b, actual);
-                        break;
-                    default:
-                        break;
+                case 2:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo,
+                                                          CIntegration::TwoDimensions>(polynomial,
+                                                                                       a,
+                                                                                       b,
+                                                                                       actual);
+                    break;
+                case 3:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree,
+                                                          CIntegration::TwoDimensions>(polynomial,
+                                                                                       a,
+                                                                                       b,
+                                                                                       actual);
+                    break;
+                case 4:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour,
+                                                          CIntegration::TwoDimensions>(polynomial,
+                                                                                       a,
+                                                                                       b,
+                                                                                       actual);
+                    break;
+                case 5:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive,
+                                                          CIntegration::TwoDimensions>(polynomial,
+                                                                                       a,
+                                                                                       b,
+                                                                                       actual);
+                    break;
+                default:
+                    break;
                 }
 
                 LOG_DEBUG("expected = " << expected);
@@ -1412,28 +1424,40 @@ void CIntegrationTest::testMultivariateSmooth(void) {
                 double actual = 0.0;
                 bool successful = false;
                 switch (l) {
-                    case 2:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderTwo,
-                            CIntegration::FiveDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 3:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderThree,
-                            CIntegration::FiveDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 4:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderFour,
-                            CIntegration::FiveDimensions>(polynomial, a, b, actual);
-                        break;
-                    case 5:
-                        successful = CIntegration::sparseGaussLegendre<
-                            CIntegration::OrderFive,
-                            CIntegration::FiveDimensions>(polynomial, a, b, actual);
-                        break;
-                    default:
-                        break;
+                case 2:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderTwo,
+                                                          CIntegration::FiveDimensions>(polynomial,
+                                                                                        a,
+                                                                                        b,
+                                                                                        actual);
+                    break;
+                case 3:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderThree,
+                                                          CIntegration::FiveDimensions>(polynomial,
+                                                                                        a,
+                                                                                        b,
+                                                                                        actual);
+                    break;
+                case 4:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFour,
+                                                          CIntegration::FiveDimensions>(polynomial,
+                                                                                        a,
+                                                                                        b,
+                                                                                        actual);
+                    break;
+                case 5:
+                    successful =
+                        CIntegration::sparseGaussLegendre<CIntegration::OrderFive,
+                                                          CIntegration::FiveDimensions>(polynomial,
+                                                                                        a,
+                                                                                        b,
+                                                                                        actual);
+                    break;
+                default:
+                    break;
                 }
 
                 LOG_DEBUG("expected = " << expected);

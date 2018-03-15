@@ -59,12 +59,12 @@ public:
         }
 
         switch (m_Style) {
-            case E_Lower:
-                return std::exp(-lowerBound) - m_Target;
-            case E_Upper:
-                return std::exp(-upperBound) - m_Target;
-            case E_GeometricMean:
-                return std::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
+        case E_Lower:
+            return std::exp(-lowerBound) - m_Target;
+        case E_Upper:
+            return std::exp(-upperBound) - m_Target;
+        case E_GeometricMean:
+            return std::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
         }
         return std::exp(-(lowerBound + upperBound) / 2.0) - m_Target;
     }

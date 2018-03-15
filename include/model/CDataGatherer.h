@@ -363,7 +363,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
     //! \tparam T The type of the feature data.
-    template <typename T>
+    template<typename T>
     bool featureData(core_t::TTime time,
                      core_t::TTime bucketLength,
                      std::vector<std::pair<model_t::EFeature, T>>& result) const {
@@ -634,12 +634,12 @@ public:
     // \name Tuple
     //@{
     //! Extract the person identifier from a tuple.
-    template <typename T>
+    template<typename T>
     static inline std::size_t extractPersonId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.first;
     }
     //! Extract the person identifier from a tuple.
-    template <typename T>
+    template<typename T>
     static inline std::size_t extractPersonId(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.first.first;
     }
@@ -647,19 +647,19 @@ public:
     static inline std::size_t extractPersonId(const TSizeSizePr& tuple) { return tuple.first; }
     //! Extracts the person identifier from a tuple.
     struct SExtractPersonId {
-        template <typename TUPLE>
+        template<typename TUPLE>
         std::size_t operator()(const TUPLE& t) const {
             return CDataGatherer::extractPersonId(t);
         }
     };
 
     //! Extract the attribute identifier from a tuple.
-    template <typename T>
+    template<typename T>
     static inline std::size_t extractAttributeId(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
     //! Extract the attribute identifier from a tuple.
-    template <typename T>
+    template<typename T>
     static inline std::size_t extractAttributeId(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.first.second;
     }
@@ -667,19 +667,19 @@ public:
     static inline std::size_t extractAttributeId(const TSizeSizePr& tuple) { return tuple.second; }
     //! Extracts the attribute identifier from a tuple.
     struct SExtractAttributeId {
-        template <typename TUPLE>
+        template<typename TUPLE>
         std::size_t operator()(const TUPLE& t) const {
             return CDataGatherer::extractAttributeId(t);
         }
     };
 
     //! Extract the data from a tuple.
-    template <typename T>
+    template<typename T>
     static inline const T& extractData(const std::pair<const TSizeSizePr, T>& tuple) {
         return tuple.second;
     }
     //! Extract the data from a tuple.
-    template <typename T>
+    template<typename T>
     static inline const T& extractData(const std::pair<TSizeSizePr, T>& tuple) {
         return tuple.second;
     }

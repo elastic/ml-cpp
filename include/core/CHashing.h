@@ -372,7 +372,7 @@ public:
     //!
     //! \warning This is slower than boost::hash for the types I tested
     //! std::size_t, int, uint64_t, but does have better distributions.
-    template <typename T>
+    template<typename T>
     class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
     public:
         //! See CMemory.
@@ -450,7 +450,7 @@ public:
 namespace hash_detail {
 
 //! Selects MurmurHash2 32-bit implementation by default.
-template <std::size_t>
+template<std::size_t>
 struct SMurmurHashForArchitecture {
     static std::size_t hash(const void* key, int length, std::size_t seed) {
         return static_cast<std::size_t>(
@@ -461,7 +461,7 @@ struct SMurmurHashForArchitecture {
 //! Selects MurmurHash2 64-bit implementation if we are on a 64-bit platform.
 //!
 //! If we are on 64-bit platforms the 64-bit implementation is faster.
-template <>
+template<>
 struct SMurmurHashForArchitecture<8> {
     static std::size_t hash(const void* key, int length, std::size_t seed) {
         return static_cast<std::size_t>(CHashing::murmurHash64(key, length, seed));
@@ -469,7 +469,7 @@ struct SMurmurHashForArchitecture<8> {
 };
 }
 
-template <typename T>
+template<typename T>
 inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
     return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(&key,
                                                                               static_cast<int>(

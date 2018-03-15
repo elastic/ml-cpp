@@ -60,18 +60,18 @@ std::string CShellArgQuoter::quote(const std::string& arg) {
 
     for (std::string::const_iterator iter = arg.begin(); iter != arg.end(); ++iter) {
         switch (*iter) {
-            case '(':
-            case ')':
-            case '%':
-            case '!':
-            case '^':
-            case '"':
-            case '<':
-            case '>':
-            case '&':
-            case '|':
-                result += '^';
-                break;
+        case '(':
+        case ')':
+        case '%':
+        case '!':
+        case '^':
+        case '"':
+        case '<':
+        case '>':
+        case '&':
+        case '|':
+            result += '^';
+            break;
         }
         result += *iter;
     }

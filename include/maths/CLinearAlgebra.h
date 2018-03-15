@@ -43,15 +43,15 @@ namespace linear_algebra_detail {
 
 //! SFINAE check that \p N is at least 1.
 struct CEmpty {};
-template <std::size_t N>
+template<std::size_t N>
 struct CBoundsCheck {
     using InRange = CEmpty;
 };
-template <>
+template<>
 struct CBoundsCheck<0> {};
 
 //! \brief Common vector functionality for variable storage type.
-template <typename STORAGE>
+template<typename STORAGE>
 struct SSymmetricMatrix {
     using Type = typename STORAGE::value_type;
 
@@ -62,7 +62,7 @@ struct SSymmetricMatrix {
     inline SSymmetricMatrix& base(void) { return *this; }
 
     //! Set this vector equal to \p other.
-    template <typename OTHER_STORAGE>
+    template<typename OTHER_STORAGE>
     void assign(const SSymmetricMatrix<OTHER_STORAGE>& other) {
         std::copy(other.m_LowerTriangle.begin(),
                   other.m_LowerTriangle.end(),
@@ -149,7 +149,7 @@ struct SSymmetricMatrix {
     }
 
     //! Get the matrix diagonal.
-    template <typename VECTOR>
+    template<typename VECTOR>
     VECTOR diagonal(std::size_t d) const {
         VECTOR result(d);
         for (std::size_t i = 0u; i < d; ++i) {
@@ -180,7 +180,7 @@ struct SSymmetricMatrix {
     }
 
     //! Convert to the MATRIX representation.
-    template <typename MATRIX>
+    template<typename MATRIX>
     inline MATRIX& toType(std::size_t d, MATRIX& result) const {
         for (std::size_t i = 0u, i_ = 0u; i < d; ++i) {
             for (std::size_t j = 0u; j <= i; ++j, ++i_) {
@@ -236,7 +236,7 @@ struct SSymmetricMatrix {
 //!
 //! \tparam T The floating point type.
 //! \tparam N The matrix dimension.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CSymmetricMatrixNxN
     : private boost::equality_comparable<
           CSymmetricMatrixNxN<T, N>,
@@ -255,7 +255,7 @@ class CSymmetricMatrixNxN
       private linear_algebra_detail::CBoundsCheck<N>::InRange {
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<boost::array<T, N*(N + 1) / 2>>;
-    template <typename U, std::size_t>
+    template<typename U, std::size_t>
     friend class CSymmetricMatrixNxN;
 
 public:
@@ -295,7 +295,7 @@ public:
     }
 
     //! Construct from a small vector of small vectors.
-    template <std::size_t M>
+    template<std::size_t M>
     explicit CSymmetricMatrixNxN(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m) {
         for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
             for (std::size_t j = 0u; j <= i; ++j, ++i_) {
@@ -308,7 +308,7 @@ public:
     //!
     //! \warning The user must ensure that the range iterated has
     //! at least N (N+1) / 2 items.
-    template <typename ITR>
+    template<typename ITR>
     CSymmetricMatrixNxN(ITR begin, ITR end) {
         for (std::size_t i = 0u; i < N * (N + 1) / 2 && begin != end; ++i, ++begin) {
             TBase::m_LowerTriangle[i] = static_cast<T>(*begin);
@@ -318,18 +318,18 @@ public:
     explicit CSymmetricMatrixNxN(ESymmetricMatrixType type, const CVectorNx1<T, N>& x);
 
     //! Construct from a dense matrix.
-    template <typename MATRIX>
+    template<typename MATRIX>
     CSymmetricMatrixNxN(const CDenseMatrixInitializer<MATRIX>& m);
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
-    template <typename U>
+    template<typename U>
     CSymmetricMatrixNxN(const CSymmetricMatrixNxN<U, N>& other) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
-    template <typename U>
+    template<typename U>
     const CSymmetricMatrixNxN& operator=(const CSymmetricMatrixNxN<U, N>& other) {
         this->assign(other.base());
         return *this;
@@ -418,7 +418,7 @@ public:
     bool isZero(void) const { return this->TBase::isZero(); }
 
     //! Get the matrix diagonal.
-    template <typename VECTOR>
+    template<typename VECTOR>
     VECTOR diagonal(void) const {
         return this->TBase::template diagonal<VECTOR>(N);
     }
@@ -430,7 +430,7 @@ public:
     double frobenius(void) const { return this->TBase::frobenius(N); }
 
     //! Convert to a vector of vectors.
-    template <typename VECTOR_OF_VECTORS>
+    template<typename VECTOR_OF_VECTORS>
     inline VECTOR_OF_VECTORS toVectors(void) const {
         VECTOR_OF_VECTORS result(N);
         for (std::size_t i = 0u; i < N; ++i) {
@@ -448,7 +448,7 @@ public:
     //! Convert to the specified matrix representation.
     //!
     //! \note The copy should be avoided by RVO.
-    template <typename MATRIX>
+    template<typename MATRIX>
     inline MATRIX toType(void) const {
         MATRIX result(N, N);
         return this->TBase::toType(N, result);
@@ -459,7 +459,7 @@ public:
 };
 
 //! \brief Gets a zero symmetric matrix with specified dimension.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SZero<CSymmetricMatrixNxN<T, N>> {
     static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) {
         return CSymmetricMatrixNxN<T, N>(T(0));
@@ -497,7 +497,7 @@ struct SZero<CSymmetricMatrixNxN<T, N>> {
 //! premium.
 //!
 //! \tparam T The floating point type.
-template <typename T>
+template<typename T>
 class CSymmetricMatrix
     : private boost::equality_comparable<
           CSymmetricMatrix<T>,
@@ -515,7 +515,7 @@ class CSymmetricMatrix
       private linear_algebra_detail::SSymmetricMatrix<std::vector<T>> {
 private:
     using TBase = linear_algebra_detail::SSymmetricMatrix<std::vector<T>>;
-    template <typename U>
+    template<typename U>
     friend class CSymmetricMatrix;
 
 public:
@@ -541,7 +541,7 @@ public:
     }
 
     //! Construct from a small vector of small vectors.
-    template <std::size_t M>
+    template<std::size_t M>
     explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m)
         : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
@@ -556,7 +556,7 @@ public:
     //!
     //! \warning The user must ensure that the range iterated has
     //! at least N (N+1) / 2 items.
-    template <typename ITR>
+    template<typename ITR>
     CSymmetricMatrix(ITR begin, ITR end) {
         m_D = this->dimension(std::distance(begin, end));
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
@@ -568,18 +568,18 @@ public:
     explicit CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T>& x);
 
     //! Construct from a dense matrix.
-    template <typename MATRIX>
+    template<typename MATRIX>
     CSymmetricMatrix(const CDenseMatrixInitializer<MATRIX>& m);
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
-    template <typename U>
+    template<typename U>
     CSymmetricMatrix(const CSymmetricMatrix<U>& other) : m_D(other.m_D) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
-    template <typename U>
+    template<typename U>
     const CSymmetricMatrix& operator=(const CSymmetricMatrix<U>& other) {
         m_D = other.m_D;
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
@@ -682,7 +682,7 @@ public:
     bool isZero(void) const { return this->TBase::isZero(); }
 
     //! Get the matrix diagonal.
-    template <typename VECTOR>
+    template<typename VECTOR>
     VECTOR diagonal(void) const {
         return this->TBase::template diagonal<VECTOR>(m_D);
     }
@@ -694,7 +694,7 @@ public:
     double frobenius(void) const { return this->TBase::frobenius(m_D); }
 
     //! Convert to a vector of vectors.
-    template <typename VECTOR_OF_VECTORS>
+    template<typename VECTOR_OF_VECTORS>
     inline VECTOR_OF_VECTORS toVectors(void) const {
         VECTOR_OF_VECTORS result(m_D);
         for (std::size_t i = 0u; i < m_D; ++i) {
@@ -712,7 +712,7 @@ public:
     //! Convert to the specified matrix representation.
     //!
     //! \note The copy should be avoided by RVO.
-    template <typename MATRIX>
+    template<typename MATRIX>
     inline MATRIX toType(void) const {
         MATRIX result(m_D, m_D);
         return this->TBase::toType(m_D, result);
@@ -736,7 +736,7 @@ private:
 };
 
 //! \brief Gets a zero symmetric matrix with specified dimension.
-template <typename T>
+template<typename T>
 struct SZero<CSymmetricMatrix<T>> {
     static CSymmetricMatrix<T> get(std::size_t dimension) {
         return CSymmetricMatrix<T>(dimension, T(0));
@@ -746,7 +746,7 @@ struct SZero<CSymmetricMatrix<T>> {
 namespace linear_algebra_detail {
 
 //! \brief Common vector functionality for variable storage type.
-template <typename STORAGE>
+template<typename STORAGE>
 struct SVector {
     using Type = typename STORAGE::value_type;
 
@@ -757,7 +757,7 @@ struct SVector {
     inline SVector& base(void) { return *this; }
 
     //! Set this vector equal to \p other.
-    template <typename OTHER_STORAGE>
+    template<typename OTHER_STORAGE>
     void assign(const SVector<OTHER_STORAGE>& other) {
         std::copy(other.m_X.begin(), other.m_X.end(), m_X.begin());
     }
@@ -839,7 +839,7 @@ struct SVector {
     }
 
     //! Inner product.
-    template <typename VECTOR>
+    template<typename VECTOR>
     double inner(const VECTOR& covector) const {
         double result = 0.0;
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
@@ -858,7 +858,7 @@ struct SVector {
     }
 
     //! Convert to the VECTOR representation.
-    template <typename VECTOR>
+    template<typename VECTOR>
     inline VECTOR& toType(VECTOR& result) const {
         for (std::size_t i = 0u; i < m_X.size(); ++i) {
             result(i) = m_X[i];
@@ -906,7 +906,7 @@ struct SVector {
 //!
 //! \tparam T The floating point type.
 //! \tparam N The vector dimension.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CVectorNx1
     : private boost::equality_comparable<
           CVectorNx1<T, N>,
@@ -927,7 +927,7 @@ class CVectorNx1
       private linear_algebra_detail::CBoundsCheck<N>::InRange {
 private:
     using TBase = linear_algebra_detail::SVector<boost::array<T, N>>;
-    template <typename U, std::size_t>
+    template<typename U, std::size_t>
     friend class CVectorNx1;
 
 public:
@@ -978,7 +978,7 @@ public:
     //!
     //! \warning The user must ensure that the range iterated has
     //! at least N items.
-    template <typename ITR>
+    template<typename ITR>
     CVectorNx1(ITR begin, ITR end) {
         if (std::distance(begin, end) != N) {
             LOG_ERROR("Bad range");
@@ -988,18 +988,18 @@ public:
     }
 
     //! Construct from a dense vector.
-    template <typename VECTOR>
+    template<typename VECTOR>
     CVectorNx1(const CDenseVectorInitializer<VECTOR>& v);
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
-    template <typename U>
+    template<typename U>
     CVectorNx1(const CVectorNx1<U, N>& other) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
-    template <typename U>
+    template<typename U>
     const CVectorNx1& operator=(const CVectorNx1<U, N>& other) {
         this->assign(other.base());
         return *this;
@@ -1085,7 +1085,7 @@ public:
     double inner(const CVectorNx1& covector) const { return this->TBase::inner(covector.base()); }
 
     //! Inner product.
-    template <typename VECTOR>
+    template<typename VECTOR>
     double inner(const VECTOR& covector) const {
         return this->TBase::template inner<VECTOR>(covector);
     }
@@ -1111,13 +1111,13 @@ public:
     double euclidean(void) const { return std::sqrt(this->inner(*this)); }
 
     //! Convert to a vector on a different underlying type.
-    template <typename U>
+    template<typename U>
     inline CVectorNx1<U, N> to(void) const {
         return CVectorNx1<U, N>(*this);
     }
 
     //! Convert to a vector.
-    template <typename VECTOR>
+    template<typename VECTOR>
     inline VECTOR toVector(void) const {
         return VECTOR(this->begin(), this->end());
     }
@@ -1128,7 +1128,7 @@ public:
     //! Convert to the specified vector representation.
     //!
     //! \note The copy should be avoided by RVO.
-    template <typename VECTOR>
+    template<typename VECTOR>
     inline VECTOR toType(void) const {
         VECTOR result(N);
         return this->TBase::toType(result);
@@ -1151,29 +1151,29 @@ public:
 };
 
 //! Construct from the outer product of a vector with itself.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
                                                const CVectorNx1<T, N>& x) {
     switch (type) {
-        case E_OuterProduct:
-            for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-                for (std::size_t j = 0u; j <= i; ++j, ++i_) {
-                    TBase::m_LowerTriangle[i_] = x(i) * x(j);
-                }
+    case E_OuterProduct:
+        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
+            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+                TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
-            break;
-        case E_Diagonal:
-            for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-                for (std::size_t j = 0u; j <= i; ++j, ++i_) {
-                    TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
-                }
+        }
+        break;
+    case E_Diagonal:
+        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
+            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+                TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
-            break;
+        }
+        break;
     }
 }
 
 //! \brief Gets a zero vector with specified dimension.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SZero<CVectorNx1<T, N>> {
     static CVectorNx1<T, N> get(std::size_t /*dimension*/) { return CVectorNx1<T, N>(T(0)); }
 };
@@ -1200,7 +1200,7 @@ struct SZero<CVectorNx1<T, N>> {
 //! so that one can use float when space is really at a premium.
 //!
 //! \tparam T The floating point type.
-template <typename T>
+template<typename T>
 class CVector
     : private boost::equality_comparable<
           CVector<T>,
@@ -1219,7 +1219,7 @@ class CVector
       private linear_algebra_detail::SVector<std::vector<T>> {
 private:
     using TBase = linear_algebra_detail::SVector<std::vector<T>>;
-    template <typename U>
+    template<typename U>
     friend class CVector;
 
 public:
@@ -1235,7 +1235,7 @@ public:
     }
 
     //! Construct from a boost array.
-    template <std::size_t N>
+    template<std::size_t N>
     explicit CVector(const boost::array<T, N>& a) {
         for (std::size_t i = 0u; i < N; ++i) {
             TBase::m_X[i] = a[i];
@@ -1249,24 +1249,24 @@ public:
     explicit CVector(const core::CSmallVectorBase<T>& v) { TBase::m_X.assign(v.begin(), v.end()); }
 
     //! Construct from the range [\p begin, \p end).
-    template <typename ITR>
+    template<typename ITR>
     CVector(ITR begin, ITR end) {
         TBase::m_X.assign(begin, end);
     }
 
     //! Construct from a dense vector.
-    template <typename VECTOR>
+    template<typename VECTOR>
     CVector(const CDenseVectorInitializer<VECTOR>& v);
 
     //! Copy construction if the underlying type is implicitly
     //! convertible.
-    template <typename U>
+    template<typename U>
     CVector(const CVector<U>& other) {
         this->operator=(other);
     }
 
     //! Assignment if the underlying type is implicitly convertible.
-    template <typename U>
+    template<typename U>
     const CVector& operator=(const CVector<U>& other) {
         TBase::m_X.resize(other.dimension());
         this->TBase::assign(other.base());
@@ -1280,7 +1280,7 @@ public:
     void reserve(std::size_t d) { TBase::m_X.reserve(d); }
 
     //! Assign the components from the range [\p begin, \p end).
-    template <typename ITR>
+    template<typename ITR>
     void assign(ITR begin, ITR end) {
         TBase::m_X.assign(begin, end);
     }
@@ -1290,7 +1290,7 @@ public:
     void extend(std::size_t d, T v = T(0)) { TBase::m_X.resize(this->dimension() + d, v); }
 
     //! Extend the vector adding components initialized to \p v.
-    template <typename ITR>
+    template<typename ITR>
     void extend(ITR begin, ITR end) {
         TBase::m_X.insert(TBase::m_X.end(), begin, end);
     }
@@ -1375,7 +1375,7 @@ public:
     double inner(const CVector& covector) const { return this->TBase::inner(covector.base()); }
 
     //! Inner product.
-    template <typename VECTOR>
+    template<typename VECTOR>
     double inner(const VECTOR& covector) const {
         return this->TBase::template inner<VECTOR>(covector);
     }
@@ -1397,13 +1397,13 @@ public:
     double euclidean(void) const { return std::sqrt(this->inner(*this)); }
 
     //! Convert to a vector on a different underlying type.
-    template <typename U>
+    template<typename U>
     inline CVector<U> to(void) const {
         return CVector<U>(*this);
     }
 
     //! Convert to a vector.
-    template <typename VECTOR>
+    template<typename VECTOR>
     inline VECTOR toVector(void) const {
         return VECTOR(this->begin(), this->end());
     }
@@ -1411,7 +1411,7 @@ public:
     //! Convert to the specified vector representation.
     //!
     //! \note The copy should be avoided by RVO.
-    template <typename VECTOR>
+    template<typename VECTOR>
     inline VECTOR toType(void) const {
         VECTOR result(this->dimension());
         return this->TBase::toType(result);
@@ -1434,30 +1434,30 @@ public:
 };
 
 //! Construct from the outer product of a vector with itself.
-template <typename T>
+template<typename T>
 CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T>& x) {
     m_D = x.dimension();
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
     switch (type) {
-        case E_OuterProduct:
-            for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
-                for (std::size_t j = 0u; j <= i; ++j, ++i_) {
-                    TBase::m_LowerTriangle[i_] = x(i) * x(j);
-                }
+    case E_OuterProduct:
+        for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
+            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+                TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
-            break;
-        case E_Diagonal:
-            for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
-                for (std::size_t j = 0u; j <= i; ++j, ++i_) {
-                    TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
-                }
+        }
+        break;
+    case E_Diagonal:
+        for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
+            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+                TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
-            break;
+        }
+        break;
     }
 }
 
 //! \brief Gets a zero vector with specified dimension.
-template <typename T>
+template<typename T>
 struct SZero<CVector<T>> {
     static CVector<T> get(std::size_t dimension) { return CVector<T>(dimension, T(0)); }
 };
@@ -1465,13 +1465,13 @@ struct SZero<CVector<T>> {
 // ************************ FREE FUNCTIONS ************************
 
 //! Free swap picked up by std:: algorithms etc.
-template <typename T>
+template<typename T>
 void swap(CSymmetricMatrix<T>& lhs, CSymmetricMatrix<T>& rhs) {
     lhs.swap(rhs);
 }
 
 //! Free swap picked up by std:: algorithms etc.
-template <typename T>
+template<typename T>
 void swap(CVector<T>& lhs, CVector<T>& rhs) {
     lhs.swap(rhs);
 }
@@ -1483,7 +1483,7 @@ void swap(CVector<T>& lhs, CVector<T>& rhs) {
 //!
 //! \param[in] m The matrix.
 //! \param[in] x The vector.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 CVectorNx1<T, N> operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<T, N>& x) {
     CVectorNx1<T, N> result;
     for (std::size_t i = 0u; i < N; ++i) {
@@ -1503,7 +1503,7 @@ CVectorNx1<T, N> operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<
 //!
 //! \param[in] m The matrix.
 //! \param[in] x The vector.
-template <typename T>
+template<typename T>
 CVector<T> operator*(const CSymmetricMatrix<T>& m, const CVector<T>& x) {
     CVector<T> result(x.dimension());
     for (std::size_t i = 0u; i < m.rows(); ++i) {

@@ -30,7 +30,7 @@ using namespace ml;
 namespace {
 
 //! \brief Expose internals of k-means for testing.
-template <typename POINT>
+template<typename POINT>
 class CKMeansFastForTest : maths::CKMeansFast<POINT> {
 public:
     typedef typename maths::CKMeansFast<POINT>::TBoundingBox TBoundingBox;
@@ -57,7 +57,7 @@ typedef std::vector<TMean4Accumulator> TMean4AccumulatorVec;
 
 namespace {
 
-template <typename POINT>
+template<typename POINT>
 struct SKdTreeDataInvariantsChecker {
     typedef typename CKMeansFastForTest<POINT>::TKdTreeNodeData TData;
     typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumulator;
@@ -84,7 +84,7 @@ struct SKdTreeDataInvariantsChecker {
     }
 };
 
-template <typename POINT>
+template<typename POINT>
 class CCentreFilterChecker {
 public:
     typedef std::vector<std::size_t> TSizeVec;
@@ -123,7 +123,7 @@ private:
     std::size_t& m_NumberAdmitted;
 };
 
-template <typename POINT>
+template<typename POINT>
 std::pair<std::size_t, double> closest(const std::vector<POINT>& y, const POINT& x) {
     std::size_t closest = 0u;
     double dmin = (x - y[0]).euclidean();
@@ -137,7 +137,7 @@ std::pair<std::size_t, double> closest(const std::vector<POINT>& y, const POINT&
     return std::pair<std::size_t, double>(closest, dmin);
 }
 
-template <typename POINT>
+template<typename POINT>
 bool kmeans(const std::vector<POINT>& points, std::size_t iterations, std::vector<POINT>& centres) {
     typedef typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator TMeanAccumlator;
 

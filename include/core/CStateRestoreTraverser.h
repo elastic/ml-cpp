@@ -66,7 +66,7 @@ public:
     //! will ascend back to the element at the higher level.  The supplied
     //! should return a bool and this will be passed on as the return value
     //! of this method.
-    template <typename FUNC>
+    template<typename FUNC>
     bool traverseSubLevel(FUNC f) {
         if (!this->hasSubLevel()) {
             return false;

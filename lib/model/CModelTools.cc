@@ -55,7 +55,7 @@ struct SAddProbability : public boost::static_visitor<void> {
 //! \brief Visitor to read aggregate probability from a variant
 //! of possible aggregation styles.
 struct SReadProbability : public boost::static_visitor<bool> {
-    template <typename T>
+    template<typename T>
     bool operator()(double weight, double& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
@@ -65,7 +65,7 @@ struct SReadProbability : public boost::static_visitor<bool> {
         result *= weight < 1.0 ? std::pow(probability, std::max(weight, 0.0)) : probability;
         return true;
     }
-    template <typename T>
+    template<typename T>
     bool operator()(TMinAccumulator& result, const T& aggregator) const {
         double probability;
         if (!aggregator.calculate(probability)) {
@@ -198,15 +198,15 @@ bool CModelTools::CProbabilityAggregator::empty(void) const {
 
 void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, double weight) {
     switch (m_Style) {
-        case E_Sum:
-            if (weight > 0.0) {
-                m_Aggregators.emplace_back(aggregator, weight);
-            }
-            break;
+    case E_Sum:
+        if (weight > 0.0) {
+            m_Aggregators.emplace_back(aggregator, weight);
+        }
+        break;
 
-        case E_Min:
-            m_Aggregators.emplace_back(aggregator, 1.0);
-            break;
+    case E_Min:
+        m_Aggregators.emplace_back(aggregator, 1.0);
+        break;
     }
 }
 
@@ -234,35 +234,35 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     double p{1.0};
 
     switch (m_Style) {
-        case E_Sum: {
-            double n{0.0};
-            for (const auto& aggregator : m_Aggregators) {
-                n += aggregator.second;
-            }
-            for (const auto& aggregator : m_Aggregators) {
-                if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(),
-                                                            aggregator.second / n,
-                                                            boost::ref(p),
-                                                            _1),
-                                          aggregator.first)) {
-                    return false;
-                }
-            }
-            break;
+    case E_Sum: {
+        double n{0.0};
+        for (const auto& aggregator : m_Aggregators) {
+            n += aggregator.second;
         }
-        case E_Min: {
-            TMinAccumulator p_;
-            for (const auto& aggregator : m_Aggregators) {
-                if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), boost::ref(p_), _1),
-                                          aggregator.first)) {
-                    return false;
-                }
+        for (const auto& aggregator : m_Aggregators) {
+            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(),
+                                                        aggregator.second / n,
+                                                        boost::ref(p),
+                                                        _1),
+                                      aggregator.first)) {
+                return false;
             }
-            if (p_.count() > 0) {
-                p = p_[0];
-            }
-            break;
         }
+        break;
+    }
+    case E_Min: {
+        TMinAccumulator p_;
+        for (const auto& aggregator : m_Aggregators) {
+            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), boost::ref(p_), _1),
+                                      aggregator.first)) {
+                return false;
+            }
+        }
+        if (p_.count() > 0) {
+            p = p_[0];
+        }
+        break;
+    }
     }
 
     if (p < 0.0 || p > 1.001) {

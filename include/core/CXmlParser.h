@@ -123,7 +123,7 @@ public:
     //! Return a value result from an XPath expression,
     //! if the number of matches != 1 or value is not of type
     //! return false.
-    template <typename TYPE>
+    template<typename TYPE>
     bool evalXPathExpression(const std::string& xpath, TYPE& ret) const {
         CXmlNode value;
         if (this->evalXPathExpression(xpath, value) == false) {

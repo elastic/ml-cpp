@@ -44,7 +44,7 @@ typedef maths::CVectorNx1<double, 5> TVector5;
 typedef std::vector<TVector5> TVector5Vec;
 typedef maths::CBasicStatistics::SSampleMeanVar<TVector5>::TAccumulator TMeanVar5Accumulator;
 
-template <typename POINT>
+template<typename POINT>
 class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT> {
 public:
     typedef typename maths::CKMeansOnline<POINT>::TSphericalClusterVec TSphericalClusterVec;
@@ -66,7 +66,7 @@ public:
     }
 };
 
-template <typename POINT>
+template<typename POINT>
 std::string print(const POINT& point) {
     std::ostringstream result;
     result << point;

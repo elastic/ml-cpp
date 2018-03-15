@@ -31,7 +31,7 @@ namespace {
 namespace detail {
 
 //! Check that the weights styles and weights are consistent.
-template <typename T>
+template<typename T>
 inline bool check(const TWeightStyleVec& weightStyles, const core::CSmallVector<T, 4>& weights) {
     if (weightStyles.size() == weights.size()) {
         return true;
@@ -55,22 +55,22 @@ inline void multiplyEquals(const TDouble10Vec& rhs, TDouble10Vec& lhs) {
 }
 
 //! Extract the effective sample count from a collection of weights.
-template <typename T>
+template<typename T>
 void count(const TWeightStyleVec& weightStyles,
            const core::CSmallVector<T, 4>& weights,
            T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
-                case E_SampleCountWeight:
-                    multiplyEquals(weights[i], result);
-                    return;
-                case E_SampleSeasonalVarianceScaleWeight:
-                    break;
-                case E_SampleCountVarianceScaleWeight:
-                    break;
-                case E_SampleWinsorisationWeight:
-                    break;
+            case E_SampleCountWeight:
+                multiplyEquals(weights[i], result);
+                return;
+            case E_SampleSeasonalVarianceScaleWeight:
+                break;
+            case E_SampleCountVarianceScaleWeight:
+                break;
+            case E_SampleWinsorisationWeight:
+                break;
             }
         }
     }
@@ -78,67 +78,67 @@ void count(const TWeightStyleVec& weightStyles,
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
-template <typename T>
+template<typename T>
 void countForUpdate(const TWeightStyleVec& weightStyles,
                     const core::CSmallVector<T, 4>& weights,
                     T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
-                case E_SampleCountWeight:
-                    multiplyEquals(weights[i], result);
-                    break;
-                case E_SampleSeasonalVarianceScaleWeight:
-                    break;
-                case E_SampleCountVarianceScaleWeight:
-                    break;
-                case E_SampleWinsorisationWeight:
-                    multiplyEquals(weights[i], result);
-                    break;
+            case E_SampleCountWeight:
+                multiplyEquals(weights[i], result);
+                break;
+            case E_SampleSeasonalVarianceScaleWeight:
+                break;
+            case E_SampleCountVarianceScaleWeight:
+                break;
+            case E_SampleWinsorisationWeight:
+                multiplyEquals(weights[i], result);
+                break;
             }
         }
     }
 }
 
 //! Extract the variance scale from a collection of weights.
-template <typename T>
+template<typename T>
 void seasonalVarianceScale(const TWeightStyleVec& weightStyles,
                            const core::CSmallVector<T, 4>& weights,
                            T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
-                case E_SampleCountWeight:
-                    break;
-                case E_SampleSeasonalVarianceScaleWeight:
-                    multiplyEquals(weights[i], result);
-                    return;
-                case E_SampleCountVarianceScaleWeight:
-                    break;
-                case E_SampleWinsorisationWeight:
-                    break;
+            case E_SampleCountWeight:
+                break;
+            case E_SampleSeasonalVarianceScaleWeight:
+                multiplyEquals(weights[i], result);
+                return;
+            case E_SampleCountVarianceScaleWeight:
+                break;
+            case E_SampleWinsorisationWeight:
+                break;
             }
         }
     }
 }
 
 //! Extract the variance scale from a collection of weights.
-template <typename T>
+template<typename T>
 void countVarianceScale(const TWeightStyleVec& weightStyles,
                         const core::CSmallVector<T, 4>& weights,
                         T& result) {
     if (check(weightStyles, weights)) {
         for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
             switch (weightStyles[i]) {
-                case E_SampleCountWeight:
-                    break;
-                case E_SampleSeasonalVarianceScaleWeight:
-                    break;
-                case E_SampleCountVarianceScaleWeight:
-                    multiplyEquals(weights[i], result);
-                    return;
-                case E_SampleWinsorisationWeight:
-                    break;
+            case E_SampleCountWeight:
+                break;
+            case E_SampleSeasonalVarianceScaleWeight:
+                break;
+            case E_SampleCountVarianceScaleWeight:
+                multiplyEquals(weights[i], result);
+                return;
+            case E_SampleWinsorisationWeight:
+                break;
             }
         }
     }
@@ -260,19 +260,19 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
     }
     for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
         switch (weightStyles[i]) {
-            case E_SampleCountWeight:
-                break;
-            case E_SampleSeasonalVarianceScaleWeight:
-                for (std::size_t j = 0u; j < weights[i].size(); ++j) {
-                    if (weights[i][j] != 1.0) {
-                        return true;
-                    }
+        case E_SampleCountWeight:
+            break;
+        case E_SampleSeasonalVarianceScaleWeight:
+            for (std::size_t j = 0u; j < weights[i].size(); ++j) {
+                if (weights[i][j] != 1.0) {
+                    return true;
                 }
-                break;
-            case E_SampleCountVarianceScaleWeight:
-                break;
-            case E_SampleWinsorisationWeight:
-                break;
+            }
+            break;
+        case E_SampleCountVarianceScaleWeight:
+            break;
+        case E_SampleWinsorisationWeight:
+            break;
         }
     }
     return false;
@@ -310,19 +310,19 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10V
     }
     for (std::size_t i = 0u; i < weightStyles.size(); ++i) {
         switch (weightStyles[i]) {
-            case E_SampleCountWeight:
-                break;
-            case E_SampleSeasonalVarianceScaleWeight:
-                break;
-            case E_SampleCountVarianceScaleWeight:
-                for (std::size_t j = 0u; j < weights[i].size(); ++j) {
-                    if (weights[i][j] != 1.0) {
-                        return true;
-                    }
+        case E_SampleCountWeight:
+            break;
+        case E_SampleSeasonalVarianceScaleWeight:
+            break;
+        case E_SampleCountVarianceScaleWeight:
+            for (std::size_t j = 0u; j < weights[i].size(); ++j) {
+                if (weights[i][j] != 1.0) {
+                    return true;
                 }
-                break;
-            case E_SampleWinsorisationWeight:
-                break;
+            }
+            break;
+        case E_SampleWinsorisationWeight:
+            break;
         }
     }
     return false;

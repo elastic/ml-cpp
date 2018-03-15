@@ -610,7 +610,7 @@ protected:
 
 protected:
     //! Remove heavy hitting people from the \p data if necessary.
-    template <typename T, typename FILTER>
+    template<typename T, typename FILTER>
     void applyFilter(model_t::EExcludeFrequent exclude,
                      bool updateStatistics,
                      const FILTER& filter,

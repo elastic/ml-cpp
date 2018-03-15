@@ -29,31 +29,31 @@ namespace maths {
 
 namespace equal_with_tolerance_detail {
 
-template <typename T>
+template<typename T>
 struct SNorm {
     using result_type = T;
     static T dispatch(const T& t) { return t; }
 };
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SNorm<CVectorNx1<T, N>> {
     using result_type = T;
     static T dispatch(const CVectorNx1<T, N>& t) { return t.euclidean(); }
 };
 
-template <typename T>
+template<typename T>
 struct SNorm<CVector<T>> {
     using result_type = T;
     static T dispatch(const CVector<T>& t) { return t.euclidean(); }
 };
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SNorm<CSymmetricMatrixNxN<T, N>> {
     using result_type = T;
     static T dispatch(const CSymmetricMatrixNxN<T, N>& t) { return t.frobenius(); }
 };
 
-template <typename T>
+template<typename T>
 struct SNorm<CSymmetricMatrix<T>> {
     using result_type = T;
     static T dispatch(const CSymmetricMatrix<T>& t) { return t.frobenius(); }
@@ -86,7 +86,7 @@ public:
 //! which don't have operator*. However, our version of boost doesn't
 //! have has_multiplies and so, short of writing this functionality
 //! ourselves, we can't implement this.
-template <typename T>
+template<typename T>
 class CEqualWithTolerance : public std::binary_function<T, T, bool>, public CToleranceTypes {
 public:
     CEqualWithTolerance(unsigned int toleranceType, const T& eps)
@@ -107,16 +107,16 @@ public:
         T difference = max - min;
 
         switch (m_ToleranceType) {
-            case 2: // absolute & relative
-                return (norm(difference) <= m_AbsoluteEps) &&
-                       (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
-            case 3: // absolute
-                return norm(difference) <= m_AbsoluteEps;
-            case 6: // relative
-                return norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
-            case 7: // absolute | relative
-                return (norm(difference) <= m_AbsoluteEps) ||
-                       (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+        case 2: // absolute & relative
+            return (norm(difference) <= m_AbsoluteEps) &&
+                   (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
+        case 3: // absolute
+            return norm(difference) <= m_AbsoluteEps;
+        case 6: // relative
+            return norm(difference) <= m_RelativeEps * abs(norm(maxAbs));
+        case 7: // absolute | relative
+            return (norm(difference) <= m_AbsoluteEps) ||
+                   (norm(difference) <= m_RelativeEps * abs(norm(maxAbs)));
         }
         LOG_ERROR("Unexpected tolerance type " << m_ToleranceType);
         return false;
@@ -127,7 +127,7 @@ private:
 
 private:
     //! A type agnostic implementation of fabs.
-    template <typename U>
+    template<typename U>
     static inline U abs(const U& x) {
         return x < U(0) ? -x : x;
     }

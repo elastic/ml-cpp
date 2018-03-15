@@ -46,16 +46,16 @@ namespace api {
 //! more than 10% compared to having lots of flags being constantly
 //! checked at runtime.)
 //!
-template <bool DO_WARPING = true,
-          bool ALLOW_UNDERSCORE = true,
-          bool ALLOW_DOT = true,
-          bool ALLOW_DASH = true,
-          bool IGNORE_LEADING_DIGIT = true,
-          bool IGNORE_HEX = true,
-          bool IGNORE_DATE_WORDS = true,
-          bool IGNORE_FIELD_NAMES = true,
-          size_t MIN_DICTIONARY_LENGTH = 2,
-          typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
+template<bool DO_WARPING = true,
+         bool ALLOW_UNDERSCORE = true,
+         bool ALLOW_DOT = true,
+         bool ALLOW_DASH = true,
+         bool IGNORE_LEADING_DIGIT = true,
+         bool IGNORE_HEX = true,
+         bool IGNORE_DATE_WORDS = true,
+         bool IGNORE_FIELD_NAMES = true,
+         size_t MIN_DICTIONARY_LENGTH = 2,
+         typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
 class CTokenListDataTyper : public CBaseTokenListDataTyper {
 public:
     //! Create a data typer with threshold for how comparable types are

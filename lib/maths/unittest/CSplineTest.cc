@@ -48,10 +48,10 @@ private:
 
 std::string print(maths::CSplineTypes::EType type) {
     switch (type) {
-        case maths::CSplineTypes::E_Linear:
-            return "linear";
-        case maths::CSplineTypes::E_Cubic:
-            return "cubic";
+    case maths::CSplineTypes::E_Linear:
+        return "linear";
+    case maths::CSplineTypes::E_Cubic:
+        return "cubic";
     }
     return std::string();
 }

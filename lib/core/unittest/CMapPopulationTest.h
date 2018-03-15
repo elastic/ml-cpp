@@ -72,12 +72,12 @@ private:
     typedef boost::unordered_map<std::string, std::string> TStrStrUMap;
     typedef std::vector<TStrStrUMap> TStrStrUMapVec;
 
-    template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
+    template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
     void addInsert(const INPUT_CONTAINER& keys,
                    const INPUT_CONTAINER& values,
                    MAP_CONTAINER& maps) const;
 
-    template <typename INPUT_CONTAINER, typename MAP_CONTAINER>
+    template<typename INPUT_CONTAINER, typename MAP_CONTAINER>
     void addOpSqBrac(const INPUT_CONTAINER& keys,
                      const INPUT_CONTAINER& values,
                      MAP_CONTAINER& maps) const;

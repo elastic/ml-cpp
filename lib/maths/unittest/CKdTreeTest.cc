@@ -37,7 +37,7 @@ typedef maths::CVectorNx1<double, 5> TVector5;
 typedef std::pair<double, TVector5> TDoubleVector5Pr;
 typedef std::vector<TVector5> TVector5Vec;
 
-template <typename T>
+template<typename T>
 std::string print(const T& t) {
     std::ostringstream o;
     o << t;

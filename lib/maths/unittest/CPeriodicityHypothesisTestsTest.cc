@@ -77,15 +77,15 @@ void CPeriodicityHypothesisTestsTest::testNonPeriodic() {
         for (auto window : windows) {
             for (auto bucketLength : bucketLengths) {
                 switch (test % 3) {
-                    case 0:
-                        rng.generateNormalSamples(0.0, 0.4, window / bucketLength, noise);
-                        break;
-                    case 1:
-                        rng.generateGammaSamples(1.0, 5.0, window / bucketLength, noise);
-                        break;
-                    case 2:
-                        rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
-                        break;
+                case 0:
+                    rng.generateNormalSamples(0.0, 0.4, window / bucketLength, noise);
+                    break;
+                case 1:
+                    rng.generateGammaSamples(1.0, 5.0, window / bucketLength, noise);
+                    break;
+                case 2:
+                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    break;
                 }
                 rng.generateUniformSamples(0, generators.size(), 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);
@@ -153,15 +153,15 @@ void CPeriodicityHypothesisTestsTest::testDiurnal() {
 
                 for (auto bucketLength : bucketLengths) {
                     switch (test % 3) {
-                        case 0:
-                            rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
-                            break;
-                        case 1:
-                            rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
-                            break;
-                        case 2:
-                            rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
-                            break;
+                    case 0:
+                        rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                        break;
+                    case 1:
+                        rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                        break;
+                    case 2:
+                        rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                        break;
                     }
                     rng.generateUniformSamples(0, permittedGenerators[i], 1, index);
                     rng.generateUniformSamples(3, 20, 1, repeats);
@@ -399,15 +399,15 @@ void CPeriodicityHypothesisTestsTest::testNonDiurnal() {
                              {0, period});
 
                 switch (test % 3) {
-                    case 0:
-                        rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
-                        break;
-                    case 1:
-                        rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
-                        break;
-                    case 2:
-                        rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
-                        break;
+                case 0:
+                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    break;
+                case 1:
+                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    break;
+                case 2:
+                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    break;
                 }
                 rng.generateUniformSamples(0, permittedGenerators[j], 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);
@@ -609,15 +609,15 @@ void CPeriodicityHypothesisTestsTest::testTestForPeriods() {
                              {0, period});
 
                 switch (test % 3) {
-                    case 0:
-                        rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
-                        break;
-                    case 1:
-                        rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
-                        break;
-                    case 2:
-                        rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
-                        break;
+                case 0:
+                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    break;
+                case 1:
+                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    break;
+                case 2:
+                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    break;
                 }
                 rng.generateUniformSamples(0, permittedGenerators[j], 1, index);
                 rng.generateUniformSamples(3, 20, 1, repeats);

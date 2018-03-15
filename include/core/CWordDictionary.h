@@ -80,7 +80,7 @@ public:
 
 public:
     //! Functor for weighting all dictionary words by a certain amount
-    template <size_t DEFAULT_EXTRA_WEIGHT>
+    template<size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightAll {
     public:
         size_t operator()(EPartOfSpeech partOfSpeech) {
@@ -92,7 +92,7 @@ public:
 
     //! Functor for weighting one type of dictionary word by a certain
     //! amount and all dictionary words by a different amount
-    template <EPartOfSpeech SPECIAL_PART1, size_t EXTRA_WEIGHT1, size_t DEFAULT_EXTRA_WEIGHT>
+    template<EPartOfSpeech SPECIAL_PART1, size_t EXTRA_WEIGHT1, size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightOnePart {
     public:
         size_t operator()(EPartOfSpeech partOfSpeech) {
@@ -107,11 +107,11 @@ public:
 
     //! Functor for weighting two types of dictionary word by certain
     //! amounts and all dictionary words by a different amount
-    template <EPartOfSpeech SPECIAL_PART1,
-              size_t EXTRA_WEIGHT1,
-              EPartOfSpeech SPECIAL_PART2,
-              size_t EXTRA_WEIGHT2,
-              size_t DEFAULT_EXTRA_WEIGHT>
+    template<EPartOfSpeech SPECIAL_PART1,
+             size_t EXTRA_WEIGHT1,
+             EPartOfSpeech SPECIAL_PART2,
+             size_t EXTRA_WEIGHT2,
+             size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightTwoParts {
     public:
         size_t operator()(EPartOfSpeech partOfSpeech) {

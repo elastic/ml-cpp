@@ -56,7 +56,7 @@ private:
     public:
         CFirstElementEquals(const std::string& str) : m_Str(str) {}
 
-        template <typename PAIR>
+        template<typename PAIR>
         bool operator()(const PAIR& pr) {
             const std::string& prFirst = pr.first;
             return prFirst == m_Str;
@@ -93,7 +93,7 @@ public:
 
     //! Retrieve an attribute (if exists), and convert it to the supplied
     //! type
-    template <typename TYPE>
+    template<typename TYPE>
     bool attribute(const std::string& name, TYPE& value) const {
         TStrStrPrVecCItr iter =
             std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
@@ -112,7 +112,7 @@ public:
     //! Set an attribute.  The caller specifies whether to overwrite an
     //! existing attribute of the same name or not.  The value must be
     //! convertible to a string using CStringUtils.
-    template <typename TYPE>
+    template<typename TYPE>
     bool attribute(const std::string& name, const TYPE& value, bool overwrite) {
         TStrStrPrVecItr iter =
             std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));

@@ -283,7 +283,7 @@ private:
 private:
     //! Implementation called by naturalBreaks with explicit
     //! tuple types.
-    template <typename TUPLE>
+    template<typename TUPLE>
     static bool naturalBreaksImpl(const std::vector<TUPLE>& categories,
                                   std::size_t n,
                                   std::size_t p,
@@ -320,10 +320,10 @@ private:
     //! Wrapper to evaluate the specified object function.
     static inline double objective(EObjective objective, const TTuple& category) {
         switch (objective) {
-            case E_TargetDeviation:
-                return deviation(category);
-            case E_TargetVariation:
-                return variation(category);
+        case E_TargetDeviation:
+            return deviation(category);
+        case E_TargetVariation:
+            return variation(category);
         }
         return deviation(category);
     }

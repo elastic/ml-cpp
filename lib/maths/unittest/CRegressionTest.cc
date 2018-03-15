@@ -36,7 +36,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 
 namespace {
 
-template <typename T>
+template<typename T>
 T sum(const T& params, const T& delta) {
     T result;
     for (std::size_t i = 0u; i < params.size(); ++i) {
@@ -45,7 +45,7 @@ T sum(const T& params, const T& delta) {
     return result;
 }
 
-template <typename T>
+template<typename T>
 double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
@@ -766,7 +766,7 @@ void CRegressionTest::testScale(void) {
     CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
 }
 
-template <std::size_t N>
+template<std::size_t N>
 class CRegressionPrediction {
 public:
     using result_type = double;

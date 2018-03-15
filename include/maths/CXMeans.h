@@ -53,7 +53,7 @@ namespace maths {
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template <typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC>>
+template<typename POINT, typename COST = CSphericalGaussianInfoCriterion<POINT, E_BIC>>
 class CXMeans {
 public:
     typedef std::vector<double> TDoubleVec;

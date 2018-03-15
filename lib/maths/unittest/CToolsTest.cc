@@ -48,7 +48,7 @@ typedef std::vector<double> TDoubleVec;
 
 namespace adapters {
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 bool isDiscrete(const DISTRIBUTION&) {
     return false;
 }
@@ -56,7 +56,7 @@ bool isDiscrete(const boost::math::negative_binomial_distribution<>&) {
     return true;
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 TDoubleDoublePr support(const DISTRIBUTION& distribution) {
     return boost::math::support(distribution);
 }
@@ -65,7 +65,7 @@ TDoubleDoublePr support(const CLogTDistribution& logt) {
     return TDoubleDoublePr(minimum ? *minimum : 0.0, boost::math::tools::max_value<double>());
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 TDoubleBoolPr stationaryPoint(const DISTRIBUTION& distribution) {
     return TDoubleBoolPr(boost::math::mode(distribution), true);
 }
@@ -79,7 +79,7 @@ TDoubleBoolPr stationaryPoint(const boost::math::beta_distribution<>& beta) {
     return TDoubleBoolPr(boost::math::mode(beta), true);
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double pdf(const DISTRIBUTION& distribution, const double& x) {
     return CTools::safePdf(distribution, x);
 }
@@ -87,7 +87,7 @@ double pdf(const CLogTDistribution& logt, const double& x) {
     return ml::maths::pdf(logt, x);
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double cdf(const DISTRIBUTION& distribution, const double& x) {
     return CTools::safeCdf(distribution, x);
 }
@@ -95,7 +95,7 @@ double cdf(const CLogTDistribution& logt, const double& x) {
     return ml::maths::cdf(logt, x);
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double cdfComplement(const DISTRIBUTION& distribution, const double& x) {
     return CTools::safeCdfComplement(distribution, x);
 }
@@ -105,7 +105,7 @@ double cdfComplement(const CLogTDistribution& logt, const double& x) {
 
 } // adapters::
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distribution, double x) {
     TDoubleBoolPr stationaryPoint = adapters::stationaryPoint(distribution);
 
@@ -182,7 +182,7 @@ double numericalProbabilityOfLessLikelySampleImpl(const DISTRIBUTION& distributi
     return cdfy - cdfx;
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double numericalProbabilityOfLessLikelySample(const DISTRIBUTION& distribution, double x) {
     return numericalProbabilityOfLessLikelySampleImpl(distribution, x);
 }
@@ -254,7 +254,7 @@ double numericalProbabilityOfLessLikelySample(const boost::math::beta_distributi
     return numericalProbabilityOfLessLikelySampleImpl(beta, x);
 }
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 class CPdf {
 public:
     typedef double result_type;
@@ -282,7 +282,7 @@ public:
     }
 };
 
-template <typename DISTRIBUTION>
+template<typename DISTRIBUTION>
 double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, double b) {
     double numerator = 0.0;
     double denominator = 0.0;
@@ -306,7 +306,7 @@ double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, 
     return numerator / denominator;
 }
 
-template <typename T>
+template<typename T>
 class CTruncatedPdf {
 public:
     CTruncatedPdf(const maths::CMixtureDistribution<T>& mixture, double cutoff)
@@ -325,7 +325,7 @@ private:
     double m_Cutoff;
 };
 
-template <typename T>
+template<typename T>
 class CLogPdf {
 public:
     CLogPdf(const maths::CMixtureDistribution<T>& mixture) : m_Mixture(mixture) {}

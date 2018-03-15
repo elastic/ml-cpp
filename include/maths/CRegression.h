@@ -41,16 +41,16 @@ namespace regression_detail {
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
-template <typename T>
+template<typename T>
 struct CMaxCondition {
     static const double VALUE;
 };
-template <typename T>
+template<typename T>
 const double CMaxCondition<T>::VALUE = 1e15;
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
-template <>
+template<>
 struct MATHS_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
@@ -104,7 +104,7 @@ public:
     //! is at a premium.
     //!
     //! \tparam N_ The degree of the polynomial.
-    template <std::size_t N_, typename T = CFloatStorage>
+    template<std::size_t N_, typename T = CFloatStorage>
     class CLeastSquaresOnline : boost::addable<CLeastSquaresOnline<N_, T>> {
     public:
         static const std::size_t N = N_ + 1;
@@ -119,7 +119,7 @@ public:
 
     public:
         CLeastSquaresOnline() : m_S() {}
-        template <typename U>
+        template<typename U>
         CLeastSquaresOnline(const CLeastSquaresOnline<N_, U>& other) : m_S(other.statistic()) {}
 
         //! Restore by traversing a state document.
@@ -147,7 +147,7 @@ public:
         }
 
         //! Set the statistics from \p rhs.
-        template <typename U>
+        template<typename U>
         const CLeastSquaresOnline operator=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S = rhs.statistic();
             return *this;
@@ -162,7 +162,7 @@ public:
         //! \note This is only meaningful if they have the same time
         //! origin and the values added to \p rhs are a subset of the
         //! values add to this.
-        template <typename U>
+        template<typename U>
         const CLeastSquaresOnline& operator-=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S -= rhs.statistic();
             return *this;
@@ -176,7 +176,7 @@ public:
         //! \param[in] rhs The regression fit to combine.
         //! \note This is only meaningful if they have the same time
         //! origin.
-        template <typename U>
+        template<typename U>
         const CLeastSquaresOnline& operator+=(const CLeastSquaresOnline<N_, U>& rhs) {
             m_S += rhs.statistic();
             return *this;
@@ -366,12 +366,12 @@ public:
 
     private:
         //! Get the first \p n regression parameters.
-        template <typename MATRIX, typename VECTOR>
+        template<typename MATRIX, typename VECTOR>
         bool
         parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
 
         //! Compute the covariance matrix of the regression parameters.
-        template <typename MATRIX>
+        template<typename MATRIX>
         bool covariances(std::size_t n,
                          MATRIX& x,
                          double variance,
@@ -379,7 +379,7 @@ public:
                          TMatrix& result) const;
 
         //! Get the gramian of the design matrix.
-        template <typename MATRIX>
+        template<typename MATRIX>
         void gramian(std::size_t n, MATRIX& x) const {
             for (std::size_t i = 0u; i < n; ++i) {
                 x(i, i) = CBasicStatistics::mean(m_S)(i + i);
@@ -397,7 +397,7 @@ public:
     };
 
     //! Get the predicted value of \p r at \p x.
-    template <std::size_t N>
+    template<std::size_t N>
     static double predict(const boost::array<double, N>& params, double x) {
         double result = params[0];
         double xi = x;
@@ -409,7 +409,7 @@ public:
 
     //! \brief A Wiener process model of the evolution of the parameters
     //! of our online least squares regression model.
-    template <std::size_t N, typename T>
+    template<std::size_t N, typename T>
     class CLeastSquaresOnlineParameterProcess {
     public:
         using TVector = CVectorNx1<T, N>;
@@ -490,16 +490,16 @@ public:
     };
 };
 
-template <std::size_t N, typename T>
+template<std::size_t N, typename T>
 double CRegression::CLeastSquaresOnline<N, T>::predict(double x, double maxCondition) const {
     TArray params;
     this->parameters(params, maxCondition);
     return CRegression::predict(params, x);
 }
 
-template <std::size_t N_, typename T>
+template<std::size_t N_, typename T>
 const std::string CRegression::CLeastSquaresOnline<N_, T>::STATISTIC_TAG("a");
-template <std::size_t N, typename T>
+template<std::size_t N, typename T>
 const std::string
     CRegression::CLeastSquaresOnlineParameterProcess<N, T>::UNIT_TIME_COVARIANCES_TAG("a");
 }

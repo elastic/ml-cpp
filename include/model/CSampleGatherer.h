@@ -60,7 +60,7 @@ namespace model {
 //!
 //! \tparam STATISTIC This must satisfy the requirements imposed
 //! by CMetricPartialStatistic.
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 class CSampleGatherer {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -441,19 +441,19 @@ private:
     TSampleVec m_Samples;
 };
 
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::CLASSIFIER_TAG("a");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::SAMPLE_STATS_TAG("b");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::BUCKET_STATS_TAG("c");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::INFLUENCER_BUCKET_STATS_TAG("d");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::DIMENSION_TAG("e");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::MAP_KEY_TAG("a");
-template <typename STATISTIC, model_t::EFeature FEATURE>
+template<typename STATISTIC, model_t::EFeature FEATURE>
 const std::string CSampleGatherer<STATISTIC, FEATURE>::MAP_VALUE_TAG("b");
 
 //! Overload print operator for feature data.

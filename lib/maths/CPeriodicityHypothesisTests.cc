@@ -229,13 +229,13 @@ double autocorrelationAtPercentile(double autocorrelation, double n, double perc
 }
 
 //! Get the length of the \p window.
-template <typename T>
+template<typename T>
 T length(const std::pair<T, T>& window) {
     return window.second - window.first;
 }
 
 //! Get the total length of the \p windows.
-template <typename T>
+template<typename T>
 T length(const core::CSmallVector<std::pair<T, T>, 2>& windows) {
     return std::accumulate(windows.begin(),
                            windows.end(),
@@ -246,7 +246,7 @@ T length(const core::CSmallVector<std::pair<T, T>, 2>& windows) {
 }
 
 //! Get the length of \p buckets.
-template <typename T>
+template<typename T>
 core_t::TTime length(const T& buckets, core_t::TTime bucketLength) {
     return static_cast<core_t::TTime>(buckets.size()) * bucketLength;
 }
@@ -305,7 +305,7 @@ void project(const TFloatMeanAccumulatorVec& values,
 }
 
 //! Compute the periodic trend from \p values falling in \p windows.
-template <typename U, typename V>
+template<typename U, typename V>
 void periodicTrend(const U& values,
                    const TSizeSizePr2Vec& windows_,
                    core_t::TTime bucketLength,
@@ -339,7 +339,7 @@ void averageValue(const TFloatMeanAccumulatorVec& values,
 }
 
 //! Get the maximum residual of \p trend.
-template <typename T>
+template<typename T>
 double trendAmplitude(const T& trend) {
     using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
@@ -374,23 +374,23 @@ TMeanAccumulator residualVariance(const TMeanVarAccumulator& bucket, double scal
 
 //! \brief Partially specialized helper class to get the trend
 //! residual variance as a specified type.
-template <typename R>
+template<typename R>
 struct SResidualVarianceImpl {};
 
 //! \brief Get the residual variance as a double.
-template <>
+template<>
 struct SResidualVarianceImpl<double> {
     static double get(const TMeanAccumulator& mean) { return residualVariance(mean); }
 };
 
 //! \brief Get the residual variance as a mean accumulator.
-template <>
+template<>
 struct SResidualVarianceImpl<TMeanAccumulator> {
     static TMeanAccumulator get(const TMeanAccumulator& mean) { return mean; }
 };
 
 //! Compute the residual variance of the trend \p trend.
-template <typename R, typename T>
+template<typename R, typename T>
 R residualVariance(const T& trend, double scale) {
     TMeanAccumulator result;
     for (const auto& bucket : trend) {

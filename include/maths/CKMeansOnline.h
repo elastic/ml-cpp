@@ -58,7 +58,7 @@ namespace maths {
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template <typename POINT>
+template<typename POINT>
 class CKMeansOnline {
 public:
     typedef std::vector<std::size_t> TSizeVec;
@@ -76,7 +76,7 @@ protected:
     public:
         CShouldDelete(double minimumCategoryCount) : m_MinimumCategoryCount(minimumCategoryCount) {}
 
-        template <typename CLUSTER>
+        template<typename CLUSTER>
         bool operator()(const CLUSTER& cluster) const {
             return CBasicStatistics::count(cluster.first) < m_MinimumCategoryCount;
         }
@@ -219,7 +219,7 @@ public:
     //! \param[in] k The desired size for the clustering.
     //! \param[out] result Filled in with the \p k means clustering
     //! of \p clusters.
-    template <typename RNG>
+    template<typename RNG>
     static bool kmeans(RNG& rng,
                        TSphericalClusterVec& clusters,
                        std::size_t k,
@@ -610,21 +610,21 @@ private:
     TFloatPointDoublePrVec m_PointsBuffer;
 };
 
-template <typename POINT>
+template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MINIMUM_SPACE = 4u;
-template <typename POINT>
+template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MAXIMUM_BUFFER_SIZE = 6u;
-template <typename POINT>
+template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
-template <typename POINT>
+template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
-template <typename POINT>
+template<typename POINT>
 const std::string CKMeansOnline<POINT>::K_TAG("a");
-template <typename POINT>
+template<typename POINT>
 const std::string CKMeansOnline<POINT>::CLUSTERS_TAG("b");
-template <typename POINT>
+template<typename POINT>
 const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
-template <typename POINT>
+template<typename POINT>
 const std::string CKMeansOnline<POINT>::RNG_TAG("d");
 }
 }

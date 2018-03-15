@@ -31,18 +31,18 @@
 
 namespace ml {
 namespace model {
-template <typename STATISTIC>
+template<typename STATISTIC>
 class CMetricMultivariateStatistic;
 
 namespace metric_statistic_wrapper_detail {
 
 //! \brief Makes a univariate metric statistic.
-template <typename STATISTIC>
+template<typename STATISTIC>
 struct SMake {
     static STATISTIC dispatch(std::size_t /*dimension*/) { return STATISTIC(); }
 };
 //! \brief Makes a multivariate metric statistic.
-template <typename STATISTIC>
+template<typename STATISTIC>
 struct SMake<CMetricMultivariateStatistic<STATISTIC>> {
     static CMetricMultivariateStatistic<STATISTIC> dispatch(std::size_t dimension) {
         return CMetricMultivariateStatistic<STATISTIC>(dimension);
@@ -70,13 +70,13 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         TMedianAccumulator;
 
     //! Make a statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static STATISTIC make(std::size_t dimension) {
         return metric_statistic_wrapper_detail::SMake<STATISTIC>::dispatch(dimension);
     }
 
     //! Add \p value to an order statistic.
-    template <typename LESS>
+    template<typename LESS>
     static void add(const TDouble1Vec& value,
                     unsigned int count,
                     maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
@@ -95,7 +95,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         stat.add(value[0], count);
     }
     //! Add \p value to a multivariate statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static void add(const TDouble1Vec& value,
                     unsigned int count,
                     CMetricMultivariateStatistic<STATISTIC>& stat) {
@@ -103,7 +103,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     }
 
     //! Get the median value of an order statistic.
-    template <typename LESS>
+    template<typename LESS>
     static TDouble1Vec
     value(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         return TDouble1Vec{stat[0]};
@@ -130,13 +130,13 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         return TDouble1Vec{result};
     }
     //! Get the value of a multivariate statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static TDouble1Vec value(const CMetricMultivariateStatistic<STATISTIC>& stat) {
         return stat.value();
     }
 
     //! Forward to the value function.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static TDouble1Vec influencerValue(const STATISTIC& stat) {
         return value(stat);
     }
@@ -152,13 +152,13 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     }
     //! Get the value suitable for computing influence of a multivariate
     //! statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static TDouble1Vec influencerValue(const CMetricMultivariateStatistic<STATISTIC>& stat) {
         return stat.influencerValue();
     }
 
     //! Returns 1.0 since this is not available.
-    template <typename LESS>
+    template<typename LESS>
     static double
     count(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& /*stat*/) {
         return 1.0;
@@ -174,13 +174,13 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Get the count of the statistic.
     static double count(const TMedianAccumulator& stat) { return stat.count(); }
     //! Get the count of a multivariate statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static double count(const CMetricMultivariateStatistic<STATISTIC>& stat) {
         return stat.count();
     }
 
     //! Persist an order statistic.
-    template <typename LESS>
+    template<typename LESS>
     static void persist(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat,
                         const std::string& tag,
                         core::CStatePersistInserter& inserter) {
@@ -206,7 +206,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
                              boost::bind(&TMedianAccumulator::acceptPersistInserter, &stat, _1));
     }
     //! Persist a multivariate statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static void persist(const CMetricMultivariateStatistic<STATISTIC>& stat,
                         const std::string& tag,
                         core::CStatePersistInserter& inserter) {
@@ -217,7 +217,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     }
 
     //! Restore an order statistic.
-    template <typename LESS>
+    template<typename LESS>
     static inline bool
     restore(core::CStateRestoreTraverser& traverser,
             maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
@@ -249,7 +249,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
             boost::bind(&TMedianAccumulator::acceptRestoreTraverser, &stat, _1));
     }
     //! Restore a multivariate statistic.
-    template <typename STATISTIC>
+    template<typename STATISTIC>
     static bool restore(core::CStateRestoreTraverser& traverser,
                         CMetricMultivariateStatistic<STATISTIC>& stat) {
         return traverser.traverseSubLevel(

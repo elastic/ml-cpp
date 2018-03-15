@@ -131,7 +131,7 @@ std::string debugWeights(const TModeVec& modes);
 //! is used by composite priors. This allows us to select the most appropriate model
 //! for the data when using one-of-n composition (see CMultivariateOneOfNPrior).
 //! From a design point of view this is the composite pattern.
-template <std::size_t N>
+template<std::size_t N>
 class CMultivariateMultimodalPrior : public CMultivariatePrior {
 public:
     typedef core::CSmallVector<double, 5> TDouble5Vec;
@@ -1165,24 +1165,24 @@ private:
     TModeVec m_Modes;
 };
 
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::CLUSTERER_TAG("a");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::SEED_PRIOR_TAG("b");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::MODE_TAG("c");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::NUMBER_SAMPLES_TAG("d");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::MINIMUM_TAG("e");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::MAXIMUM_TAG("f");
-template <std::size_t N>
+template<std::size_t N>
 const std::string CMultivariateMultimodalPrior<N>::DECAY_RATE_TAG("g");
-template <std::size_t N>
+template<std::size_t N>
 const std::size_t
     CMultivariateMultimodalPrior<N>::CModeSplitCallback::MODE_SPLIT_NUMBER_SAMPLES(50 * N);
-template <std::size_t N>
+template<std::size_t N>
 const std::size_t
     CMultivariateMultimodalPrior<N>::CModeMergeCallback::MODE_MERGE_NUMBER_SAMPLES(25 * N);
 }

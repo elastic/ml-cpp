@@ -288,34 +288,34 @@ void WINAPI CProcess::serviceCtrlHandler(DWORD ctrlType) {
     serviceStatus.dwCheckPoint = 0;
 
     switch (ctrlType) {
-        case SERVICE_CONTROL_INTERROGATE: {
-            serviceStatus.dwWaitHint = 0;
-            if (process.isRunning()) {
-                if (process.isInitialised()) {
-                    serviceStatus.dwCurrentState = SERVICE_RUNNING;
-                } else {
-                    serviceStatus.dwCurrentState = SERVICE_START_PENDING;
-                }
+    case SERVICE_CONTROL_INTERROGATE: {
+        serviceStatus.dwWaitHint = 0;
+        if (process.isRunning()) {
+            if (process.isInitialised()) {
+                serviceStatus.dwCurrentState = SERVICE_RUNNING;
             } else {
-                serviceStatus.dwCurrentState = SERVICE_STOPPED;
+                serviceStatus.dwCurrentState = SERVICE_START_PENDING;
             }
-            SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
-            break;
+        } else {
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
         }
-        case SERVICE_CONTROL_SHUTDOWN:
-        case SERVICE_CONTROL_STOP: {
-            serviceStatus.dwWaitHint = STOP_WAIT_HINT_MSECS;
-            serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-            SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
-            if (process.shutdown() == false) {
-                // This won't stop the process gracefully, and will trigger an
-                // error message from Windows, but that's probably better than
-                // having a rogue process hanging around after it's been told to
-                // stop
-                ::exit(EXIT_SUCCESS);
-            }
-            break;
+        SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
+        break;
+    }
+    case SERVICE_CONTROL_SHUTDOWN:
+    case SERVICE_CONTROL_STOP: {
+        serviceStatus.dwWaitHint = STOP_WAIT_HINT_MSECS;
+        serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(process.m_ServiceHandle, &serviceStatus);
+        if (process.shutdown() == false) {
+            // This won't stop the process gracefully, and will trigger an
+            // error message from Windows, but that's probably better than
+            // having a rogue process hanging around after it's been told to
+            // stop
+            ::exit(EXIT_SUCCESS);
         }
+        break;
+    }
     }
 }
 

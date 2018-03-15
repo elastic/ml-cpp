@@ -24,26 +24,26 @@ namespace maths {
 
 const double* CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
     switch (order) {
-        case OrderOne:
-            return WEIGHTS1;
-        case OrderTwo:
-            return WEIGHTS2;
-        case OrderThree:
-            return WEIGHTS3;
-        case OrderFour:
-            return WEIGHTS4;
-        case OrderFive:
-            return WEIGHTS5;
-        case OrderSix:
-            return WEIGHTS6;
-        case OrderSeven:
-            return WEIGHTS7;
-        case OrderEight:
-            return WEIGHTS8;
-        case OrderNine:
-            return WEIGHTS9;
-        case OrderTen:
-            return WEIGHTS10;
+    case OrderOne:
+        return WEIGHTS1;
+    case OrderTwo:
+        return WEIGHTS2;
+    case OrderThree:
+        return WEIGHTS3;
+    case OrderFour:
+        return WEIGHTS4;
+    case OrderFive:
+        return WEIGHTS5;
+    case OrderSix:
+        return WEIGHTS6;
+    case OrderSeven:
+        return WEIGHTS7;
+    case OrderEight:
+        return WEIGHTS8;
+    case OrderNine:
+        return WEIGHTS9;
+    case OrderTen:
+        return WEIGHTS10;
     }
 
     LOG_ABORT("Unexpected enumeration value " << order);
@@ -51,26 +51,26 @@ const double* CIntegration::CGaussLegendreQuadrature::weights(EOrder order) {
 
 const double* CIntegration::CGaussLegendreQuadrature::abscissas(EOrder order) {
     switch (order) {
-        case OrderOne:
-            return ABSCISSAS1;
-        case OrderTwo:
-            return ABSCISSAS2;
-        case OrderThree:
-            return ABSCISSAS3;
-        case OrderFour:
-            return ABSCISSAS4;
-        case OrderFive:
-            return ABSCISSAS5;
-        case OrderSix:
-            return ABSCISSAS6;
-        case OrderSeven:
-            return ABSCISSAS7;
-        case OrderEight:
-            return ABSCISSAS8;
-        case OrderNine:
-            return ABSCISSAS9;
-        case OrderTen:
-            return ABSCISSAS10;
+    case OrderOne:
+        return ABSCISSAS1;
+    case OrderTwo:
+        return ABSCISSAS2;
+    case OrderThree:
+        return ABSCISSAS3;
+    case OrderFour:
+        return ABSCISSAS4;
+    case OrderFive:
+        return ABSCISSAS5;
+    case OrderSix:
+        return ABSCISSAS6;
+    case OrderSeven:
+        return ABSCISSAS7;
+    case OrderEight:
+        return ABSCISSAS8;
+    case OrderNine:
+        return ABSCISSAS9;
+    case OrderTen:
+        return ABSCISSAS10;
     }
 
     LOG_ABORT("Unexpected enumeration value " << order);

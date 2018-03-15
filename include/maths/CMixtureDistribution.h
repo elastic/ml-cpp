@@ -50,12 +50,12 @@ public:
     CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma);
     CMixtureModeImpl(const boost::math::lognormal_distribution<>& lognormal);
 
-    template <typename F>
+    template<typename F>
     typename F::result_type visit(const F& f, double x) const {
         return boost::apply_visitor(boost::bind(f, _1, x), m_Distribution);
     }
 
-    template <typename F>
+    template<typename F>
     typename F::result_type visit(const F& f) const {
         return boost::apply_visitor(f, m_Distribution);
     }
@@ -72,7 +72,7 @@ private:
 };
 }
 
-template <bool COMPLEMENT>
+template<bool COMPLEMENT>
 class CMixtureMode;
 
 //! \brief A wrapper around one of the standard mode distributions.
@@ -88,7 +88,7 @@ class CMixtureMode;
 //! This uses a variant because we know the distributions we can use to model
 //! a mode up front and it avoids heap allocation. The complement concept is
 //! encoded in a type parameter to avoid condition checking.
-template <>
+template<>
 class MATHS_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl {
 public:
     CMixtureMode(const boost::math::normal_distribution<>& normal);
@@ -98,7 +98,7 @@ public:
 
 //! \brief A wrapper around the complement of one of the standard mode
 //! distributions.
-template <>
+template<>
 class MATHS_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl {
 public:
     CMixtureMode(const CMixtureMode<false>& other);
@@ -151,7 +151,7 @@ CMixtureMode<true> complement(const CMixtureMode<false>& mode);
 //! and free functions for computing various properties of the
 //! distribution. In order to get this to support mixtures of
 //! different distributions use the CMixtureMode object.
-template <typename T>
+template<typename T>
 class CMixtureDistribution {
 public:
     typedef std::vector<double> TDoubleVec;
@@ -213,7 +213,7 @@ private:
 namespace mixture_detail {
 
 //! Adapts the free p.d.f. function for use with the solver.
-template <typename T>
+template<typename T>
 class CPdfAdpater {
 public:
     typedef double result_type;
@@ -229,7 +229,7 @@ private:
 }
 
 //! Get the support for \p distribution.
-template <typename T>
+template<typename T>
 mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribution) {
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
 
@@ -259,7 +259,7 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribut
 //! Compute the mode for \p distribution.
 //!
 //! \warning This propagates boost exceptions.
-template <typename T>
+template<typename T>
 double mode(const CMixtureDistribution<T>& distribution) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
@@ -304,7 +304,7 @@ double mode(const CMixtureDistribution<T>& distribution) {
 //! Compute the p.d.f. at \p x for \p distribution.
 //!
 //! \warning This propagates boost exceptions.
-template <typename T>
+template<typename T>
 double pdf(const CMixtureDistribution<T>& distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
@@ -346,7 +346,7 @@ double pdf(const CMixtureDistribution<T>& distribution, double x) {
 //! Compute the c.d.f. at \p x for \p distribution.
 //!
 //! \warning This propagates boost exceptions.
-template <typename T>
+template<typename T>
 double cdf(const CMixtureDistribution<T>& distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
@@ -389,7 +389,7 @@ double cdf(const CMixtureDistribution<T>& distribution, double x) {
 //! Compute one minus the c.d.f. at \p x for \p distribution.
 //!
 //! \warning This propagates boost exceptions.
-template <typename T>
+template<typename T>
 double cdfComplement(const CMixtureDistribution<T>& distribution, double x) {
     typedef typename CMixtureDistribution<T>::TDoubleVec TDoubleVec;
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
@@ -432,7 +432,7 @@ double cdfComplement(const CMixtureDistribution<T>& distribution, double x) {
 namespace mixture_detail {
 
 //! Adapts the free c.d.f. function for use with the solver.
-template <typename T>
+template<typename T>
 class CCdfAdapter {
 public:
     typedef double result_type;
@@ -450,7 +450,7 @@ private:
 //! Compute the \p q'th quantile for \p distribution.
 //!
 //! \warning This propagates boost exceptions.
-template <typename T>
+template<typename T>
 double quantile(const CMixtureDistribution<T>& distribution, const double q) {
     typedef typename CMixtureDistribution<T>::TModeVec TModeVec;
 

@@ -347,7 +347,7 @@ public:
     //!
     //! \tparam T This must be an associative array from person
     //! id and/or attribute id to some corresponding value.
-    template <typename F, typename T>
+    template<typename F, typename T>
     static void remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<T>& queue) {
         typedef typename CBucketQueue<T>::iterator TQueueItr;
 
@@ -368,7 +368,7 @@ public:
     //!
     //! \tparam T This must be a vector of associative array from person
     //! id and/or attribute id to some corresponding value.
-    template <typename F, typename T>
+    template<typename F, typename T>
     static void
     remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
         typedef typename CBucketQueue<std::vector<T>>::iterator TQueueItr;

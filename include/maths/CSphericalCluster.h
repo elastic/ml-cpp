@@ -47,7 +47,7 @@ struct MATHS_EXPORT SCountAndVariance {
 //! This annotates the POINT vector corresponding to the centre of the
 //! cluster with the count of points in the cluster and the spherically
 //! symmetric variance of those points.
-template <typename POINT>
+template<typename POINT>
 class CSphericalCluster {
 public:
     typedef CAnnotatedVector<POINT, SCountAndVariance> Type;
@@ -88,9 +88,9 @@ namespace basic_statistics_detail {
 
 //! \brief Specialization for the implementation of the spherical
 //! cluster to the sample mean and variance estimator.
-template <typename U, std::size_t N>
+template<typename U, std::size_t N>
 struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>> {
-    template <typename T>
+    template<typename T>
     static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 1>& moments) {
@@ -98,7 +98,7 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
         moments.add(x, TCoordinate(x.annotation().s_Count) * n, 0);
     }
 
-    template <typename T>
+    template<typename T>
     static inline void add(const CAnnotatedVector<CVectorNx1<U, N>, SCountAndVariance>& x,
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
@@ -111,9 +111,9 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
 
 //! \brief Specialization for the implementation of add spherical
 //! cluster to the covariances estimator.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>> {
-    template <typename U>
+    template<typename U>
     static inline void add(const CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>& x,
                            const CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>& n,
                            CBasicStatistics::SSampleCovariances<U, N>& covariances) {
@@ -135,9 +135,9 @@ struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarianc
 //!
 //! See http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf
 //! for the details.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>> {
-    template <typename U>
+    template<typename U>
     static void
     estimate(const std::vector<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>>& points,
              CBasicStatistics::SSampleCovariances<U, N>& covariances) {
@@ -166,7 +166,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
                                     (U(1) - bn / dn) * covariances.s_Covariances;
     }
 
-    template <typename U>
+    template<typename U>
     static U pow2(U x) {
         return x * x;
     }
@@ -174,7 +174,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
 }
 
 //! Write a description of \p cluster for debugging.
-template <typename POINT>
+template<typename POINT>
 std::ostream& operator<<(std::ostream& o,
                          const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
     return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << ","

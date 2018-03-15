@@ -64,45 +64,45 @@ std::ostream& operator<<(std::ostream& o, EUserDataType type) {
 
 bool isCategorical(EDataType type) {
     switch (type) {
-        case E_Binary:
-        case E_Categorical:
-            return true;
-        case E_UndeterminedType:
-        case E_PositiveInteger:
-        case E_Integer:
-        case E_PositiveReal:
-        case E_Real:
-            break;
+    case E_Binary:
+    case E_Categorical:
+        return true;
+    case E_UndeterminedType:
+    case E_PositiveInteger:
+    case E_Integer:
+    case E_PositiveReal:
+    case E_Real:
+        break;
     }
     return false;
 }
 
 bool isNumeric(EDataType type) {
     switch (type) {
-        case E_PositiveInteger:
-        case E_Integer:
-        case E_PositiveReal:
-        case E_Real:
-            return true;
-        case E_UndeterminedType:
-        case E_Binary:
-        case E_Categorical:
-            break;
+    case E_PositiveInteger:
+    case E_Integer:
+    case E_PositiveReal:
+    case E_Real:
+        return true;
+    case E_UndeterminedType:
+    case E_Binary:
+    case E_Categorical:
+        break;
     }
     return false;
 }
 
 bool isInteger(EDataType type) {
     switch (type) {
-        case E_PositiveInteger:
-        case E_Integer:
-            return true;
-        case E_UndeterminedType:
-        case E_Binary:
-        case E_Categorical:
-        case E_PositiveReal:
-        case E_Real:
-            break;
+    case E_PositiveInteger:
+    case E_Integer:
+        return true;
+    case E_UndeterminedType:
+    case E_Binary:
+    case E_Categorical:
+    case E_PositiveReal:
+    case E_Real:
+        break;
     }
     return false;
 }
@@ -117,126 +117,126 @@ std::ostream& operator<<(std::ostream& o, EDataType type) {
 
 bool hasArgument(EFunctionCategory function) {
     switch (function) {
-        case E_Count:
-        case E_Rare:
-            return false;
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            break;
+    case E_Count:
+    case E_Rare:
+        return false;
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        break;
     }
     return true;
 }
 
 bool isCount(EFunctionCategory function) {
     switch (function) {
-        case E_Rare:
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            return false;
-        case E_Count:
-            break;
+    case E_Rare:
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        return false;
+    case E_Count:
+        break;
     }
     return true;
 }
 
 bool isRare(EFunctionCategory function) {
     switch (function) {
-        case E_Count:
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            return false;
-        case E_Rare:
-            break;
+    case E_Count:
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        return false;
+    case E_Rare:
+        break;
     }
     return true;
 }
 
 bool isInfoContent(EFunctionCategory function) {
     switch (function) {
-        case E_Count:
-        case E_Rare:
-        case E_DistinctCount:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            return false;
-        case E_InfoContent:
-            break;
+    case E_Count:
+    case E_Rare:
+    case E_DistinctCount:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        return false;
+    case E_InfoContent:
+        break;
     }
     return true;
 }
 
 bool isMetric(EFunctionCategory function) {
     switch (function) {
-        case E_Count:
-        case E_Rare:
-        case E_DistinctCount:
-        case E_InfoContent:
-            return false;
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            break;
+    case E_Count:
+    case E_Rare:
+    case E_DistinctCount:
+    case E_InfoContent:
+        return false;
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        break;
     }
     return true;
 }
 
 bool hasSidedCalculation(EFunctionCategory function) {
     switch (function) {
-        case E_Rare:
-            return false;
-        case E_Count:
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Sum:
-        case E_Varp:
-        case E_Median:
-            break;
+    case E_Rare:
+        return false;
+    case E_Count:
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Sum:
+    case E_Varp:
+    case E_Median:
+        break;
     }
     return true;
 }
 
 bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function) {
     switch (function) {
-        case E_Rare:
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Varp:
-        case E_Median:
-            return false;
-        case E_Count:
-        case E_Sum:
-            break;
+    case E_Rare:
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Varp:
+    case E_Median:
+        return false;
+    case E_Count:
+    case E_Sum:
+        break;
     }
     return true;
 }
@@ -245,21 +245,21 @@ const std::string&
 ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
     std::size_t index = 0u;
     switch (function) {
-        case E_Count:
-            index = 1u;
-            break;
-        case E_Sum:
-            index = 2u;
-            break;
-        case E_Rare:
-        case E_DistinctCount:
-        case E_InfoContent:
-        case E_Mean:
-        case E_Min:
-        case E_Max:
-        case E_Varp:
-        case E_Median:
-            break;
+    case E_Count:
+        index = 1u;
+        break;
+    case E_Sum:
+        index = 2u;
+        break;
+    case E_Rare:
+    case E_DistinctCount:
+    case E_InfoContent:
+    case E_Mean:
+    case E_Min:
+    case E_Max:
+    case E_Varp:
+    case E_Median:
+        break;
     }
     return IGNORE_EMPTY_VERSION_NAMES[index][ignoreEmpty && !isPopulation];
 }

@@ -132,7 +132,7 @@ void sample(const boost::math::gamma_distribution<>& gamma,
             TDoubleVec& result) {
     RNG.generateGammaSamples(gamma.shape(), gamma.scale(), numberSamples, result);
 }
-template <typename T>
+template<typename T>
 void probabilityOfLessLikelySample(const maths::CMixtureDistribution<T>& mixture,
                                    const double& x,
                                    double& probability,

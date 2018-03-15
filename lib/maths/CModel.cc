@@ -52,12 +52,12 @@ double oneSidedEmptyBucketCorrection(maths_t::EProbabilityCalculation calculatio
                                      const TDouble2Vec& value,
                                      double probabilityEmptyBucket) {
     switch (calculation) {
-        case maths_t::E_OneSidedBelow:
-            return greaterThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
-        case maths_t::E_OneSidedAbove:
-            return lessThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
-        case maths_t::E_TwoSided:
-            break;
+    case maths_t::E_OneSidedBelow:
+        return greaterThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
+    case maths_t::E_OneSidedAbove:
+        return lessThanEqual(value, 0.0) ? 2.0 * probabilityEmptyBucket : 0.0;
+    case maths_t::E_TwoSided:
+        break;
     }
     return 0.0;
 }

@@ -30,7 +30,7 @@ namespace ml {
 namespace maths {
 namespace basic_statistics_detail {
 //! Function to do conversion from string.
-template <typename T>
+template<typename T>
 bool stringToType(const std::string& str, T& value) {
     return core::CStringUtils::stringToType(str, value);
 }
@@ -48,18 +48,18 @@ inline bool stringToType(const std::string& str, CDoublePrecisionStorage& value)
     return true;
 }
 //! Function to do conversion from string to a vector.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 bool stringToType(const std::string& str, CVectorNx1<T, N>& value) {
     return value.fromDelimited(str);
 }
 //! Function to do conversion from string to a symmetric matrix.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 bool stringToType(const std::string& str, CSymmetricMatrixNxN<T, N>& value) {
     return value.fromDelimited(str);
 }
 
 //! Function to do conversion to a string.
-template <typename T>
+template<typename T>
 inline std::string typeToString(const T& value) {
     return core::CStringUtils::typeToStringPrecise(value, core::CIEEE754::E_SinglePrecision);
 }
@@ -73,18 +73,18 @@ inline std::string typeToString(const CDoublePrecisionStorage& value) {
                                                    core::CIEEE754::E_DoublePrecision);
 }
 //! Function to do conversion to a string from a vector.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 inline std::string typeToString(const CVectorNx1<T, N>& value) {
     return value.toDelimited();
 }
 //! Function to do conversion to a string from a symmetric matrix.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 inline std::string typeToString(const CSymmetricMatrixNxN<T, N>& value) {
     return value.toDelimited();
 }
 }
 
-template <typename T, unsigned int ORDER>
+template<typename T, unsigned int ORDER>
 bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std::string& str) {
     if (str.empty()) {
         LOG_ERROR("Empty accumulator representation");
@@ -133,7 +133,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
     return true;
 }
 
-template <typename T, unsigned int ORDER>
+template<typename T, unsigned int ORDER>
 std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited(void) const {
     std::string result(basic_statistics_detail::typeToString(s_Count));
     for (std::size_t index = 0; index < ORDER; ++index) {
@@ -144,7 +144,7 @@ std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited(void)
     return result;
 }
 
-template <typename T, unsigned int ORDER>
+template<typename T, unsigned int ORDER>
 uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum(void) const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
@@ -156,7 +156,7 @@ uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum(void) const
     return hasher(raw.str());
 }
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) {
     std::size_t count{0u};
     for (std::size_t i = 0u; i < N; ++i) {
@@ -186,13 +186,13 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
     return true;
 }
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited(void) const {
     return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
            CLinearAlgebra::DELIMITER + s_Covariances.toDelimited();
 }
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum(void) const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
@@ -204,7 +204,7 @@ uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum(void) const {
     return hasher(raw.str());
 }
 
-template <typename T, typename CONTAINER, typename LESS>
+template<typename T, typename CONTAINER, typename LESS>
 bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
     const std::string& value) {
     this->clear();
@@ -251,7 +251,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
     return true;
 }
 
-template <typename T, typename CONTAINER, typename LESS>
+template<typename T, typename CONTAINER, typename LESS>
 std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(void) const {
     if (this->count() == 0) {
         return std::string{};
@@ -265,7 +265,7 @@ std::string CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimi
     return result;
 }
 
-template <typename T, typename CONTAINER, typename LESS>
+template<typename T, typename CONTAINER, typename LESS>
 uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
     if (this->count() == 0) {
         return seed;

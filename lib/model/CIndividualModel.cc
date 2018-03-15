@@ -50,7 +50,7 @@ typedef std::pair<TStrCRef, TStrCRef> TStrCRefStrCRefPr;
 typedef std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLess> TStrCRefStrCRefPrUInt64Map;
 
 //! Update \p hashes with the hashes of the active people in \p values.
-template <typename T>
+template<typename T>
 void hashActive(const CDataGatherer& gatherer,
                 const std::vector<T>& values,
                 TStrCRefUInt64Map& hashes) {
@@ -592,13 +592,13 @@ void CIndividualModel::correctBaselineForInterim(
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
         TFeatureSizeSizeTriple key(feature, pid, pid);
         switch (type.asConditionalOrUnconditional()) {
-            case model_t::CResultType::E_Unconditional:
-                break;
-            case model_t::CResultType::E_Conditional:
-                if (!correlated.empty()) {
-                    key.third = correlated[0].first;
-                }
-                break;
+        case model_t::CResultType::E_Unconditional:
+            break;
+        case model_t::CResultType::E_Conditional:
+            if (!correlated.empty()) {
+                key.third = correlated[0].first;
+            }
+            break;
         }
         auto correction = corrections.find(key);
         if (correction != corrections.end()) {

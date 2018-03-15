@@ -160,7 +160,7 @@ public:
     class MATHS_EXPORT CMediator : core::CNonCopyable {
     public:
         //! Forward \p message to all registered models.
-        template <typename M>
+        template<typename M>
         void forward(const M& message) const;
 
         //! Register \p handler.

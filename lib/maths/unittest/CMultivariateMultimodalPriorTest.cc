@@ -51,7 +51,7 @@ const maths_t::TWeightStyleVec VARIANCE_WEIGHT(1, maths_t::E_SampleCountVariance
 const TDouble10Vec UNIT_WEIGHT_2(2, 1.0);
 const TDouble10Vec4Vec1Vec SINGLE_UNIT_WEIGHT_2(1, TDouble10Vec4Vec(1, UNIT_WEIGHT_2));
 
-template <std::size_t N>
+template<std::size_t N>
 class CMultivariateMultimodalPriorForTest : public maths::CMultivariateMultimodalPrior<N> {
 public:
     typedef typename maths::CMultivariateMultimodalPrior<N>::TClusterer TClusterer;
@@ -66,7 +66,7 @@ public:
     }
 };
 
-template <std::size_t N>
+template<std::size_t N>
 maths::CMultivariateMultimodalPrior<N> makePrior(maths_t::EDataType dataType,
                                                  double decayRate = 0.0) {
     maths::CXMeansOnline<maths::CFloatStorage, N> clusterer(dataType,
@@ -101,7 +101,7 @@ void gaussianSamples(test::CRandomNumbers& rng,
     LOG_DEBUG("# samples = " << samples.size());
 }
 
-template <std::size_t N>
+template<std::size_t N>
 double logLikelihood(const double w[N],
                      const double means[N][2],
                      const double covariances[N][3],
@@ -157,14 +157,14 @@ void empiricalProbabilityOfLessLikelySamples(const TDoubleVec& w,
 
 std::string print(maths_t::EDataType dataType) {
     switch (dataType) {
-        case maths_t::E_DiscreteData:
-            return "Discrete";
-        case maths_t::E_IntegerData:
-            return "Integer";
-        case maths_t::E_ContinuousData:
-            return "Continuous";
-        case maths_t::E_MixedData:
-            return "Mixed";
+    case maths_t::E_DiscreteData:
+        return "Discrete";
+    case maths_t::E_IntegerData:
+        return "Integer";
+    case maths_t::E_ContinuousData:
+        return "Continuous";
+    case maths_t::E_MixedData:
+        return "Mixed";
     }
     return "";
 }

@@ -1036,7 +1036,7 @@ void CLinearAlgebraTest::testLogDeterminant(void) {
 
 namespace {
 
-template <typename MATRIX>
+template<typename MATRIX>
 std::string print(const MATRIX& m) {
     std::ostringstream result;
     result << m;

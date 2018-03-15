@@ -23,7 +23,7 @@
 namespace ml {
 namespace model {
 
-template <typename T>
+template<typename T>
 CPopulationModel::TSizeSizePr CPopulationModel::personRange(const T& data, std::size_t pid) {
     const std::size_t minCid = 0u;
     const std::size_t maxCid = std::numeric_limits<std::size_t>::max();
@@ -39,7 +39,7 @@ CPopulationModel::TSizeSizePr CPopulationModel::personRange(const T& data, std::
             static_cast<std::size_t>(end - data.begin())};
 }
 
-template <typename T>
+template<typename T>
 typename T::const_iterator CPopulationModel::find(const T& data, std::size_t pid, std::size_t cid) {
     auto i = std::lower_bound(data.begin(),
                               data.end(),
@@ -66,7 +66,7 @@ CPopulationModel::extractValue(model_t::EFeature feature,
                : TDouble1Vec();
 }
 
-template <typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
+template<typename T, typename PERSON_FILTER, typename ATTRIBUTE_FILTER>
 void CPopulationModel::applyFilters(bool updateStatistics,
                                     const PERSON_FILTER& personFilter,
                                     const ATTRIBUTE_FILTER& attributeFilter,

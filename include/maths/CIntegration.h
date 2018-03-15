@@ -113,7 +113,7 @@ public:
     //! false means that the function could not be evaluated at x.
     //! \tparam T The type of range of \p f. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
-    template <EOrder ORDER, typename F, typename T>
+    template<EOrder ORDER, typename F, typename T>
     static bool gaussLegendre(const F& function, double a, double b, T& result) {
         result = T();
 
@@ -165,7 +165,7 @@ public:
     //! constructor, support multiplication by a double and addition.
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
-    template <EOrder ORDER, typename F, typename G, typename U, typename V>
+    template<EOrder ORDER, typename F, typename G, typename U, typename V>
     static bool productGaussLegendre(const F& f,
                                      const G& g,
                                      double a,
@@ -224,7 +224,7 @@ public:
     //!   bool function(double x, double &f)
     //! where f is filled in with the value of the function at x and returning
     //! false means that the function could not be evaluated at x.
-    template <EOrder ORDER, typename F>
+    template<EOrder ORDER, typename F>
     static bool logGaussLegendre(const F& function, double a, double b, double& result) {
         result = 0.0;
 
@@ -287,7 +287,7 @@ public:
     //! \note \p intervals and \p fIntervals are modified in order to avoid
     //! the copy if it isn't needed. If it is make copies yourself and pass
     //! these in.
-    template <EOrder ORDER, typename F>
+    template<EOrder ORDER, typename F>
     static bool adaptiveGaussLegendre(const F& f,
                                       TDoubleDoublePrVec& intervals,
                                       TDoubleVec& fIntervals,
@@ -407,7 +407,7 @@ public:
     //! This means any calling code only ever pays the runtime cost for
     //! computing them once and means that the amortized cost of integration
     //! is as low as possible.
-    template <EOrder O, EDimension D>
+    template<EOrder O, EDimension D>
     class CSparseGaussLegendreQuadrature : private core::CNonCopyable {
     private:
         static const unsigned int ORDER = static_cast<unsigned int>(O);
@@ -555,7 +555,7 @@ public:
     //! false means that the function could not be evaluated at x.
     //! \tparam T The type of range of \p f. This must have a meaningful
     //! default constructor, support multiplication by a double and addition.
-    template <EOrder ORDER, EDimension DIMENSION, typename F, typename T>
+    template<EOrder ORDER, EDimension DIMENSION, typename F, typename T>
     static bool
     sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
         using TSparseQuadrature = CSparseGaussLegendreQuadrature<ORDER, DIMENSION>;
@@ -658,7 +658,7 @@ private:
     static core::CFastMutex ms_Mutex;
 };
 
-template <CIntegration::EOrder O, CIntegration::EDimension D>
+template<CIntegration::EOrder O, CIntegration::EDimension D>
 std::atomic<const CIntegration::CSparseGaussLegendreQuadrature<O, D>*>
     CIntegration::CSparseGaussLegendreQuadrature<O, D>::ms_Instance;
 }

@@ -79,7 +79,7 @@ namespace maths {
 //! is expected to give largely order (of points processed) invariant
 //! unsupervised clustering of the data which identifies reasonably
 //! separated clusters.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CXMeansOnline : public CClusterer<CVectorNx1<T, N>> {
 public:
     typedef CVectorNx1<T, N> TPoint;
@@ -163,16 +163,16 @@ public:
         //! Add \p x_ to this cluster.
         void add(const TPointPrecise& x, double count) {
             switch (m_DataType) {
-                case maths_t::E_IntegerData: {
-                    TSphericalCluster x_(x, SCountAndVariance(count, 1.0 / 12.0));
-                    m_Covariances.add(x_);
-                    break;
-                }
-                case maths_t::E_DiscreteData:
-                case maths_t::E_ContinuousData:
-                case maths_t::E_MixedData:
-                    m_Covariances.add(x, TPointPrecise(count));
-                    break;
+            case maths_t::E_IntegerData: {
+                TSphericalCluster x_(x, SCountAndVariance(count, 1.0 / 12.0));
+                m_Covariances.add(x_);
+                break;
+            }
+            case maths_t::E_DiscreteData:
+            case maths_t::E_ContinuousData:
+            case maths_t::E_MixedData:
+                m_Covariances.add(x, TPointPrecise(count));
+                break;
             }
             m_Structure.add(x, count);
         }
@@ -209,10 +209,10 @@ public:
         //! Get the weight of the cluster.
         double weight(maths_t::EClusterWeightCalc calc) const {
             switch (calc) {
-                case maths_t::E_ClustersEqualWeight:
-                    return 1.0;
-                case maths_t::E_ClustersFractionWeight:
-                    return this->count();
+            case maths_t::E_ClustersEqualWeight:
+                return 1.0;
+            case maths_t::E_ClustersFractionWeight:
+                return this->count();
             }
             LOG_ABORT("Unexpected calculation style " << calc);
             return 1.0;
@@ -515,16 +515,16 @@ public:
         void sphericalClusters(TSphericalClusterVec& result) const {
             m_Structure.clusters(result);
             switch (m_DataType) {
-                case maths_t::E_IntegerData: {
-                    for (std::size_t i = 0u; i < result.size(); ++i) {
-                        result[i].annotation().s_Variance += 1.0 / 12.0;
-                    }
-                    break;
+            case maths_t::E_IntegerData: {
+                for (std::size_t i = 0u; i < result.size(); ++i) {
+                    result[i].annotation().s_Variance += 1.0 / 12.0;
                 }
-                case maths_t::E_DiscreteData:
-                case maths_t::E_ContinuousData:
-                case maths_t::E_MixedData:
-                    break;
+                break;
+            }
+            case maths_t::E_DiscreteData:
+            case maths_t::E_ContinuousData:
+            case maths_t::E_MixedData:
+                break;
             }
         }
 
@@ -1293,37 +1293,37 @@ private:
     TClusterVec m_Clusters;
 };
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::CLUSTER_TAG("f");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::RNG_TAG("g");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::DECAY_RATE_TAG("h");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::INDEX_TAG("a");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::COVARIANCES_TAG("b");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::string CXMeansOnline<T, N>::STRUCTURE_TAG("c");
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MINIMUM_SPLIT_DISTANCE(6.0);
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MAXIMUM_MERGE_DISTANCE(2.0);
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::CLUSTER_DELETE_FRACTION(0.8);
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const std::size_t CXMeansOnline<T, N>::STRUCTURE_SIZE(24);
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::HARD_ASSIGNMENT_THRESHOLD(0.01);
 }
 }

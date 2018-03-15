@@ -304,7 +304,7 @@ protected:
 
 private:
     // Shared code for building results
-    template <typename SAMPLE_FUNC, typename LAST_SAMPLED_BUCKET_UPDATE_FUNC>
+    template<typename SAMPLE_FUNC, typename LAST_SAMPLED_BUCKET_UPDATE_FUNC>
     void buildResultsHelper(core_t::TTime bucketStartTime,
                             core_t::TTime bucketEndTime,
                             SAMPLE_FUNC sampleFunc,

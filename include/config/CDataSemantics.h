@@ -118,15 +118,15 @@ private:
     bool GMMGoodFit(void) const;
 
     //! Add an integer value.
-    template <typename INT>
+    template<typename INT>
     maths::COrdinal addInteger(INT value);
 
     //! Add a positive integer value.
-    template <typename UINT>
+    template<typename UINT>
     maths::COrdinal addPositiveInteger(UINT value);
 
     //! Add a real value.
-    template <typename REAL>
+    template<typename REAL>
     maths::COrdinal addReal(REAL value);
 
 private:

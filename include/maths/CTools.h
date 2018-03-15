@@ -37,7 +37,7 @@
 namespace ml {
 namespace maths {
 class CLogTDistribution;
-template <typename T>
+template<typename T>
 class CMixtureDistribution;
 
 //! \brief A collection of utility functionality.
@@ -171,7 +171,7 @@ public:
         //! approximation. Note also that this computes the scaled
         //! kernel, i.e. \f$k'(s) = k(s)/f(x)\f$ so the output must
         //! be scaled by \f$f(x)\f$ to recover the true probability.
-        template <typename LOGF>
+        template<typename LOGF>
         class CSmoothedKernel : private core::CNonCopyable {
         public:
             CSmoothedKernel(LOGF logf, double logF0, double k);
@@ -229,7 +229,7 @@ public:
         //! \tparam LOGF The type of the function (object) which computes
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
-        template <typename LOGF, typename EQUAL>
+        template<typename LOGF, typename EQUAL>
         bool leftTail(const LOGF& logf,
                       std::size_t iterations,
                       const EQUAL& equal,
@@ -250,7 +250,7 @@ public:
         //! \tparam LOGF The type of the function (object) which computes
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
-        template <typename LOGF, typename EQUAL>
+        template<typename LOGF, typename EQUAL>
         bool rightTail(const LOGF& logf,
                        std::size_t iterations,
                        const EQUAL& equal,
@@ -269,7 +269,7 @@ public:
         //! like signature bool (double, double &) where the first argument
         //! is the p.d.f. argument and the second argument is filled in
         //! with the log p.d.f. at the first argument.
-        template <typename LOGF>
+        template<typename LOGF>
         double calculate(const LOGF& logf, double pTails);
 
     private:
@@ -401,7 +401,7 @@ public:
     static double differentialEntropy(const normal& normal_);
     static double differentialEntropy(const lognormal& logNormal);
     static double differentialEntropy(const gamma& gamma_);
-    template <typename T>
+    template<typename T>
     class CDifferentialEntropyKernel {
     public:
         CDifferentialEntropyKernel(const CMixtureDistribution<T>& mixture) : m_Mixture(&mixture) {}
@@ -415,14 +415,14 @@ public:
     private:
         const CMixtureDistribution<T>* m_Mixture;
     };
-    template <typename T>
+    template<typename T>
     static double differentialEntropy(const CMixtureDistribution<T>& mixture);
     //@}
 
     //! Check if \p log will underflow the smallest positive value of T.
     //!
     //! \tparam T must be a floating point type.
-    template <typename T>
+    template<typename T>
     static bool logWillUnderflow(T log) {
         static const T LOG_DENORM_MIN = std::log(std::numeric_limits<T>::min());
         return log < LOG_DENORM_MIN;
@@ -450,7 +450,7 @@ private:
     //!
     //! This is taken from the approach given in
     //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
-    template <int BITS>
+    template<int BITS>
     class CLookupTableForFastLog {
     public:
         static const std::size_t BINS = 1 << BITS;
@@ -518,22 +518,22 @@ public:
 
 private:
     //! Get the location of the point \p x.
-    template <typename T>
+    template<typename T>
     static double location(T x) {
         return x;
     }
     //! Set \p x to \p y.
-    template <typename T>
+    template<typename T>
     static void setLocation(T& x, double y) {
         x = static_cast<T>(y);
     }
     //! Get a writable location of the point \p x.
-    template <typename T>
+    template<typename T>
     static double location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator& x) {
         return CBasicStatistics::mean(x);
     }
     //! Set the mean of \p x to \p y.
-    template <typename T>
+    template<typename T>
     static void setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator& x, double y) {
         x.s_Moments[0] = static_cast<T>(y);
     }
@@ -546,7 +546,7 @@ private:
 
     public:
         //! Create a new points group.
-        template <typename T>
+        template<typename T>
         CGroup(std::size_t index, const T& points) : m_A(index), m_B(index), m_Centre() {
             m_Centre.add(location(points[index]));
         }
@@ -559,7 +559,7 @@ private:
 
         //! Update the locations of the points in this group based
         //! on its centre position.
-        template <typename T>
+        template<typename T>
         bool spread(double separation, T& points) const {
             if (m_A == m_B) {
                 return false;
@@ -590,7 +590,7 @@ private:
     //! \brief Orders two points by their position.
     class CPointLess {
     public:
-        template <typename T>
+        template<typename T>
         bool operator()(const T& lhs, const T& rhs) const {
             return location(lhs) < location(rhs);
         }
@@ -615,7 +615,7 @@ public:
     //! \param[in] separation The minimum permitted separation between
     //! points.
     //! \param[in,out] points The points to spread.
-    template <typename T>
+    template<typename T>
     static void spread(double a, double b, double separation, T& points);
 
     //! Compute the sign of \p x and return T(-1) if it is negative and T(1)
@@ -624,7 +624,7 @@ public:
     //! \param[in] x The value for which to check the sign.
     //! \note Conversion of 0 and -1 to T should be well defined.
     //! \note Zero maps to 1.
-    template <typename T>
+    template<typename T>
     static T sign(const T& x) {
         return x < T(0) ? T(-1) : T(1);
     }
@@ -632,13 +632,13 @@ public:
     //! Truncate \p x to the range [\p a, \p b].
     //!
     //! \tparam T Must support operator<.
-    template <typename T>
+    template<typename T>
     static const T& truncate(const T& x, const T& a, const T& b) {
         return x < a ? a : (b < x ? b : x);
     }
 
     //! Component-wise truncation of stack vectors.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static CVectorNx1<T, N>
     truncate(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& a, const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
@@ -649,7 +649,7 @@ public:
     }
 
     //! Component-wise truncation of heap vectors.
-    template <typename T>
+    template<typename T>
     static CVector<T> truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
         CVector<T> result(x);
         for (std::size_t i = 0u; i < result.dimension(); ++i) {
@@ -659,7 +659,7 @@ public:
     }
 
     //! Component-wise truncation of small vector.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N>& x,
                                              const core::CSmallVector<T, N>& a,
                                              const core::CSmallVector<T, N>& b) {

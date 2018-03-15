@@ -37,7 +37,7 @@ struct SFirstLess {
     bool operator()(const TSizeVec& lhs, const TSizeVec& rhs) const { return lhs[0] < rhs[0]; }
 };
 
-template <std::size_t N>
+template<std::size_t N>
 class CRandomProjectionClustererForTest : public maths::CRandomProjectionClustererBatch<N> {
 public:
     typedef typename maths::CRandomProjectionClustererBatch<N>::TVectorArrayVec TVectorArrayVec;
@@ -56,7 +56,7 @@ public:
         return this->maths::CRandomProjectionClustererBatch<N>::projections();
     }
 
-    template <typename CLUSTERER>
+    template<typename CLUSTERER>
     void clusterProjections(CLUSTERER clusterer,
                             TDoubleVecVec& W,
                             TVectorNx1VecVec& M,

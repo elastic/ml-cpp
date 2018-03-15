@@ -41,13 +41,13 @@ namespace core {
 class CORE_EXPORT CAllocationStrategy {
 public:
     //! Reserve a container working around implementation-specific silliness
-    template <typename T>
+    template<typename T>
     static void reserve(T& t, std::size_t n) {
         t.reserve(n);
     }
 
     //! Resize a container using a 10% capacity increase
-    template <typename T>
+    template<typename T>
     static void resize(T& t, std::size_t n) {
         if (n > t.capacity()) {
             CAllocationStrategy::reserve(t, n * 11 / 10);
@@ -56,7 +56,7 @@ public:
     }
 
     //! Resize a container using a 10% capacity increase, with default value type
-    template <typename T>
+    template<typename T>
     static void resize(T& t, std::size_t n, const typename T::value_type& v) {
         if (n > t.capacity()) {
             CAllocationStrategy::reserve(t, n * 11 / 10);
@@ -66,7 +66,7 @@ public:
 
     //! push_back an item to a container using a 10% capacity
     //! increase
-    template <typename T>
+    template<typename T>
     static void push_back(std::vector<T>& v, const T& t) {
         std::size_t capacity = v.capacity();
         if (v.size() == capacity) {

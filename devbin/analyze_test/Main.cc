@@ -16,7 +16,7 @@
 #include <iostream>
 #include <vector>
 
-template <typename T>
+template<typename T>
 struct STemplated {
     void printFirst(void) { std::cout << s_First << std::endl; }
 

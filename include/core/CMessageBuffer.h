@@ -38,7 +38,7 @@ namespace core {
 //! can be added in one thread (addMessage) and
 //! flushed and processed in another (flush) and (process)
 //!
-template <typename MESSAGE, typename BUFFER>
+template<typename MESSAGE, typename BUFFER>
 class CMessageBuffer {
 public:
     CMessageBuffer(BUFFER& buffer) : m_Thread(*this), m_Condition(m_Mutex), m_Buffer(buffer) {}

@@ -62,13 +62,13 @@ namespace core {
 //! reduce allocation cost and memory fragmentation).  The user of this class
 //! is responsible for managing this pool.
 //!
-template <typename OUTPUT_STREAM,
-          typename SOURCE_ENCODING = rapidjson::UTF8<>,
-          typename TARGET_ENCODING = rapidjson::UTF8<>,
-          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
-          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags,
-          template <typename, typename, typename, typename, unsigned> class JSON_WRITER =
-              rapidjson::Writer>
+template<typename OUTPUT_STREAM,
+         typename SOURCE_ENCODING = rapidjson::UTF8<>,
+         typename TARGET_ENCODING = rapidjson::UTF8<>,
+         typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
+         unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags,
+         template<typename, typename, typename, typename, unsigned> class JSON_WRITER =
+             rapidjson::Writer>
 class CRapidJsonWriterBase : public JSON_WRITER<OUTPUT_STREAM,
                                                 SOURCE_ENCODING,
                                                 TARGET_ENCODING,
@@ -185,7 +185,7 @@ public:
     //! \p[in] value generic rapidjson value object
     //! \p[out] obj rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    template <typename T>
+    template<typename T>
     void pushBack(T&& value, TValue& obj) const {
         obj.PushBack(value, this->getRawAllocator());
     }
@@ -194,14 +194,14 @@ public:
     //! \p[in] value generic rapidjson value object
     //! \p[out] obj shared pointer to a rapidjson value to contain the \p value
     //! \p name must outlive \p obj or memory corruption will occur.
-    template <typename T>
+    template<typename T>
     void pushBack(T&& value, const TValuePtr& obj) const {
         obj->PushBack(value, this->getRawAllocator());
     }
 
     //! Add an array of doubles to an object.
     //! \p fieldName must outlive \p obj or memory corruption will occur.
-    template <typename CONTAINER>
+    template<typename CONTAINER>
     void addDoubleArrayFieldToObj(const std::string& fieldName,
                                   const CONTAINER& values,
                                   TValue& obj) const {
@@ -485,7 +485,7 @@ public:
 
 private:
     //! Log a message if we're trying to add nan/infinity to a JSON array
-    template <typename NUMBER>
+    template<typename NUMBER>
     void
     checkArrayNumberFinite(NUMBER val, const std::string& fieldName, bool& considerLogging) const {
         if (considerLogging && !(boost::math::isfinite)(val)) {
@@ -503,7 +503,7 @@ private:
     }
 
     //! Convert the range [\p begin, \p end) to a RapidJSON array and add to \p obj.
-    template <typename ITR>
+    template<typename ITR>
     void addArrayToObj(const std::string& fieldName, ITR begin, ITR end, TValue& obj) const {
         TValue array = this->makeArray(std::distance(begin, end));
         for (/**/; begin != end; ++begin) {

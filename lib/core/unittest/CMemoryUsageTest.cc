@@ -187,7 +187,7 @@ private:
 };
 
 //! A basic allocator that tracks memory usage
-template <typename T>
+template<typename T>
 class CTrackingAllocator {
 public:
     typedef T value_type;
@@ -200,7 +200,7 @@ public:
 
 public:
     // convert an allocator<T> to allocator<U>
-    template <typename U>
+    template<typename U>
     struct rebind {
         typedef CTrackingAllocator<U> other;
     };
@@ -209,7 +209,7 @@ public:
     CTrackingAllocator(void) = default;
     CTrackingAllocator(const CTrackingAllocator&) = default;
 
-    template <typename U>
+    template<typename U>
     inline CTrackingAllocator(const CTrackingAllocator<U>&) {}
 
     // address
@@ -246,7 +246,7 @@ private:
     static std::size_t ms_Allocated;
 };
 
-template <typename T>
+template<typename T>
 std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
 }
 

@@ -50,7 +50,7 @@ using TDoubleMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAcc
 using TRegression = CSeasonalComponentAdaptiveBucketing::TRegression;
 
 //! Clear a vector and recover its memory.
-template <typename T>
+template<typename T>
 void clearAndShrink(std::vector<T>& vector) {
     std::vector<T> empty;
     empty.swap(vector);

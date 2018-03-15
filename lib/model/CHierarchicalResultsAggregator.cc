@@ -307,14 +307,14 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
         model_t::EAggregationStyle style{
             static_cast<model_t::EAggregationStyle>(child->s_AggregationStyle)};
         switch (style) {
-            case model_t::E_AggregatePeople:
-            case model_t::E_AggregateAttributes:
-                detectors.insert(child->s_Detector);
-                partition[style][{child->s_Detector, key}].push_back(probability);
-                break;
-            case model_t::E_AggregateDetectors:
-                LOG_ERROR("Unexpected aggregation style for " << child->print());
-                continue;
+        case model_t::E_AggregatePeople:
+        case model_t::E_AggregateAttributes:
+            detectors.insert(child->s_Detector);
+            partition[style][{child->s_Detector, key}].push_back(probability);
+            break;
+        case model_t::E_AggregateDetectors:
+            LOG_ERROR("Unexpected aggregation style for " << child->print());
+            continue;
         }
     }
 
@@ -375,22 +375,22 @@ void CHierarchicalResultsAggregator::detectorProbabilities(
             detectorProbabilities[detector_].push_back(probability);
 
             switch (detector) {
-                case -3:
-                    detector = detector_; /*first value we've seen*/
-                    break;
-                case -2: /*we have a mix of detectors*/
-                    break;
-                default:
-                    detector = (detector != detector_ ? -2 : detector_);
-                    break;
+            case -3:
+                detector = detector_; /*first value we've seen*/
+                break;
+            case -2: /*we have a mix of detectors*/
+                break;
+            default:
+                detector = (detector != detector_ ? -2 : detector_);
+                break;
             }
             switch (aggregation) {
-                case -1:
-                    aggregation = i; /*first value we've seen*/
-                    break;
-                default:
-                    aggregation = (aggregation != i ? fallback : i);
-                    break;
+            case -1:
+                aggregation = i; /*first value we've seen*/
+                break;
+            default:
+                aggregation = (aggregation != i ? fallback : i);
+                break;
             }
         }
     }
@@ -435,15 +435,15 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode& node,
         TMaxAccumulator corrected;
         for (auto&& equalizer : equalizers) {
             switch (m_Job) {
-                case E_UpdateAndCorrect:
-                    equalizer->add(detector, probability);
-                    corrected.add(equalizer->correct(detector, probability));
-                    break;
-                case E_Correct:
-                    corrected.add(equalizer->correct(detector, probability));
-                    break;
-                case E_NoOp:
-                    break;
+            case E_UpdateAndCorrect:
+                equalizer->add(detector, probability);
+                corrected.add(equalizer->correct(detector, probability));
+                break;
+            case E_Correct:
+                corrected.add(equalizer->correct(detector, probability));
+                break;
+            case E_NoOp:
+                break;
             }
         }
         if (corrected.count() > 0) {

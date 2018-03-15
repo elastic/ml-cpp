@@ -63,7 +63,7 @@ namespace maths {
 //! to choose the number of clusters.
 //!
 //! For more details see http://people.ee.duke.edu/~lcarin/random-projection-for-high.pdf
-template <std::size_t N>
+template<std::size_t N>
 class CRandomProjectionClusterer {
 public:
     using TDoubleVec = std::vector<double>;
@@ -201,7 +201,7 @@ private:
 
 //! \brief Implements random projection clustering for batches
 //! of data points.
-template <std::size_t N>
+template<std::size_t N>
 class CRandomProjectionClustererBatch : public CRandomProjectionClusterer<N> {
 public:
     using TDoubleVec = typename CRandomProjectionClusterer<N>::TDoubleVec;
@@ -262,7 +262,7 @@ public:
     //! the projected data points.
     //! \param[in] result Filled in with the final agglomerative
     //! clustering of the different projections.
-    template <typename CLUSTERER>
+    template<typename CLUSTERER>
     void run(CLUSTERER clusterer, TSizeVecVec& result) const {
         if (m_ProjectedData.empty()) {
             return;
@@ -299,14 +299,14 @@ public:
 protected:
     //! \brief Hashes a vector.
     struct SHashVector {
-        template <typename VECTOR>
+        template<typename VECTOR>
         std::size_t operator()(const VECTOR& lhs) const {
             return static_cast<std::size_t>(boost::unwrap_ref(lhs).checksum());
         }
     };
     //! \brief Checks two vectors for equality.
     struct SVectorsEqual {
-        template <typename VECTOR>
+        template<typename VECTOR>
         bool operator()(const VECTOR& lhs, const VECTOR& rhs) const {
             return boost::unwrap_ref(lhs) == boost::unwrap_ref(rhs);
         }
@@ -324,7 +324,7 @@ protected:
     //! covariance matrices.
     //! \param[out] I Filled in with the indices of distinct sampled
     //! points.
-    template <typename CLUSTERER>
+    template<typename CLUSTERER>
     void clusterProjections(CLUSTERER clusterer,
                             TDoubleVecVec& W,
                             TVectorNx1VecVec& M,
@@ -633,11 +633,11 @@ private:
 
 //! \brief Adapts clustering implementations for use by the random
 //! projection clusterer.
-template <typename CLUSTERER>
+template<typename CLUSTERER>
 class CRandomProjectionClustererFacade {};
 
 //! \brief Adapts x-means for use by the random projection clusterer.
-template <std::size_t N, typename COST>
+template<std::size_t N, typename COST>
 class CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>> {
 public:
     using TClusterer = CXMeans<CVectorNx1<double, N>, COST>;
@@ -683,7 +683,7 @@ private:
 };
 
 //! Makes an x-means adapter for random projection clustering.
-template <std::size_t N, typename COST>
+template<std::size_t N, typename COST>
 CRandomProjectionClustererFacade<CXMeans<CVectorNx1<double, N>, COST>>
 forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST>& xmeans,
                              std::size_t improveParamsKmeansIterations,
@@ -697,7 +697,7 @@ forRandomProjectionClusterer(const CXMeans<CVectorNx1<double, N>, COST>& xmeans,
 }
 
 //! \brief Adapts k-means for use by the random projection clusterer.
-template <std::size_t N>
+template<std::size_t N>
 class CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>> {
 public:
     using TClusterer = CKMeansFast<CVectorNx1<double, N>>;
@@ -743,7 +743,7 @@ private:
 };
 
 //! Makes a k-means adapter for random projection clustering.
-template <std::size_t N>
+template<std::size_t N>
 CRandomProjectionClustererFacade<CKMeansFast<CVectorNx1<double, N>>>
 forRandomProjectionClusterer(const CKMeansFast<CVectorNx1<double, N>>& kmeans,
                              std::size_t k,

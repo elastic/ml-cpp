@@ -44,7 +44,7 @@ typedef std::vector<TPointVec> TPointVecVec;
 typedef TXMeans2::TMatrixPrecise TMatrix;
 typedef std::vector<TMatrix> TMatrixVec;
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CXMeansOnlineForTest : public maths::CXMeansOnline<T, N> {
 public:
     typedef typename maths::CXMeansOnline<T, N>::TSizeDoublePr2Vec TSizeDoublePr2Vec;

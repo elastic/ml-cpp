@@ -48,7 +48,7 @@ typedef std::vector<double> TDoubleVec;
 
 //! Add valid \p probabilities to \p aggregator and return the
 //! number of valid probabilities.
-template <typename AGGREGATOR>
+template<typename AGGREGATOR>
 std::size_t addProbabilities(const TDoubleVec& probabilities, AGGREGATOR& aggregator) {
     std::size_t n = 0u;
     for (std::size_t i = 0u; i < probabilities.size(); ++i) {

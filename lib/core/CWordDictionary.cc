@@ -35,38 +35,38 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
     // These codes are taken from the readme file that comes with Moby
     // Part-of-Speech - see http://icon.shef.ac.uk/Moby/mpos.html
     switch (partOfSpeechCode) {
-        case '?':
-            // This means the word existed in SCOWL but not Moby and none of the
-            // heuristics in crossref.py worked
-            return CWordDictionary::E_UnknownPart;
-        case 'N':
-        case 'h': // Currently don't distinguish noun phrases
-        case 'o': // Currently don't distinguish nominative nouns
-            return CWordDictionary::E_Noun;
-        case 'p':
-            return CWordDictionary::E_Plural;
-        case 'V':
-        case 't': // Currently don't distinguish transitive verbs
-        case 'i': // Currently don't distinguish intransitive verbs
-            return CWordDictionary::E_Verb;
-        case 'A':
-            return CWordDictionary::E_Adjective;
-        case 'v':
-            return CWordDictionary::E_Adverb;
-        case 'C':
-            return CWordDictionary::E_Conjunction;
-        case 'P':
-            return CWordDictionary::E_Preposition;
-        case '!':
-            return CWordDictionary::E_Interjection;
-        case 'r':
-            return CWordDictionary::E_Pronoun;
-        case 'D':
-            return CWordDictionary::E_DefiniteArticle;
-        case 'I':
-            return CWordDictionary::E_IndefiniteArticle;
-        default:
-            break;
+    case '?':
+        // This means the word existed in SCOWL but not Moby and none of the
+        // heuristics in crossref.py worked
+        return CWordDictionary::E_UnknownPart;
+    case 'N':
+    case 'h': // Currently don't distinguish noun phrases
+    case 'o': // Currently don't distinguish nominative nouns
+        return CWordDictionary::E_Noun;
+    case 'p':
+        return CWordDictionary::E_Plural;
+    case 'V':
+    case 't': // Currently don't distinguish transitive verbs
+    case 'i': // Currently don't distinguish intransitive verbs
+        return CWordDictionary::E_Verb;
+    case 'A':
+        return CWordDictionary::E_Adjective;
+    case 'v':
+        return CWordDictionary::E_Adverb;
+    case 'C':
+        return CWordDictionary::E_Conjunction;
+    case 'P':
+        return CWordDictionary::E_Preposition;
+    case '!':
+        return CWordDictionary::E_Interjection;
+    case 'r':
+        return CWordDictionary::E_Pronoun;
+    case 'D':
+        return CWordDictionary::E_DefiniteArticle;
+    case 'I':
+        return CWordDictionary::E_IndefiniteArticle;
+    default:
+        break;
     }
 
     // This should be treated as an error when returned by this function

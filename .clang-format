@@ -9,10 +9,10 @@ BinPackParameters: false
 ColumnLimit:     100
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 FixNamespaceComments: false
-IndentCaseLabels: true
+IndentCaseLabels: false
 IndentWidth:     4
 PenaltyBreakBeforeFirstCallParameter: 1000
 PenaltyBreakFirstLessLess: 1000
 PointerAlignment: Left
 TabWidth:        4
-
+SpaceAfterTemplateKeyword: false

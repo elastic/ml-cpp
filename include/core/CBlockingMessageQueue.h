@@ -58,7 +58,7 @@ namespace core {
 //! The maximum queue size is specified as a template
 //! parameter, and hence cannot be changed at runtime.
 //!
-template <typename MESSAGE, typename RECEIVER, size_t QUEUE_CAPACITY>
+template<typename MESSAGE, typename RECEIVER, size_t QUEUE_CAPACITY>
 class CBlockingMessageQueue {
 public:
     //! Prototype for function to be called on queue shutdown
@@ -221,7 +221,7 @@ private:
         //! so ideally we'll clean up the MESSAGE object as much as
         //! possible outside the lock.  This is the most generic case,
         //! where we can't do anything.
-        template <typename ANYTHING>
+        template<typename ANYTHING>
         void destroyMsgDataUnlocked(ANYTHING&) {
             // For an arbitrary type we have no idea how to destroy some
             // of its data without calling its destructor
@@ -230,7 +230,7 @@ private:
         //! Specialisation of the above that might delete the referenced
         //! data if the MESSAGE type is a shared pointer (if no other
         //! shared pointer points to it).
-        template <typename POINTEE>
+        template<typename POINTEE>
         void destroyMsgDataUnlocked(boost::shared_ptr<POINTEE>& ptr) {
             ptr.reset();
         }

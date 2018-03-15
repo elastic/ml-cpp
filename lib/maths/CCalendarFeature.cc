@@ -117,26 +117,26 @@ void CCalendarFeature::initialize(uint16_t feature,
                                   int month,
                                   int year) {
     switch (feature) {
-        case DAYS_SINCE_START_OF_MONTH:
-            m_Feature = feature;
-            m_Value = static_cast<uint16_t>(dayOfMonth);
-            break;
-        case DAYS_BEFORE_END_OF_MONTH:
-            m_Feature = feature;
-            m_Value = static_cast<uint16_t>(lastDayInMonth(year, month) - dayOfMonth);
-            break;
-        case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH:
-            m_Feature = feature;
-            m_Value = static_cast<uint16_t>(8 * (dayOfMonth / 7) + dayOfWeek);
-            break;
-        case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
-            m_Feature = feature;
-            m_Value = static_cast<uint16_t>(8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) +
-                                            dayOfWeek);
-            break;
-        default:
-            LOG_ERROR("Invalid feature: " << feature);
-            break;
+    case DAYS_SINCE_START_OF_MONTH:
+        m_Feature = feature;
+        m_Value = static_cast<uint16_t>(dayOfMonth);
+        break;
+    case DAYS_BEFORE_END_OF_MONTH:
+        m_Feature = feature;
+        m_Value = static_cast<uint16_t>(lastDayInMonth(year, month) - dayOfMonth);
+        break;
+    case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH:
+        m_Feature = feature;
+        m_Value = static_cast<uint16_t>(8 * (dayOfMonth / 7) + dayOfWeek);
+        break;
+    case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
+        m_Feature = feature;
+        m_Value =
+            static_cast<uint16_t>(8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) + dayOfWeek);
+        break;
+    default:
+        LOG_ERROR("Invalid feature: " << feature);
+        break;
     }
 }
 
@@ -181,31 +181,30 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
                                                secondsSinceMidnight)) {
         dayOfMonth -= 1;
         switch (m_Feature) {
-            case DAYS_SINCE_START_OF_MONTH:
-                return DAY * (dayOfMonth - static_cast<int>(m_Value)) + secondsSinceMidnight;
-            case DAYS_BEFORE_END_OF_MONTH:
-                return DAY * (dayOfMonth -
-                              (lastDayInMonth(year, month) - static_cast<int>(m_Value))) +
-                       secondsSinceMidnight;
-            case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
-                int dayOfFirst_ = dayOfFirst(dayOfMonth, dayOfWeek);
-                int dayOfWeek_ = static_cast<int>(m_Value) % 8;
-                int weekOfMonth_ = static_cast<int>(m_Value) / 8;
-                int dayOfMonth_ = 7 * weekOfMonth_ + (7 + dayOfWeek_ - dayOfFirst_) % 7;
-                return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
-            }
-            case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH: {
-                int lastDayInMonth_ = lastDayInMonth(year, month);
-                int dayOfLast_ = (lastDayInMonth_ + dayOfFirst(dayOfMonth, dayOfWeek)) % 7;
-                int dayOfWeek_ = static_cast<int>(m_Value) % 8;
-                int weeksToEndOfMonth_ = static_cast<int>(m_Value) / 8;
-                int dayOfMonth_ =
-                    lastDayInMonth_ - (7 * weeksToEndOfMonth_ + (7 + dayOfLast_ - dayOfWeek_) % 7);
-                return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
-            }
-            default:
-                LOG_ERROR("Invalid feature: '" << m_Feature << "'");
-                break;
+        case DAYS_SINCE_START_OF_MONTH:
+            return DAY * (dayOfMonth - static_cast<int>(m_Value)) + secondsSinceMidnight;
+        case DAYS_BEFORE_END_OF_MONTH:
+            return DAY * (dayOfMonth - (lastDayInMonth(year, month) - static_cast<int>(m_Value))) +
+                   secondsSinceMidnight;
+        case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
+            int dayOfFirst_ = dayOfFirst(dayOfMonth, dayOfWeek);
+            int dayOfWeek_ = static_cast<int>(m_Value) % 8;
+            int weekOfMonth_ = static_cast<int>(m_Value) / 8;
+            int dayOfMonth_ = 7 * weekOfMonth_ + (7 + dayOfWeek_ - dayOfFirst_) % 7;
+            return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
+        }
+        case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH: {
+            int lastDayInMonth_ = lastDayInMonth(year, month);
+            int dayOfLast_ = (lastDayInMonth_ + dayOfFirst(dayOfMonth, dayOfWeek)) % 7;
+            int dayOfWeek_ = static_cast<int>(m_Value) % 8;
+            int weeksToEndOfMonth_ = static_cast<int>(m_Value) / 8;
+            int dayOfMonth_ =
+                lastDayInMonth_ - (7 * weeksToEndOfMonth_ + (7 + dayOfLast_ - dayOfWeek_) % 7);
+            return DAY * (dayOfMonth - dayOfMonth_) + secondsSinceMidnight;
+        }
+        default:
+            LOG_ERROR("Invalid feature: '" << m_Feature << "'");
+            break;
         }
     } else {
         LOG_ERROR("Invalid time: '" << time << "'");
@@ -229,21 +228,20 @@ uint64_t CCalendarFeature::checksum(uint64_t seed) const {
 
 std::string CCalendarFeature::print(void) const {
     switch (m_Feature) {
-        case DAYS_SINCE_START_OF_MONTH:
-            return print_(static_cast<int>(m_Value) + 1, true) + " day of month";
-        case DAYS_BEFORE_END_OF_MONTH:
-            return print_(static_cast<int>(m_Value), false) + " days before end of month";
-        case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
-            int dayOfWeek_ = static_cast<int>(m_Value) % 8;
-            int weekOfMonth_ = static_cast<int>(m_Value) / 8;
-            return print_(weekOfMonth_ + 1, true) + " " + DAYS[dayOfWeek_] + " of month";
-        }
-        case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH: {
-            int dayOfWeek_ = static_cast<int>(m_Value) % 8;
-            int weeksToEndOfMonth_ = static_cast<int>(m_Value) / 8;
-            return print_(weeksToEndOfMonth_, false) + " " + DAYS[dayOfWeek_] +
-                   "s before end of month";
-        }
+    case DAYS_SINCE_START_OF_MONTH:
+        return print_(static_cast<int>(m_Value) + 1, true) + " day of month";
+    case DAYS_BEFORE_END_OF_MONTH:
+        return print_(static_cast<int>(m_Value), false) + " days before end of month";
+    case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH: {
+        int dayOfWeek_ = static_cast<int>(m_Value) % 8;
+        int weekOfMonth_ = static_cast<int>(m_Value) / 8;
+        return print_(weekOfMonth_ + 1, true) + " " + DAYS[dayOfWeek_] + " of month";
+    }
+    case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH: {
+        int dayOfWeek_ = static_cast<int>(m_Value) % 8;
+        int weeksToEndOfMonth_ = static_cast<int>(m_Value) / 8;
+        return print_(weeksToEndOfMonth_, false) + " " + DAYS[dayOfWeek_] + "s before end of month";
+    }
     }
     return "-";
 }

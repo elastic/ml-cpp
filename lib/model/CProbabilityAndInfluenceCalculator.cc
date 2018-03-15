@@ -327,7 +327,7 @@ public:
 //! \param[in] influencerValues The feature values for the intersection
 //! of the records in \p value with distinct values of \p influenceName.
 //! \param[out] result Filled in with the influences of \p value.
-template <typename INFLUENCER_VALUES>
+template<typename INFLUENCER_VALUES>
 void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
                                   const INFLUENCER_VALUES& influencerValues,
                                   TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
@@ -360,7 +360,7 @@ void doComputeIndicatorInfluences(const core::CStoredStringPtr& influencerName,
 //! \param[in] includeCutoff If true then add in values for influences
 //! less than the cutoff with estimated influence.
 //! \param[out] result Filled in with the influences of \p value.
-template <typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
+template<typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
 void doComputeInfluences(model_t::EFeature feature,
                          COMPUTE_INFLUENCED_VALUE computeInfluencedValue,
                          COMPUTE_INFLUENCE computeInfluence,
@@ -464,7 +464,7 @@ void doComputeInfluences(model_t::EFeature feature,
 //! features using \p computeSample to get the statistics and
 //! \p computeInfluence to compute the influences from the corresponding
 //! probabilities.
-template <typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
+template<typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
 void doComputeCorrelateInfluences(model_t::EFeature feature,
                                   COMPUTE_INFLUENCED_VALUE computeInfluencedValue,
                                   COMPUTE_INFLUENCE computeInfluence,
@@ -1048,17 +1048,17 @@ void addCoordinate(maths_t::ETail tail,
                    std::size_t coordinate,
                    maths::CModelProbabilityParams& params) {
     switch (tail) {
-        case maths_t::E_LeftTail: {
-            params.addCalculation(maths_t::E_OneSidedBelow).addCoordinate(coordinate);
-            break;
-        }
-        case maths_t::E_RightTail: {
-            params.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(coordinate);
-            break;
-        }
-        case maths_t::E_MixedOrNeitherTail:
-        case maths_t::E_UndeterminedTail:
-            break;
+    case maths_t::E_LeftTail: {
+        params.addCalculation(maths_t::E_OneSidedBelow).addCoordinate(coordinate);
+        break;
+    }
+    case maths_t::E_RightTail: {
+        params.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(coordinate);
+        break;
+    }
+    case maths_t::E_MixedOrNeitherTail:
+    case maths_t::E_UndeterminedTail:
+        break;
     }
 }
 }

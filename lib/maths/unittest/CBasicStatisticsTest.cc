@@ -52,12 +52,12 @@ const std::string TAG("a");
 struct SRestore {
     typedef bool result_type;
 
-    template <typename T>
+    template<typename T>
     bool operator()(std::vector<T>& restored, ml::core::CStateRestoreTraverser& traverser) const {
         return ml::core::CPersistUtils::restore(TAG, restored, traverser);
     }
 
-    template <typename T>
+    template<typename T>
     bool operator()(T& restored, ml::core::CStateRestoreTraverser& traverser) const {
         return restored.fromDelimited(traverser.value());
     }

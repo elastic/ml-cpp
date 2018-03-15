@@ -30,16 +30,16 @@ namespace core {
 class CStateRestoreTraverser;
 }
 namespace maths {
-template <typename POINT>
+template<typename POINT>
 class CClusterer;
 struct SDistributionRestoreParams;
 
 namespace xmeans_online_factory_detail {
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CFactory {};
 
 #define XMEANS_FACTORY(T, N)                                                                       \
-    template <>                                                                                    \
+    template<>                                                                                     \
     class MATHS_EXPORT CFactory<T, N> {                                                            \
     public:                                                                                        \
         static CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,                     \
@@ -74,7 +74,7 @@ public:
     //! of points in a cluster.
     //! \param[in] minimumClusterCount The minimum count of points in a
     //! cluster.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static inline CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,
                                                      maths_t::EClusterWeightCalc weightCalc,
                                                      double decayRate,
@@ -90,7 +90,7 @@ public:
     }
 
     //! Construct by traversing a state document.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static inline CClusterer<CVectorNx1<T, N>>*
     restore(const SDistributionRestoreParams& params,
             const CClustererTypes::TSplitFunc& splitFunc,

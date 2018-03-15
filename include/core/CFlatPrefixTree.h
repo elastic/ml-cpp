@@ -140,7 +140,7 @@ private:
                                    TDistinctCharVec& distinctChars);
 
     //! Implementation of the search algorithm.
-    template <typename ITR>
+    template<typename ITR>
     bool matches(ITR start, ITR end, bool requireFullMatch) const;
 
 private:

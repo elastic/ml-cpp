@@ -79,7 +79,7 @@ public:
         }
 
         //! Fills a range with random values.
-        template <typename ITR>
+        template<typename ITR>
         void generate(ITR first, ITR last) {
             if (m_Mock) {
                 for (/**/; first != last; ++first) {
@@ -90,14 +90,14 @@ public:
         }
 
         //! Writes the mersenne_twister_engine to a std::ostream.
-        template <class CHAR, class TRAITS>
+        template<class CHAR, class TRAITS>
         friend std::basic_ostream<CHAR, TRAITS>& operator<<(std::basic_ostream<CHAR, TRAITS>& o,
                                                             const CRandomNumberGenerator& g) {
             return o << g.m_Rng;
         }
 
         //! Reads a mersenne_twister_engine from a std::istream.
-        template <class CHAR, class TRAITS>
+        template<class CHAR, class TRAITS>
         friend std::basic_istream<CHAR, TRAITS>& operator>>(std::basic_istream<CHAR, TRAITS>& i,
                                                             CRandomNumberGenerator& g) {
             return i >> g.m_Rng;
@@ -370,7 +370,7 @@ public:
     //! based on the libc++ implementation because this is different from
     //! the libstdc++ implementation which can cause platform specific
     //! differences.
-    template <typename RNG, typename ITR>
+    template<typename RNG, typename ITR>
     static void random_shuffle(RNG& rng, ITR first, ITR last) {
         auto d = last - first;
         if (d > 1) {
@@ -388,7 +388,7 @@ public:
     //!
     //! Reorders the elements in the range [\p first, \p last) using the
     //! internal random number generator to provide a random distribution.
-    template <typename ITR>
+    template<typename ITR>
     static void random_shuffle(ITR first, ITR last) {
         core::CScopedFastLock scopedLock(ms_Lock);
         random_shuffle(ms_Rng, first, last);
@@ -423,7 +423,7 @@ public:
 
 private:
     //! \brief A uniform generator on the interval [0, n).
-    template <typename RNG>
+    template<typename RNG>
     class CUniform0nGenerator {
     public:
         CUniform0nGenerator(RNG& generator) : m_Generator(&generator) {}

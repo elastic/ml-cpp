@@ -30,7 +30,7 @@ namespace core {
 //! Parameterized on json writer type
 //! Remove the allocator from the writer and release resources on destruction.
 //!
-template <typename T>
+template<typename T>
 class CScopedRapidJsonPoolAllocator {
 public:
     //! \p allocatorName Unique identifier for the allocator

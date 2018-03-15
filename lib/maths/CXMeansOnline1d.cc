@@ -147,15 +147,15 @@ void candidates(const TTupleVec& categories,
 double mean(maths_t::EDataType dataType, const TTuple& category) {
     double result = CBasicStatistics::mean(category);
     switch (dataType) {
-        case maths_t::E_DiscreteData:
-            break;
-        case maths_t::E_IntegerData:
-            result += 0.5;
-            break;
-        case maths_t::E_ContinuousData:
-            break;
-        case maths_t::E_MixedData:
-            break;
+    case maths_t::E_DiscreteData:
+        break;
+    case maths_t::E_IntegerData:
+        result += 0.5;
+        break;
+    case maths_t::E_ContinuousData:
+        break;
+    case maths_t::E_MixedData:
+        break;
     }
     return result;
 }
@@ -165,15 +165,15 @@ double variance(maths_t::EDataType dataType, const TTuple& category) {
     double n = CBasicStatistics::count(category);
     double result = (1.0 + 1.0 / n) * CBasicStatistics::maximumLikelihoodVariance(category);
     switch (dataType) {
-        case maths_t::E_DiscreteData:
-            break;
-        case maths_t::E_IntegerData:
-            result += 1.0 / 12.0;
-            break;
-        case maths_t::E_ContinuousData:
-            break;
-        case maths_t::E_MixedData:
-            break;
+    case maths_t::E_DiscreteData:
+        break;
+    case maths_t::E_IntegerData:
+        result += 1.0 / 12.0;
+        break;
+    case maths_t::E_ContinuousData:
+        break;
+    case maths_t::E_MixedData:
+        break;
     }
     return result;
 }
@@ -1407,10 +1407,10 @@ double CXMeansOnline1d::CCluster::count(void) const {
 
 double CXMeansOnline1d::CCluster::weight(maths_t::EClusterWeightCalc calc) const {
     switch (calc) {
-        case maths_t::E_ClustersEqualWeight:
-            return 1.0;
-        case maths_t::E_ClustersFractionWeight:
-            return m_Prior.numberSamples();
+    case maths_t::E_ClustersEqualWeight:
+        return 1.0;
+    case maths_t::E_ClustersFractionWeight:
+        return m_Prior.numberSamples();
     }
     LOG_ABORT("Unexpected calculation style " << calc);
 }

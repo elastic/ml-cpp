@@ -53,10 +53,10 @@ const std::string EMPTY;
 //! Check if \p entity is active.
 bool isActive(EEntity entity, const CDataGatherer& gatherer, std::size_t id) {
     switch (entity) {
-        case E_Person:
-            return gatherer.isPersonActive(id);
-        case E_Attribute:
-            return gatherer.isAttributeActive(id);
+    case E_Person:
+        return gatherer.isPersonActive(id);
+    case E_Attribute:
+        return gatherer.isAttributeActive(id);
     }
     return false;
 }
@@ -64,16 +64,16 @@ bool isActive(EEntity entity, const CDataGatherer& gatherer, std::size_t id) {
 //! Get \p entity's name.
 const std::string& name(EEntity entity, const CDataGatherer& gatherer, std::size_t id) {
     switch (entity) {
-        case E_Person:
-            return gatherer.personName(id);
-        case E_Attribute:
-            return gatherer.attributeName(id);
+    case E_Person:
+        return gatherer.personName(id);
+    case E_Attribute:
+        return gatherer.attributeName(id);
     }
     return EMPTY;
 }
 
 //! Update \p hashes with the hash of the active entities in \p values.
-template <typename T>
+template<typename T>
 void hashActive(EEntity entity,
                 const CDataGatherer& gatherer,
                 const std::vector<T>& values,
@@ -87,7 +87,7 @@ void hashActive(EEntity entity,
 }
 
 //! Update \p hashes with the hash of the active entities in \p values.
-template <typename T>
+template<typename T>
 void hashActive(EEntity entity,
                 const CDataGatherer& gatherer,
                 const std::vector<std::pair<model_t::EFeature, std::vector<T>>>& values,
@@ -502,13 +502,13 @@ void CPopulationModel::correctBaselineForInterim(model_t::EFeature feature,
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
         std::size_t correlated_ = 0u;
         switch (type.asConditionalOrUnconditional()) {
-            case model_t::CResultType::E_Unconditional:
-                break;
-            case model_t::CResultType::E_Conditional:
-                if (!correlated.empty()) {
-                    correlated_ = correlated[0].first;
-                }
-                break;
+        case model_t::CResultType::E_Unconditional:
+            break;
+        case model_t::CResultType::E_Conditional:
+            if (!correlated.empty()) {
+                correlated_ = correlated[0].first;
+            }
+            break;
         }
         auto correction = corrections.find(CCorrectionKey(feature, pid, cid, correlated_));
         if (correction != corrections.end()) {

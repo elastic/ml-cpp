@@ -40,7 +40,7 @@ namespace core {
 //! @tparam T the objects of the queue
 //! @tparam QUEUE_CAPACITY fixed queue capacity
 //! @tparam NOTIFY_CAPACITY special parameter, for signaling the producer in blocking case
-template <typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
+template<typename T, size_t QUEUE_CAPACITY, size_t NOTIFY_CAPACITY = QUEUE_CAPACITY>
 class CConcurrentQueue final : private CNonCopyable {
 public:
     CConcurrentQueue(void) : m_Queue(QUEUE_CAPACITY) {

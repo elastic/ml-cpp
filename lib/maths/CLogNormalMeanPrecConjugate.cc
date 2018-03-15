@@ -126,7 +126,7 @@ inline void locationAndScale(double vs,
 //! \param mean The mean of the conditional mean prior.
 //! \param precision The precision of the conditional mean prior.
 //! \param result Filled in with the aggregation of results of \p func.
-template <typename FUNC, typename AGGREGATOR, typename RESULT>
+template<typename FUNC, typename AGGREGATOR, typename RESULT>
 bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                                          const TDouble1Vec& samples,
                                          const TDouble4Vec1Vec& weights,
@@ -251,7 +251,7 @@ bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
 //! This thin wrapper around the evaluateFunctionOnJointDistribution function
 //! so that it can be integrated over the hidden variable representing the
 //! actual value of a discrete datum which we assume is in the interval [n, n+1].
-template <typename F>
+template<typename F>
 class CEvaluateOnSamples : core::CNonCopyable {
 public:
     CEvaluateOnSamples(const TWeightStyleVec& weightStyles,

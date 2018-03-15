@@ -113,7 +113,7 @@ private:
     //! argument indicates whether the vector must have the correct size
     //! when the function is called or whether the function is allowed to
     //! resize it.
-    template <bool RESIZE_ALLOWED, typename STR_VEC>
+    template<bool RESIZE_ALLOWED, typename STR_VEC>
     bool parseRecordFromStream(STR_VEC& results);
 
     //! Parse a 32 bit unsigned integer from the input stream.

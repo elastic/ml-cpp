@@ -478,7 +478,7 @@ void CForecastRunner::sendFinalMessage(const SForecast& forecastJob,
     this->sendMessage(&model::CForecastDataSink::writeFinalMessage, forecastJob, message);
 }
 
-template <typename WRITE>
+template<typename WRITE>
 void CForecastRunner::sendMessage(WRITE write,
                                   const SForecast& forecastJob,
                                   const std::string& message) const {

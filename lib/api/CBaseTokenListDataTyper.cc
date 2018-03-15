@@ -362,7 +362,7 @@ class CPairFirstElementGreater {
 public:
     //! This operator is designed for pairs that are small enough for
     //! passing by value to be most efficient
-    template <typename PAIR>
+    template<typename PAIR>
     bool operator()(const PAIR pr1, const PAIR pr2) {
         return pr1.first > pr2.first;
     }

@@ -52,7 +52,7 @@ namespace core {
 //! The message type must have a copy constructor.
 //! The result type must have both a default constructor and a copy constructor.
 //!
-template <typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT>
+template<typename HANDLER, typename PROCESSOR, typename MESSAGE, typename RESULT>
 class CThreadFarm : private CNonCopyable {
 public:
     CThreadFarm(HANDLER& handler, const std::string& name)

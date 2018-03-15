@@ -72,7 +72,7 @@ namespace maths {
 //!
 //! Once we have associated clusters we assign points based
 //! on their majority vote (as with standard bagged clustering).
-template <typename POINT>
+template<typename POINT>
 class CBootstrapClusterer {
 public:
     typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -111,7 +111,7 @@ public:
     //! signature cluster(TPointVec &, TSizeVecVec) which performs
     //! clustering. If necessary wrap up an existing clusterer
     //! with CBootstrapClustererFacade.
-    template <typename CLUSTERER>
+    template<typename CLUSTERER>
     void run(std::size_t b, CLUSTERER clusterer, TPointVec& points, TPointVecVec& result) {
         std::sort(points.begin(), points.end());
         TSizeVecVecVec bootstrapClusters;
@@ -228,7 +228,7 @@ protected:
     //! \param[in] points The points to cluster.
     //! \param[out] result Filled in with the \p b bootstrap
     //! clusterings.
-    template <typename CLUSTERER>
+    template<typename CLUSTERER>
     std::size_t bootstrapClusters(std::size_t b,
                                   CLUSTERER& clusterer,
                                   TPointVec& points,
@@ -911,12 +911,12 @@ private:
     TSizeVec m_Offsets;
 };
 
-template <typename POINT>
+template<typename POINT>
 const double CBootstrapClusterer<POINT>::SEPARATION_THRESHOLD(0.1);
 
 //! \brief Extracts the clusters in canonical form (by index into
 //! the point vector) for the facade implementations.
-template <typename POINT>
+template<typename POINT>
 class CBootstrapClustererFacadeExtractClusters {
 public:
     typedef std::vector<std::size_t> TSizeVec;
@@ -931,7 +931,7 @@ public:
     //! \param[in] clusters The clustering of \p points.
     //! \param[out] result Filled in with the clustering of the
     //! indexes of \p points.
-    template <typename CLUSTERS>
+    template<typename CLUSTERS>
     void extract(const TPointVec& points, const CLUSTERS& clusters, TSizeVecVec& result) {
 
         result.resize(clusters.size());
@@ -978,12 +978,12 @@ private:
 
 //! \brief Adapts clustering implementations for use by the bootstrap
 //! clusterer.
-template <typename CLUSTERER>
+template<typename CLUSTERER>
 class CBootstrapClustererFacade {};
 
 //! \brief Adapts the x-means implementation for use by the bootstrap
 //! clusterer.
-template <typename POINT, typename COST>
+template<typename POINT, typename COST>
 class CBootstrapClustererFacade<CXMeans<POINT, COST>>
     : private CBootstrapClustererFacadeExtractClusters<POINT> {
 public:
@@ -1039,7 +1039,7 @@ private:
 
 //! \brief Adapts the x-means implementation for use by the bootstrap
 //! clusterer.
-template <typename POINT>
+template<typename POINT>
 class CBootstrapClustererFacade<CKMeansFast<POINT>>
     : private CBootstrapClustererFacadeExtractClusters<POINT> {
 public:
@@ -1105,7 +1105,7 @@ private:
 //! \param[in] chainingFactor The degree to which we will chain similar
 //! clusters.
 //! \param[out] result Filled in with the clustering of \p points.
-template <typename POINT, typename COST>
+template<typename POINT, typename COST>
 void bootstrapCluster(std::vector<POINT>& points,
                       std::size_t B,
                       const CXMeans<POINT, COST>& xmeans,
@@ -1124,7 +1124,7 @@ void bootstrapCluster(std::vector<POINT>& points,
 }
 
 //! Cluster \p points using \p B bootstrap samples using k-means.
-template <typename POINT>
+template<typename POINT>
 void bootstrapCluster(std::vector<POINT>& points,
                       std::size_t B,
                       const CKMeansFast<POINT>& kmeans,

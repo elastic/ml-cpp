@@ -33,7 +33,7 @@
 namespace ml {
 namespace test {
 
-template <typename RNG, typename Distribution, typename Container>
+template<typename RNG, typename Distribution, typename Container>
 void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
                                      const Distribution& distribution,
                                      std::size_t numberSamples,
@@ -45,7 +45,7 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
                     boost::bind(distribution, boost::ref(randomNumberGenerator)));
 }
 
-template <typename ITR>
+template<typename ITR>
 void CRandomNumbers::random_shuffle(ITR first, ITR last) {
     CUniform0nGenerator rand(m_Generator);
     auto d = last - first;
@@ -59,7 +59,7 @@ void CRandomNumbers::random_shuffle(ITR first, ITR last) {
     }
 }
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 void CRandomNumbers::generateRandomMultivariateNormals(
     const TSizeVec& sizes,
     std::vector<maths::CVectorNx1<T, N>>& means,

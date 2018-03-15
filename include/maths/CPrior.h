@@ -445,7 +445,7 @@ public:
     //! CIntegration::gaussLegendre.
     //! \tparam T The return type of the function F which must conform to the type
     //! expected by CIntegration::gaussLegendre.
-    template <typename F, typename T>
+    template<typename F, typename T>
     bool expectation(const F& f,
                      const std::size_t numberIntervals,
                      T& result,

@@ -902,318 +902,314 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(
     // of Lagrange multipliers.)
 
     switch (calculation) {
-        case maths_t::E_OneSidedBelow: {
-            // See minusLogJointCdf for a discussion of the calculation
-            // of the marginal c.d.f. for a single sample.
+    case maths_t::E_OneSidedBelow: {
+        // See minusLogJointCdf for a discussion of the calculation
+        // of the marginal c.d.f. for a single sample.
 
-            CJointProbabilityOfLessLikelySamples jointLowerBound;
-            CJointProbabilityOfLessLikelySamples jointUpperBound;
+        CJointProbabilityOfLessLikelySamples jointLowerBound;
+        CJointProbabilityOfLessLikelySamples jointUpperBound;
 
-            detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double x = samples[i];
-                double n = maths_t::count(weightStyles, weights[i]);
-                double sampleLowerBound, sampleUpperBound;
-                cdf(x, sampleLowerBound, sampleUpperBound);
-                jointLowerBound.add(sampleLowerBound, n);
-                jointUpperBound.add(sampleUpperBound, n);
+        detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i];
+            double n = maths_t::count(weightStyles, weights[i]);
+            double sampleLowerBound, sampleUpperBound;
+            cdf(x, sampleLowerBound, sampleUpperBound);
+            jointLowerBound.add(sampleLowerBound, n);
+            jointUpperBound.add(sampleUpperBound, n);
+        }
+
+        if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
+            LOG_ERROR("Unable to compute probability for "
+                      << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
+            return false;
+        }
+        tail = maths_t::E_LeftTail;
+    } break;
+
+    case maths_t::E_TwoSided: {
+        // The probability of a less likely category is given by:
+        //   E[ Sum_{p(j) <= p(i)}{ p(j) } ]
+        //
+        // where the expectation is taken over the prior for the distribution
+        // probabilities. This is hard to compute because the terms in the sum
+        // vary as the probabilities vary. We approximate this by taking the
+        // expectation over the marginal for each p(i). In particular, we compute:
+        //   P(i) = Sum_{E[p(j)] <= E[p(i)]}{ E[p(j)] }
+        //
+        // Here, P(i) is the probability of less likely category and the
+        // expected probability of the i'th category is:
+        //   E[p(i)] = a(i) / Sum_j{ a(j) }                                (1)
+        //
+        // where, a(i) are the concentration parameters of the prior. So, (1)
+        // reduces to:
+        //   Sum_{j:a(j)<=a(i)}{ E[p(j)] }
+        //
+        // We can think of P(.) as a function of probability, i.e. if the
+        // probability of a category were p then its corresponding P(.) would
+        // be:
+        //   P(argmin_{i : E[p(i)] >= p}{ E[p(i)] })
+        //
+        // Given this definition we can compute:
+        //   E[ P(p) ]                                                     (2)
+        //
+        // where the expectation is taken over the marginal for each probability.
+        // This can be computed exactly by noting that marginal for p(i) is
+        // beta distributed with alpha = a(i) and beta = Sum_j{ a(j) } - a(i).
+        // However, this requires us to compute quantiles at every E[p(i)] which
+        // would be expensive for a large number of categories. Instead we
+        // approximate the probability by using a fixed number of samples from
+        // the marginal and computing the probability by taking the mean of these.
+        // Finally, note that if E[p(i)] and E[p(j)] are very close we want P(i)
+        // and P(j) to be close, but they can in fact be very different if there
+        // are many probabilities E[p(k)] which satisfy:
+        //   E[p(i)] <= E[p(k)] <= E[p(j)],
+        //
+        // To avoid this problem we scale all probabilities by (1 + eps), for
+        // small eps > 0, when computing (2).
+        //
+        // In the case that the number of categories has overflowed we derive a
+        // sharp lower bound by considering the case that all the additional
+        // mass is in one category which is not in the sample set. In this case
+        // we have three sets of categories:
+        //   U = "Uncounted categories"
+        //   L = {i : i is counted and P(i) < P(U)}
+        //   M = {i : i is counted and P(i) >= P(U)}
+        //
+        // where, clearly P(U) is the extra mass. If X denotes the sample set
+        // and N the total concentration then for this case:
+        //   P(i in XU) >= 1 / N
+        //   P(i in XL) >= P(i)
+        //   P(i in XM) >= P(i) + P(U)
+        //
+        // If |X| = 1 then a sharp upper bound is easy to compute:
+        //   P(i in XU) <= P(U) + P(L)
+        //   P(i in X\U) <= P(i) + P(U)                                    (3)
+        //
+        // For the case that X contains a mixture of values that are and aren't
+        // in U then a sharp upper bound is difficult to compute: it depends on
+        // the number of different categories in XU, P(U) and the probabilities
+        // P(i in L). In this case we just fall back to using (3) which isn't
+        // sharp.
+
+        typedef std::vector<std::size_t> TSizeVec;
+
+        tail = maths_t::E_MixedOrNeitherTail;
+
+        TDoubleDoubleSizeTrVec pCategories;
+        pCategories.reserve(m_Categories.size());
+        double pU = 0.0;
+        double pmin = 1.0 / m_TotalConcentration;
+
+        {
+            double r = 1.0 / static_cast<double>(m_Concentrations.size());
+            for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+                double p = m_Concentrations[i] / m_TotalConcentration;
+                pCategories.emplace_back(p, p, i);
+                pU += r - p;
+            }
+        }
+        std::sort(pCategories.begin(), pCategories.end());
+        LOG_TRACE("p = " << core::CContainerPrinter::print(pCategories));
+
+        double pl = 0.0;
+        {
+            // Get the index of largest probability less than or equal to P(U).
+            std::size_t l = pCategories.size();
+            if (pU > 0.0) {
+                l = std::lower_bound(pCategories.begin(),
+                                     pCategories.end(),
+                                     TDoubleDoubleSizeTr(pU, pU, 0)) -
+                    pCategories.begin();
             }
 
-            if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-                LOG_ERROR("Unable to compute probability for "
-                          << core::CContainerPrinter::print(samples) << ": " << jointLowerBound
-                          << ", " << jointUpperBound);
-                return false;
-            }
-            tail = maths_t::E_LeftTail;
-        } break;
-
-        case maths_t::E_TwoSided: {
-            // The probability of a less likely category is given by:
-            //   E[ Sum_{p(j) <= p(i)}{ p(j) } ]
-            //
-            // where the expectation is taken over the prior for the distribution
-            // probabilities. This is hard to compute because the terms in the sum
-            // vary as the probabilities vary. We approximate this by taking the
-            // expectation over the marginal for each p(i). In particular, we compute:
-            //   P(i) = Sum_{E[p(j)] <= E[p(i)]}{ E[p(j)] }
-            //
-            // Here, P(i) is the probability of less likely category and the
-            // expected probability of the i'th category is:
-            //   E[p(i)] = a(i) / Sum_j{ a(j) }                                (1)
-            //
-            // where, a(i) are the concentration parameters of the prior. So, (1)
-            // reduces to:
-            //   Sum_{j:a(j)<=a(i)}{ E[p(j)] }
-            //
-            // We can think of P(.) as a function of probability, i.e. if the
-            // probability of a category were p then its corresponding P(.) would
-            // be:
-            //   P(argmin_{i : E[p(i)] >= p}{ E[p(i)] })
-            //
-            // Given this definition we can compute:
-            //   E[ P(p) ]                                                     (2)
-            //
-            // where the expectation is taken over the marginal for each probability.
-            // This can be computed exactly by noting that marginal for p(i) is
-            // beta distributed with alpha = a(i) and beta = Sum_j{ a(j) } - a(i).
-            // However, this requires us to compute quantiles at every E[p(i)] which
-            // would be expensive for a large number of categories. Instead we
-            // approximate the probability by using a fixed number of samples from
-            // the marginal and computing the probability by taking the mean of these.
-            // Finally, note that if E[p(i)] and E[p(j)] are very close we want P(i)
-            // and P(j) to be close, but they can in fact be very different if there
-            // are many probabilities E[p(k)] which satisfy:
-            //   E[p(i)] <= E[p(k)] <= E[p(j)],
-            //
-            // To avoid this problem we scale all probabilities by (1 + eps), for
-            // small eps > 0, when computing (2).
-            //
-            // In the case that the number of categories has overflowed we derive a
-            // sharp lower bound by considering the case that all the additional
-            // mass is in one category which is not in the sample set. In this case
-            // we have three sets of categories:
-            //   U = "Uncounted categories"
-            //   L = {i : i is counted and P(i) < P(U)}
-            //   M = {i : i is counted and P(i) >= P(U)}
-            //
-            // where, clearly P(U) is the extra mass. If X denotes the sample set
-            // and N the total concentration then for this case:
-            //   P(i in XU) >= 1 / N
-            //   P(i in XL) >= P(i)
-            //   P(i in XM) >= P(i) + P(U)
-            //
-            // If |X| = 1 then a sharp upper bound is easy to compute:
-            //   P(i in XU) <= P(U) + P(L)
-            //   P(i in X\U) <= P(i) + P(U)                                    (3)
-            //
-            // For the case that X contains a mixture of values that are and aren't
-            // in U then a sharp upper bound is difficult to compute: it depends on
-            // the number of different categories in XU, P(U) and the probabilities
-            // P(i in L). In this case we just fall back to using (3) which isn't
-            // sharp.
-
-            typedef std::vector<std::size_t> TSizeVec;
-
-            tail = maths_t::E_MixedOrNeitherTail;
-
-            TDoubleDoubleSizeTrVec pCategories;
-            pCategories.reserve(m_Categories.size());
-            double pU = 0.0;
-            double pmin = 1.0 / m_TotalConcentration;
-
-            {
-                double r = 1.0 / static_cast<double>(m_Concentrations.size());
-                for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
-                    double p = m_Concentrations[i] / m_TotalConcentration;
-                    pCategories.emplace_back(p, p, i);
-                    pU += r - p;
-                }
-            }
-            std::sort(pCategories.begin(), pCategories.end());
-            LOG_TRACE("p = " << core::CContainerPrinter::print(pCategories));
-
-            double pl = 0.0;
-            {
-                // Get the index of largest probability less than or equal to P(U).
-                std::size_t l = pCategories.size();
-                if (pU > 0.0) {
-                    l = std::lower_bound(pCategories.begin(),
-                                         pCategories.end(),
-                                         TDoubleDoubleSizeTr(pU, pU, 0)) -
-                        pCategories.begin();
-                }
-
-                // Compute probabilities of less likely categories.
-                double pCumulative = 0.0;
-                for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
-                    // Find the probability equal range [i, j).
-                    double p = pCategories[i].get<1>();
+            // Compute probabilities of less likely categories.
+            double pCumulative = 0.0;
+            for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
+                // Find the probability equal range [i, j).
+                double p = pCategories[i].get<1>();
+                pCumulative += p;
+                while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
                     pCumulative += p;
-                    while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
-                        pCumulative += p;
-                    }
-
-                    // Update the equal range probabilities [i, j).
-                    for (/**/; i < j; ++i) {
-                        pCategories[i].get<1>() = pCumulative;
-                    }
                 }
 
-                if (l < pCategories.size()) {
-                    pl = pCategories[l].get<1>();
+                // Update the equal range probabilities [i, j).
+                for (/**/; i < j; ++i) {
+                    pCategories[i].get<1>() = pCumulative;
                 }
             }
 
-            std::size_t nSamples = detail::numberPriorSamples(m_TotalConcentration);
-            LOG_TRACE("n = " << nSamples);
-            if (nSamples > 1) {
-                // Extract the indices of the categories we want.
-                TSizeVec categoryIndices;
-                categoryIndices.reserve(samples.size());
-                for (std::size_t i = 0u; i < samples.size(); ++i) {
-                    std::size_t index =
-                        std::lower_bound(m_Categories.begin(), m_Categories.end(), samples[i]) -
-                        m_Categories.begin();
-                    if (index < m_Categories.size() && m_Categories[index] == samples[i]) {
-                        categoryIndices.push_back(index);
-                    }
-                }
-                std::sort(categoryIndices.begin(), categoryIndices.end());
-
-                for (std::size_t i = 0u; i < pCategories.size(); ++i) {
-                    // For all categories that we actually want compute the
-                    // average probability over a set of independent samples
-                    // from the marginal prior for this category, which by the
-                    // law of large numbers converges to E[ P(p) ] w.r.t. to
-                    // marginal for p. The constants a and b are a(i) and
-                    // Sum_j( a(j) ) - a(i), respectively.
-
-                    std::size_t j = pCategories[i].get<2>();
-                    if (std::binary_search(categoryIndices.begin(), categoryIndices.end(), j)) {
-                        TDouble7Vec marginalSamples;
-                        double a = m_Concentrations[j];
-                        double b = m_TotalConcentration - m_Concentrations[j];
-                        detail::generateBetaSamples(a, b, nSamples, marginalSamples);
-                        LOG_TRACE("E[p] = " << pCategories[i].get<0>() << ", mean = "
-                                            << CBasicStatistics::mean(marginalSamples)
-                                            << ", samples = " << marginalSamples);
-
-                        TMeanAccumulator pAcc;
-                        for (std::size_t k = 0u; k < marginalSamples.size(); ++k) {
-                            TDoubleDoubleSizeTr x(1.05 * marginalSamples[k], 0.0, 0);
-                            ptrdiff_t r = std::min(std::upper_bound(pCategories.begin(),
-                                                                    pCategories.end(),
-                                                                    x) -
-                                                       pCategories.begin(),
-                                                   static_cast<ptrdiff_t>(pCategories.size()) - 1);
-
-                            double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
-                            double fr = pCategories[r].get<0>();
-                            double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
-                            double pr_ = pCategories[r].get<1>();
-                            double alpha =
-                                std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl),
-                                         1.0);
-                            double px = (1.0 - alpha) * pl_ + alpha * pr_;
-                            LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_
-                                                   << ", E[p(r)] = " << fr << ", P(r) = " << pr_
-                                                   << ", alpha = " << alpha << ", p = " << px);
-
-                            pAcc.add(px);
-                        }
-                        pCategories[i].get<1>() = CBasicStatistics::mean(pAcc);
-                    }
-                }
+            if (l < pCategories.size()) {
+                pl = pCategories[l].get<1>();
             }
+        }
 
-            LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
-            LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
-
-            // We can use radix sort to reorder the probabilities in O(n).
-            // To understand the following loop note that on each iteration
-            // at least one extra probability is in its correct position
-            // so it will necessarily terminate in at most n iterations.
-            for (std::size_t i = 0; i < pCategories.size(); /**/) {
-                if (i == pCategories[i].get<2>()) {
-                    ++i;
-                } else {
-                    std::swap(pCategories[i], pCategories[pCategories[i].get<2>()]);
-                }
-            }
-
-            LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
-
-            if (samples.size() == 1) {
-                // No special aggregation is required if there is a single sample.
-                std::size_t index =
-                    std::lower_bound(m_Categories.begin(), m_Categories.end(), samples[0]) -
-                    m_Categories.begin();
-
-                if (index < m_Categories.size() && m_Categories[index] == samples[0]) {
-                    double p = pCategories[index].get<1>();
-                    lowerBound = p + (p >= pU ? pU : 0.0);
-                    upperBound = p + pU;
-                } else {
-                    lowerBound = pmin;
-                    upperBound = std::max(pU + pl, pmin);
-                }
-
-                return true;
-            }
-
-            TDoubleDoubleMap categoryCounts;
-
-            // Count the occurrences of each category in the sample set.
+        std::size_t nSamples = detail::numberPriorSamples(m_TotalConcentration);
+        LOG_TRACE("n = " << nSamples);
+        if (nSamples > 1) {
+            // Extract the indices of the categories we want.
+            TSizeVec categoryIndices;
+            categoryIndices.reserve(samples.size());
             for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double x = samples[i];
-                double n = maths_t::count(weightStyles, weights[i]);
-                categoryCounts[x] += n;
-            }
-
-            LOG_TRACE("categoryCounts = " << core::CContainerPrinter::print(categoryCounts));
-
-            CJointProbabilityOfLessLikelySamples jointLowerBound;
-            CJointProbabilityOfLessLikelySamples jointUpperBound;
-
-            for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
-                 countItr != categoryCounts.end();
-                 ++countItr) {
-                double category = countItr->first;
-                double count = countItr->second;
-                LOG_TRACE("category = " << category << ", count = " << count);
-
                 std::size_t index =
-                    std::lower_bound(m_Categories.begin(), m_Categories.end(), category) -
+                    std::lower_bound(m_Categories.begin(), m_Categories.end(), samples[i]) -
                     m_Categories.begin();
+                if (index < m_Categories.size() && m_Categories[index] == samples[i]) {
+                    categoryIndices.push_back(index);
+                }
+            }
+            std::sort(categoryIndices.begin(), categoryIndices.end());
 
+            for (std::size_t i = 0u; i < pCategories.size(); ++i) {
+                // For all categories that we actually want compute the
+                // average probability over a set of independent samples
+                // from the marginal prior for this category, which by the
+                // law of large numbers converges to E[ P(p) ] w.r.t. to
+                // marginal for p. The constants a and b are a(i) and
+                // Sum_j( a(j) ) - a(i), respectively.
+
+                std::size_t j = pCategories[i].get<2>();
+                if (std::binary_search(categoryIndices.begin(), categoryIndices.end(), j)) {
+                    TDouble7Vec marginalSamples;
+                    double a = m_Concentrations[j];
+                    double b = m_TotalConcentration - m_Concentrations[j];
+                    detail::generateBetaSamples(a, b, nSamples, marginalSamples);
+                    LOG_TRACE("E[p] = " << pCategories[i].get<0>()
+                                        << ", mean = " << CBasicStatistics::mean(marginalSamples)
+                                        << ", samples = " << marginalSamples);
+
+                    TMeanAccumulator pAcc;
+                    for (std::size_t k = 0u; k < marginalSamples.size(); ++k) {
+                        TDoubleDoubleSizeTr x(1.05 * marginalSamples[k], 0.0, 0);
+                        ptrdiff_t r =
+                            std::min(std::upper_bound(pCategories.begin(), pCategories.end(), x) -
+                                         pCategories.begin(),
+                                     static_cast<ptrdiff_t>(pCategories.size()) - 1);
+
+                        double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
+                        double fr = pCategories[r].get<0>();
+                        double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
+                        double pr_ = pCategories[r].get<1>();
+                        double alpha =
+                            std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
+                        double px = (1.0 - alpha) * pl_ + alpha * pr_;
+                        LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr
+                                               << ", P(r) = " << pr_ << ", alpha = " << alpha
+                                               << ", p = " << px);
+
+                        pAcc.add(px);
+                    }
+                    pCategories[i].get<1>() = CBasicStatistics::mean(pAcc);
+                }
+            }
+        }
+
+        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
+
+        // We can use radix sort to reorder the probabilities in O(n).
+        // To understand the following loop note that on each iteration
+        // at least one extra probability is in its correct position
+        // so it will necessarily terminate in at most n iterations.
+        for (std::size_t i = 0; i < pCategories.size(); /**/) {
+            if (i == pCategories[i].get<2>()) {
+                ++i;
+            } else {
+                std::swap(pCategories[i], pCategories[pCategories[i].get<2>()]);
+            }
+        }
+
+        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+
+        if (samples.size() == 1) {
+            // No special aggregation is required if there is a single sample.
+            std::size_t index =
+                std::lower_bound(m_Categories.begin(), m_Categories.end(), samples[0]) -
+                m_Categories.begin();
+
+            if (index < m_Categories.size() && m_Categories[index] == samples[0]) {
                 double p = pCategories[index].get<1>();
-                if (index < m_Categories.size() && m_Categories[index] == category) {
-                    jointLowerBound.add(p + (p >= pU ? pU : 0.0), count);
-                    jointUpperBound.add(p + pU, count);
-                } else {
-                    jointLowerBound.add(pmin, count);
-                    jointUpperBound.add(std::max(pU + pl, pmin), count);
-                }
+                lowerBound = p + (p >= pU ? pU : 0.0);
+                upperBound = p + pU;
+            } else {
+                lowerBound = pmin;
+                upperBound = std::max(pU + pl, pmin);
             }
 
-            if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-                LOG_ERROR("Unable to compute probability for "
-                          << core::CContainerPrinter::print(samples) << ": " << jointLowerBound
-                          << ", " << jointUpperBound);
-                return false;
+            return true;
+        }
+
+        TDoubleDoubleMap categoryCounts;
+
+        // Count the occurrences of each category in the sample set.
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i];
+            double n = maths_t::count(weightStyles, weights[i]);
+            categoryCounts[x] += n;
+        }
+
+        LOG_TRACE("categoryCounts = " << core::CContainerPrinter::print(categoryCounts));
+
+        CJointProbabilityOfLessLikelySamples jointLowerBound;
+        CJointProbabilityOfLessLikelySamples jointUpperBound;
+
+        for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
+             countItr != categoryCounts.end();
+             ++countItr) {
+            double category = countItr->first;
+            double count = countItr->second;
+            LOG_TRACE("category = " << category << ", count = " << count);
+
+            std::size_t index =
+                std::lower_bound(m_Categories.begin(), m_Categories.end(), category) -
+                m_Categories.begin();
+
+            double p = pCategories[index].get<1>();
+            if (index < m_Categories.size() && m_Categories[index] == category) {
+                jointLowerBound.add(p + (p >= pU ? pU : 0.0), count);
+                jointUpperBound.add(p + pU, count);
+            } else {
+                jointLowerBound.add(pmin, count);
+                jointUpperBound.add(std::max(pU + pl, pmin), count);
             }
+        }
 
-            LOG_TRACE("probability = [" << lowerBound << ", " << upperBound << "]");
-        } break;
+        if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
+            LOG_ERROR("Unable to compute probability for "
+                      << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
+            return false;
+        }
 
-        case maths_t::E_OneSidedAbove: {
-            // See minusLogJointCdf for a discussion of the calculation
-            // of the marginal c.d.f. for a single sample.
+        LOG_TRACE("probability = [" << lowerBound << ", " << upperBound << "]");
+    } break;
 
-            CJointProbabilityOfLessLikelySamples jointLowerBound;
-            CJointProbabilityOfLessLikelySamples jointUpperBound;
+    case maths_t::E_OneSidedAbove: {
+        // See minusLogJointCdf for a discussion of the calculation
+        // of the marginal c.d.f. for a single sample.
 
-            detail::CCdfComplement cdfComplement(m_Categories,
-                                                 m_Concentrations,
-                                                 m_TotalConcentration);
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                double x = samples[i];
-                double n = maths_t::count(weightStyles, weights[i]);
-                double sampleLowerBound, sampleUpperBound;
-                cdfComplement(x, sampleLowerBound, sampleUpperBound);
-                jointLowerBound.add(sampleLowerBound, n);
-                jointUpperBound.add(sampleUpperBound, n);
-            }
+        CJointProbabilityOfLessLikelySamples jointLowerBound;
+        CJointProbabilityOfLessLikelySamples jointUpperBound;
 
-            if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
-                LOG_ERROR("Unable to compute probability for "
-                          << core::CContainerPrinter::print(samples) << ": " << jointLowerBound
-                          << ", " << jointUpperBound);
-                return false;
-            }
-            tail = maths_t::E_RightTail;
-        } break;
+        detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
+        for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i];
+            double n = maths_t::count(weightStyles, weights[i]);
+            double sampleLowerBound, sampleUpperBound;
+            cdfComplement(x, sampleLowerBound, sampleUpperBound);
+            jointLowerBound.add(sampleLowerBound, n);
+            jointUpperBound.add(sampleUpperBound, n);
+        }
+
+        if (!jointLowerBound.calculate(lowerBound) || !jointUpperBound.calculate(upperBound)) {
+            LOG_ERROR("Unable to compute probability for "
+                      << core::CContainerPrinter::print(samples) << ": " << jointLowerBound << ", "
+                      << jointUpperBound);
+            return false;
+        }
+        tail = maths_t::E_RightTail;
+    } break;
     }
 
     return true;
@@ -1411,125 +1407,123 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(
     upperBounds.clear();
 
     switch (calculation) {
-        case maths_t::E_OneSidedBelow: {
-            detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
-            cdf.dump(lowerBounds, upperBounds);
-        } break;
+    case maths_t::E_OneSidedBelow: {
+        detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
+        cdf.dump(lowerBounds, upperBounds);
+    } break;
 
-        case maths_t::E_TwoSided: {
-            TDoubleDoubleSizeTrVec pCategories;
-            pCategories.reserve(m_Categories.size());
-            double pU = 0.0;
+    case maths_t::E_TwoSided: {
+        TDoubleDoubleSizeTrVec pCategories;
+        pCategories.reserve(m_Categories.size());
+        double pU = 0.0;
 
-            {
-                double r = 1.0 / static_cast<double>(m_Concentrations.size());
-                for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
-                    double p = m_Concentrations[i] / m_TotalConcentration;
-                    pCategories.emplace_back(p, p, i);
-                    pU += r - p;
-                }
+        {
+            double r = 1.0 / static_cast<double>(m_Concentrations.size());
+            for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+                double p = m_Concentrations[i] / m_TotalConcentration;
+                pCategories.emplace_back(p, p, i);
+                pU += r - p;
             }
-            std::sort(pCategories.begin(), pCategories.end());
-            LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+        }
+        std::sort(pCategories.begin(), pCategories.end());
+        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
 
-            // Get the index of largest probability less than or equal to P(U).
-            double pl = 0.0;
-            {
-                std::size_t l = pCategories.size();
-                if (pU > 0.0) {
-                    l = std::lower_bound(pCategories.begin(),
-                                         pCategories.end(),
-                                         TDoubleDoubleSizeTr(pU, pU, 0)) -
-                        pCategories.begin();
-                }
+        // Get the index of largest probability less than or equal to P(U).
+        double pl = 0.0;
+        {
+            std::size_t l = pCategories.size();
+            if (pU > 0.0) {
+                l = std::lower_bound(pCategories.begin(),
+                                     pCategories.end(),
+                                     TDoubleDoubleSizeTr(pU, pU, 0)) -
+                    pCategories.begin();
+            }
 
-                // Compute probabilities of less likely categories.
-                double pCumulative = 0.0;
-                for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
-                    // Find the probability equal range [i, j).
-                    double p = pCategories[i].get<1>();
+            // Compute probabilities of less likely categories.
+            double pCumulative = 0.0;
+            for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
+                // Find the probability equal range [i, j).
+                double p = pCategories[i].get<1>();
+                pCumulative += p;
+                while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
                     pCumulative += p;
-                    while (++j < pCategories.size() && pCategories[j].get<1>() == p) {
-                        pCumulative += p;
-                    }
-
-                    // Update the equal range probabilities [i, j).
-                    for (/**/; i < j; ++i) {
-                        pCategories[i].get<1>() = pCumulative;
-                    }
                 }
 
-                if (l < pCategories.size()) {
-                    pl = pCategories[l].get<1>();
+                // Update the equal range probabilities [i, j).
+                for (/**/; i < j; ++i) {
+                    pCategories[i].get<1>() = pCumulative;
                 }
             }
 
-            LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
-            LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
-
-            lowerBounds.resize(pCategories.size(), 0.0);
-            upperBounds.resize(pCategories.size(), 0.0);
-
-            double p = 0.0;
-            double pLast = -1.0;
-            std::size_t n = detail::numberPriorSamples(m_TotalConcentration);
-            LOG_TRACE("n = " << n);
-            for (std::size_t i = 0u; i < pCategories.size(); ++i) {
-                std::size_t j = pCategories[i].get<2>();
-
-                // We compute the average probability over a set of
-                // independent samples from the marginal prior for this
-                // category, which by the law of large numbers converges
-                // to E[ P(p) ] w.r.t. to marginal for p. The constants
-                // a and b are a(i) and Sum_j( a(j) ) - a(i), respectively.
-                // See confidenceIntervalProbabilities for a discussion.
-
-                if (pCategories[i].get<0>() != pLast) {
-                    TDouble7Vec samples;
-                    double a = m_Concentrations[j];
-                    double b = m_TotalConcentration - m_Concentrations[j];
-                    detail::generateBetaSamples(a, b, n, samples);
-                    LOG_TRACE("E[p] = " << pCategories[i].get<0>() << ", mean = "
-                                        << CBasicStatistics::mean(samples) << ", samples = "
-                                        << core::CContainerPrinter::print(samples));
-
-                    TMeanAccumulator pAcc;
-                    for (std::size_t k = 0u; k < samples.size(); ++k) {
-                        TDoubleDoubleSizeTr x(1.05 * samples[k], 0.0, 0);
-                        ptrdiff_t r =
-                            std::min(std::upper_bound(pCategories.begin(), pCategories.end(), x) -
-                                         pCategories.begin(),
-                                     static_cast<ptrdiff_t>(pCategories.size()) - 1);
-
-                        double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
-                        double fr = pCategories[r].get<0>();
-                        double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
-                        double pr_ = pCategories[r].get<1>();
-                        double alpha =
-                            std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
-                        double px = (1.0 - alpha) * pl_ + alpha * pr_;
-                        LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr
-                                               << ", P(r) = " << pr_ << ", alpha = " << alpha
-                                               << ", p = " << px);
-
-                        pAcc.add(px);
-                    }
-                    p = CBasicStatistics::mean(pAcc);
-                    pLast = pCategories[i].get<0>();
-                }
-
-                LOG_TRACE("p = " << p);
-                lowerBounds[j] = p + (p >= pU ? pU : 0.0);
-                upperBounds[j] = p + pU;
+            if (l < pCategories.size()) {
+                pl = pCategories[l].get<1>();
             }
-        } break;
+        }
 
-        case maths_t::E_OneSidedAbove: {
-            detail::CCdfComplement cdfComplement(m_Categories,
-                                                 m_Concentrations,
-                                                 m_TotalConcentration);
-            cdfComplement.dump(lowerBounds, upperBounds);
-        } break;
+        LOG_TRACE("pCategories = " << core::CContainerPrinter::print(pCategories));
+        LOG_TRACE("P(U) = " << pU << ", P(l) = " << pl);
+
+        lowerBounds.resize(pCategories.size(), 0.0);
+        upperBounds.resize(pCategories.size(), 0.0);
+
+        double p = 0.0;
+        double pLast = -1.0;
+        std::size_t n = detail::numberPriorSamples(m_TotalConcentration);
+        LOG_TRACE("n = " << n);
+        for (std::size_t i = 0u; i < pCategories.size(); ++i) {
+            std::size_t j = pCategories[i].get<2>();
+
+            // We compute the average probability over a set of
+            // independent samples from the marginal prior for this
+            // category, which by the law of large numbers converges
+            // to E[ P(p) ] w.r.t. to marginal for p. The constants
+            // a and b are a(i) and Sum_j( a(j) ) - a(i), respectively.
+            // See confidenceIntervalProbabilities for a discussion.
+
+            if (pCategories[i].get<0>() != pLast) {
+                TDouble7Vec samples;
+                double a = m_Concentrations[j];
+                double b = m_TotalConcentration - m_Concentrations[j];
+                detail::generateBetaSamples(a, b, n, samples);
+                LOG_TRACE("E[p] = " << pCategories[i].get<0>()
+                                    << ", mean = " << CBasicStatistics::mean(samples)
+                                    << ", samples = " << core::CContainerPrinter::print(samples));
+
+                TMeanAccumulator pAcc;
+                for (std::size_t k = 0u; k < samples.size(); ++k) {
+                    TDoubleDoubleSizeTr x(1.05 * samples[k], 0.0, 0);
+                    ptrdiff_t r =
+                        std::min(std::upper_bound(pCategories.begin(), pCategories.end(), x) -
+                                     pCategories.begin(),
+                                 static_cast<ptrdiff_t>(pCategories.size()) - 1);
+
+                    double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
+                    double fr = pCategories[r].get<0>();
+                    double pl_ = r > 0 ? pCategories[r - 1].get<1>() : 0.0;
+                    double pr_ = pCategories[r].get<1>();
+                    double alpha =
+                        std::min((fr - fl == 0.0) ? 0.0 : (x.get<0>() - fl) / (fr - fl), 1.0);
+                    double px = (1.0 - alpha) * pl_ + alpha * pr_;
+                    LOG_TRACE("E[p(l)] = " << fl << ", P(l) = " << pl_ << ", E[p(r)] = " << fr
+                                           << ", P(r) = " << pr_ << ", alpha = " << alpha
+                                           << ", p = " << px);
+
+                    pAcc.add(px);
+                }
+                p = CBasicStatistics::mean(pAcc);
+                pLast = pCategories[i].get<0>();
+            }
+
+            LOG_TRACE("p = " << p);
+            lowerBounds[j] = p + (p >= pU ? pU : 0.0);
+            upperBounds[j] = p + pU;
+        }
+    } break;
+
+    case maths_t::E_OneSidedAbove: {
+        detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
+        cdfComplement.dump(lowerBounds, upperBounds);
+    } break;
     }
 }
 

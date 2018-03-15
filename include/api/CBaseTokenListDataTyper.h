@@ -230,7 +230,7 @@ private:
 
         //! PAIRTYPE can be any struct with a data member named "first"
         //! that can be checked for equality to a size_t
-        template <typename PAIRTYPE>
+        template<typename PAIRTYPE>
         bool operator()(const PAIRTYPE& lhs) const {
             return lhs.first == m_Value;
         }

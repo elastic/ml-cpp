@@ -130,9 +130,9 @@ public:
 //! floating point numbers and also so that reference splines can be created.
 //! Reference splines work on collections that are stored elsewhere, so that,
 //! for example knot points can be shared between several splines.
-template <typename KNOTS = std::vector<CFloatStorage>,
-          typename VALUES = std::vector<CFloatStorage>,
-          typename CURVATURES = std::vector<double>>
+template<typename KNOTS = std::vector<CFloatStorage>,
+         typename VALUES = std::vector<CFloatStorage>,
+         typename CURVATURES = std::vector<double>>
 class CSpline : public CSplineTypes {
 public:
     typedef typename boost::unwrap_reference<KNOTS>::type TKnots;
@@ -193,23 +193,23 @@ public:
         }
 
         switch (m_Type) {
-            case E_Linear: {
-                double h = this->knots()[k] - this->knots()[k - 1];
-                double c = (this->values()[k] - this->values()[k - 1]) / h;
-                double d = this->values()[k - 1];
-                double r = x - this->knots()[k - 1];
-                return c * r + d;
-            }
-            case E_Cubic: {
-                double h = this->knots()[k] - this->knots()[k - 1];
-                double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
-                double b = this->curvatures()[k - 1] / 2.0;
-                double c = (this->values()[k] - this->values()[k - 1]) / h -
-                           (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
-                double d = this->values()[k - 1];
-                double r = x - this->knots()[k - 1];
-                return ((a * r + b) * r + c) * r + d;
-            }
+        case E_Linear: {
+            double h = this->knots()[k] - this->knots()[k - 1];
+            double c = (this->values()[k] - this->values()[k - 1]) / h;
+            double d = this->values()[k - 1];
+            double r = x - this->knots()[k - 1];
+            return c * r + d;
+        }
+        case E_Cubic: {
+            double h = this->knots()[k] - this->knots()[k - 1];
+            double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
+            double b = this->curvatures()[k - 1] / 2.0;
+            double c = (this->values()[k] - this->values()[k - 1]) / h -
+                       (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+            double d = this->values()[k - 1];
+            double r = x - this->knots()[k - 1];
+            return ((a * r + b) * r + c) * r + d;
+        }
         }
 
         LOG_ABORT("Unexpected type " << m_Type);
@@ -226,26 +226,26 @@ public:
 
         TMeanAccumulator result;
         switch (m_Type) {
-            case E_Linear:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    double c = (this->values()[i] - this->values()[i - 1]) / h;
-                    double d = this->values()[i - 1];
-                    result.add(c / 2.0 * h + d, h / interval);
-                }
-                break;
+        case E_Linear:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                double c = (this->values()[i] - this->values()[i - 1]) / h;
+                double d = this->values()[i - 1];
+                result.add(c / 2.0 * h + d, h / interval);
+            }
+            break;
 
-            case E_Cubic:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
-                    double b = this->curvatures()[i - 1] / 2.0;
-                    double c = (this->values()[i] - this->values()[i - 1]) / h -
-                               (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
-                    double d = this->values()[i - 1];
-                    result.add(((a * h / 4.0 + b / 3.0) * h + c / 2.0) * h + d, h / interval);
-                }
-                break;
+        case E_Cubic:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                double b = this->curvatures()[i - 1] / 2.0;
+                double c = (this->values()[i] - this->values()[i - 1]) / h -
+                           (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                double d = this->values()[i - 1];
+                result.add(((a * h / 4.0 + b / 3.0) * h + c / 2.0) * h + d, h / interval);
+            }
+            break;
         }
 
         return CBasicStatistics::mean(result);
@@ -269,19 +269,19 @@ public:
                              this->knots().size() - 1);
 
         switch (m_Type) {
-            case E_Linear: {
-                double h = this->knots()[k] - this->knots()[k - 1];
-                return (this->values()[k] - this->values()[k - 1]) / h;
-            }
-            case E_Cubic: {
-                double h = this->knots()[k] - this->knots()[k - 1];
-                double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
-                double b = this->curvatures()[k - 1] / 2.0;
-                double c = (this->values()[k] - this->values()[k - 1]) / h -
-                           (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
-                double r = x - this->knots()[k - 1];
-                return ((3.0 * a * r + 2.0 * b) * r + c);
-            }
+        case E_Linear: {
+            double h = this->knots()[k] - this->knots()[k - 1];
+            return (this->values()[k] - this->values()[k - 1]) / h;
+        }
+        case E_Cubic: {
+            double h = this->knots()[k] - this->knots()[k - 1];
+            double a = (this->curvatures()[k] - this->curvatures()[k - 1]) / 6.0 / h;
+            double b = this->curvatures()[k - 1] / 2.0;
+            double c = (this->values()[k] - this->values()[k - 1]) / h -
+                       (this->curvatures()[k] / 6.0 + this->curvatures()[k - 1] / 3.0) * h;
+            double r = x - this->knots()[k - 1];
+            return ((3.0 * a * r + 2.0 * b) * r + c);
+        }
         }
 
         LOG_ABORT("Unexpected type " << m_Type);
@@ -299,37 +299,37 @@ public:
         std::size_t n = this->knots().size();
 
         switch (m_Type) {
-            case E_Linear:
-                for (std::size_t i = 1u; i < n; ++i) {
-                    result += ::fabs((this->values()[i] - this->values()[i - 1]));
-                }
-                break;
+        case E_Linear:
+            for (std::size_t i = 1u; i < n; ++i) {
+                result += ::fabs((this->values()[i] - this->values()[i - 1]));
+            }
+            break;
 
-            case E_Cubic:
-                for (std::size_t i = 1u; i < n; ++i) {
-                    double a = this->knots()[i - 1];
-                    double b = this->knots()[i];
-                    double h = b - a;
-                    double ai = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
-                    double bi = this->curvatures()[i - 1] / 2.0;
-                    double ci = (this->values()[i] - this->values()[i - 1]) / h -
-                                (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+        case E_Cubic:
+            for (std::size_t i = 1u; i < n; ++i) {
+                double a = this->knots()[i - 1];
+                double b = this->knots()[i];
+                double h = b - a;
+                double ai = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                double bi = this->curvatures()[i - 1] / 2.0;
+                double ci = (this->values()[i] - this->values()[i - 1]) / h -
+                            (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
 
-                    double descriminant = bi * bi - 3.0 * ai * ci;
-                    if (descriminant < 0.0) {
-                        result += ::fabs(((ai * h + bi) * h + ci) * h);
-                        continue;
-                    }
-                    double rl = CTools::truncate(a - (bi + descriminant) / 3.0 / ai, a, b);
-                    double rr = CTools::truncate(a + (-bi + descriminant) / 3.0 / ai, a, b);
-                    if (rl > rr) {
-                        std::swap(rl, rr);
-                    }
-                    result += ::fabs(((ai * (rl - a) + bi) * (rl - a) + ci) * (rl - a)) +
-                              ::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl)) +
-                              ::fabs(((ai * (b - rr) + bi) * (b - rr) + ci) * (b - rr));
+                double descriminant = bi * bi - 3.0 * ai * ci;
+                if (descriminant < 0.0) {
+                    result += ::fabs(((ai * h + bi) * h + ci) * h);
+                    continue;
                 }
-                break;
+                double rl = CTools::truncate(a - (bi + descriminant) / 3.0 / ai, a, b);
+                double rr = CTools::truncate(a + (-bi + descriminant) / 3.0 / ai, a, b);
+                if (rl > rr) {
+                    std::swap(rl, rr);
+                }
+                result += ::fabs(((ai * (rl - a) + bi) * (rl - a) + ci) * (rl - a)) +
+                          ::fabs(((ai * (rr - rl) + bi) * (rr - rl) + ci) * (rr - rl)) +
+                          ::fabs(((ai * (b - rr) + bi) * (b - rr) + ci) * (b - rr));
+            }
+            break;
         }
 
         return result / (this->knots()[n - 1] - this->knots()[0]);
@@ -354,35 +354,35 @@ public:
             d->reserve(this->values().size());
 
         switch (m_Type) {
-            case E_Linear:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    if (a)
-                        a->push_back(0.0);
-                    if (b)
-                        b->push_back(0.0);
-                    if (c)
-                        c->push_back((this->values()[i] - this->values()[i - 1]) / h);
-                    if (d)
-                        d->push_back(this->values()[i - 1]);
-                }
-                break;
+        case E_Linear:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                if (a)
+                    a->push_back(0.0);
+                if (b)
+                    b->push_back(0.0);
+                if (c)
+                    c->push_back((this->values()[i] - this->values()[i - 1]) / h);
+                if (d)
+                    d->push_back(this->values()[i - 1]);
+            }
+            break;
 
-            case E_Cubic:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    if (a)
-                        a->push_back((this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h);
-                    if (b)
-                        b->push_back(this->curvatures()[i - 1] / 2.0);
-                    if (c)
-                        c->push_back(
-                            (this->values()[i] - this->values()[i - 1]) / h -
-                            (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h);
-                    if (d)
-                        d->push_back(this->values()[i - 1]);
-                }
-                break;
+        case E_Cubic:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                if (a)
+                    a->push_back((this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h);
+                if (b)
+                    b->push_back(this->curvatures()[i - 1] / 2.0);
+                if (c)
+                    c->push_back((this->values()[i] - this->values()[i - 1]) / h -
+                                 (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) *
+                                     h);
+                if (d)
+                    d->push_back(this->values()[i - 1]);
+            }
+            break;
         }
     }
 
@@ -459,109 +459,109 @@ public:
         }
 
         switch (m_Type) {
-            case E_Linear:
-                // Curvatures are all zero and we don't bother to store them.
+        case E_Linear:
+            // Curvatures are all zero and we don't bother to store them.
+            break;
+
+        case E_Cubic: {
+            this->curvaturesRef().clear();
+            this->curvaturesRef().reserve(n);
+
+            // Construct the diagonals: a is the subdiagonal, b is the
+            // main diagonal and c is the superdiagonal.
+
+            TDoubleVec a;
+            TDoubleVec b;
+            TDoubleVec c;
+            a.reserve(n - 1);
+            b.reserve(n);
+            c.reserve(n - 1);
+
+            double h = this->knots()[1] - this->knots()[0];
+            double h_ = this->knots()[n - 1] - this->knots()[n - 2];
+
+            switch (boundary) {
+            case E_Natural:
+                b.push_back(1.0);
+                c.push_back(0.0);
+                this->curvaturesRef().push_back(0.0);
                 break;
 
-            case E_Cubic: {
-                this->curvaturesRef().clear();
-                this->curvaturesRef().reserve(n);
+            case E_ParabolicRunout:
+                b.push_back(1.0);
+                c.push_back(-1.0);
+                this->curvaturesRef().push_back(0.0);
+                break;
 
-                // Construct the diagonals: a is the subdiagonal, b is the
-                // main diagonal and c is the superdiagonal.
-
-                TDoubleVec a;
-                TDoubleVec b;
-                TDoubleVec c;
-                a.reserve(n - 1);
-                b.reserve(n);
-                c.reserve(n - 1);
-
-                double h = this->knots()[1] - this->knots()[0];
-                double h_ = this->knots()[n - 1] - this->knots()[n - 2];
-
-                switch (boundary) {
-                    case E_Natural:
-                        b.push_back(1.0);
-                        c.push_back(0.0);
-                        this->curvaturesRef().push_back(0.0);
-                        break;
-
-                    case E_ParabolicRunout:
-                        b.push_back(1.0);
-                        c.push_back(-1.0);
-                        this->curvaturesRef().push_back(0.0);
-                        break;
-
-                    case E_Periodic:
-                        b.push_back(2.0 * (h + h_));
-                        c.push_back(h - 1.0);
-                        this->curvaturesRef().push_back(
-                            6.0 * ((this->values()[1] - this->values()[0]) / h -
-                                   (this->values()[0] - this->values()[n - 2]) / h_));
-                        break;
-                }
-
-                for (std::size_t i = 1u; i + 1 < n; ++i) {
-                    h_ = h;
-                    h = this->knots()[i + 1] - this->knots()[i];
-                    a.push_back(h_);
-                    b.push_back(2.0 * (h + h_));
-                    c.push_back(h);
-                    this->curvaturesRef().push_back(
-                        6.0 * ((this->values()[i + 1] - this->values()[i]) / h -
-                               (this->values()[i] - this->values()[i - 1]) / h_));
-                }
-
-                h_ = h;
-                h = this->knots()[1] - this->knots()[0];
-
-                switch (boundary) {
-                    case E_Natural:
-                        a.push_back(0.0);
-                        b.push_back(1.0);
-                        this->curvaturesRef().push_back(0.0);
-                        if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
-                            LOG_ERROR("Failed to calculate curvatures");
-                            return false;
-                        }
-                        break;
-
-                    case E_ParabolicRunout:
-                        a.push_back(-1.0);
-                        b.push_back(1.0);
-                        this->curvaturesRef().push_back(0.0);
-                        if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
-                            LOG_ERROR("Failed to calculate curvatures");
-                            return false;
-                        }
-                        break;
-
-                    case E_Periodic: {
-                        a.push_back(h_ * (1.0 - h));
-                        b.push_back(2.0 * (h + h_));
-                        TDoubleVec u(n, 0.0);
-                        u[0] = 1.0;
-                        u[n - 1] = h;
-                        TDoubleVec v(n, 0.0);
-                        v[1] = 1.0;
-                        v[n - 2] = h_;
-                        this->curvaturesRef().push_back(
-                            6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
-                                   (this->values()[n - 1] - this->values()[n - 2]) / h_));
-                        if (!spline_detail::solvePeturbedTridiagonal(a,
-                                                                     b,
-                                                                     c,
-                                                                     u,
-                                                                     v,
-                                                                     this->curvaturesRef())) {
-                            LOG_ERROR("Failed to calculate curvatures");
-                            return false;
-                        }
-                    } break;
-                }
+            case E_Periodic:
+                b.push_back(2.0 * (h + h_));
+                c.push_back(h - 1.0);
+                this->curvaturesRef().push_back(6.0 *
+                                                ((this->values()[1] - this->values()[0]) / h -
+                                                 (this->values()[0] - this->values()[n - 2]) / h_));
                 break;
             }
+
+            for (std::size_t i = 1u; i + 1 < n; ++i) {
+                h_ = h;
+                h = this->knots()[i + 1] - this->knots()[i];
+                a.push_back(h_);
+                b.push_back(2.0 * (h + h_));
+                c.push_back(h);
+                this->curvaturesRef().push_back(6.0 *
+                                                ((this->values()[i + 1] - this->values()[i]) / h -
+                                                 (this->values()[i] - this->values()[i - 1]) / h_));
+            }
+
+            h_ = h;
+            h = this->knots()[1] - this->knots()[0];
+
+            switch (boundary) {
+            case E_Natural:
+                a.push_back(0.0);
+                b.push_back(1.0);
+                this->curvaturesRef().push_back(0.0);
+                if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
+                    LOG_ERROR("Failed to calculate curvatures");
+                    return false;
+                }
+                break;
+
+            case E_ParabolicRunout:
+                a.push_back(-1.0);
+                b.push_back(1.0);
+                this->curvaturesRef().push_back(0.0);
+                if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
+                    LOG_ERROR("Failed to calculate curvatures");
+                    return false;
+                }
+                break;
+
+            case E_Periodic: {
+                a.push_back(h_ * (1.0 - h));
+                b.push_back(2.0 * (h + h_));
+                TDoubleVec u(n, 0.0);
+                u[0] = 1.0;
+                u[n - 1] = h;
+                TDoubleVec v(n, 0.0);
+                v[1] = 1.0;
+                v[n - 2] = h_;
+                this->curvaturesRef().push_back(
+                    6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
+                           (this->values()[n - 1] - this->values()[n - 2]) / h_));
+                if (!spline_detail::solvePeturbedTridiagonal(a,
+                                                             b,
+                                                             c,
+                                                             u,
+                                                             v,
+                                                             this->curvaturesRef())) {
+                    LOG_ERROR("Failed to calculate curvatures");
+                    return false;
+                }
+            } break;
+            }
+            break;
+        }
         }
 
         return true;
@@ -580,36 +580,34 @@ public:
 
         result += ":";
         switch (m_Type) {
-            case E_Linear:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    double c = (this->values()[i] - this->values()[i - 1]) / h;
-                    double d = this->values()[i - 1];
-                    std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
-                    result += "\n" + indent + core::CStringUtils::typeToStringPretty(c) + " (x - " +
-                              kl + ") + " + core::CStringUtils::typeToStringPretty(d) +
-                              "   x in [" + kl + "," +
-                              core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
-                }
-                break;
+        case E_Linear:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                double c = (this->values()[i] - this->values()[i - 1]) / h;
+                double d = this->values()[i - 1];
+                std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
+                result += "\n" + indent + core::CStringUtils::typeToStringPretty(c) + " (x - " +
+                          kl + ") + " + core::CStringUtils::typeToStringPretty(d) + "   x in [" +
+                          kl + "," + core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
+            }
+            break;
 
-            case E_Cubic:
-                for (std::size_t i = 1u; i < this->knots().size(); ++i) {
-                    double h = this->knots()[i] - this->knots()[i - 1];
-                    double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
-                    double b = this->curvatures()[i - 1] / 2.0;
-                    double c = (this->values()[i] - this->values()[i - 1]) / h -
-                               (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
-                    double d = this->values()[i - 1];
-                    std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
-                    result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " +
-                              kl + ")^3 + " + core::CStringUtils::typeToStringPretty(b) + " (x - " +
-                              kl + ")^2 + " + core::CStringUtils::typeToStringPretty(c) + " (x - " +
-                              kl + ") + " + core::CStringUtils::typeToStringPretty(d) +
-                              "   x in [" + kl + "," +
-                              core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
-                }
-                break;
+        case E_Cubic:
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+                double h = this->knots()[i] - this->knots()[i - 1];
+                double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
+                double b = this->curvatures()[i - 1] / 2.0;
+                double c = (this->values()[i] - this->values()[i - 1]) / h -
+                           (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
+                double d = this->values()[i - 1];
+                std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
+                result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " +
+                          kl + ")^3 + " + core::CStringUtils::typeToStringPretty(b) + " (x - " +
+                          kl + ")^2 + " + core::CStringUtils::typeToStringPretty(c) + " (x - " +
+                          kl + ") + " + core::CStringUtils::typeToStringPretty(d) + "   x in [" +
+                          kl + "," + core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
+            }
+            break;
         }
     }
 

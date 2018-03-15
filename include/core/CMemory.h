@@ -45,7 +45,7 @@
 namespace ml {
 namespace core {
 
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 class CSmallVector;
 using TTypeInfoCRef = boost::reference_wrapper<const std::type_info>;
 
@@ -70,49 +70,49 @@ const std::size_t MIN_DEQUE_PAGE_SIZE = 512;
 const std::size_t MIN_DEQUE_PAGE_VEC_ENTRIES = 8;
 #endif
 
-template <typename T, std::size_t (T::*)(void) const, typename R = void>
+template<typename T, std::size_t (T::*)(void) const, typename R = void>
 struct enable_if_member_function {
     typedef R type;
 };
 
-template <bool (*)(void), typename R = void>
+template<bool (*)(void), typename R = void>
 struct enable_if_function {
     typedef R type;
 };
 
 //! \brief Default template declaration for CMemoryDynamicSize::dispatch.
-template <typename T, typename ENABLE = void>
+template<typename T, typename ENABLE = void>
 struct SMemoryDynamicSize {
     static std::size_t dispatch(const T&) { return 0; }
 };
 
 //! \brief Template specialisation where T has member function "memoryUsage(void)"
-template <typename T>
+template<typename T>
 struct SMemoryDynamicSize<T, typename enable_if_member_function<T, &T::memoryUsage>::type> {
     static std::size_t dispatch(const T& t) { return t.memoryUsage(); }
 };
 
 //! \brief Default template for classes that don't sport a staticSize member.
-template <typename T, typename ENABLE = void>
+template<typename T, typename ENABLE = void>
 struct SMemoryStaticSize {
     static std::size_t dispatch(const T& /*t*/) { return sizeof(T); }
 };
 
 //! \brief Template specialisation for classes having a staticSize member:
 //! used when base class pointers are passed to dynamicSize().
-template <typename T>
+template<typename T>
 struct SMemoryStaticSize<T, typename enable_if_member_function<T, &T::staticSize>::type> {
     static std::size_t dispatch(const T& t) { return t.staticSize(); }
 };
 
 //! \brief Base implementation checks for POD.
-template <typename T, typename ENABLE = void>
+template<typename T, typename ENABLE = void>
 struct SDynamicSizeAlwaysZero {
     static inline bool value(void) { return boost::is_pod<T>::value; }
 };
 
 //! \brief Checks types in pair.
-template <typename U, typename V>
+template<typename U, typename V>
 struct SDynamicSizeAlwaysZero<std::pair<U, V>> {
     static inline bool value(void) {
         return SDynamicSizeAlwaysZero<U>::value() && SDynamicSizeAlwaysZero<V>::value();
@@ -120,41 +120,41 @@ struct SDynamicSizeAlwaysZero<std::pair<U, V>> {
 };
 
 //! \brief Specialisation for std::less always true.
-template <typename T>
+template<typename T>
 struct SDynamicSizeAlwaysZero<std::less<T>> {
     static inline bool value(void) { return true; }
 };
 
 //! \brief Specialisation for std::greater always true.
-template <typename T>
+template<typename T>
 struct SDynamicSizeAlwaysZero<std::greater<T>> {
     static inline bool value(void) { return true; }
 };
 
 //! \brief Checks type in optional.
-template <typename T>
+template<typename T>
 struct SDynamicSizeAlwaysZero<boost::optional<T>> {
     static inline bool value(void) { return SDynamicSizeAlwaysZero<T>::value(); }
 };
 
 //! \brief Check for member dynamicSizeAlwaysZero function.
-template <typename T>
+template<typename T>
 struct SDynamicSizeAlwaysZero<T, typename enable_if_function<&T::dynamicSizeAlwaysZero>::type> {
     static inline bool value(void) { return T::dynamicSizeAlwaysZero(); }
 };
 
 //! \brief Total ordering of type_info objects.
 struct STypeInfoLess {
-    template <typename T>
+    template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs,
                     const std::pair<TTypeInfoCRef, T>& rhs) const {
         return boost::unwrap_ref(lhs.first).before(boost::unwrap_ref(rhs.first));
     }
-    template <typename T>
+    template<typename T>
     bool operator()(const std::pair<TTypeInfoCRef, T>& lhs, TTypeInfoCRef rhs) const {
         return boost::unwrap_ref(lhs.first).before(boost::unwrap_ref(rhs));
     }
-    template <typename T>
+    template<typename T>
     bool operator()(TTypeInfoCRef lhs, const std::pair<TTypeInfoCRef, T>& rhs) const {
         return boost::unwrap_ref(lhs).before(boost::unwrap_ref(rhs.first));
     }
@@ -166,7 +166,7 @@ struct STypeInfoLess {
 //! current capacity is closer to its address than its size. Note
 //! that we can't simply check if capacity > N because N is treated
 //! as a guideline.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 static bool inplace(const CSmallVector<T, N>& t) {
     const char* address = reinterpret_cast<const char*>(&t);
     const char* storage = reinterpret_cast<const char*>(t.data());
@@ -231,7 +231,7 @@ public:
 
         //! Insert a callback to compute the size of the type T
         //! if it is stored in boost::any.
-        template <typename T>
+        template<typename T>
         bool registerCallback(void) {
             auto i = std::lower_bound(m_Callbacks.begin(),
                                       m_Callbacks.end(),
@@ -267,7 +267,7 @@ public:
 
     private:
         //! Wraps up call to any_cast and dynamicSize.
-        template <typename T>
+        template<typename T>
         static std::size_t dynamicSizeCallback(const boost::any& any) {
             try {
                 return sizeof(T) + CMemory::dynamicSize(boost::any_cast<const T&>(any));
@@ -282,7 +282,7 @@ public:
 
 public:
     //! Default template.
-    template <typename T>
+    template<typename T>
     static std::size_t
     dynamicSize(const T& t, typename boost::disable_if<typename boost::is_pointer<T>>::type* = 0) {
         std::size_t mem = 0;
@@ -293,7 +293,7 @@ public:
     }
 
     //! Overload for pointer.
-    template <typename T>
+    template<typename T>
     static std::size_t
     dynamicSize(const T& t, typename boost::enable_if<typename boost::is_pointer<T>>::type* = 0) {
         if (t == 0) {
@@ -303,7 +303,7 @@ public:
     }
 
     //! Overload for boost::shared_ptr.
-    template <typename T>
+    template<typename T>
     static std::size_t dynamicSize(const boost::shared_ptr<T>& t) {
         if (!t) {
             return 0;
@@ -314,7 +314,7 @@ public:
     }
 
     //! Overload for boost::array.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static std::size_t dynamicSize(const boost::array<T, N>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -326,7 +326,7 @@ public:
     }
 
     //! Overload for std::vector.
-    template <typename T>
+    template<typename T>
     static std::size_t dynamicSize(const std::vector<T>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -338,7 +338,7 @@ public:
     }
 
     //! Overload for small vector.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static std::size_t dynamicSize(const CSmallVector<T, N>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -375,7 +375,7 @@ public:
     }
 
     //! Overload for boost::unordered_map.
-    template <typename K, typename V, typename H, typename P, typename A>
+    template<typename K, typename V, typename H, typename P, typename A>
     static std::size_t dynamicSize(const boost::unordered_map<K, V, H, P, A>& t) {
         std::size_t mem = 0;
         if (!(memory_detail::SDynamicSizeAlwaysZero<K>::value() &&
@@ -389,7 +389,7 @@ public:
     }
 
     //! Overload for std::map.
-    template <typename K, typename V, typename C, typename A>
+    template<typename K, typename V, typename C, typename A>
     static std::size_t dynamicSize(const std::map<K, V, C, A>& t) {
         // std::map appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers).
@@ -405,7 +405,7 @@ public:
     }
 
     //! Overload for boost::container::flat_map.
-    template <typename K, typename V, typename C, typename A>
+    template<typename K, typename V, typename C, typename A>
     static std::size_t dynamicSize(const boost::container::flat_map<K, V, C, A>& t) {
         std::size_t mem = 0;
         if (!(memory_detail::SDynamicSizeAlwaysZero<K>::value() &&
@@ -418,7 +418,7 @@ public:
     }
 
     //! Overload for boost::unordered_set.
-    template <typename T, typename H, typename P, typename A>
+    template<typename T, typename H, typename P, typename A>
     static std::size_t dynamicSize(const boost::unordered_set<T, H, P, A>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -431,7 +431,7 @@ public:
     }
 
     //! Overload for std::set.
-    template <typename T, typename C, typename A>
+    template<typename T, typename C, typename A>
     static std::size_t dynamicSize(const std::set<T, C, A>& t) {
         // std::set appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers).
@@ -446,7 +446,7 @@ public:
     }
 
     //! Overload for boost::container::flat_set.
-    template <typename T, typename C, typename A>
+    template<typename T, typename C, typename A>
     static std::size_t dynamicSize(const boost::container::flat_set<T, C, A>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -458,7 +458,7 @@ public:
     }
 
     //! Overload for std::list.
-    template <typename T, typename A>
+    template<typename T, typename A>
     static std::size_t dynamicSize(const std::list<T, A>& t) {
         // std::list appears to use 2 pointers per list node
         // (prev and next pointers).
@@ -473,7 +473,7 @@ public:
     }
 
     //! Overload for std::deque.
-    template <typename T, typename A>
+    template<typename T, typename A>
     static std::size_t dynamicSize(const std::deque<T, A>& t) {
         // std::deque is a pointer to an array of pointers to pages
         std::size_t mem = 0;
@@ -493,7 +493,7 @@ public:
     }
 
     //! Overload for boost::circular_buffer.
-    template <typename T, typename A>
+    template<typename T, typename A>
     static std::size_t dynamicSize(const boost::circular_buffer<T, A>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -505,7 +505,7 @@ public:
     }
 
     //! Overload for boost::optional.
-    template <typename T>
+    template<typename T>
     static std::size_t dynamicSize(const boost::optional<T>& t) {
         if (!t) {
             return 0;
@@ -514,13 +514,13 @@ public:
     }
 
     //! Overload for boost::reference_wrapper.
-    template <typename T>
+    template<typename T>
     static std::size_t dynamicSize(const boost::reference_wrapper<T>& /*t*/) {
         return 0;
     }
 
     //! Overload for std::pair.
-    template <typename T, typename V>
+    template<typename T, typename V>
     static std::size_t dynamicSize(const std::pair<T, V>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -539,7 +539,7 @@ public:
     }
 
     //! Default template.
-    template <typename T>
+    template<typename T>
     static std::size_t staticSize(const T& t) {
         return memory_detail::SMemoryStaticSize<T>::dispatch(t);
     }
@@ -553,13 +553,13 @@ private:
 
 namespace memory_detail {
 
-template <typename T, void (T::*)(CMemoryUsage::TMemoryUsagePtr) const, typename R = void>
+template<typename T, void (T::*)(CMemoryUsage::TMemoryUsagePtr) const, typename R = void>
 struct enable_if_member_debug_function {
     using type = R;
 };
 
 //! Default template declaration for SDebugMemoryDynamicSize::dispatch.
-template <typename T, typename ENABLE = void>
+template<typename T, typename ENABLE = void>
 struct SDebugMemoryDynamicSize {
     static void dispatch(const char* name, const T& t, CMemoryUsage::TMemoryUsagePtr mem) {
         std::size_t used = CMemory::dynamicSize(t);
@@ -573,7 +573,7 @@ struct SDebugMemoryDynamicSize {
 };
 
 //! Template specialisation for when T has a debugMemoryUsage member function.
-template <typename T>
+template<typename T>
 struct SDebugMemoryDynamicSize<
     T,
     typename enable_if_member_debug_function<T, &T::debugMemoryUsage>::type> {
@@ -623,7 +623,7 @@ public:
 
         //! Insert a callback to compute the size of the type T
         //! if it is stored in boost::any.
-        template <typename T>
+        template<typename T>
         bool registerCallback(void) {
             auto i = std::lower_bound(m_Callbacks.begin(),
                                       m_Callbacks.end(),
@@ -661,7 +661,7 @@ public:
 
     private:
         //! Wraps up call to any_cast and dynamicSize.
-        template <typename T>
+        template<typename T>
         static void dynamicSizeCallback(const char* name,
                                         const boost::any& any,
                                         CMemoryUsage::TMemoryUsagePtr mem) {
@@ -678,7 +678,7 @@ public:
 
 public:
     //! Default template.
-    template <typename T>
+    template<typename T>
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
@@ -687,7 +687,7 @@ public:
     }
 
     //! Overload for pointer.
-    template <typename T>
+    template<typename T>
     static void dynamicSize(const char* name,
                             const T& t,
                             CMemoryUsage::TMemoryUsagePtr mem,
@@ -699,7 +699,7 @@ public:
     }
 
     //! Overload for boost::shared_ptr.
-    template <typename T>
+    template<typename T>
     static void dynamicSize(const char* name,
                             const boost::shared_ptr<T>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -724,7 +724,7 @@ public:
     }
 
     //! Overload for boost::array.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static void
     dynamicSize(const char* name, const boost::array<T, N>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
@@ -739,7 +739,7 @@ public:
     }
 
     //! Overload for std::vector.
-    template <typename T>
+    template<typename T>
     static void
     dynamicSize(const char* name, const std::vector<T>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         std::string componentName(name);
@@ -759,7 +759,7 @@ public:
     }
 
     //! Overload for small vector.
-    template <typename T, std::size_t N>
+    template<typename T, std::size_t N>
     static void
     dynamicSize(const char* name, const CSmallVector<T, N>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         std::string componentName(name);
@@ -810,7 +810,7 @@ public:
     }
 
     //! Overload for boost::unordered_map.
-    template <typename K, typename V, typename H, typename P, typename A>
+    template<typename K, typename V, typename H, typename P, typename A>
     static void dynamicSize(const char* name,
                             const boost::unordered_map<K, V, H, P, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -831,7 +831,7 @@ public:
     }
 
     //! Overload for std::map.
-    template <typename K, typename V, typename C, typename A>
+    template<typename K, typename V, typename C, typename A>
     static void dynamicSize(const char* name,
                             const std::map<K, V, C, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -854,7 +854,7 @@ public:
     }
 
     //! Overload for boost::container::flat_map.
-    template <typename K, typename V, typename C, typename A>
+    template<typename K, typename V, typename C, typename A>
     static void dynamicSize(const char* name,
                             const boost::container::flat_map<K, V, C, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -877,7 +877,7 @@ public:
     }
 
     //! Overload for boost::unordered_set.
-    template <typename T, typename H, typename P, typename A>
+    template<typename T, typename H, typename P, typename A>
     static void dynamicSize(const char* name,
                             const boost::unordered_set<T, H, P, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -897,7 +897,7 @@ public:
     }
 
     //! Overload for std::set.
-    template <typename T, typename C, typename A>
+    template<typename T, typename C, typename A>
     static void
     dynamicSize(const char* name, const std::set<T, C, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         // std::set appears to use 4 pointers/size_ts per tree node
@@ -918,7 +918,7 @@ public:
     }
 
     //! Overload for boost::container::flat_set.
-    template <typename T, typename C, typename A>
+    template<typename T, typename C, typename A>
     static void dynamicSize(const char* name,
                             const boost::container::flat_set<T, C, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -940,7 +940,7 @@ public:
     }
 
     //! Overload for std::list.
-    template <typename T, typename A>
+    template<typename T, typename A>
     static void
     dynamicSize(const char* name, const std::list<T, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         // std::list appears to use 2 pointers per list node
@@ -961,7 +961,7 @@ public:
     }
 
     //! Overload for std::deque.
-    template <typename T, typename C, typename A>
+    template<typename T, typename C, typename A>
     static void
     dynamicSize(const char* name, const std::deque<T, A>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         // std::deque is a pointer to an array of pointers to pages
@@ -988,7 +988,7 @@ public:
     }
 
     //! Overload for boost::circular_buffer.
-    template <typename T, typename A>
+    template<typename T, typename A>
     static void dynamicSize(const char* name,
                             const boost::circular_buffer<T, A>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
@@ -1009,7 +1009,7 @@ public:
     }
 
     //! Overload for boost::optional.
-    template <typename T>
+    template<typename T>
     static void
     dynamicSize(const char* name, const boost::optional<T>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         if (t) {
@@ -1018,7 +1018,7 @@ public:
     }
 
     //! Overload for boost::reference_wrapper.
-    template <typename T>
+    template<typename T>
     static void dynamicSize(const char* /*name*/,
                             const boost::reference_wrapper<T>& /*t*/,
                             CMemoryUsage::TMemoryUsagePtr /*mem*/) {
@@ -1026,7 +1026,7 @@ public:
     }
 
     //! Overload for std::pair.
-    template <typename T, typename V>
+    template<typename T, typename V>
     static void
     dynamicSize(const char* name, const std::pair<T, V>& t, CMemoryUsage::TMemoryUsagePtr mem) {
         std::string keyName(name);

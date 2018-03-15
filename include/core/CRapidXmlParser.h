@@ -154,12 +154,12 @@ private:
 
     //! Parse a buffer with some specified RapidXml flags set
     //! without modifying the contents of the buffer
-    template <int FLAGS>
+    template<int FLAGS>
     bool parseBufferNonDestructive(const char* begin, size_t length);
 
     //! Parse a string with some specified RapidXml flags set
     //! and modifying the contents of the buffer
-    template <int FLAGS>
+    template<int FLAGS>
     bool parseBufferDestructive(char* begin, size_t length);
 
 private:

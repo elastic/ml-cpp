@@ -179,24 +179,24 @@ bool CLogger::setLoggingLevel(ELevel level) {
     log4cxx::LevelPtr levelToSet(0);
 
     switch (level) {
-        case E_Fatal:
-            levelToSet = log4cxx::Level::getFatal();
-            break;
-        case E_Error:
-            levelToSet = log4cxx::Level::getError();
-            break;
-        case E_Warn:
-            levelToSet = log4cxx::Level::getWarn();
-            break;
-        case E_Info:
-            levelToSet = log4cxx::Level::getInfo();
-            break;
-        case E_Debug:
-            levelToSet = log4cxx::Level::getDebug();
-            break;
-        case E_Trace:
-            levelToSet = log4cxx::Level::getTrace();
-            break;
+    case E_Fatal:
+        levelToSet = log4cxx::Level::getFatal();
+        break;
+    case E_Error:
+        levelToSet = log4cxx::Level::getError();
+        break;
+    case E_Warn:
+        levelToSet = log4cxx::Level::getWarn();
+        break;
+    case E_Info:
+        levelToSet = log4cxx::Level::getInfo();
+        break;
+    case E_Debug:
+        levelToSet = log4cxx::Level::getDebug();
+        break;
+    case E_Trace:
+        levelToSet = log4cxx::Level::getTrace();
+        break;
     }
 
     // Defend against corrupt argument

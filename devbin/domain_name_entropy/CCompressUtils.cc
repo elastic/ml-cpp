@@ -35,31 +35,31 @@ bool CCompressUtils::compressString(bool finish, const std::string& str) {
     int level = Z_DEFAULT_COMPRESSION;
 
     switch (m_State) {
-        case E_Compressing: {
-            // fall through
-            break;
-        }
-        case E_Uninitialized: {
-            // allocate deflate state
-            m_ZlibStrm.zalloc = Z_NULL;
-            m_ZlibStrm.zfree = Z_NULL;
-            m_ZlibStrm.opaque = Z_NULL;
-            int ret = ::deflateInit(&m_ZlibStrm, level);
-            if (ret != Z_OK) {
-                LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
-                return false;
-            }
-            m_State = E_Compressing;
-            break;
-        }
-        case E_Uncompressing: {
-            LOG_ERROR("Can not compress uncompressed stream");
+    case E_Compressing: {
+        // fall through
+        break;
+    }
+    case E_Uninitialized: {
+        // allocate deflate state
+        m_ZlibStrm.zalloc = Z_NULL;
+        m_ZlibStrm.zfree = Z_NULL;
+        m_ZlibStrm.opaque = Z_NULL;
+        int ret = ::deflateInit(&m_ZlibStrm, level);
+        if (ret != Z_OK) {
+            LOG_ERROR("Error initializing Z stream: " << ::zError(ret));
             return false;
         }
-        case E_IsFinished: {
-            LOG_ERROR("Can not compress finished stream");
-            return false;
-        }
+        m_State = E_Compressing;
+        break;
+    }
+    case E_Uncompressing: {
+        LOG_ERROR("Can not compress uncompressed stream");
+        return false;
+    }
+    case E_IsFinished: {
+        LOG_ERROR("Can not compress finished stream");
+        return false;
+    }
     }
 
     m_ZlibStrm.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(str.data()));

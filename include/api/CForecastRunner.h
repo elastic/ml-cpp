@@ -224,7 +224,7 @@ private:
     void sendFinalMessage(const SForecast& forecastJob, const std::string& message) const;
 
     //! send a message using \p write
-    template <typename WRITE>
+    template<typename WRITE>
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job

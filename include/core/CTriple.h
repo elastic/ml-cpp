@@ -39,7 +39,7 @@ namespace core {
 //! It also implements hash_value which isn't implemented by boost::tuple
 //! meaning it can be used as a boost::unordered_map key provided the
 //! underlying types can be hashed using a boost::hasher.
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 class CTriple : private boost::equality_comparable<CTriple<T1, T2, T3>,
                                                    boost::partially_ordered<CTriple<T1, T2, T3>>> {
 public:
@@ -98,17 +98,17 @@ public:
     T3 third;
 };
 
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 CTriple<T1, T2, T3> make_triple(const T1& first, const T2& second, const T3& third) {
     return CTriple<T1, T2, T3>(first, second, third);
 }
 
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 std::size_t hash_value(const CTriple<T1, T2, T3>& triple) {
     return triple.hash();
 }
 
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 std::ostream& operator<<(std::ostream& o, const CTriple<T1, T2, T3>& triple) {
     return o << '(' << triple.first << ',' << triple.second << ',' << triple.third << ')';
 }

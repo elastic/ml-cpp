@@ -528,7 +528,7 @@ bool CNaturalBreaksClassifier::naturalBreaks(const TDoubleTupleVec& categories,
     return naturalBreaksImpl(categories, n, p, target, result);
 }
 
-template <typename TUPLE>
+template<typename TUPLE>
 bool CNaturalBreaksClassifier::naturalBreaksImpl(const std::vector<TUPLE>& categories,
                                                  std::size_t n,
                                                  std::size_t p,

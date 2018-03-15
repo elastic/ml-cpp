@@ -30,7 +30,7 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! Only stores a reference to the processor in case it's expensive to copy
 //!
-template <typename THREADFARM, typename PROCESSOR, typename MESSAGE, typename RESULT>
+template<typename THREADFARM, typename PROCESSOR, typename MESSAGE, typename RESULT>
 class CThreadFarmReceiver {
 public:
     CThreadFarmReceiver(PROCESSOR& processor, THREADFARM& threadFarm)

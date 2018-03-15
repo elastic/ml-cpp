@@ -54,9 +54,9 @@ namespace {
 const double MINIMUM_GAUSSIAN_MEAN = 100.0;
 
 // Wrapper for static cast which can be used with STL algorithms.
-template <typename TARGET_TYPE>
+template<typename TARGET_TYPE>
 struct SStaticCast {
-    template <typename SOURCE_TYPE>
+    template<typename SOURCE_TYPE>
     inline TARGET_TYPE operator()(const SOURCE_TYPE& source) const {
         return static_cast<TARGET_TYPE>(source);
     }
@@ -91,7 +91,7 @@ struct SPlusWeight {
 //! \param[in] shape The shape of the rate prior.
 //! \param[in] rate The rate of the rate prior.
 //! \param[out] result Filled in with the aggregation of results of \p func.
-template <typename FUNC, typename AGGREGATOR, typename RESULT>
+template<typename FUNC, typename AGGREGATOR, typename RESULT>
 bool evaluateFunctionOnJointDistribution(const TWeightStyleVec& weightStyles,
                                          const TDouble1Vec& samples,
                                          const TDouble4Vec1Vec& weights,

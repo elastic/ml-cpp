@@ -86,26 +86,26 @@ int COsFileFuncs::open(const char* path, int oflag, TMode pmode) {
 
     DWORD creationDisposition(0);
     switch (oflag & (CREAT | EXCL | TRUNC)) {
-        case CREAT:
-            creationDisposition = OPEN_ALWAYS;
-            break;
-        case CREAT | EXCL:
-        case CREAT | TRUNC | EXCL:
-            creationDisposition = CREATE_NEW;
-            break;
-        case TRUNC:
-            creationDisposition = TRUNCATE_EXISTING;
-            break;
-        case TRUNC | EXCL:
-            // This doesn't make sense
-            errno = EINVAL;
-            return -1;
-        case CREAT | TRUNC:
-            creationDisposition = CREATE_ALWAYS;
-            break;
-        default:
-            creationDisposition = OPEN_EXISTING;
-            break;
+    case CREAT:
+        creationDisposition = OPEN_ALWAYS;
+        break;
+    case CREAT | EXCL:
+    case CREAT | TRUNC | EXCL:
+        creationDisposition = CREATE_NEW;
+        break;
+    case TRUNC:
+        creationDisposition = TRUNCATE_EXISTING;
+        break;
+    case TRUNC | EXCL:
+        // This doesn't make sense
+        errno = EINVAL;
+        return -1;
+    case CREAT | TRUNC:
+        creationDisposition = CREATE_ALWAYS;
+        break;
+    default:
+        creationDisposition = OPEN_EXISTING;
+        break;
     }
 
     DWORD attributes(FILE_ATTRIBUTE_NORMAL);
@@ -122,33 +122,33 @@ int COsFileFuncs::open(const char* path, int oflag, TMode pmode) {
                                0);
     if (handle == INVALID_HANDLE_VALUE) {
         switch (GetLastError()) {
-            case ERROR_FILE_NOT_FOUND:
-            case ERROR_PATH_NOT_FOUND:
-            case ERROR_INVALID_DRIVE:
-            case ERROR_BAD_PATHNAME:
-                errno = ENOENT;
-                break;
-            case ERROR_TOO_MANY_OPEN_FILES:
-                errno = EMFILE;
-                break;
-            case ERROR_ACCESS_DENIED:
-            case ERROR_NETWORK_ACCESS_DENIED:
-            case ERROR_LOCK_VIOLATION:
-            case ERROR_DRIVE_LOCKED:
-                errno = EACCES;
-                break;
-            case ERROR_INVALID_HANDLE:
-                errno = EBADF;
-                break;
-            case ERROR_NOT_ENOUGH_MEMORY:
-                errno = ENOMEM;
-                break;
-            case ERROR_DISK_FULL:
-                errno = ENOSPC;
-                break;
-            default:
-                errno = EINVAL;
-                break;
+        case ERROR_FILE_NOT_FOUND:
+        case ERROR_PATH_NOT_FOUND:
+        case ERROR_INVALID_DRIVE:
+        case ERROR_BAD_PATHNAME:
+            errno = ENOENT;
+            break;
+        case ERROR_TOO_MANY_OPEN_FILES:
+            errno = EMFILE;
+            break;
+        case ERROR_ACCESS_DENIED:
+        case ERROR_NETWORK_ACCESS_DENIED:
+        case ERROR_LOCK_VIOLATION:
+        case ERROR_DRIVE_LOCKED:
+            errno = EACCES;
+            break;
+        case ERROR_INVALID_HANDLE:
+            errno = EBADF;
+            break;
+        case ERROR_NOT_ENOUGH_MEMORY:
+            errno = ENOMEM;
+            break;
+        case ERROR_DISK_FULL:
+            errno = ENOSPC;
+            break;
+        default:
+            errno = EINVAL;
+            break;
         }
         return -1;
     }

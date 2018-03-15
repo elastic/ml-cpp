@@ -433,7 +433,7 @@ void CRapidXmlParser::convertChildren(const CXmlNodeWithChildren& current,
     }
 }
 
-template <int FLAGS>
+template<int FLAGS>
 bool CRapidXmlParser::parseBufferNonDestructive(const char* begin, size_t length) {
     if (m_XmlBufSize <= length) {
         m_XmlBufSize = length + 1;
@@ -451,7 +451,7 @@ bool CRapidXmlParser::parseBufferNonDestructive(const char* begin, size_t length
     return true;
 }
 
-template <int FLAGS>
+template<int FLAGS>
 bool CRapidXmlParser::parseBufferDestructive(char* begin, size_t length) {
     m_Doc.clear();
     m_NavigatedNode = 0;

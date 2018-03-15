@@ -25,7 +25,7 @@ typedef std::pair<double, double> TDoubleDoublePr;
 
 //! brief Invokes the support function on a distribution.
 struct SSupport {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     TDoubleDoublePr operator()(const DISTRIBUTION& distribution) const {
         return support(distribution);
     }
@@ -33,7 +33,7 @@ struct SSupport {
 
 //! \brief Invokes the mode function on a distribution.
 struct SMode {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution) const {
         return mode(distribution);
     }
@@ -41,7 +41,7 @@ struct SMode {
 
 //! \brief Invokes the mode function on a distribution.
 struct SMean {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution) const {
         return mean(distribution);
     }
@@ -49,7 +49,7 @@ struct SMean {
 
 //! \brief Invokes CTools::safePdf on a distribution.
 struct SPdf {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution, double x) const {
         return CTools::safePdf(distribution, x);
     }
@@ -57,7 +57,7 @@ struct SPdf {
 
 //! \brief Invokes CTools::safeCdf on a distribution.
 struct SCdf {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution, double x) const {
         return CTools::safeCdf(distribution, x);
     }
@@ -65,7 +65,7 @@ struct SCdf {
 
 //! \brief Invokes CTools::safeCdfComplement on a distribution.
 struct SCdfComplement {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution, double x) const {
         return CTools::safeCdfComplement(distribution, x);
     }
@@ -73,20 +73,20 @@ struct SCdfComplement {
 
 //! \brief Invokes the quantile function on a distribution.
 struct SQuantile {
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     double operator()(const DISTRIBUTION& distribution, double x) const {
         return quantile(distribution, x);
     }
 };
 
 //! \brief Invokes a specified binary action on a distribution.
-template <typename RESULT, typename VISITOR_ACTION>
+template<typename RESULT, typename VISITOR_ACTION>
 class CUnaryVisitor {
 public:
     typedef RESULT result_type;
 
 public:
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     RESULT operator()(const DISTRIBUTION& distribution) const {
         return action(distribution);
     }
@@ -96,13 +96,13 @@ private:
 };
 
 //! \brief Invokes a specified binary action on a distribution.
-template <typename RESULT, typename VISITOR_ACTION>
+template<typename RESULT, typename VISITOR_ACTION>
 class CBinaryVisitor {
 public:
     typedef RESULT result_type;
 
 public:
-    template <typename DISTRIBUTION>
+    template<typename DISTRIBUTION>
     RESULT operator()(const DISTRIBUTION& distribution, double x) const {
         return action(distribution, x);
     }

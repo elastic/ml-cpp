@@ -38,7 +38,7 @@ namespace kmeans_fast_detail {
 typedef std::vector<std::size_t> TSizeVec;
 
 //! Get the closest filtered centre to \p point.
-template <typename POINT, typename ITR>
+template<typename POINT, typename ITR>
 std::size_t closest(const std::vector<POINT>& centres, ITR filter, ITR end, const POINT& point) {
     std::size_t result = *filter;
     double d = (point - centres[result]).euclidean();
@@ -53,7 +53,7 @@ std::size_t closest(const std::vector<POINT>& centres, ITR filter, ITR end, cons
 }
 
 //! Get the closest filtered centre to \p point.
-template <typename POINT>
+template<typename POINT>
 std::size_t closest(const std::vector<POINT>& centres, const TSizeVec& filter, const POINT& point) {
     return closest(centres, filter.begin(), filter.end(), point);
 }
@@ -79,7 +79,7 @@ std::size_t closest(const std::vector<POINT>& centres, const TSizeVec& filter, c
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template <typename POINT>
+template<typename POINT>
 class CKMeansFast {
 public:
     typedef std::vector<std::size_t> TSizeVec;
@@ -487,7 +487,7 @@ private:
 //!
 //! DESCRIPTION:\n
 //! See https://en.wikipedia.org/wiki/K-means%2B%2B for details.
-template <typename POINT, typename RNG>
+template<typename POINT, typename RNG>
 class CKMeansPlusPlusInitialization : private core::CNonCopyable {
 public:
     typedef std::vector<double> TDoubleVec;

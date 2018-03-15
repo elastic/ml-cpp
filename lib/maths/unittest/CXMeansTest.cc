@@ -54,8 +54,8 @@ typedef maths::CSymmetricMatrixNxN<double, 4> TMatrix4;
 typedef std::vector<TMatrix4> TMatrix4Vec;
 
 //! \brief Expose internals of x-means for testing.
-template <typename POINT,
-          typename COST = maths::CSphericalGaussianInfoCriterion<POINT, maths::E_BIC>>
+template<typename POINT,
+         typename COST = maths::CSphericalGaussianInfoCriterion<POINT, maths::E_BIC>>
 class CXMeansForTest : public maths::CXMeans<POINT, COST> {
 public:
     typedef typename maths::CXMeans<POINT, COST>::TUInt64USet TUInt64USet;
@@ -76,7 +76,7 @@ public:
     }
 };
 
-template <typename POINT>
+template<typename POINT>
 double logfSphericalGaussian(const POINT& mean, double variance, const POINT& x) {
     double d = static_cast<double>(x.dimension());
     double r = (x - mean).euclidean();
@@ -91,7 +91,7 @@ public:
                ::log(maths::CBasicStatistics::count(m_Divergence));
     }
 
-    template <typename POINT>
+    template<typename POINT>
     void add(const std::vector<POINT>& points) {
         typename maths::CBasicStatistics::SSampleMeanVar<POINT>::TAccumulator moments;
         moments.add(points);

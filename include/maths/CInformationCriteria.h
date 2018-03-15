@@ -33,11 +33,11 @@ namespace maths {
 namespace information_criteria_detail {
 
 //! \brief Defines the sample covariance accumulator.
-template <typename T>
+template<typename T>
 struct SSampleCovariances {};
 
 //! \brief Defines the sample covariance accumulator for a CVectorNx1.
-template <typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct SSampleCovariances<CVectorNx1<T, N>> {
     typedef CBasicStatistics::SSampleCovariances<T, N> Type;
 };
@@ -105,7 +105,7 @@ enum EInfoCriterionType { E_AICc, E_BIC };
 //!
 //! See also http://en.wikipedia.org/wiki/Bayesian_information_criterion
 //! and http://en.wikipedia.org/wiki/Akaike_information_criterion.
-template <typename POINT, EInfoCriterionType TYPE>
+template<typename POINT, EInfoCriterionType TYPE>
 class CSphericalGaussianInfoCriterion {
 public:
     typedef std::vector<POINT> TPointVec;
@@ -181,11 +181,10 @@ public:
         double logN = ::log(m_N);
         double p = (m_D * m_K + 2.0 * m_K - 1.0);
         switch (TYPE) {
-            case E_BIC:
-                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-            case E_AICc:
-                return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
-                       p * (p + 1.0) / (m_N - p - 1.0);
+        case E_BIC:
+            return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+        case E_AICc:
+            return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
         }
         return 0.0;
     }
@@ -209,7 +208,7 @@ private:
 //! This places no restriction on the covariance matrix in particular
 //! it is assumed to have \f$frac{D(D+1)}{2}\f$ parameters. For more
 //! details on the information criteria see CSphericalGaussianInfoCriterion.
-template <typename POINT, EInfoCriterionType TYPE>
+template<typename POINT, EInfoCriterionType TYPE>
 class CGaussianInfoCriterion {
 public:
     typedef std::vector<POINT> TPointVec;
@@ -271,11 +270,10 @@ public:
         double logN = ::log(m_N);
         double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
         switch (TYPE) {
-            case E_BIC:
-                return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
-            case E_AICc:
-                return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p +
-                       p * (p + 1.0) / (m_N - p - 1.0);
+        case E_BIC:
+            return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
+        case E_AICc:
+            return -2.0 * (m_Likelihood - m_N * logN) + 2.0 * p + p * (p + 1.0) / (m_N - p - 1.0);
         }
         return 0.0;
     }

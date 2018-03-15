@@ -234,7 +234,7 @@ public:
     }
 
 private:
-    template <typename T>
+    template<typename T>
     std::size_t hash(const T& key) const {
         core::CHashing::CSafeMurmurHash2String64 stringHasher;
         uint64_t result = stringHasher(boost::unwrap_ref(key.first));
@@ -263,7 +263,7 @@ public:
     }
 
 private:
-    template <typename U, typename V>
+    template<typename U, typename V>
     bool equal(const U& lhs, const V& rhs) const {
         return boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second) &&
                boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
