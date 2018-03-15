@@ -286,67 +286,68 @@ void CTrendComponentTest::testForecast() {
 
     test::CRandomNumbers rng;
 
-    auto testForecast = [&rng] (TGenerator generate,
-                                core_t::TTime start,
-                                core_t::TTime end) {
-                            //std::ofstream file;
-                            //file.open("results.m");
-                            //TDoubleVec predictions;
-                            //TDoubleVec forecastPredictions;
-                            //TDoubleVec forecastLower;
-                            //TDoubleVec forecastUpper;
+    auto testForecast =
+        [&rng] (TGenerator generate,
+                core_t::TTime start,
+                core_t::TTime end) {
+            //std::ofstream file;
+            //file.open("results.m");
+            //TDoubleVec predictions;
+            //TDoubleVec forecastPredictions;
+            //TDoubleVec forecastLower;
+            //TDoubleVec forecastUpper;
 
-                            core_t::TTime bucketLength{600};
-                            TDoubleVec    values(generate(rng, bucketLength, start, end + 1000 * bucketLength));
+            core_t::TTime bucketLength{600};
+            TDoubleVec    values(generate(rng, bucketLength, start, end + 1000 * bucketLength));
 
-                            maths::CTrendComponent      component{0.012};
-                            maths::CDecayRateController controller(  maths::CDecayRateController::E_PredictionBias
-                                                                     | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
+            maths::CTrendComponent      component{0.012};
+            maths::CDecayRateController controller(  maths::CDecayRateController::E_PredictionBias
+                                                     | maths::CDecayRateController::E_PredictionErrorIncrease, 1);
 
-                            core_t::TTime time{0};
-                            for (/**/; time < end; time += bucketLength) {
-                                component.add(time, values[time / bucketLength]);
-                                component.propagateForwardsByTime(bucketLength);
+            core_t::TTime time{0};
+            for (/**/; time < end; time += bucketLength) {
+                component.add(time, values[time / bucketLength]);
+                component.propagateForwardsByTime(bucketLength);
 
-                                double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
-                                controller.multiplier({prediction},
-                                                      {{values[time / bucketLength] - prediction}},
-                                                      bucketLength, 0.3, 0.012);
-                                component.decayRate(0.012 * controller.multiplier());
-                                //predictions.push_back(prediction);
-                            }
+                double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
+                controller.multiplier({prediction},
+                                      {{values[time / bucketLength] - prediction}},
+                                      bucketLength, 0.3, 0.012);
+                component.decayRate(0.012 * controller.multiplier());
+                //predictions.push_back(prediction);
+            }
 
-                            component.shiftOrigin(time);
+            component.shiftOrigin(time);
 
-                            TDouble3VecVec forecast;
-                            component.forecast(time, time + 1000 * bucketLength, 3600, 95.0, forecast);
+            TDouble3VecVec forecast;
+            component.forecast(time, time + 1000 * bucketLength, 3600, 95.0, forecast);
 
-                            TMeanAccumulator meanError;
-                            TMeanAccumulator meanErrorAt95;
-                            for (auto &&errorbar : forecast) {
-                                core_t::TTime bucket{(time - start) / bucketLength};
-                                meanError.add(  std::fabs((values[bucket] - errorbar[1])
-                                                          / std::fabs(values[bucket])));
-                                meanErrorAt95.add(  std::max(std::max(values[bucket] - errorbar[2],
-                                                                      errorbar[0] - values[bucket]), 0.0)
-                                                    / std::fabs(values[bucket]));
-                                //forecastLower.push_back(errorbar[0]);
-                                //forecastPredictions.push_back(errorbar[1]);
-                                //forecastUpper.push_back(errorbar[2]);
-                            }
+            TMeanAccumulator meanError;
+            TMeanAccumulator meanErrorAt95;
+            for (auto &&errorbar : forecast) {
+                core_t::TTime bucket{(time - start) / bucketLength};
+                meanError.add(  std::fabs((values[bucket] - errorbar[1])
+                                          / std::fabs(values[bucket])));
+                meanErrorAt95.add(  std::max(std::max(values[bucket] - errorbar[2],
+                                                      errorbar[0] - values[bucket]), 0.0)
+                                    / std::fabs(values[bucket]));
+                //forecastLower.push_back(errorbar[0]);
+                //forecastPredictions.push_back(errorbar[1]);
+                //forecastUpper.push_back(errorbar[2]);
+            }
 
-                            //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
-                            //file << "p  = " << core::CContainerPrinter::print(predictions) << ";" << std::endl;
-                            //file << "fl = " << core::CContainerPrinter::print(forecastLower) << ";" << std::endl;
-                            //file << "fm = " << core::CContainerPrinter::print(forecastPredictions) << ";" << std::endl;
-                            //file << "fu = " << core::CContainerPrinter::print(forecastUpper) << ";" << std::endl;
+            //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
+            //file << "p  = " << core::CContainerPrinter::print(predictions) << ";" << std::endl;
+            //file << "fl = " << core::CContainerPrinter::print(forecastLower) << ";" << std::endl;
+            //file << "fm = " << core::CContainerPrinter::print(forecastPredictions) << ";" << std::endl;
+            //file << "fu = " << core::CContainerPrinter::print(forecastUpper) << ";" << std::endl;
 
-                            LOG_DEBUG("error       = " << maths::CBasicStatistics::mean(meanError));
-                            LOG_DEBUG("error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
+            LOG_DEBUG("error       = " << maths::CBasicStatistics::mean(meanError));
+            LOG_DEBUG("error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
 
-                            return std::make_pair(maths::CBasicStatistics::mean(meanError),
-                                                  maths::CBasicStatistics::mean(meanErrorAt95));
-                        };
+            return std::make_pair(maths::CBasicStatistics::mean(meanError),
+                                  maths::CBasicStatistics::mean(meanErrorAt95));
+        };
 
     double error;
     double errorAt95;
