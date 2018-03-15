@@ -24,7 +24,7 @@ class CToolsTest : public CppUnit::TestFixture
         void testProbabilityOfLessLikelySample(void);
         void testIntervalExpectation(void);
         void testMixtureProbabilityOfLessLikelySample(void);
-        void testDeviation(void);
+        void testAnomalyScore(void);
         void testSpread(void);
         void testFastLog(void);
         void testMiscellaneous(void);

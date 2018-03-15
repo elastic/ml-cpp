@@ -212,7 +212,7 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
         return false;
     }
 
-    result = CTools::deviation((lowerBound + upperBound) / 2.0);
+    result = CTools::anomalyScore((lowerBound + upperBound) / 2.0);
 
     return true;
 }

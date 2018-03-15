@@ -236,7 +236,7 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode &node)
     node.s_AggregationStyle = style;
     node.s_SmallestChildProbability = probability;
     node.s_SmallestDescendantProbability = probability;
-    node.s_RawAnomalyScore = maths::CTools::deviation(probability);
+    node.s_RawAnomalyScore = maths::CTools::anomalyScore(probability);
 }
 
 void CHierarchicalResultsAggregator::aggregateNode(const TNode &node, bool pivot)
