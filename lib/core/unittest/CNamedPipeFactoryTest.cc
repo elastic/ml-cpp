@@ -42,8 +42,7 @@ const char* TEST_PIPE_NAME = "testfiles/testpipe";
 
 class CThreadDataWriter : public ml::core::CThread {
 public:
-    CThreadDataWriter(const std::string& fileName, size_t size)
-        : m_FileName(fileName), m_Size(size) {}
+    CThreadDataWriter(const std::string& fileName, size_t size) : m_FileName(fileName), m_Size(size) {}
 
 protected:
     virtual void run(void) {
@@ -135,27 +134,20 @@ private:
 CppUnit::Test* CNamedPipeFactoryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNamedPipeFactoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppReader",
-                                                 &CNamedPipeFactoryTest::testServerIsCppReader));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCReader",
-                                                 &CNamedPipeFactoryTest::testServerIsCReader));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCppWriter",
-                                                 &CNamedPipeFactoryTest::testServerIsCppWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCWriter",
-                                                 &CNamedPipeFactoryTest::testServerIsCWriter));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testCancelBlock",
-                                                       &CNamedPipeFactoryTest::testCancelBlock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfRegularFile",
-                                                 &CNamedPipeFactoryTest::testErrorIfRegularFile));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfSymlink",
-                                                       &CNamedPipeFactoryTest::testErrorIfSymlink));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
+        "CNamedPipeFactoryTest::testServerIsCppReader", &CNamedPipeFactoryTest::testServerIsCppReader));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCReader",
+                                                                         &CNamedPipeFactoryTest::testServerIsCReader));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
+        "CNamedPipeFactoryTest::testServerIsCppWriter", &CNamedPipeFactoryTest::testServerIsCppWriter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testServerIsCWriter",
+                                                                         &CNamedPipeFactoryTest::testServerIsCWriter));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testCancelBlock",
+                                                                         &CNamedPipeFactoryTest::testCancelBlock));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>(
+        "CNamedPipeFactoryTest::testErrorIfRegularFile", &CNamedPipeFactoryTest::testErrorIfRegularFile));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CNamedPipeFactoryTest>("CNamedPipeFactoryTest::testErrorIfSymlink",
+                                                                         &CNamedPipeFactoryTest::testErrorIfSymlink));
 
     return suiteOfTests;
 }
@@ -164,8 +156,7 @@ void CNamedPipeFactoryTest::testServerIsCppReader(void) {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(strm);
 
     static const std::streamsize BUF_SIZE = 512;
@@ -191,8 +182,7 @@ void CNamedPipeFactoryTest::testServerIsCReader(void) {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TFileP file =
-        ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TFileP file = ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(file);
 
     static const size_t BUF_SIZE = 512;
@@ -218,8 +208,7 @@ void CNamedPipeFactoryTest::testServerIsCppWriter(void) {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TOStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(strm);
 
     size_t charsLeft(TEST_SIZE);
@@ -245,8 +234,7 @@ void CNamedPipeFactoryTest::testServerIsCWriter(void) {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TFileP file =
-        ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TFileP file = ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(file);
 
     size_t charsLeft(TEST_SIZE);
@@ -271,16 +259,14 @@ void CNamedPipeFactoryTest::testCancelBlock(void) {
     CThreadBlockCanceller cancellerThread(ml::core::CThread::currentThreadId());
     CPPUNIT_ASSERT(cancellerThread.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TOStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
     CPPUNIT_ASSERT(strm == 0);
 
     CPPUNIT_ASSERT(cancellerThread.stop());
 }
 
 void CNamedPipeFactoryTest::testErrorIfRegularFile(void) {
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
+    ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
     CPPUNIT_ASSERT(strm == 0);
 }
 
@@ -301,8 +287,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink(void) {
     CPPUNIT_ASSERT_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
     CPPUNIT_ASSERT_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME);
+    ml::core::CNamedPipeFactory::TIStreamP strm = ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME);
     CPPUNIT_ASSERT(strm == 0);
 
     CPPUNIT_ASSERT_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));

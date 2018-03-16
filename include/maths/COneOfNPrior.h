@@ -91,9 +91,7 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which we revert to the non-informative prior.
     //! \warning This class takes ownership of \p models.
-    COneOfNPrior(const TDoublePriorPtrPrVec& models,
-                 maths_t::EDataType dataType,
-                 double decayRate = 0.0);
+    COneOfNPrior(const TDoublePriorPtrPrVec& models, maths_t::EDataType dataType, double decayRate = 0.0);
 
     //! Construct from part of a state document.
     COneOfNPrior(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
@@ -142,9 +140,8 @@ public:
     //! Forward the offset to the model priors.
     //!
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights);
+    virtual double
+    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Get the maximum model offset.
     virtual double offset(void) const;
@@ -157,9 +154,8 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights);
+    virtual void
+    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -181,14 +177,12 @@ public:
     virtual double nearestMarginalLikelihoodMean(double value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                          const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                              const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -203,10 +197,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range (0.0, 100.0].
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                         const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.
@@ -219,11 +213,10 @@ public:
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
-                               double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble1Vec& samples,
+                                                                          const TDouble4Vec1Vec& weights,
+                                                                          double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -362,12 +355,10 @@ private:
 
 private:
     //! Read parameters from \p traverser.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Add a model vector entry reading parameters from \p traverser.
-    bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                     core::CStateRestoreTraverser& traverser);
+    bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Get the normalized model weights.
     TDoubleSizePr5Vec normalizedLogWeights(void) const;

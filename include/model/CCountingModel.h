@@ -114,10 +114,8 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid Ignored.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const;
+    virtual TDouble1Vec
+    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Get the mean bucket count or the reference model mean bucket
     //! count if one is defined for the person identified by \p pid.
@@ -155,9 +153,8 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor);
+    virtual void
+    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -166,9 +163,7 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! This samples the bucket statistics, in the time interval
     //! [\p startTime, \p endTime].
@@ -176,8 +171,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! No-op.
     virtual void prune(std::size_t maximumAge);

@@ -20,9 +20,8 @@
 CppUnit::Test* CShellArgQuoterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CShellArgQuoterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CShellArgQuoterTest>("CShellArgQuoterTest::testQuote",
-                                                     &CShellArgQuoterTest::testQuote));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CShellArgQuoterTest>("CShellArgQuoterTest::testQuote",
+                                                                       &CShellArgQuoterTest::testQuote));
 
     return suiteOfTests;
 }

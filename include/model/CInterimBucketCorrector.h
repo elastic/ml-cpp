@@ -70,8 +70,7 @@ public:
     //! \param[in] currentCount The total count in the bucket of interest.
     //! \param[in] mode The mode that corresponds to the given \p value.
     //! \param[in] value The value to be corrected.
-    double
-    corrections(core_t::TTime time, std::size_t currentCount, double mode, double value) const;
+    double corrections(core_t::TTime time, std::size_t currentCount, double mode, double value) const;
 
     //! Calculates corrections for the \p values based on the given \p modes
     //! and the estimated bucket completeness.

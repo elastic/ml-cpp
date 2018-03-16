@@ -90,12 +90,7 @@ public:
     //! \param[out] xBest Filled in with the minimum function value argument
     //! visited.
     //! \param[out] fi Filled in with the sequence of function values.
-    bool run(std::size_t n,
-             const TVector& x0,
-             const CFunction& f,
-             const CGradient& gf,
-             TVector& xBest,
-             TDoubleVec& fi);
+    bool run(std::size_t n, const TVector& x0, const CFunction& f, const CGradient& gf, TVector& xBest, TDoubleVec& fi);
 
 private:
     //! The multiplier of the unit vector along the gradient.

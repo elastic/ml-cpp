@@ -24,8 +24,7 @@ const std::string INDEX_TAG("a");
 CClustererTypes::CIndexGenerator::CIndexGenerator(void) : m_IndexHeap(new TSizeVec(1u, 0u)) {
 }
 
-bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(
-    core::CStateRestoreTraverser& traverser) {
+bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_IndexHeap->clear();
 
     do {
@@ -38,8 +37,7 @@ bool CClustererTypes::CIndexGenerator::acceptRestoreTraverser(
     return true;
 }
 
-void CClustererTypes::CIndexGenerator::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CClustererTypes::CIndexGenerator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(INDEX_TAG, *m_IndexHeap, inserter);
 }
 
@@ -64,8 +62,7 @@ void CClustererTypes::CIndexGenerator::recycle(std::size_t index) {
     std::push_heap(m_IndexHeap->begin(), m_IndexHeap->end(), std::greater<std::size_t>());
 }
 
-void CClustererTypes::CIndexGenerator::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CClustererTypes::CIndexGenerator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CClusterer::CIndexGenerator");
     core::CMemoryDebug::dynamicSize("m_IndexHeap", m_IndexHeap, mem);
 }

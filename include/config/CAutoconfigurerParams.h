@@ -185,18 +185,15 @@ public:
 
     //! The smallest permitted fraction of populated buckets for \p function and
     //! \p ignoreEmpty.
-    double minimumPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                          bool ignoreEmpty) const;
+    double minimumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
 
     //! A fraction of populated buckets that is considered high for \p function
     //! and \p ignoreEmpty so that higher fractions will be penalized.
-    double highPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                       bool ignoreEmpty) const;
+    double highPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
 
     //! The maximum permitted fraction of populated buckets for \p function and
     //! \p ignoreEmpty.
-    double maximumPopulatedBucketFraction(config_t::EFunctionCategory function,
-                                          bool ignoreEmpty) const;
+    double maximumPopulatedBucketFraction(config_t::EFunctionCategory function, bool ignoreEmpty) const;
 
     //! Get the candidate bucket lengths to test for each detector.
     const TTimeVec& candidateBucketLengths(void) const;

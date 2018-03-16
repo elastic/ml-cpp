@@ -29,11 +29,11 @@
 #include <iterator>
 
 namespace Eigen {
-#define LESS_OR_GREATER(l, r)                                                                      \
-    if (l < r) {                                                                                   \
-        return true;                                                                               \
-    } else if (r > l) {                                                                            \
-        return false;                                                                              \
+#define LESS_OR_GREATER(l, r)                                                                                          \
+    if (l < r) {                                                                                                       \
+        return true;                                                                                                   \
+    } else if (r > l) {                                                                                                \
+        return false;                                                                                                  \
     }
 
 //! Less than on Eigen sparse matrix.
@@ -78,8 +78,7 @@ bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lh
 
 //! Free swap picked up by std:: algorithms etc.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX>
-void swap(SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
-          SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
+void swap(SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs, SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     lhs.swap(rhs);
 }
 
@@ -130,8 +129,7 @@ using CSparseVectorCoordinate = Eigen::Triplet<SCALAR>;
 
 //! Create a tuple with which to initialize a sparse matrix.
 template<typename SCALAR>
-inline CSparseMatrixElement<SCALAR>
-matrixElement(std::ptrdiff_t row, std::ptrdiff_t column, SCALAR value) {
+inline CSparseMatrixElement<SCALAR> matrixElement(std::ptrdiff_t row, std::ptrdiff_t column, SCALAR value) {
     return CSparseMatrixElement<SCALAR>(row, column, value);
 }
 
@@ -148,8 +146,7 @@ class CSparseVectorIndexIterator : public std::iterator<std::input_iterator_tag,
         : m_Vector(&vector), m_Base(vector, index) {}
 
     bool operator==(const CSparseVectorIndexIterator& rhs) const {
-        return m_Vector == rhs.m_Vector && m_Base.row() == rhs.m_Base.row() &&
-               m_Base.col() == rhs.m_Base.col();
+        return m_Vector == rhs.m_Vector && m_Base.row() == rhs.m_Base.row() && m_Base.col() == rhs.m_Base.col();
     }
     bool operator!=(const CSparseVectorIndexIterator& rhs) const { return !(*this == rhs); }
 
@@ -204,9 +201,7 @@ using CDenseVector = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
 //! \brief Gets a zero dense vector with specified dimension.
 template<typename SCALAR>
 struct SZero<CDenseVector<SCALAR>> {
-    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension) {
-        return CDenseVector<SCALAR>::Zero(dimension);
-    }
+    static CDenseVector<SCALAR> get(std::ptrdiff_t dimension) { return CDenseVector<SCALAR>::Zero(dimension); }
 };
 
 //! \brief Eigen matrix typedef.
@@ -301,9 +296,7 @@ public:
 
     std::size_t rows(void) const { return m_Type->rows(); }
 
-    double get(std::size_t i, std::size_t j) const {
-        return (m_Type->template selfadjointView<Eigen::Lower>())(i, j);
-    }
+    double get(std::size_t i, std::size_t j) const { return (m_Type->template selfadjointView<Eigen::Lower>())(i, j); }
 
 private:
     const MATRIX* m_Type;

@@ -18,13 +18,11 @@
 namespace ml {
 namespace model {
 
-CPersonFrequencyGreaterThan::CPersonFrequencyGreaterThan(const CAnomalyDetectorModel& model,
-                                                         double threshold)
+CPersonFrequencyGreaterThan::CPersonFrequencyGreaterThan(const CAnomalyDetectorModel& model, double threshold)
     : m_Model(&model), m_Threshold(threshold) {
 }
 
-CAttributeFrequencyGreaterThan::CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel& model,
-                                                               double threshold)
+CAttributeFrequencyGreaterThan::CAttributeFrequencyGreaterThan(const CAnomalyDetectorModel& model, double threshold)
     : m_Model(&model), m_Threshold(threshold) {
 }
 }

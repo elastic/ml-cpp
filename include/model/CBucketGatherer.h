@@ -113,8 +113,7 @@ public:
 
     //! \brief Checks two ((size_t, size_t), string*) pairs for equality.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrEqual {
-        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs,
-                        const TSizeSizePrStoredStringPtrPr& rhs) const {
+        bool operator()(const TSizeSizePrStoredStringPtrPr& lhs, const TSizeSizePrStoredStringPtrPr& rhs) const {
             return lhs.first == rhs.first && *lhs.second == *rhs.second;
         }
     };
@@ -124,16 +123,11 @@ public:
                                  SSizeSizePrStoredStringPtrPrHash,
                                  SSizeSizePrStoredStringPtrPrEqual>
         TSizeSizePrStoredStringPtrPrUInt64UMap;
-    typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator
-        TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
-    typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator
-        TSizeSizePrStoredStringPtrPrUInt64UMapItr;
-    typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap>
-        TSizeSizePrStoredStringPtrPrUInt64UMapVec;
-    typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec>
-        TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
-    typedef TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator
-        TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr;
+    typedef TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
+    typedef TSizeSizePrStoredStringPtrPrUInt64UMap::iterator TSizeSizePrStoredStringPtrPrUInt64UMapItr;
+    typedef std::vector<TSizeSizePrStoredStringPtrPrUInt64UMap> TSizeSizePrStoredStringPtrPrUInt64UMapVec;
+    typedef CBucketQueue<TSizeSizePrStoredStringPtrPrUInt64UMapVec> TSizeSizePrStoredStringPtrPrUInt64UMapVecQueue;
+    typedef TSizeSizePrStoredStringPtrPrUInt64UMapVec::const_iterator TSizeSizePrStoredStringPtrPrUInt64UMapVecCItr;
     typedef std::map<core_t::TTime, TSizeSizePrStoredStringPtrPrUInt64UMapVec>
         TTimeSizeSizePrStoredStringPtrPrUInt64UMapVecMap;
     typedef boost::reference_wrapper<const CSearchKey> TSearchKeyCRef;
@@ -224,9 +218,8 @@ public:
     //!
     //! This adds people and attributes as necessary and fills out the
     //! event data from \p fieldValues.
-    virtual bool processFields(const TStrCPtrVec& fieldValues,
-                               CEventData& result,
-                               CResourceMonitor& resourceMonitor) = 0;
+    virtual bool
+    processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor) = 0;
 
     //! Record the arrival of \p data at \p time.
     bool addEventData(CEventData& data);
@@ -369,8 +362,7 @@ public:
     //! \tparam T This must be a vector of associative array from person
     //! id and/or attribute id to some corresponding value.
     template<typename F, typename T>
-    static void
-    remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
+    static void remove(const TSizeVec& toRemove, const F& extractId, CBucketQueue<std::vector<T>>& queue) {
         typedef typename CBucketQueue<std::vector<T>>::iterator TQueueItr;
 
         for (TQueueItr bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
@@ -392,8 +384,7 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const = 0;
+    virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const = 0;
 
     //! Get a reference to the owning data gatherer.
     const CDataGatherer& dataGatherer(void) const;

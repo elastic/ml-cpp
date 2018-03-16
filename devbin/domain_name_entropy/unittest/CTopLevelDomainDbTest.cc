@@ -24,12 +24,10 @@ using namespace domain_name_entropy;
 CppUnit::Test* CTopLevelDomainDbTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTopLevelDomainDbTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testSimpleTestCases",
-                                                 &CTopLevelDomainDbTest::testSimpleTestCases));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testMozillaTestCases",
-                                                 &CTopLevelDomainDbTest::testMozillaTestCases));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testSimpleTestCases",
+                                                                         &CTopLevelDomainDbTest::testSimpleTestCases));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTopLevelDomainDbTest>("CTopLevelDomainDbTest::testMozillaTestCases",
+                                                                         &CTopLevelDomainDbTest::testMozillaTestCases));
     return suiteOfTests;
 }
 
@@ -72,37 +70,25 @@ void CTopLevelDomainDbTest::testSimpleTestCases(void) {
     testDomainSplit("www", "google", "com", "www.google.com", tldDb);
     testDomainSplit("www", "theregister", "co.uk", "www.theregister.co.uk", tldDb);
     testDomainSplit("", "gmail", "com", "gmail.com", tldDb);
-    testDomainSplit("media.forums",
-                    "theregister",
-                    "co.uk",
-                    "media.forums.theregister.co.uk",
-                    tldDb);
+    testDomainSplit("media.forums", "theregister", "co.uk", "media.forums.theregister.co.uk", tldDb);
     testDomainSplit("www", "www", "com", "www.www.com", tldDb);
     testDomainSplit("", "www", "com", "www.com", tldDb);
     testDomainSplit("", "", "internalunlikelyhostname", "internalunlikelyhostname", tldDb);
-    testDomainSplit("",
-                    "internalunlikelyhostname",
-                    "bizarre",
-                    "internalunlikelyhostname.bizarre",
-                    tldDb);
+    testDomainSplit("", "internalunlikelyhostname", "bizarre", "internalunlikelyhostname.bizarre", tldDb);
     testDomainSplit("", "internalunlikelyhostname", "info", "internalunlikelyhostname.info", tldDb);
-    testDomainSplit("",
-                    "internalunlikelyhostname",
-                    "information",
-                    "internalunlikelyhostname.information",
-                    tldDb);
-    // testDomainSplit("", "216.22.0.192", "", "216.22.0.192", tldDb);
+    testDomainSplit("", "internalunlikelyhostname", "information", "internalunlikelyhostname.information", tldDb);
+    //testDomainSplit("", "216.22.0.192", "", "216.22.0.192", tldDb);
     testDomainSplit("216.22", "project", "coop", "216.22.project.coop", tldDb);
     testDomainSplit("", "", "1\xe9", "1\xe9", tldDb);
-    // testDomainSplit("", "россия", "рф", "xn--h1alffa9f.xn--p1ai", tldDb);
+    //testDomainSplit("", "россия", "рф", "xn--h1alffa9f.xn--p1ai", tldDb);
     testDomainSplit("", "", "", "", tldDb);
     testDomainSplit("www", "parliament", "uk", "www.parliament.uk", tldDb);
     testDomainSplit("www", "parliament", "co.uk", "www.parliament.co.uk", tldDb);
     testDomainSplit("www", "cgs", "act.edu.au", "www.cgs.act.edu.au", tldDb);
     testDomainSplit("www", "google", "com.au", "www.google.com.au", tldDb);
     testDomainSplit("www", "metp", "net.cn", "www.metp.net.cn", tldDb);
-    // testDomainSplit("www", "example", "com", "www.example.com.", tldDb);
-    // testDomainSplit("waiterrant", "blogspot", "com", "waiterrant.blogspot.com", tldDb);
+    //testDomainSplit("www", "example", "com", "www.example.com.", tldDb);
+    //testDomainSplit("waiterrant", "blogspot", "com", "waiterrant.blogspot.com", tldDb);
 }
 
 void CTopLevelDomainDbTest::testMozillaTestCases(void) {
@@ -120,20 +106,20 @@ void CTopLevelDomainDbTest::testMozillaTestCases(void) {
     checkPublicSuffix("example.COM", "example.com", tldDb);
     checkPublicSuffix("WwW.example.COM", "example.com", tldDb);
     // Leading dot.
-    // checkPublicSuffix(".com", std::string(), tldDb);
-    // checkPublicSuffix(".example", std::string(), tldDb);
-    // checkPublicSuffix(".example.com", std::string(), tldDb);
-    // checkPublicSuffix(".example.example", std::string(), tldDb);
+    //checkPublicSuffix(".com", std::string(), tldDb);
+    //checkPublicSuffix(".example", std::string(), tldDb);
+    //checkPublicSuffix(".example.com", std::string(), tldDb);
+    //checkPublicSuffix(".example.example", std::string(), tldDb);
     // Unlisted TLD.
     checkPublicSuffix("example", std::string(), tldDb);
     checkPublicSuffix("example.example", "example.example", tldDb);
     checkPublicSuffix("b.example.example", "example.example", tldDb);
     checkPublicSuffix("a.b.example.example", "example.example", tldDb);
     // Listed, but non-Internet, TLD.
-    // checkPublicSuffix("local", std::string(), tldDb);
-    // checkPublicSuffix("example.local", std::string(), tldDb);
-    // checkPublicSuffix("b.example.local", std::string(), tldDb);
-    // checkPublicSuffix("a.b.example.local", std::string(), tldDb);
+    //checkPublicSuffix("local", std::string(), tldDb);
+    //checkPublicSuffix("example.local", std::string(), tldDb);
+    //checkPublicSuffix("b.example.local", std::string(), tldDb);
+    //checkPublicSuffix("a.b.example.local", std::string(), tldDb);
     // TLD with only 1 rule.
     checkPublicSuffix("biz", std::string(), tldDb);
     checkPublicSuffix("domain.biz", "domain.biz", tldDb);
@@ -201,14 +187,14 @@ void CTopLevelDomainDbTest::testMozillaTestCases(void) {
     // Same as above, but punycoded.
     // TODO
     /*
-    checkPublicSuffix("xn--85x722f.com.cn", "xn--85x722f.com.cn", tldDb);
-    checkPublicSuffix("xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn", tldDb);
-    checkPublicSuffix("www.xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn", tldDb);
-    checkPublicSuffix("shishi.xn--55qx5d.cn", "shishi.xn--55qx5d.cn", tldDb);
-    checkPublicSuffix("xn--55qx5d.cn", std::string(), tldDb);
-    checkPublicSuffix("xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s", tldDb);
-    checkPublicSuffix("www.xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s", tldDb);
-    checkPublicSuffix("shishi.xn--fiqs8s", "shishi.xn--fiqs8s", tldDb);
-    checkPublicSuffix("xn--fiqs8s", std::string(), tldDb);
-    */
+checkPublicSuffix("xn--85x722f.com.cn", "xn--85x722f.com.cn", tldDb);
+checkPublicSuffix("xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn", tldDb);
+checkPublicSuffix("www.xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn", tldDb);
+checkPublicSuffix("shishi.xn--55qx5d.cn", "shishi.xn--55qx5d.cn", tldDb);
+checkPublicSuffix("xn--55qx5d.cn", std::string(), tldDb);
+checkPublicSuffix("xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s", tldDb);
+checkPublicSuffix("www.xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s", tldDb);
+checkPublicSuffix("shishi.xn--fiqs8s", "shishi.xn--fiqs8s", tldDb);
+checkPublicSuffix("xn--fiqs8s", std::string(), tldDb);
+*/
 }

@@ -171,10 +171,7 @@ public:
 
     //! As above, but with the ability to customise the number of spaces
     //! per indent (up to a maximum of 10).
-    static void convert(size_t indentSpaces,
-                        const std::string& root,
-                        const TStrStrMap& values,
-                        std::string& result);
+    static void convert(size_t indentSpaces, const std::string& root, const TStrStrMap& values, std::string& result);
 
     //! Convert a map of name/value pairs to an XML
     //! parser.
@@ -193,8 +190,7 @@ public:
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use both a node pool and a string cache
     virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
@@ -219,8 +215,7 @@ public:
 
     //! Add new child element (to root).
     //! Allows attributes.
-    bool
-    addNewChildNode(const std::string& name, const std::string& value, const TStrStrMap& attrs);
+    bool addNewChildNode(const std::string& name, const std::string& value, const TStrStrMap& attrs);
 
     //! Change the content of a child element (to root)
     //! Restrict to simple <name>value</name>

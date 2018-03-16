@@ -84,15 +84,13 @@ public:
     //! Compute the maximum of \p first, \p second and \p third.
     template<typename T>
     static T max(T first, T second, T third) {
-        return first >= second ? (third >= first ? third : first)
-                               : (third >= second ? third : second);
+        return first >= second ? (third >= first ? third : first) : (third >= second ? third : second);
     }
 
     //! Compute the minimum of \p first, \p second and \p third.
     template<typename T>
     static T min(T first, T second, T third) {
-        return first <= second ? (third <= first ? third : first)
-                               : (third <= second ? third : second);
+        return first <= second ? (third <= first ? third : first) : (third <= second ? third : second);
     }
 
     /////////////////////////// ACCUMULATORS ///////////////////////////
@@ -134,8 +132,7 @@ public:
     //! We use recurrence relations for the higher order moments which
     //! minimize the cancellation errors. These can be derived by considering,\n
     //! <pre class="fragment">
-    //!   \f$M(n, N) = \sum_{i=1}^{N}{ (x_i - M(1, N))^n } = \sum_{i=1}^{N}{ (x_i - M(1, N-1) +
-    //!   (M(1, N-1) - M(1, N)))^n }\f$
+    //!   \f$M(n, N) = \sum_{i=1}^{N}{ (x_i - M(1, N))^n } = \sum_{i=1}^{N}{ (x_i - M(1, N-1) + (M(1, N-1) - M(1, N)))^n }\f$
     //! </pre>
     //!
     //! where,\n
@@ -158,18 +155,13 @@ public:
         using TCoordinate = typename SCoordinate<T>::Type;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
-        }
+        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
-        explicit SSampleCentralMoments(const T& initial = T(0)) : s_Count(0) {
-            std::fill_n(s_Moments, ORDER, initial);
-        }
+        explicit SSampleCentralMoments(const T& initial = T(0)) : s_Count(0) { std::fill_n(s_Moments, ORDER, initial); }
 
         //! Copy construction from implicitly convertible type.
         template<typename U>
-        SSampleCentralMoments(const SSampleCentralMoments<U, ORDER>& other)
-            : s_Count{other.s_Count} {
+        SSampleCentralMoments(const SSampleCentralMoments<U, ORDER>& other) : s_Count{other.s_Count} {
             std::copy(other.s_Moments, other.s_Moments + ORDER, s_Moments);
         }
 
@@ -193,10 +185,8 @@ public:
         //! Total order based on count then lexicographical less of moments.
         bool operator<(const SSampleCentralMoments& rhs) const {
             return s_Count < rhs.s_Count ||
-                   (s_Count == rhs.s_Count && std::lexicographical_compare(s_Moments,
-                                                                           s_Moments + ORDER,
-                                                                           rhs.s_Moments,
-                                                                           rhs.s_Moments + ORDER));
+                   (s_Count == rhs.s_Count &&
+                    std::lexicographical_compare(s_Moments, s_Moments + ORDER, rhs.s_Moments, rhs.s_Moments + ORDER));
         }
 
         //! \name Update
@@ -352,9 +342,8 @@ public:
                 T dMean2Rhs{dMeanRhs * dMeanRhs};
                 T varianceRhs{rhs.s_Moments[1]};
 
-                s_Moments[1] = max(beta * (s_Moments[1] - dMean2Lhs) -
-                                       alpha * (varianceRhs + dMean2Rhs - dMean2Lhs),
-                                   T{0});
+                s_Moments[1] =
+                    max(beta * (s_Moments[1] - dMean2Lhs) - alpha * (varianceRhs + dMean2Rhs - dMean2Lhs), T{0});
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
@@ -362,8 +351,7 @@ public:
                     T skewRhs{rhs.s_Moments[2]};
                     T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
 
-                    s_Moments[2] =
-                        beta * (skewLhs - dSkewLhs) - alpha * (skewRhs + dSkewRhs - dSkewLhs);
+                    s_Moments[2] = beta * (skewLhs - dSkewLhs) - alpha * (skewRhs + dSkewRhs - dSkewLhs);
                 }
             }
 
@@ -440,8 +428,7 @@ public:
 
     //! Make a mean, variance and skew accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 3u>
-    accumulator(const U& count, const T& m1, const T& m2, const T& m3) {
+    static SSampleCentralMoments<T, 3u> accumulator(const U& count, const T& m1, const T& m2, const T& m3) {
         SSampleCentralMoments<T, 3u> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
@@ -474,8 +461,7 @@ public:
 
     //! Extract the count from an accumulator object.
     template<typename T, unsigned int N>
-    static inline typename SSampleCentralMoments<T, N>::TCoordinate&
-    count(SSampleCentralMoments<T, N>& accumulator) {
+    static inline typename SSampleCentralMoments<T, N>::TCoordinate& count(SSampleCentralMoments<T, N>& accumulator) {
         return accumulator.s_Count;
     }
 
@@ -579,8 +565,7 @@ public:
     //!
     //! \note This is the biased form.
     template<typename T, unsigned int N>
-    static inline const T&
-    maximumLikelihoodVariance(const SSampleCentralMoments<T, N>& accumulator) {
+    static inline const T& maximumLikelihoodVariance(const SSampleCentralMoments<T, N>& accumulator) {
         static_assert(N >= 2, "N must be at least 2");
         return accumulator.s_Moments[1];
     }
@@ -588,8 +573,7 @@ public:
     //! Extract the maximum likelihood variances from a vector of accumulators.
     template<typename T, unsigned int M, std::size_t N>
     static core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N>
-    maximumLikelihoodVariance(
-        const core::CSmallVector<SSampleCentralMoments<T, M>, N>& accumulators) {
+    maximumLikelihoodVariance(const core::CSmallVector<SSampleCentralMoments<T, M>, N>& accumulators) {
         core::CSmallVector<typename SSampleCentralMoments<T, M>::TCoordinate, N> result;
         result.reserve(accumulators.size());
         for (const auto& accumulator : accumulators) {
@@ -665,24 +649,22 @@ public:
     template<typename T>
     static inline std::string print(const SSampleCentralMoments<T, 2u>& accumulator) {
         std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ')';
+        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", " << variance(accumulator) << ')';
         return result.str();
     }
     //! Print a mean, variance and skew accumulator.
     template<typename T>
     static inline std::string print(const SSampleCentralMoments<T, 3u>& accumulator) {
         std::ostringstream result;
-        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
-               << variance(accumulator) << ", " << skewness(accumulator) << ')';
+        result << '(' << count(accumulator) << ", " << mean(accumulator) << ", " << variance(accumulator) << ", "
+               << skewness(accumulator) << ')';
         return result.str();
     }
     //@}
 
     //! Get a copy of \p moments with count scaled by \p scale.
     template<typename T, unsigned int N, typename U>
-    static SSampleCentralMoments<T, N> scaled(SSampleCentralMoments<T, N> accumulator,
-                                              const U& scale) {
+    static SSampleCentralMoments<T, N> scaled(SSampleCentralMoments<T, N> accumulator, const U& scale) {
         accumulator.s_Count *= typename SSampleCentralMoments<T, N>::TCoordinate{scale};
         return accumulator;
     }
@@ -718,9 +700,7 @@ public:
     template<typename T, std::size_t N>
     struct SSampleCovariances : public std::unary_function<CVectorNx1<T, N>, void> {
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
-        }
+        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
         using TVector = CVectorNx1<T, N>;
         using TMatrix = CSymmetricMatrixNxN<T, N>;
@@ -926,18 +906,15 @@ public:
     //! Make a covariances accumulator.
     template<typename T, std::size_t N>
     static inline SSampleCovariances<T, N>
-    accumulator(T count,
-                const CVectorNx1<T, N>& mean,
-                const CSymmetricMatrixNxN<T, N>& covariances) {
+    accumulator(T count, const CVectorNx1<T, N>& mean, const CSymmetricMatrixNxN<T, N>& covariances) {
         return SSampleCovariances<T, N>(count, mean, covariances);
     }
 
     //! Make a covariances accumulator.
     template<typename T, std::size_t N>
-    static inline SSampleCovariances<T, N>
-    accumulator(const CVectorNx1<T, N>& count,
-                const CVectorNx1<T, N>& mean,
-                const CSymmetricMatrixNxN<T, N>& covariances) {
+    static inline SSampleCovariances<T, N> accumulator(const CVectorNx1<T, N>& count,
+                                                       const CVectorNx1<T, N>& mean,
+                                                       const CSymmetricMatrixNxN<T, N>& covariances) {
         return SSampleCovariances<T, N>(count, mean, covariances);
     }
 
@@ -957,8 +934,7 @@ public:
     //!
     //! \note This is the unbiased form.
     template<typename T, std::size_t N>
-    static inline CSymmetricMatrixNxN<T, N>
-    covariances(const SSampleCovariances<T, N>& accumulator) {
+    static inline CSymmetricMatrixNxN<T, N> covariances(const SSampleCovariances<T, N>& accumulator) {
         CVectorNx1<T, N> bias(accumulator.s_Count);
         for (std::size_t i = 0u; i < N; ++i) {
             if (bias(i) <= T{1}) {
@@ -1003,8 +979,7 @@ public:
     //! \param[out] result Filled in with the count, mean and "shrunk"
     //! covariance matrix estimate.
     template<typename POINT, typename T, std::size_t N>
-    static void covariancesLedoitWolf(const std::vector<POINT>& points,
-                                      SSampleCovariances<T, N>& result) {
+    static void covariancesLedoitWolf(const std::vector<POINT>& points, SSampleCovariances<T, N>& result) {
         result.add(points);
         basic_statistics_detail::SCovariancesLedoitWolf<POINT>::estimate(points, result);
     }
@@ -1133,8 +1108,7 @@ private:
         //! order predicate and is effectively the first value which
         //! will be removed if a new value displaces it.
         inline const T& biggest(void) const {
-            return m_UnusedCount > 0 ? *std::max_element(this->begin(), this->end(), m_Less)
-                                     : *this->begin();
+            return m_UnusedCount > 0 ? *std::max_element(this->begin(), this->end(), m_Less) : *this->begin();
         }
 
         //! Get the number of statistics.
@@ -1163,9 +1137,7 @@ private:
         //! Get an iterator representing the end of the statistics.
         inline reverse_iterator rend(void) { return m_Statistics.rbegin() + m_UnusedCount; }
         //! Get an iterator representing the end of the statistics.
-        inline const_reverse_iterator rend(void) const {
-            return m_Statistics.rbegin() + m_UnusedCount;
-        }
+        inline const_reverse_iterator rend(void) const { return m_Statistics.rbegin() + m_UnusedCount; }
         //@}
 
         //! Remove all statistics.
@@ -1178,9 +1150,7 @@ private:
         uint64_t checksum(uint64_t seed) const;
 
         //! Print for debug.
-        std::string print(void) const {
-            return core::CContainerPrinter::print(this->begin(), this->end());
-        }
+        std::string print(void) const { return core::CContainerPrinter::print(this->begin(), this->end()); }
 
     protected:
         //! Get the statistics.
@@ -1241,17 +1211,14 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
-        }
+        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
     public:
         explicit COrderStatisticsStack(const LESS& less = LESS{}) : TImpl{TArray(), less} {
             this->statistics().assign(T{});
         }
 
-        explicit COrderStatisticsStack(std::size_t /*n*/, const LESS& less = LESS{})
-            : TImpl{TArray(), less} {
+        explicit COrderStatisticsStack(std::size_t /*n*/, const LESS& less = LESS{}) : TImpl{TArray(), less} {
             this->statistics().assign(T{});
         }
 
@@ -1312,8 +1279,7 @@ public:
         using const_iterator = typename TImpl::const_iterator;
 
     public:
-        explicit COrderStatisticsHeap(std::size_t n, const LESS& less = LESS{})
-            : TImpl{std::vector<T>(n, T{}), less} {}
+        explicit COrderStatisticsHeap(std::size_t n, const LESS& less = LESS{}) : TImpl{std::vector<T>(n, T{}), less} {}
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
@@ -1360,13 +1326,10 @@ public:
     class CMinMax : boost::addable<CMinMax<T, LESS, GREATER>> {
     public:
         //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero(void) {
-            return core::memory_detail::SDynamicSizeAlwaysZero<T>::value();
-        }
+        static bool dynamicSizeAlwaysZero(void) { return core::memory_detail::SDynamicSizeAlwaysZero<T>::value(); }
 
     public:
-        explicit CMinMax(const LESS& less = LESS{}, const GREATER& greater = GREATER{})
-            : m_Min{less}, m_Max{greater} {}
+        explicit CMinMax(const LESS& less = LESS{}, const GREATER& greater = GREATER{}) : m_Min{less}, m_Max{greater} {}
 
         //! Define a function operator for use with std:: algorithms.
         inline bool operator()(const T& x) { return this->add(x); }
@@ -1424,9 +1387,7 @@ public:
         }
 
         //! Get a checksum for this object.
-        uint64_t checksum(void) const {
-            return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum());
-        }
+        uint64_t checksum(void) const { return core::CHashing::hashCombine(m_Min.checksum(), m_Max.checksum()); }
 
     private:
         //! The set minimum.
@@ -1437,43 +1398,35 @@ public:
 
     // Friends
     template<typename T>
-    friend std::ostream& operator<<(std::ostream& o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 1u>&);
+    friend std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 1u>&);
     template<typename T>
-    friend std::ostream& operator<<(std::ostream& o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 2u>&);
+    friend std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 2u>&);
     template<typename T>
-    friend std::ostream& operator<<(std::ostream& o,
-                                    const CBasicStatistics::SSampleCentralMoments<T, 3u>&);
+    friend std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 3u>&);
 };
 
 template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
+std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
+std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
+std::ostream& operator<<(std::ostream& o, const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T, std::size_t N, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
+std::ostream& operator<<(std::ostream& o, const CBasicStatistics::COrderStatisticsStack<T, N, LESS>& accumulator) {
     return o << accumulator.print();
 }
 
 template<typename T, typename LESS>
-std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
+std::ostream& operator<<(std::ostream& o, const CBasicStatistics::COrderStatisticsHeap<T, LESS>& accumulator) {
     return o << accumulator.print();
 }
 
@@ -1484,9 +1437,8 @@ namespace basic_statistics_detail {
 template<typename U>
 struct SCentralMomentsCustomAdd {
     template<typename T, unsigned int ORDER>
-    static inline void add(const U& x,
-                           typename SCoordinate<T>::Type n,
-                           CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
+    static inline void
+    add(const U& x, typename SCoordinate<T>::Type n, CBasicStatistics::SSampleCentralMoments<T, ORDER>& moments) {
         moments.add(static_cast<T>(x), n, 0);
     }
 };
@@ -1495,9 +1447,8 @@ struct SCentralMomentsCustomAdd {
 //! estimator.
 template<typename T, std::size_t N>
 struct SCovariancesCustomAdd<CVectorNx1<T, N>> {
-    static inline void add(const CVectorNx1<T, N>& x,
-                           const CVectorNx1<T, N>& n,
-                           CBasicStatistics::SSampleCovariances<T, N>& covariances) {
+    static inline void
+    add(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& n, CBasicStatistics::SSampleCovariances<T, N>& covariances) {
         covariances.add(x, n, 0);
     }
 };
@@ -1520,8 +1471,7 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
 
         U n{CBasicStatistics::count(covariances)};
         const CVectorNx1<U, N>& m{CBasicStatistics::mean(covariances)};
-        const CSymmetricMatrixNxN<U, N>& s{
-            CBasicStatistics::maximumLikelihoodCovariances(covariances)};
+        const CSymmetricMatrixNxN<U, N>& s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
 
         U mn{s.trace() / d};
         U dn{pow2((s - CVectorNx1<U, N>{mn}.diagonal()).frobenius()) / d};
@@ -1534,8 +1484,8 @@ struct SCovariancesLedoitWolf<CVectorNx1<T, N>> {
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances = CVectorNx1<U, N>{bn / dn * mn}.diagonal() +
-                                    (U{1} - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances =
+            CVectorNx1<U, N>{bn / dn * mn}.diagonal() + (U{1} - bn / dn) * covariances.s_Covariances;
     }
 
     template<typename U>

@@ -69,8 +69,7 @@ inline std::string typeToString(const CFloatStorage& value) {
 }
 //! Function to do conversion to a string from double storage.
 inline std::string typeToString(const CDoublePrecisionStorage& value) {
-    return core::CStringUtils::typeToStringPrecise(double(value),
-                                                   core::CIEEE754::E_DoublePrecision);
+    return core::CStringUtils::typeToStringPrecise(double(value), core::CIEEE754::E_DoublePrecision);
 }
 //! Function to do conversion to a string from a vector.
 template<typename T, std::size_t N>
@@ -188,8 +187,8 @@ bool CBasicStatistics::SSampleCovariances<T, N>::fromDelimited(std::string str) 
 
 template<typename T, std::size_t N>
 std::string CBasicStatistics::SSampleCovariances<T, N>::toDelimited(void) const {
-    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() +
-           CLinearAlgebra::DELIMITER + s_Covariances.toDelimited();
+    return s_Count.toDelimited() + CLinearAlgebra::DELIMITER + s_Mean.toDelimited() + CLinearAlgebra::DELIMITER +
+           s_Covariances.toDelimited();
 }
 
 template<typename T, std::size_t N>
@@ -205,8 +204,7 @@ uint64_t CBasicStatistics::SSampleCovariances<T, N>::checksum(void) const {
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
-    const std::string& value) {
+bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(const std::string& value) {
     this->clear();
 
     if (value.empty()) {
@@ -237,8 +235,7 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
     m_Statistics[--m_UnusedCount] = statistic;
 
     while (delimPos != value.size()) {
-        std::size_t nextDelimPos{
-            std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
+        std::size_t nextDelimPos{std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
         statistic_.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
         if (basic_statistics_detail::stringToType(statistic_, statistic) == false) {
             LOG_ERROR("Invalid statistic '" << statistic_ << "' in '" << value << "'");

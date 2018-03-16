@@ -252,10 +252,9 @@ public:
                                                      const std::string& multipleBucketLengths);
 
     //! Overload using defaults.
-    static CAnomalyDetectorModelConfig
-    defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
-                  model_t::ESummaryMode summaryMode = model_t::E_None,
-                  const std::string& summaryCountFieldName = "") {
+    static CAnomalyDetectorModelConfig defaultConfig(core_t::TTime bucketLength = DEFAULT_BUCKET_LENGTH,
+                                                     model_t::ESummaryMode summaryMode = model_t::E_None,
+                                                     const std::string& summaryCountFieldName = "") {
         return defaultConfig(bucketLength,
                              summaryMode,
                              summaryCountFieldName,
@@ -275,8 +274,7 @@ public:
 
     //! Parse and verify the multiple bucket lengths - these should all be
     //! multiples of the standard bucket length.
-    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength,
-                                          const std::string& multipleBucketLengths);
+    static TTimeVec multipleBucketLengths(core_t::TTime bucketLength, const std::string& multipleBucketLengths);
 
 public:
     CAnomalyDetectorModelConfig(void);
@@ -292,9 +290,7 @@ public:
     //! Set the model factories.
     void factories(const TFactoryTypeFactoryPtrMap& factories);
     //! Set the style and parameter value for raw score aggregation.
-    bool aggregationStyleParams(model_t::EAggregationStyle style,
-                                model_t::EAggregationParam param,
-                                double value);
+    bool aggregationStyleParams(model_t::EAggregationStyle style, model_t::EAggregationParam param, double value);
     //! Set the maximum anomalous probability.
     void maximumAnomalousProbability(double probability);
     //! Set the noise level as a percentile of historic raw anomaly scores.
@@ -342,16 +338,16 @@ public:
     //! \param[in] attributeFieldName The name of the by field.
     //! \param[in] valueFieldName The name of the field containing metric values.
     //! \param[in] influenceFieldNames The list of influence field names.
-    TModelFactoryCPtr factory(int identifier,
-                              function_t::EFunction function,
-                              bool useNull = false,
-                              model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
-                              const std::string& partitionFieldName = std::string(),
-                              const std::string& personFieldName = std::string(),
-                              const std::string& attributeFieldName = std::string(),
-                              const std::string& valueFieldName = std::string(),
-                              const CSearchKey::TStoredStringPtrVec& influenceFieldNames =
-                                  CSearchKey::TStoredStringPtrVec()) const;
+    TModelFactoryCPtr
+    factory(int identifier,
+            function_t::EFunction function,
+            bool useNull = false,
+            model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
+            const std::string& partitionFieldName = std::string(),
+            const std::string& personFieldName = std::string(),
+            const std::string& attributeFieldName = std::string(),
+            const std::string& valueFieldName = std::string(),
+            const CSearchKey::TStoredStringPtrVec& influenceFieldNames = CSearchKey::TStoredStringPtrVec()) const;
 
     //! Set the rate at which the models lose information.
     void decayRate(double value);
@@ -405,8 +401,7 @@ public:
     //@{
     //! Get the value of the aggregation style parameter identified by
     //! \p style and \p param.
-    double aggregationStyleParam(model_t::EAggregationStyle style,
-                                 model_t::EAggregationParam param) const;
+    double aggregationStyleParam(model_t::EAggregationStyle style, model_t::EAggregationParam param) const;
 
     //! Get the maximum anomalous probability.
     double maximumAnomalousProbability(void) const;
@@ -479,8 +474,7 @@ private:
     //! \name Anomaly Score Calculation
     //@{
     //! The values for the aggregation styles' parameters.
-    double m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES]
-                                   [model_t::NUMBER_AGGREGATION_PARAMS];
+    double m_AggregationStyleParams[model_t::NUMBER_AGGREGATION_STYLES][model_t::NUMBER_AGGREGATION_PARAMS];
 
     //! The maximum probability which is deemed to be anomalous.
     double m_MaximumAnomalousProbability;

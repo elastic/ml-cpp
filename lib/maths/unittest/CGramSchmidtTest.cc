@@ -301,9 +301,7 @@ void CGramSchmidtTest::testEdgeCases(void) {
     {
         LOG_DEBUG("*** Test zero vector ***");
 
-        double x_[][5] = {{0.0, 0.0, 0.0, 0.0, 0.0},
-                          {1.0, 3.0, 4.0, 0.0, 6.0},
-                          {0.4, 0.3, 0.6, 1.0, 7.0}};
+        double x_[][5] = {{0.0, 0.0, 0.0, 0.0, 0.0}, {1.0, 3.0, 4.0, 0.0, 6.0}, {0.4, 0.3, 0.6, 1.0, 7.0}};
         std::size_t p[] = {0, 1, 2};
 
         do {
@@ -352,17 +350,14 @@ void CGramSchmidtTest::testEdgeCases(void) {
 CppUnit::Test* CGramSchmidtTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGramSchmidtTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testOrthogonality",
+                                                                    &CGramSchmidtTest::testOrthogonality));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testNormalisation",
+                                                                    &CGramSchmidtTest::testNormalisation));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testOrthogonality",
-                                                  &CGramSchmidtTest::testOrthogonality));
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testSpan", &CGramSchmidtTest::testSpan));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testNormalisation",
-                                                  &CGramSchmidtTest::testNormalisation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testSpan",
-                                                                    &CGramSchmidtTest::testSpan));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testEdgeCases",
-                                                  &CGramSchmidtTest::testEdgeCases));
+        new CppUnit::TestCaller<CGramSchmidtTest>("CGramSchmidtTest::testEdgeCases", &CGramSchmidtTest::testEdgeCases));
 
     return suiteOfTests;
 }

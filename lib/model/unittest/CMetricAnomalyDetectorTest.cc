@@ -65,9 +65,7 @@ public:
                   core_t::TTime bucketLength)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_BucketLength(bucketLength) {}
 
-    void operator()(ml::model::CAnomalyDetector& detector,
-                    ml::core_t::TTime start,
-                    ml::core_t::TTime end) {
+    void operator()(ml::model::CAnomalyDetector& detector, ml::core_t::TTime start, ml::core_t::TTime end) {
         ml::model::CHierarchicalResults results;
         detector.buildResults(start, end, results);
         results.buildHierarchy();
@@ -114,12 +112,10 @@ public:
         }
     }
 
-    bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode& node,
-                    bool isBucketInfluencer) {
+    bool
+    operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability()
-                  << ", time:  " << time);
+                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -257,8 +253,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
 
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
-    static const core_t::TTime BUCKET_LENGTHS[] =
-        {120, 150, 180, 210, 240, 300, 450, 600, 900, 1200};
+    static const core_t::TTime BUCKET_LENGTHS[] = {120, 150, 180, 210, 240, 300, 450, 600, 900, 1200};
     static const TTimeTimePr ANOMALOUS_INTERVALS[] = {TTimeTimePr(1360576852, 1360578629),
                                                       TTimeTimePr(1360617335, 1360617481)};
 
@@ -283,12 +278,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, BUCKET_LENGTHS[i]);
 
-        importData(FIRST_TIME,
-                   LAST_TIME,
-                   BUCKET_LENGTHS[i],
-                   writer,
-                   "testfiles/variable_rate_metric.data",
-                   detector);
+        importData(FIRST_TIME, LAST_TIME, BUCKET_LENGTHS[i], writer, "testfiles/variable_rate_metric.data", detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
@@ -309,8 +299,7 @@ void CMetricAnomalyDetectorTest::testAnomalies(void) {
         }
 
         if (!anomalyFactors.empty()) {
-            double signal =
-                std::accumulate(highAnomalyFactors.begin(), highAnomalyFactors.end(), 0.0);
+            double signal = std::accumulate(highAnomalyFactors.begin(), highAnomalyFactors.end(), 0.0);
             double noise = std::accumulate(anomalyFactors.begin(), anomalyFactors.end(), 0.0);
             LOG_DEBUG("S/N = " << (signal / noise));
             CPPUNIT_ASSERT(signal / noise > 100.0);
@@ -349,8 +338,7 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const core_t::TTime BUCKET_LENGTH(300);
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     model::CLimits limits;
     model::CSearchKey key(1, // identifier
                           model::function_t::E_IndividualMetric,
@@ -366,12 +354,7 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
                                          modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
-    importData(FIRST_TIME,
-               LAST_TIME,
-               BUCKET_LENGTH,
-               writer,
-               "testfiles/variable_rate_metric.data",
-               origDetector);
+    importData(FIRST_TIME, LAST_TIME, BUCKET_LENGTH, writer, "testfiles/variable_rate_metric.data", origDetector);
 
     std::string origXml;
     {
@@ -393,11 +376,8 @@ void CMetricAnomalyDetectorTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(
-            traverser.traverseSubLevel(boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
-                                                   &restoredDetector,
-                                                   EMPTY_STRING,
-                                                   _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser, &restoredDetector, EMPTY_STRING, _1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -432,11 +412,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
-        importCsvData(FIRST_TIME,
-                      BUCKET_LENGTH,
-                      writer,
-                      "testfiles/excludefrequent_two_series.txt",
-                      detector);
+        importCsvData(FIRST_TIME, BUCKET_LENGTH, writer, "testfiles/excludefrequent_two_series.txt", detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
@@ -466,11 +442,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
-        importCsvData(FIRST_TIME,
-                      BUCKET_LENGTH,
-                      writer,
-                      "testfiles/excludefrequent_two_series.txt",
-                      detector);
+        importCsvData(FIRST_TIME, BUCKET_LENGTH, writer, "testfiles/excludefrequent_two_series.txt", detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
         TDoubleVec highAnomalyFactors(writer.highAnomalyFactors());
@@ -487,16 +459,12 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent(void) {
 CppUnit::Test* CMetricAnomalyDetectorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testAnomalies",
-                                                      &CMetricAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testPersist",
-                                                      &CMetricAnomalyDetectorTest::testPersist));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CMetricAnomalyDetectorTest>("CMetricAnomalyDetectorTest::testExcludeFrequent",
-                                        &CMetricAnomalyDetectorTest::testExcludeFrequent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
+        "CMetricAnomalyDetectorTest::testAnomalies", &CMetricAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
+        "CMetricAnomalyDetectorTest::testPersist", &CMetricAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
+        "CMetricAnomalyDetectorTest::testExcludeFrequent", &CMetricAnomalyDetectorTest::testExcludeFrequent));
 
     return suiteOfTests;
 }

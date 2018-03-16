@@ -59,11 +59,10 @@ typedef std::pair<uint8_t, uint8_t> TUInt8UInt8Pr;
 //!   |<-----8 bits---->|<-----8 bits---->|<-----8 bits---->|
 //!   |(g(x) >> 8) % 256|    g(x) % 256   |    zeros(x)     |
 //! \endcode
-class CHashIterator
-    : public std::iterator<std::random_access_iterator_tag, uint16_t>,
-      private boost::less_than_comparable<
-          CHashIterator,
-          boost::addable<CHashIterator, ptrdiff_t, boost::subtractable<CHashIterator, ptrdiff_t>>> {
+class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
+                      private boost::less_than_comparable<
+                          CHashIterator,
+                          boost::addable<CHashIterator, ptrdiff_t, boost::subtractable<CHashIterator, ptrdiff_t>>> {
 public:
     //! The STL that comes with g++ requires a default constructor - this
     //! will create an object that's suitable only to be assigned to, which
@@ -173,8 +172,7 @@ void prune(TUInt8Vec& b, uint8_t z) {
             b[j + 2] = b[i + 2];
             j += 3;
         } else {
-            LOG_TRACE("Removing " << from8Bit(b[i], b[i + 1])
-                                  << ", zeros =  " << static_cast<uint32_t>(b[i + 2])
+            LOG_TRACE("Removing " << from8Bit(b[i], b[i + 1]) << ", zeros =  " << static_cast<uint32_t>(b[i + 2])
                                   << ", z = " << static_cast<uint32_t>(z));
         }
     }
@@ -254,8 +252,7 @@ CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t max
     : m_MaxSize(maxSize), m_NumberHashes(numberHashes), m_Sketch(TUInt32Vec()) {
 }
 
-CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
-    : m_MaxSize(0), m_NumberHashes(0) {
+CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser) : m_MaxSize(0), m_NumberHashes(0) {
     traverser.traverseSubLevel(boost::bind(&CBjkstUniqueValues::acceptRestoreTraverser, this, _1));
 }
 
@@ -321,8 +318,7 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             sketch.s_Z.reserve(m_NumberHashes);
             sketch.s_B.reserve(m_NumberHashes);
             if (traverser.traverseSubLevel(
-                    boost::bind(&SSketch::acceptRestoreTraverser, &sketch, _1, m_NumberHashes)) ==
-                false) {
+                    boost::bind(&SSketch::acceptRestoreTraverser, &sketch, _1, m_NumberHashes)) == false) {
                 return false;
             }
             continue;
@@ -342,8 +338,7 @@ void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inse
     } else {
         try {
             const SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            inserter.insertLevel(SKETCH_TAG,
-                                 boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
+            inserter.insertLevel(SKETCH_TAG, boost::bind(&SSketch::acceptPersistInserter, &sketch, _1));
         } catch (const std::exception& e) { LOG_ABORT("Unexpected exception: " << e.what()); }
     }
 }
@@ -444,8 +439,7 @@ std::size_t CBjkstUniqueValues::memoryUsage(void) const {
 void CBjkstUniqueValues::sketch(void) {
     static const std::size_t UINT8_SIZE = sizeof(uint8_t);
     static const std::size_t UINT32_SIZE = sizeof(uint32_t);
-    static const std::size_t HASH_SIZE =
-        sizeof(core::CHashing::CUniversalHash::CUInt32UnrestrictedHash);
+    static const std::size_t HASH_SIZE = sizeof(core::CHashing::CUniversalHash::CUInt32UnrestrictedHash);
     static const std::size_t VEC8_SIZE = sizeof(TUInt8Vec);
     static const std::size_t VEC32_SIZE = sizeof(TUInt32Vec);
     static const std::size_t SKETCH_SIZE = sizeof(SSketch);
@@ -453,12 +447,10 @@ void CBjkstUniqueValues::sketch(void) {
     TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
         std::size_t valuesSize = VEC32_SIZE + UINT32_SIZE * values->capacity();
-        std::size_t sketchSize =
-            SKETCH_SIZE + m_NumberHashes * (2 * HASH_SIZE + 1 * UINT8_SIZE + 1 * VEC8_SIZE +
-                                            3 * m_MaxSize * UINT8_SIZE);
+        std::size_t sketchSize = SKETCH_SIZE + m_NumberHashes * (2 * HASH_SIZE + 1 * UINT8_SIZE + 1 * VEC8_SIZE +
+                                                                 3 * m_MaxSize * UINT8_SIZE);
         if (valuesSize > sketchSize) {
-            if (values->capacity() > values->size() &&
-                values->size() < (sketchSize - VEC32_SIZE) / UINT32_SIZE) {
+            if (values->capacity() > values->size() && values->size() < (sketchSize - VEC32_SIZE) / UINT32_SIZE) {
                 TUInt32Vec shrunk;
                 shrunk.reserve((sketchSize - VEC32_SIZE) / UINT32_SIZE);
                 shrunk.assign(values->begin(), values->end());
@@ -501,38 +493,27 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
     do {
         const std::string& name = traverser.name();
         if (name == HASH_G_TAG) {
-            if (core::CPersistUtils::fromString(traverser.value(),
-                                                hashFromString,
-                                                s_G,
-                                                DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(), hashFromString, s_G, DELIMITER) == false ||
                 s_G.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
         } else if (name == HASH_H_TAG) {
-            if (core::CPersistUtils::fromString(traverser.value(),
-                                                hashFromString,
-                                                s_H,
-                                                DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(), hashFromString, s_H, DELIMITER) == false ||
                 s_H.size() != numberHashes) {
                 LOG_ERROR("Invalid hashes in " << traverser.value());
                 return false;
             }
         } else if (name == Z_TAG) {
-            if (core::CPersistUtils::fromString(traverser.value(),
-                                                CFromString<int>(),
-                                                s_Z,
-                                                DELIMITER) == false ||
+            if (core::CPersistUtils::fromString(traverser.value(), CFromString<int>(), s_Z, DELIMITER) == false ||
                 s_Z.size() != numberHashes) {
                 LOG_ERROR("Invalid zeros in " << traverser.value());
                 return false;
             }
         } else if (name == B_TAG) {
             s_B.push_back(TUInt8Vec());
-            if (core::CPersistUtils::fromString(traverser.value(),
-                                                CFromString<int>(),
-                                                s_B.back(),
-                                                DELIMITER) == false) {
+            if (core::CPersistUtils::fromString(traverser.value(), CFromString<int>(), s_B.back(), DELIMITER) ==
+                false) {
                 LOG_ERROR("Invalid values in " << traverser.value());
                 return false;
             }
@@ -547,15 +528,13 @@ bool CBjkstUniqueValues::SSketch::acceptRestoreTraverser(core::CStateRestoreTrav
     return true;
 }
 
-void CBjkstUniqueValues::SSketch::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CHashing::CUniversalHash::CToString hashToString(PAIR_DELIMITER);
     inserter.insertValue(HASH_G_TAG, core::CPersistUtils::toString(s_G, hashToString, DELIMITER));
     inserter.insertValue(HASH_H_TAG, core::CPersistUtils::toString(s_H, hashToString, DELIMITER));
     inserter.insertValue(Z_TAG, core::CPersistUtils::toString(s_Z, CToString<int>(), DELIMITER));
     for (std::size_t i = 0u; i < s_B.size(); ++i) {
-        inserter.insertValue(B_TAG,
-                             core::CPersistUtils::toString(s_B[i], CToString<int>(), DELIMITER));
+        inserter.insertValue(B_TAG, core::CPersistUtils::toString(s_B[i], CToString<int>(), DELIMITER));
     }
 }
 

@@ -40,9 +40,8 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
                                      Container& samples) {
     samples.clear();
     samples.reserve(numberSamples);
-    std::generate_n(std::back_inserter(samples),
-                    numberSamples,
-                    boost::bind(distribution, boost::ref(randomNumberGenerator)));
+    std::generate_n(
+        std::back_inserter(samples), numberSamples, boost::bind(distribution, boost::ref(randomNumberGenerator)));
 }
 
 template<typename ITR>
@@ -60,11 +59,10 @@ void CRandomNumbers::random_shuffle(ITR first, ITR last) {
 }
 
 template<typename T, std::size_t N>
-void CRandomNumbers::generateRandomMultivariateNormals(
-    const TSizeVec& sizes,
-    std::vector<maths::CVectorNx1<T, N>>& means,
-    std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-    std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
+void CRandomNumbers::generateRandomMultivariateNormals(const TSizeVec& sizes,
+                                                       std::vector<maths::CVectorNx1<T, N>>& means,
+                                                       std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
+                                                       std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
     means.clear();
     covariances.clear();
     points.clear();

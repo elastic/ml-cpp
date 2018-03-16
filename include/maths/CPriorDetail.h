@@ -62,13 +62,8 @@ bool CPrior::expectation(const F& f,
         T productIntegral;
         T fIntegral;
         double likelihoodIntegral;
-        if (!CIntegration::productGaussLegendre<CIntegration::OrderThree>(f,
-                                                                          likelihood,
-                                                                          x,
-                                                                          x + dx,
-                                                                          productIntegral,
-                                                                          fIntegral,
-                                                                          likelihoodIntegral)) {
+        if (!CIntegration::productGaussLegendre<CIntegration::OrderThree>(
+                f, likelihood, x, x + dx, productIntegral, fIntegral, likelihoodIntegral)) {
             result = T();
             return false;
         }

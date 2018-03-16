@@ -81,8 +81,7 @@ struct SPromoted<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>> {
 //! \brief Defines the promoted type for an Eigen dense matrix.
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS>
 struct SPromoted<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>> {
-    using Type =
-        Eigen::Matrix<typename SPromoted<SCALAR>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
+    using Type = Eigen::Matrix<typename SPromoted<SCALAR>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
 };
 
 //! \brief Defines the promoted type for a CAnnotatedVector.
@@ -109,8 +108,7 @@ struct SSelector<T, U, true> {
 //! \brief Defines a suitable floating point type.
 template<typename T, typename U>
 struct SFloatingPoint {
-    using Type =
-        typename type_conversion_detail::SSelector<T, U, boost::is_floating_point<T>::value>::Type;
+    using Type = typename type_conversion_detail::SSelector<T, U, boost::is_floating_point<T>::value>::Type;
 };
 
 //! \brief Defines CVectorNx1 on a suitable floating point type.
@@ -140,22 +138,19 @@ struct SFloatingPoint<CSymmetricMatrix<T>, U> {
 //! \brief Defines an Eigen sparse matrix on a suitable floating point type.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX, typename U>
 struct SFloatingPoint<Eigen::SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>, U> {
-    using Type =
-        Eigen::SparseMatrix<typename SFloatingPoint<SCALAR, U>::Type, FLAGS, STORAGE_INDEX>;
+    using Type = Eigen::SparseMatrix<typename SFloatingPoint<SCALAR, U>::Type, FLAGS, STORAGE_INDEX>;
 };
 
 //! \brief Defines an Eigen sparse vector on a suitable floating point type.
 template<typename SCALAR, int FLAGS, typename STORAGE_INDEX, typename U>
 struct SFloatingPoint<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>, U> {
-    using Type =
-        Eigen::SparseVector<typename SFloatingPoint<SCALAR, U>::Type, FLAGS, STORAGE_INDEX>;
+    using Type = Eigen::SparseVector<typename SFloatingPoint<SCALAR, U>::Type, FLAGS, STORAGE_INDEX>;
 };
 
 //! \brief Defines an Eigen dense matrix on a suitable floating point type.
 template<typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAX_ROWS, int MAX_COLS, typename U>
 struct SFloatingPoint<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>, U> {
-    using Type = Eigen::
-        Matrix<typename SFloatingPoint<SCALAR, U>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
+    using Type = Eigen::Matrix<typename SFloatingPoint<SCALAR, U>::Type, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>;
 };
 
 //! \brief Defines CAnnotatedVector on a suitable floating point type.

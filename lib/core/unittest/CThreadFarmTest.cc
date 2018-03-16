@@ -28,11 +28,10 @@
 CppUnit::Test* CThreadFarmTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadFarmTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus",
-                                                                   &CThreadFarmTest::testNumCpus));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive",
-                                                 &CThreadFarmTest::testSendReceive));
+        new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testNumCpus", &CThreadFarmTest::testNumCpus));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadFarmTest>("CThreadFarmTest::testSendReceive",
+                                                                   &CThreadFarmTest::testSendReceive));
 
     return suiteOfTests;
 }
@@ -71,8 +70,7 @@ private:
 class CHandler {
 public:
     void processResult(const CString& result) {
-        LOG_DEBUG("Process result " << result.str() << " in thread "
-                                    << ml::core::CThread::currentThreadId());
+        LOG_DEBUG("Process result " << result.str() << " in thread " << ml::core::CThread::currentThreadId());
 
         ml::core::CScopedLock lock(m_Mutex);
         m_OutstandingOutput.erase(result.str());

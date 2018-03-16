@@ -25,12 +25,10 @@
 CppUnit::Test* CMessageQueueTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMessageQueueTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testSendReceive",
+                                                                     &CMessageQueueTest::testSendReceive));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testSendReceive",
-                                                   &CMessageQueueTest::testSendReceive));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testTiming",
-                                                   &CMessageQueueTest::testTiming));
+        new CppUnit::TestCaller<CMessageQueueTest>("CMessageQueueTest::testTiming", &CMessageQueueTest::testTiming));
 
     return suiteOfTests;
 }
@@ -111,8 +109,8 @@ void CMessageQueueTest::testTiming(void) {
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, receiver.size());
 
     double avgProcTimeSec(queue.rollingAverageProcessingTime());
-    LOG_DEBUG("Average processing time per item for the last " << NUM_TO_TIME << " items was "
-                                                               << avgProcTimeSec << " seconds");
+    LOG_DEBUG("Average processing time per item for the last " << NUM_TO_TIME << " items was " << avgProcTimeSec
+                                                               << " seconds");
 
     // The high side tolerance is greater here, because although the sleep will
     // make up the bulk of the processing time, there is some other processing

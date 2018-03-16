@@ -60,8 +60,7 @@ protected:
     typedef typename TWordTypePrVec::const_iterator TWordTypePrVecCItr;
 
 protected:
-    explicit CHierarchicalResultsLevelSet(const T& bucketElement)
-        : m_BucketElement(bucketElement) {}
+    explicit CHierarchicalResultsLevelSet(const T& bucketElement) : m_BucketElement(bucketElement) {}
 
     //! Get the root unique element.
     const T& bucketElement(void) const { return m_BucketElement; }
@@ -92,8 +91,7 @@ protected:
     //! Get a person element.
     //!
     //! \note Returns NULL if there isn't a matching one.
-    const T* personElement(const std::string& partitionFieldName,
-                           const std::string& personFieldName) const {
+    const T* personElement(const std::string& partitionFieldName, const std::string& personFieldName) const {
         TWord word = ms_Dictionary.word(partitionFieldName, personFieldName);
         TWordTypePrVecCItr i = element(m_PersonSet, word);
         return (i != m_PersonSet.end() && i->first == word) ? &i->second : 0;
@@ -106,8 +104,7 @@ protected:
                          const std::string& personFieldName,
                          const std::string& functionName,
                          const std::string& valueFieldName) const {
-        TWord word =
-            ms_Dictionary.word(partitionFieldName, personFieldName, functionName, valueFieldName);
+        TWord word = ms_Dictionary.word(partitionFieldName, personFieldName, functionName, valueFieldName);
         TWordTypePrVecCItr i = element(m_LeafSet, word);
         return (i != m_LeafSet.end() && i->first == word) ? &i->second : 0;
     }
@@ -183,8 +180,7 @@ protected:
             TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_InfluencerBucketSet, word);
             if (i == m_InfluencerBucketSet.end() || i->first != word) {
-                i = m_InfluencerBucketSet
-                        .insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
+                i = m_InfluencerBucketSet.insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
             return;
@@ -193,17 +189,15 @@ protected:
             TWord word = ms_Dictionary.word(*node.s_Spec.s_PersonFieldName);
             TWordTypePrVecItr i = element(m_InfluencerSet, word);
             if (i == m_InfluencerSet.end() || i->first != word) {
-                i = m_InfluencerSet
-                        .insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
+                i = m_InfluencerSet.insert(i, TWordTypePr(word, factory.make(*node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
             return;
         }
 
-        std::string partitionKey =
-            distinctLeavesPerPartition
-                ? *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
-                : *node.s_Spec.s_PartitionFieldName;
+        std::string partitionKey = distinctLeavesPerPartition
+                                       ? *node.s_Spec.s_PartitionFieldName + *node.s_Spec.s_PartitionFieldValue
+                                       : *node.s_Spec.s_PartitionFieldName;
 
         if (this->isLeaf(node)) {
             TWord word = ms_Dictionary.word(partitionKey,
@@ -226,9 +220,7 @@ protected:
             TWordTypePrVecItr i = element(m_PersonSet, word);
             if (i == m_PersonSet.end() || i->first != word) {
                 i = m_PersonSet.insert(i,
-                                       TWordTypePr(word,
-                                                   factory.make(partitionKey,
-                                                                *node.s_Spec.s_PersonFieldName)));
+                                       TWordTypePr(word, factory.make(partitionKey, *node.s_Spec.s_PersonFieldName)));
             }
             result.push_back(&i->second);
         }
@@ -277,9 +269,7 @@ private:
     }
 
     //! Sort \p set on its key.
-    static void sort(TWordTypePrVec& set) {
-        std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess());
-    }
+    static void sort(TWordTypePrVec& set) { std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess()); }
 
     //! Propagate the set elements forwards by \p time.
     template<typename F>
@@ -317,8 +307,7 @@ private:
 };
 
 template<typename T>
-typename CHierarchicalResultsLevelSet<T>::TDictionary
-    CHierarchicalResultsLevelSet<T>::ms_Dictionary;
+typename CHierarchicalResultsLevelSet<T>::TDictionary CHierarchicalResultsLevelSet<T>::ms_Dictionary;
 }
 }
 

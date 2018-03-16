@@ -28,12 +28,7 @@ CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
                                            const std::string& partitionFieldValue,
                                            core_t::TTime firstTime,
                                            const TModelFactoryCPtr& modelFactory)
-    : CAnomalyDetector(detectorIndex,
-                       limits,
-                       modelConfig,
-                       partitionFieldValue,
-                       firstTime,
-                       modelFactory),
+    : CAnomalyDetector(detectorIndex, limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
       m_FieldValues(summaryMode == model_t::E_None ? 1 : 2) {
     // We use a single event rate detector to maintain the counts, and for the
     // special case of the simple count detector, we'll create it before we've
@@ -54,8 +49,7 @@ void CSimpleCountDetector::pruneModels(void) {
     return;
 }
 
-const CAnomalyDetector::TStrCPtrVec&
-CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
+const CAnomalyDetector::TStrCPtrVec& CSimpleCountDetector::preprocessFieldValues(const TStrCPtrVec& fieldValues) {
     // The first field value is always the magic word "count", but for
     // summarised input we need to pass on the true value of the second field
     if (m_FieldValues.size() > 1) {

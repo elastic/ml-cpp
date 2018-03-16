@@ -136,21 +136,14 @@ public:
     //!
     //! Sample uniformly from a specified range
     //@{
-#define UNIFORM_SAMPLE(TYPE)                                                                       \
-    static TYPE uniformSample(TYPE a, TYPE b);                                                     \
-    static TYPE uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b);                      \
-    static TYPE uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b);                      \
-    static void uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);           \
-    static void uniformSample(CPRNG::CXorOShiro128Plus& rng,                                       \
-                              TYPE a,                                                              \
-                              TYPE b,                                                              \
-                              std::size_t n,                                                       \
-                              std::vector<TYPE>& result);                                          \
-    static void uniformSample(CPRNG::CXorShift1024Mult& rng,                                       \
-                              TYPE a,                                                              \
-                              TYPE b,                                                              \
-                              std::size_t n,                                                       \
-                              std::vector<TYPE>& result);
+#define UNIFORM_SAMPLE(TYPE)                                                                                           \
+    static TYPE uniformSample(TYPE a, TYPE b);                                                                         \
+    static TYPE uniformSample(CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b);                                          \
+    static TYPE uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b);                                          \
+    static void uniformSample(TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);                               \
+    static void uniformSample(                                                                                         \
+        CPRNG::CXorOShiro128Plus& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);                      \
+    static void uniformSample(CPRNG::CXorShift1024Mult& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result);
     UNIFORM_SAMPLE(std::size_t)
     UNIFORM_SAMPLE(std::ptrdiff_t)
     UNIFORM_SAMPLE(double)
@@ -175,19 +168,13 @@ public:
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively, using \p rng.
-    static void normalSample(CPRNG::CXorOShiro128Plus& rng,
-                             double mean,
-                             double variance,
-                             std::size_t n,
-                             TDoubleVec& result);
+    static void
+    normalSample(CPRNG::CXorOShiro128Plus& rng, double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Get \p n normal samples with mean and variance \p mean and
     //! \p variance, respectively, using \p rng.
-    static void normalSample(CPRNG::CXorShift1024Mult& rng,
-                             double mean,
-                             double variance,
-                             std::size_t n,
-                             TDoubleVec& result);
+    static void
+    normalSample(CPRNG::CXorShift1024Mult& rng, double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom.
@@ -195,13 +182,11 @@ public:
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom using \p rng.
-    static void
-    chiSquaredSample(CPRNG::CXorOShiro128Plus& rng, double f, std::size_t n, TDoubleVec& result);
+    static void chiSquaredSample(CPRNG::CXorOShiro128Plus& rng, double f, std::size_t n, TDoubleVec& result);
 
     //! Get \p n samples of a \f$\chi^2\f$ random variable with \p f
     //! degrees of freedom using \p rng.
-    static void
-    chiSquaredSample(CPRNG::CXorShift1024Mult& rng, double f, std::size_t n, TDoubleVec& result);
+    static void chiSquaredSample(CPRNG::CXorShift1024Mult& rng, double f, std::size_t n, TDoubleVec& result);
 
     //! \name Multivariate Normal Sampling
     //@{
@@ -232,20 +217,20 @@ public:
                                          std::size_t n,
                                          TDoubleVecVec& samples);
 
-#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                              \
-    static void multivariateNormalSample(const CVectorNx1<double, N>& mean,                        \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,         \
-                                         std::size_t n,                                            \
-                                         std::vector<CVectorNx1<double, N>>& samples);             \
-    static void multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,                            \
-                                         const CVectorNx1<double, N>& mean,                        \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,         \
-                                         std::size_t n,                                            \
-                                         std::vector<CVectorNx1<double, N>>& samples);             \
-    static void multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,                            \
-                                         const CVectorNx1<double, N>& mean,                        \
-                                         const CSymmetricMatrixNxN<double, N>& covariance,         \
-                                         std::size_t n,                                            \
+#define MULTIVARIATE_NORMAL_SAMPLE(N)                                                                                  \
+    static void multivariateNormalSample(const CVectorNx1<double, N>& mean,                                            \
+                                         const CSymmetricMatrixNxN<double, N>& covariance,                             \
+                                         std::size_t n,                                                                \
+                                         std::vector<CVectorNx1<double, N>>& samples);                                 \
+    static void multivariateNormalSample(CPRNG::CXorOShiro128Plus& rng,                                                \
+                                         const CVectorNx1<double, N>& mean,                                            \
+                                         const CSymmetricMatrixNxN<double, N>& covariance,                             \
+                                         std::size_t n,                                                                \
+                                         std::vector<CVectorNx1<double, N>>& samples);                                 \
+    static void multivariateNormalSample(CPRNG::CXorShift1024Mult& rng,                                                \
+                                         const CVectorNx1<double, N>& mean,                                            \
+                                         const CSymmetricMatrixNxN<double, N>& covariance,                             \
+                                         std::size_t n,                                                                \
                                          std::vector<CVectorNx1<double, N>>& samples)
     MULTIVARIATE_NORMAL_SAMPLE(2);
     MULTIVARIATE_NORMAL_SAMPLE(3);
@@ -275,8 +260,7 @@ public:
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities assuming
     //! the values are replaced between draws.
-    static void
-    categoricalSampleWithReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
@@ -297,8 +281,7 @@ public:
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities assuming
     //! the values are *not* replaced between draws.
-    static void
-    categoricalSampleWithoutReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
+    static void categoricalSampleWithoutReplacement(TDoubleVec& probabilities, std::size_t n, TSizeVec& result);
 
     //! Generate \p n samples from a categorical distribution
     //! with category probabilities \p probabilities using \p rng
@@ -338,10 +321,7 @@ public:
     //! are zero.
     //! \param[in] sorted Set to true if the probabilities are
     //! already sorted in descending order.
-    static void multinomialSampleFast(TDoubleVec& probabilities,
-                                      std::size_t n,
-                                      TSizeVec& sample,
-                                      bool sorted = false);
+    static void multinomialSampleFast(TDoubleVec& probabilities, std::size_t n, TSizeVec& sample, bool sorted = false);
 
     //! Generate samples according to the multinomial distribution
     //! with number of trials \p n and category probabilities
@@ -414,8 +394,7 @@ public:
 
     //! Sample the expectation of the normal distribution with \p mean
     //! and \p variance on the \p n quantile intervals.
-    static void
-    normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
+    static void normalSampleQuantiles(double mean, double variance, std::size_t n, TDoubleVec& result);
 
     //! Sample the expectation of the gamma distribution with \p shape
     //! and \p rate on the \p n quantile intervals.

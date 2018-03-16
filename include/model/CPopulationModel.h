@@ -126,9 +126,8 @@ protected:
     static typename T::const_iterator find(const T& data, std::size_t pid, std::size_t cid);
 
     //! Extract the bucket value for count feature data.
-    static inline TDouble1Vec
-    extractValue(model_t::EFeature /*feature*/,
-                 const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
+    static inline TDouble1Vec extractValue(model_t::EFeature /*feature*/,
+                                           const std::pair<TSizeSizePr, SEventRateFeatureData>& data);
     //! Extract the bucket value for metric feature data.
     static inline TDouble1Vec extractValue(model_t::EFeature feature,
                                            const std::pair<TSizeSizePr, SMetricFeatureData>& data);
@@ -154,13 +153,10 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor);
+    virtual void sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Update the rates for \p feature and \p people.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -193,10 +189,7 @@ protected:
     //! \brief A key for the partial bucket corrections map.
     class MODEL_EXPORT CCorrectionKey {
     public:
-        CCorrectionKey(model_t::EFeature feature,
-                       std::size_t pid,
-                       std::size_t cid,
-                       std::size_t correlated = 0);
+        CCorrectionKey(model_t::EFeature feature, std::size_t pid, std::size_t cid, std::size_t correlated = 0);
         bool operator==(const CCorrectionKey& rhs) const;
         std::size_t hash(void) const;
 
@@ -211,8 +204,7 @@ protected:
     struct MODEL_EXPORT CHashCorrectionKey {
         std::size_t operator()(const CCorrectionKey& key) const { return key.hash(); }
     };
-    using TCorrectionKeyDouble1VecUMap =
-        boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
+    using TCorrectionKeyDouble1VecUMap = boost::unordered_map<CCorrectionKey, TDouble1Vec, CHashCorrectionKey>;
 
 protected:
     //! Persist state by passing information to the supplied inserter.
@@ -239,8 +231,7 @@ protected:
     virtual void updateRecycledModels(void) = 0;
 
     //! Update the correlation models.
-    virtual void refreshCorrelationModels(std::size_t resourceLimit,
-                                          CResourceMonitor& resourceMonitor) = 0;
+    virtual void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned.
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;

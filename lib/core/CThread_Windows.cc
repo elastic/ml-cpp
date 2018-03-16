@@ -189,8 +189,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
 
         // Don't report an error if there is no blocking call to cancel
         if (errCode != ERROR_NOT_FOUND) {
-            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": "
-                                                               << CWindowsError(errCode));
+            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << CWindowsError(errCode));
             CloseHandle(threadHandle);
             return false;
         }

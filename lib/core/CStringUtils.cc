@@ -179,8 +179,7 @@ size_t CStringUtils::replace(const std::string& from, const std::string& to, std
     return count;
 }
 
-size_t
-CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
+size_t CStringUtils::replaceFirst(const std::string& from, const std::string& to, std::string& str) {
     if (from == to) {
         return 0;
     }
@@ -371,22 +370,14 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
         ret = ::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf,
-                              "%.2e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                  : ::sprintf(buf,
-                              "%.3g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+                  ? ::sprintf(buf, "%.2e", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
+                  : ::sprintf(buf, "%.3g", clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
 
     case CIEEE754::E_SinglePrecision:
         ret = ::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf,
-                              "%.6e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                  : ::sprintf(buf,
-                              "%.7g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+                  ? ::sprintf(buf, "%.6e", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
+                  : ::sprintf(buf, "%.7g", clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
 
     case CIEEE754::E_DoublePrecision:
@@ -470,8 +461,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
         return false;
     }
 
-    if (ret == ULLONG_MAX &&
-        errno == ERANGE) // note ULLONG_MAX used for compatability with strtoull
+    if (ret == ULLONG_MAX && errno == ERANGE) // note ULLONG_MAX used for compatability with strtoull
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -484,11 +474,10 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
 
     if (endPtr != 0 && *endPtr != '\0') {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '"
-                      << str
-                      << "'"
-                         " to unsigned long long: first invalid character "
-                      << endPtr);
+            LOG_ERROR("Unable to convert string '" << str
+                                                   << "'"
+                                                      " to unsigned long long: first invalid character "
+                                                   << endPtr);
         }
         return false;
     }
@@ -614,8 +603,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
         return false;
     }
 
-    if ((ret == LLONG_MIN || ret == LLONG_MAX) &&
-        errno == ERANGE) // note LLONG_MAX used for compatability with strtoll
+    if ((ret == LLONG_MIN || ret == LLONG_MAX) && errno == ERANGE) // note LLONG_MAX used for compatability with strtoll
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -663,8 +651,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
         return false;
     }
 
-    if ((ret == LONG_MIN || ret == LONG_MAX) &&
-        errno == ERANGE) // note LONG_MAX used for compatability with strtol
+    if ((ret == LONG_MIN || ret == LONG_MAX) && errno == ERANGE) // note LONG_MAX used for compatability with strtol
     {
         if (!silent) {
             LOG_ERROR("Unable to convert string '" << str
@@ -854,8 +841,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
 bool CStringUtils::_stringToType(bool silent, const std::string& str, char& c) {
     if (str.length() != 1) {
         if (!silent) {
-            LOG_ERROR("Unable to convert string '"
-                      << str << "' to char: " << (str.empty() ? "too short" : "too long"));
+            LOG_ERROR("Unable to convert string '" << str << "' to char: " << (str.empty() ? "too short" : "too long"));
         }
         return false;
     }
@@ -872,10 +858,7 @@ bool CStringUtils::_stringToType(bool /* silent */, const std::string& str, std:
     return true;
 }
 
-void CStringUtils::tokenise(const std::string& delim,
-                            const std::string& str,
-                            TStrVec& tokens,
-                            std::string& remainder) {
+void CStringUtils::tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder) {
     std::string::size_type pos(0);
 
     for (;;) {
@@ -937,8 +920,7 @@ std::string CStringUtils::longestCommonSubstr(const std::string& str1, const std
     return common;
 }
 
-std::string CStringUtils::longestCommonSubsequence(const std::string& str1,
-                                                   const std::string& str2) {
+std::string CStringUtils::longestCommonSubsequence(const std::string& str1, const std::string& str2) {
     std::string common;
     if (str1.empty() || str2.empty()) {
         return common;

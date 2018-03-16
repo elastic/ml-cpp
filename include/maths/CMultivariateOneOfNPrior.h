@@ -214,8 +214,7 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const;
@@ -247,11 +246,10 @@ public:
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
-                               double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble10Vec1Vec& samples,
+                                                                          const TDouble10Vec4Vec1Vec& weights,
+                                                                          double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -263,8 +261,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const;
 
     //! Check if this is a non-informative prior.
     virtual bool isNonInformative(void) const;

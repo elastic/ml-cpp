@@ -50,9 +50,7 @@ public:
     //! object should read from it.  For example, if std::cin is passed, no
     //! other object should read from std::cin, otherwise unpredictable and
     //! incorrect results will be generated.
-    CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
-                             std::istream& strmIn,
-                             bool allDocsSameStructure = false);
+    CLineifiedXmlInputParser(core::CXmlParserIntf& parser, std::istream& strmIn, bool allDocsSameStructure = false);
 
     //! Read records from the stream. The supplied reader function is called
     //! once per record.  If the supplied reader function returns false,
@@ -63,9 +61,7 @@ public:
 
 private:
     //! Attempt to parse the current working record into data fields.
-    bool decodeDocumentWithCommonFields(TStrVec& fieldNames,
-                                        TStrRefVec& fieldValRefs,
-                                        TStrStrUMap& recordFields);
+    bool decodeDocumentWithCommonFields(TStrVec& fieldNames, TStrRefVec& fieldValRefs, TStrStrUMap& recordFields);
 
     void decodeDocumentWithArbitraryFields(TStrVec& fieldNames, TStrStrUMap& recordFields);
 

@@ -29,12 +29,11 @@
 namespace ml {
 namespace domain_name_entropy {
 
-CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(
-    const CTopLevelDomainDb& topLevelDomainDb,
-    const std::string& csvFileName,
-    const std::string& domainNameFieldName,
-    const std::string& timeFieldName,
-    const std::string& entropyFieldName)
+CAddRegisteredDomainAndEntropyToCsv::CAddRegisteredDomainAndEntropyToCsv(const CTopLevelDomainDb& topLevelDomainDb,
+                                                                         const std::string& csvFileName,
+                                                                         const std::string& domainNameFieldName,
+                                                                         const std::string& timeFieldName,
+                                                                         const std::string& entropyFieldName)
     : m_TopLevelDomainDb(topLevelDomainDb),
       m_CsvFileName(csvFileName),
       m_DomainNameFieldName(domainNameFieldName),
@@ -56,12 +55,10 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     std::string lastTime;
 
     std::string remainder;
-    if (watcher.readAllLines(boost::bind(&CAddRegisteredDomainAndEntropyToCsv::readLine,
-                                         this,
-                                         boost::ref(readHeader),
-                                         boost::ref(lastTime),
-                                         _1),
-                             remainder) == false) {
+    if (watcher.readAllLines(
+            boost::bind(
+                &CAddRegisteredDomainAndEntropyToCsv::readLine, this, boost::ref(readHeader), boost::ref(lastTime), _1),
+            remainder) == false) {
         LOG_ERROR("Error reading " << m_CsvFileName);
         return false;
     }
@@ -71,9 +68,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::init(void) {
     return true;
 }
 
-bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
-                                                   std::string& lastTime,
-                                                   const std::string& line) {
+bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader, std::string& lastTime, const std::string& line) {
     static int count(0);
 
     ++count;
@@ -94,8 +89,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
 
     // Read the header if not done already
     if (readHeader == false) {
-        core::CStringUtils::TStrVecCItr itr2 =
-            std::find(tokens.begin(), tokens.end(), m_DomainNameFieldName);
+        core::CStringUtils::TStrVecCItr itr2 = std::find(tokens.begin(), tokens.end(), m_DomainNameFieldName);
         if (itr2 == tokens.end()) {
             LOG_ERROR(m_DomainNameFieldName << " not in header line " << line);
             return false;
@@ -117,8 +111,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
 
     // We can not get here without a valid header
     if (m_DomainNameFieldIndex >= tokens.size() || m_TimeFieldIndex >= tokens.size()) {
-        LOG_ERROR("Out of range " << tokens.size() << " " << m_DomainNameFieldIndex << " "
-                                  << m_TimeFieldIndex);
+        LOG_ERROR("Out of range " << tokens.size() << " " << m_DomainNameFieldIndex << " " << m_TimeFieldIndex);
         return false;
     }
 
@@ -147,8 +140,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
     if (itr == m_RegisteredDomainEntropy.end()) {
         TCompressUtilsP compressedSubDomainsP(new CCompressUtils);
 
-        itr = m_RegisteredDomainEntropy
-                  .insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP))
+        itr = m_RegisteredDomainEntropy.insert(TStrCompressUtilsPMap::value_type(pivotDomain, compressedSubDomainsP))
                   .first;
     }
 
@@ -161,8 +153,7 @@ bool CAddRegisteredDomainAndEntropyToCsv::readLine(bool& readHeader,
 
 void CAddRegisteredDomainAndEntropyToCsv::flush(const std::string& time) {
     // Finish all strings and dump
-    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin();
-         itr != m_RegisteredDomainEntropy.end();
+    for (TStrCompressUtilsPMapCItr itr = m_RegisteredDomainEntropy.begin(); itr != m_RegisteredDomainEntropy.end();
          ++itr) {
         size_t length;
         if (itr->second->compressedStringLength(true, length) == false) {

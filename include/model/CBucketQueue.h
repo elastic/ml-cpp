@@ -101,8 +101,8 @@ public:
     //! \param[in] time The time to which the item corresponds.
     void push(const T& item, core_t::TTime time) {
         if (time <= m_LatestBucketEnd) {
-            LOG_ERROR("Push was called with early time = " << time << ", latest bucket end time = "
-                                                           << m_LatestBucketEnd);
+            LOG_ERROR("Push was called with early time = " << time
+                                                           << ", latest bucket end time = " << m_LatestBucketEnd);
             return;
         }
         m_LatestBucketEnd += m_BucketLength;
@@ -208,8 +208,7 @@ public:
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
                     LOG_WARN("Bucket queue is smaller on restore than on persist: "
-                             << i << " >= " << m_Queue.size()
-                             << ".  Extra buckets will be ignored.");
+                             << i << " >= " << m_Queue.size() << ".  Extra buckets will be ignored.");
                     // Restore into a temporary
                     T dummy;
                     if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
@@ -232,8 +231,7 @@ private:
     void persist(F bucketPersist, core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0; i < m_Queue.size(); i++) {
             inserter.insertValue(INDEX_TAG, i);
-            inserter.insertLevel(BUCKET_TAG,
-                                 boost::bind<void>(bucketPersist, boost::cref(m_Queue[i]), _1));
+            inserter.insertLevel(BUCKET_TAG, boost::bind<void>(bucketPersist, boost::cref(m_Queue[i]), _1));
         }
     }
 
@@ -250,21 +248,18 @@ private:
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
                     LOG_WARN("Bucket queue is smaller on restore than on persist: "
-                             << i << " >= " << m_Queue.size()
-                             << ".  Extra buckets will be ignored.");
+                             << i << " >= " << m_Queue.size() << ".  Extra buckets will be ignored.");
                     if (traverser.hasSubLevel()) {
                         // Restore into a temporary
                         T dummy = initial;
-                        if (traverser.traverseSubLevel(
-                                boost::bind<bool>(bucketRestore, dummy, _1)) == false) {
+                        if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, dummy, _1)) == false) {
                             LOG_ERROR("Invalid bucket");
                         }
                     }
                 } else {
                     m_Queue[i] = initial;
                     if (traverser.hasSubLevel()) {
-                        if (traverser.traverseSubLevel(
-                                boost::bind<bool>(bucketRestore, boost::ref(m_Queue[i]), _1)) ==
+                        if (traverser.traverseSubLevel(boost::bind<bool>(bucketRestore, boost::ref(m_Queue[i]), _1)) ==
                             false) {
                             LOG_ERROR("Invalid bucket");
                             return false;

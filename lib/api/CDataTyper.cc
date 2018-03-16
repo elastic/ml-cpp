@@ -20,8 +20,7 @@ namespace api {
 // Initialise statics
 const CDataTyper::TStrStrUMap CDataTyper::EMPTY_FIELDS;
 
-CDataTyper::CDataTyper(const std::string& fieldName)
-    : m_FieldName(fieldName), m_LastPersistTime(0) {
+CDataTyper::CDataTyper(const std::string& fieldName) : m_FieldName(fieldName), m_LastPersistTime(0) {
 }
 
 CDataTyper::~CDataTyper(void) {

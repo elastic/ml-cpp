@@ -77,8 +77,7 @@ public:
     using TByFieldData = model::CModelPlotData::SByFieldData;
     using TStrByFieldDataUMap = model::CModelPlotData::TStrByFieldDataUMap;
     using TStrByFieldDataUMapCItr = TStrByFieldDataUMap::const_iterator;
-    using TFeatureStrByFieldDataUMapUMapCItr =
-        model::CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr;
+    using TFeatureStrByFieldDataUMapUMapCItr = model::CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr;
     using TStrDoublePr = model::CModelPlotData::TStrDoublePr;
 
 public:

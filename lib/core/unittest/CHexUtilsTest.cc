@@ -25,8 +25,8 @@
 CppUnit::Test* CHexUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHexUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHexUtilsTest>("CHexUtilsTest::testHexOutput",
-                                                                 &CHexUtilsTest::testHexOutput));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CHexUtilsTest>("CHexUtilsTest::testHexOutput", &CHexUtilsTest::testHexOutput));
 
     return suiteOfTests;
 }

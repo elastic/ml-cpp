@@ -178,9 +178,7 @@ private:
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.
     //! The key is the string, but hashed and compared ignoring case.
-    typedef boost::
-        unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase>
-            TStrUMap;
+    typedef boost::unordered_map<std::string, EPartOfSpeech, CStrHashIgnoreCase, CStrEqualIgnoreCase> TStrUMap;
     typedef TStrUMap::const_iterator TStrUMapCItr;
 
     //! Our dictionary of words

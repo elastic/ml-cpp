@@ -141,8 +141,7 @@ public:
                              double minimumCategoryCount = MINIMUM_CATEGORY_COUNT);
 
     //! Create from part of a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -232,8 +231,7 @@ public:
     //! \param[in] smallest The smallest permitted sample.
     //! \param[in] largest The largest permitted sample.
     //! \param[out] result Filled in with the samples of the distribution.
-    void
-    sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec& result) const;
+    void sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec& result) const;
 
     //! Print this classifier for debug.
     std::string print(void) const;
@@ -262,20 +260,14 @@ public:
     //! programming approach in complexity \f$O(N^2n)\f$ where
     //! \f$N\f$ the number of tuples and \f$n\f$ is the desired
     //! size for the partition.
-    static bool naturalBreaks(const TTupleVec& categories,
-                              std::size_t n,
-                              std::size_t p,
-                              EObjective target,
-                              TSizeVec& result);
+    static bool
+    naturalBreaks(const TTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
     //! Double tuple version.
     //!
     //! \see naturalBreaks for more details.
-    static bool naturalBreaks(const TDoubleTupleVec& categories,
-                              std::size_t n,
-                              std::size_t p,
-                              EObjective target,
-                              TSizeVec& result);
+    static bool
+    naturalBreaks(const TDoubleTupleVec& categories, std::size_t n, std::size_t p, EObjective target, TSizeVec& result);
 
 private:
     typedef std::pair<std::size_t, std::size_t> TSizeSizePr;
@@ -300,10 +292,7 @@ private:
 private:
     //! Construct a new classifier with the specified space limit
     //! \p space and categories \p categories.
-    CNaturalBreaksClassifier(std::size_t space,
-                             double decayRate,
-                             double minimumCategoryCount,
-                             TTupleVec& categories);
+    CNaturalBreaksClassifier(std::size_t space, double decayRate, double minimumCategoryCount, TTupleVec& categories);
 
     //! Reduce the number of tuples until we satisfy the space constraint.
     void reduce(void);

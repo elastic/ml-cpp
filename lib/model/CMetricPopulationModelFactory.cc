@@ -35,10 +35,9 @@
 namespace ml {
 namespace model {
 
-CMetricPopulationModelFactory::CMetricPopulationModelFactory(
-    const SModelParams& params,
-    model_t::ESummaryMode summaryMode,
-    const std::string& summaryCountFieldName)
+CMetricPopulationModelFactory::CMetricPopulationModelFactory(const SModelParams& params,
+                                                             model_t::ESummaryMode summaryMode,
+                                                             const std::string& summaryCountFieldName)
     : CModelFactory(params),
       m_Identifier(),
       m_SummaryMode(summaryMode),
@@ -51,8 +50,7 @@ CMetricPopulationModelFactory* CMetricPopulationModelFactory::clone(void) const 
     return new CMetricPopulationModelFactory(*this);
 }
 
-CAnomalyDetectorModel*
-CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
+CAnomalyDetectorModel* CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -68,18 +66,14 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
 
     return new CMetricPopulationModel(this->modelParams(),
                                       dataGatherer,
-                                      this->defaultFeatureModels(features,
-                                                                 dataGatherer->bucketLength(),
-                                                                 1.0,
-                                                                 false),
+                                      this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
                                       this->defaultCorrelatePriors(features),
                                       this->defaultCorrelates(features),
                                       influenceCalculators);
 }
 
-CAnomalyDetectorModel*
-CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData,
-                                         core::CStateRestoreTraverser& traverser) const {
+CAnomalyDetectorModel* CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initData,
+                                                                core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -95,18 +89,14 @@ CMetricPopulationModelFactory::makeModel(const SModelInitializationData& initDat
 
     return new CMetricPopulationModel(this->modelParams(),
                                       dataGatherer,
-                                      this->defaultFeatureModels(features,
-                                                                 dataGatherer->bucketLength(),
-                                                                 1.0,
-                                                                 false),
+                                      this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
                                       this->defaultCorrelatePriors(features),
                                       this->defaultCorrelates(features),
                                       influenceCalculators,
                                       traverser);
 }
 
-CDataGatherer*
-CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
+CDataGatherer* CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_PopulationMetric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -124,9 +114,8 @@ CMetricPopulationModelFactory::makeDataGatherer(const SGathererInitializationDat
                              initData.s_SampleOverrideCount);
 }
 
-CDataGatherer*
-CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
-                                                core::CStateRestoreTraverser& traverser) const {
+CDataGatherer* CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                               core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_PopulationMetric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -142,9 +131,8 @@ CMetricPopulationModelFactory::makeDataGatherer(const std::string& partitionFiel
                              traverser);
 }
 
-CMetricPopulationModelFactory::TPriorPtr
-CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
-                                            const SModelParams& params) const {
+CMetricPopulationModelFactory::TPriorPtr CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
+                                                                                     const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -208,8 +196,7 @@ CMetricPopulationModelFactory::defaultPrior(model_t::EFeature feature,
 }
 
 CMetricPopulationModelFactory::TMultivariatePriorPtr
-CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                        const SModelParams& params) const {
+CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     // Gaussian mixture for modeling (latitude, longitude).
@@ -229,8 +216,7 @@ CMetricPopulationModelFactory::defaultMultivariatePrior(model_t::EFeature featur
 }
 
 CMetricPopulationModelFactory::TMultivariatePriorPtr
-CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                                     const SModelParams& params) const {
+CMetricPopulationModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);
@@ -300,8 +286,7 @@ void CMetricPopulationModelFactory::bucketResultsDelay(std::size_t bucketResults
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CMetricPopulationModelFactory::TStrCRefVec
-CMetricPopulationModelFactory::partitioningFields(void) const {
+CMetricPopulationModelFactory::TStrCRefVec CMetricPopulationModelFactory::partitioningFields(void) const {
     TStrCRefVec result;
     result.reserve(3);
     if (!m_PartitionFieldName.empty()) {

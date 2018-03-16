@@ -36,8 +36,7 @@ typedef std::vector<TStrVec> TStrVecVec;
 
 //! Pad \p value.
 inline std::string pad(std::size_t padTo, const std::string& value) {
-    return std::string((padTo - value.length()) / 2, ' ') + value +
-           std::string((padTo - value.length() + 1) / 2, ' ');
+    return std::string((padTo - value.length()) / 2, ' ') + value + std::string((padTo - value.length() + 1) / 2, ' ');
 }
 
 //! Pass the string back.
@@ -61,8 +60,7 @@ template<typename U, typename V>
 inline std::string print(const std::pair<U, V>& p, std::size_t padTo = 0) {
     std::string first = print(p.first);
     std::string second = print(p.second);
-    return (padTo > 0 ? pad(padTo, first) : first) + " " +
-           (padTo > 0 ? pad(padTo, second) : second);
+    return (padTo > 0 ? pad(padTo, first) : first) + " " + (padTo > 0 ? pad(padTo, second) : second);
 }
 
 //! Write out a vector of pairs new line delimited.
@@ -98,10 +96,7 @@ std::size_t longest(const TStrVecVec& fields, std::size_t statistic) {
 
 //! Write a row of the summary statistic table.
 template<std::size_t N, typename ROW>
-void writeTableRow(std::ostream& o,
-                   const TSizeVec& padTo,
-                   const std::size_t (&stats)[N],
-                   const ROW& row) {
+void writeTableRow(std::ostream& o, const TSizeVec& padTo, const std::size_t (&stats)[N], const ROW& row) {
     TStrVecVec columnFields;
     columnFields.reserve(N);
     std::size_t height = 1u;
@@ -111,8 +106,7 @@ void writeTableRow(std::ostream& o,
     }
     for (std::size_t i = 0u; i < height; ++i) {
         for (std::size_t j = 0u; j < N; ++j) {
-            o << (i < columnFields[j].size() ? pad(padTo[j], columnFields[j][i])
-                                             : std::string(padTo[j], ' '));
+            o << (i < columnFields[j].size() ? pad(padTo[j], columnFields[j][i]) : std::string(padTo[j], ' '));
         }
         o << "\n";
     }
@@ -155,8 +149,7 @@ const CReportWriter::TStrVec& CReportWriter::fieldNames(void) const {
     return NO_STRINGS;
 }
 
-bool CReportWriter::writeRow(const TStrStrUMap& /*dataRowFields*/,
-                             const TStrStrUMap& /*overrideDataRowFields*/) {
+bool CReportWriter::writeRow(const TStrStrUMap& /*dataRowFields*/, const TStrStrUMap& /*overrideDataRowFields*/) {
     return true;
 }
 
@@ -223,16 +216,13 @@ void CReportWriter::addDetector(const CDetectorSpecification& spec) {
     spec.scores(scores);
     m_Detectors[n][PARAMETER_SCORES].resize(scores.size(), TStrVec(NUMBER_PARAMETERS));
     for (std::size_t i = 0u; i < scores.size(); ++i) {
-        m_Detectors[n][PARAMETER_SCORES][i][BUCKET_LENGTH_PARAMETER] =
-            CTools::prettyPrint(scores[i].s_BucketLength);
+        m_Detectors[n][PARAMETER_SCORES][i][BUCKET_LENGTH_PARAMETER] = CTools::prettyPrint(scores[i].s_BucketLength);
         m_Detectors[n][PARAMETER_SCORES][i][IGNORE_EMPTY_PARAMETER] = scores[i].s_IgnoreEmpty;
-        m_Detectors[n][PARAMETER_SCORES][i][SCORE_PARAMETER] =
-            CTools::prettyPrint(scores[i].s_Score);
+        m_Detectors[n][PARAMETER_SCORES][i][SCORE_PARAMETER] = CTools::prettyPrint(scores[i].s_Score);
         m_Detectors[n][PARAMETER_SCORES][i][DESCRIPTION_PARAMETER] =
             scores[i].s_Descriptions.empty() ? std::string("-") : scores[i].s_Descriptions[0];
         for (std::size_t j = 1u; j < scores[i].s_Descriptions.size(); ++j) {
-            m_Detectors[n][PARAMETER_SCORES][i][DESCRIPTION_PARAMETER] +=
-                "\n" + scores[i].s_Descriptions[j];
+            m_Detectors[n][PARAMETER_SCORES][i][DESCRIPTION_PARAMETER] += "\n" + scores[i].s_Descriptions[j];
         }
     }
     m_Detectors[n][DETECTOR_CONFIG].push_back(TStrVec(1, spec.detectorConfig()));
@@ -243,9 +233,7 @@ void CReportWriter::write(void) const {
     m_WriteStream << "DATA SUMMARY\n";
     m_WriteStream << "============\n\n";
 
-    m_WriteStream << "Found "
-                  << (m_UnclassifiedFields.size() + m_CategoricalFields.size() +
-                      m_NumericFields.size())
+    m_WriteStream << "Found " << (m_UnclassifiedFields.size() + m_CategoricalFields.size() + m_NumericFields.size())
                   << " fields\n";
     m_WriteStream << "Processed " << m_TotalRecords << " records\n";
     m_WriteStream << "There were " << m_InvalidRecords << " invalid records\n";
@@ -261,8 +249,7 @@ void CReportWriter::write(void) const {
         writeTable(m_WriteStream, STATISTIC_LABELS, CATEGORICAL_STATISTICS, m_CategoricalFields);
 
         for (std::size_t i = 0u; i < m_CategoricalFields.size(); ++i) {
-            m_WriteStream << "\nMost frequent for '" << m_CategoricalFields[i][FIELD_NAME]
-                          << "':\n";
+            m_WriteStream << "\nMost frequent for '" << m_CategoricalFields[i][FIELD_NAME] << "':\n";
             m_WriteStream << m_CategoricalFields[i][CATEGORICAL_TOP_N_COUNTS];
         }
     }
@@ -271,8 +258,7 @@ void CReportWriter::write(void) const {
         m_WriteStream << "==============\n\n";
         writeTable(m_WriteStream, STATISTIC_LABELS, NUMERIC_STATISTICS, m_NumericFields);
         for (std::size_t i = 0u; i < m_NumericFields.size(); ++i) {
-            m_WriteStream << "\nProbability density for '" << m_NumericFields[i][FIELD_NAME]
-                          << "':\n";
+            m_WriteStream << "\nProbability density for '" << m_NumericFields[i][FIELD_NAME] << "':\n";
             m_WriteStream << pad(15, "x") << pad(15, "f(x)") << "\n";
             m_WriteStream << m_NumericFields[i][NUMERIC_DENSITY_CHART];
         }
@@ -284,12 +270,8 @@ void CReportWriter::write(void) const {
         for (std::size_t i = 0u; i < m_Detectors.size(); ++i) {
             m_WriteStream << "\n\n\n" << m_Detectors[i][DESCRIPTION][0][0] << "\n";
             m_WriteStream << std::string(m_Detectors[i][DESCRIPTION][0][0].length(), '=') << "\n";
-            m_WriteStream << "\n  Best parameters score: " << m_Detectors[i][OVERALL_SCORE][0][0]
-                          << "\n\n";
-            writeTable(m_WriteStream,
-                       PARAMETER_LABELS,
-                       DETECTOR_PARAMETERS,
-                       m_Detectors[i][PARAMETER_SCORES]);
+            m_WriteStream << "\n  Best parameters score: " << m_Detectors[i][OVERALL_SCORE][0][0] << "\n\n";
+            writeTable(m_WriteStream, PARAMETER_LABELS, DETECTOR_PARAMETERS, m_Detectors[i][PARAMETER_SCORES]);
             if (!m_Detectors[i][DETECTOR_CONFIG][0][0].empty()) {
                 m_WriteStream << "\n" << m_Detectors[i][DETECTOR_CONFIG][0][0] << "\n";
             }
@@ -297,21 +279,19 @@ void CReportWriter::write(void) const {
     }
 }
 
-const std::string CReportWriter::STATISTIC_LABELS[NUMBER_STATISTICS] =
-    {std::string("Field Name"),
-     std::string("Data Type"),
-     std::string("Earliest Time"),
-     std::string("Latest Time"),
-     std::string("Mean Rate"),
-     std::string("Distinct Categories"),
-     std::string("Most Frequent Categories"),
-     std::string("Minimum"),
-     std::string("Median"),
-     std::string("Maximum"),
-     std::string("Probability Density Chart")};
+const std::string CReportWriter::STATISTIC_LABELS[NUMBER_STATISTICS] = {std::string("Field Name"),
+                                                                        std::string("Data Type"),
+                                                                        std::string("Earliest Time"),
+                                                                        std::string("Latest Time"),
+                                                                        std::string("Mean Rate"),
+                                                                        std::string("Distinct Categories"),
+                                                                        std::string("Most Frequent Categories"),
+                                                                        std::string("Minimum"),
+                                                                        std::string("Median"),
+                                                                        std::string("Maximum"),
+                                                                        std::string("Probability Density Chart")};
 
-const std::string CReportWriter::PARAMETER_LABELS[NUMBER_PARAMETERS] = {std::string(
-                                                                            "Bucket Length"),
+const std::string CReportWriter::PARAMETER_LABELS[NUMBER_PARAMETERS] = {std::string("Bucket Length"),
                                                                         std::string("Ignore Empty"),
                                                                         std::string("Score"),
                                                                         std::string("Explanation")};
@@ -325,14 +305,8 @@ const std::size_t CReportWriter::UNCLASSIFIED_STATISTICS[] = {FIELD_NAME,
 const std::size_t CReportWriter::CATEGORICAL_STATISTICS[] =
     {FIELD_NAME, DATA_TYPE, EARLIEST_TIME, LATEST_TIME, MEAN_RATE, CATEGORICAL_DISTINCT_COUNT};
 
-const std::size_t CReportWriter::NUMERIC_STATISTICS[] = {FIELD_NAME,
-                                                         DATA_TYPE,
-                                                         EARLIEST_TIME,
-                                                         LATEST_TIME,
-                                                         MEAN_RATE,
-                                                         NUMERIC_MINIMUM,
-                                                         NUMERIC_MEDIAN,
-                                                         NUMERIC_MAXIMUM};
+const std::size_t CReportWriter::NUMERIC_STATISTICS[] =
+    {FIELD_NAME, DATA_TYPE, EARLIEST_TIME, LATEST_TIME, MEAN_RATE, NUMERIC_MINIMUM, NUMERIC_MEDIAN, NUMERIC_MAXIMUM};
 
 const std::size_t CReportWriter::DETECTOR_PARAMETERS[] = {BUCKET_LENGTH_PARAMETER,
                                                           IGNORE_EMPTY_PARAMETER,

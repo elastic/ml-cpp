@@ -29,8 +29,7 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    void
-    foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName);
+    void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName);
 };
 
 #endif // INCLUDED_CBackgroundPersisterTest_h

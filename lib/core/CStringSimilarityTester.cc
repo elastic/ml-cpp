@@ -24,16 +24,12 @@ const int CStringSimilarityTester::MINUS_INFINITE_INT(std::numeric_limits<int>::
 CStringSimilarityTester::CStringSimilarityTester(void) : m_Compressor(true) {
 }
 
-bool CStringSimilarityTester::similarity(const std::string& first,
-                                         const std::string& second,
-                                         double& result) const {
+bool CStringSimilarityTester::similarity(const std::string& first, const std::string& second, double& result) const {
     size_t firstCompLength(0);
     size_t secondCompLength(0);
 
-    if (m_Compressor.addString(first) == false ||
-        m_Compressor.compressedLength(true, firstCompLength) == false ||
-        m_Compressor.addString(second) == false ||
-        m_Compressor.compressedLength(true, secondCompLength) == false) {
+    if (m_Compressor.addString(first) == false || m_Compressor.compressedLength(true, firstCompLength) == false ||
+        m_Compressor.addString(second) == false || m_Compressor.compressedLength(true, secondCompLength) == false) {
         // The compressor will have logged the detailed reason
         LOG_ERROR("Compression problem");
         return false;

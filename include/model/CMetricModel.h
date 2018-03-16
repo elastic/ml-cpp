@@ -161,10 +161,8 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid Ignored.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const;
+    virtual TDouble1Vec
+    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Get the baseline bucket value of \p feature for the person
     //! identified by \p pid as of the start of the current bucketing
@@ -202,9 +200,8 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor);
+    virtual void
+    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -212,8 +209,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Probability
@@ -264,8 +260,7 @@ public:
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
-    const TFeatureData*
-    featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
+    const TFeatureData* featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
 
 private:
     using TOptionalSample = boost::optional<CSample>;

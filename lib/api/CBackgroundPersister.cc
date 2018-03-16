@@ -28,8 +28,7 @@ namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 }
 
-CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
-                                           core::CDataAdder& dataAdder)
+CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval, core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_DataAdder(dataAdder),
@@ -43,10 +42,9 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
     }
 }
 
-CBackgroundPersister::CBackgroundPersister(
-    core_t::TTime periodicPersistInterval,
-    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-    core::CDataAdder& dataAdder)
+CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
+                                           const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
+                                           core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
@@ -167,10 +165,9 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
         m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
 
         LOG_WARN("Periodic persist is due at "
-                 << due << " but previous persist started at "
-                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
-                 << " is still in progress - increased persistence interval to "
-                 << m_PeriodicPersistInterval << " seconds");
+                 << due << " but previous persist started at " << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                 << " is still in progress - increased persistence interval to " << m_PeriodicPersistInterval
+                 << " seconds");
 
         return false;
     }
@@ -197,8 +194,7 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate(void) {
     return true;
 }
 
-CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner)
-    : m_Owner(owner) {
+CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner) : m_Owner(owner) {
 }
 
 void CBackgroundPersister::CBackgroundThread::run(void) {

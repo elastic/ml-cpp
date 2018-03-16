@@ -64,17 +64,13 @@ public:
 
     typedef boost::unordered_map<TSizeSizePr, TMoments> TSizeSizePrMomentsUMap;
     typedef boost::unordered_map<TSizeSizePr, SArgumentMoments> TSizeSizePrArgumentMomentsUMap;
-    typedef std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap>
-        TStrCPtrSizeSizePrArgumentMomentsUMapPr;
-    typedef std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr>
-        TStrCPtrSizeSizePrArgumentMomentsUMapPrVec;
+    typedef std::pair<const std::string*, TSizeSizePrArgumentMomentsUMap> TStrCPtrSizeSizePrArgumentMomentsUMapPr;
+    typedef std::vector<TStrCPtrSizeSizePrArgumentMomentsUMapPr> TStrCPtrSizeSizePrArgumentMomentsUMapPrVec;
     typedef boost::unordered_map<TSizeSizePr, maths::CQuantileSketch> TSizeSizePrQuantileUMap;
 
 public:
     //! Add the record for \p partition.
-    void add(const TSizeSizeSizeTr& partition,
-             TDetectorRecordCItr beginRecords,
-             TDetectorRecordCItr endRecords);
+    void add(const TSizeSizeSizeTr& partition, TDetectorRecordCItr beginRecords, TDetectorRecordCItr endRecords);
 
     //! Capture the current bucket statistics.
     void capture(void);
@@ -90,28 +86,24 @@ public:
 
     //! Get the moments of the distribution of the distinct count of argument
     //! field values for \p name.
-    const TSizeSizePrArgumentMomentsUMap&
-    argumentMomentsPerPartition(const std::string& name) const;
+    const TSizeSizePrArgumentMomentsUMap& argumentMomentsPerPartition(const std::string& name) const;
 
 private:
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMean;
 
     //! \brief Bucket data stored about argument field.
     struct CONFIG_EXPORT SBucketArgumentData {
-        SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues)
-            : s_DistinctValues(distinctValues) {}
+        SBucketArgumentData(const maths::CBjkstUniqueValues distinctValues) : s_DistinctValues(distinctValues) {}
         //! The approximate distinct values.
         maths::CBjkstUniqueValues s_DistinctValues;
         //! A sample of the unique strings in the bucket.
         TMean s_MeanStringLength;
     };
 
-    typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData>
-        TSizeSizeSizeTrArgumentDataUMap;
+    typedef boost::unordered_map<TSizeSizeSizeTr, SBucketArgumentData> TSizeSizeSizeTrArgumentDataUMap;
     typedef std::pair<const std::string*, TSizeSizeSizeTrArgumentDataUMap>
         TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr;
-    typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr>
-        TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
+    typedef std::vector<TStrCPtrSizeSizeSizeTrBjkstArgumentDataUMapPr> TStrCPtrSizeSizeSizeTrArgumentDataUMapPrVec;
 
 private:
     //! The distinct partitions seen this bucket.
@@ -213,9 +205,8 @@ private:
     typedef boost::optional<core_t::TTime> TOptionalTime;
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
     typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1> TMinTimeAccumulator;
-    typedef maths::CBasicStatistics::
-        COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>
-            TMaxTimeAccumulator;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1, std::greater<core_t::TTime>>
+        TMaxTimeAccumulator;
 
 private:
     //! Fill in the last bucket end times if they are empty.

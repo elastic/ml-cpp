@@ -111,8 +111,7 @@ public:
         using TArray = boost::array<double, N>;
         using TVector = CVectorNx1<T, 3 * N - 1>;
         using TMatrix = CSymmetricMatrixNxN<double, N>;
-        using TVectorMeanAccumulator =
-            typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+        using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
     public:
         static const std::string STATISTIC_TAG;
@@ -236,8 +235,7 @@ public:
         }
 
         //! Get the predicted value at \p x.
-        double predict(double x,
-                       double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
+        double predict(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
         //! Get the regression parameters.
         //!
@@ -247,14 +245,12 @@ public:
         //! the Gramian this will consider solving. If the condition
         //! is worse than this it'll fit a lower order polynomial.
         //! \param[out] result Filled in with the regression parameters.
-        bool parameters(TArray& result,
-                        double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
+        bool parameters(TArray& result, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const;
 
         //! Get the predicted value of the regression parameters at \p x.
         //!
         //! \note Returns array of zeros if getting the parameters fails.
-        TArray parameters(double x,
-                          double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const {
+        TArray parameters(double x, double maxCondition = regression_detail::CMaxCondition<T>::VALUE) const {
             TArray result;
             TArray params;
             if (this->parameters(params, maxCondition)) {
@@ -313,8 +309,7 @@ public:
             if (meanRevert) {
                 TVector& s = CBasicStatistics::moment<0>(m_S);
                 for (std::size_t i = 1u; i < N; ++i) {
-                    s(i + 2 * N - 1) =
-                        factor * s(i + 2 * N - 1) + (1.0 - factor) * s(i) * s(2 * N - 1);
+                    s(i + 2 * N - 1) = factor * s(i + 2 * N - 1) + (1.0 - factor) * s(i) * s(2 * N - 1);
                 }
             }
             m_S.age(factor);
@@ -367,16 +362,11 @@ public:
     private:
         //! Get the first \p n regression parameters.
         template<typename MATRIX, typename VECTOR>
-        bool
-        parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
+        bool parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
 
         //! Compute the covariance matrix of the regression parameters.
         template<typename MATRIX>
-        bool covariances(std::size_t n,
-                         MATRIX& x,
-                         double variance,
-                         double maxCondition,
-                         TMatrix& result) const;
+        bool covariances(std::size_t n, MATRIX& x, double variance, double maxCondition, TMatrix& result) const;
 
         //! Get the gramian of the design matrix.
         template<typename MATRIX>
@@ -468,8 +458,7 @@ public:
                 dT(i) = dTi;
             }
 
-            CSymmetricMatrixNxN<T, N> covariance =
-                CBasicStatistics::covariances(m_UnitTimeCovariances);
+            CSymmetricMatrixNxN<T, N> covariance = CBasicStatistics::covariances(m_UnitTimeCovariances);
 
             return dT.inner(covariance * dT);
         }
@@ -500,8 +489,7 @@ double CRegression::CLeastSquaresOnline<N, T>::predict(double x, double maxCondi
 template<std::size_t N_, typename T>
 const std::string CRegression::CLeastSquaresOnline<N_, T>::STATISTIC_TAG("a");
 template<std::size_t N, typename T>
-const std::string
-    CRegression::CLeastSquaresOnlineParameterProcess<N, T>::UNIT_TIME_COVARIANCES_TAG("a");
+const std::string CRegression::CLeastSquaresOnlineParameterProcess<N, T>::UNIT_TIME_COVARIANCES_TAG("a");
 }
 }
 

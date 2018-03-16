@@ -149,8 +149,7 @@ public:
     //!
     //! \param splitFunc Optional callback for when a cluster is split.
     //! \param mergeFunc Optional callback for when two clusters are merged.
-    explicit CClusterer(const TSplitFunc& splitFunc = CDoNothing(),
-                        const TMergeFunc& mergeFunc = CDoNothing())
+    explicit CClusterer(const TSplitFunc& splitFunc = CDoNothing(), const TMergeFunc& mergeFunc = CDoNothing())
         : m_SplitFunc(splitFunc), m_MergeFunc(mergeFunc) {}
 
     virtual ~CClusterer(void) {}
@@ -191,8 +190,7 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factors.
-    virtual void
-    cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const = 0;
+    virtual void cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const = 0;
 
     //! Add a point without caring about its cluster.
     void add(const TPointPrecise& point, double count = 1.0) {
@@ -202,8 +200,7 @@ public:
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factors.
-    virtual void
-    add(const TPointPrecise& point, TSizeDoublePr2Vec& clusters, double count = 1.0) = 0;
+    virtual void add(const TPointPrecise& point, TSizeDoublePr2Vec& clusters, double count = 1.0) = 0;
 
     //! Update the clustering with \p points.
     void add(const TPointPreciseVec& points) {
@@ -233,8 +230,7 @@ public:
     //! \param numberSamples The desired number of samples.
     //! \param samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool
-    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const = 0;
+    virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const = 0;
 
     //! Get the probability of the cluster with the index \p index.
     //!

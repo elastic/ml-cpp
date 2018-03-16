@@ -127,13 +127,10 @@ public:
     typedef std::vector<TAnomalyDetectorPtr>::iterator TAnomalyDetectorPtrVecItr;
     typedef std::vector<TAnomalyDetectorPtr>::const_iterator TAnomalyDetectorPtrVecCItr;
     typedef std::vector<model::CSearchKey> TKeyVec;
-    typedef boost::unordered_map<model::CSearchKey::TStrKeyPr,
-                                 TAnomalyDetectorPtr,
-                                 model::CStrKeyPrHash,
-                                 model::CStrKeyPrEqual>
-        TKeyAnomalyDetectorPtrUMap;
-    typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>
-        TKeyCRefAnomalyDetectorPtrPr;
+    typedef boost::
+        unordered_map<model::CSearchKey::TStrKeyPr, TAnomalyDetectorPtr, model::CStrKeyPrHash, model::CStrKeyPrEqual>
+            TKeyAnomalyDetectorPtrUMap;
+    typedef std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr> TKeyCRefAnomalyDetectorPtrPr;
     typedef std::vector<TKeyCRefAnomalyDetectorPtrPr> TKeyCRefAnomalyDetectorPtrPrVec;
     typedef model::CAnomalyDetector::TModelPlotDataVec TModelPlotDataVec;
     typedef TModelPlotDataVec::const_iterator TModelPlotDataVecCItr;
@@ -253,9 +250,8 @@ private:
     void resetBuckets(const std::string& controlMessage);
 
     //! Attempt to restore the detectors
-    bool restoreState(core::CStateRestoreTraverser& traverser,
-                      core_t::TTime& completeToTime,
-                      std::size_t& numDetectors);
+    bool
+    restoreState(core::CStateRestoreTraverser& traverser, core_t::TTime& completeToTime, std::size_t& numDetectors);
 
     //! Attempt to restore one detector from an already-created traverser.
     bool restoreSingleDetector(core::CStateRestoreTraverser& traverser);
@@ -329,9 +325,7 @@ private:
 
     //! Parses the time range in a control message assuming the time range follows after a
     //! single character code (e.g. starts with 'i10 20').
-    bool parseTimeRangeInControlMessage(const std::string& controlMessage,
-                                        core_t::TTime& start,
-                                        core_t::TTime& end);
+    bool parseTimeRangeInControlMessage(const std::string& controlMessage, core_t::TTime& start, core_t::TTime& end);
 
     //! Update equalizers if not interim and aggregate.
     void updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results);
@@ -345,9 +339,7 @@ private:
 
     //! Generate the model plot for the models of the specified detector in the
     //! specified time range.
-    void generateModelPlot(core_t::TTime startTime,
-                           core_t::TTime endTime,
-                           const model::CAnomalyDetector& detector);
+    void generateModelPlot(core_t::TTime startTime, core_t::TTime endTime, const model::CAnomalyDetector& detector);
 
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
@@ -388,9 +380,7 @@ private:
 
     //! Extract the required fields from \p dataRowFields
     //! and add the new record to \p detector
-    void addRecord(const TAnomalyDetectorPtr detector,
-                   core_t::TTime time,
-                   const TStrStrUMap& dataRowFields);
+    void addRecord(const TAnomalyDetectorPtr detector, core_t::TTime time, const TStrStrUMap& dataRowFields);
 
 protected:
     //! Get all the detectors.

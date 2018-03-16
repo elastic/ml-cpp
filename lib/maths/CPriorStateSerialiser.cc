@@ -56,9 +56,8 @@ const std::string CONSTANT_TAG("h");
 const std::string EMPTY_STRING;
 }
 
-bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
-                                       TPriorPtr& ptr,
-                                       core::CStateRestoreTraverser& traverser) const {
+bool CPriorStateSerialiser::
+operator()(const SDistributionRestoreParams& params, TPriorPtr& ptr, core::CStateRestoreTraverser& traverser) const {
     size_t numResults(0);
 
     do {
@@ -104,8 +103,7 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
     return true;
 }
 
-void CPriorStateSerialiser::operator()(const CPrior& prior,
-                                       core::CStatePersistInserter& inserter) const {
+void CPriorStateSerialiser::operator()(const CPrior& prior, core::CStatePersistInserter& inserter) const {
     std::string tagName;
 
     if (dynamic_cast<const CConstantPrior*>(&prior) != 0) {
@@ -125,8 +123,7 @@ void CPriorStateSerialiser::operator()(const CPrior& prior,
     } else if (dynamic_cast<const CPoissonMeanConjugate*>(&prior) != 0) {
         tagName = POISSON_TAG;
     } else {
-        LOG_ERROR("Prior distribution with type '" << typeid(prior).name()
-                                                   << "' has no defined field name");
+        LOG_ERROR("Prior distribution with type '" << typeid(prior).name() << "' has no defined field name");
         return;
     }
 
@@ -142,9 +139,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
         const std::string& name = traverser.name();
         if (name == CMultivariatePrior::CONSTANT_TAG) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(
-                                                     CMultivariatePrior::CONSTANT_TAG.length()),
-                                                 dimension) == false) {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::CONSTANT_TAG.length()), dimension) ==
+                false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
@@ -152,9 +148,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
             ++numResults;
         } else if (name.find(CMultivariatePrior::MULTIMODAL_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(
-                                                     CMultivariatePrior::MULTIMODAL_TAG.length()),
-                                                 dimension) == false) {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::MULTIMODAL_TAG.length()), dimension) ==
+                false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
@@ -162,9 +157,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
             ++numResults;
         } else if (name.find(CMultivariatePrior::NORMAL_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(
-                                                     CMultivariatePrior::NORMAL_TAG.length()),
-                                                 dimension) == false) {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::NORMAL_TAG.length()), dimension) ==
+                false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
@@ -172,9 +166,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
             ++numResults;
         } else if (name.find(CMultivariatePrior::ONE_OF_N_TAG) != std::string::npos) {
             std::size_t dimension;
-            if (core::CStringUtils::stringToType(name.substr(
-                                                     CMultivariatePrior::ONE_OF_N_TAG.length()),
-                                                 dimension) == false) {
+            if (core::CStringUtils::stringToType(name.substr(CMultivariatePrior::ONE_OF_N_TAG.length()), dimension) ==
+                false) {
                 LOG_ERROR("Bad dimension encoded in " << name);
                 return false;
             }
@@ -197,10 +190,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
     return true;
 }
 
-void CPriorStateSerialiser::operator()(const CMultivariatePrior& prior,
-                                       core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(prior.persistenceTag(),
-                         boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
+void CPriorStateSerialiser::operator()(const CMultivariatePrior& prior, core::CStatePersistInserter& inserter) const {
+    inserter.insertLevel(prior.persistenceTag(), boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
 }
 }
 }

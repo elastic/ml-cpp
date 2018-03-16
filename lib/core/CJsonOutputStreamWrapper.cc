@@ -39,14 +39,12 @@ CJsonOutputStreamWrapper::~CJsonOutputStreamWrapper() {
     m_ConcurrentOutputStream([](std::ostream& o) { o.put(JSON_ARRAY_END); });
 }
 
-void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer,
-                                             rapidjson::StringBuffer*& buffer) {
+void CJsonOutputStreamWrapper::acquireBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer) {
     buffer = m_StringBufferQueue.pop();
     writer.Reset(*buffer);
 }
 
-void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
-                                             rapidjson::StringBuffer* buffer) {
+void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer* buffer) {
     writer.Flush();
 
     // check for data that has to be written
@@ -67,8 +65,7 @@ void CJsonOutputStreamWrapper::releaseBuffer(TGenericLineWriter& writer,
     }
 }
 
-void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer,
-                                           rapidjson::StringBuffer*& buffer) {
+void CJsonOutputStreamWrapper::flushBuffer(TGenericLineWriter& writer, rapidjson::StringBuffer*& buffer) {
     writer.Flush();
 
     m_ConcurrentOutputStream([this, buffer](std::ostream& o) {
@@ -117,8 +114,7 @@ void CJsonOutputStreamWrapper::syncFlush() {
 void CJsonOutputStreamWrapper::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
     std::size_t bufferSize = 0;
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
-        // GetSize() returns the length of the string, not the used memory, need to inspect
-        // internals
+        // GetSize() returns the length of the string, not the used memory, need to inspect internals
         bufferSize += m_StringBuffers[i].stack_.GetCapacity();
     }
 
@@ -136,8 +132,7 @@ void CJsonOutputStreamWrapper::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr me
 std::size_t CJsonOutputStreamWrapper::memoryUsage() const {
     std::size_t memoryUsage = 0;
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
-        // GetSize() returns the length of the string, not the used memory, need to inspect
-        // internals
+        // GetSize() returns the length of the string, not the used memory, need to inspect internals
         memoryUsage += m_StringBuffers[i].stack_.GetCapacity();
     }
 

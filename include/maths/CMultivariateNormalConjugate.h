@@ -131,24 +131,19 @@ public:
           m_WishartScaleMatrix(wishartScaleMatrix) {}
 
     //! Construct from sample central moments.
-    CMultivariateNormalConjugate(maths_t::EDataType dataType,
-                                 const TCovariance& covariance,
-                                 double decayRate = 0.0)
+    CMultivariateNormalConjugate(maths_t::EDataType dataType, const TCovariance& covariance, double decayRate = 0.0)
         : CMultivariatePrior(dataType, decayRate),
           m_GaussianMean(CBasicStatistics::mean(covariance)),
           m_GaussianPrecision(covariance.s_Count),
-          m_WishartDegreesFreedom(
-              this->smallest(covariance.s_Count.template toVector<TDouble10Vec>())),
+          m_WishartDegreesFreedom(this->smallest(covariance.s_Count.template toVector<TDouble10Vec>())),
           m_WishartScaleMatrix(covariance.s_Count * covariance.s_Covariances) {
         this->numberSamples(CBasicStatistics::count(covariance));
     }
 
     //! Construct from part of a state document.
-    CMultivariateNormalConjugate(const SDistributionRestoreParams& params,
-                                 core::CStateRestoreTraverser& traverser)
+    CMultivariateNormalConjugate(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel(
-            boost::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
+        traverser.traverseSubLevel(boost::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
     }
 
     virtual ~CMultivariateNormalConjugate(void) {}
@@ -161,8 +156,7 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \return A non-informative prior.
-    static CMultivariateNormalConjugate nonInformativePrior(maths_t::EDataType dataType,
-                                                            double decayRate = 0.0) {
+    static CMultivariateNormalConjugate nonInformativePrior(maths_t::EDataType dataType, double decayRate = 0.0) {
         return CMultivariateNormalConjugate(dataType,
                                             NON_INFORMATIVE_MEAN,
                                             TPoint(NON_INFORMATIVE_PRECISION),
@@ -177,9 +171,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariateNormalConjugate* clone(void) const {
-        return new CMultivariateNormalConjugate(*this);
-    }
+    virtual CMultivariateNormalConjugate* clone(void) const { return new CMultivariateNormalConjugate(*this); }
 
     //! Get the dimension of the prior.
     std::size_t dimension(void) const { return N; }
@@ -249,9 +241,8 @@ public:
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
                 TPoint n(maths_t::countForUpdate(N, weightStyles, weights[i]));
-                TPoint varianceScale =
-                    TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])) *
-                    TPoint(maths_t::countVarianceScale(N, weightStyles, weights[i]));
+                TPoint varianceScale = TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])) *
+                                       TPoint(maths_t::countVarianceScale(N, weightStyles, weights[i]));
                 numberSamples += n;
                 covariancePost.add(x, n / varianceScale);
             }
@@ -295,18 +286,15 @@ public:
             }
         }
 
-        LOG_TRACE("numberSamples = " << numberSamples
-                                     << ", scaledNumberSamples = " << scaledNumberSamples
+        LOG_TRACE("numberSamples = " << numberSamples << ", scaledNumberSamples = " << scaledNumberSamples
                                      << ", m_WishartDegreesFreedom = " << m_WishartDegreesFreedom
-                                     << ", m_WishartScaleMatrix = " << m_WishartScaleMatrix
-                                     << ", m_GaussianMean = " << m_GaussianMean
-                                     << ", m_GaussianPrecision = " << m_GaussianPrecision);
+                                     << ", m_WishartScaleMatrix = " << m_WishartScaleMatrix << ", m_GaussianMean = "
+                                     << m_GaussianMean << ", m_GaussianPrecision = " << m_GaussianPrecision);
 
         if (this->isBad()) {
-            LOG_ERROR("Update failed ("
-                      << this->debug() << ")"
-                      << ", samples = " << core::CContainerPrinter::print(samples)
-                      << ", weights = " << core::CContainerPrinter::print(weights));
+            LOG_ERROR("Update failed (" << this->debug() << ")"
+                                        << ", samples = " << core::CContainerPrinter::print(samples)
+                                        << ", weights = " << core::CContainerPrinter::print(weights));
             this->setToNonInformative(this->offsetMargin(), this->decayRate());
         }
     }
@@ -325,8 +313,7 @@ public:
 
         double alpha = ::exp(-this->scaledDecayRate() * time);
 
-        m_GaussianPrecision =
-            alpha * m_GaussianPrecision + (1.0 - alpha) * TPoint(NON_INFORMATIVE_PRECISION);
+        m_GaussianPrecision = alpha * m_GaussianPrecision + (1.0 - alpha) * TPoint(NON_INFORMATIVE_PRECISION);
 
         // The mean of the Wishart distribution is n V and the variance
         // is [V]_ij = n ( V_ij^2 + V_ii * V_jj), note V is the inverse
@@ -339,8 +326,7 @@ public:
         //
         // Thus the mean is unchanged and variance is increased by 1 / f.
 
-        double factor = std::min((alpha * m_WishartDegreesFreedom +
-                                  (1.0 - alpha) * NON_INFORMATIVE_DEGREES_FREEDOM) /
+        double factor = std::min((alpha * m_WishartDegreesFreedom + (1.0 - alpha) * NON_INFORMATIVE_DEGREES_FREEDOM) /
                                      m_WishartDegreesFreedom,
                                  1.0);
 
@@ -349,12 +335,10 @@ public:
 
         this->numberSamples(this->numberSamples() * alpha);
 
-        LOG_TRACE("time = " << time << ", alpha = " << alpha
-                            << ", m_WishartDegreesFreedom = " << m_WishartDegreesFreedom
-                            << ", m_WishartScaleMatrix = " << m_WishartScaleMatrix
-                            << ", m_GaussianMean = " << m_GaussianMean
-                            << ", m_GaussianPrecision = " << m_GaussianPrecision
-                            << ", numberSamples = " << this->numberSamples());
+        LOG_TRACE("time = " << time << ", alpha = " << alpha << ", m_WishartDegreesFreedom = "
+                            << m_WishartDegreesFreedom << ", m_WishartScaleMatrix = " << m_WishartScaleMatrix
+                            << ", m_GaussianMean = " << m_GaussianMean << ", m_GaussianPrecision = "
+                            << m_GaussianPrecision << ", numberSamples = " << this->numberSamples());
     }
 
     //! Compute the univariate prior marginalizing over the variables
@@ -386,8 +370,7 @@ public:
         maths_t::EDataType dataType = this->dataType();
         double decayRate = this->decayRate();
         if (this->isNonInformative()) {
-            return {TUnivariatePriorPtr(
-                        CNormalMeanPrecConjugate::nonInformativePrior(dataType, decayRate).clone()),
+            return {TUnivariatePriorPtr(CNormalMeanPrecConjugate::nonInformativePrior(dataType, decayRate).clone()),
                     0.0};
         }
 
@@ -400,8 +383,7 @@ public:
         double m1 = m(i1[0]);
         double c11 = c(i1[0], i1[0]);
         if (condition.empty()) {
-            return {TUnivariatePriorPtr(
-                        new CNormalMeanPrecConjugate(dataType, m1, p, s, c11 * v / 2.0, decayRate)),
+            return {TUnivariatePriorPtr(new CNormalMeanPrecConjugate(dataType, m1, p, s, c11 * v / 2.0, decayRate)),
                     0.0};
         }
 
@@ -418,27 +400,20 @@ public:
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
             Eigen::JacobiSVD<CDenseMatrix<double>> c22(cp.topLeftCorner(n, n),
                                                        Eigen::ComputeThinU | Eigen::ComputeThinV);
-            LOG_TRACE("c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12 << ", a = " << xc
-                               << ", m2 = " << m2);
+            LOG_TRACE("c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12 << ", a = " << xc << ", m2 = " << m2);
 
             CDenseVector<double> c22SolvexcMinusm2 = c22.solve(xc - m2);
 
             double mean = m1 + c12.transpose() * c22SolvexcMinusm2;
-            double variance = std::max(c11 - c12.transpose() * c22.solve(c12),
-                                       MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(mean));
+            double variance =
+                std::max(c11 - c12.transpose() * c22.solve(c12), MINIMUM_COEFFICIENT_OF_VARIATION * ::fabs(mean));
             double weight = 0.5 * (::log(variance) - (xc - m2).transpose() * c22SolvexcMinusm2);
             LOG_TRACE("mean = " << mean << ", variance = " << variance << ", weight = " << weight);
 
-            return {TUnivariatePriorPtr(new CNormalMeanPrecConjugate(dataType,
-                                                                     mean,
-                                                                     p,
-                                                                     s,
-                                                                     variance * v / 2.0,
-                                                                     decayRate)),
-                    weight};
-        } catch (const std::exception& e) {
-            LOG_ERROR("Failed to get univariate prior: " << e.what());
-        }
+            return {
+                TUnivariatePriorPtr(new CNormalMeanPrecConjugate(dataType, mean, p, s, variance * v / 2.0, decayRate)),
+                weight};
+        } catch (const std::exception& e) { LOG_ERROR("Failed to get univariate prior: " << e.what()); }
 
         return TUnivariatePriorPtrDoublePr();
     }
@@ -455,8 +430,7 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const {
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
         if (N == 2) {
             return TPriorPtrDoublePr(boost::shared_ptr<CMultivariatePrior>(this->clone()), 0.0);
         }
@@ -474,10 +448,7 @@ public:
         maths_t::EDataType dataType = this->dataType();
         double decayRate = this->decayRate();
         if (this->isNonInformative()) {
-            return {TPriorPtr(
-                        CMultivariateNormalConjugate<2>::nonInformativePrior(dataType, decayRate)
-                            .clone()),
-                    0.0};
+            return {TPriorPtr(CMultivariateNormalConjugate<2>::nonInformativePrior(dataType, decayRate).clone()), 0.0};
         }
 
         typedef CVectorNx1<double, 2> TPoint2;
@@ -499,9 +470,7 @@ public:
             }
         }
         if (condition.empty()) {
-            return {TPriorPtr(
-                        new CMultivariateNormalConjugate<2>(dataType, m1, p, f, c11, decayRate)),
-                    0.0};
+            return {TPriorPtr(new CMultivariateNormalConjugate<2>(dataType, m1, p, f, c11, decayRate)), 0.0};
         }
 
         TSize10Vec condition_;
@@ -518,26 +487,20 @@ public:
             CDenseVector<double> c12 = cp.topRightCorner(n, 1);
             Eigen::JacobiSVD<CDenseMatrix<double>> c22(cp.topLeftCorner(n, n),
                                                        Eigen::ComputeThinU | Eigen::ComputeThinV);
-            LOG_TRACE("c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12 << ", a = " << xc
-                               << ", m2 = " << m2);
+            LOG_TRACE("c22 = " << cp.topLeftCorner(n, n) << ", c12 = " << c12 << ", a = " << xc << ", m2 = " << m2);
 
             CDenseVector<double> c22SolvexcMinusm2 = c22.solve(xc - m2);
 
-            TPoint2 mean(
-                fromDenseVector(toDynamicDenseVector(m1) + c12.transpose() * c22SolvexcMinusm2));
-            TMatrix2 covariance(
-                fromDenseMatrix(toDynamicDenseMatrix(c11) - c12.transpose() * c22.solve(c12)));
+            TPoint2 mean(fromDenseVector(toDynamicDenseVector(m1) + c12.transpose() * c22SolvexcMinusm2));
+            TMatrix2 covariance(fromDenseMatrix(toDynamicDenseMatrix(c11) - c12.transpose() * c22.solve(c12)));
             double weight;
             logDeterminant(covariance, weight, false);
             weight -= 0.5 * (xc - m2).transpose() * c22SolvexcMinusm2;
             LOG_TRACE("mean = " << mean << ", covariance = " << covariance);
 
-            return {TPriorPtr(new CMultivariateNormalConjugate<
-                              2>(dataType, mean, p, f, covariance, decayRate)),
+            return {TPriorPtr(new CMultivariateNormalConjugate<2>(dataType, mean, p, f, covariance, decayRate)),
                     weight};
-        } catch (const std::exception& e) {
-            LOG_ERROR("Failed to get univariate prior: " << e.what());
-        }
+        } catch (const std::exception& e) { LOG_ERROR("Failed to get univariate prior: " << e.what()); }
 
         return TPriorPtrDoublePr();
     }
@@ -549,9 +512,7 @@ public:
     }
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean(void) const {
-        return this->mean().template toVector<TDouble10Vec>();
-    }
+    virtual TDouble10Vec marginalLikelihoodMean(void) const { return this->mean().template toVector<TDouble10Vec>(); }
 
     //! Get the mode of the marginal likelihood function.
     virtual TDouble10Vec marginalLikelihoodMode(const TWeightStyleVec& /*weightStyles*/,
@@ -578,11 +539,10 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
-                               double& result) const {
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble10Vec1Vec& samples,
+                                                                          const TDouble10Vec4Vec1Vec& weights,
+                                                                          double& result) const {
         result = 0.0;
 
         if (samples.empty()) {
@@ -614,11 +574,7 @@ public:
 
         if (this->isInteger()) {
             double logLikelihood;
-            status = this->jointLogMarginalLikelihood(weightStyles,
-                                                      samples,
-                                                      TPoint(0.5),
-                                                      weights,
-                                                      logLikelihood);
+            status = this->jointLogMarginalLikelihood(weightStyles, samples, TPoint(0.5), weights, logLikelihood);
             if (status != maths_t::E_FpNoErrors) {
                 return status;
             }
@@ -630,11 +586,8 @@ public:
             TDoubleVec z;
             CSampling::uniformSample(0.0, 1.0, 3 * N, z);
             for (std::size_t i = 0u; i < z.size(); i += N) {
-                status = this->jointLogMarginalLikelihood(weightStyles,
-                                                          samples,
-                                                          TPoint(&z[i], &z[i + N]),
-                                                          weights,
-                                                          logLikelihood);
+                status = this->jointLogMarginalLikelihood(
+                    weightStyles, samples, TPoint(&z[i], &z[i + N]), weights, logLikelihood);
                 if (status & maths_t::E_FpFailed) {
                     return maths_t::E_FpFailed;
                 }
@@ -652,11 +605,7 @@ public:
 
             result = maxLogLikelihood + ::log(sum / n);
         } else {
-            status = this->jointLogMarginalLikelihood(weightStyles,
-                                                      samples,
-                                                      TPoint(0.0),
-                                                      weights,
-                                                      result);
+            status = this->jointLogMarginalLikelihood(weightStyles, samples, TPoint(0.0), weights, result);
         }
 
         if (status & maths_t::E_FpFailed) {
@@ -691,8 +640,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const {
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const {
         samples.clear();
 
         if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -738,9 +686,7 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative(void) const {
-        return m_WishartDegreesFreedom <= static_cast<double>(N + 1);
-    }
+    virtual bool isNonInformative(void) const { return m_WishartDegreesFreedom <= static_cast<double>(N + 1); }
 
     //! Get a human readable description of the prior.
     //!
@@ -781,9 +727,7 @@ public:
     virtual std::size_t staticSize(void) const { return sizeof(*this); }
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag(void) const {
-        return NORMAL_TAG + core::CStringUtils::typeToString(N);
-    }
+    virtual std::string persistenceTag(void) const { return NORMAL_TAG + core::CStringUtils::typeToString(N); }
 
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -795,8 +739,7 @@ public:
                                    this->decayRate(decayRate))
             RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG,
                                    double numberSamples,
-                                   core::CStringUtils::stringToType(traverser.value(),
-                                                                    numberSamples),
+                                   core::CStringUtils::stringToType(traverser.value(), numberSamples),
                                    this->numberSamples(numberSamples))
             RESTORE(GAUSSIAN_MEAN_TAG, m_GaussianMean.fromDelimited(traverser.value()))
             RESTORE(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.fromDelimited(traverser.value()))
@@ -811,14 +754,10 @@ public:
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-        inserter.insertValue(NUMBER_SAMPLES_TAG,
-                             this->numberSamples(),
-                             core::CIEEE754::E_SinglePrecision);
+        inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(), core::CIEEE754::E_SinglePrecision);
         inserter.insertValue(GAUSSIAN_MEAN_TAG, m_GaussianMean.toDelimited());
         inserter.insertValue(GAUSSIAN_PRECISION_TAG, m_GaussianPrecision.toDelimited());
-        inserter.insertValue(WISHART_DEGREES_FREEDOM_TAG,
-                             m_WishartDegreesFreedom,
-                             core::CIEEE754::E_DoublePrecision);
+        inserter.insertValue(WISHART_DEGREES_FREEDOM_TAG, m_WishartDegreesFreedom, core::CIEEE754::E_DoublePrecision);
         inserter.insertValue(WISHART_SCALE_MATRIX_TAG, m_WishartScaleMatrix.toDelimited());
     }
     //@}
@@ -965,9 +904,7 @@ public:
     //@}
 
     //! Get the expected mean of the marginal likelihood.
-    TPoint mean(void) const {
-        return this->isInteger() ? m_GaussianMean - TPoint(0.5) : m_GaussianMean;
-    }
+    TPoint mean(void) const { return this->isInteger() ? m_GaussianMean - TPoint(0.5) : m_GaussianMean; }
 
     //! Get the covariance matrix for the marginal likelihood.
     TMatrix covarianceMatrix(void) const {
@@ -1000,9 +937,7 @@ public:
     }
 
     //! Check if two priors are equal to the specified tolerance.
-    bool equalTolerance(const CMultivariateNormalConjugate& rhs,
-                        unsigned int toleranceType,
-                        double epsilon) const {
+    bool equalTolerance(const CMultivariateNormalConjugate& rhs, unsigned int toleranceType, double epsilon) const {
         LOG_DEBUG(m_GaussianMean << " " << rhs.m_GaussianMean);
         LOG_DEBUG(m_GaussianPrecision << " " << rhs.m_GaussianPrecision);
         LOG_DEBUG(m_WishartDegreesFreedom << " " << rhs.m_WishartDegreesFreedom);
@@ -1048,9 +983,7 @@ private:
 
 private:
     //! Unpack the variable values on which to condition.
-    void unpack(const TSizeDoublePr10Vec& condition,
-                TSize10Vec& condition_,
-                CDenseVector<double>& x) const {
+    void unpack(const TSizeDoublePr10Vec& condition, TSize10Vec& condition_, CDenseVector<double>& x) const {
         condition_.reserve(condition.size());
         for (std::size_t i = 0u; i < condition.size(); ++i) {
             condition_.push_back(condition[i].first);
@@ -1060,12 +993,11 @@ private:
 
     //! Compute the marginal likelihood for \p samples at the offset
     //! \p offset.
-    maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TPoint& offset,
-                               const TDouble10Vec4Vec1Vec& weights,
-                               double& result) const {
+    maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                  const TDouble10Vec1Vec& samples,
+                                                                  const TPoint& offset,
+                                                                  const TDouble10Vec4Vec1Vec& weights,
+                                                                  double& result) const {
         // As usual, one can find the marginal likelihood by noting that
         // it is proportional to the ratio of the normalization factors
         // of the conjugate distribution before and after update with the
@@ -1081,8 +1013,7 @@ private:
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
                 TPoint n(maths_t::countForUpdate(N, weightStyles, weights[i]));
-                TPoint seasonalScale =
-                    sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
+                TPoint seasonalScale = sqrt(TPoint(maths_t::seasonalVarianceScale(N, weightStyles, weights[i])));
                 TPoint countVarianceScale(maths_t::countVarianceScale(N, weightStyles, weights[i]));
                 x = m + (x + offset - m) / seasonalScale;
                 numberSamples += this->smallest(n.template toVector<TDouble10Vec>());
@@ -1096,10 +1027,8 @@ private:
             return maths_t::E_FpFailed;
         }
         TPoint scaledNumberSamples = covariancePost.s_Count;
-        TCovariance covariancePrior =
-            CBasicStatistics::accumulator(m_WishartDegreesFreedom,
-                                          m_GaussianMean,
-                                          m_WishartScaleMatrix / m_WishartDegreesFreedom);
+        TCovariance covariancePrior = CBasicStatistics::accumulator(
+            m_WishartDegreesFreedom, m_GaussianMean, m_WishartScaleMatrix / m_WishartDegreesFreedom);
         covariancePost += covariancePrior;
 
         double logGaussianPrecisionPrior = 0.0;
@@ -1113,8 +1042,7 @@ private:
         TMatrix wishartScaleMatrixPost = covariancePost.s_Covariances;
         scaleCovariances(covariancePost.s_Count, wishartScaleMatrixPost);
         double logDeterminantPrior;
-        if (logDeterminant(m_WishartScaleMatrix, logDeterminantPrior, false) &
-            maths_t::E_FpFailed) {
+        if (logDeterminant(m_WishartScaleMatrix, logDeterminantPrior, false) & maths_t::E_FpFailed) {
             LOG_ERROR("Failed to calculate log det " << m_WishartScaleMatrix);
             return maths_t::E_FpFailed;
         }
@@ -1128,17 +1056,13 @@ private:
             double logGammaPostMinusPrior = 0.0;
             for (std::size_t i = 0u; i < N; ++i) {
                 logGammaPostMinusPrior +=
-                    boost::math::lgamma(0.5 *
-                                        (wishartDegreesFreedomPost - static_cast<double>(i))) -
-                    boost::math::lgamma(0.5 *
-                                        (wishartDegreesFreedomPrior - static_cast<double>(i)));
+                    boost::math::lgamma(0.5 * (wishartDegreesFreedomPost - static_cast<double>(i))) -
+                    boost::math::lgamma(0.5 * (wishartDegreesFreedomPrior - static_cast<double>(i)));
             }
             LOG_TRACE("numberSamples = " << numberSamples);
             LOG_TRACE("logGaussianPrecisionPrior = " << logGaussianPrecisionPrior
-                                                     << ", logGaussianPrecisionPost  = "
-                                                     << logGaussianPrecisionPost);
-            LOG_TRACE("wishartDegreesFreedomPrior = " << wishartDegreesFreedomPrior
-                                                      << ", wishartDegreesFreedomPost  = "
+                                                     << ", logGaussianPrecisionPost  = " << logGaussianPrecisionPost);
+            LOG_TRACE("wishartDegreesFreedomPrior = " << wishartDegreesFreedomPrior << ", wishartDegreesFreedomPost  = "
                                                       << wishartDegreesFreedomPost);
             LOG_TRACE("wishartScaleMatrixPrior = " << m_WishartScaleMatrix);
             LOG_TRACE("wishartScaleMatrixPost  = " << wishartScaleMatrixPost);
@@ -1147,14 +1071,12 @@ private:
             LOG_TRACE("logGammaPostMinusPrior = " << logGammaPostMinusPrior);
             LOG_TRACE("logCountVarianceScales = " << logCountVarianceScales);
 
-            result =
-                0.5 * (wishartDegreesFreedomPrior * logDeterminantPrior -
-                       wishartDegreesFreedomPost * logDeterminantPost -
-                       d * (logGaussianPrecisionPost - logGaussianPrecisionPrior) +
-                       (wishartDegreesFreedomPost - wishartDegreesFreedomPrior) * d *
-                           core::constants::LOG_TWO +
-                       2.0 * logGammaPostMinusPrior -
-                       numberSamples * d * core::constants::LOG_TWO_PI - logCountVarianceScales);
+            result = 0.5 * (wishartDegreesFreedomPrior * logDeterminantPrior -
+                            wishartDegreesFreedomPost * logDeterminantPost -
+                            d * (logGaussianPrecisionPost - logGaussianPrecisionPrior) +
+                            (wishartDegreesFreedomPost - wishartDegreesFreedomPrior) * d * core::constants::LOG_TWO +
+                            2.0 * logGammaPostMinusPrior - numberSamples * d * core::constants::LOG_TWO_PI -
+                            logCountVarianceScales);
         } catch (const std::exception& e) {
             LOG_ERROR("Failed to calculate marginal likelihood: " << e.what());
             return maths_t::E_FpFailed;
@@ -1164,18 +1086,15 @@ private:
 
     //! Check that the state is valid.
     bool isBad(void) const {
-        return !CMathsFuncs::isFinite(m_GaussianMean) ||
-               !CMathsFuncs::isFinite(m_GaussianPrecision) ||
-               !CMathsFuncs::isFinite(m_WishartDegreesFreedom) ||
-               !CMathsFuncs::isFinite(m_WishartScaleMatrix);
+        return !CMathsFuncs::isFinite(m_GaussianMean) || !CMathsFuncs::isFinite(m_GaussianPrecision) ||
+               !CMathsFuncs::isFinite(m_WishartDegreesFreedom) || !CMathsFuncs::isFinite(m_WishartScaleMatrix);
     }
 
     //! Full debug dump of the state of this prior.
     std::string debug(void) const {
         std::ostringstream result;
-        result << std::scientific << std::setprecision(15) << m_GaussianMean << " "
-               << m_GaussianPrecision << " " << m_WishartDegreesFreedom << " "
-               << m_WishartScaleMatrix;
+        result << std::scientific << std::setprecision(15) << m_GaussianMean << " " << m_GaussianPrecision << " "
+               << m_WishartDegreesFreedom << " " << m_WishartScaleMatrix;
         return result.str();
     }
 

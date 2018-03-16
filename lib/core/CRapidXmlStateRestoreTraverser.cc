@@ -113,8 +113,7 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElem
         return 0;
     }
 
-    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling();
-         nextNode != 0;
+    for (CRapidXmlParser::TCharRapidXmlNode* nextNode = m_CurrentNode->next_sibling(); nextNode != 0;
          nextNode = nextNode->next_sibling()) {
         // We ignore comments, CDATA and any other type of node that's not an
         // element
@@ -126,8 +125,7 @@ CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::nextNodeElem
     return 0;
 }
 
-CRapidXmlParser::TCharRapidXmlNode*
-CRapidXmlStateRestoreTraverser::firstChildNodeElement(void) const {
+CRapidXmlParser::TCharRapidXmlNode* CRapidXmlStateRestoreTraverser::firstChildNodeElement(void) const {
     if (m_CurrentNode == 0) {
         return 0;
     }

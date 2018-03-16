@@ -60,8 +60,7 @@ core_t::TTime playData(core_t::TTime start,
                        int numPartitions,
                        int anomaly,
                        api::CAnomalyJob& job) {
-    std::string people[] =
-        {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
+    std::string people[] = {"Elgar", "Holst", "Delius", "Vaughan Williams", "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
         LOG_ERROR("Too many people: " << numPeople);
         return start;
@@ -83,8 +82,7 @@ core_t::TTime playData(core_t::TTime start,
             }
         }
         if (bucketNum == anomaly) {
-            ss << t << "," << 5564 << "," << people[numPeople - 1] << ","
-               << partitions[numPartitions - 1] << "\n";
+            ss << t << "," << 5564 << "," << people[numPeople - 1] << "," << partitions[numPartitions - 1] << "\n";
         }
     }
 
@@ -102,9 +100,7 @@ struct SLookup {
         return hasher(key);
     }
 
-    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const {
-        return lhs == *rhs;
-    }
+    bool operator()(const std::string& lhs, const core::CStoredStringPtr& rhs) const { return lhs == *rhs; }
 };
 
 } // namespace
@@ -132,8 +128,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
     modelConfig.bucketResultsDelay(2);
 
@@ -169,8 +164,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
         // No influencers in this configuration
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
 
-        // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius",
-        // "flute", "tuba"
+        // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
         CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
@@ -201,12 +195,8 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -215,8 +205,7 @@ void CStringStoreTest::testPersonStringPruning(void) {
         // No influencers in this configuration
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
 
-        // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius",
-        // "flute", "tuba"
+        // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
         CPPUNIT_ASSERT(this->nameExists("max"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
@@ -245,12 +234,8 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -289,12 +274,8 @@ void CStringStoreTest::testPersonStringPruning(void) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -330,8 +311,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.decayRate(0.001);
     modelConfig.bucketResultsDelay(2);
 
@@ -365,8 +345,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         // No influencers in this configuration
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
 
-        // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst",
-        // "Delius", "flute", "tuba"
+        // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         LOG_DEBUG(core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
         CPPUNIT_ASSERT(this->nameExists("count"));
         CPPUNIT_ASSERT(this->nameExists("distinct_count"));
@@ -397,12 +376,8 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -411,8 +386,7 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         // No influencers in this configuration
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), model::CStringStore::influencers().m_Strings.size());
 
-        // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst",
-        // "Delius", "flute", "tuba"
+        // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         CPPUNIT_ASSERT(this->nameExists("count"));
         CPPUNIT_ASSERT(this->nameExists("distinct_count"));
         CPPUNIT_ASSERT(this->nameExists("notes"));
@@ -442,12 +416,8 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -487,12 +457,8 @@ void CStringStoreTest::testAttributeStringPruning(void) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job",
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        api::CAnomalyJob job(
+            "job", limits, fieldConfig, modelConfig, wrappedOutputStream, api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         CPPUNIT_ASSERT(job.restoreState(searcher, completeToTime));
@@ -527,8 +493,7 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
 
     CPPUNIT_ASSERT(fieldConfig.initFromClause(clause));
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
     modelConfig.bucketResultsDelay(2);
 
     model::CLimits limits;
@@ -641,14 +606,11 @@ void CStringStoreTest::testInfluencerStringPruning(void) {
 CppUnit::Test* CStringStoreTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning",
-                                                  &CStringStoreTest::testPersonStringPruning));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testAttributeStringPruning",
-                                                  &CStringStoreTest::testAttributeStringPruning));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testInfluencerStringPruning",
-                                                  &CStringStoreTest::testInfluencerStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testPersonStringPruning",
+                                                                    &CStringStoreTest::testPersonStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testAttributeStringPruning",
+                                                                    &CStringStoreTest::testAttributeStringPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testInfluencerStringPruning",
+                                                                    &CStringStoreTest::testInfluencerStringPruning));
     return suiteOfTests;
 }

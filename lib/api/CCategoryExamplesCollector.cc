@@ -41,15 +41,12 @@ const std::string ELLIPSIS(3, '.');
 
 const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
-CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
-    : m_MaxExamples(maxExamples) {
+CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples) : m_MaxExamples(maxExamples) {
 }
 
-CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
-                                                       core::CStateRestoreTraverser& traverser)
+CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples, core::CStateRestoreTraverser& traverser)
     : m_MaxExamples(maxExamples) {
-    traverser.traverseSubLevel(
-        boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser, this, _1));
 }
 
 bool CCategoryExamplesCollector::add(std::size_t category, const std::string& example) {
@@ -68,8 +65,7 @@ std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t 
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }
 
-const CCategoryExamplesCollector::TStrSet&
-CCategoryExamplesCollector::examples(std::size_t category) const {
+const CCategoryExamplesCollector::TStrSet& CCategoryExamplesCollector::examples(std::size_t category) const {
     auto iterator = m_ExamplesByCategory.find(category);
     if (iterator == m_ExamplesByCategory.end()) {
         return EMPTY_EXAMPLES;
@@ -77,8 +73,7 @@ CCategoryExamplesCollector::examples(std::size_t category) const {
     return iterator->second;
 }
 
-void CCategoryExamplesCollector::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Persist the examples sorted by category ID to make it easier to compare
     // persisted state
 
@@ -118,8 +113,8 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
     do {
         const std::string& name = traverser.name();
         if (name == EXAMPLES_BY_CATEGORY_TAG) {
-            if (traverser.traverseSubLevel(
-                    boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CCategoryExamplesCollector::restoreExamples, this, _1)) ==
+                false) {
                 LOG_ERROR("Error restoring examples by category");
                 return false;
             }
@@ -144,8 +139,7 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         }
     } while (traverser.next());
 
-    LOG_TRACE("Restoring examples for category " << category << ": "
-                                                 << core::CContainerPrinter::print(examples));
+    LOG_TRACE("Restoring examples for category " << category << ": " << core::CContainerPrinter::print(examples));
     m_ExamplesByCategory[category].swap(examples);
 
     return true;

@@ -68,9 +68,7 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
     result.clear();
 }
 
-double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
-                                             double value,
-                                             double /*confidence*/) const {
+double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/, double value, double /*confidence*/) const {
     return value;
 }
 

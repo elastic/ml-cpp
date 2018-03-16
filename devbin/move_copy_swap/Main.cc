@@ -114,8 +114,7 @@ int main(int argc, char** argv) {
     uint64_t durationMs = (durationTenthMs / 10) + ((durationTenthMs % 10 >= 5) ? 1 : 0);
 #else
     std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
-    size_t durationMs =
-        std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    size_t durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 #endif
 
     std::cout << "Time " << durationMs

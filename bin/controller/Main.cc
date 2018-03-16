@@ -72,12 +72,10 @@ int main(int argc, char** argv) {
     const std::string& progName = ml::core::CProgName::progName();
 
     // Read command line options
-    std::string jvmPidStr =
-        ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().parentId());
+    std::string jvmPidStr = ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().parentId());
     std::string logPipe;
     std::string commandPipe;
-    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe, commandPipe) ==
-        false) {
+    if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe, commandPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -97,8 +95,7 @@ int main(int argc, char** argv) {
     // 4) No plugin code ever runs
     // This thread will detect the death of the parent process because this
     // process's STDIN will be closed.
-    ml::controller::CBlockingCallCancellerThread
-        cancellerThread(ml::core::CThread::currentThreadId(), std::cin);
+    ml::controller::CBlockingCallCancellerThread cancellerThread(ml::core::CThread::currentThreadId(), std::cin);
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
         // real stderr of this process rather than the log pipe...
@@ -121,8 +118,7 @@ int main(int argc, char** argv) {
     // the controller is critical to the overall system.  Also its resource
     // requirements should always be very low.
 
-    ml::core::CNamedPipeFactory::TIStreamP commandStream =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
+    ml::core::CNamedPipeFactory::TIStreamP commandStream = ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
     if (commandStream == 0) {
         LOG_FATAL("Could not open command pipe");
         cancellerThread.stop();

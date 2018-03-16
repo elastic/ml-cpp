@@ -53,8 +53,7 @@ bool CTimezone::timezoneName(const std::string& name) {
     CScopedFastLock lock(m_Mutex);
 
     if (CSetEnv::setEnv("TZ", name.c_str(), 1) != 0) {
-        LOG_ERROR("Unable to set TZ environment variable to " << name << " : "
-                                                              << ::strerror(errno));
+        LOG_ERROR("Unable to set TZ environment variable to " << name << " : " << ::strerror(errno));
 
         return false;
     }

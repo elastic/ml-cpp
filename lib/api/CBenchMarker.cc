@@ -60,8 +60,7 @@ bool CBenchMarker::init(const std::string& regexFilename) {
 void CBenchMarker::addResult(const std::string& message, int type) {
     bool scored(false);
     size_t position(0);
-    for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
-         measureVecIter != m_Measures.end();
+    for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin(); measureVecIter != m_Measures.end();
          ++measureVecIter) {
         const core::CRegex& regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
@@ -88,16 +87,13 @@ void CBenchMarker::addResult(const std::string& message, int type) {
 void CBenchMarker::dumpResults(void) const {
     // Sort the results in descending order of actual type occurrence
     typedef std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr> TSizeRegexIntSizeStrPrMapPrVecCItrPr;
-    typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>
-        TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
-    typedef TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator
-        TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr;
+    typedef std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr> TSizeRegexIntSizeStrPrMapPrVecCItrPrVec;
+    typedef TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr;
 
     TSizeRegexIntSizeStrPrMapPrVecCItrPrVec sortVec;
     sortVec.reserve(m_Measures.size());
 
-    for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
-         measureVecIter != m_Measures.end();
+    for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin(); measureVecIter != m_Measures.end();
          ++measureVecIter) {
         const TIntSizeStrPrMap& counts = measureVecIter->second;
 
@@ -110,8 +106,7 @@ void CBenchMarker::dumpResults(void) const {
     }
 
     // Sort descending
-    typedef std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr>
-        TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr;
+    typedef std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr> TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr;
     TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr comp;
     std::sort(sortVec.begin(), sortVec.end(), comp);
 
@@ -126,8 +121,7 @@ void CBenchMarker::dumpResults(void) const {
 
     // Iterate backwards through the sorted vector, so that the most common
     // actual types are looked at first
-    for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
-         sortedVecIter != sortVec.end();
+    for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin(); sortedVecIter != sortVec.end();
          ++sortedVecIter) {
         size_t total(sortedVecIter->first);
         if (total > 0) {
@@ -141,15 +135,14 @@ void CBenchMarker::dumpResults(void) const {
              << "\tNumber of messages in manual category " << total << core_t::LINE_ENDING;
 
         const TIntSizeStrPrMap& counts = measureVecIter->second;
-        strm << "\tNumber of Ml categories that include this manual category " << counts.size()
-             << core_t::LINE_ENDING;
+        strm << "\tNumber of Ml categories that include this manual category " << counts.size() << core_t::LINE_ENDING;
 
         if (counts.size() == 1) {
             size_t count(counts.begin()->second.first);
             int type(counts.begin()->first);
             if (usedTypes.find(type) != usedTypes.end()) {
-                strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
-                     << counts.begin()->second.second << core_t::LINE_ENDING;
+                strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t" << counts.begin()->second.second
+                     << core_t::LINE_ENDING;
             } else {
                 good += count;
                 usedTypes.insert(type);
@@ -162,8 +155,7 @@ void CBenchMarker::dumpResults(void) const {
             // are bad.
             size_t max(0);
             int maxType(-1);
-            for (TIntSizeStrPrMapCItr mapIter = counts.begin(); mapIter != counts.end();
-                 ++mapIter) {
+            for (TIntSizeStrPrMapCItr mapIter = counts.begin(); mapIter != counts.end(); ++mapIter) {
                 int type(mapIter->first);
 
                 size_t count(mapIter->second.first);
@@ -186,12 +178,11 @@ void CBenchMarker::dumpResults(void) const {
         }
     }
 
-    strm << "Total number of messages passed to benchmarker " << m_TotalMessages
-         << core_t::LINE_ENDING << "Total number of scored messages " << m_ScoredMessages
-         << core_t::LINE_ENDING << "Number of scored messages correctly categorised by Ml " << good
-         << core_t::LINE_ENDING << "Overall accuracy for scored messages "
-         << (double(good) / double(m_ScoredMessages)) * 100.0 << '%' << core_t::LINE_ENDING
-         << "Percentage of manual categories detected at all "
+    strm << "Total number of messages passed to benchmarker " << m_TotalMessages << core_t::LINE_ENDING
+         << "Total number of scored messages " << m_ScoredMessages << core_t::LINE_ENDING
+         << "Number of scored messages correctly categorised by Ml " << good << core_t::LINE_ENDING
+         << "Overall accuracy for scored messages " << (double(good) / double(m_ScoredMessages)) * 100.0 << '%'
+         << core_t::LINE_ENDING << "Percentage of manual categories detected at all "
          << (double(usedTypes.size()) / double(observedActuals)) * 100.0 << '%';
 
     LOG_DEBUG(strm.str());

@@ -161,8 +161,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
     if (m_TimeFieldFormat.empty()) {
         if (core::CStringUtils::stringToType(iter->second, time) == false) {
             core::CStatistics::stat(stat_t::E_NumberTimeFieldConversionErrors).increment();
-            LOG_ERROR("Cannot interpret " << m_TimeFieldName
-                                          << " field in record:" << core_t::LINE_ENDING
+            LOG_ERROR("Cannot interpret " << m_TimeFieldName << " field in record:" << core_t::LINE_ENDING
                                           << this->debugPrintRecord(dataRowFields));
             return true;
         }
@@ -171,8 +170,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         // around many operating system specific issues.
         if (core::CTimeUtils::strptime(m_TimeFieldFormat, iter->second, time) == false) {
             core::CStatistics::stat(stat_t::E_NumberTimeFieldConversionErrors).increment();
-            LOG_ERROR("Cannot interpret " << m_TimeFieldName << " field using format "
-                                          << m_TimeFieldFormat
+            LOG_ERROR("Cannot interpret " << m_TimeFieldName << " field using format " << m_TimeFieldFormat
                                           << " in record:" << core_t::LINE_ENDING
                                           << this->debugPrintRecord(dataRowFields));
             return true;
@@ -187,8 +185,8 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         core::CStatistics::stat(stat_t::E_NumberTimeOrderErrors).increment();
         std::ostringstream ss;
         ss << "Records must be in ascending time order. "
-           << "Record '" << this->debugPrintRecord(dataRowFields) << "' time " << time
-           << " is before bucket time " << m_LastFinalisedBucketEndTime;
+           << "Record '" << this->debugPrintRecord(dataRowFields) << "' time " << time << " is before bucket time "
+           << m_LastFinalisedBucketEndTime;
         LOG_ERROR(ss.str());
         return true;
     }
@@ -203,10 +201,8 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         const std::string& partitionFieldName(m_DetectorKeys[i].partitionFieldName());
 
         // An empty partitionFieldName means no partitioning
-        TStrStrUMapCItr itr = partitionFieldName.empty() ? dataRowFields.end()
-                                                         : dataRowFields.find(partitionFieldName);
-        const std::string& partitionFieldValue(itr == dataRowFields.end() ? EMPTY_STRING
-                                                                          : itr->second);
+        TStrStrUMapCItr itr = partitionFieldName.empty() ? dataRowFields.end() : dataRowFields.find(partitionFieldName);
+        const std::string& partitionFieldValue(itr == dataRowFields.end() ? EMPTY_STRING : itr->second);
 
         // TODO - should usenull apply to the partition field too?
 
@@ -354,8 +350,8 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         this->doForecast(controlMessage);
         break;
     default:
-        LOG_WARN("Ignoring unknown control message of length "
-                 << controlMessage.length() << " beginning with '" << controlMessage[0] << '\'');
+        LOG_WARN("Ignoring unknown control message of length " << controlMessage.length() << " beginning with '"
+                                                               << controlMessage[0] << '\'');
         // Don't return false here (for the time being at least), as it
         // seems excessive to cause the entire job to fail
         break;
@@ -412,8 +408,7 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
 
     if (m_LastFinalisedBucketEndTime == 0) {
         m_LastFinalisedBucketEndTime =
-            std::max(m_LastFinalisedBucketEndTime,
-                     maths::CIntegerTools::floor(time, effectiveBucketLength) - latency);
+            std::max(m_LastFinalisedBucketEndTime, maths::CIntegerTools::floor(time, effectiveBucketLength) - latency);
     }
 
     for (core_t::TTime lastBucketEndTime = m_LastFinalisedBucketEndTime;
@@ -468,10 +463,8 @@ void CAnomalyJob::flushAndResetResultsQueue(core_t::TTime startTime) {
     LOG_DEBUG("Flush & reset results queue: " << startTime);
     if (m_ModelConfig.bucketResultsDelay() != 0) {
         core_t::TTime effectiveBucketLength = this->effectiveBucketLength();
-        core_t::TTime earliestResultTime =
-            m_LastFinalisedBucketEndTime - m_ResultsQueue.size() * effectiveBucketLength;
-        for (core_t::TTime bucketStart = earliestResultTime;
-             bucketStart < m_LastFinalisedBucketEndTime;
+        core_t::TTime earliestResultTime = m_LastFinalisedBucketEndTime - m_ResultsQueue.size() * effectiveBucketLength;
+        for (core_t::TTime bucketStart = earliestResultTime; bucketStart < m_LastFinalisedBucketEndTime;
              bucketStart += effectiveBucketLength) {
             model::CHierarchicalResults& results = m_ResultsQueue.latest();
             core_t::TTime resultsTime =
@@ -508,8 +501,7 @@ void CAnomalyJob::timeNow(core_t::TTime time) {
 }
 
 core_t::TTime CAnomalyJob::effectiveBucketLength(void) const {
-    return m_ModelConfig.bucketResultsDelay() ? m_ModelConfig.bucketLength() / 2
-                                              : m_ModelConfig.bucketLength();
+    return m_ModelConfig.bucketResultsDelay() ? m_ModelConfig.bucketLength() / 2 : m_ModelConfig.bucketLength();
 }
 
 void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
@@ -521,8 +513,8 @@ void CAnomalyJob::generateInterimResults(const std::string& controlMessage) {
     }
 
     core_t::TTime start = m_LastFinalisedBucketEndTime;
-    core_t::TTime end = m_LastFinalisedBucketEndTime +
-                        (m_ModelConfig.latencyBuckets() + 1) * this->effectiveBucketLength();
+    core_t::TTime end =
+        m_LastFinalisedBucketEndTime + (m_ModelConfig.latencyBuckets() + 1) * this->effectiveBucketLength();
 
     if (this->parseTimeRangeInControlMessage(controlMessage, start, end)) {
         LOG_TRACE("Time range for results: " << start << " : " << end);
@@ -536,10 +528,7 @@ bool CAnomalyJob::parseTimeRangeInControlMessage(const std::string& controlMessa
     typedef core::CStringUtils::TStrVec TStrVec;
     TStrVec tokens;
     std::string remainder;
-    core::CStringUtils::tokenise(" ",
-                                 controlMessage.substr(1, std::string::npos),
-                                 tokens,
-                                 remainder);
+    core::CStringUtils::tokenise(" ", controlMessage.substr(1, std::string::npos), tokens, remainder);
     if (!remainder.empty()) {
         tokens.push_back(remainder);
     }
@@ -553,8 +542,7 @@ bool CAnomalyJob::parseTimeRangeInControlMessage(const std::string& controlMessa
                                      << " parameters when only zero or two are allowed.");
         return false;
     }
-    if (core::CStringUtils::stringToType(tokens[0], start) &&
-        core::CStringUtils::stringToType(tokens[1], end)) {
+    if (core::CStringUtils::stringToType(tokens[0], start) && core::CStringUtils::stringToType(tokens[1], end)) {
         return true;
     }
     LOG_ERROR("Cannot parse control message: " << controlMessage);
@@ -593,19 +581,15 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     TKeyAnomalyDetectorPtrUMapCItrVec iterators;
     iterators.reserve(m_Detectors.size());
-    for (TKeyAnomalyDetectorPtrUMapCItr itr = m_Detectors.begin(); itr != m_Detectors.end();
-         ++itr) {
+    for (TKeyAnomalyDetectorPtrUMapCItr itr = m_Detectors.begin(); itr != m_Detectors.end(); ++itr) {
         iterators.push_back(itr);
     }
-    std::sort(iterators.begin(),
-              iterators.end(),
-              core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
+    std::sort(iterators.begin(), iterators.end(), core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
 
     for (std::size_t i = 0u; i < iterators.size(); ++i) {
         model::CAnomalyDetector* detector(iterators[i]->second.get());
         if (detector == 0) {
-            LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(iterators[i]->first)
-                                                          << '\'');
+            LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(iterators[i]->first) << '\'');
             continue;
         }
         detector->buildResults(bucketStartTime, bucketStartTime + bucketLength, results);
@@ -630,8 +614,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         this->updateQuantilesAndNormalize(false, results);
     }
 
-    core_t::TTime resultsTime =
-        m_ResultsQueue.chooseResultTime(bucketStartTime, bucketLength, results);
+    core_t::TTime resultsTime = m_ResultsQueue.chooseResultTime(bucketStartTime, bucketLength, results);
     if (resultsTime != 0) {
         model::CHierarchicalResults& resultsToOutput = m_ResultsQueue.get(resultsTime);
         uint64_t processingTime = timer.stop();
@@ -699,37 +682,29 @@ void CAnomalyJob::writeOutResults(bool interim,
                                   uint64_t sumPastProcessingTime) {
     if (!results.empty()) {
         LOG_TRACE("Got results object here: " << results.root()->s_RawAnomalyScore << " / "
-                                              << results.root()->s_NormalizedAnomalyScore
-                                              << ", count " << results.resultCount() << " at "
-                                              << bucketTime);
+                                              << results.root()->s_NormalizedAnomalyScore << ", count "
+                                              << results.resultCount() << " at " << bucketTime);
 
         typedef ml::core::CScopedRapidJsonPoolAllocator<CJsonOutputWriter> TScopedAllocator;
         static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
         TScopedAllocator scopedAllocator(ALLOCATOR_ID, m_JsonOutputWriter);
 
-        api::CHierarchicalResultsWriter writer(m_Limits,
-                                               m_ModelConfig,
-                                               boost::bind(&CJsonOutputWriter::acceptResult,
-                                                           &m_JsonOutputWriter,
-                                                           _1),
-                                               boost::bind(&CJsonOutputWriter::acceptInfluencer,
-                                                           &m_JsonOutputWriter,
-                                                           _1,
-                                                           _2,
-                                                           _3));
+        api::CHierarchicalResultsWriter writer(
+            m_Limits,
+            m_ModelConfig,
+            boost::bind(&CJsonOutputWriter::acceptResult, &m_JsonOutputWriter, _1),
+            boost::bind(&CJsonOutputWriter::acceptInfluencer, &m_JsonOutputWriter, _1, _2, _3));
         results.bottomUpBreadthFirst(writer);
         results.pivotsBottomUpBreadthFirst(writer);
 
         // Add the bucketTime bucket influencer.
         // Note that the influencer will only be accepted if there are records.
-        m_JsonOutputWriter
-            .acceptBucketTimeInfluencer(bucketTime,
-                                        results.root()->s_AnnotatedProbability.s_Probability,
-                                        results.root()->s_RawAnomalyScore,
-                                        results.root()->s_NormalizedAnomalyScore);
+        m_JsonOutputWriter.acceptBucketTimeInfluencer(bucketTime,
+                                                      results.root()->s_AnnotatedProbability.s_Probability,
+                                                      results.root()->s_RawAnomalyScore,
+                                                      results.root()->s_NormalizedAnomalyScore);
 
-        if (m_JsonOutputWriter.endOutputBatch(interim, sumPastProcessingTime + processingTime) ==
-            false) {
+        if (m_JsonOutputWriter.endOutputBatch(interim, sumPastProcessingTime + processingTime) == false) {
             LOG_ERROR("Problem writing anomaly output");
         }
         m_LastResultsTime = bucketTime;
@@ -751,8 +726,7 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
             for (const auto& detector_ : m_Detectors) {
                 model::CAnomalyDetector* detector = detector_.second.get();
                 if (detector == 0) {
-                    LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first)
-                                                                  << '\'');
+                    LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                     continue;
                 }
                 LOG_TRACE("Resetting bucket = " << time);
@@ -763,8 +737,7 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
     }
 }
 
-bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
-                               core_t::TTime& completeToTime) {
+bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime) {
     // Pass on the request in case we're chained
     if (this->outputHandler().restoreState(restoreSearcher, completeToTime) == false) {
         return false;
@@ -809,28 +782,24 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
         }
 
         if (completeToTime > 0) {
-            core_t::TTime lastBucketEndTime(
-                maths::CIntegerTools::ceil(completeToTime, m_ModelConfig.bucketLength()));
+            core_t::TTime lastBucketEndTime(maths::CIntegerTools::ceil(completeToTime, m_ModelConfig.bucketLength()));
 
             for (const auto& detector_ : m_Detectors) {
                 model::CAnomalyDetector* detector(detector_.second.get());
                 if (detector == 0) {
-                    LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first)
-                                                                  << '\'');
+                    LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                     continue;
                 }
 
-                LOG_DEBUG("Setting lastBucketEndTime to "
-                          << lastBucketEndTime << " in detector for '" << detector->description()
-                          << '\'');
+                LOG_DEBUG("Setting lastBucketEndTime to " << lastBucketEndTime << " in detector for '"
+                                                          << detector->description() << '\'');
                 detector->lastBucketEndTime() = lastBucketEndTime;
             }
         } else {
             if (!m_Detectors.empty()) {
-                LOG_ERROR("Inconsistency - "
-                          << m_Detectors.size()
-                          << " detectors have been restored but completeToTime is "
-                          << completeToTime);
+                LOG_ERROR("Inconsistency - " << m_Detectors.size()
+                                             << " detectors have been restored but completeToTime is "
+                                             << completeToTime);
             }
         }
     } catch (std::exception& e) {
@@ -859,9 +828,8 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
     if (traverser.name() != TIME_TAG ||
         core::CStringUtils::stringToType(traverser.value(), lastBucketEndTime) == false) {
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
-        LOG_ERROR("Cannot restore anomaly detector - '"
-                  << TIME_TAG << "' element expected but found " << traverser.name() << '='
-                  << traverser.value());
+        LOG_ERROR("Cannot restore anomaly detector - '" << TIME_TAG << "' element expected but found "
+                                                        << traverser.name() << '=' << traverser.value());
         return false;
     }
     m_LastFinalisedBucketEndTime = lastBucketEndTime;
@@ -880,9 +848,9 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
     const std::string& stateVersion = traverser.value();
     if (stateVersion != model::CAnomalyDetector::STATE_VERSION) {
         m_RestoredStateDetail.s_RestoredStateStatus = E_IncorrectVersion;
-        LOG_ERROR("Restored anomaly detector state version is "
-                  << stateVersion << " - ignoring it as current state version is "
-                  << model::CAnomalyDetector::STATE_VERSION);
+        LOG_ERROR("Restored anomaly detector state version is " << stateVersion
+                                                                << " - ignoring it as current state version is "
+                                                                << model::CAnomalyDetector::STATE_VERSION);
 
         // This counts as successful restoration
         return true;
@@ -891,27 +859,23 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
     while (traverser.next()) {
         const std::string& name = traverser.name();
         if (name == TOP_LEVEL_DETECTOR_TAG) {
-            if (traverser.traverseSubLevel(
-                    boost::bind(&CAnomalyJob::restoreSingleDetector, this, _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(&CAnomalyJob::restoreSingleDetector, this, _1)) == false) {
                 LOG_ERROR("Cannot restore anomaly detector");
                 return false;
             }
             ++numDetectors;
         } else if (name == RESULTS_AGGREGATOR_TAG) {
-            if (traverser.traverseSubLevel(
-                    boost::bind(&model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
-                                &m_Aggregator,
-                                _1)) == false) {
+            if (traverser.traverseSubLevel(boost::bind(
+                    &model::CHierarchicalResultsAggregator::acceptRestoreTraverser, &m_Aggregator, _1)) == false) {
                 LOG_ERROR("Cannot restore results aggregator");
                 return false;
             }
         } else if (name == HIERARCHICAL_RESULTS_TAG) {
             core::CPersistUtils::restore(HIERARCHICAL_RESULTS_TAG, m_ResultsQueue, traverser);
         } else if (name == MODEL_PLOT_TAG) {
-            core_t::TTime resultsQueueResetTime =
-                m_ModelConfig.bucketResultsDelay() == 0
-                    ? m_LastFinalisedBucketEndTime
-                    : m_LastFinalisedBucketEndTime - this->effectiveBucketLength();
+            core_t::TTime resultsQueueResetTime = m_ModelConfig.bucketResultsDelay() == 0
+                                                      ? m_LastFinalisedBucketEndTime
+                                                      : m_LastFinalisedBucketEndTime - this->effectiveBucketLength();
             m_ModelPlotQueue.reset(resultsQueueResetTime);
             core::CPersistUtils::restore(MODEL_PLOT_TAG, m_ModelPlotQueue, traverser);
         } else if (name == LATEST_RECORD_TIME_TAG) {
@@ -928,18 +892,16 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
 
 bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser) {
     if (traverser.name() != KEY_TAG) {
-        LOG_ERROR("Cannot restore anomaly detector - " << KEY_TAG << " element expected but found "
-                                                       << traverser.name() << '='
-                                                       << traverser.value());
+        LOG_ERROR("Cannot restore anomaly detector - " << KEY_TAG << " element expected but found " << traverser.name()
+                                                       << '=' << traverser.value());
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
     }
 
     model::CSearchKey key;
-    if (traverser.traverseSubLevel(boost::bind(&model::CAnomalyDetector::keyAcceptRestoreTraverser,
-                                               _1,
-                                               boost::ref(key))) == false) {
+    if (traverser.traverseSubLevel(
+            boost::bind(&model::CAnomalyDetector::keyAcceptRestoreTraverser, _1, boost::ref(key))) == false) {
         LOG_ERROR("Cannot restore anomaly detector - no key found in " << KEY_TAG);
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
@@ -947,27 +909,25 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     if (traverser.next() == false) {
-        LOG_ERROR("Cannot restore anomaly detector - end of object reached when "
-                  << PARTITION_FIELD_TAG << " was expected");
+        LOG_ERROR("Cannot restore anomaly detector - end of object reached when " << PARTITION_FIELD_TAG
+                                                                                  << " was expected");
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
     }
 
     if (traverser.name() != PARTITION_FIELD_TAG) {
-        LOG_ERROR("Cannot restore anomaly detector - "
-                  << PARTITION_FIELD_TAG << " element expected but found " << traverser.name()
-                  << '=' << traverser.value());
+        LOG_ERROR("Cannot restore anomaly detector - " << PARTITION_FIELD_TAG << " element expected but found "
+                                                       << traverser.name() << '=' << traverser.value());
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
     }
 
     std::string partitionFieldValue;
-    if (traverser.traverseSubLevel(
-            boost::bind(&model::CAnomalyDetector::partitionFieldAcceptRestoreTraverser,
-                        _1,
-                        boost::ref(partitionFieldValue))) == false) {
+    if (traverser.traverseSubLevel(boost::bind(
+            &model::CAnomalyDetector::partitionFieldAcceptRestoreTraverser, _1, boost::ref(partitionFieldValue))) ==
+        false) {
         LOG_ERROR("Cannot restore anomaly detector - "
                   "no partition field value found in "
                   << PARTITION_FIELD_TAG);
@@ -977,24 +937,21 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
     }
 
     if (traverser.next() == false) {
-        LOG_ERROR("Cannot restore anomaly detector - end of object reached when "
-                  << DETECTOR_TAG << " was expected");
+        LOG_ERROR("Cannot restore anomaly detector - end of object reached when " << DETECTOR_TAG << " was expected");
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
     }
 
     if (traverser.name() != DETECTOR_TAG) {
-        LOG_ERROR("Cannot restore anomaly detector - "
-                  << DETECTOR_TAG << " element expected but found " << traverser.name() << '='
-                  << traverser.value());
+        LOG_ERROR("Cannot restore anomaly detector - " << DETECTOR_TAG << " element expected but found "
+                                                       << traverser.name() << '=' << traverser.value());
 
         m_RestoredStateDetail.s_RestoredStateStatus = E_UnexpectedTag;
         return false;
     }
 
-    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false ||
-        traverser.haveBadState()) {
+    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false || traverser.haveBadState()) {
         LOG_ERROR("Delegated portion of anomaly detector restore failed");
         m_RestoredStateDetail.s_RestoredStateStatus = E_Failure;
         return false;
@@ -1022,15 +979,12 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
         return false;
     }
 
-    LOG_DEBUG("Restoring state for detector with key '" << key.debug() << '/' << partitionFieldValue
-                                                        << '\'');
+    LOG_DEBUG("Restoring state for detector with key '" << key.debug() << '/' << partitionFieldValue << '\'');
 
-    if (traverser.traverseSubLevel(boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
-                                               detector.get(),
-                                               boost::cref(partitionFieldValue),
-                                               _1)) == false) {
-        LOG_ERROR("Error restoring anomaly detector for key '" << key.debug() << '/'
-                                                               << partitionFieldValue << '\'');
+    if (traverser.traverseSubLevel(boost::bind(
+            &model::CAnomalyDetector::acceptRestoreTraverser, detector.get(), boost::cref(partitionFieldValue), _1)) ==
+        false) {
+        LOG_ERROR("Error restoring anomaly detector for key '" << key.debug() << '/' << partitionFieldValue << '\'');
         return false;
     }
 
@@ -1062,18 +1016,18 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     std::string normaliserState;
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
-    return this->persistState("State persisted due to job close at ",
-                              m_ResultsQueue,
-                              m_ModelPlotQueue,
-                              m_LastFinalisedBucketEndTime,
-                              detectors,
-                              m_Limits.resourceMonitor().createMemoryUsageReport(
-                                  m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
-                              m_Aggregator,
-                              normaliserState,
-                              m_LatestRecordTime,
-                              m_LastResultsTime,
-                              persister);
+    return this->persistState(
+        "State persisted due to job close at ",
+        m_ResultsQueue,
+        m_ModelPlotQueue,
+        m_LastFinalisedBucketEndTime,
+        detectors,
+        m_Limits.resourceMonitor().createMemoryUsageReport(m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
+        m_Aggregator,
+        normaliserState,
+        m_LatestRecordTime,
+        m_LastResultsTime,
+        persister);
 }
 
 bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersister) {
@@ -1083,17 +1037,14 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
     // passing to a new thread.
     // Do NOT add boost::ref wrappers around these arguments - they
     // MUST be copied for thread safety
-    TBackgroundPersistArgsPtr args =
-        boost::make_shared<SBackgroundPersistArgs>(m_ResultsQueue,
-                                                   m_ModelPlotQueue,
-                                                   m_LastFinalisedBucketEndTime,
-                                                   m_Limits.resourceMonitor()
-                                                       .createMemoryUsageReport(
-                                                           m_LastFinalisedBucketEndTime -
-                                                           m_ModelConfig.bucketLength()),
-                                                   m_Aggregator,
-                                                   m_LatestRecordTime,
-                                                   m_LastResultsTime);
+    TBackgroundPersistArgsPtr args = boost::make_shared<SBackgroundPersistArgs>(
+        m_ResultsQueue,
+        m_ModelPlotQueue,
+        m_LastFinalisedBucketEndTime,
+        m_Limits.resourceMonitor().createMemoryUsageReport(m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
+        m_Aggregator,
+        m_LatestRecordTime,
+        m_LastResultsTime);
 
     // The normaliser is non-copyable, so we have to make do with JSONifying it now;
     // it should be relatively fast though
@@ -1111,22 +1062,16 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
         model::CSearchKey::TStrCRefKeyCRefPr key(boost::cref(detector_.first.first),
                                                  boost::cref(detector_.first.second));
         if (detector->isSimpleCount()) {
-            copiedDetectors.push_back(
-                TKeyCRefAnomalyDetectorPtrPr(key,
-                                             TAnomalyDetectorPtr(
-                                                 new model::CSimpleCountDetector(true,
-                                                                                 *detector))));
+            copiedDetectors.push_back(TKeyCRefAnomalyDetectorPtrPr(
+                key, TAnomalyDetectorPtr(new model::CSimpleCountDetector(true, *detector))));
         } else {
             copiedDetectors.push_back(
-                TKeyCRefAnomalyDetectorPtrPr(key,
-                                             TAnomalyDetectorPtr(
-                                                 new model::CAnomalyDetector(true, *detector))));
+                TKeyCRefAnomalyDetectorPtrPr(key, TAnomalyDetectorPtr(new model::CAnomalyDetector(true, *detector))));
         }
     }
     std::sort(copiedDetectors.begin(), copiedDetectors.end(), maths::COrderings::SFirstLess());
 
-    if (backgroundPersister.addPersistFunc(
-            boost::bind(&CAnomalyJob::runBackgroundPersist, this, args, _1)) == false) {
+    if (backgroundPersister.addPersistFunc(boost::bind(&CAnomalyJob::runBackgroundPersist, this, args, _1)) == false) {
         LOG_ERROR("Failed to add anomaly detector background persistence function");
         return false;
     }
@@ -1134,8 +1079,7 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
     return true;
 }
 
-bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
-                                       core::CDataAdder& persister) {
+bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder& persister) {
     if (!args) {
         LOG_ERROR("Unexpected NULL pointer passed to background persist");
         return false;
@@ -1195,23 +1139,19 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
                 for (const auto& detector_ : detectors) {
                     const model::CAnomalyDetector* detector(detector_.second.get());
                     if (detector == 0) {
-                        LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first)
-                                                                      << '\'');
+                        LOG_ERROR("Unexpected NULL pointer for key '" << pairDebug(detector_.first) << '\'');
                         continue;
                     }
-                    inserter.insertLevel(TOP_LEVEL_DETECTOR_TAG,
-                                         boost::bind(&CAnomalyJob::persistIndividualDetector,
-                                                     boost::cref(*detector),
-                                                     _1));
+                    inserter.insertLevel(
+                        TOP_LEVEL_DETECTOR_TAG,
+                        boost::bind(&CAnomalyJob::persistIndividualDetector, boost::cref(*detector), _1));
 
                     LOG_DEBUG("Persisted state for '" << detector->description() << "'");
                 }
 
-                inserter.insertLevel(RESULTS_AGGREGATOR_TAG,
-                                     boost::bind(&model::CHierarchicalResultsAggregator::
-                                                     acceptPersistInserter,
-                                                 &aggregator,
-                                                 _1));
+                inserter.insertLevel(
+                    RESULTS_AGGREGATOR_TAG,
+                    boost::bind(&model::CHierarchicalResultsAggregator::acceptPersistInserter, &aggregator, _1));
 
                 core::CPersistUtils::persist(LATEST_RECORD_TIME_TAG, latestRecordTime, inserter);
                 core::CPersistUtils::persist(LAST_RESULTS_TIME_TAG, lastResultsTime, inserter);
@@ -1224,8 +1164,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
 
             if (m_PersistCompleteFunc) {
                 m_PersistCompleteFunc(snapshotTimestamp,
-                                      descriptionPrefix +
-                                          core::CTimeUtils::toIso8601(snapshotTimestamp),
+                                      descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
                                       snapShotId,
                                       compressor.numCompressedDocs(),
                                       modelSizeStats,
@@ -1267,8 +1206,7 @@ bool CAnomalyJob::periodicPersistState(CBackgroundPersister& persister) {
     return this->backgroundPersistState(persister);
 }
 
-void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim,
-                                               model::CHierarchicalResults& results) {
+void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim, model::CHierarchicalResults& results) {
     m_Aggregator.refresh(m_ModelConfig);
 
     m_Aggregator.setJob(model::CHierarchicalResultsAggregator::E_Correct);
@@ -1284,8 +1222,7 @@ void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim,
     results.pivotsBottomUpBreadthFirst(m_Aggregator);
 }
 
-void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
-                                              model::CHierarchicalResults& results) {
+void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim, model::CHierarchicalResults& results) {
     m_Normalizer.resetBigChange();
 
     // The normalizers are NOT updated with interim results, in other
@@ -1303,8 +1240,7 @@ void CAnomalyJob::updateQuantilesAndNormalize(bool isInterim,
     results.pivotsBottomUpBreadthFirst(m_Normalizer);
 
     if ((isInterim == false && m_Normalizer.hasLastUpdateCausedBigChange()) ||
-        (m_MaxQuantileInterval > 0 &&
-         core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
+        (m_MaxQuantileInterval > 0 && core::CTimeUtils::now() > m_LastNormalizerPersistTime + m_MaxQuantileInterval)) {
         m_JsonOutputWriter.persistNormalizer(m_Normalizer, m_LastNormalizerPersistTime);
     }
 }
@@ -1314,10 +1250,9 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         return;
     }
     if (start < m_LastFinalisedBucketEndTime) {
-        LOG_WARN("Cannot output results for range ("
-                 << start << ", " << m_LastFinalisedBucketEndTime
-                 << "): Start time is before last finalized bucket end time "
-                 << m_LastFinalisedBucketEndTime << '.');
+        LOG_WARN("Cannot output results for range (" << start << ", " << m_LastFinalisedBucketEndTime
+                                                     << "): Start time is before last finalized bucket end time "
+                                                     << m_LastFinalisedBucketEndTime << '.');
         start = m_LastFinalisedBucketEndTime;
     }
     if (start > end) {
@@ -1379,24 +1314,15 @@ void CAnomalyJob::refreshMemoryAndReport(void) {
         }
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
-    m_Limits.resourceMonitor().sendMemoryUsageReport(m_LastFinalisedBucketEndTime -
-                                                     m_ModelConfig.bucketLength());
+    m_Limits.resourceMonitor().sendMemoryUsageReport(m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength());
 }
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
                                             core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(KEY_TAG,
-                         boost::bind(&model::CAnomalyDetector::keyAcceptPersistInserter,
-                                     &detector,
-                                     _1));
+    inserter.insertLevel(KEY_TAG, boost::bind(&model::CAnomalyDetector::keyAcceptPersistInserter, &detector, _1));
     inserter.insertLevel(PARTITION_FIELD_TAG,
-                         boost::bind(&model::CAnomalyDetector::partitionFieldAcceptPersistInserter,
-                                     &detector,
-                                     _1));
-    inserter.insertLevel(DETECTOR_TAG,
-                         boost::bind(&model::CAnomalyDetector::acceptPersistInserter,
-                                     &detector,
-                                     _1));
+                         boost::bind(&model::CAnomalyDetector::partitionFieldAcceptPersistInserter, &detector, _1));
+    inserter.insertLevel(DETECTOR_TAG, boost::bind(&model::CAnomalyDetector::acceptPersistInserter, &detector, _1));
 }
 
 void CAnomalyJob::detectors(TAnomalyDetectorPtrVec& detectors) const {
@@ -1410,11 +1336,9 @@ void CAnomalyJob::detectors(TAnomalyDetectorPtrVec& detectors) const {
 void CAnomalyJob::sortedDetectors(TKeyCRefAnomalyDetectorPtrPrVec& detectors) const {
     detectors.reserve(m_Detectors.size());
     for (const auto& detector : m_Detectors) {
-        detectors.push_back(
-            TKeyCRefAnomalyDetectorPtrPr(model::CSearchKey::
-                                             TStrCRefKeyCRefPr(boost::cref(detector.first.first),
-                                                               boost::cref(detector.first.second)),
-                                         detector.second));
+        detectors.push_back(TKeyCRefAnomalyDetectorPtrPr(
+            model::CSearchKey::TStrCRefKeyCRefPr(boost::cref(detector.first.first), boost::cref(detector.first.second)),
+            detector.second));
     }
     std::sort(detectors.begin(), detectors.end(), maths::COrderings::SFirstLess());
 }
@@ -1423,18 +1347,16 @@ const CAnomalyJob::TKeyAnomalyDetectorPtrUMap& CAnomalyJob::detectorPartitionMap
     return m_Detectors;
 }
 
-const CAnomalyJob::TAnomalyDetectorPtr&
-CAnomalyJob::detectorForKey(bool isRestoring,
-                            core_t::TTime time,
-                            const model::CSearchKey& key,
-                            const std::string& partitionFieldValue,
-                            model::CResourceMonitor& resourceMonitor) {
+const CAnomalyJob::TAnomalyDetectorPtr& CAnomalyJob::detectorForKey(bool isRestoring,
+                                                                    core_t::TTime time,
+                                                                    const model::CSearchKey& key,
+                                                                    const std::string& partitionFieldValue,
+                                                                    model::CResourceMonitor& resourceMonitor) {
     // The simple count detector always lives in a special null partition.
     const std::string& partition = key.isSimpleCount() ? EMPTY_STRING : partitionFieldValue;
 
     // Try and get the detector.
-    auto itr = m_Detectors.find(model::CSearchKey::TStrCRefKeyCRefPr(boost::cref(partition),
-                                                                     boost::cref(key)),
+    auto itr = m_Detectors.find(model::CSearchKey::TStrCRefKeyCRefPr(boost::cref(partition), boost::cref(key)),
                                 model::CStrKeyPrHash(),
                                 model::CStrKeyPrEqual());
 
@@ -1442,19 +1364,13 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     if (itr == m_Detectors.end() && resourceMonitor.areAllocationsAllowed()) {
         // Create an placeholder for the anomaly detector.
         model::CAnomalyDetector::TAnomalyDetectorPtr& detector =
-            m_Detectors.emplace(model::CSearchKey::TStrKeyPr(partition, key), TAnomalyDetectorPtr())
-                .first->second;
+            m_Detectors.emplace(model::CSearchKey::TStrKeyPr(partition, key), TAnomalyDetectorPtr()).first->second;
 
-        LOG_TRACE("Creating new detector for key '" << key.debug() << '/' << partition << '\''
-                                                    << ", time " << time);
+        LOG_TRACE("Creating new detector for key '" << key.debug() << '/' << partition << '\'' << ", time " << time);
         LOG_TRACE("Detector count " << m_Detectors.size())
 
-        detector = this->makeDetector(key.identifier(),
-                                      m_ModelConfig,
-                                      m_Limits,
-                                      partition,
-                                      time,
-                                      m_ModelConfig.factory(key));
+        detector =
+            this->makeDetector(key.identifier(), m_ModelConfig, m_Limits, partition, time, m_ModelConfig.factory(key));
         if (detector == 0) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL
@@ -1468,8 +1384,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
         }
         return detector;
     } else if (itr == m_Detectors.end()) {
-        LOG_TRACE("No memory to create new detector for key '" << key.debug() << '/' << partition
-                                                               << '\'');
+        LOG_TRACE("No memory to create new detector for key '" << key.debug() << '/' << partition << '\'');
         return NULL_DETECTOR;
     }
 
@@ -1504,12 +1419,8 @@ CAnomalyJob::makeDetector(int identifier,
                                                                  partitionFieldValue,
                                                                  firstTime,
                                                                  modelFactory)
-               : boost::make_shared<model::CAnomalyDetector>(identifier,
-                                                             boost::ref(limits),
-                                                             modelConfig,
-                                                             partitionFieldValue,
-                                                             firstTime,
-                                                             modelFactory);
+               : boost::make_shared<model::CAnomalyDetector>(
+                     identifier, boost::ref(limits), modelConfig, partitionFieldValue, firstTime, modelFactory);
 }
 
 void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {
@@ -1531,17 +1442,13 @@ void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec&
     }
 }
 
-const std::string* CAnomalyJob::fieldValue(const std::string& fieldName,
-                                           const TStrStrUMap& dataRowFields) {
+const std::string* CAnomalyJob::fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields) {
     TStrStrUMapCItr itr = fieldName.empty() ? dataRowFields.end() : dataRowFields.find(fieldName);
     const std::string& fieldValue(itr == dataRowFields.end() ? EMPTY_STRING : itr->second);
-    return !fieldName.empty() && fieldValue.empty() ? static_cast<const std::string*>(0)
-                                                    : &fieldValue;
+    return !fieldName.empty() && fieldValue.empty() ? static_cast<const std::string*>(0) : &fieldValue;
 }
 
-void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
-                            core_t::TTime time,
-                            const TStrStrUMap& dataRowFields) {
+void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector, core_t::TTime time, const TStrStrUMap& dataRowFields) {
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
@@ -1552,14 +1459,13 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
     detector->addRecord(time, fieldValues);
 }
 
-CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
-    const model::CResultsQueue& resultsQueue,
-    const TModelPlotDataVecQueue& modelPlotQueue,
-    core_t::TTime time,
-    const model::CResourceMonitor::SResults& modelSizeStats,
-    const model::CHierarchicalResultsAggregator& aggregator,
-    core_t::TTime latestRecordTime,
-    core_t::TTime lastResultsTime)
+CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(const model::CResultsQueue& resultsQueue,
+                                                            const TModelPlotDataVecQueue& modelPlotQueue,
+                                                            core_t::TTime time,
+                                                            const model::CResourceMonitor::SResults& modelSizeStats,
+                                                            const model::CHierarchicalResultsAggregator& aggregator,
+                                                            core_t::TTime latestRecordTime,
+                                                            core_t::TTime lastResultsTime)
     : s_ResultsQueue(resultsQueue),
       s_ModelPlotQueue(modelPlotQueue),
       s_Time(time),

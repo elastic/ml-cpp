@@ -114,12 +114,9 @@ struct MODEL_EXPORT SAttributeProbability {
 //! and so on.
 struct MODEL_EXPORT SAnnotatedProbability {
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
-    using TStoredStringPtrStoredStringPtrPr =
-        std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
-    using TStoredStringPtrStoredStringPtrPrDoublePr =
-        std::pair<TStoredStringPtrStoredStringPtrPr, double>;
-    using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-        std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
+    using TStoredStringPtrStoredStringPtrPr = std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
+    using TStoredStringPtrStoredStringPtrPrDoublePr = std::pair<TStoredStringPtrStoredStringPtrPr, double>;
+    using TStoredStringPtrStoredStringPtrPrDoublePrVec = std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>;
     using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = boost::optional<double>;

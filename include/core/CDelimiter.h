@@ -65,15 +65,11 @@ public:
     std::string delimiter(void) const;
 
     //! Tokenise a string
-    void
-    tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& remainder) const;
+    void tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& remainder) const;
 
     //! Tokenise a string, stating whether time has passed since the last
     //! attempt
-    void tokenise(const std::string& str,
-                  bool timePassed,
-                  CStringUtils::TStrVec& tokens,
-                  std::string& remainder) const;
+    void tokenise(const std::string& str, bool timePassed, CStringUtils::TStrVec& tokens, std::string& remainder) const;
 
     //! Tokenise a string, also retrieving an example of the literal
     //! delimiter that was found

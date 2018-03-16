@@ -196,8 +196,7 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CCalendarComponentAdaptiveBucketing& lhs,
-                 CCalendarComponentAdaptiveBucketing& rhs) {
+inline void swap(CCalendarComponentAdaptiveBucketing& lhs, CCalendarComponentAdaptiveBucketing& rhs) {
     lhs.swap(rhs);
 }
 }

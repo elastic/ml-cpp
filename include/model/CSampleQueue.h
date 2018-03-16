@@ -73,8 +73,7 @@ private:
         static const std::string SAMPLE_END_TAG;
         static const std::string SAMPLE_TAG;
 
-        SSubSample(std::size_t dimension, core_t::TTime time)
-            : s_Statistic(dimension), s_Start(time), s_End(time) {}
+        SSubSample(std::size_t dimension, core_t::TTime time) : s_Statistic(dimension), s_Start(time), s_End(time) {}
 
         void add(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
             s_Statistic.add(measurement, time, count);
@@ -117,8 +116,7 @@ private:
 
         //! Persist to a state document.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-            inserter.insertLevel(SAMPLE_TAG,
-                                 boost::bind(&TMetricPartialStatistic::persist, &s_Statistic, _1));
+            inserter.insertLevel(SAMPLE_TAG, boost::bind(&TMetricPartialStatistic::persist, &s_Statistic, _1));
             inserter.insertValue(SAMPLE_START_TAG, s_Start);
             inserter.insertValue(SAMPLE_END_TAG, s_End);
         }
@@ -128,8 +126,7 @@ private:
             do {
                 const std::string& name = traverser.name();
                 if (name == SAMPLE_TAG) {
-                    if (traverser.traverseSubLevel(
-                            boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) ==
+                    if (traverser.traverseSubLevel(boost::bind(&TMetricPartialStatistic::restore, &s_Statistic, _1)) ==
                         false) {
                         LOG_ERROR("Invalid sample value");
                         return false;
@@ -163,14 +160,12 @@ private:
         }
 
         //! Get the memory used by the sub-sample.
-        std::size_t memoryUsage(void) const {
-            return sizeof(*this) + core::CMemory::dynamicSize(s_Statistic);
-        }
+        std::size_t memoryUsage(void) const { return sizeof(*this) + core::CMemory::dynamicSize(s_Statistic); }
 
         //! Print the sub-sample for debug.
         std::string print(void) const {
-            return "{[" + core::CStringUtils::typeToString(s_Start) + ", " +
-                   core::CStringUtils::typeToString(s_End) + "] -> " + s_Statistic.print() + "}";
+            return "{[" + core::CStringUtils::typeToString(s_Start) + ", " + core::CStringUtils::typeToString(s_End) +
+                   "] -> " + s_Statistic.print() + "}";
         }
 
         TMetricPartialStatistic s_Statistic;
@@ -217,10 +212,7 @@ public:
     //! \param[in] measurement The value of the measurement.
     //! \param[in] count The count of the measurement.
     //! \param[in] sampleCount The target sample count.
-    void add(core_t::TTime time,
-             const TDouble1Vec& measurement,
-             unsigned int count,
-             unsigned int sampleCount) {
+    void add(core_t::TTime time, const TDouble1Vec& measurement, unsigned int count, unsigned int sampleCount) {
         if (m_Queue.empty()) {
             this->pushFrontNewSubSample(measurement, time, count);
         } else if (time >= m_Queue[0].s_Start) {
@@ -242,10 +234,7 @@ public:
     //! \param[in] sampleCount The target sample count.
     //! \param[in] feature The feature to which the measurements correspond.
     //! \param[out] samples The newly created samples.
-    void sample(core_t::TTime bucketStart,
-                unsigned int sampleCount,
-                model_t::EFeature feature,
-                TSampleVec& samples) {
+    void sample(core_t::TTime bucketStart, unsigned int sampleCount, model_t::EFeature feature, TSampleVec& samples) {
         core_t::TTime latencyCutoff = bucketStart + m_BucketLength - 1;
         TOptionalSubSample combinedSubSample;
 
@@ -259,8 +248,7 @@ public:
             m_Queue.pop_back();
 
             double count = combinedSubSample->s_Statistic.count();
-            double countIncludingNext =
-                (m_Queue.empty()) ? count : count + m_Queue.back().s_Statistic.count();
+            double countIncludingNext = (m_Queue.empty()) ? count : count + m_Queue.back().s_Statistic.count();
             double countRatio = sampleCount / count;
             double countRatioIncludingNext = sampleCount / countIncludingNext;
 
@@ -282,14 +270,11 @@ public:
     void resetBucket(core_t::TTime bucketStart) {
         // The queue is ordered in descending sub-sample start time.
 
-        iterator firstEarlierThanBucket =
-            std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart, timeLater);
+        iterator firstEarlierThanBucket = std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart, timeLater);
 
         // This is equivalent to lower_bound(., ., bucketStart + m_BucketLength - 1, .);
-        iterator latestWithinBucket = std::upper_bound(m_Queue.begin(),
-                                                       m_Queue.end(),
-                                                       bucketStart + m_BucketLength,
-                                                       timeLater);
+        iterator latestWithinBucket =
+            std::upper_bound(m_Queue.begin(), m_Queue.end(), bucketStart + m_BucketLength, timeLater);
 
         m_Queue.erase(latestWithinBucket, firstEarlierThanBucket);
     }
@@ -313,8 +298,7 @@ public:
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (const_reverse_iterator itr = m_Queue.rbegin(); itr != m_Queue.rend(); ++itr) {
-            inserter.insertLevel(SUB_SAMPLE_TAG,
-                                 boost::bind(&SSubSample::acceptPersistInserter, *itr, _1));
+            inserter.insertLevel(SUB_SAMPLE_TAG, boost::bind(&SSubSample::acceptPersistInserter, *itr, _1));
         }
     }
 
@@ -324,8 +308,7 @@ public:
             const std::string& name = traverser.name();
             if (name == SUB_SAMPLE_TAG) {
                 SSubSample subSample(m_Dimension, 0);
-                if (traverser.traverseSubLevel(
-                        boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) ==
+                if (traverser.traverseSubLevel(boost::bind(&SSubSample::acceptRestoreTraverser, &subSample, _1)) ==
                     false) {
                     LOG_ERROR("Invalid sub-sample in " << traverser.value());
                     return false;
@@ -349,34 +332,27 @@ public:
     }
 
     //! Get the memory used by the queue.
-    std::size_t memoryUsage(void) const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Queue);
-    }
+    std::size_t memoryUsage(void) const { return sizeof(*this) + core::CMemory::dynamicSize(m_Queue); }
 
     //! Prints the contents of the queue.
     std::string print(void) const { return core::CContainerPrinter::print(m_Queue); }
 
 private:
-    void
-    pushFrontNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
+    void pushFrontNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
         this->resizeIfFull();
         SSubSample newSubSample(m_Dimension, time);
         newSubSample.s_Statistic.add(measurement, time, count);
         m_Queue.push_front(newSubSample);
     }
 
-    void
-    pushBackNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
+    void pushBackNewSubSample(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
         this->resizeIfFull();
         SSubSample newSubSample(m_Dimension, time);
         newSubSample.s_Statistic.add(measurement, time, count);
         m_Queue.push_back(newSubSample);
     }
 
-    void insertNewSubSample(iterator pos,
-                            const TDouble1Vec& measurement,
-                            core_t::TTime time,
-                            unsigned int count) {
+    void insertNewSubSample(iterator pos, const TDouble1Vec& measurement, core_t::TTime time, unsigned int count) {
         this->resizeIfFull();
         SSubSample newSubSample(m_Dimension, time);
         newSubSample.s_Statistic.add(measurement, time, count);
@@ -386,8 +362,7 @@ private:
     void resizeIfFull(void) {
         if (m_Queue.full()) {
             std::size_t currentSize = m_Queue.size();
-            std::size_t newSize =
-                static_cast<std::size_t>(static_cast<double>(currentSize) * (1.0 + m_GrowthFactor));
+            std::size_t newSize = static_cast<std::size_t>(static_cast<double>(currentSize) * (1.0 + m_GrowthFactor));
             m_Queue.set_capacity(std::max(newSize, currentSize + 1));
         }
     }
@@ -396,8 +371,7 @@ private:
                                  core_t::TTime time,
                                  unsigned int count,
                                  unsigned int sampleCount) {
-        if (time >= m_Queue[0].s_End &&
-            this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
+        if (time >= m_Queue[0].s_End && this->shouldCreateNewSubSampleAfterLatest(time, sampleCount)) {
             this->pushFrontNewSubSample(measurement, time, count);
         } else {
             m_Queue[0].add(measurement, time, count);
@@ -405,8 +379,7 @@ private:
     }
 
     bool shouldCreateNewSubSampleAfterLatest(core_t::TTime time, unsigned int sampleCount) {
-        if (m_Queue[0].s_Statistic.count() >=
-            static_cast<double>(this->targetSubSampleCount(sampleCount))) {
+        if (m_Queue[0].s_Statistic.count() >= static_cast<double>(this->targetSubSampleCount(sampleCount))) {
             return true;
         }
 
@@ -430,21 +403,17 @@ private:
         return static_cast<std::size_t>(sampleCount) / m_SampleCountFactor;
     }
 
-    void addHistorical(const TDouble1Vec& measurement,
-                       core_t::TTime time,
-                       unsigned int count,
-                       unsigned int sampleCount) {
+    void
+    addHistorical(const TDouble1Vec& measurement, core_t::TTime time, unsigned int count, unsigned int sampleCount) {
         // We have to resize before we do the search of the upper bound. Otherwise,
         // a later resize will invalidate the upper bound iterator.
         this->resizeIfFull();
 
-        reverse_iterator upperBound =
-            std::upper_bound(m_Queue.rbegin(), m_Queue.rend(), time, timeEarlier);
+        reverse_iterator upperBound = std::upper_bound(m_Queue.rbegin(), m_Queue.rend(), time, timeEarlier);
         core_t::TTime targetSubSampleSpan = this->targetSubSampleSpan();
 
         if (upperBound == m_Queue.rbegin()) {
-            if ((upperBound->s_Statistic.count() >=
-                 static_cast<double>(this->targetSubSampleCount(sampleCount))) ||
+            if ((upperBound->s_Statistic.count() >= static_cast<double>(this->targetSubSampleCount(sampleCount))) ||
                 !upperBound->isClose(time, targetSubSampleSpan) ||
                 !(*upperBound).isInSameBucket(time, m_BucketLength)) {
                 this->pushBackNewSubSample(measurement, time, count);
@@ -467,32 +436,26 @@ private:
         bool rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
         core_t::TTime leftDistance = time - left.s_End;
         core_t::TTime rightDistance = right.s_Start - time;
-        SSubSample& candidate =
-            maths::COrderings::lexicographical_compare(-static_cast<int>(sameBucketWithLeft),
-                                                       -static_cast<int>(leftHasSpace),
-                                                       leftDistance,
-                                                       -static_cast<int>(sameBucketWithRight),
-                                                       -static_cast<int>(rightHasSpace),
-                                                       rightDistance)
-                ? left
-                : right;
+        SSubSample& candidate = maths::COrderings::lexicographical_compare(-static_cast<int>(sameBucketWithLeft),
+                                                                           -static_cast<int>(leftHasSpace),
+                                                                           leftDistance,
+                                                                           -static_cast<int>(sameBucketWithRight),
+                                                                           -static_cast<int>(rightHasSpace),
+                                                                           rightDistance)
+                                    ? left
+                                    : right;
 
         if (candidate.isInSameBucket(time, m_BucketLength) &&
-            (candidate.isClose(time, targetSubSampleSpan) ||
-             right.s_Start <= left.s_End + targetSubSampleSpan)) {
+            (candidate.isClose(time, targetSubSampleSpan) || right.s_Start <= left.s_End + targetSubSampleSpan)) {
             candidate.add(measurement, time, count);
             return;
         }
         this->insertNewSubSample(upperBound.base(), measurement, time, count);
     }
 
-    static bool timeEarlier(core_t::TTime time, const SSubSample& subSample) {
-        return time < subSample.s_Start;
-    }
+    static bool timeEarlier(core_t::TTime time, const SSubSample& subSample) { return time < subSample.s_Start; }
 
-    static bool timeLater(core_t::TTime time, const SSubSample& subSample) {
-        return time > subSample.s_Start;
-    }
+    static bool timeLater(core_t::TTime time, const SSubSample& subSample) { return time > subSample.s_Start; }
 
 private:
     std::size_t m_Dimension;

@@ -342,28 +342,17 @@ public:
     typedef boost::multi_index::multi_index_container<
         CFieldOptions,
         boost::multi_index::indexed_by<
-            boost::multi_index::ordered_unique<
-                boost::multi_index::tag<SConfigKey>,
-                BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)>,
+            boost::multi_index::ordered_unique<boost::multi_index::tag<SConfigKey>,
+                                               BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, int, configKey)>,
             boost::multi_index::ordered_unique<
                 boost::multi_index::tag<SUniqueKey>,
                 boost::multi_index::composite_key<
                     CFieldOptions,
-                    BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions,
-                                                    model::function_t::EFunction,
-                                                    function),
-                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions,
-                                                               std::string,
-                                                               fieldName),
-                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions,
-                                                               std::string,
-                                                               byFieldName),
-                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions,
-                                                               std::string,
-                                                               overFieldName),
-                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions,
-                                                               std::string,
-                                                               partitionFieldName)>>>>
+                    BOOST_MULTI_INDEX_CONST_MEM_FUN(CFieldOptions, model::function_t::EFunction, function),
+                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, fieldName),
+                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, byFieldName),
+                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, overFieldName),
+                    BOOST_MULTI_INDEX_CONST_TYPE_CONST_MEM_FUN(CFieldOptions, std::string, partitionFieldName)>>>>
         TFieldOptionsMIndex;
 
     typedef TFieldOptionsMIndex::iterator TFieldOptionsMIndexItr;
@@ -508,10 +497,8 @@ private:
                          TIntSet& handledConfigs);
 
     //! Add data structures relating to an active detector.
-    bool addActiveDetector(int configKey,
-                           const std::string& description,
-                           const std::string& rules,
-                           TStrVec& copyTokens);
+    bool
+    addActiveDetector(int configKey, const std::string& description, const std::string& rules, TStrVec& copyTokens);
 
     //! Get a function name and field name from a field string
     static bool parseFieldString(bool haveSummaryCountField,
@@ -533,9 +520,8 @@ private:
 
     //! Check that we have at most one "by" and one "over" token
     //! and report their positions in the token list
-    bool findLastByOverTokens(const TStrVec& copyTokens,
-                              std::size_t& lastByTokenIndex,
-                              std::size_t& lastOverTokenIndex);
+    bool
+    findLastByOverTokens(const TStrVec& copyTokens, std::size_t& lastByTokenIndex, std::size_t& lastOverTokenIndex);
 
     //! Check that the "by" or "over" field is valid
     bool validateByOverField(const TStrVec& copyTokens,

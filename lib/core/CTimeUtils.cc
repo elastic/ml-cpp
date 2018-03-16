@@ -52,9 +52,7 @@ std::string CTimeUtils::toTimeString(core_t::TTime t) {
     return result;
 }
 
-bool CTimeUtils::strptime(const std::string& format,
-                          const std::string& dateTime,
-                          core_t::TTime& preTime) {
+bool CTimeUtils::strptime(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
     if (CTimeUtils::strptimeSilent(format, dateTime, preTime) == false) {
         LOG_ERROR("Unable to convert " << dateTime << " to " << format);
         return false;
@@ -63,9 +61,7 @@ bool CTimeUtils::strptime(const std::string& format,
     return true;
 }
 
-bool CTimeUtils::strptimeSilent(const std::string& format,
-                                const std::string& dateTime,
-                                core_t::TTime& preTime) {
+bool CTimeUtils::strptimeSilent(const std::string& format, const std::string& dateTime, core_t::TTime& preTime) {
     struct tm t;
     ::memset(&t, 0, sizeof(struct tm));
 

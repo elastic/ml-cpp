@@ -103,10 +103,7 @@ public:
         std::string stripped;
         stripped.reserve(original.size());
 
-        std::remove_copy_if(original.begin(),
-                            original.end(),
-                            std::back_inserter(stripped),
-                            excludePred);
+        std::remove_copy_if(original.begin(), original.end(), std::back_inserter(stripped), excludePred);
 
         return stripped;
     }
@@ -114,13 +111,10 @@ public:
     //! Calculate how similar two strings are, excluding
     //! certain characters
     template<typename PREDICATE>
-    bool similarityEx(const std::string& first,
-                      const std::string& second,
-                      PREDICATE excludePred,
-                      double& result) const {
-        return this->similarity(this->strippedString(first, excludePred),
-                                this->strippedString(second, excludePred),
-                                result);
+    bool
+    similarityEx(const std::string& first, const std::string& second, PREDICATE excludePred, double& result) const {
+        return this->similarity(
+            this->strippedString(first, excludePred), this->strippedString(second, excludePred), result);
     }
 
     //! Find the length of the compressed version of a string - note
@@ -130,9 +124,7 @@ public:
     //! Calculate the Levenshtein distance between two strings,
     //! excluding certain characters
     template<typename STRINGLIKE, typename PREDICATE>
-    size_t levenshteinDistanceEx(const STRINGLIKE& first,
-                                 const STRINGLIKE& second,
-                                 PREDICATE excludePred) const {
+    size_t levenshteinDistanceEx(const STRINGLIKE& first, const STRINGLIKE& second, PREDICATE excludePred) const {
         return this->levenshteinDistance(this->strippedString(first, excludePred),
                                          this->strippedString(second, excludePred));
     }
@@ -281,10 +273,9 @@ public:
                 // OR
                 //    No extra cost in the case where the corresponding
                 //    elements are equal
-                size_t option3(prevCol[downMinusOne] +
-                               ((first[acrossMinusOne].first == second[downMinusOne].first)
-                                    ? 0
-                                    : std::max(firstCost, secondCost)));
+                size_t option3(prevCol[downMinusOne] + ((first[acrossMinusOne].first == second[downMinusOne].first)
+                                                            ? 0
+                                                            : std::max(firstCost, secondCost)));
 
                 // Take the cheapest option of the 3
                 currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3);
@@ -355,8 +346,7 @@ private:
                     size_t option3(prevCol[downMinusOne]);
 
                     // Take the cheapest option of the 3
-                    currentCol[downMinusOne + 1] =
-                        std::min(std::min(option1, option2), option3) + 1;
+                    currentCol[downMinusOne + 1] = std::min(std::min(option1, option2), option3) + 1;
                 }
             }
         }
@@ -419,11 +409,7 @@ private:
     //! Helper function for the Berghel-Roach edit distance algorithm.  This
     //! is called f(k, p) in http://berghel.net/publications/asm/asm.pdf
     template<typename STRINGLIKE>
-    void calcDist(const STRINGLIKE& first,
-                  const STRINGLIKE& second,
-                  int row,
-                  int column,
-                  int** matrix) const {
+    void calcDist(const STRINGLIKE& first, const STRINGLIKE& second, int row, int column, int** matrix) const {
         // 1) Substitution
         int option1(matrix[row][column - 1] + 1);
 
@@ -446,8 +432,7 @@ private:
 
     //! Setup the matrices needed for the Berghel-Roach method of
     //! calculating edit distance
-    static int**
-    setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
+    static int** setupBerghelRoachMatrix(int longLen, TScopedIntArray& data, TScopedIntPArray& matrix);
 
 private:
     //! Required for initialisation of the Berghel-Roach matrix (don't call

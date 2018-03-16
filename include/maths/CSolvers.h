@@ -66,8 +66,7 @@ private:
 
     //! A secant interpolation of two distinct function values.
     //! WARNING the caller must ensure that \p fa != \p fb.
-    static inline double
-    secantInterpolate(const double a, const double b, const double fa, const double fb) {
+    static inline double secantInterpolate(const double a, const double b, const double fa, const double fb) {
         return b - fb * (b - a) / (fb - fa);
     }
 
@@ -242,11 +241,8 @@ private:
             if (n < (3 * maxIterations) / 4) {
                 double minStep = step;
                 double maxStep = step * step;
-                step =
-                    fa == fb
-                        ? maxStep
-                        : std::min(std::max(::fabs(b - a) / ::fabs(fb - fa) * ::fabs(fb), minStep),
-                                   maxStep);
+                step = fa == fb ? maxStep
+                                : std::min(std::max(::fabs(b - a) / ::fabs(fb - fa) * ::fabs(fb), minStep), maxStep);
             }
             a = b;
             fa = fb;
@@ -368,12 +364,8 @@ public:
     //! \param[out] bestGuess Filled in with the best estimate
     //! of the root.
     template<typename F, typename EQUAL>
-    static inline void solve(double& a,
-                             double& b,
-                             const F& f,
-                             std::size_t& maxIterations,
-                             const EQUAL& equal,
-                             double& bestGuess) {
+    static inline void
+    solve(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -432,13 +424,7 @@ public:
             // size_t.
             boost::uintmax_t n = std::max(maxIterations, std::size_t(1));
             TDoubleDoublePr bracket =
-                boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe,
-                                                                              a,
-                                                                              b,
-                                                                              fa,
-                                                                              fb,
-                                                                              equal,
-                                                                              n);
+                boost::math::tools::toms748_solve<const CTrapNaNArgument<F>&>(fSafe, a, b, fa, fb, equal, n);
             a = bracket.first;
             b = bracket.second;
             bestGuess = bisect(a, b);
@@ -475,12 +461,8 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root.
     template<typename F, typename EQUAL>
-    static bool brent(double& a,
-                      double& b,
-                      const F& f,
-                      std::size_t& maxIterations,
-                      const EQUAL& equal,
-                      double& bestGuess) {
+    static bool
+    brent(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -602,9 +584,8 @@ public:
             std::swap(a, b);
             std::swap(fa, fb);
         }
-        bestGuess = (fa != fc) && (fb != fc)
-                        ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc)
-                        : (fa != fb ? secantInterpolate(a, b, fa, fb) : bisect(a, b));
+        bestGuess = (fa != fc) && (fb != fc) ? inverseQuadraticInterpolate(a, b, c, fa, fb, fc)
+                                             : (fa != fb ? secantInterpolate(a, b, fa, fb) : bisect(a, b));
         bestGuess = std::min(std::max(a, bestGuess), b);
         maxIterations -= n;
 
@@ -632,12 +613,8 @@ public:
     //! of the root.
     //! \return True if a, b bracket the root and equal(a, b).
     template<typename F, typename EQUAL>
-    static bool bisection(double& a,
-                          double& b,
-                          const F& f,
-                          std::size_t& maxIterations,
-                          const EQUAL& equal,
-                          double& bestGuess) {
+    static bool
+    bisection(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
             maxIterations = 0u;
@@ -768,16 +745,7 @@ public:
                                 std::size_t& maxIterations,
                                 double& x,
                                 double& fx) {
-        minimize(a,
-                 b,
-                 fa,
-                 fb,
-                 f,
-                 tolerance,
-                 maxIterations,
-                 -std::numeric_limits<double>::max(),
-                 x,
-                 fx);
+        minimize(a, b, fa, fb, f, tolerance, maxIterations, -std::numeric_limits<double>::max(), x, fx);
     }
 
     //! Maximize the function \p f on the interval [\p a, \p b]

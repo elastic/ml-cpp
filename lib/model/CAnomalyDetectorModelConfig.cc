@@ -80,10 +80,10 @@ const std::size_t CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE(36u);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_TOTAL_PROBABILITY_CALC_SAMPLING_SIZE(10u);
 const double CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_UPDATES_PER_BUCKET(1.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_INFLUENCE_CUTOFF(0.5);
-const double CAnomalyDetectorModelConfig::DEFAULT_AGGREGATION_STYLE_PARAMS
-    [][model_t::NUMBER_AGGREGATION_PARAMS] = {{0.0, 1.0, 1.0, 1.0},
-                                              {0.5, 0.5, 1.0, 5.0},
-                                              {0.5, 0.5, 1.0, 1.0}};
+const double CAnomalyDetectorModelConfig::DEFAULT_AGGREGATION_STYLE_PARAMS[][model_t::NUMBER_AGGREGATION_PARAMS] = {
+    {0.0, 1.0, 1.0, 1.0},
+    {0.5, 0.5, 1.0, 5.0},
+    {0.5, 0.5, 1.0, 1.0}};
 // The default for maximumanomalousprobability now matches the default
 // for unusualprobabilitythreshold in mllimits.conf - this avoids
 // inconsistencies in output
@@ -92,30 +92,29 @@ const double CAnomalyDetectorModelConfig::DEFAULT_NOISE_PERCENTILE(50.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_NOISE_MULTIPLIER(1.0);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_BUCKET_RESULTS_DELAY(0);
 const CAnomalyDetectorModelConfig::TDoubleDoublePr
-    CAnomalyDetectorModelConfig::DEFAULT_NORMALIZED_SCORE_KNOT_POINTS[9] =
-        {CAnomalyDetectorModelConfig::TDoubleDoublePr(0.0, 0.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(70.0, 1.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(85.0, 1.2),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(90.0, 1.5),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(95.0, 3.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(97.0, 20.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(99.0, 50.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(99.9, 90.0),
-         CAnomalyDetectorModelConfig::TDoubleDoublePr(100.0, 100.0)};
+    CAnomalyDetectorModelConfig::DEFAULT_NORMALIZED_SCORE_KNOT_POINTS[9] = {
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(0.0, 0.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(70.0, 1.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(85.0, 1.2),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(90.0, 1.5),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(95.0, 3.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(97.0, 20.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(99.0, 50.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(99.9, 90.0),
+        CAnomalyDetectorModelConfig::TDoubleDoublePr(100.0, 100.0)};
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_RESAMPLING_MAX_SAMPLES(40u);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MINIMUM(0.25);
 const double CAnomalyDetectorModelConfig::DEFAULT_PRUNE_WINDOW_SCALE_MAXIMUM(4.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_CORRELATION_MODELS_OVERHEAD(3.0);
 const double CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_SIGNIFICANT_CORRELATION(0.3);
 
-CAnomalyDetectorModelConfig
-CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
-                                           model_t::ESummaryMode summaryMode,
-                                           const std::string& summaryCountFieldName,
-                                           core_t::TTime latency,
-                                           std::size_t bucketResultsDelay,
-                                           bool multivariateByFields,
-                                           const std::string& multipleBucketLengths) {
+CAnomalyDetectorModelConfig CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
+                                                                       model_t::ESummaryMode summaryMode,
+                                                                       const std::string& summaryCountFieldName,
+                                                                       core_t::TTime latency,
+                                                                       std::size_t bucketResultsDelay,
+                                                                       bool multivariateByFields,
+                                                                       const std::string& multipleBucketLengths) {
     bucketLength = detail::validateBucketLength(bucketLength);
 
     double learnRate = DEFAULT_LEARN_RATE * bucketNormalizationFactor(bucketLength);
@@ -132,18 +131,15 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
 
     TFactoryTypeFactoryPtrMap factories;
     params.s_MinimumModeFraction = DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
-    factories[E_EventRateFactory].reset(
-        new CEventRateModelFactory(params, summaryMode, summaryCountFieldName));
-    factories[E_MetricFactory].reset(
-        new CMetricModelFactory(params, summaryMode, summaryCountFieldName));
+    factories[E_EventRateFactory].reset(new CEventRateModelFactory(params, summaryMode, summaryCountFieldName));
+    factories[E_MetricFactory].reset(new CMetricModelFactory(params, summaryMode, summaryCountFieldName));
     factories[E_EventRatePopulationFactory].reset(
         new CEventRatePopulationModelFactory(params, summaryMode, summaryCountFieldName));
     params.s_MinimumModeFraction = DEFAULT_POPULATION_MINIMUM_MODE_FRACTION;
     factories[E_MetricPopulationFactory].reset(
         new CMetricPopulationModelFactory(params, summaryMode, summaryCountFieldName));
     params.s_MinimumModeFraction = 1.0;
-    factories[E_CountingFactory].reset(
-        new CCountingModelFactory(params, summaryMode, summaryCountFieldName));
+    factories[E_CountingFactory].reset(new CCountingModelFactory(params, summaryMode, summaryCountFieldName));
 
     CAnomalyDetectorModelConfig result;
     result.bucketLength(bucketLength);
@@ -156,19 +152,14 @@ CAnomalyDetectorModelConfig::defaultConfig(core_t::TTime bucketLength,
 // De-rates the decay and learn rate to account for differences from the
 // standard bucket length.
 double CAnomalyDetectorModelConfig::bucketNormalizationFactor(core_t::TTime bucketLength) {
-    return std::min(1.0,
-                    static_cast<double>(bucketLength) /
-                        static_cast<double>(STANDARD_BUCKET_LENGTH));
+    return std::min(1.0, static_cast<double>(bucketLength) / static_cast<double>(STANDARD_BUCKET_LENGTH));
 }
 
 // Standard decay rate for time series decompositions given the specified
 // model decay rate and bucket length.
-double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate,
-                                                   core_t::TTime bucketLength) {
+double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate, core_t::TTime bucketLength) {
     double scale = static_cast<double>(bucketLength / 24 / STANDARD_BUCKET_LENGTH);
-    return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
-                        std::max(scale, 1.0),
-                    0.1);
+    return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) / std::max(scale, 1.0), 0.1);
 }
 
 CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig(void)
@@ -214,8 +205,7 @@ CAnomalyDetectorModelConfig::multipleBucketLengths(core_t::TTime bucketLength,
         core_t::TTime t = 0;
         if (core::CStringUtils::stringToType(*itr, t)) {
             if ((t <= bucketLength) || (t % bucketLength != 0)) {
-                LOG_ERROR("MultipleBucketLength " << t << " must be a multiple of "
-                                                  << bucketLength);
+                LOG_ERROR("MultipleBucketLength " << t << " must be a multiple of " << bucketLength);
                 return TTimeVec();
             }
             multiBuckets.push_back(t);
@@ -276,8 +266,8 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
 void CAnomalyDetectorModelConfig::maximumAnomalousProbability(double probability) {
     double minimum = 100 * maths::MINUSCULE_PROBABILITY;
     if (probability < minimum || probability > 1.0) {
-        LOG_INFO("Maximum anomalous probability " << probability << " out of range [" << minimum
-                                                  << "," << 1.0 << "] truncating");
+        LOG_INFO("Maximum anomalous probability " << probability << " out of range [" << minimum << "," << 1.0
+                                                  << "] truncating");
     }
     m_MaximumAnomalousProbability = maths::CTools::truncate(probability, minimum, 1.0);
 }
@@ -323,24 +313,19 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
             return false;
         }
     }
-    if (!boost::algorithm::is_sorted(points.begin(),
-                                     points.end(),
-                                     maths::COrderings::SFirstLess())) {
-        LOG_ERROR("Percentiles must be monotonic increasing "
-                  << core::CContainerPrinter::print(points));
+    if (!boost::algorithm::is_sorted(points.begin(), points.end(), maths::COrderings::SFirstLess())) {
+        LOG_ERROR("Percentiles must be monotonic increasing " << core::CContainerPrinter::print(points));
         return false;
     }
-    if (!boost::algorithm::is_sorted(points.begin(),
-                                     points.end(),
-                                     maths::COrderings::SSecondLess())) {
+    if (!boost::algorithm::is_sorted(points.begin(), points.end(), maths::COrderings::SSecondLess())) {
         LOG_ERROR("Scores must be monotonic increasing " << core::CContainerPrinter::print(points));
         return false;
     }
 
     m_NormalizedScoreKnotPoints = points;
-    m_NormalizedScoreKnotPoints.erase(std::unique(m_NormalizedScoreKnotPoints.begin(),
-                                                  m_NormalizedScoreKnotPoints.end()),
-                                      m_NormalizedScoreKnotPoints.end());
+    m_NormalizedScoreKnotPoints.erase(
+        std::unique(m_NormalizedScoreKnotPoints.begin(), m_NormalizedScoreKnotPoints.end()),
+        m_NormalizedScoreKnotPoints.end());
     return true;
 }
 
@@ -349,8 +334,7 @@ bool CAnomalyDetectorModelConfig::init(const std::string& configFile) {
     return this->init(configFile, propTree);
 }
 
-bool CAnomalyDetectorModelConfig::init(const std::string& configFile,
-                                       boost::property_tree::ptree& propTree) {
+bool CAnomalyDetectorModelConfig::init(const std::string& configFile, boost::property_tree::ptree& propTree) {
     LOG_DEBUG("Reading config file " << configFile);
 
     try {
@@ -381,8 +365,7 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
 
     bool result = true;
 
-    for (boost::property_tree::ptree::const_iterator i = propTree.begin(); i != propTree.end();
-         ++i) {
+    for (boost::property_tree::ptree::const_iterator i = propTree.begin(); i != propTree.end(); ++i) {
         const std::string& stanzaName = i->first;
         const boost::property_tree::ptree& propertyTree = i->second;
 
@@ -418,8 +401,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlo
 
         boost::property_tree::ini_parser::read_ini(strm, propTree);
     } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR("Error reading model plot config file " << modelPlotConfigFile << " : "
-                                                          << e.what());
+        LOG_ERROR("Error reading model plot config file " << modelPlotConfigFile << " : " << e.what());
         return false;
     }
 
@@ -445,8 +427,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
             return false;
         }
     } catch (boost::property_tree::ptree_error&) {
-        LOG_ERROR("Error reading model debug config. Property '" << BOUNDS_PERCENTILE_PROPERTY
-                                                                 << "' is missing");
+        LOG_ERROR("Error reading model debug config. Property '" << BOUNDS_PERCENTILE_PROPERTY << "' is missing");
         return false;
     }
 
@@ -465,16 +446,14 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
             m_ModelPlotTerms.insert(tokens[i]);
         }
     } catch (boost::property_tree::ptree_error&) {
-        LOG_ERROR("Error reading model debug config. Property '" << TERMS_PROPERTY
-                                                                 << "' is missing");
+        LOG_ERROR("Error reading model debug config. Property '" << TERMS_PROPERTY << "' is missing");
         return false;
     }
 
     return true;
 }
 
-CAnomalyDetectorModelConfig::TModelFactoryCPtr
-CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
+CAnomalyDetectorModelConfig::TModelFactoryCPtr CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
     TModelFactoryCPtr result = m_FactoryCache[key];
     if (!result) {
         result = key.isSimpleCount() ? this->factory(key.identifier(),
@@ -499,16 +478,16 @@ CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
     return result;
 }
 
-CAnomalyDetectorModelConfig::TModelFactoryCPtr CAnomalyDetectorModelConfig::factory(
-    int identifier,
-    function_t::EFunction function,
-    bool useNull,
-    model_t::EExcludeFrequent excludeFrequent,
-    const std::string& partitionFieldName,
-    const std::string& overFieldName,
-    const std::string& byFieldName,
-    const std::string& valueFieldName,
-    const CSearchKey::TStoredStringPtrVec& influenceFieldNames) const {
+CAnomalyDetectorModelConfig::TModelFactoryCPtr
+CAnomalyDetectorModelConfig::factory(int identifier,
+                                     function_t::EFunction function,
+                                     bool useNull,
+                                     model_t::EExcludeFrequent excludeFrequent,
+                                     const std::string& partitionFieldName,
+                                     const std::string& overFieldName,
+                                     const std::string& byFieldName,
+                                     const std::string& valueFieldName,
+                                     const CSearchKey::TStoredStringPtrVec& influenceFieldNames) const {
     const TFeatureVec& features = function_t::features(function);
 
     // Simple state machine to deduce the factory type from
@@ -611,8 +590,7 @@ CAnomalyDetectorModelConfig::TModelFactoryCPtr CAnomalyDetectorModelConfig::fact
         case E_UnknownFactory:
             switch (model_t::analysisCategory(features[i])) {
             case model_t::E_EventRate:
-                factory = CSearchKey::isSimpleCount(function, byFieldName) ? E_CountingFactory
-                                                                           : E_EventRateFactory;
+                factory = CSearchKey::isSimpleCount(function, byFieldName) ? E_CountingFactory : E_EventRateFactory;
                 break;
             case model_t::E_Metric:
                 factory = E_MetricFactory;
@@ -711,8 +689,7 @@ void CAnomalyDetectorModelConfig::modelPlotTerms(TStrSet terms) {
     m_ModelPlotTerms.swap(terms);
 }
 
-const CAnomalyDetectorModelConfig::TStrSet&
-CAnomalyDetectorModelConfig::modelPlotTerms(void) const {
+const CAnomalyDetectorModelConfig::TStrSet& CAnomalyDetectorModelConfig::modelPlotTerms(void) const {
     return m_ModelPlotTerms;
 }
 
@@ -791,8 +768,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
 
         if (propName == ONLINE_LEARN_RATE_PROPERTY) {
             double learnRate = DEFAULT_LEARN_RATE;
-            if (core::CStringUtils::stringToType(propValue, learnRate) == false ||
-                learnRate <= 0.0) {
+            if (core::CStringUtils::stringToType(propValue, learnRate) == false || learnRate <= 0.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -804,8 +780,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == DECAY_RATE_PROPERTY) {
             double decayRate = DEFAULT_DECAY_RATE;
-            if (core::CStringUtils::stringToType(propValue, decayRate) == false ||
-                decayRate <= 0.0) {
+            if (core::CStringUtils::stringToType(propValue, decayRate) == false || decayRate <= 0.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -817,8 +792,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY) {
             double multiplier = DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER;
-            if (core::CStringUtils::stringToType(propValue, multiplier) == false ||
-                multiplier < 1.0) {
+            if (core::CStringUtils::stringToType(propValue, multiplier) == false || multiplier < 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -841,8 +815,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == TOTAL_PROBABILITY_CALC_SAMPLING_SIZE_PROPERTY) {
             int totalProbabilityCalcSamplingSize;
-            if (core::CStringUtils::stringToType(propValue, totalProbabilityCalcSamplingSize) ==
-                    false ||
+            if (core::CStringUtils::stringToType(propValue, totalProbabilityCalcSamplingSize) == false ||
                 totalProbabilityCalcSamplingSize <= 0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
@@ -853,8 +826,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == INDIVIDUAL_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 ||
-                fraction > 1.0) {
+            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -868,8 +840,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == POPULATION_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 ||
-                fraction > 1.0) {
+            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -883,8 +854,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == PEERS_MODE_FRACTION_PROPERTY) {
             double fraction;
-            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 ||
-                fraction > 1.0) {
+            if (core::CStringUtils::stringToType(propValue, fraction) == false || fraction < 0.0 || fraction > 1.0) {
                 LOG_ERROR("Invalid value for property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -895,8 +865,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             }
         } else if (propName == COMPONENT_SIZE_PROPERTY) {
             int componentSize;
-            if (core::CStringUtils::stringToType(propValue, componentSize) == false ||
-                componentSize < 0) {
+            if (core::CStringUtils::stringToType(propValue, componentSize) == false || componentSize < 0) {
                 LOG_ERROR("Invalid value of property " << propName << " : " << propValue);
                 result = false;
                 continue;
@@ -959,9 +928,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                         continue;
                     }
 
-                    this->aggregationStyleParams(static_cast<model_t::EAggregationStyle>(j),
-                                                 static_cast<model_t::EAggregationParam>(k),
-                                                 value);
+                    this->aggregationStyleParams(
+                        static_cast<model_t::EAggregationStyle>(j), static_cast<model_t::EAggregationParam>(k), value);
                 }
             }
         } else if (propName == MAXIMUM_ANOMALOUS_PROBABILITY_PROPERTY) {
@@ -999,8 +967,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 strings.push_back(remainder);
             }
             if (strings.empty() || (strings.size() % 2) != 0) {
-                LOG_ERROR("Expected even number of values for property "
-                          << propName << " " << core::CContainerPrinter::print(strings));
+                LOG_ERROR("Expected even number of values for property " << propName << " "
+                                                                         << core::CContainerPrinter::print(strings));
                 result = false;
                 continue;
             }
@@ -1012,14 +980,12 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 double rate;
                 double score;
                 if (core::CStringUtils::stringToType(strings[j], rate) == false) {
-                    LOG_ERROR("Unexpected value " << strings[j] << " for rate in property "
-                                                  << propName);
+                    LOG_ERROR("Unexpected value " << strings[j] << " for rate in property " << propName);
                     result = false;
                     continue;
                 }
                 if (core::CStringUtils::stringToType(strings[j + 1], score) == false) {
-                    LOG_ERROR("Unexpected value " << strings[j + 1] << " for score in property "
-                                                  << propName);
+                    LOG_ERROR("Unexpected value " << strings[j + 1] << " for score in property " << propName);
                     result = false;
                     continue;
                 }

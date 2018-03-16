@@ -48,37 +48,24 @@ class CKMostCorrelatedForTest : public maths::CKMostCorrelated {
 public:
     typedef maths::CKMostCorrelated::SCorrelation TCorrelation;
     typedef maths::CKMostCorrelated::TCorrelationVec TCorrelationVec;
-    typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap
-        TSizeVectorPackedBitVectorPrUMap;
-    typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMapCItr
-        TSizeVectorPackedBitVectorPrUMapCItr;
+    typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMap TSizeVectorPackedBitVectorPrUMap;
+    typedef maths::CKMostCorrelated::TSizeVectorPackedBitVectorPrUMapCItr TSizeVectorPackedBitVectorPrUMapCItr;
     typedef maths::CKMostCorrelated::TMeanVarAccumulatorVec TMeanVarAccumulatorVec;
     using maths::CKMostCorrelated::correlations;
     using maths::CKMostCorrelated::mostCorrelated;
 
 public:
-    CKMostCorrelatedForTest(std::size_t size, double decayRate)
-        : maths::CKMostCorrelated(size, decayRate) {}
+    CKMostCorrelatedForTest(std::size_t size, double decayRate) : maths::CKMostCorrelated(size, decayRate) {}
 
-    void mostCorrelated(TCorrelationVec& result) const {
-        this->maths::CKMostCorrelated::mostCorrelated(result);
-    }
+    void mostCorrelated(TCorrelationVec& result) const { this->maths::CKMostCorrelated::mostCorrelated(result); }
 
-    const TVectorVec& projections(void) const {
-        return this->maths::CKMostCorrelated::projections();
-    }
+    const TVectorVec& projections(void) const { return this->maths::CKMostCorrelated::projections(); }
 
-    const TSizeVectorPackedBitVectorPrUMap& projected(void) const {
-        return this->maths::CKMostCorrelated::projected();
-    }
+    const TSizeVectorPackedBitVectorPrUMap& projected(void) const { return this->maths::CKMostCorrelated::projected(); }
 
-    const TCorrelationVec& correlations(void) const {
-        return this->maths::CKMostCorrelated::correlations();
-    }
+    const TCorrelationVec& correlations(void) const { return this->maths::CKMostCorrelated::correlations(); }
 
-    const TMeanVarAccumulatorVec& moments(void) const {
-        return this->maths::CKMostCorrelated::moments();
-    }
+    const TMeanVarAccumulatorVec& moments(void) const { return this->maths::CKMostCorrelated::moments(); }
 };
 
 double mutualInformation(const TDoubleVec& p1, const TDoubleVec& p2) {
@@ -100,8 +87,7 @@ double mutualInformation(const TDoubleVec& p1, const TDoubleVec& p2) {
     for (std::size_t i = 0u; i < 2; ++i) {
         for (std::size_t j = 0u; j < 2; ++j) {
             if (f12[i][j] > 0.0) {
-                I += f12[i][j] / static_cast<double>(n) *
-                     ::log(f12[i][j] * static_cast<double>(n) / f1[i] / f2[j]);
+                I += f12[i][j] / static_cast<double>(n) * ::log(f12[i][j] * static_cast<double>(n) / f1[i] / f2[j]);
             }
         }
         if (f1[i] > 0.0) {
@@ -155,11 +141,9 @@ void estimateCorrelation(const std::size_t trials,
         for (std::size_t i = 0u; i < projections.size(); ++i) {
             sampleMoments.add(samples[i]);
             if (maths::CBasicStatistics::count(sampleMoments) > 1.0) {
-                px += projections[i] *
-                      (samples[i](0) - maths::CBasicStatistics::mean(sampleMoments)(0)) /
+                px += projections[i] * (samples[i](0) - maths::CBasicStatistics::mean(sampleMoments)(0)) /
                       ::sqrt(maths::CBasicStatistics::variance(sampleMoments)(0));
-                py += projections[i] *
-                      (samples[i](1) - maths::CBasicStatistics::mean(sampleMoments)(1)) /
+                py += projections[i] * (samples[i](1) - maths::CBasicStatistics::mean(sampleMoments)(1)) /
                       ::sqrt(maths::CBasicStatistics::variance(sampleMoments)(1));
             }
         }
@@ -197,9 +181,7 @@ void CKMostCorrelatedTest::testCorrelation(void) {
         LOG_DEBUG("correlationEstimate = " << correlationEstimate);
 
         double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2,
-                                     maths::CBasicStatistics::mean(correlationEstimate),
-                                     3.0 * sd / 10.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.5);
     }
     {
@@ -215,9 +197,7 @@ void CKMostCorrelatedTest::testCorrelation(void) {
         LOG_DEBUG("correlation = " << correlationEstimate);
 
         double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,
-                                     maths::CBasicStatistics::mean(correlationEstimate),
-                                     3.0 * sd / 10.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.42);
     }
     {
@@ -233,9 +213,7 @@ void CKMostCorrelatedTest::testCorrelation(void) {
         LOG_DEBUG("correlation = " << correlationEstimate);
 
         double sd = ::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.9,
-                                     maths::CBasicStatistics::mean(correlationEstimate),
-                                     3.0 * sd / 10.0);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.9, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, sd, 0.2);
     }
 }
@@ -301,8 +279,8 @@ void CKMostCorrelatedTest::testNextProjection(void) {
     // This should trigger the next projection to be generated.
     for (std::size_t i = 0u, X = 0u; i < variables; i += 2) {
         for (std::size_t j = 0u; j < boost::size(combinations); ++j, ++X) {
-            double x = combinations[j][0] * samples[19 * variables + i] +
-                       combinations[j][1] * samples[19 * variables + i + 1];
+            double x =
+                combinations[j][0] * samples[19 * variables + i] + combinations[j][1] * samples[19 * variables + i + 1];
             mostCorrelated.add(X, x);
         }
     }
@@ -347,8 +325,7 @@ void CKMostCorrelatedTest::testNextProjection(void) {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(I12) < 0.1);
 
     for (std::size_t i = 0u; i < moments1.size(); ++i) {
-        CPPUNIT_ASSERT(maths::CBasicStatistics::count(moments1[i]) >
-                       maths::CBasicStatistics::count(moments2[i]));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::count(moments1[i]) > maths::CBasicStatistics::count(moments2[i]));
     }
     for (std::size_t i = 0u; i < correlations2.size(); ++i) {
         CPPUNIT_ASSERT(maths::CBasicStatistics::count(correlations2[i].s_Correlation) > 0.0);
@@ -392,20 +369,15 @@ void CKMostCorrelatedTest::testMostCorrelated(void) {
     }
 
     TMaxCorrelationAccumulator expected(200);
-    for (CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr x =
-             mostCorrelated.projected().begin();
+    for (CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr x = mostCorrelated.projected().begin();
          x != mostCorrelated.projected().end();
          ++x) {
         std::size_t X = x->first;
         CKMostCorrelatedForTest::TSizeVectorPackedBitVectorPrUMapCItr y = x;
         while (++y != mostCorrelated.projected().end()) {
             std::size_t Y = y->first;
-            CKMostCorrelatedForTest::TCorrelation cxy(X,
-                                                      x->second.first,
-                                                      x->second.second,
-                                                      Y,
-                                                      y->second.first,
-                                                      y->second.second);
+            CKMostCorrelatedForTest::TCorrelation cxy(
+                X, x->second.first, x->second.second, Y, y->second.first, y->second.second);
             expected.add(cxy);
         }
     }
@@ -415,8 +387,7 @@ void CKMostCorrelatedTest::testMostCorrelated(void) {
     CKMostCorrelatedForTest::TCorrelationVec actual;
     mostCorrelated.mostCorrelated(actual);
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                         core::CContainerPrinter::print(actual));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(actual));
 }
 
 void CKMostCorrelatedTest::testRemoveVariables(void) {
@@ -441,8 +412,7 @@ void CKMostCorrelatedTest::testRemoveVariables(void) {
 
     for (std::size_t i = 0u; i < samples.size(); i += 10) {
         for (std::size_t j = 0u; j < 10; j += 2) {
-            samples[i + j + 1] =
-                combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
         }
     }
 
@@ -467,10 +437,8 @@ void CKMostCorrelatedTest::testRemoveVariables(void) {
     LOG_DEBUG("correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
 
     for (std::size_t i = 0u; i < correlatedPairs.size(); ++i) {
-        CPPUNIT_ASSERT(std::find(remove.begin(), remove.end(), correlatedPairs[i].first) ==
-                       remove.end());
-        CPPUNIT_ASSERT(std::find(remove.begin(), remove.end(), correlatedPairs[i].second) ==
-                       remove.end());
+        CPPUNIT_ASSERT(std::find(remove.begin(), remove.end(), correlatedPairs[i].first) == remove.end());
+        CPPUNIT_ASSERT(std::find(remove.begin(), remove.end(), correlatedPairs[i].second) == remove.end());
     }
 }
 
@@ -498,8 +466,7 @@ void CKMostCorrelatedTest::testAccuracy(void) {
 
         for (std::size_t i = 0u; i < samples.size(); i += 10) {
             for (std::size_t j = 0u; j < 10; j += 2) {
-                samples[i + j + 1] =
-                    combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+                samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
             }
         }
 
@@ -517,16 +484,14 @@ void CKMostCorrelatedTest::testAccuracy(void) {
                 mostCorrelated.mostCorrelated(correlatedPairs);
                 TDoubleVec correlations;
                 mostCorrelated.correlations(correlations);
-                LOG_DEBUG("correlatedPairs = "
-                          << core::CContainerPrinter::print(correlatedPairs.begin(),
-                                                            correlatedPairs.begin() + 5));
-                LOG_DEBUG(
-                    "correlations = " << core::CContainerPrinter::print(correlations.begin(),
-                                                                        correlations.begin() + 5));
+                LOG_DEBUG("correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs.begin(),
+                                                                                 correlatedPairs.begin() + 5));
+                LOG_DEBUG("correlations = " << core::CContainerPrinter::print(correlations.begin(),
+                                                                              correlations.begin() + 5));
                 std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
-                CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9)]"),
-                                     core::CContainerPrinter::print(correlatedPairs.begin(),
-                                                                    correlatedPairs.begin() + 5));
+                CPPUNIT_ASSERT_EQUAL(
+                    std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9)]"),
+                    core::CContainerPrinter::print(correlatedPairs.begin(), correlatedPairs.begin() + 5));
             }
         }
     }
@@ -555,12 +520,10 @@ void CKMostCorrelatedTest::testStability(void) {
 
     for (std::size_t i = 0u; i < samples.size(); i += 20) {
         for (std::size_t j = 0u; j < 10; j += 2) {
-            samples[i + j + 1] =
-                combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
         }
         for (std::size_t j = 10u; j < 20; j += 2) {
-            samples[i + j + 1] =
-                combinations[1][0] * samples[i + j] + combinations[1][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[1][0] * samples[i + j] + combinations[1][1] * samples[i + j + 1];
         }
     }
 
@@ -611,12 +574,10 @@ void CKMostCorrelatedTest::testChangingCorrelation(void) {
 
     for (std::size_t i = 0u; i < samples.size(); i += 10) {
         for (std::size_t j = 0u; j < 8; j += 2) {
-            samples[i + j + 1] =
-                combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
         }
         if (i >= samples.size() / 3) {
-            samples[i + 9] =
-                combinations[0][0] * samples[i + 8] + combinations[0][1] * samples[i + 9];
+            samples[i + 9] = combinations[0][0] * samples[i + 8] + combinations[0][1] * samples[i + 9];
         }
     }
 
@@ -633,10 +594,8 @@ void CKMostCorrelatedTest::testChangingCorrelation(void) {
 
     bool present = false;
     for (std::size_t i = 0u; i < mostCorrelated.correlations().size(); ++i) {
-        if (mostCorrelated.correlations()[i].s_X == 8 &&
-            mostCorrelated.correlations()[i].s_Y == 9) {
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(
-                               mostCorrelated.correlations()[i].s_Correlation) > 0.7);
+        if (mostCorrelated.correlations()[i].s_X == 8 && mostCorrelated.correlations()[i].s_Y == 9) {
+            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(mostCorrelated.correlations()[i].s_Correlation) > 0.7);
             present = true;
         }
     }
@@ -666,8 +625,7 @@ void CKMostCorrelatedTest::testMissingData(void) {
 
     for (std::size_t i = 0u; i < samples.size(); i += 10) {
         for (std::size_t j = 0u; j < 10; j += 2) {
-            samples[i + j + 1] =
-                combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
         }
     }
 
@@ -692,17 +650,14 @@ void CKMostCorrelatedTest::testMissingData(void) {
             mostCorrelated.mostCorrelated(correlatedPairs);
             TDoubleVec correlations;
             mostCorrelated.correlations(correlations);
-            LOG_DEBUG("correlatedPairs = "
-                      << core::CContainerPrinter::print(correlatedPairs.begin(),
-                                                        correlatedPairs.begin() + 5));
+            LOG_DEBUG("correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs.begin(),
+                                                                             correlatedPairs.begin() + 5));
             LOG_DEBUG(
-                "correlations = " << core::CContainerPrinter::print(correlations.begin(),
-                                                                    correlations.begin() + 5));
+                "correlations = " << core::CContainerPrinter::print(correlations.begin(), correlations.begin() + 5));
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 3);
             std::sort(correlatedPairs.begin() + 3, correlatedPairs.begin() + 5);
             CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (2, 3), (8, 9), (4, 5), (6, 7)]"),
-                                 core::CContainerPrinter::print(correlatedPairs.begin(),
-                                                                correlatedPairs.begin() + 5));
+                                 core::CContainerPrinter::print(correlatedPairs.begin(), correlatedPairs.begin() + 5));
         }
     }
 }
@@ -728,10 +683,9 @@ void CKMostCorrelatedTest::testScale(void) {
     for (std::size_t s = 0u; s < boost::size(n); ++s) {
         double proportions[] = {0.2, 0.3, 0.5};
         std::size_t b = 200;
-        std::size_t ns[] =
-            {static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[0]),
-             static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[1]),
-             static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[2])};
+        std::size_t ns[] = {static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[0]),
+                            static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[1]),
+                            static_cast<std::size_t>(static_cast<double>(n[s] * b) * proportions[2])};
         TDoubleVec scales;
         rng.generateUniformSamples(10.0, 40.0, n[s], scales);
 
@@ -780,12 +734,12 @@ void CKMostCorrelatedTest::testScale(void) {
 
         LOG_DEBUG("elapsed time = " << elapsed[s] << "ms");
 
-        // std::vector<std::pair<std::size_t, std::size_t> > pairs;
-        // mostCorrelated.mostCorrelated(n[s] / 2, pairs);
-        // LOG_DEBUG("pairs = " << core::CContainerPrinter::print(pairs));
-        // TDoubleVec correlations;
-        // mostCorrelated.correlations(n[s] / 2, correlations);
-        // LOG_DEBUG("correlations = " << core::CContainerPrinter::print(correlations));
+        //std::vector<std::pair<std::size_t, std::size_t> > pairs;
+        //mostCorrelated.mostCorrelated(n[s] / 2, pairs);
+        //LOG_DEBUG("pairs = " << core::CContainerPrinter::print(pairs));
+        //TDoubleVec correlations;
+        //mostCorrelated.correlations(n[s] / 2, correlations);
+        //LOG_DEBUG("correlations = " << core::CContainerPrinter::print(correlations));
     }
 
     LOG_DEBUG("elapsed times = " << core::CContainerPrinter::print(elapsed));
@@ -797,8 +751,7 @@ void CKMostCorrelatedTest::testScale(void) {
     }
     double exponent = ::log(maths::CBasicStatistics::mean(slope)) / ::log(2.0);
     LOG_DEBUG("exponent = " << exponent);
-    double sdRatio =
-        ::sqrt(maths::CBasicStatistics::variance(slope)) / maths::CBasicStatistics::mean(slope);
+    double sdRatio = ::sqrt(maths::CBasicStatistics::variance(slope)) / maths::CBasicStatistics::mean(slope);
     LOG_DEBUG("sdRatio = " << sdRatio);
     if (core::CUname::nodeName().compare(0, 3, "vm-") == 0) {
         // Allow more leeway on a VM as non-linearity is most likely due to the
@@ -829,8 +782,7 @@ void CKMostCorrelatedTest::testPersistence(void) {
 
     for (std::size_t i = 0u; i < samples.size(); i += 10) {
         for (std::size_t j = 0u; j < 10; j += 2) {
-            samples[i + j + 1] =
-                combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
+            samples[i + j + 1] = combinations[0][0] * samples[i + j] + combinations[0][1] * samples[i + j + 1];
         }
     }
 
@@ -857,10 +809,8 @@ void CKMostCorrelatedTest::testPersistence(void) {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::CKMostCorrelated restoredMostCorrelated(10, 0.001);
-    CPPUNIT_ASSERT(
-        traverser.traverseSubLevel(boost::bind(&maths::CKMostCorrelated::acceptRestoreTraverser,
-                                               &restoredMostCorrelated,
-                                               _1)));
+    CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        boost::bind(&maths::CKMostCorrelated::acceptRestoreTraverser, &restoredMostCorrelated, _1)));
 
     LOG_DEBUG("orig checksum = " << origMostCorrelated.checksum()
                                  << ", new checksum = " << restoredMostCorrelated.checksum());
@@ -877,36 +827,26 @@ void CKMostCorrelatedTest::testPersistence(void) {
 CppUnit::Test* CKMostCorrelatedTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMostCorrelatedTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testCorrelation",
-                                                      &CKMostCorrelatedTest::testCorrelation));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testNextProjection",
-                                                      &CKMostCorrelatedTest::testNextProjection));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testMostCorrelated",
-                                                      &CKMostCorrelatedTest::testMostCorrelated));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testRemoveVariables",
-                                                      &CKMostCorrelatedTest::testRemoveVariables));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testAccuracy",
-                                                      &CKMostCorrelatedTest::testAccuracy));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testStability",
-                                                      &CKMostCorrelatedTest::testStability));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CKMostCorrelatedTest>("CKMostCorrelatedTest::testChangingCorrelation",
-                                                &CKMostCorrelatedTest::testChangingCorrelation));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testMissingData",
-                                                      &CKMostCorrelatedTest::testMissingData));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testScale",
-                                                      &CKMostCorrelatedTest::testScale));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testPersistence",
-                                                      &CKMostCorrelatedTest::testPersistence));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testCorrelation",
+                                                                        &CKMostCorrelatedTest::testCorrelation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testNextProjection",
+                                                                        &CKMostCorrelatedTest::testNextProjection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testMostCorrelated",
+                                                                        &CKMostCorrelatedTest::testMostCorrelated));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testRemoveVariables",
+                                                                        &CKMostCorrelatedTest::testRemoveVariables));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testAccuracy",
+                                                                        &CKMostCorrelatedTest::testAccuracy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testStability",
+                                                                        &CKMostCorrelatedTest::testStability));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>(
+        "CKMostCorrelatedTest::testChangingCorrelation", &CKMostCorrelatedTest::testChangingCorrelation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testMissingData",
+                                                                        &CKMostCorrelatedTest::testMissingData));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testScale",
+                                                                        &CKMostCorrelatedTest::testScale));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKMostCorrelatedTest>("CKMostCorrelatedTest::testPersistence",
+                                                                        &CKMostCorrelatedTest::testPersistence));
 
     return suiteOfTests;
 }

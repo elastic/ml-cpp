@@ -95,8 +95,7 @@ void CDataSemanticsTest::testNumericCategorical(void) {
     // identified as categorical.
 
     double codes[] = {200, 201, 202, 303, 400, 403, 404, 500, 501, 503, 506, 598, 599};
-    double frequencies[] =
-        {0.7715, 0.03, 0.05, 0.001, 0.005, 0.041, 0.061, 0.002, 0.0005, 0.021, 0.001, 0.002, 0.014};
+    double frequencies[] = {0.7715, 0.03, 0.05, 0.001, 0.005, 0.041, 0.061, 0.002, 0.0005, 0.021, 0.001, 0.002, 0.014};
 
     test::CRandomNumbers rng;
 
@@ -138,7 +137,7 @@ void CDataSemanticsTest::testInteger(void) {
                 LOG_DEBUG("    adding " << static_cast<int>(samples[i]));
             }
             semantics.add(core::CStringUtils::typeToString(static_cast<int>(samples[i])));
-            // if ((i + 1) % 500 == 0)
+            //if ((i + 1) % 500 == 0)
             //{
             //    semantics.computeType();
             //    LOG_DEBUG("  type = " << semantics.type());
@@ -310,20 +309,15 @@ CppUnit::Test* CDataSemanticsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
 
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testBinary",
-                                                    &CDataSemanticsTest::testBinary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CDataSemanticsTest>("CDataSemanticsTest::testNonNumericCategorical",
-                                              &CDataSemanticsTest::testNonNumericCategorical));
+        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNonNumericCategorical",
+                                                                      &CDataSemanticsTest::testNonNumericCategorical));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNumericCategorical",
+                                                                      &CDataSemanticsTest::testNumericCategorical));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testInteger",
+                                                                      &CDataSemanticsTest::testInteger));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testNumericCategorical",
-                                                    &CDataSemanticsTest::testNumericCategorical));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testInteger",
-                                                    &CDataSemanticsTest::testInteger));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testReal",
-                                                    &CDataSemanticsTest::testReal));
+        new CppUnit::TestCaller<CDataSemanticsTest>("CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
 
     return suiteOfTests;
 }

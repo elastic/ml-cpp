@@ -54,21 +54,16 @@ const std::string SLOGAN2("You know, for search!");
 CppUnit::Test* CCommandProcessorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCommandProcessorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartPermitted",
-                                                       &CCommandProcessorTest::testStartPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CCommandProcessorTest>("CCommandProcessorTest::testStartNonPermitted",
-                                                 &CCommandProcessorTest::testStartNonPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CCommandProcessorTest>("CCommandProcessorTest::testStartNonExistent",
-                                                 &CCommandProcessorTest::testStartNonExistent));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testKillDisallowed",
-                                                       &CCommandProcessorTest::testKillDisallowed));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testInvalidVerb",
-                                                       &CCommandProcessorTest::testInvalidVerb));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartPermitted",
+                                                                         &CCommandProcessorTest::testStartPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
+        "CCommandProcessorTest::testStartNonPermitted", &CCommandProcessorTest::testStartNonPermitted));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testStartNonExistent",
+                                                                         &CCommandProcessorTest::testStartNonExistent));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testKillDisallowed",
+                                                                         &CCommandProcessorTest::testKillDisallowed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>("CCommandProcessorTest::testInvalidVerb",
+                                                                         &CCommandProcessorTest::testInvalidVerb));
 
     return suiteOfTests;
 }

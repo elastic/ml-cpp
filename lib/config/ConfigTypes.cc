@@ -43,10 +43,8 @@ const std::string FUNCTION_CATEGORY_NAMES[] = {std::string("count"),
                                                std::string("median")};
 
 const std::string IGNORE_EMPTY_VERSION_NAMES[][2] = {{std::string("n/a"), std::string("n/a")},
-                                                     {std::string("count"),
-                                                      std::string("non_zero_count")},
-                                                     {std::string("sum"),
-                                                      std::string("non_null_sum")}};
+                                                     {std::string("count"), std::string("non_zero_count")},
+                                                     {std::string("sum"), std::string("non_null_sum")}};
 
 const std::string SIDE_NAME[] = {std::string("high"),
                                  std::string("low"),
@@ -241,8 +239,7 @@ bool hasDoAndDontIgnoreEmptyVersions(EFunctionCategory function) {
     return true;
 }
 
-const std::string&
-ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
+const std::string& ignoreEmptyVersionName(EFunctionCategory function, bool ignoreEmpty, bool isPopulation) {
     std::size_t index = 0u;
     switch (function) {
     case E_Count:

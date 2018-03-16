@@ -34,8 +34,7 @@ class CCmdLineParser {
 public:
     //! Parse the arguments. ONLY return true if configFile and dateTime
     //! are defined.
-    static bool
-    parse(int argc, const char* const* argv, std::string& configFile, std::string& syslogLine);
+    static bool parse(int argc, const char* const* argv, std::string& configFile, std::string& syslogLine);
 
 private:
     static const std::string DESCRIPTION;

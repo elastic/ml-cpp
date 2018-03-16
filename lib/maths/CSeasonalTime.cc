@@ -48,10 +48,7 @@ CSeasonalTime::CSeasonalTime(core_t::TTime period, double precedence)
 }
 
 bool CSeasonalTime::operator<(const CSeasonalTime& rhs) const {
-    return COrderings::lexicographical_compare(m_Period,
-                                               -m_Precedence,
-                                               rhs.m_Period,
-                                               -rhs.m_Precedence);
+    return COrderings::lexicographical_compare(m_Period, -m_Precedence, rhs.m_Period, -rhs.m_Precedence);
 }
 
 double CSeasonalTime::periodic(core_t::TTime time) const {
@@ -59,8 +56,7 @@ double CSeasonalTime::periodic(core_t::TTime time) const {
 }
 
 double CSeasonalTime::regression(core_t::TTime time) const {
-    return static_cast<double>(time - m_RegressionOrigin) /
-           static_cast<double>(this->regressionTimeScale());
+    return static_cast<double>(time - m_RegressionOrigin) / static_cast<double>(this->regressionTimeScale());
 }
 
 double CSeasonalTime::regressionInterval(core_t::TTime start, core_t::TTime end) const {
@@ -182,8 +178,7 @@ core_t::TTime CDiurnalTime::windowEnd(void) const {
 }
 
 bool CDiurnalTime::hasWeekend(void) const {
-    return this->windowLength() == core::constants::WEEKEND ||
-           this->windowLength() == core::constants::WEEKDAYS;
+    return this->windowLength() == core::constants::WEEKEND || this->windowLength() == core::constants::WEEKDAYS;
 }
 
 uint64_t CDiurnalTime::checksum(uint64_t seed) const {
@@ -199,8 +194,7 @@ core_t::TTime CDiurnalTime::regressionTimeScale(void) const {
 
 //////// CGeneralPeriodTime ////////
 
-CGeneralPeriodTime::CGeneralPeriodTime(core_t::TTime period, double precedence)
-    : CSeasonalTime(period, precedence) {
+CGeneralPeriodTime::CGeneralPeriodTime(core_t::TTime period, double precedence) : CSeasonalTime(period, precedence) {
 }
 
 CGeneralPeriodTime* CGeneralPeriodTime::clone(void) const {

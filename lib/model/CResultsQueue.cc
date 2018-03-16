@@ -35,8 +35,7 @@ CResultsQueue::CResultsQueue(std::size_t delayBuckets, core_t::TTime bucketLengt
 void CResultsQueue::push(const CHierarchicalResults& result, core_t::TTime time) {
     if (m_Results.latestBucketEnd() + 1 - m_Results.bucketLength() == 0) {
         m_Results.reset(time - m_Results.bucketLength());
-        LOG_TRACE("Resetting results queue. Queue's latestBucketEnd is "
-                  << m_Results.latestBucketEnd());
+        LOG_TRACE("Resetting results queue. Queue's latestBucketEnd is " << m_Results.latestBucketEnd());
     }
     m_Results.push(result, time);
 }
@@ -86,8 +85,7 @@ core_t::TTime CResultsQueue::chooseResultTime(core_t::TTime bucketStartTime,
                                            << (bucketStartTime - (bucketLength / 2)));
 
     core_t::TTime resultsTime = 0;
-    const model::CHierarchicalResults::TNode* node =
-        m_Results.get(bucketStartTime - bucketLength).root();
+    const model::CHierarchicalResults::TNode* node = m_Results.get(bucketStartTime - bucketLength).root();
     double r1 = 0.0;
     if (node) {
         r1 = node->s_NormalizedAnomalyScore;
@@ -140,16 +138,12 @@ bool CResultsQueue::acceptRestoreTraverser(core::CStateRestoreTraverser& travers
                 return false;
             }
         } else if (name == LAST_RESULTS_INDEX_TAG) {
-            if (!core::CPersistUtils::restore(LAST_RESULTS_INDEX_TAG,
-                                              m_LastResultsIndex,
-                                              traverser)) {
+            if (!core::CPersistUtils::restore(LAST_RESULTS_INDEX_TAG, m_LastResultsIndex, traverser)) {
                 return false;
             }
         } else if (name == INITIALISATION_TIME_TAG) {
             core_t::TTime initialisationTime = 0;
-            if (!core::CPersistUtils::restore(INITIALISATION_TIME_TAG,
-                                              initialisationTime,
-                                              traverser)) {
+            if (!core::CPersistUtils::restore(INITIALISATION_TIME_TAG, initialisationTime, traverser)) {
                 return false;
             }
             m_Results.reset(initialisationTime);

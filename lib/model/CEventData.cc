@@ -107,8 +107,7 @@ CEventData::TOptionalSize CEventData::personId(void) const {
 
 CEventData::TOptionalSize CEventData::attributeId(void) const {
     if (m_Cids.size() != 1) {
-        LOG_ERROR(
-            "Call to attribute identifier ambiguous: " << core::CContainerPrinter::print(m_Cids));
+        LOG_ERROR("Call to attribute identifier ambiguous: " << core::CContainerPrinter::print(m_Cids));
         return TOptionalSize();
     }
     return m_Cids[0];
@@ -139,9 +138,8 @@ CEventData::TOptionalSize CEventData::count(void) const {
 }
 
 std::string CEventData::print(void) const {
-    return core::CStringUtils::typeToString(m_Time) + ' ' +
-           (m_Pid ? core::CStringUtils::typeToString(*m_Pid) : DASH) + ' ' +
-           core::CContainerPrinter::print(m_Cids) + ' ' + core::CContainerPrinter::print(m_Values);
+    return core::CStringUtils::typeToString(m_Time) + ' ' + (m_Pid ? core::CStringUtils::typeToString(*m_Pid) : DASH) +
+           ' ' + core::CContainerPrinter::print(m_Cids) + ' ' + core::CContainerPrinter::print(m_Values);
 }
 
 CEventData::TOptionalSize CEventData::attributeId(std::size_t i) const {

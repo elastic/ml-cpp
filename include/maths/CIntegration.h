@@ -166,13 +166,8 @@ public:
     //! \tparam V The type of range of \p g. This must have a meaningful default
     //! constructor, support multiplication by a double and addition.
     template<EOrder ORDER, typename F, typename G, typename U, typename V>
-    static bool productGaussLegendre(const F& f,
-                                     const G& g,
-                                     double a,
-                                     double b,
-                                     U& productIntegral,
-                                     U& fIntegral,
-                                     V& gIntegral) {
+    static bool
+    productGaussLegendre(const F& f, const G& g, double a, double b, U& productIntegral, U& fIntegral, V& gIntegral) {
         productIntegral = U();
         fIntegral = U();
         gIntegral = V();
@@ -296,9 +291,9 @@ public:
                                       double tolerance,
                                       double& result) {
         if (intervals.size() != fIntervals.size()) {
-            LOG_ERROR("Inconsistent intervals and function integrals: "
-                      << core::CContainerPrinter::print(intervals) << " "
-                      << core::CContainerPrinter::print(fIntervals));
+            LOG_ERROR("Inconsistent intervals and function integrals: " << core::CContainerPrinter::print(intervals)
+                                                                        << " "
+                                                                        << core::CContainerPrinter::print(fIntervals));
             return false;
         }
 
@@ -347,8 +342,7 @@ public:
                 double fjNew = 0.0;
 
                 double aj = intervals[j].first;
-                double dj = (intervals[j].second - intervals[j].first) /
-                            static_cast<double>(splitsPerRefinement);
+                double dj = (intervals[j].second - intervals[j].first) / static_cast<double>(splitsPerRefinement);
                 for (std::size_t k = 0u; k < splitsPerRefinement; ++k, aj += dj) {
                     double df;
                     if (CIntegration::gaussLegendre<ORDER>(f, aj, aj + dj, df)) {
@@ -372,8 +366,7 @@ public:
                 double correction = fjNew - fjOld;
                 if (i + 1 < refinements) {
                     corrections[j] = ::fabs(correction);
-                    corrections.resize(corrections.size() + splitsPerRefinement - 1,
-                                       ::fabs(correction));
+                    corrections.resize(corrections.size() + splitsPerRefinement - 1, ::fabs(correction));
                 }
 
                 result += correction;
@@ -471,8 +464,7 @@ public:
             // the dimension the maximum number of points will be 8761.
             //
             // Note this uses the construction:
-            //   Q^d_l = \sum{l <= ||k||_1 <= l+d-1}{ (-1)^(l+d-||k||_1-1) (d-1 ||k||_1-l) (Q^1_k_1
-            //   x ... x Q^1_k_d) }
+            //   Q^d_l = \sum{l <= ||k||_1 <= l+d-1}{ (-1)^(l+d-||k||_1-1) (d-1 ||k||_1-l) (Q^1_k_1 x ... x Q^1_k_d) }
 
             using TVectorDoubleMap = std::map<TVector, double>;
 
@@ -501,8 +493,7 @@ public:
                     TDoubleVec weights(n, 1.0);
                     TVectorVec points(n, TVector(0.0));
                     for (unsigned int i = 0u; i < n; ++i) {
-                        for (unsigned int i_ = i, j = 0u; j < indices.size();
-                             i_ /= indices[j], ++j) {
+                        for (unsigned int i_ = i, j = 0u; j < indices.size(); i_ /= indices[j], ++j) {
                             EOrder order = static_cast<EOrder>(indices[j]);
                             const double* w = CGaussLegendreQuadrature::weights(order);
                             const double* a = CGaussLegendreQuadrature::abscissas(order);
@@ -556,8 +547,7 @@ public:
     //! \tparam T The type of range of \p f. This must have a meaningful
     //! default constructor, support multiplication by a double and addition.
     template<EOrder ORDER, EDimension DIMENSION, typename F, typename T>
-    static bool
-    sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
+    static bool sparseGaussLegendre(const F& function, const TDoubleVec& a, const TDoubleVec& b, T& result) {
         using TSparseQuadrature = CSparseGaussLegendreQuadrature<ORDER, DIMENSION>;
         using TVector = typename TSparseQuadrature::TVector;
         using TVectorVec = typename TSparseQuadrature::TVectorVec;

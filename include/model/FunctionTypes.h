@@ -206,10 +206,10 @@ enum EFunction {
     E_PeersInfoContent = 406,
     E_PeersLowInfoContent = 407,
     E_PeersHighInfoContent = 408,
-    // E_PeersRare = 409,
-    // E_PeersRareCount = 410,
-    // E_PeersFreqRare = 411,
-    // E_PeersFreqRareCount = 412,
+    //E_PeersRare = 409,
+    //E_PeersRareCount = 410,
+    //E_PeersFreqRare = 411,
+    //E_PeersFreqRareCount = 412,
     E_PeersTimeOfDay = 413,
     E_PeersTimeOfWeek = 414
 };

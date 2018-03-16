@@ -28,11 +28,7 @@ const std::string EMPTY_STRING;
 }
 
 CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream)
-    : m_ReadStream(inputStream),
-      m_Handler(),
-      m_Started(false),
-      m_DesiredLevel(0),
-      m_IsArrayOfObjects(false) {
+    : m_ReadStream(inputStream), m_Handler(), m_Started(false), m_DesiredLevel(0), m_IsArrayOfObjects(false) {
 }
 
 bool CJsonStateRestoreTraverser::isEof(void) const {
@@ -163,9 +159,8 @@ bool CJsonStateRestoreTraverser::ascend(void) {
 
 void CJsonStateRestoreTraverser::debug(void) const {
     LOG_DEBUG("Current: name = " << this->currentName() << " value = " << this->currentValue()
-                                 << " level = " << this->currentLevel() << ", Next: name = "
-                                 << this->nextName() << " value = " << this->nextValue()
-                                 << " level = " << this->nextLevel()
+                                 << " level = " << this->currentLevel() << ", Next: name = " << this->nextName()
+                                 << " value = " << this->nextValue() << " level = " << this->nextLevel()
                                  << " is array of objects = " << m_IsArrayOfObjects);
 }
 
@@ -259,8 +254,7 @@ bool CJsonStateRestoreTraverser::start(void) {
     // For Ml state the first token should be the start of a JSON
     // object, but we don't store it
     if (m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectStart) {
-        if (m_IsArrayOfObjects && m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd &&
-            this->isEof()) {
+        if (m_IsArrayOfObjects && m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd && this->isEof()) {
             LOG_DEBUG("JSON document is an empty array");
             return false;
         }
@@ -368,15 +362,11 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::Double(double d) {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::RawNumber(const char*,
-                                                              rapidjson::SizeType,
-                                                              bool) {
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::RawNumber(const char*, rapidjson::SizeType, bool) {
     return false;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::String(const char* str,
-                                                           rapidjson::SizeType length,
-                                                           bool) {
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::String(const char* str, rapidjson::SizeType length, bool) {
     s_Type = E_TokenString;
     if (s_RememberValue) {
         s_Value[s_NextIndex].assign(str, length);
@@ -394,9 +384,7 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::StartObject() {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::Key(const char* str,
-                                                        rapidjson::SizeType length,
-                                                        bool) {
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::Key(const char* str, rapidjson::SizeType length, bool) {
     s_Type = E_TokenKey;
     if (s_RememberValue) {
         s_NextIndex = 1 - s_NextIndex;

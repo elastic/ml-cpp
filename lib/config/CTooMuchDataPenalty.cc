@@ -33,9 +33,8 @@ namespace {
 typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
 
 //! Get the description prefix.
-std::string descriptionPrefix(const CDetectorSpecification& spec,
-                              const TMeanAccumulator& meanOccupied,
-                              std::size_t partitions) {
+std::string
+descriptionPrefix(const CDetectorSpecification& spec, const TMeanAccumulator& meanOccupied, std::size_t partitions) {
     if (spec.byField() && spec.partitionField()) {
         return "A significant proportion, " +
                CTools::prettyPrint(100.0 * maths::CBasicStatistics::count(meanOccupied) /
@@ -73,19 +72,16 @@ void CTooMuchDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                 dynamic_cast<const CPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*partitionStats, spec);
         } else if (const CByAndPartitionDataCountStatistics* byAndPartitionStats =
-                       dynamic_cast<const CByAndPartitionDataCountStatistics*>(
-                           spec.countStatistics())) {
+                       dynamic_cast<const CByAndPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*byAndPartitionStats, spec);
         } else if (const CByOverAndPartitionDataCountStatistics* byOverAndPartitionStats =
-                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(
-                           spec.countStatistics())) {
+                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*byOverAndPartitionStats, spec);
         }
     }
 }
 
-void CTooMuchDataPenalty::penaltyFor(const CPartitionDataCountStatistics& stats,
-                                     CDetectorSpecification& spec) const {
+void CTooMuchDataPenalty::penaltyFor(const CPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     this->penaltyFor(stats.bucketCounts(), stats.bucketStatistics(), spec);
 }
 
@@ -102,8 +98,7 @@ void CTooMuchDataPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistic
 void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                                      const TBucketCountStatisticsVec& statistics,
                                      CDetectorSpecification& spec) const {
-    typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator
-        TSizeSizePrMomentsUMapCItr;
+    typedef CBucketCountStatistics::TSizeSizePrMomentsUMap::const_iterator TSizeSizePrMomentsUMapCItr;
 
     const CAutoconfigurerParams::TTimeVec& candidates = this->params().candidateBucketLengths();
 
@@ -122,31 +117,25 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
         uint64_t bc = bucketCounts[bid];
         if (bc > 0) {
             const CBucketCountStatistics& si = statistics[bid];
-            const CBucketCountStatistics::TSizeSizePrMomentsUMap& mi =
-                si.countMomentsPerPartition();
+            const CBucketCountStatistics::TSizeSizePrMomentsUMap& mi = si.countMomentsPerPartition();
 
             TMeanAccumulator penalty_;
             TMeanAccumulator penalizedOccupancy;
 
             for (TSizeSizePrMomentsUMapCItr j = mi.begin(); j != mi.end(); ++j) {
-                double occupied =
-                    maths::CBasicStatistics::count(j->second) / static_cast<double>(bc);
-                double penalty =
-                    CTools::logInterpolate(this->params().highPopulatedBucketFraction(function,
-                                                                                      true),
-                                           this->params().maximumPopulatedBucketFraction(function,
-                                                                                         true),
-                                           1.0,
-                                           1.0 / static_cast<double>(bucketCounts[bid]),
-                                           occupied);
+                double occupied = maths::CBasicStatistics::count(j->second) / static_cast<double>(bc);
+                double penalty = CTools::logInterpolate(this->params().highPopulatedBucketFraction(function, true),
+                                                        this->params().maximumPopulatedBucketFraction(function, true),
+                                                        1.0,
+                                                        1.0 / static_cast<double>(bucketCounts[bid]),
+                                                        occupied);
                 penalty_.add(maths::CTools::fastLog(penalty));
                 if (penalty < 1.0) {
                     penalizedOccupancy.add(occupied);
                 }
             }
 
-            if (maths::CBasicStatistics::count(penalizedOccupancy) >
-                0.95 * static_cast<double>(mi.size())) {
+            if (maths::CBasicStatistics::count(penalizedOccupancy) > 0.95 * static_cast<double>(mi.size())) {
                 double penalty = std::min(::exp(maths::CBasicStatistics::mean(penalty_)), 1.0);
                 std::size_t index = this->params().penaltyIndexFor(bid, true);
                 indices.push_back(index);
@@ -155,18 +144,14 @@ void CTooMuchDataPenalty::penaltyFor(const TUInt64Vec& bucketCounts,
                 if (penalty < 1.0) {
                     if (spec.byField() || spec.partitionField()) {
                         descriptions.back() =
-                            descriptionPrefix(spec, penalizedOccupancy, mi.size()) +
-                            " On average, " +
-                            CTools::prettyPrint(100.0 *
-                                                maths::CBasicStatistics::mean(penalizedOccupancy)) +
+                            descriptionPrefix(spec, penalizedOccupancy, mi.size()) + " On average, " +
+                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) +
                             "% of their buckets have a value";
                     } else {
                         descriptions.back() =
                             "A significant proportion, " +
-                            CTools::prettyPrint(100.0 *
-                                                maths::CBasicStatistics::mean(penalizedOccupancy)) +
-                            "%, of " + CTools::prettyPrint(candidates[bid]) +
-                            " buckets have a value";
+                            CTools::prettyPrint(100.0 * maths::CBasicStatistics::mean(penalizedOccupancy)) + "%, of " +
+                            CTools::prettyPrint(candidates[bid]) + " buckets have a value";
                     }
                 }
             }

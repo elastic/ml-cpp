@@ -96,8 +96,7 @@ bool CCompressUtils::compressString(bool finish, const std::string& str) {
 }
 
 bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
-    if ((finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)) {
+    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
         buffer.insert(0, reinterpret_cast<const char*>(&m_Buffer[0]), m_Buffer.size());
         return true;
     }
@@ -111,8 +110,7 @@ bool CCompressUtils::compressedString(bool finish, std::string& buffer) {
 }
 
 bool CCompressUtils::compressedStringLength(bool finish, size_t& length) {
-    if ((finish == true && m_State == E_IsFinished) ||
-        (finish == false && m_State == E_Compressing)) {
+    if ((finish == true && m_State == E_IsFinished) || (finish == false && m_State == E_Compressing)) {
         length = m_Buffer.size();
         return true;
     }
@@ -172,11 +170,11 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
 
     static const size_t CHUNK = 16384;
     unsigned char out[CHUNK];
-
+    
     do {
         m_ZlibStrm.next_out = out;
         m_ZlibStrm.avail_out = CHUNK;
-        int ret = ::inflate(&m_ZlibStrm, Z_NO_FLUSH);    // no bad return value
+        int ret = ::inflate(&m_ZlibStrm, Z_NO_FLUSH);    // no bad return value 
         if (ret == Z_STREAM_ERROR)
         {
             LOG_ERROR("Error reading Z stream: " << ::zError(ret));
@@ -190,7 +188,7 @@ bool CCompressUtils::uncompressString(const std::string &buffer)
                 LOG_ERROR("Error reading Z stream: " << ::zError(ret));
                 return false;
         }
-
+        
         size_t have = CHUNK - m_ZlibStrm.avail_out;
 
         m_Buffer.insert(m_Buffer.end(), &out[0], &out[have]);

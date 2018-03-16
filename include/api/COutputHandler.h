@@ -90,8 +90,7 @@ public:
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields) = 0;
+    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise(void);

@@ -57,11 +57,8 @@ void penaltyImpl(const CAutoconfigurerParams& params,
     TMeanAccumulator penalty_;
     proportionWithLowVariation = 0.0;
     for (typename MOMENTS::const_iterator i = moments.begin(); i != moments.end(); ++i) {
-        double pi = CTools::logInterpolate(params.lowCoefficientOfVariation(),
-                                           params.minimumCoefficientOfVariation(),
-                                           1.0,
-                                           MIN,
-                                           cov(i->second));
+        double pi = CTools::logInterpolate(
+            params.lowCoefficientOfVariation(), params.minimumCoefficientOfVariation(), 1.0, MIN, cov(i->second));
         penalty_.add(maths::CTools::fastLog(pi), maths::CBasicStatistics::count(i->second));
         if (pi < 1.0) {
             proportionWithLowVariation += 1.0;
@@ -85,8 +82,7 @@ struct SDistinctCountPenalty {
                                                1.0,
                                                MIN,
                                                cov(i->second.s_DistinctCount));
-            penalty_.add(maths::CTools::fastLog(pi),
-                         maths::CBasicStatistics::count(i->second.s_DistinctCount));
+            penalty_.add(maths::CTools::fastLog(pi), maths::CBasicStatistics::count(i->second.s_DistinctCount));
             if (pi < 1.0) {
                 proportionWithLowVariation += 1.0;
             }
@@ -110,8 +106,7 @@ struct SInfoContentPenalty {
                                                1.0,
                                                MIN,
                                                cov(i->second.s_InfoContent));
-            penalty_.add(maths::CTools::fastLog(pi),
-                         maths::CBasicStatistics::count(i->second.s_InfoContent));
+            penalty_.add(maths::CTools::fastLog(pi), maths::CBasicStatistics::count(i->second.s_InfoContent));
             if (pi < 1.0) {
                 proportionWithLowVariation += 1.0;
             }
@@ -122,20 +117,17 @@ struct SInfoContentPenalty {
 };
 
 //! Get the description prefix.
-std::string descriptionPrefix(const CDetectorSpecification& spec,
-                              double proportionWithLowVariation) {
+std::string descriptionPrefix(const CDetectorSpecification& spec, double proportionWithLowVariation) {
     if (spec.byField() && spec.partitionField()) {
-        return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * proportionWithLowVariation) +
+        return "A significant proportion, " + CTools::prettyPrint(100.0 * proportionWithLowVariation) +
                "%, of distinct partition and by fields combinations";
     }
     if (spec.byField()) {
-        return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * proportionWithLowVariation) + "%, of distinct by fields";
+        return "A significant proportion, " + CTools::prettyPrint(100.0 * proportionWithLowVariation) +
+               "%, of distinct by fields";
     }
     if (spec.partitionField()) {
-        return "A significant proportion, " +
-               CTools::prettyPrint(100.0 * proportionWithLowVariation) +
+        return "A significant proportion, " + CTools::prettyPrint(100.0 * proportionWithLowVariation) +
                "%, of distinct partition fields";
     }
     return "";
@@ -143,9 +135,7 @@ std::string descriptionPrefix(const CDetectorSpecification& spec,
 
 //! Apply the penalties for count analysis from \p stats.
 template<typename STATS>
-void penaltyForCountImpl(const CAutoconfigurerParams& params,
-                         const STATS& stats,
-                         CDetectorSpecification& spec) {
+void penaltyForCountImpl(const CAutoconfigurerParams& params, const STATS& stats, CDetectorSpecification& spec) {
     std::size_t n = stats.bucketStatistics().size();
 
     TSizeVec indices;
@@ -159,20 +149,17 @@ void penaltyForCountImpl(const CAutoconfigurerParams& params,
         const TSizeVec& indices_ = params.penaltyIndicesFor(bid);
         double penalty;
         double proportionWithLowVariation;
-        penaltyImpl(params,
-                    stats.bucketStatistics()[bid].countMomentsPerPartition(),
-                    penalty,
-                    proportionWithLowVariation);
+        penaltyImpl(
+            params, stats.bucketStatistics()[bid].countMomentsPerPartition(), penalty, proportionWithLowVariation);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
         std::string description;
         if (penalty < 1.0) {
             if (spec.byField() || spec.partitionField()) {
                 description = descriptionPrefix(spec, proportionWithLowVariation) + " have " +
-                              (penalty == MIN ? "too " : "") + "low" +
-                              " variation in their bucket counts";
+                              (penalty == MIN ? "too " : "") + "low" + " variation in their bucket counts";
             } else {
-                description = std::string("The variation in the bucket counts is ") +
-                              (penalty == MIN ? "too " : "") + "low";
+                description =
+                    std::string("The variation in the bucket counts is ") + (penalty == MIN ? "too " : "") + "low";
             }
         }
         std::fill_n(std::back_inserter(penalties), indices_.size(), penalty);
@@ -212,8 +199,7 @@ void penaltyForImpl(const CAutoconfigurerParams& params,
         if (penalty < 1.0) {
             if (spec.byField() || spec.partitionField()) {
                 description = descriptionPrefix(spec, proportionWithLowVariation) + " have " +
-                              (penalty == MIN ? "too " : "") + "low" +
-                              " variation in their bucket " + function;
+                              (penalty == MIN ? "too " : "") + "low" + " variation in their bucket " + function;
             } else {
                 description = std::string("The variation in the bucket ") + function + " is " +
                               (penalty == MIN ? "too " : "") + "low";
@@ -239,18 +225,18 @@ std::string CLowVariationPenalty::name(void) const {
 }
 
 void CLowVariationPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
-#define APPLY_COUNTING_PENALTY(penalty)                                                            \
-    if (const CDataCountStatistics* stats_ = spec.countStatistics()) {                             \
-        if (const CPartitionDataCountStatistics* partitionStats =                                  \
-                dynamic_cast<const CPartitionDataCountStatistics*>(stats_)) {                      \
-            this->penalty(*partitionStats, spec);                                                  \
-        } else if (const CByAndPartitionDataCountStatistics* byAndPartitionStats =                 \
-                       dynamic_cast<const CByAndPartitionDataCountStatistics*>(stats_)) {          \
-            this->penalty(*byAndPartitionStats, spec);                                             \
-        } else if (const CByOverAndPartitionDataCountStatistics* byOverAndPartitionStats =         \
-                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(stats_)) {      \
-            this->penalty(*byOverAndPartitionStats, spec);                                         \
-        }                                                                                          \
+#define APPLY_COUNTING_PENALTY(penalty)                                                                                \
+    if (const CDataCountStatistics* stats_ = spec.countStatistics()) {                                                 \
+        if (const CPartitionDataCountStatistics* partitionStats =                                                      \
+                dynamic_cast<const CPartitionDataCountStatistics*>(stats_)) {                                          \
+            this->penalty(*partitionStats, spec);                                                                      \
+        } else if (const CByAndPartitionDataCountStatistics* byAndPartitionStats =                                     \
+                       dynamic_cast<const CByAndPartitionDataCountStatistics*>(stats_)) {                              \
+            this->penalty(*byAndPartitionStats, spec);                                                                 \
+        } else if (const CByOverAndPartitionDataCountStatistics* byOverAndPartitionStats =                             \
+                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(stats_)) {                          \
+            this->penalty(*byOverAndPartitionStats, spec);                                                             \
+        }                                                                                                              \
     }
 
     switch (spec.function()) {
@@ -297,9 +283,8 @@ void CLowVariationPenalty::penaltyForDistinctCount(const CByAndPartitionDataCoun
     penaltyForImpl(this->params(), stats, SDistinctCountPenalty(), "distinct counts", spec);
 }
 
-void CLowVariationPenalty::penaltyForDistinctCount(
-    const CByOverAndPartitionDataCountStatistics& stats,
-    CDetectorSpecification& spec) const {
+void CLowVariationPenalty::penaltyForDistinctCount(const CByOverAndPartitionDataCountStatistics& stats,
+                                                   CDetectorSpecification& spec) const {
     penaltyForImpl(this->params(), stats, SDistinctCountPenalty(), "distinct counts", spec);
 }
 
@@ -313,9 +298,8 @@ void CLowVariationPenalty::penaltyForInfoContent(const CByAndPartitionDataCountS
     penaltyForImpl(this->params(), stats, SInfoContentPenalty(), "info content", spec);
 }
 
-void CLowVariationPenalty::penaltyForInfoContent(
-    const CByOverAndPartitionDataCountStatistics& stats,
-    CDetectorSpecification& spec) const {
+void CLowVariationPenalty::penaltyForInfoContent(const CByOverAndPartitionDataCountStatistics& stats,
+                                                 CDetectorSpecification& spec) const {
     penaltyForImpl(this->params(), stats, SInfoContentPenalty(), "info content", spec);
 }
 }

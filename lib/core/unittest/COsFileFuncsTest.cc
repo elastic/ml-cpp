@@ -28,10 +28,10 @@
 CppUnit::Test* COsFileFuncsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COsFileFuncsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COsFileFuncsTest>("COsFileFuncsTest::testInode",
-                                                                    &COsFileFuncsTest::testInode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COsFileFuncsTest>("COsFileFuncsTest::testLStat",
-                                                                    &COsFileFuncsTest::testLStat));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COsFileFuncsTest>("COsFileFuncsTest::testInode", &COsFileFuncsTest::testInode));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<COsFileFuncsTest>("COsFileFuncsTest::testLStat", &COsFileFuncsTest::testLStat));
 
     return suiteOfTests;
 }
@@ -96,9 +96,8 @@ void COsFileFuncsTest::testLStat(void) {
     LOG_WARN("Skipping lstat() test as it would need to run as administrator");
 #else
 #ifdef Windows
-    CPPUNIT_ASSERT(CreateSymbolicLink(symLink.c_str(),
-                                      file.c_str(),
-                                      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
+    CPPUNIT_ASSERT(CreateSymbolicLink(symLink.c_str(), file.c_str(), SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) !=
+                   FALSE);
 #else
     CPPUNIT_ASSERT_EQUAL(0, ::symlink(file.c_str(), symLink.c_str()));
 #endif
@@ -115,9 +114,8 @@ void COsFileFuncsTest::testLStat(void) {
     // Due to the way this test is structured, the link should have been created
     // in the last few seconds (but the linked file, Main.cc, could be older)
     ml::core_t::TTime now = ml::core::CTimeUtils::now();
-    LOG_INFO("now: " << now << ", symlink create time: " << statBuf.st_ctime
-                     << ", symlink modification time: " << statBuf.st_mtime
-                     << ", symlink access time: " << statBuf.st_atime);
+    LOG_INFO("now: " << now << ", symlink create time: " << statBuf.st_ctime << ", symlink modification time: "
+                     << statBuf.st_mtime << ", symlink access time: " << statBuf.st_atime);
     CPPUNIT_ASSERT(statBuf.st_ctime > now - 3);
     CPPUNIT_ASSERT(statBuf.st_mtime > now - 3);
     CPPUNIT_ASSERT(statBuf.st_atime > now - 3);

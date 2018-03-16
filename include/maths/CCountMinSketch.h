@@ -133,9 +133,7 @@ private:
         SSketch(std::size_t rows, std::size_t columns);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,
-                                    std::size_t rows,
-                                    std::size_t columns);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser, std::size_t rows, std::size_t columns);
 
         //! Convert to a node tree.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

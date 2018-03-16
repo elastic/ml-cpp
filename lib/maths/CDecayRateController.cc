@@ -98,8 +98,7 @@ double adjustMultiplier(double multiplier, core_t::TTime bucketLength_) {
 //! Adjust the maximum decay rate multiplier for long bucket lengths.
 double adjustedMaximumMultiplier(core_t::TTime bucketLength_) {
     double bucketLength{static_cast<double>(bucketLength_)};
-    return MAXIMUM_MULTIPLIER /
-           (1.0 + CTools::truncate((bucketLength - 1800.0) / 86400.0, 0.0, 1.0));
+    return MAXIMUM_MULTIPLIER / (1.0 + CTools::truncate((bucketLength - 1800.0) / 86400.0, 0.0, 1.0));
 }
 }
 
@@ -134,15 +133,11 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
         RESTORE_BUILT_IN(TARGET_TAG, m_Target)
         RESTORE(MULTIPLIER_TAG, m_Multiplier.fromDelimited(traverser.value()))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
-        RESTORE(PREDICTION_MEAN_TAG,
-                core::CPersistUtils::restore(PREDICTION_MEAN_TAG, m_PredictionMean, traverser));
+        RESTORE(PREDICTION_MEAN_TAG, core::CPersistUtils::restore(PREDICTION_MEAN_TAG, m_PredictionMean, traverser));
         RESTORE(BIAS_TAG, core::CPersistUtils::restore(BIAS_TAG, m_Bias, traverser))
-        RESTORE(RECENT_ABS_ERROR_TAG,
-                core::CPersistUtils::restore(RECENT_ABS_ERROR_TAG, m_RecentAbsError, traverser))
+        RESTORE(RECENT_ABS_ERROR_TAG, core::CPersistUtils::restore(RECENT_ABS_ERROR_TAG, m_RecentAbsError, traverser))
         RESTORE(HISTORICAL_ABS_ERROR_TAG,
-                core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG,
-                                             m_HistoricalAbsError,
-                                             traverser))
+                core::CPersistUtils::restore(HISTORICAL_ABS_ERROR_TAG, m_HistoricalAbsError, traverser))
     } while (traverser.next());
     if (CBasicStatistics::count(m_Multiplier) == 0.0) {
         m_Multiplier.add(m_Target);
@@ -190,8 +185,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             if (count > 0.0) {
                 double bias{CBasicStatistics::mean(m_Bias[d])};
                 double width{10.0 * CBasicStatistics::mean(m_HistoricalAbsError[d])};
-                predictionError[d] =
-                    CTools::truncate(predictionError[d], bias - width, bias + width);
+                predictionError[d] = CTools::truncate(predictionError[d], bias - width, bias + width);
             }
 
             // The idea of the following is to allow the model memory
@@ -204,8 +198,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             // so the controller will actively decrease the decay rate.
 
             double weight{learnRate / numberPredictionErrors};
-            double sd{MINIMUM_COV_TO_CONTROL *
-                      std::fabs(CBasicStatistics::mean(m_PredictionMean[d]))};
+            double sd{MINIMUM_COV_TO_CONTROL * std::fabs(CBasicStatistics::mean(m_PredictionMean[d]))};
             double tolerance{sd > 0.0 ? CSampling::normalSample(m_Rng, 0.0, sd * sd) : 0.0};
             m_PredictionMean[d].add(prediction[d], weight);
             (*stats_[0])[d].add(predictionError[d] + tolerance, weight);
@@ -245,10 +238,9 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             change.add(this->change(stats, bucketLength));
         }
 
-        m_Target *= CTools::truncate(m_Target * change[0],
-                                     MINIMUM_MULTIPLIER,
-                                     adjustedMaximumMultiplier(bucketLength)) /
-                    m_Target;
+        m_Target *=
+            CTools::truncate(m_Target * change[0], MINIMUM_MULTIPLIER, adjustedMaximumMultiplier(bucketLength)) /
+            m_Target;
 
         // We smooth the target decay rate. Over time this should
         // converge to the single decay rate which would minimize

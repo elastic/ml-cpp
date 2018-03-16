@@ -48,15 +48,11 @@ typedef std::vector<CFloatStorage> TFloatVec;
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
-                                   const TDoubleVec& b,
-                                   TDoubleVec& c,
-                                   TDoubleVec& x);
+bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a, const TDoubleVec& b, TDoubleVec& c, TDoubleVec& x);
 
 //! Solves:
 //! <pre class="fragment">
-//!   \f$\displaystyle \left(A + \begin{bmatrix} 1\\ 0\\ 0\\ \cdot\\u \end{bmatrix} \begin{bmatrix}
-//!   1 & 0 & 0 & \cdot & v \end{bmatrix}\right)x=y\f$
+//!   \f$\displaystyle \left(A + \begin{bmatrix} 1\\ 0\\ 0\\ \cdot\\u \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 & \cdot & v \end{bmatrix}\right)x=y\f$
 //! </pre>
 //!
 //! Here, \f$A\f$ is a tridiagonal matrix consisting of vectors
@@ -181,12 +177,10 @@ public:
             return 0.0;
         }
 
-        std::size_t k =
-            CTools::truncate(std::size_t(
-                                 std::lower_bound(this->knots().begin(), this->knots().end(), x) -
-                                 this->knots().begin()),
-                             std::size_t(1),
-                             this->knots().size() - 1);
+        std::size_t k = CTools::truncate(
+            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
+            std::size_t(1),
+            this->knots().size() - 1);
 
         if (x == this->knots()[k]) {
             return this->values()[k];
@@ -261,12 +255,10 @@ public:
             return 0.0;
         }
 
-        std::size_t k =
-            CTools::truncate(std::size_t(
-                                 std::lower_bound(this->knots().begin(), this->knots().end(), x) -
-                                 this->knots().begin()),
-                             std::size_t(1),
-                             this->knots().size() - 1);
+        std::size_t k = CTools::truncate(
+            std::size_t(std::lower_bound(this->knots().begin(), this->knots().end(), x) - this->knots().begin()),
+            std::size_t(1),
+            this->knots().size() - 1);
 
         switch (m_Type) {
         case E_Linear: {
@@ -342,8 +334,7 @@ public:
     //! \param[out] c Filled in with the linear coefficient.
     //! \param[out] d Filled in with the constant.
     //! \note Null pointers are ignored.
-    void
-    coefficients(TDoubleVec* a = 0, TDoubleVec* b = 0, TDoubleVec* c = 0, TDoubleVec* d = 0) const {
+    void coefficients(TDoubleVec* a = 0, TDoubleVec* b = 0, TDoubleVec* c = 0, TDoubleVec* d = 0) const {
         if (a)
             a->reserve(this->values().size());
         if (b)
@@ -377,8 +368,7 @@ public:
                     b->push_back(this->curvatures()[i - 1] / 2.0);
                 if (c)
                     c->push_back((this->values()[i] - this->values()[i - 1]) / h -
-                                 (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) *
-                                     h);
+                                 (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h);
                 if (d)
                     d->push_back(this->values()[i - 1]);
             }
@@ -402,8 +392,7 @@ public:
     //! is ill posed. This implementation removes duplicates and
     //! sets the function value to the mean of function values
     //! over the duplicates.
-    bool
-    interpolate(const TDoubleVec& knots, const TDoubleVec& values, EBoundaryCondition boundary) {
+    bool interpolate(const TDoubleVec& knots, const TDoubleVec& values, EBoundaryCondition boundary) {
         if (knots.size() < 2) {
             LOG_ERROR("Insufficient knot points supplied");
             return false;
@@ -496,9 +485,8 @@ public:
             case E_Periodic:
                 b.push_back(2.0 * (h + h_));
                 c.push_back(h - 1.0);
-                this->curvaturesRef().push_back(6.0 *
-                                                ((this->values()[1] - this->values()[0]) / h -
-                                                 (this->values()[0] - this->values()[n - 2]) / h_));
+                this->curvaturesRef().push_back(6.0 * ((this->values()[1] - this->values()[0]) / h -
+                                                       (this->values()[0] - this->values()[n - 2]) / h_));
                 break;
             }
 
@@ -508,9 +496,8 @@ public:
                 a.push_back(h_);
                 b.push_back(2.0 * (h + h_));
                 c.push_back(h);
-                this->curvaturesRef().push_back(6.0 *
-                                                ((this->values()[i + 1] - this->values()[i]) / h -
-                                                 (this->values()[i] - this->values()[i - 1]) / h_));
+                this->curvaturesRef().push_back(6.0 * ((this->values()[i + 1] - this->values()[i]) / h -
+                                                       (this->values()[i] - this->values()[i - 1]) / h_));
             }
 
             h_ = h;
@@ -546,15 +533,9 @@ public:
                 TDoubleVec v(n, 0.0);
                 v[1] = 1.0;
                 v[n - 2] = h_;
-                this->curvaturesRef().push_back(
-                    6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
-                           (this->values()[n - 1] - this->values()[n - 2]) / h_));
-                if (!spline_detail::solvePeturbedTridiagonal(a,
-                                                             b,
-                                                             c,
-                                                             u,
-                                                             v,
-                                                             this->curvaturesRef())) {
+                this->curvaturesRef().push_back(6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
+                                                       (this->values()[n - 1] - this->values()[n - 2]) / h_));
+                if (!spline_detail::solvePeturbedTridiagonal(a, b, c, u, v, this->curvaturesRef())) {
                     LOG_ERROR("Failed to calculate curvatures");
                     return false;
                 }
@@ -586,9 +567,9 @@ public:
                 double c = (this->values()[i] - this->values()[i - 1]) / h;
                 double d = this->values()[i - 1];
                 std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
-                result += "\n" + indent + core::CStringUtils::typeToStringPretty(c) + " (x - " +
-                          kl + ") + " + core::CStringUtils::typeToStringPretty(d) + "   x in [" +
-                          kl + "," + core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
+                result += "\n" + indent + core::CStringUtils::typeToStringPretty(c) + " (x - " + kl + ") + " +
+                          core::CStringUtils::typeToStringPretty(d) + "   x in [" + kl + "," +
+                          core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
             }
             break;
 
@@ -601,11 +582,11 @@ public:
                            (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h;
                 double d = this->values()[i - 1];
                 std::string kl = core::CStringUtils::typeToStringPretty(this->knots()[i - 1]);
-                result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " +
-                          kl + ")^3 + " + core::CStringUtils::typeToStringPretty(b) + " (x - " +
-                          kl + ")^2 + " + core::CStringUtils::typeToStringPretty(c) + " (x - " +
-                          kl + ") + " + core::CStringUtils::typeToStringPretty(d) + "   x in [" +
-                          kl + "," + core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
+                result += "\n" + indent + core::CStringUtils::typeToStringPretty(a) + " (x - " + kl + ")^3 + " +
+                          core::CStringUtils::typeToStringPretty(b) + " (x - " + kl + ")^2 + " +
+                          core::CStringUtils::typeToStringPretty(c) + " (x - " + kl + ") + " +
+                          core::CStringUtils::typeToStringPretty(d) + "   x in [" + kl + "," +
+                          core::CStringUtils::typeToStringPretty(this->knots()[i]) + ")";
             }
             break;
         }
@@ -642,9 +623,7 @@ public:
     inline const TNonConstValues& values(void) const { return boost::unwrap_ref(m_Values); }
 
     //! Get the curvatures at the knot points of the spline.
-    inline const TNonConstCurvatures& curvatures(void) const {
-        return boost::unwrap_ref(m_Curvatures);
-    }
+    inline const TNonConstCurvatures& curvatures(void) const { return boost::unwrap_ref(m_Curvatures); }
 
 private:
     //! Get the knot points of the spline.

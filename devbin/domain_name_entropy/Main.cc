@@ -50,8 +50,7 @@ int main(int argc, char** argv) {
     std::string csvFileName;
     std::string domainNameFieldName;
     std::string timeFieldName;
-    if (CCmdLineParser::parse(argc, argv, csvFileName, domainNameFieldName, timeFieldName) ==
-        false) {
+    if (CCmdLineParser::parse(argc, argv, csvFileName, domainNameFieldName, timeFieldName) == false) {
         return EXIT_FAILURE;
     }
 
@@ -70,11 +69,7 @@ int main(int argc, char** argv) {
     LOG_DEBUG("tldDb.init() done");
 
     // Read in a CSV file
-    CAddRegisteredDomainAndEntropyToCsv csvReader(tldDb,
-                                                  csvFileName,
-                                                  domainNameFieldName,
-                                                  timeFieldName,
-                                                  "entropy");
+    CAddRegisteredDomainAndEntropyToCsv csvReader(tldDb, csvFileName, domainNameFieldName, timeFieldName, "entropy");
 
     LOG_DEBUG("csvReader.init()");
     if (csvReader.init() == false) {

@@ -54,10 +54,7 @@ CSeasonalComponent::CSeasonalComponent(const CSeasonalTime& time,
                                        CSplineTypes::EBoundaryCondition boundaryCondition,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
-    : CDecompositionComponent{maxSize,
-                              boundaryCondition,
-                              valueInterpolationType,
-                              varianceInterpolationType},
+    : CDecompositionComponent{maxSize, boundaryCondition, valueInterpolationType, varianceInterpolationType},
       m_Bucketing{time, decayRate, minimumBucketLength} {
 }
 
@@ -66,15 +63,9 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        core::CStateRestoreTraverser& traverser,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
-    : CDecompositionComponent{0,
-                              CSplineTypes::E_Periodic,
-                              valueInterpolationType,
-                              varianceInterpolationType} {
-    traverser.traverseSubLevel(boost::bind(&CSeasonalComponent::acceptRestoreTraverser,
-                                           this,
-                                           decayRate,
-                                           minimumBucketLength,
-                                           _1));
+    : CDecompositionComponent{0, CSplineTypes::E_Periodic, valueInterpolationType, varianceInterpolationType} {
+    traverser.traverseSubLevel(
+        boost::bind(&CSeasonalComponent::acceptRestoreTraverser, this, decayRate, minimumBucketLength, _1));
 }
 
 void CSeasonalComponent::swap(CSeasonalComponent& other) {
@@ -89,15 +80,11 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
     do {
         const std::string& name{traverser.name()};
         RESTORE(DECOMPOSITION_COMPONENT_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CDecompositionComponent::acceptRestoreTraverser,
-                                static_cast<CDecompositionComponent*>(this),
-                                _1)))
+                traverser.traverseSubLevel(boost::bind(
+                    &CDecompositionComponent::acceptRestoreTraverser, static_cast<CDecompositionComponent*>(this), _1)))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
-                               CSeasonalComponentAdaptiveBucketing bucketing(decayRate,
-                                                                             minimumBucketLength,
-                                                                             traverser),
+                               CSeasonalComponentAdaptiveBucketing bucketing(decayRate, minimumBucketLength, traverser),
                                true,
                                m_Bucketing.swap(bucketing))
     } while (traverser.next());
@@ -112,9 +99,7 @@ void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inse
                                      _1));
     inserter.insertValue(RNG_TAG, m_Rng.toString());
     inserter.insertLevel(BUCKETING_TAG,
-                         boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
-                                     &m_Bucketing,
-                                     _1));
+                         boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter, &m_Bucketing, _1));
 }
 
 bool CSeasonalComponent::initialized(void) const {
@@ -204,9 +189,7 @@ double CSeasonalComponent::meanValue(void) const {
     return this->CDecompositionComponent::meanValue();
 }
 
-double CSeasonalComponent::delta(core_t::TTime time,
-                                 core_t::TTime shortPeriod,
-                                 double shortPeriodValue) const {
+double CSeasonalComponent::delta(core_t::TTime time, core_t::TTime shortPeriod, double shortPeriodValue) const {
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
 

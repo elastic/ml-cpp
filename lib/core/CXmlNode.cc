@@ -23,8 +23,7 @@ CXmlNode::CXmlNode(void) {
 CXmlNode::CXmlNode(const std::string& name) : m_Name(name) {
 }
 
-CXmlNode::CXmlNode(const std::string& name, const std::string& value)
-    : m_Name(name), m_Value(value) {
+CXmlNode::CXmlNode(const std::string& name, const std::string& value) : m_Name(name), m_Value(value) {
 }
 
 CXmlNode::CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes)

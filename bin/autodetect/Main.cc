@@ -177,8 +177,7 @@ int main(int argc, char** argv) {
 
     ml::api::CFieldConfig fieldConfig;
 
-    ml::model_t::ESummaryMode summaryMode(summaryCountFieldName.empty() ? ml::model_t::E_None
-                                                                        : ml::model_t::E_Manual);
+    ml::model_t::ESummaryMode summaryMode(summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual);
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan,
                                                               summaryMode,
@@ -188,18 +187,17 @@ int main(int argc, char** argv) {
                                                               multivariateByFields,
                                                               multipleBucketspans);
     modelConfig.perPartitionNormalization(perPartitionNormalization);
-    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
-        fieldConfig.detectionRules()));
-    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
-        fieldConfig.scheduledEvents()));
+    modelConfig.detectionRules(
+        ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(fieldConfig.detectionRules()));
+    modelConfig.scheduledEvents(
+        ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(fieldConfig.scheduledEvents()));
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL("Ml model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (!modelPlotConfigFile.empty() &&
-        modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
+    if (!modelPlotConfigFile.empty() && modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
         LOG_FATAL("Ml model plot config file '" << modelPlotConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
@@ -207,8 +205,8 @@ int main(int argc, char** argv) {
     typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream() != 0) {
-        // Check whether state is restored from a file, if so we assume that this is a debugging
-        // case and therefore does not originate from X-Pack.
+        // Check whether state is restored from a file, if so we assume that this is a debugging case
+        // and therefore does not originate from X-Pack.
         if (!isRestoreFileNamedPipe) {
             // apply a filter to overcome differences in the way persistence vs. restore works
             auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
@@ -230,9 +228,8 @@ int main(int argc, char** argv) {
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == 0) {
-            LOG_FATAL(
-                "Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                "unless a place to persist to has been specified using the 'persist' argument");
+            LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                      "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -257,26 +254,18 @@ int main(int argc, char** argv) {
     }
 
     // The anomaly job knows how to detect anomalies
-    ml::api::CAnomalyJob job(jobId,
-                             limits,
-                             fieldConfig,
-                             modelConfig,
-                             wrappedOutputStream,
-                             boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete,
-                                         &outputWriter,
-                                         _1,
-                                         _2,
-                                         _3,
-                                         _4,
-                                         _5,
-                                         _6,
-                                         _7,
-                                         _8),
-                             periodicPersister.get(),
-                             maxQuantileInterval,
-                             timeField,
-                             timeFormat,
-                             maxAnomalyRecords);
+    ml::api::CAnomalyJob job(
+        jobId,
+        limits,
+        fieldConfig,
+        modelConfig,
+        wrappedOutputStream,
+        boost::bind(&ml::api::CJsonOutputWriter::reportPersistComplete, &outputWriter, _1, _2, _3, _4, _5, _6, _7, _8),
+        periodicPersister.get(),
+        maxQuantileInterval,
+        timeField,
+        timeFormat,
+        maxAnomalyRecords);
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {
@@ -307,10 +296,7 @@ int main(int argc, char** argv) {
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(),
-                                   persister.get(),
-                                   *inputParser,
-                                   *firstProcessor);
+    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(), *inputParser, *firstProcessor);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer

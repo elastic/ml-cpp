@@ -132,10 +132,8 @@ public:
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
-    virtual maths_t::TDoubleDoublePr baseline(core_t::TTime time,
-                                              double confidence = 0.0,
-                                              int components = E_All,
-                                              bool smooth = true) const;
+    virtual maths_t::TDoubleDoublePr
+    baseline(core_t::TTime time, double confidence = 0.0, int components = E_All, bool smooth = true) const;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!

@@ -139,8 +139,7 @@ private:
 
 private:
     //! Refresh \p projections and update \p statistics.
-    static void updateStatistics(TVector2NMeanAccumulator& projections,
-                                 TVector2MeanAccumulator& statistics);
+    static void updateStatistics(TVector2NMeanAccumulator& projections, TVector2MeanAccumulator& statistics);
 
     //! Re-sample the projections.
     static void resample(core_t::TTime time);

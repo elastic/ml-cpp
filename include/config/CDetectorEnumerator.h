@@ -106,8 +106,7 @@ private:
     //! The indices \p a and \p b define the start and end of the seed
     //! detectors in \p result used to generate detectors with three
     //! partitioning fields.
-    void
-    addThreePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const;
+    void addThreePartitioning(std::size_t a, std::size_t b, TDetectorSpecificationVec& result) const;
 
 private:
     //! The parameters.

@@ -51,8 +51,7 @@ struct SCooccurrence {
         : s_Nxy(nxy), s_Nx(nx), s_Ny(ny), s_X(x), s_Y(y) {}
 
     bool operator<(const SCooccurrence& rhs) const {
-        return s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y) <
-               rhs.s_Nxy * s_Nx * s_Ny;
+        return s_Nxy * static_cast<double>(rhs.s_X) * static_cast<double>(rhs.s_Y) < rhs.s_Nxy * s_Nx * s_Ny;
     }
 
     double s_Nxy, s_Nx, s_Ny;
@@ -193,14 +192,9 @@ void seed(const TPackedBitVectorVec& indicators,
 //! \param[in] i The index into \p theta for which to compute the filter.
 //! \param[in] bound The largest angularly separated event to include.
 //! \param[out] result The indices of the events in the filter.
-void computeFilter(const TSizeVec& mask,
-                   const TDoubleVec& theta,
-                   std::size_t i,
-                   double bound,
-                   TSizeVec& result) {
+void computeFilter(const TSizeVec& mask, const TDoubleVec& theta, std::size_t i, double bound, TSizeVec& result) {
     result.clear();
-    ptrdiff_t start =
-        std::lower_bound(theta.begin(), theta.end(), theta[i] - bound) - theta.begin();
+    ptrdiff_t start = std::lower_bound(theta.begin(), theta.end(), theta[i] - bound) - theta.begin();
     ptrdiff_t end = std::upper_bound(theta.begin(), theta.end(), theta[i] + bound) - theta.begin();
     result.reserve(end - start);
     result.insert(result.end(), mask.begin() + start, mask.begin() + i);
@@ -211,11 +205,7 @@ void computeFilter(const TSizeVec& mask,
 //! Apply \p filter to \p result (set intersection).
 void applyFilter(const TSizeVec& filter, TSizeVec& placeholder, TSizeVec& result) {
     placeholder.clear();
-    std::set_intersection(result.begin(),
-                          result.end(),
-                          filter.begin(),
-                          filter.end(),
-                          std::back_inserter(placeholder));
+    std::set_intersection(result.begin(), result.end(), filter.begin(), filter.end(), std::back_inserter(placeholder));
     result.swap(placeholder);
 }
 
@@ -261,8 +251,8 @@ void searchForMostSignificantCooccurrences(const TPackedBitVectorVec& indicators
     TSizeVec placeholder;
 
     for (std::size_t i = 0u; i < n; ++i) {
-        double lambda = mostSignificant.biggest().s_Nxy /
-                        (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
+        double lambda =
+            mostSignificant.biggest().s_Nxy / (mostSignificant.biggest().s_Nx * mostSignificant.biggest().s_Ny);
 
         double bound = 2.0 * ::asin(1.0 - lambda);
 
@@ -321,8 +311,7 @@ double significance(double nxy, double nx, double ny, double n) {
     //   log(R(N)) =   nxy * log(nx/n * ny/n) + nx~y * log(nx/n * (1-ny/n))
     //              + n~xy * log((1-nx/n) * ny/n) + n~x~y * log((1-nx/n) * (1-ny/n))
     //              -  nxy * log(nx/n * nxy/nx) - nx~y * log(nx/n * (1-nxy/nx))
-    //              - n~xy * log((1-nx/n) * (ny-nxy)/(n-nx)) - n~x~y * log((1-nx/n) *
-    //              (1-(ny-nxy)/(n-nx)))
+    //              - n~xy * log((1-nx/n) * (ny-nxy)/(n-nx)) - n~x~y * log((1-nx/n) * (1-(ny-nxy)/(n-nx)))
     //
     // It is convenient to express this in slightly different terms. In particular,
     // we are interested in the case that nxy is significantly bigger than expected
@@ -333,8 +322,7 @@ double significance(double nxy, double nx, double ny, double n) {
     //   log(R(N)) = n * (                   -g*p_x*p_y * log(g)
     //                    +             p_x*(1 - g*p_y) * log((1 - p_y)/(1 - g*p_y))
     //                    +             p_y*(1 - g*p_x) * log((1 - p_x)/(1 - g*p_x))
-    //                    + (1 - p_x - p_y - g*p_x*p_y) * log((1 - p_x)*(1 - p_y) / (1 - p_x - p_y +
-    //                    g*p_x*p_y)))
+    //                    + (1 - p_x - p_y - g*p_x*p_y) * log((1 - p_x)*(1 - p_y) / (1 - p_x - p_y + g*p_x*p_y)))
     //
     // and, by Wilk's theorem, we have asymptotically
     //   -2*log(R(N)) ~ chi_1^2
@@ -351,11 +339,10 @@ double significance(double nxy, double nx, double ny, double n) {
         double px = nx / n;
         double py = ny / n;
 
-        double lambda = n * (-g * px * py * ::log(g) +
-                             px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py)) +
-                             py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px)) +
-                             (1.0 - px - py + g * px * py) *
-                                 ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
+        double lambda =
+            n * (-g * px * py * ::log(g) + px * (1.0 - g * py) * ::log((1.0 - py) / (1.0 - g * py)) +
+                 py * (1.0 - g * px) * ::log((1.0 - px) / (1.0 - g * px)) +
+                 (1.0 - px - py + g * px * py) * ::log((1.0 - px) * (1.0 - py) / (1.0 - px - py + g * px * py)));
 
         boost::math::chi_squared_distribution<> chi(1.0);
 
@@ -378,18 +365,15 @@ CCooccurrences::CCooccurrences(std::size_t maximumLength, std::size_t indicatorW
 bool CCooccurrences::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == LENGTH_TAG &&
-            core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
+        if (name == LENGTH_TAG && core::CStringUtils::stringToType(traverser.value(), m_Length) == false) {
             LOG_ERROR("Invalid length in " << traverser.value());
             return false;
         }
-        if (name == OFFSET_TAG &&
-            core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
+        if (name == OFFSET_TAG && core::CStringUtils::stringToType(traverser.value(), m_Offset) == false) {
             LOG_ERROR("Invalid offset in " << traverser.value());
             return false;
         }
-        if (core::CPersistUtils::restore(CURRENT_INDICATOR_TAG, m_CurrentIndicators, traverser) ==
-            false) {
+        if (core::CPersistUtils::restore(CURRENT_INDICATOR_TAG, m_CurrentIndicators, traverser) == false) {
             LOG_ERROR("Invalid indicators in " << traverser.value());
             return false;
         }
@@ -420,9 +404,7 @@ void CCooccurrences::topNBySignificance(std::size_t X,
     // TODO
 }
 
-void CCooccurrences::topNBySignificance(std::size_t n,
-                                        TSizeSizePrVec& top,
-                                        TDoubleVec& significances) const {
+void CCooccurrences::topNBySignificance(std::size_t n, TSizeSizePrVec& top, TDoubleVec& significances) const {
     top.clear();
     significances.clear();
 
@@ -445,8 +427,7 @@ void CCooccurrences::topNBySignificance(std::size_t n,
         }
     }
 
-    std::size_t p =
-        static_cast<std::size_t>(std::max(::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
+    std::size_t p = static_cast<std::size_t>(std::max(::sqrt(static_cast<double>(dimension)), 1.0) + 0.5);
 
     TMostSignificant mostSignificant(n);
     searchForMostSignificantCooccurrences(m_Indicators, lengths, mask, p, mostSignificant);

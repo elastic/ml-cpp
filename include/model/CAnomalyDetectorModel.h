@@ -161,11 +161,9 @@ public:
     using TOptionalSize = boost::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
     using TInfluenceCalculatorCPtr = boost::shared_ptr<const CInfluenceCalculator>;
-    using TFeatureInfluenceCalculatorCPtrPr =
-        std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
+    using TFeatureInfluenceCalculatorCPtrPr = std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
-    using TFeatureInfluenceCalculatorCPtrPrVecVec =
-        std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
+    using TFeatureInfluenceCalculatorCPtrPrVecVec = std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
     using TMultivariatePriorPtr = boost::shared_ptr<maths::CMultivariatePrior>;
     using TFeatureMultivariatePriorPtrPr = std::pair<model_t::EFeature, TMultivariatePriorPtr>;
     using TFeatureMultivariatePriorPtrPrVec = std::vector<TFeatureMultivariatePriorPtrPr>;
@@ -260,10 +258,8 @@ public:
     //! \param[in] time The time of interest.
     //! \return The value of \p feature in the bucket containing
     //! \p time if available and empty otherwise.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const = 0;
+    virtual TDouble1Vec
+    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const = 0;
 
     //! Get the appropriate baseline bucket value of \p feature for
     //! the person identified by \p pid and the attribute identified
@@ -303,8 +299,7 @@ public:
     //! Print the people identified by \p pids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printPeople(const TSizeVec& pids,
-                            size_t limit = std::numeric_limits<size_t>::max()) const;
+    std::string printPeople(const TSizeVec& pids, size_t limit = std::numeric_limits<size_t>::max()) const;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
@@ -335,8 +330,7 @@ public:
     //! Print the attributes identified by \p cids.
     //! Optionally, this may be limited to return a string of the form:
     //! A B C and n others
-    std::string printAttributes(const TSizeVec& cids,
-                                size_t limit = std::numeric_limits<size_t>::max()) const;
+    std::string printAttributes(const TSizeVec& cids, size_t limit = std::numeric_limits<size_t>::max()) const;
     //@}
 
     //! \name Update
@@ -348,9 +342,8 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) = 0;
+    virtual void
+    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Update the model with the samples of the process in the
     //! time interval [\p startTime, \p endTime].
@@ -358,8 +351,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! This samples the bucket statistics, and any state needed
     //! by computeProbablity, in the time interval [\p startTime,
@@ -368,9 +360,8 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleOutOfPhase(core_t::TTime startTime,
-                                  core_t::TTime endTime,
-                                  CResourceMonitor& resourceMonitor) = 0;
+    virtual void
+    sampleOutOfPhase(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) = 0;
 
     //! Rolls time to \p endTime while skipping sampling the models for
     //! buckets within the gap.
@@ -442,11 +433,10 @@ public:
     //! \param[out] attributeProbabilities Filled in with the smallest
     //! \p numberAttributeProbabilities attribute probabilities and
     //! associated data describing the calculation.
-    virtual bool
-    computeTotalProbability(const std::string& person,
-                            std::size_t numberAttributeProbabilities,
-                            TOptionalDouble& probability,
-                            TAttributeProbability1Vec& attributeProbabilities) const = 0;
+    virtual bool computeTotalProbability(const std::string& person,
+                                         std::size_t numberAttributeProbabilities,
+                                         TOptionalDouble& probability,
+                                         TAttributeProbability1Vec& attributeProbabilities) const = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -466,9 +456,8 @@ public:
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. Returns empty when the estimator
     //! is unable to produce an estimate.
-    TOptionalSize estimateMemoryUsage(std::size_t numberPeople,
-                                      std::size_t numberAttributes,
-                                      std::size_t numberCorrelations) const;
+    TOptionalSize
+    estimateMemoryUsage(std::size_t numberPeople, std::size_t numberAttributes, std::size_t numberCorrelations) const;
 
     //! Estimate the memory usage of the model based on number of people,
     //! attributes and correlations. When an estimate cannot be produced,
@@ -513,8 +502,7 @@ protected:
         SFeatureModels(model_t::EFeature feature, TMathsModelPtr newModel);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams& params,
-                                    core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SModelParams& params, core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -534,13 +522,10 @@ protected:
 
     //! \brief The feature correlate models.
     struct MODEL_EXPORT SFeatureCorrelateModels {
-        SFeatureCorrelateModels(model_t::EFeature feature,
-                                TMultivariatePriorPtr modelPrior,
-                                TCorrelationsPtr model);
+        SFeatureCorrelateModels(model_t::EFeature feature, TMultivariatePriorPtr modelPrior, TCorrelationsPtr model);
 
         //! Restore the models reading state from \p traverser.
-        bool acceptRestoreTraverser(const SModelParams& params,
-                                    core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SModelParams& params, core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -611,10 +596,7 @@ protected:
 protected:
     //! Remove heavy hitting people from the \p data if necessary.
     template<typename T, typename FILTER>
-    void applyFilter(model_t::EExcludeFrequent exclude,
-                     bool updateStatistics,
-                     const FILTER& filter,
-                     T& data) const {
+    void applyFilter(model_t::EExcludeFrequent exclude, bool updateStatistics, const FILTER& filter, T& data) const {
         if (this->params().s_ExcludeFrequent & exclude) {
             std::size_t initialSize = data.size();
             data.erase(std::remove_if(data.begin(), data.end(), filter), data.end());
@@ -645,8 +627,7 @@ protected:
 
     //! Get the influence calculator for the influencer field identified
     //! by \p iid and the \p feature.
-    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature,
-                                                    std::size_t iid) const;
+    const CInfluenceCalculator* influenceCalculator(model_t::EFeature feature, std::size_t iid) const;
 
     //! Get the person bucket counts.
     const TDoubleVec& personBucketCounts(void) const;
@@ -672,10 +653,7 @@ protected:
     const CInterimBucketCorrector& interimValueCorrector(void) const;
 
     //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature,
-                            std::size_t pid,
-                            std::size_t cid,
-                            core_t::TTime time) const;
+    bool shouldIgnoreSample(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,

@@ -35,8 +35,7 @@ namespace controller {
 const std::string CCommandProcessor::START("start");
 const std::string CCommandProcessor::KILL("kill");
 
-CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths)
-    : m_Spawner(permittedProcessPaths) {
+CCommandProcessor::CCommandProcessor(const TStrVec& permittedProcessPaths) : m_Spawner(permittedProcessPaths) {
 }
 
 void CCommandProcessor::processCommands(std::istream& stream) {
@@ -96,8 +95,7 @@ bool CCommandProcessor::handleStart(TStrVec& tokens) {
 bool CCommandProcessor::handleKill(TStrVec& tokens) {
     core::CProcess::TPid pid = 0;
     if (tokens.size() != 1 || core::CStringUtils::stringToType(tokens[0], pid) == false) {
-        LOG_ERROR(
-            "Unexpected arguments for kill command: " << core::CContainerPrinter::print(tokens));
+        LOG_ERROR("Unexpected arguments for kill command: " << core::CContainerPrinter::print(tokens));
         return false;
     }
 

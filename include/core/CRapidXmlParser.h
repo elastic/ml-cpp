@@ -110,8 +110,7 @@ public:
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    virtual bool toNodeHierarchy(CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
 
     //! As above, but use both a node pool and a string cache
     virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,

@@ -62,12 +62,11 @@ void CSignalTest::testFFTVersusOctave(void) {
 
     // Test versus values calculated using octave fft.
 
-    double x[][20] = {{2555.33, 1451.79,  465.60,   4394.83, -1553.24, -2772.07, -3977.73,
-                       2249.31, -2006.04, 3540.84,  4271.63, 4648.81,  -727.90,  2285.24,
-                       3129.56, -3596.79, -1968.66, 3795.18, 1627.84,  228.40},
-                      {4473.77,  -4815.63, -818.38, -1953.72, -2323.39, -3007.25, 4444.24,
-                       435.21,   3613.32,  3471.37, -1735.72, 2560.82,  -2383.29, -2370.23,
-                       -4921.04, -541.25,  1516.69, -2028.42, 3981.02,  3156.88}};
+    double x[][20] = {
+        {2555.33, 1451.79, 465.60,  4394.83, -1553.24, -2772.07, -3977.73, 2249.31, -2006.04, 3540.84,
+         4271.63, 4648.81, -727.90, 2285.24, 3129.56,  -3596.79, -1968.66, 3795.18, 1627.84,  228.40},
+        {4473.77,  -4815.63, -818.38,  -1953.72, -2323.39, -3007.25, 4444.24, 435.21,   3613.32, 3471.37,
+         -1735.72, 2560.82,  -2383.29, -2370.23, -4921.04, -541.25,  1516.69, -2028.42, 3981.02, 3156.88}};
 
     maths::CSignal::TComplexVec fx;
     for (std::size_t i = 0u; i < 20; ++i) {
@@ -120,8 +119,7 @@ void CSignalTest::testFFTVersusOctave(void) {
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
-                error += std::abs(actual[j] -
-                                  maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
+                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
             }
             error /= static_cast<double>(l);
             LOG_DEBUG("error = " << error);
@@ -131,13 +129,11 @@ void CSignalTest::testFFTVersusOctave(void) {
 
     LOG_DEBUG("*** Arbitrary Length ***");
     {
-        double expected[][2] = {{18042.0, 755.0},    {961.0, 5635.6},     {-5261.8, 7542.2},
-                                {-12814.0, 2250.2},  {-8248.5, 6620.5},   {-21626.0, 3570.6},
-                                {6551.5, -12732.0},  {6009.5, 10622.0},   {9954.0, -1224.2},
-                                {-2871.5, 7073.6},   {-14409.0, 10939.0}, {13682.0, 25304.0},
-                                {-10468.0, -6338.5}, {6506.0, 6283.3},    {32665.0, 5127.7},
-                                {3190.7, 4323.4},    {-6988.7, -3865.0},  {-3881.4, 4360.8},
-                                {46434.0, 20556.0},  {-6319.6, -7329.0}};
+        double expected[][2] = {{18042.0, 755.0},    {961.0, 5635.6},    {-5261.8, 7542.2},   {-12814.0, 2250.2},
+                                {-8248.5, 6620.5},   {-21626.0, 3570.6}, {6551.5, -12732.0},  {6009.5, 10622.0},
+                                {9954.0, -1224.2},   {-2871.5, 7073.6},  {-14409.0, 10939.0}, {13682.0, 25304.0},
+                                {-10468.0, -6338.5}, {6506.0, 6283.3},   {32665.0, 5127.7},   {3190.7, 4323.4},
+                                {-6988.7, -3865.0},  {-3881.4, 4360.8},  {46434.0, 20556.0},  {-6319.6, -7329.0}};
 
         maths::CSignal::TComplexVec actual(fx.begin(), fx.end());
         maths::CSignal::fft(actual);
@@ -158,12 +154,11 @@ void CSignalTest::testIFFTVersusOctave(void) {
 
     // Test versus values calculated using octave ifft.
 
-    double x[][20] = {{2555.33, 1451.79,  465.60,   4394.83, -1553.24, -2772.07, -3977.73,
-                       2249.31, -2006.04, 3540.84,  4271.63, 4648.81,  -727.90,  2285.24,
-                       3129.56, -3596.79, -1968.66, 3795.18, 1627.84,  228.40},
-                      {4473.77,  -4815.63, -818.38, -1953.72, -2323.39, -3007.25, 4444.24,
-                       435.21,   3613.32,  3471.37, -1735.72, 2560.82,  -2383.29, -2370.23,
-                       -4921.04, -541.25,  1516.69, -2028.42, 3981.02,  3156.88}};
+    double x[][20] = {
+        {2555.33, 1451.79, 465.60,  4394.83, -1553.24, -2772.07, -3977.73, 2249.31, -2006.04, 3540.84,
+         4271.63, 4648.81, -727.90, 2285.24, 3129.56,  -3596.79, -1968.66, 3795.18, 1627.84,  228.40},
+        {4473.77,  -4815.63, -818.38,  -1953.72, -2323.39, -3007.25, 4444.24, 435.21,   3613.32, 3471.37,
+         -1735.72, 2560.82,  -2383.29, -2370.23, -4921.04, -541.25,  1516.69, -2028.42, 3981.02, 3156.88}};
 
     maths::CSignal::TComplexVec fx;
     for (std::size_t i = 0u; i < 20; ++i) {
@@ -216,8 +211,7 @@ void CSignalTest::testIFFTVersusOctave(void) {
 
             double error = 0.0;
             for (std::size_t j = 0u; j < l; ++j) {
-                error += std::abs(actual[j] -
-                                  maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
+                error += std::abs(actual[j] - maths::CSignal::TComplex(expected[i + j][0], expected[i + j][1]));
             }
             error /= static_cast<double>(l);
             LOG_DEBUG("error = " << error);
@@ -245,8 +239,7 @@ void CSignalTest::testFFTRandomized(void) {
          ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(
-                maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
         }
         maths::CSignal::TComplexVec actual(expected);
 
@@ -284,8 +277,7 @@ void CSignalTest::testIFFTRandomized(void) {
          ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(
-                maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
         }
         maths::CSignal::TComplexVec actual(expected);
 
@@ -323,8 +315,7 @@ void CSignalTest::testFFTIFFTIdempotency(void) {
          ++i, j += 2 * lengths[i]) {
         maths::CSignal::TComplexVec expected;
         for (std::size_t k = 0u; k < lengths[i]; ++k) {
-            expected.push_back(
-                maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
+            expected.push_back(maths::CSignal::TComplex(components[j + 2 * k], components[j + 2 * k + 1]));
         }
 
         maths::CSignal::TComplexVec actual(expected);
@@ -374,27 +365,25 @@ void CSignalTest::testAutocorrelations(void) {
             LOG_DEBUG("expected = " << core::CContainerPrinter::print(expected));
             LOG_DEBUG("actual   = " << core::CContainerPrinter::print(actual));
         }
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(actual));
     }
 }
 
 CppUnit::Test* CSignalTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSignalTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTVersusOctave",
-                                                               &CSignalTest::testFFTVersusOctave));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testIFFTVersusOctave",
-                                                               &CSignalTest::testIFFTVersusOctave));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTRandomized",
-                                                               &CSignalTest::testFFTRandomized));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testIFFTRandomized",
-                                                               &CSignalTest::testIFFTRandomized));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTIFFTIdempotency",
-                                             &CSignalTest::testFFTIFFTIdempotency));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testAutocorrelations",
-                                                               &CSignalTest::testAutocorrelations));
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTVersusOctave", &CSignalTest::testFFTVersusOctave));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testIFFTVersusOctave", &CSignalTest::testIFFTVersusOctave));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTRandomized", &CSignalTest::testFFTRandomized));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testIFFTRandomized", &CSignalTest::testIFFTRandomized));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>("CSignalTest::testFFTIFFTIdempotency",
+                                                               &CSignalTest::testFFTIFFTIdempotency));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSignalTest>("CSignalTest::testAutocorrelations", &CSignalTest::testAutocorrelations));
 
     return suiteOfTests;
 }

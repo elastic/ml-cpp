@@ -43,16 +43,11 @@ void CReportWriterTest::testPretty(void) {
     core_t::TTime startTime = 1459468810;
     core_t::TTime endTime = startTime + 7 * core::constants::DAY;
 
-    std::string fields[] = {std::string("name"),
-                            std::string("phylum"),
-                            std::string("species"),
-                            std::string("code"),
-                            std::string("weight")};
+    std::string fields[] = {
+        std::string("name"), std::string("phylum"), std::string("species"), std::string("code"), std::string("weight")};
 
-    std::string categories1[] = {std::string("Annelida"),
-                                 std::string("Nematoda"),
-                                 std::string("Arthropoda"),
-                                 std::string("Chordata")};
+    std::string categories1[] = {
+        std::string("Annelida"), std::string("Nematoda"), std::string("Arthropoda"), std::string("Chordata")};
 
     std::size_t breaks[] = {0, 6, 10, 13, 20};
     std::string categories2[] = {// Annelida
@@ -87,10 +82,9 @@ void CReportWriterTest::testPretty(void) {
                         1.3,  1.1,  520.0, 1200.0, 810.1, 1000000.0, 5334.0, 70.0,   180.0, 100.3};
 
     config::CDataSummaryStatistics stats1;
-    config::CCategoricalDataSummaryStatistics stats2[] =
-        {config::CCategoricalDataSummaryStatistics(10),
-         config::CCategoricalDataSummaryStatistics(10),
-         config::CCategoricalDataSummaryStatistics(10)};
+    config::CCategoricalDataSummaryStatistics stats2[] = {config::CCategoricalDataSummaryStatistics(10),
+                                                          config::CCategoricalDataSummaryStatistics(10),
+                                                          config::CCategoricalDataSummaryStatistics(10)};
     config::CNumericDataSummaryStatistics stats3(false);
 
     uint64_t n = 0;
@@ -100,8 +94,7 @@ void CReportWriterTest::testPretty(void) {
     TDoubleVec weight;
     TSizeVec index;
     for (core_t::TTime time = startTime; time < endTime; time += static_cast<double>(dt[0])) {
-        double progress =
-            static_cast<double>(time - startTime) / static_cast<double>((endTime - startTime));
+        double progress = static_cast<double>(time - startTime) / static_cast<double>((endTime - startTime));
         if (progress > lastProgress + 0.05) {
             LOG_DEBUG("Processed " << progress * 100.0 << "%");
             lastProgress = progress;
@@ -159,8 +152,7 @@ CppUnit::Test* CReportWriterTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
 
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty",
-                                                   &CReportWriterTest::testPretty));
+        new CppUnit::TestCaller<CReportWriterTest>("CReportWriterTest::testPretty", &CReportWriterTest::testPretty));
 
     return suiteOfTests;
 }

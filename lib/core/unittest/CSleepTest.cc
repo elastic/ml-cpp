@@ -22,8 +22,7 @@
 CppUnit::Test* CSleepTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSleepTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSleepTest>("CSleepTest::testSleep", &CSleepTest::testSleep));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSleepTest>("CSleepTest::testSleep", &CSleepTest::testSleep));
 
     return suiteOfTests;
 }

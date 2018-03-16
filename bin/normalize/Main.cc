@@ -82,10 +82,7 @@ int main(int argc, char** argv) {
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");
@@ -118,8 +115,7 @@ int main(int argc, char** argv) {
     if (lengthEncodedInput) {
         inputParser.reset(new ml::api::CLengthEncodedInputParser(ioMgr.inputStream()));
     } else {
-        inputParser.reset(
-            new ml::api::CCsvInputParser(ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
+        inputParser.reset(new ml::api::CCsvInputParser(ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA));
     }
 
     typedef boost::scoped_ptr<ml::api::COutputHandler> TScopedOutputHandlerP;
@@ -127,11 +123,9 @@ int main(int argc, char** argv) {
     if (writeCsv) {
         outputWriter.reset(new ml::api::CCsvOutputWriter(ioMgr.outputStream()));
     } else {
-        outputWriter.reset(
-            new ml::api::
-                CLineifiedJsonOutputWriter({ml::api::CResultNormalizer::PROBABILITY_NAME,
-                                            ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
-                                           ioMgr.outputStream()));
+        outputWriter.reset(new ml::api::CLineifiedJsonOutputWriter(
+            {ml::api::CResultNormalizer::PROBABILITY_NAME, ml::api::CResultNormalizer::NORMALIZED_SCORE_NAME},
+            ioMgr.outputStream()));
     }
 
     // This object will do the work
@@ -149,8 +143,7 @@ int main(int argc, char** argv) {
     }
 
     // Now handle the numbers to be normalised from stdin
-    if (inputParser->readStream(
-            boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
+    if (inputParser->readStream(boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)) == false) {
         LOG_FATAL("Failed to handle input to be normalized");
         return EXIT_FAILURE;
     }

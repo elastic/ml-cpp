@@ -59,8 +59,7 @@ void radix2fft(TComplexVec& f) {
 
     for (std::size_t stride = 1; stride < f.size(); stride <<= 1) {
         for (std::size_t k = 0u; k < stride; ++k) {
-            double t = boost::math::double_constants::pi * static_cast<double>(k) /
-                       static_cast<double>(stride);
+            double t = boost::math::double_constants::pi * static_cast<double>(k) / static_cast<double>(stride);
             TComplex w(std::cos(t), std::sin(t));
             for (std::size_t start = k; start < f.size(); start += 2 * stride) {
                 TComplex fs = f[start];
@@ -115,8 +114,7 @@ void CSignal::fft(TComplexVec& f) {
         a[0] = f[0] * chirp[0];
         b[0] = chirp[0];
         for (std::size_t i = 1u; i < n; ++i) {
-            double t = boost::math::double_constants::pi * static_cast<double>(i * i) /
-                       static_cast<double>(n);
+            double t = boost::math::double_constants::pi * static_cast<double>(i * i) / static_cast<double>(n);
             chirp.emplace_back(std::cos(t), std::sin(t));
             a[i] = f[i] * std::conj(chirp[i]);
             b[i] = b[m - i] = chirp[i];

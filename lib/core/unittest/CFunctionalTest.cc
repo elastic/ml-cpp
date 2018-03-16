@@ -72,11 +72,10 @@ void CFunctionalTest::testDereference(void) {
 CppUnit::Test* CFunctionalTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFunctionalTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testIsNull",
-                                                                   &CFunctionalTest::testIsNull));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testDereference",
-                                                 &CFunctionalTest::testDereference));
+        new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testIsNull", &CFunctionalTest::testIsNull));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFunctionalTest>("CFunctionalTest::testDereference",
+                                                                   &CFunctionalTest::testDereference));
 
     return suiteOfTests;
 }

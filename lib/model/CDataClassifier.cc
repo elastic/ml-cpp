@@ -44,9 +44,7 @@ void CDataClassifier::add(model_t::EFeature feature, double value, unsigned int 
     }
 }
 
-void CDataClassifier::add(model_t::EFeature feature,
-                          const TDouble1Vec& values,
-                          unsigned int count) {
+void CDataClassifier::add(model_t::EFeature feature, const TDouble1Vec& values, unsigned int count) {
     for (const auto& value : values) {
         this->add(feature, value, count);
     }

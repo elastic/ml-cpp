@@ -154,14 +154,8 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
 
     ml::core_t::TTime bucketSize(3600);
     std::string jobId("foo");
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize,
-                                                              ml::model_t::E_None,
-                                                              "",
-                                                              bucketSize * latencyBuckets,
-                                                              0,
-                                                              false,
-                                                              "");
+    ml::model::CAnomalyDetectorModelConfig modelConfig = ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+        bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, 0, false, "");
 
     ml::api::CAnomalyJob origJob(jobId,
                                  limits,
@@ -211,8 +205,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
 bool persistByDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields.conf",
                                              "../unittest/testfiles/big_ascending.txt",
-                                             "../unittest/testfiles/state/" + version +
-                                                 "/by_detector_state.json",
+                                             "../unittest/testfiles/state/" + version + "/by_detector_state.json",
                                              0,
                                              "%d/%b/%Y:%T %z");
 }
@@ -220,34 +213,31 @@ bool persistByDetector(const std::string& version) {
 bool persistOverDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields_over.conf",
                                              "../unittest/testfiles/big_ascending.txt",
-                                             "../unittest/testfiles/state/" + version +
-                                                 "/over_detector_state.json",
+                                             "../unittest/testfiles/state/" + version + "/over_detector_state.json",
                                              0,
                                              "%d/%b/%Y:%T %z");
 }
 
 bool persistPartitionDetector(const std::string& version) {
-    return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_mlfields_partition.conf",
-                                             "../unittest/testfiles/big_ascending.txt",
-                                             "../unittest/testfiles/state/" + version +
-                                                 "/partition_detector_state.json",
-                                             0,
-                                             "%d/%b/%Y:%T %z");
+    return persistAnomalyDetectorStateToFile(
+        "../unittest/testfiles/new_mlfields_partition.conf",
+        "../unittest/testfiles/big_ascending.txt",
+        "../unittest/testfiles/state/" + version + "/partition_detector_state.json",
+        0,
+        "%d/%b/%Y:%T %z");
 }
 
 bool persistDcDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_persist_dc.conf",
                                              "../unittest/testfiles/files_users_programs.csv",
-                                             "../unittest/testfiles/state/" + version +
-                                                 "/dc_detector_state.json",
+                                             "../unittest/testfiles/state/" + version + "/dc_detector_state.json",
                                              5);
 }
 
 bool persistCountDetector(const std::string& version) {
     return persistAnomalyDetectorStateToFile("../unittest/testfiles/new_persist_count.conf",
                                              "../unittest/testfiles/files_users_programs.csv",
-                                             "../unittest/testfiles/state/" + version +
-                                                 "/count_detector_state.json",
+                                             "../unittest/testfiles/state/" + version + "/count_detector_state.json",
                                              5);
 }
 
@@ -271,8 +261,7 @@ int main(int /*argc*/, char** /*argv*/) {
         LOG_ERROR("Normalizer state not persisted");
         return EXIT_FAILURE;
     }
-    if (!writeNormalizerState("../unittest/testfiles/state/" + version +
-                              "/normalizer_state.json")) {
+    if (!writeNormalizerState("../unittest/testfiles/state/" + version + "/normalizer_state.json")) {
         LOG_ERROR("Error writing normalizer state file");
         return EXIT_FAILURE;
     }
@@ -301,8 +290,7 @@ int main(int /*argc*/, char** /*argv*/) {
         return EXIT_FAILURE;
     }
 
-    persisted = persistCategorizerStateToFile("../unittest/testfiles/state/" + version +
-                                              "/categorizer_state.json");
+    persisted = persistCategorizerStateToFile("../unittest/testfiles/state/" + version + "/categorizer_state.json");
     if (!persisted) {
         LOG_ERROR("Failed to persist categorizer state");
         return EXIT_FAILURE;

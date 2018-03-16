@@ -60,15 +60,13 @@ void CLongTailPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                 dynamic_cast<const CByAndPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*byAndPartitionStats, spec);
         } else if (const CByOverAndPartitionDataCountStatistics* byOverAndPartitionStats =
-                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(
-                           spec.countStatistics())) {
+                       dynamic_cast<const CByOverAndPartitionDataCountStatistics*>(spec.countStatistics())) {
             this->penaltyFor(*byOverAndPartitionStats, spec);
         }
     }
 }
 
-void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats,
-                                  CDetectorSpecification& spec) const {
+void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stats, CDetectorSpecification& spec) const {
     std::size_t n = stats.bucketStatistics().size();
 
     TSizeVec indices;
@@ -83,20 +81,15 @@ void CLongTailPenalty::penaltyFor(const CByAndPartitionDataCountStatistics& stat
         // to the minimum number of buckets.
         TSizeUInt64UMap totals;
         TSizeUInt64UMap tail;
-        this->extractTailCounts<CByAndPartitionDataCountStatistics>(stats.bucketStatistics()[bid]
-                                                                        .countMomentsPerPartition(),
-                                                                    totals,
-                                                                    tail);
+        this->extractTailCounts<CByAndPartitionDataCountStatistics>(
+            stats.bucketStatistics()[bid].countMomentsPerPartition(), totals, tail);
         const TSizeVec& indices_ = this->params().penaltyIndicesFor(bid);
         indices.insert(indices.end(), indices_.begin(), indices_.end());
         double penalty = this->penaltyFor(tail, totals);
         std::string description =
-            penalty < 1.0
-                ? std::string(
-                      "A significant proportion of categories have similar frequency at '") +
-                      CTools::prettyPrint(this->params().candidateBucketLengths()[bid]) +
-                      "' resolution"
-                : std::string();
+            penalty < 1.0 ? std::string("A significant proportion of categories have similar frequency at '") +
+                                CTools::prettyPrint(this->params().candidateBucketLengths()[bid]) + "' resolution"
+                          : std::string();
         std::fill_n(std::back_inserter(penalties), indices_.size(), penalty);
         std::fill_n(std::back_inserter(descriptions), indices_.size(), description);
     }
@@ -110,21 +103,16 @@ void CLongTailPenalty::penaltyFor(const CByOverAndPartitionDataCountStatistics& 
     // minimum number of over field values.
     TSizeUInt64UMap totals;
     TSizeUInt64UMap tail;
-    this->extractTailCounts<
-        CByOverAndPartitionDataCountStatistics>(stats.sampledByAndPartitionDistinctOverCounts(),
-                                                totals,
-                                                tail);
+    this->extractTailCounts<CByOverAndPartitionDataCountStatistics>(
+        stats.sampledByAndPartitionDistinctOverCounts(), totals, tail);
     double penalty = this->penaltyFor(tail, totals);
-    spec.applyPenalty(penalty,
-                      penalty < 1.0 ? "A significant proportion of categories have a similar "
-                                      "frequency in the population"
-                                    : "");
+    spec.applyPenalty(
+        penalty,
+        penalty < 1.0 ? "A significant proportion of categories have a similar frequency in the population" : "");
 }
 
 template<typename STATS, typename MAP>
-void CLongTailPenalty::extractTailCounts(const MAP& counts,
-                                         TSizeUInt64UMap& totals,
-                                         TSizeUInt64UMap& tail) const {
+void CLongTailPenalty::extractTailCounts(const MAP& counts, TSizeUInt64UMap& totals, TSizeUInt64UMap& tail) const {
     typedef maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> TMinAccumulator;
     typedef boost::unordered_map<std::size_t, TMinAccumulator> TSizeMinAccumulatorUMap;
     typedef typename MAP::const_iterator TItr;
@@ -142,8 +130,7 @@ void CLongTailPenalty::extractTailCounts(const MAP& counts,
         uint64_t n = count(i->second);
         std::size_t partition = STATS::partition(*i);
         const TMinAccumulator& min = mins[partition];
-        if (n <= static_cast<uint64_t>(this->params().highCardinalityInTailFactor() *
-                                           static_cast<double>(min[0]) +
+        if (n <= static_cast<uint64_t>(this->params().highCardinalityInTailFactor() * static_cast<double>(min[0]) +
                                        0.5) ||
             n <= this->params().highCardinalityInTailIncrement() + min[0]) {
             tail[partition] += n;

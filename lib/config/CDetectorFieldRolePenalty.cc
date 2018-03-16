@@ -36,11 +36,8 @@ const TGetStatistics STATISTIC[] = {
 };
 }
 
-CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams& params)
-    : CPenalty(params) {
-    std::fill_n(m_FieldRolePenalties,
-                constants::NUMBER_FIELD_INDICES,
-                static_cast<const CPenalty*>(0));
+CDetectorFieldRolePenalty::CDetectorFieldRolePenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
+    std::fill_n(m_FieldRolePenalties, constants::NUMBER_FIELD_INDICES, static_cast<const CPenalty*>(0));
 }
 
 CDetectorFieldRolePenalty* CDetectorFieldRolePenalty::clone(void) const {
@@ -51,8 +48,8 @@ std::string CDetectorFieldRolePenalty::name(void) const {
     std::string arguments;
     for (std::size_t i = 0u; i < constants::NUMBER_FIELD_INDICES; ++i) {
         if (m_FieldRolePenalties[i]) {
-            arguments += (arguments.empty() ? "'" : ", '") + constants::name(i) + ' ' +
-                         m_FieldRolePenalties[i]->name() + "'";
+            arguments +=
+                (arguments.empty() ? "'" : ", '") + constants::name(i) + ' ' + m_FieldRolePenalties[i]->name() + "'";
         }
     }
     return "field role penalty(" + arguments + ")";

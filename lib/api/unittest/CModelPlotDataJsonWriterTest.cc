@@ -27,10 +27,8 @@
 CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CModelPlotDataJsonWriterTest>("CModelPlotDataJsonWriterTest::testWriteFlat",
-                                          &CModelPlotDataJsonWriterTest::testWriteFlat));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>(
+        "CModelPlotDataJsonWriterTest::testWriteFlat", &CModelPlotDataJsonWriterTest::testWriteFlat));
 
     return suiteOfTests;
 }
@@ -63,16 +61,13 @@ void CModelPlotDataJsonWriterTest::testWriteFlat(void) {
     CPPUNIT_ASSERT(modelPlot.HasMember("timestamp"));
     CPPUNIT_ASSERT_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
     CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_name"));
-    CPPUNIT_ASSERT_EQUAL(std::string("pName"),
-                         std::string(modelPlot["partition_field_name"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("pName"), std::string(modelPlot["partition_field_name"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_value"));
-    CPPUNIT_ASSERT_EQUAL(std::string("pValue"),
-                         std::string(modelPlot["partition_field_value"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("pValue"), std::string(modelPlot["partition_field_value"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("by_field_name"));
     CPPUNIT_ASSERT_EQUAL(std::string("bName"), std::string(modelPlot["by_field_name"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("by_field_value"));
-    CPPUNIT_ASSERT_EQUAL(std::string("bName"),
-                         std::string(modelPlot["by_field_value"].GetString()));
+    CPPUNIT_ASSERT_EQUAL(std::string("bName"), std::string(modelPlot["by_field_value"].GetString()));
     CPPUNIT_ASSERT(modelPlot.HasMember("model_lower"));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
     CPPUNIT_ASSERT(modelPlot.HasMember("model_upper"));

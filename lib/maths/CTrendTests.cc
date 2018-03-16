@@ -73,11 +73,7 @@ struct SSetTimeZone {
 
 //! Generate \p n samples uniformly in the interval [\p a, \p b].
 template<typename ITR>
-void generateUniformSamples(boost::random::mt19937_64& rng,
-                            double a,
-                            double b,
-                            std::size_t n,
-                            ITR samples) {
+void generateUniformSamples(boost::random::mt19937_64& rng, double a, double b, std::size_t n, ITR samples) {
     boost::random::uniform_real_distribution<> uniform(a, b);
     std::generate_n(samples, n, boost::bind(uniform, boost::ref(rng)));
 }
@@ -128,13 +124,11 @@ const core_t::TTime WEEK = core::constants::WEEK;
 //////// CRandomizedPeriodicitytest ////////
 
 CRandomizedPeriodicityTest::CRandomizedPeriodicityTest(void)
-    : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL),
-      m_WeekRefreshedProjections(-DAY_RESAMPLE_INTERVAL) {
+    : m_DayRefreshedProjections(-DAY_RESAMPLE_INTERVAL), m_WeekRefreshedProjections(-DAY_RESAMPLE_INTERVAL) {
     resample(0);
 }
 
-bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(
-    core::CStateRestoreTraverser& traverser) {
+bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     // Note we require that we only ever do one persistence per process.
 
     std::size_t index = 0;
@@ -184,8 +178,7 @@ bool CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser(
     return true;
 }
 
-void CRandomizedPeriodicityTest::staticsAcceptPersistInserter(
-    core::CStatePersistInserter& inserter) {
+void CRandomizedPeriodicityTest::staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) {
     // Note we require that we only ever do one persistence per process.
 
     core::CScopedLock lock(ms_Lock);
@@ -233,8 +226,7 @@ bool CRandomizedPeriodicityTest::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-void CRandomizedPeriodicityTest::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CRandomizedPeriodicityTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(DAY_PROJECTIONS_TAG, m_DayProjections.toDelimited());
     inserter.insertValue(DAY_STATISTICS_TAG, m_DayStatistics.toDelimited());
     inserter.insertValue(DAY_REFRESHED_PROJECTIONS_TAG, m_DayRefreshedProjections);
@@ -328,12 +320,12 @@ void CRandomizedPeriodicityTest::reset(void) {
 uint64_t CRandomizedPeriodicityTest::checksum(uint64_t seed) const {
     // This checksum is problematic until we switch to using our
     // own rng for each test.
-    // seed = CChecksum::calculate(seed, m_DayProjections);
-    // seed = CChecksum::calculate(seed, m_DayStatistics);
-    // seed = CChecksum::calculate(seed, m_DayRefreshedProjections);
-    // seed = CChecksum::calculate(seed, m_WeekProjections);
-    // seed = CChecksum::calculate(seed, m_WeekStatistics);
-    // return CChecksum::calculate(seed, m_WeekRefreshedProjections);
+    //seed = CChecksum::calculate(seed, m_DayProjections);
+    //seed = CChecksum::calculate(seed, m_DayStatistics);
+    //seed = CChecksum::calculate(seed, m_DayRefreshedProjections);
+    //seed = CChecksum::calculate(seed, m_WeekProjections);
+    //seed = CChecksum::calculate(seed, m_WeekStatistics);
+    //return CChecksum::calculate(seed, m_WeekRefreshedProjections);
     return seed;
 }
 
@@ -366,12 +358,8 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE("Updating daily random projections at " << time);
         if (time >= ms_DayResampled.load(std::memory_order_relaxed) + DAY_RESAMPLE_INTERVAL) {
-            resample(DAY,
-                     DAY_RESAMPLE_INTERVAL,
-                     ms_DayPeriodicProjections,
-                     ms_DayRandomProjections);
-            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL),
-                                  std::memory_order_release);
+            resample(DAY, DAY_RESAMPLE_INTERVAL, ms_DayPeriodicProjections, ms_DayRandomProjections);
+            ms_DayResampled.store(CIntegerTools::floor(time, DAY_RESAMPLE_INTERVAL), std::memory_order_release);
         }
     }
 
@@ -380,12 +368,8 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime time) {
 
         LOG_TRACE("Updating weekly random projections at " << time);
         if (time >= ms_WeekResampled.load(std::memory_order_relaxed) + WEEK_RESAMPLE_INTERVAL) {
-            resample(WEEK,
-                     WEEK_RESAMPLE_INTERVAL,
-                     ms_WeekPeriodicProjections,
-                     ms_WeekRandomProjections);
-            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL),
-                                   std::memory_order_release);
+            resample(WEEK, WEEK_RESAMPLE_INTERVAL, ms_WeekPeriodicProjections, ms_WeekRandomProjections);
+            ms_WeekResampled.store(CIntegerTools::floor(time, WEEK_RESAMPLE_INTERVAL), std::memory_order_release);
         }
     }
 }
@@ -403,12 +387,10 @@ void CRandomizedPeriodicityTest::resample(core_t::TTime period,
         zeroMean(periodicProjections[i]);
         randomProjections[i].resize(t);
         for (std::size_t j = 0u; j < p; ++j) {
-            std::copy(periodicProjections[i].begin(),
-                      periodicProjections[i].end(),
-                      randomProjections[i].begin() + j * n);
-            CSampling::random_shuffle(ms_Rng,
-                                      randomProjections[i].begin() + j * n,
-                                      randomProjections[i].begin() + (j + 1) * n);
+            std::copy(
+                periodicProjections[i].begin(), periodicProjections[i].end(), randomProjections[i].begin() + j * n);
+            CSampling::random_shuffle(
+                ms_Rng, randomProjections[i].begin() + j * n, randomProjections[i].begin() + (j + 1) * n);
         }
     }
 }
@@ -440,11 +422,10 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     do {
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(BUCKET_TAG, m_Bucket)
-        RESTORE(ERROR_QUANTILES_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CQuantileSketch::acceptRestoreTraverser, &m_ErrorQuantiles, _1)))
-        RESTORE(ERROR_COUNTS_TAG,
-                core::CPersistUtils::restore(ERROR_COUNTS_TAG, m_ErrorCounts, traverser))
+        RESTORE(
+            ERROR_QUANTILES_TAG,
+            traverser.traverseSubLevel(boost::bind(&CQuantileSketch::acceptRestoreTraverser, &m_ErrorQuantiles, _1)))
+        RESTORE(ERROR_COUNTS_TAG, core::CPersistUtils::restore(ERROR_COUNTS_TAG, m_ErrorCounts, traverser))
         RESTORE(ERROR_SUMS_TAG, core::CPersistUtils::fromString(traverser.value(), m_ErrorSums))
     } while (traverser.next());
     return true;
@@ -453,9 +434,7 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BUCKET_TAG, m_Bucket);
     inserter.insertLevel(ERROR_QUANTILES_TAG,
-                         boost::bind(&CQuantileSketch::acceptPersistInserter,
-                                     &m_ErrorQuantiles,
-                                     _1));
+                         boost::bind(&CQuantileSketch::acceptPersistInserter, &m_ErrorQuantiles, _1));
     core::CPersistUtils::persist(ERROR_COUNTS_TAG, m_ErrorCounts, inserter);
     inserter.insertValue(ERROR_SUMS_TAG, core::CPersistUtils::toString(m_ErrorSums));
 }
@@ -490,11 +469,9 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
         m_ErrorQuantiles.quantile(LARGE_ERROR_PERCENTILE, high);
 
         m_ErrorSums.erase(m_ErrorSums.begin(),
-                          std::find_if(m_ErrorSums.begin(),
-                                       m_ErrorSums.end(),
-                                       [bucket](const TTimeFloatPr& error_) {
-                                           return error_.first + WINDOW > bucket;
-                                       }));
+                          std::find_if(m_ErrorSums.begin(), m_ErrorSums.end(), [bucket](const TTimeFloatPr& error_) {
+                              return error_.first + WINDOW > bucket;
+                          }));
         if (error >= high) {
             count += (count < 0x100000000 - COUNT_BITS) ? COUNT_BITS : 0;
             m_ErrorSums[bucket] += this->winsorise(error);
@@ -532,8 +509,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
 
     for (auto offset : TIMEZONE_OFFSETS) {
         for (const auto& error : m_ErrorSums) {
-            std::size_t i = m_ErrorCounts.size() - 1 -
-                            static_cast<std::size_t>((m_Bucket - error.first) / BUCKET);
+            std::size_t i = m_ErrorCounts.size() - 1 - static_cast<std::size_t>((m_Bucket - error.first) / BUCKET);
             double n = static_cast<double>(m_ErrorCounts[i] % COUNT_BITS);
             double x = static_cast<double>(m_ErrorCounts[i] / COUNT_BITS);
             double s = this->significance(n, x);
@@ -558,8 +534,7 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test(void) const {
         double x = stat.second.s_Count;
         double e = stat.second.s_Sum;
         double s = stat.second.s_Significance;
-        if (stat.second.s_Repeats >= MINIMUM_REPEATS && e > errorThreshold * x &&
-            ::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
+        if (stat.second.s_Repeats >= MINIMUM_REPEATS && e > errorThreshold * x && ::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
             result.add({e, stat.second.s_Offset, feature});
         }
     }
@@ -581,8 +556,8 @@ void CCalendarCyclicTest::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr m
 }
 
 std::size_t CCalendarCyclicTest::memoryUsage(void) const {
-    return core::CMemory::dynamicSize(m_ErrorQuantiles) +
-           core::CMemory::dynamicSize(m_ErrorCounts) + core::CMemory::dynamicSize(m_ErrorSums);
+    return core::CMemory::dynamicSize(m_ErrorQuantiles) + core::CMemory::dynamicSize(m_ErrorCounts) +
+           core::CMemory::dynamicSize(m_ErrorSums);
 }
 
 double CCalendarCyclicTest::winsorise(double error) const {

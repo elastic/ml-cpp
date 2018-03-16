@@ -24,8 +24,7 @@ void CHierarchicalResultsProbabilityFinalizer::visit(const CHierarchicalResults&
                                                      const TNode& node,
                                                      bool /*pivot*/) {
     if (node.s_RawAnomalyScore > 0.0) {
-        node.s_AnnotatedProbability.s_Probability =
-            maths::CTools::inverseDeviation(node.s_RawAnomalyScore);
+        node.s_AnnotatedProbability.s_Probability = maths::CTools::inverseDeviation(node.s_RawAnomalyScore);
     }
 }
 }

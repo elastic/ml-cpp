@@ -71,8 +71,7 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CMessageQueue(RECEIVER& receiver,
-                  const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
+    CMessageQueue(RECEIVER& receiver, const TShutdownFunc& shutdownFunc = &CMessageQueue::defaultShutdownFunc)
         : m_Thread(*this),
           m_Condition(m_Mutex),
           m_Receiver(receiver),

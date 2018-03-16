@@ -67,12 +67,7 @@ void CMathsMemoryTest::testPriors(void) {
     gammaRateConjugate.addSamples(weightStyles, samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
 
-    CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData,
-                                                   0.0,
-                                                   0.9,
-                                                   0.8,
-                                                   0.7,
-                                                   0.2);
+    CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7, 0.2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
     logNormalConjugate.addSamples(weightStyles, samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
@@ -92,14 +87,12 @@ void CMathsMemoryTest::testPriors(void) {
     multinomialConjugate.addSamples(weightStyles, samples, weights);
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
 
-    CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
-                              maths::CAvailableModeDistributions::ALL,
-                              maths_t::E_ClustersEqualWeight);
+    CXMeansOnline1d clusterer(
+        maths_t::E_ContinuousData, maths::CAvailableModeDistributions::ALL, maths_t::E_ClustersEqualWeight);
 
     // Check that the clusterer has size at least as great as the sum of it's fixed members
-    std::size_t clustererSize =
-        sizeof(maths_t::EDataType) + 4 * sizeof(double) + sizeof(maths_t::EClusterWeightCalc) +
-        sizeof(CClusterer1d::CIndexGenerator) + sizeof(CXMeansOnline1d::TClusterVec);
+    std::size_t clustererSize = sizeof(maths_t::EDataType) + 4 * sizeof(double) + sizeof(maths_t::EClusterWeightCalc) +
+                                sizeof(CClusterer1d::CIndexGenerator) + sizeof(CXMeansOnline1d::TClusterVec);
 
     CPPUNIT_ASSERT(clusterer.memoryUsage() >= clustererSize);
 
@@ -175,16 +168,14 @@ void CMathsMemoryTest::testBjkstVec(void) {
 CppUnit::Test* CMathsMemoryTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testPriors",
-                                                                    &CMathsMemoryTest::testPriors));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testPriors", &CMathsMemoryTest::testPriors));
+
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testTimeSeriesDecompositions",
+                                                                    &CMathsMemoryTest::testTimeSeriesDecompositions));
 
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testTimeSeriesDecompositions",
-                                                  &CMathsMemoryTest::testTimeSeriesDecompositions));
-
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testBjkstVec",
-                                                  &CMathsMemoryTest::testBjkstVec));
+        new CppUnit::TestCaller<CMathsMemoryTest>("CMathsMemoryTest::testBjkstVec", &CMathsMemoryTest::testBjkstVec));
 
     return suiteOfTests;
 }

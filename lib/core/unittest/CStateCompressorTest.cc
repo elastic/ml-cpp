@@ -189,8 +189,7 @@ void CStateCompressorTest::testStreaming(void) {
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
         ::CMockDataSearcher mockKvSearcher(mockKvAdder);
-        LOG_TRACE("After compression, there are " << mockKvSearcher.totalDocs()
-                                                  << " docs, asked for "
+        LOG_TRACE("After compression, there are " << mockKvSearcher.totalDocs() << " docs, asked for "
                                                   << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
@@ -309,15 +308,12 @@ void CStateCompressorTest::testChunking(void) {
 CppUnit::Test* CStateCompressorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testForApiNoKey",
-                                                      &CStateCompressorTest::testForApiNoKey));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testStreaming",
-                                                      &CStateCompressorTest::testStreaming));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testChunking",
-                                                      &CStateCompressorTest::testChunking));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testForApiNoKey",
+                                                                        &CStateCompressorTest::testForApiNoKey));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testStreaming",
+                                                                        &CStateCompressorTest::testStreaming));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>("CStateCompressorTest::testChunking",
+                                                                        &CStateCompressorTest::testChunking));
 
     return suiteOfTests;
 }

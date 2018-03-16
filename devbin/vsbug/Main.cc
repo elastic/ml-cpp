@@ -27,14 +27,13 @@ int main(int, char**) {
     eventTimes.push_back(1347019162);
 
     std::time_t endTime = (eventTimes.back() / bucketLength + 1) * bucketLength;
-    std::cout << "startTime = " << startTime << ", endTime = " << endTime
-              << ", # events = " << eventTimes.size() << std::endl;
+    std::cout << "startTime = " << startTime << ", endTime = " << endTime << ", # events = " << eventTimes.size()
+              << std::endl;
 
     {
         std::time_t offset = endTime - startTime;
         unsigned long i = 0;
-        for (std::time_t bucketStartTime = startTime; bucketStartTime < endTime;
-             bucketStartTime += bucketLength) {
+        for (std::time_t bucketStartTime = startTime; bucketStartTime < endTime; bucketStartTime += bucketLength) {
             std::time_t bucketEndTime = bucketStartTime + bucketLength;
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::vector<std::time_t> temp;
@@ -47,8 +46,7 @@ int main(int, char**) {
     std::time_t offset = 2 * (endTime - startTime);
 
     // Both lines of output should read 100800
-    // With "Microsoft (R) C/C++ Optimizing Compiler Version 18.00.21005.1 for x64" the first prints
-    // 4295068096
+    // With "Microsoft (R) C/C++ Optimizing Compiler Version 18.00.21005.1 for x64" the first prints 4295068096
     std::cout << offset << std::endl;
     std::cout << (offset & 0xFFFFFFFF) << std::endl;
 

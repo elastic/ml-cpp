@@ -74,8 +74,7 @@ public:
 public:
     //! Shared pointer to reverse search creator that we're will function
     //! after being shallow copied
-    using TTokenListReverseSearchCreatorIntfCPtr =
-        boost::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
+    using TTokenListReverseSearchCreatorIntfCPtr = boost::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
 
     //! Used to associate tokens with weightings:
     //! first -> token ID
@@ -91,9 +90,7 @@ public:
     //! Used for stream output of token IDs translated back to the original
     //! tokens
     struct API_EXPORT SIdTranslater {
-        SIdTranslater(const CBaseTokenListDataTyper& typer,
-                      const TSizeSizePrVec& tokenIds,
-                      char separator);
+        SIdTranslater(const CBaseTokenListDataTyper& typer, const TSizeSizePrVec& tokenIds, char separator);
 
         const CBaseTokenListDataTyper& s_Typer;
         const TSizeSizePrVec& s_TokenIds;
@@ -115,10 +112,7 @@ public:
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.  Field names/values are available
     //! to the type computation.
-    virtual int computeType(bool dryRun,
-                            const TStrStrUMap& fields,
-                            const std::string& str,
-                            size_t rawStringLen);
+    virtual int computeType(bool dryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen);
 
     // Bring the other overload of computeType() into scope
     using CDataTyper::computeType;
@@ -127,11 +121,8 @@ public:
     //! that are classified as the given type.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned type.
-    virtual bool createReverseSearch(int type,
-                                     std::string& part1,
-                                     std::string& part2,
-                                     size_t& maxMatchingLength,
-                                     bool& wasCached);
+    virtual bool
+    createReverseSearch(int type, std::string& part1, std::string& part2, size_t& maxMatchingLength, bool& wasCached);
 
     //! Has the data typer's state changed?
     virtual bool hasChanged(void) const;
@@ -313,8 +304,7 @@ private:
     friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
 };
 
-API_EXPORT std::ostream& operator<<(std::ostream& strm,
-                                    const CBaseTokenListDataTyper::SIdTranslater& translator);
+API_EXPORT std::ostream& operator<<(std::ostream& strm, const CBaseTokenListDataTyper::SIdTranslater& translator);
 }
 }
 

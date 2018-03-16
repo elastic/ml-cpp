@@ -45,8 +45,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(const std::string& nameType,
       m_Uids(1) {
 }
 
-CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
-                                                   const CDynamicStringIdRegistry& other)
+CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence, const CDynamicStringIdRegistry& other)
     : m_NameType(other.m_NameType),
       m_AddedStat(other.m_AddedStat),
       m_AddNotAllowedStat(other.m_AddNotAllowedStat),
@@ -61,8 +60,7 @@ CDynamicStringIdRegistry::CDynamicStringIdRegistry(bool isForPersistence,
     }
 }
 
-const std::string& CDynamicStringIdRegistry::name(std::size_t id,
-                                                  const std::string& fallback) const {
+const std::string& CDynamicStringIdRegistry::name(std::size_t id, const std::string& fallback) const {
     return id >= m_Names.size() ? fallback : *m_Names[id];
 }
 
@@ -99,10 +97,8 @@ std::size_t CDynamicStringIdRegistry::numberNames(void) const {
 }
 
 bool CDynamicStringIdRegistry::isIdActive(std::size_t id) const {
-    return id < m_Names.size() && !std::binary_search(m_FreeUids.begin(),
-                                                      m_FreeUids.end(),
-                                                      id,
-                                                      std::greater<std::size_t>());
+    return id < m_Names.size() &&
+           !std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>());
 }
 
 std::size_t CDynamicStringIdRegistry::addName(const std::string& name,
@@ -163,8 +159,7 @@ void CDynamicStringIdRegistry::removeNames(std::size_t lowestNameToRemove) {
     m_Names.erase(m_Names.begin() + lowestNameToRemove, m_Names.end());
 }
 
-void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove,
-                                            const std::string& defaultName) {
+void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove, const std::string& defaultName) {
     for (std::size_t i = 0u; i < namesToRemove.size(); ++i) {
         std::size_t id = namesToRemove[i];
         if (id >= m_Names.size()) {
@@ -189,8 +184,7 @@ bool CDynamicStringIdRegistry::checkInvariants(void) const {
 
     bool result = true;
     if (m_Uids.size() > m_Names.size()) {
-        LOG_ERROR("Unexpected extra " << (m_Uids.size() - m_Names.size()) << " " << m_NameType
-                                      << " uids");
+        LOG_ERROR("Unexpected extra " << (m_Uids.size() - m_Names.size()) << " " << m_NameType << " uids");
         result = false;
     }
 
@@ -201,8 +195,7 @@ bool CDynamicStringIdRegistry::checkInvariants(void) const {
             result = false;
         }
         if (i->second > m_Names.size()) {
-            LOG_ERROR(m_NameType << " id " << i->second << " out of range [0, " << m_Names.size()
-                                 << ")");
+            LOG_ERROR(m_NameType << " id " << i->second << " out of range [0, " << m_Names.size() << ")");
             result = false;
         }
     }
@@ -281,12 +274,8 @@ bool CDynamicStringIdRegistry::acceptRestoreTraverser(core::CStateRestoreTravers
     // reuse. We mustn't add these to the ID maps.
 
     for (std::size_t id = 0; id < m_Names.size(); ++id) {
-        if (std::binary_search(m_FreeUids.begin(),
-                               m_FreeUids.end(),
-                               id,
-                               std::greater<std::size_t>())) {
-            LOG_TRACE("Restore ignoring free " << m_NameType << " name " << *m_Names[id] << " = id "
-                                               << id);
+        if (std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<std::size_t>())) {
+            LOG_TRACE("Restore ignoring free " << m_NameType << " name " << *m_Names[id] << " = id " << id);
         } else {
             m_Uids[m_Dictionary.word(*m_Names[id])] = id;
         }

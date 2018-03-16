@@ -22,8 +22,7 @@
 CMockDataAdder::CMockDataAdder(void) {
 }
 
-CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index,
-                                                      const std::string& /*id*/) {
+CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index, const std::string& /*id*/) {
     LOG_TRACE("Add Streamed for index " << index);
     if (m_Streams.find(index) == m_Streams.end()) {
         m_Streams[index] = TOStreamP(new std::ostringstream);

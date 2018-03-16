@@ -88,9 +88,8 @@ private:
     typedef std::vector<std::string> TStrVec;
     typedef boost::unordered_map<maths::COrdinal, std::size_t, CHashOrdinal> TOrdinalSizeUMap;
     typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1> TMinAccumulator;
-    typedef maths::CBasicStatistics::
-        COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal>>
-            TMaxAccumulator;
+    typedef maths::CBasicStatistics::COrderStatisticsStack<maths::COrdinal, 1, std::greater<maths::COrdinal>>
+        TMaxAccumulator;
 
 private:
     //! The maximum number of values we'll hold in the empirical

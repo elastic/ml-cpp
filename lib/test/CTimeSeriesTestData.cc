@@ -27,21 +27,19 @@
 namespace ml {
 namespace test {
 
-const std::string CTimeSeriesTestData::DEFAULT_REGEX(
-    "\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
-const std::string CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX(
-    "\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|"
-    "\\d+\\.\\d+e-?\\d+)\\s*");
+const std::string
+    CTimeSeriesTestData::DEFAULT_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
+const std::string
+    CTimeSeriesTestData::DEFAULT_BIVALUED_REGEX("\\s*(\\d+|\\d+\\.\\d+)\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)"
+                                                "\\s+([-]*\\d+|\\d+\\.\\d+|\\d+\\.\\d+e-?\\d+)\\s*");
 const std::string CTimeSeriesTestData::DEFAULT_DATE_FORMAT("");
 const std::string CTimeSeriesTestData::CSV_UNIX_REGEX("^(\\d+),([-]*[\\d\\.]+)");
-const std::string
-    CTimeSeriesTestData::CSV_UNIX_BIVALUED_REGEX("^(\\d+),([-]*[\\d\\.]+),([-]*[\\d\\.]+)");
+const std::string CTimeSeriesTestData::CSV_UNIX_BIVALUED_REGEX("^(\\d+),([-]*[\\d\\.]+),([-]*[\\d\\.]+)");
 const std::string CTimeSeriesTestData::CSV_UNIX_DATE_FORMAT("");
-const std::string CTimeSeriesTestData::CSV_ISO8601_REGEX(
-    "^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*");
+const std::string
+    CTimeSeriesTestData::CSV_ISO8601_REGEX("^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*");
 const std::string CTimeSeriesTestData::CSV_ISO8601_BIVALUED_REGEX(
-    "^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*, "
-    "[\"]*([-]*[\\d\\.]+)[\"]*");
+    "^\"(\\d+-\\d+-\\d+T\\d+:\\d+:\\d+)\\..*\",[\"]*([-]*[\\d\\.]+)[\"]*, [\"]*([-]*[\\d\\.]+)[\"]*");
 const std::string CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT("%Y-%m-%dT%H:%M:%S");
 
 bool CTimeSeriesTestData::parse(const std::string& fileName,
@@ -95,8 +93,7 @@ bool CTimeSeriesTestData::parseCounter(const std::string& fileName, TTimeDoubleP
         } else {
             result.second = value - last;
             if (result.second < 0) {
-                LOG_WARN("Negative value " << value << "<" << last << "@" << result.first
-                                           << " setting counter to 0 ");
+                LOG_WARN("Negative value " << value << "<" << last << "@" << result.first << " setting counter to 0 ");
                 result.second = 0;
             }
         }
@@ -233,8 +230,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
                                     const std::string& dateFormat,
                                     const std::string& line,
                                     std::vector<std::pair<core_t::TTime, T>>& results) {
-    if (line.empty() ||
-        line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
+    if (line.empty() || line.find_first_not_of(core::CStringUtils::WHITESPACE_CHARS) == std::string::npos) {
         LOG_DEBUG("Ignoring blank line");
         return true;
     }

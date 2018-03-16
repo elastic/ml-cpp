@@ -216,8 +216,7 @@ int COsFileFuncs::fstat(int fildes, TStat* buf) {
         return -1;
     }
 
-    buf->st_ino =
-        static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
+    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
 
     return 0;
 }
@@ -269,8 +268,7 @@ int COsFileFuncs::stat(const char* path, TStat* buf) {
         return -1;
     }
 
-    buf->st_ino =
-        static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
+    buf->st_ino = static_cast<TIno>(info.nFileIndexLow) | (static_cast<TIno>(info.nFileIndexHigh) << 32);
 
     CloseHandle(handle);
 
@@ -282,8 +280,7 @@ int COsFileFuncs::lstat(const char* path, TStat* buf) {
     // case where the path points at a symlink, so often we can simply call
     // stat()
     WIN32_FILE_ATTRIBUTE_DATA attributes = {0};
-    if (path == nullptr || buf == nullptr ||
-        GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
+    if (path == nullptr || buf == nullptr || GetFileAttributesEx(path, GetFileExInfoStandard, &attributes) == FALSE ||
         (attributes.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0) {
         return COsFileFuncs::stat(path, buf);
     }

@@ -46,8 +46,7 @@ class CLimits;
 //! people in a population and collections of individual results in
 //! system change analysis. Special logic is used for named people,
 //! i.e. aggregations of multiple compatible simple searches.
-class MODEL_EXPORT CHierarchicalResultsAggregator
-    : public CHierarchicalResultsLevelSet<CDetectorEqualizer> {
+class MODEL_EXPORT CHierarchicalResultsAggregator : public CHierarchicalResultsLevelSet<CDetectorEqualizer> {
 public:
     //! Enumeration of the possible jobs that the aggregator can
     //! perform when invoked.

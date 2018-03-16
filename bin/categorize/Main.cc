@@ -144,8 +144,8 @@ int main(int argc, char** argv) {
     typedef boost::scoped_ptr<ml::core::CDataSearcher> TScopedDataSearcherP;
     TScopedDataSearcherP restoreSearcher;
     if (ioMgr.restoreStream() != 0) {
-        // Check whether state is restored from a file, if so we assume that this is a debugging
-        // case and therefore does not originate from X-Pack.
+        // Check whether state is restored from a file, if so we assume that this is a debugging case
+        // and therefore does not originate from X-Pack.
         if (!isRestoreFileNamedPipe) {
             // apply a filter to overcome differences in the way persistence vs. restore works
             auto strm = boost::make_shared<boost::iostreams::filtering_istream>();
@@ -167,9 +167,8 @@ int main(int argc, char** argv) {
     TScopedBackgroundPersisterP periodicPersister;
     if (persistInterval >= 0) {
         if (persister == 0) {
-            LOG_FATAL(
-                "Periodic persistence cannot be enabled using the 'persistInterval' argument "
-                "unless a place to persist to has been specified using the 'persist' argument");
+            LOG_FATAL("Periodic persistence cannot be enabled using the 'persistInterval' argument "
+                      "unless a place to persist to has been specified using the 'persist' argument");
             return EXIT_FAILURE;
         }
 
@@ -194,12 +193,7 @@ int main(int argc, char** argv) {
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
     // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId,
-                                   fieldConfig,
-                                   limits,
-                                   nullOutput,
-                                   outputWriter,
-                                   periodicPersister.get());
+    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput, outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorPeriodicPersistFunc(

@@ -37,10 +37,9 @@
 namespace ml {
 namespace model {
 
-CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(
-    const SModelParams& params,
-    model_t::ESummaryMode summaryMode,
-    const std::string& summaryCountFieldName)
+CEventRatePopulationModelFactory::CEventRatePopulationModelFactory(const SModelParams& params,
+                                                                   model_t::ESummaryMode summaryMode,
+                                                                   const std::string& summaryCountFieldName)
     : CModelFactory(params),
       m_Identifier(),
       m_SummaryMode(summaryMode),
@@ -53,8 +52,7 @@ CEventRatePopulationModelFactory* CEventRatePopulationModelFactory::clone(void) 
     return new CEventRatePopulationModelFactory(*this);
 }
 
-CAnomalyDetectorModel*
-CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
+CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -70,18 +68,14 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
 
     return new CEventRatePopulationModel(this->modelParams(),
                                          dataGatherer,
-                                         this->defaultFeatureModels(features,
-                                                                    dataGatherer->bucketLength(),
-                                                                    1.0,
-                                                                    false),
+                                         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
                                          this->defaultCorrelatePriors(features),
                                          this->defaultCorrelates(features),
                                          influenceCalculators);
 }
 
-CAnomalyDetectorModel*
-CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData,
-                                            core::CStateRestoreTraverser& traverser) const {
+CAnomalyDetectorModel* CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& initData,
+                                                                   core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -97,18 +91,14 @@ CEventRatePopulationModelFactory::makeModel(const SModelInitializationData& init
 
     return new CEventRatePopulationModel(this->modelParams(),
                                          dataGatherer,
-                                         this->defaultFeatureModels(features,
-                                                                    dataGatherer->bucketLength(),
-                                                                    1.0,
-                                                                    false),
+                                         this->defaultFeatureModels(features, dataGatherer->bucketLength(), 1.0, false),
                                          this->defaultCorrelatePriors(features),
                                          this->defaultCorrelates(features),
                                          influenceCalculators,
                                          traverser);
 }
 
-CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(
-    const SGathererInitializationData& initData) const {
+CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_PopulationEventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -126,9 +116,8 @@ CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(
                              0);
 }
 
-CDataGatherer*
-CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
-                                                   core::CStateRestoreTraverser& traverser) const {
+CDataGatherer* CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                                  core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_PopulationEventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -145,8 +134,7 @@ CEventRatePopulationModelFactory::makeDataGatherer(const std::string& partitionF
 }
 
 CEventRatePopulationModelFactory::TPriorPtr
-CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature,
-                                               const SModelParams& params) const {
+CEventRatePopulationModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -303,8 +291,7 @@ void CEventRatePopulationModelFactory::bucketResultsDelay(std::size_t bucketResu
     m_BucketResultsDelay = bucketResultsDelay;
 }
 
-CEventRatePopulationModelFactory::TStrCRefVec
-CEventRatePopulationModelFactory::partitioningFields(void) const {
+CEventRatePopulationModelFactory::TStrCRefVec CEventRatePopulationModelFactory::partitioningFields(void) const {
     TStrCRefVec result;
     result.reserve(3);
     if (!m_PartitionFieldName.empty()) {

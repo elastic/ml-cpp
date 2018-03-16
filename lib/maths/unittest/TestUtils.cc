@@ -46,11 +46,8 @@ public:
         double lowerBound, upperBound;
 
         m_X[0] = x;
-        if (!m_Prior->minusLogJointCdf(CConstantWeights::COUNT_VARIANCE,
-                                       m_X,
-                                       CConstantWeights::SINGLE_UNIT,
-                                       lowerBound,
-                                       upperBound)) {
+        if (!m_Prior->minusLogJointCdf(
+                CConstantWeights::COUNT_VARIANCE, m_X, CConstantWeights::SINGLE_UNIT, lowerBound, upperBound)) {
             // We have no choice but to throw because this is
             // invoked inside a boost root finding function.
 
@@ -108,15 +105,13 @@ void CPriorTestInterface::addSamples(const TDouble1Vec& samples) {
     m_Prior->addSamples(TWeights::COUNT, samples, weights);
 }
 
-maths_t::EFloatingPointErrorStatus
-CPriorTestInterface::jointLogMarginalLikelihood(const TDouble1Vec& samples, double& result) const {
+maths_t::EFloatingPointErrorStatus CPriorTestInterface::jointLogMarginalLikelihood(const TDouble1Vec& samples,
+                                                                                   double& result) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     return m_Prior->jointLogMarginalLikelihood(TWeights::COUNT, samples, weights, result);
 }
 
-bool CPriorTestInterface::minusLogJointCdf(const TDouble1Vec& samples,
-                                           double& lowerBound,
-                                           double& upperBound) const {
+bool CPriorTestInterface::minusLogJointCdf(const TDouble1Vec& samples, double& lowerBound, double& upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     return m_Prior->minusLogJointCdf(TWeights::COUNT, samples, weights, lowerBound, upperBound);
 }
@@ -125,27 +120,17 @@ bool CPriorTestInterface::minusLogJointCdfComplement(const TDouble1Vec& samples,
                                                      double& lowerBound,
                                                      double& upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
-    return m_Prior->minusLogJointCdfComplement(TWeights::COUNT,
-                                               samples,
-                                               weights,
-                                               lowerBound,
-                                               upperBound);
+    return m_Prior->minusLogJointCdfComplement(TWeights::COUNT, samples, weights, lowerBound, upperBound);
 }
 
-bool CPriorTestInterface::probabilityOfLessLikelySamples(
-    maths_t::EProbabilityCalculation calculation,
-    const TDouble1Vec& samples,
-    double& lowerBound,
-    double& upperBound) const {
+bool CPriorTestInterface::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
+                                                         const TDouble1Vec& samples,
+                                                         double& lowerBound,
+                                                         double& upperBound) const {
     TDouble4Vec1Vec weights(samples.size(), TWeights::UNIT);
     maths_t::ETail tail;
-    return m_Prior->probabilityOfLessLikelySamples(calculation,
-                                                   TWeights::COUNT,
-                                                   samples,
-                                                   weights,
-                                                   lowerBound,
-                                                   upperBound,
-                                                   tail);
+    return m_Prior->probabilityOfLessLikelySamples(
+        calculation, TWeights::COUNT, samples, weights, lowerBound, upperBound, tail);
 }
 
 bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculation,
@@ -175,13 +160,8 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
 
     double lowerBound, upperBound;
     maths_t::ETail tail;
-    if (!m_Prior->probabilityOfLessLikelySamples(calculation,
-                                                 weightStyles,
-                                                 samples_,
-                                                 weights,
-                                                 lowerBound,
-                                                 upperBound,
-                                                 tail)) {
+    if (!m_Prior->probabilityOfLessLikelySamples(
+            calculation, weightStyles, samples_, weights, lowerBound, upperBound, tail)) {
         LOG_ERROR("Failed computing probability of less likely samples");
         return false;
     }
@@ -191,9 +171,7 @@ bool CPriorTestInterface::anomalyScore(maths_t::EProbabilityCalculation calculat
     return true;
 }
 
-bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
-                                                            double eps,
-                                                            double& result) const {
+bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage, double eps, double& result) const {
     result = 0.0;
 
     percentage /= 100.0;
@@ -218,14 +196,8 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
 
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 2.0 * eps);
 
-        CSolvers::solve(bracket.first,
-                        bracket.second,
-                        fBracket.first,
-                        fBracket.second,
-                        cdf,
-                        maxIterations,
-                        equal,
-                        result);
+        CSolvers::solve(
+            bracket.first, bracket.second, fBracket.first, fBracket.second, cdf, maxIterations, equal, result);
     } catch (const std::exception& e) {
         LOG_ERROR("Failed to compute quantile: " << e.what() << ", quantile = " << percentage);
         return false;
@@ -265,10 +237,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
 
     for (unsigned int i = 0; i < steps; ++i, x += step) {
         double integral;
-        if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(xTimesLikelihood,
-                                                                   x,
-                                                                   x + step,
-                                                                   integral)) {
+        if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(xTimesLikelihood, x, x + step, integral)) {
             return false;
         }
         result += integral;
@@ -279,8 +248,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
 
 bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) const {
     using TMarginalLikelihood = CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&>;
-    using TResidualTimesMarginalLikelihood =
-        CCompositeFunctions::CProduct<CResidual, TMarginalLikelihood>;
+    using TResidualTimesMarginalLikelihood = CCompositeFunctions::CProduct<CResidual, TMarginalLikelihood>;
 
     const double eps = 1e-3;
     unsigned int steps = 100u;
@@ -301,18 +269,14 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
     }
 
     CPrior::CLogMarginalLikelihood logLikelihood(*m_Prior);
-    TResidualTimesMarginalLikelihood residualTimesLikelihood(CResidual(
-                                                                 m_Prior->marginalLikelihoodMean()),
+    TResidualTimesMarginalLikelihood residualTimesLikelihood(CResidual(m_Prior->marginalLikelihoodMean()),
                                                              TMarginalLikelihood(logLikelihood));
 
     double x = a;
     double step = (b - a) / static_cast<double>(steps);
     for (unsigned int i = 0; i < steps; ++i, x += step) {
         double integral;
-        if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(residualTimesLikelihood,
-                                                                   x,
-                                                                   x + step,
-                                                                   integral)) {
+        if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(residualTimesLikelihood, x, x + step, integral)) {
             return false;
         }
         result += integral;
@@ -333,62 +297,51 @@ double markov(core_t::TTime time) {
     static double state{0.2};
     if (time % WEEK == 0) {
         core::CHashing::CMurmurHash2BT<core_t::TTime> hasher;
-        state = 2.0 * static_cast<double>(hasher(time)) /
-                static_cast<double>(std::numeric_limits<std::size_t>::max());
+        state = 2.0 * static_cast<double>(hasher(time)) / static_cast<double>(std::numeric_limits<std::size_t>::max());
     }
     return state;
 }
 
 double smoothDaily(core_t::TTime time) {
-    return std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
-                    static_cast<double>(DAY));
+    return std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / static_cast<double>(DAY));
 }
 
 double smoothWeekly(core_t::TTime time) {
-    return std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
-                    static_cast<double>(WEEK));
+    return std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / static_cast<double>(WEEK));
 }
 
 double spikeyDaily(core_t::TTime time) {
-    double pattern[]{1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
+    double pattern[]{1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
     return pattern[(time % DAY) / HALF_HOUR];
 }
 
 double spikeyWeekly(core_t::TTime time) {
-    double pattern[]{1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1,
-                     0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1,
-                     0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1,
-                     0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1,
-                     0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                     1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
+    double pattern[]{1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1,
+                     0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+                     0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1,
+                     0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+                     0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1,
+                     0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.1};
     return pattern[(time % WEEK) / HALF_HOUR];
 }
 
 double weekends(core_t::TTime time) {
     double amplitude[] = {1.0, 0.9, 0.8, 0.9, 1.1, 0.2, 0.05};
     return amplitude[(time % WEEK) / DAY] *
-           std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) /
-                    static_cast<double>(DAY));
+           std::sin(boost::math::double_constants::two_pi * static_cast<double>(time) / static_cast<double>(DAY));
 }
 
 double scale(double scale, core_t::TTime time, TGenerator generator) {

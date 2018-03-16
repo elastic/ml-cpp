@@ -174,16 +174,12 @@ std::size_t CStateMachine::find(std::size_t begin, std::size_t end, const SLooku
 CStateMachine::CStateMachine(void) : m_Machine(BAD_MACHINE), m_State(0) {
 }
 
-CStateMachine::SMachine::SMachine(const TStrVec& alphabet,
-                                  const TStrVec& states,
-                                  const TSizeVecVec& transitionFunction)
+CStateMachine::SMachine::SMachine(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction)
     : s_Alphabet(alphabet), s_States(states), s_TransitionFunction(transitionFunction) {
 }
 
 CStateMachine::SMachine::SMachine(const SMachine& other)
-    : s_Alphabet(other.s_Alphabet),
-      s_States(other.s_States),
-      s_TransitionFunction(other.s_TransitionFunction) {
+    : s_Alphabet(other.s_Alphabet), s_States(other.s_States), s_TransitionFunction(other.s_TransitionFunction) {
 }
 
 CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
@@ -194,12 +190,10 @@ CStateMachine::SLookupMachine::SLookupMachine(const TStrVec& alphabet,
 
 bool CStateMachine::SLookupMachine::operator==(const SMachine& rhs) const {
     return boost::unwrap_ref(s_TransitionFunction) == rhs.s_TransitionFunction &&
-           boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet &&
-           boost::unwrap_ref(s_States) == rhs.s_States;
+           boost::unwrap_ref(s_Alphabet) == rhs.s_Alphabet && boost::unwrap_ref(s_States) == rhs.s_States;
 }
 
-CStateMachine::CMachineDeque::CMachineDeque(void)
-    : m_Capacity(DEFAULT_CAPACITY), m_NumberMachines(0) {
+CStateMachine::CMachineDeque::CMachineDeque(void) : m_Capacity(DEFAULT_CAPACITY), m_NumberMachines(0) {
     m_Machines.push_back(TMachineVec());
     m_Machines.back().reserve(m_Capacity);
 }

@@ -48,11 +48,12 @@ namespace core {
 //! A tree level is better understood as the sum of the padding node and
 //! the associated char nodes. For the input of (ab, abd, bdf)
 //! the vector would look like:
-//! [($, $, 2) (a, b, 3) (b, b, 7) ($, $, 1) (b, *, 5) ($, $, 1) (d, l, -) ($, $, 1) (d, b, 9) ($,
-//! $, 1) (f, l, -) ] where '-' means no child and is actually represented by max(uint32_t). This
-//! representation allows for search by visiting the first node, applying binary search on the first
-//! character, moving on to the node indicated by the characters next index, applying binary search
-//! on the second character, and so on.
+//! [($, $, 2) (a, b, 3) (b, b, 7) ($, $, 1) (b, *, 5) ($, $, 1) (d, l, -) ($, $, 1) (d, b, 9) ($, $, 1) (f, l, -) ]
+//! where '-' means no child and is actually represented by max(uint32_t).
+//! This representation allows for search by visiting the first node, applying
+//! binary search on the first character, moving on to the node indicated by
+//! the characters next index, applying binary search on the second character,
+//! and so on.
 class CORE_EXPORT CFlatPrefixTree {
 public:
     typedef std::vector<std::string> TStrVec;
@@ -126,10 +127,8 @@ public:
 
 private:
     //! The recursive building helper.
-    void buildRecursively(const TStrVec& prefixes,
-                          std::size_t prefixesStart,
-                          std::size_t prefixesEnd,
-                          std::size_t charPos);
+    void
+    buildRecursively(const TStrVec& prefixes, std::size_t prefixesStart, std::size_t prefixesEnd, std::size_t charPos);
 
     //! Extracts the distinct characters and stores it in \p distinctChars
     //! along with the start and end index in the \p prefixes vector.

@@ -47,9 +47,8 @@ CppUnit::Test* CInterimBucketCorrectorTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
         "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
         &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CInterimBucketCorrectorTest>("CInterimBucketCorrectorTest::testPersist",
-                                                       &CInterimBucketCorrectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
+        "CInterimBucketCorrectorTest::testPersist", &CInterimBucketCorrectorTest::testPersist));
 
     return suiteOfTests;
 }
@@ -209,8 +208,7 @@ void CInterimBucketCorrectorTest::testPersist(void) {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
-    traverser.traverseSubLevel(
-        boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
+    traverser.traverseSubLevel(boost::bind(&CInterimBucketCorrector::acceptRestoreTraverser, &restoredCorrector, _1));
 
     correction = restoredCorrector.corrections(now, 50, 1000, value);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);

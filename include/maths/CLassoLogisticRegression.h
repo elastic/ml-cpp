@@ -90,17 +90,12 @@ public:
     std::size_t columns(void) const { return m_Columns; }
     //! Get the beginning of the rows present for the j'th column.
     iterator beginRows(std::size_t j) const {
-        return std::lower_bound(m_Elements.begin(),
-                                m_Elements.end(),
-                                TSizeSizePr(j, size_t(0)),
-                                COrderings::SFirstLess());
+        return std::lower_bound(
+            m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, size_t(0)), COrderings::SFirstLess());
     }
     //! Get the end of the rows present for the j'th column.
     iterator endRows(std::size_t j) const {
-        return std::upper_bound(m_Elements.begin(),
-                                m_Elements.end(),
-                                TSizeSizePr(j, m_Rows),
-                                COrderings::SFirstLess());
+        return std::upper_bound(m_Elements.begin(), m_Elements.end(), TSizeSizePr(j, m_Rows), COrderings::SFirstLess());
     }
     //! Get the row represented by the j'th column row iterator.
     std::size_t row(iterator itr, std::size_t /*j*/) const { return itr->first.second; }
@@ -124,13 +119,12 @@ private:
 //! region used to ensure convergence. Effectively the algorithm
 //! is:
 //! <pre>
-//! \f$\Delta\beta_j \leftarrow 0\f$ for \f$j = 1,..,d\f$ and \f$r_i \leftarrow 0\f$ for \f$i =
-//! 1,...,n\f$
+//! \f$\Delta\beta_j \leftarrow 0\f$ for \f$j = 1,..,d\f$ and \f$r_i \leftarrow 0\f$ for \f$i = 1,...,n\f$
 //!  for \f$k = 1,2,...\f$
 //!    for \f$j = 1,...,d\f$
-//!      find \f$\Delta\beta_j\f$ by approximately minimizing \f$\frac{1}{n}\sum_i{f(r_i +
-//!      \Delta\beta_j x_{ij} y_i) - \lambda_j |\beta_j|}\f$ set \f$r_i \leftarrow r_i +
-//!      \Delta\beta_j x_{ij} y_i\f$ set \f$\beta_j \leftarrow \beta_j + \Delta\beta_j\f$
+//!      find \f$\Delta\beta_j\f$ by approximately minimizing \f$\frac{1}{n}\sum_i{f(r_i + \Delta\beta_j x_{ij} y_i) - \lambda_j |\beta_j|}\f$
+//!      set \f$r_i \leftarrow r_i + \Delta\beta_j x_{ij} y_i\f$
+//!      set \f$\beta_j \leftarrow \beta_j + \Delta\beta_j\f$
 //!    end
 //!  end
 //! </pre>

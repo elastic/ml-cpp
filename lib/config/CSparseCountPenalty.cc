@@ -60,9 +60,7 @@ const maths::CQuantileSketch& correctForEmptyBuckets(bool ignoreEmpty,
 }
 
 //! Get the mean adjusted for empty buckets.
-double correctForEmptyBuckets(bool ignoreEmpty,
-                              uint64_t buckets,
-                              const CBucketCountStatistics::TMoments& moments) {
+double correctForEmptyBuckets(bool ignoreEmpty, uint64_t buckets, const CBucketCountStatistics::TMoments& moments) {
     double n = maths::CBasicStatistics::count(moments);
     double m = maths::CBasicStatistics::mean(moments);
     return ignoreEmpty ? m : n / static_cast<double>(buckets) * m;
@@ -92,8 +90,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     typedef CBucketCountStatistics::TSizeSizePrQuantileUMap TSizeSizePrQuantileUMap;
     typedef TSizeSizePrQuantileUMap::const_iterator TSizeSizePrQuantileUMapCItr;
     typedef std::vector<const TSizeSizePrQuantileUMap*> TSizeSizePrQuantileUMapCPtrVec;
-    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap*>
-        TSizeSizePrMomentsUMapCPtrVec;
+    typedef std::vector<const CBucketCountStatistics::TSizeSizePrMomentsUMap*> TSizeSizePrMomentsUMapCPtrVec;
     typedef maths::CBasicStatistics::SSampleMean<double>::TAccumulator TMeanAccumulator;
     typedef std::vector<TMeanAccumulator> TMeanAccumulatorVec;
 
@@ -125,16 +122,13 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                 TMeanAccumulatorVec penalties_(nb - 1);
                 maths::CQuantileSketch placeholder(maths::CQuantileSketch::E_Linear, 1);
 
-                for (TSizeSizePrQuantileUMapCItr q0 = quantiles[0]->begin();
-                     q0 != quantiles[0]->end();
-                     ++q0) {
+                for (TSizeSizePrQuantileUMapCItr q0 = quantiles[0]->begin(); q0 != quantiles[0]->end(); ++q0) {
                     const CBucketCountStatistics::TSizeSizePr& partition = q0->first;
 
                     uint64_t bc = stats->bucketCounts()[0];
                     const maths::CQuantileSketch& qe0 =
                         correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, q0->second);
-                    const CBucketCountStatistics::TMoments& m0 =
-                        moments[0]->find(partition)->second;
+                    const CBucketCountStatistics::TMoments& m0 = moments[0]->find(partition)->second;
                     double me0 = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, m0);
                     extract(qe0, nq, xq[0]);
                     means[0] = me0;
@@ -151,8 +145,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                         bc = stats->bucketCounts()[bid];
                         const maths::CQuantileSketch& qei =
                             correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, placeholder, qi->second);
-                        const CBucketCountStatistics::TMoments& mi =
-                            moments[bid]->find(partition)->second;
+                        const CBucketCountStatistics::TMoments& mi = moments[bid]->find(partition)->second;
                         double mei = correctForEmptyBuckets(IGNORE_EMPTY[iid], bc, mi);
                         extract(qei, nq, xq[bid]);
                         means[bid] = mei;
@@ -165,30 +158,25 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                     std::fill_n(significances.begin(), nb - 1, 0.0);
                     for (std::size_t i = 0u; i < 2; ++i) {
                         for (std::size_t bid = 0u; bid + 1 < nb; ++bid) {
-                            significances[bid] =
-                                std::max(significances[bid],
-                                         maths::CStatisticalTests::twoSampleKS(xq[bid],
-                                                                               xq[nb - 1]));
+                            significances[bid] = std::max(significances[bid],
+                                                          maths::CStatisticalTests::twoSampleKS(xq[bid], xq[nb - 1]));
                         }
 
-                        // If the rate is high w.r.t. the bucket length we expect the mean and
-                        // variance to scale as the ratio of bucket lengths. In order to test if the
-                        // distribution is similar under this transformation the quantile points are
-                        // adjusted by the map x -> L / l * m + (L / l)^(1/2) * (x - m), where l is
-                        // the source bucket length and L is the target bucket length. Note that the
-                        // resulting moments of the distribution are scaled appropriately as can be
-                        // verified from their definition in terms of the integral of the derivative
-                        // of the distribution.
+                        // If the rate is high w.r.t. the bucket length we expect the mean and variance
+                        // to scale as the ratio of bucket lengths. In order to test if the distribution
+                        // is similar under this transformation the quantile points are adjusted by the
+                        // map x -> L / l * m + (L / l)^(1/2) * (x - m), where l is the source bucket
+                        // length and L is the target bucket length. Note that the resulting moments
+                        // of the distribution are scaled appropriately as can be verified from their
+                        // definition in terms of the integral of the derivative of the distribution.
 
                         for (std::size_t bid = 0u; bid < nb; ++bid) {
                             if (longest == candidates[bid]) {
                                 continue;
                             }
-                            double scale =
-                                static_cast<double>(longest) / static_cast<double>(candidates[bid]);
+                            double scale = static_cast<double>(longest) / static_cast<double>(candidates[bid]);
                             for (std::size_t j = 0u; j < xq[bid].size(); ++j) {
-                                xq[bid][j] =
-                                    scale * means[bid] + ::sqrt(scale) * (xq[bid][j] - means[bid]);
+                                xq[bid][j] = scale * means[bid] + ::sqrt(scale) * (xq[bid][j] - means[bid]);
                             }
                         }
                     }
@@ -212,8 +200,7 @@ void CSparseCountPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                     double penalty = ::exp(maths::CBasicStatistics::mean(penalties_[bid]));
                     std::string description;
                     if (penalty < 1.0) {
-                        description = "The bucket length does not properly capture the variation "
-                                      "in event rate";
+                        description = "The bucket length does not properly capture the variation in event rate";
                     }
                     penalties.push_back(penalty);
                     descriptions.push_back(description);

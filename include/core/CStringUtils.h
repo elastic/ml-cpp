@@ -157,10 +157,7 @@ public:
     //! Tokenise a std::string based on a delimiter.
     //! This does NOT behave like strtok - it matches
     //! the entire delimiter not just characters in it
-    static void tokenise(const std::string& delim,
-                         const std::string& str,
-                         TStrVec& tokens,
-                         std::string& remainder);
+    static void tokenise(const std::string& delim, const std::string& str, TStrVec& tokens, std::string& remainder);
 
     //! Find the longest common substring of two strings
     static std::string longestCommonSubstr(const std::string& str1, const std::string& str2);

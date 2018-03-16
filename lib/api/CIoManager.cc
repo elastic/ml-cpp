@@ -25,9 +25,7 @@ namespace api {
 
 namespace {
 
-bool setUpIStream(const std::string& fileName,
-                  bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TIStreamP& stream) {
+bool setUpIStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TIStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
@@ -41,9 +39,7 @@ bool setUpIStream(const std::string& fileName,
     return fileStream->is_open();
 }
 
-bool setUpOStream(const std::string& fileName,
-                  bool isFileNamedPipe,
-                  core::CNamedPipeFactory::TOStreamP& stream) {
+bool setUpOStream(const std::string& fileName, bool isFileNamedPipe, core::CNamedPipeFactory::TOStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;

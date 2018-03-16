@@ -43,13 +43,7 @@ public:
     typedef boost::reference_wrapper<const core::CPatternSet> TPatternSetCRef;
 
 public:
-    enum ERuleConditionType {
-        E_Categorical,
-        E_NumericalActual,
-        E_NumericalTypical,
-        E_NumericalDiffAbs,
-        E_Time
-    };
+    enum ERuleConditionType { E_Categorical, E_NumericalActual, E_NumericalTypical, E_NumericalDiffAbs, E_Time };
 
     enum EConditionOperator { E_LT, E_LTE, E_GT, E_GTE };
 

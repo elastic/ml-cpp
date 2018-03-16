@@ -31,43 +31,34 @@ using namespace api;
 CppUnit::Test* CConfigUpdaterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
-                                &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
-                                              &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
-                                              &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenDetectorRules",
-                                              &CConfigUpdaterTest::testUpdateGivenDetectorRules));
+        new CppUnit::TestCaller<CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
+                                                    &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
+        "CConfigUpdaterTest::testUpdateGivenUnknownStanzas", &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
+        "CConfigUpdaterTest::testUpdateGivenModelPlotConfig", &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
+        "CConfigUpdaterTest::testUpdateGivenDetectorRules", &CConfigUpdaterTest::testUpdateGivenDetectorRules));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
-                                &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenFilters",
-                                                    &CConfigUpdaterTest::testUpdateGivenFilters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenScheduledEvents",
-                                              &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
+        new CppUnit::TestCaller<CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
+                                                    &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>("CConfigUpdaterTest::testUpdateGivenFilters",
+                                                                      &CConfigUpdaterTest::testUpdateGivenFilters));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
+        "CConfigUpdaterTest::testUpdateGivenScheduledEvents", &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
     return suiteOfTests;
 }
 
 void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed(void) {
     CFieldConfig fieldConfig;
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
 }
 
 void CConfigUpdaterTest::testUpdateGivenUnknownStanzas(void) {
     CFieldConfig fieldConfig;
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
     CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
@@ -76,8 +67,7 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
     typedef model::CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
     CFieldConfig fieldConfig;
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     modelConfig.modelPlotBoundsPercentile(95.0);
     TStrSet terms;
     terms.insert(std::string("a"));
@@ -99,50 +89,43 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig(void) {
 
 void CConfigUpdaterTest::testUpdateGivenDetectorRules(void) {
     CFieldConfig fieldConfig;
-    std::string originalRules0(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules0 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":"
-                      "\"lt\",\"value\":\"5\"}}]}]";
-    std::string originalRules1(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules1 += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":"
-                      "\"gt\",\"value\":\"5\"}}]}]";
+    std::string originalRules0("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    originalRules0 +=
+        "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
+    std::string originalRules1("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    originalRules1 +=
+        "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"gt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules0);
     fieldConfig.parseRules(1, originalRules1);
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
 
     std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
     std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-                              "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\","
-                              "\"conditions\":[{\"type\":\"numerical_typical\",\"condition\":{"
-                              "\"operator\":\"lt\",\"value\":\"15\"}}]}]");
+                              "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",\"conditions\":[{"
+                              "\"type\":\"numerical_typical\",\"condition\":{\"operator\":\"lt\",\"value\":\"15\"}}]}"
+                              "]");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
     CPPUNIT_ASSERT(configUpdater.update(configUpdate0));
     CPPUNIT_ASSERT(configUpdater.update(configUpdate1));
 
-    CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr =
-        fieldConfig.detectionRules().find(0);
+    CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr = fieldConfig.detectionRules().find(0);
     CPPUNIT_ASSERT(itr->second.empty());
     itr = fieldConfig.detectionRules().find(1);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), itr->second.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"),
-                         itr->second[0].print());
+    CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS IF TYPICAL < 15.000000"), itr->second[0].print());
 }
 
 void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex(void) {
     CFieldConfig fieldConfig;
-    std::string originalRules(
-        "[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
-    originalRules += "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":"
-                     "\"lt\",\"value\":\"5\"}}]}]";
+    std::string originalRules("[{\"actions\":[\"filter_results\"],\"conditions_connective\":\"or\",");
+    originalRules +=
+        "\"conditions\":[{\"type\":\"numerical_actual\",\"condition\":{\"operator\":\"lt\",\"value\":\"5\"}}]}]";
     fieldConfig.parseRules(0, originalRules);
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
 
     std::string configUpdate("[detectorRules]\ndetectorIndex = invalid\nrulesJson = []\n");
 
@@ -156,8 +139,7 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void) {
     fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
     fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
 
     auto ruleFilters = fieldConfig.ruleFilters();
     CPPUNIT_ASSERT_EQUAL(std::size_t(2), ruleFilters.size());
@@ -173,8 +155,7 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void) {
     CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
-    std::string configUpdate(
-        "[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
+    std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
@@ -203,44 +184,35 @@ void CConfigUpdaterTest::testUpdateGivenFilters(void) {
 }
 
 void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
-    std::string validRule1 =
-        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
-        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
-    std::string validRule2 =
-        "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
-        "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
-        "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
+    std::string validRule1 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
+                             "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"1\"}},"
+                             "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"2\"}}]}]";
+    std::string validRule2 = "[{\"actions\":[\"filter_results\",\"skip_sampling\"],\"conditions_connective\":\"and\","
+                             "\"conditions\":[{\"type\":\"time\",\"condition\":{\"operator\":\"gte\",\"value\":\"3\"}},"
+                             "{\"type\":\"time\",\"condition\":{\"operator\":\"lt\",\"value\":\"4\"}}]}]";
 
     CFieldConfig fieldConfig;
 
     // Set up some events
     {
         boost::property_tree::ptree propTree;
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.description", '\t'),
-                     "old_event_1");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'),
-                     validRule1);
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.description", '\t'),
-                     "old_event_2");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'),
-                     validRule2);
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.description", '\t'), "old_event_1");
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'), validRule1);
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.description", '\t'), "old_event_2");
+        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'), validRule2);
         fieldConfig.updateScheduledEvents(propTree);
 
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
-            events[0].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
+                             events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
-            events[1].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
+                             events[1].second.print());
     }
 
-    model::CAnomalyDetectorModelConfig modelConfig =
-        model::CAnomalyDetectorModelConfig::defaultConfig();
+    model::CAnomalyDetectorModelConfig modelConfig = model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
     // Test an update that replaces the events
@@ -260,13 +232,11 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents(void) {
         const auto& events = fieldConfig.scheduledEvents();
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
-            events[0].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 3.000000 AND TIME < 4.000000"),
+                             events[0].second.print());
         CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
-            events[1].second.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("FILTER_RESULTS AND SKIP_SAMPLING IF TIME >= 1.000000 AND TIME < 2.000000"),
+                             events[1].second.print());
     }
 
     // Now test an update that clears the events

@@ -49,8 +49,8 @@ struct SSampleCovariances<CVectorNx1<T, N>> {
 MATHS_EXPORT
 double confidence(double df);
 
-#define LOG_DETERMINANT(N)                                                                         \
-    MATHS_EXPORT                                                                                   \
+#define LOG_DETERMINANT(N)                                                                                             \
+    MATHS_EXPORT                                                                                                       \
     double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper)
 LOG_DETERMINANT(2);
 LOG_DETERMINANT(3);
@@ -113,17 +113,14 @@ public:
     typedef typename SStripped<POINT>::Type TBarePoint;
     typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
     typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-    typedef typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator
-        TMeanVarAccumulator;
+    typedef typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator TMeanVarAccumulator;
 
 public:
     CSphericalGaussianInfoCriterion(void) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CSphericalGaussianInfoCriterion(const TPointVecVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    explicit CSphericalGaussianInfoCriterion(const TPointVecVec& x) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
-    explicit CSphericalGaussianInfoCriterion(const TPointVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    explicit CSphericalGaussianInfoCriterion(const TPointVec& x) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
 
@@ -163,12 +160,10 @@ public:
         if (ni > 1.0) {
             double upper = information_criteria_detail::confidence(ni - 1.0);
             m_Likelihood +=
-                ni * log(ni) -
-                0.5 * m_D * ni * (1.0 + core::constants::LOG_TWO_PI + ::log(upper * vi / m_D));
+                ni * log(ni) - 0.5 * m_D * ni * (1.0 + core::constants::LOG_TWO_PI + ::log(upper * vi / m_D));
         } else {
-            m_Likelihood += ni * log(ni) - 0.5 * m_D * ni *
-                                               (1.0 + core::constants::LOG_TWO_PI +
-                                                core::constants::LOG_MAX_DOUBLE);
+            m_Likelihood +=
+                ni * log(ni) - 0.5 * m_D * ni * (1.0 + core::constants::LOG_TWO_PI + core::constants::LOG_MAX_DOUBLE);
         }
     }
 
@@ -216,18 +211,15 @@ public:
     typedef typename SStripped<POINT>::Type TBarePoint;
     typedef typename SFloatingPoint<TBarePoint, double>::Type TBarePointPrecise;
     typedef typename SCoordinate<TBarePointPrecise>::Type TCoordinate;
-    typedef typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type
-        TCovariances;
+    typedef typename information_criteria_detail::SSampleCovariances<TBarePointPrecise>::Type TCovariances;
     typedef typename SConformableMatrix<TBarePointPrecise>::Type TMatrix;
 
 public:
     CGaussianInfoCriterion(void) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CGaussianInfoCriterion(const TPointVecVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    explicit CGaussianInfoCriterion(const TPointVecVec& x) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
-    explicit CGaussianInfoCriterion(const TPointVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    explicit CGaussianInfoCriterion(const TPointVec& x) : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
         this->add(x);
     }
 
@@ -255,10 +247,10 @@ public:
         m_D = static_cast<double>(CBasicStatistics::mean(covariance).dimension());
         m_K += 1.0;
         m_N += ni;
-        m_Likelihood += ni * log(ni) - 0.5 * ni *
-                                           (m_D + m_D * core::constants::LOG_TWO_PI +
-                                            (ni <= m_D + 1.0 ? core::constants::LOG_MAX_DOUBLE
-                                                             : this->logDeterminant(covariance)));
+        m_Likelihood +=
+            ni * log(ni) - 0.5 * ni *
+                               (m_D + m_D * core::constants::LOG_TWO_PI +
+                                (ni <= m_D + 1.0 ? core::constants::LOG_MAX_DOUBLE : this->logDeterminant(covariance)));
     }
 
     //! Calculate the information content of the clusters added so far.

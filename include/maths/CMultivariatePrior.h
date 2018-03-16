@@ -189,8 +189,7 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const = 0;
+    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const = 0;
 
     //! Get the support for the marginal likelihood function.
     virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport(void) const = 0;
@@ -225,11 +224,10 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble10Vec1Vec& samples,
-                               const TDouble10Vec4Vec1Vec& weights,
-                               double& result) const = 0;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble10Vec1Vec& samples,
+                                                                          const TDouble10Vec4Vec1Vec& weights,
+                                                                          double& result) const = 0;
 
     //! Sample the marginal likelihood function.
     //!
@@ -251,8 +249,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const = 0;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble10Vec1Vec& samples) const = 0;
 
     //! Calculate the joint probability of seeing a lower marginal likelihood
     //! collection of independent samples for each coordinate.
@@ -408,9 +405,8 @@ protected:
     bool check(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
 
     //! Get the remaining variables.
-    void remainingVariables(const TSize10Vec& marginalize,
-                            const TSizeDoublePr10Vec& condition,
-                            TSize10Vec& results) const;
+    void
+    remainingVariables(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition, TSize10Vec& results) const;
 
     //! Get the smallest component of \p x.
     double smallest(const TDouble10Vec& x) const;

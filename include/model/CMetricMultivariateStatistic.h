@@ -150,9 +150,7 @@ public:
     }
 
     //! Get the memory used by the statistic.
-    std::size_t memoryUsage(void) const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Values);
-    }
+    std::size_t memoryUsage(void) const { return sizeof(*this) + core::CMemory::dynamicSize(m_Values); }
 
     //! Print partial statistic
     std::string print(void) const {
@@ -172,8 +170,7 @@ template<class STATISTIC>
 const std::string CMetricMultivariateStatistic<STATISTIC>::VALUE_TAG("a");
 
 template<class STATISTIC>
-std::ostream& operator<<(std::ostream& o,
-                         const CMetricMultivariateStatistic<STATISTIC>& statistic) {
+std::ostream& operator<<(std::ostream& o, const CMetricMultivariateStatistic<STATISTIC>& statistic) {
     return o << statistic.print();
 }
 }

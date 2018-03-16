@@ -50,9 +50,7 @@ std::string CCantBeNumeric::name(void) const {
     return "can't be numeric";
 }
 
-void CCantBeNumeric::penaltyFromMe(const CFieldStatistics& stats,
-                                   double& penalty,
-                                   std::string& description) const {
+void CCantBeNumeric::penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const {
     if (config_t::isNumeric(stats.type())) {
         penalty = 0.0;
         description += prefix(description) + "Can't use numeric";
@@ -72,9 +70,7 @@ std::string CCantBeCategorical::name(void) const {
     return "Can't be categorical";
 }
 
-void CCantBeCategorical::penaltyFromMe(const CFieldStatistics& stats,
-                                       double& penalty,
-                                       std::string& description) const {
+void CCantBeCategorical::penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const {
     if (config_t::isCategorical(stats.type())) {
         penalty = 0.0;
         description += prefix(description) + "Can't use categorical";
@@ -94,9 +90,7 @@ std::string CDontUseUnaryField::name(void) const {
     return "don't use unary field";
 }
 
-void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics& stats,
-                                       double& penalty,
-                                       std::string& description) const {
+void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics& stats, double& penalty, std::string& description) const {
     if (const CCategoricalDataSummaryStatistics* summary = stats.categoricalSummary()) {
         if (summary->distinctCount() == 1) {
             penalty = 0.0;
@@ -107,10 +101,9 @@ void CDontUseUnaryField::penaltyFromMe(const CFieldStatistics& stats,
 
 //////// CDistinctCountThreshold ////////
 
-CDistinctCountThresholdPenalty::CDistinctCountThresholdPenalty(
-    const CAutoconfigurerParams& params,
-    std::size_t distinctCountForPenaltyOfOne,
-    std::size_t distinctCountForPenaltyOfZero)
+CDistinctCountThresholdPenalty::CDistinctCountThresholdPenalty(const CAutoconfigurerParams& params,
+                                                               std::size_t distinctCountForPenaltyOfOne,
+                                                               std::size_t distinctCountForPenaltyOfZero)
     : CPenalty(params),
       m_DistinctCountForPenaltyOfOne(static_cast<double>(distinctCountForPenaltyOfOne)),
       m_DistinctCountForPenaltyOfZero(static_cast<double>(distinctCountForPenaltyOfZero)) {
@@ -121,8 +114,7 @@ CDistinctCountThresholdPenalty* CDistinctCountThresholdPenalty::clone(void) cons
 }
 
 std::string CDistinctCountThresholdPenalty::name(void) const {
-    return "distinct count thresholds " +
-           core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfZero) + " and " +
+    return "distinct count thresholds " + core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfZero) + " and " +
            core::CStringUtils::typeToString(m_DistinctCountForPenaltyOfOne);
 }
 
@@ -137,11 +129,10 @@ void CDistinctCountThresholdPenalty::penaltyFromMe(const CFieldStatistics& stats
                                               static_cast<double>(summary->distinctCount()));
         if (penalty_ < 1.0) {
             penalty *= penalty_;
-            description +=
-                prefix(description) + "A distinct count of " +
-                core::CStringUtils::typeToString(summary->distinctCount()) + " is" +
-                (penalty_ == 0.0 ? " too " : " ") +
-                (m_DistinctCountForPenaltyOfZero > m_DistinctCountForPenaltyOfOne ? "high" : "low");
+            description += prefix(description) + "A distinct count of " +
+                           core::CStringUtils::typeToString(summary->distinctCount()) + " is" +
+                           (penalty_ == 0.0 ? " too " : " ") +
+                           (m_DistinctCountForPenaltyOfZero > m_DistinctCountForPenaltyOfOne ? "high" : "low");
         }
     }
 }

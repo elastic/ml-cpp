@@ -103,15 +103,13 @@ void CTestRunner::processCmdLine(int argc, const char** argv) {
             }
         }
         if (numSrcStrips == 1) {
-            LOG_INFO("Source file extension " << SRC_EXT << " stripped from supplied test name "
-                                              << argv[lastSrcIndex]);
+            LOG_INFO("Source file extension " << SRC_EXT << " stripped from supplied test name " << argv[lastSrcIndex]);
         } else if (numSrcStrips > 0) {
             LOG_INFO("Source file extension " << SRC_EXT << " stripped from " << numSrcStrips
                                               << " supplied test names");
         }
         if (numHdrStrips == 1) {
-            LOG_INFO("Header file extension " << HDR_EXT << " stripped from supplied test name "
-                                              << argv[lastHdrIndex]);
+            LOG_INFO("Header file extension " << HDR_EXT << " stripped from supplied test name " << argv[lastHdrIndex]);
         } else if (numHdrStrips > 0) {
             LOG_INFO("Header file extension " << HDR_EXT << " stripped from " << numHdrStrips
                                               << " supplied test names");
@@ -138,8 +136,8 @@ bool CTestRunner::runTests(void) {
 
     bool passed(false);
     if (this->checkSkipFile(cwd.string(), passed) == true) {
-        LOG_WARN("Skipping tests for directory " << cwd << " and using previous test result "
-                                                 << std::boolalpha << passed);
+        LOG_WARN("Skipping tests for directory " << cwd << " and using previous test result " << std::boolalpha
+                                                 << passed);
         return passed;
     }
 
@@ -167,8 +165,7 @@ bool CTestRunner::runTests(void) {
     passed = this->timeTests(topPath, testPath);
 
     if (this->updateSkipFile(cwd.string(), passed) == true) {
-        LOG_INFO("Added directory " << cwd << " to skip file with result " << std::boolalpha
-                                    << passed);
+        LOG_INFO("Added directory " << cwd << " to skip file with result " << std::boolalpha << passed);
     }
 
     return passed;
@@ -194,9 +191,7 @@ bool CTestRunner::timeTests(const std::string& topPath, const std::string& testP
         for (TStrVecItr itr = m_TestCases.begin(); itr != m_TestCases.end() && allPassed; ++itr) {
             try {
                 allPassed = this->run(*itr);
-            } catch (std::invalid_argument&) {
-                LOG_ERROR("No Test called " << *itr << " in testsuite");
-            }
+            } catch (std::invalid_argument&) { LOG_ERROR("No Test called " << *itr << " in testsuite"); }
         }
     }
 
@@ -238,8 +233,7 @@ bool CTestRunner::updateSkipFile(const std::string& cwd, bool passed) const {
 
     // Don't create the file if it doesn't already exist, and don't write to it
     // if it's not writable
-    if (core::COsFileFuncs::access(fullPath.c_str(),
-                                   core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) ==
+    if (core::COsFileFuncs::access(fullPath.c_str(), core::COsFileFuncs::READABLE | core::COsFileFuncs::WRITABLE) ==
         -1) {
         LOG_TRACE("Will not update skip file " << fullPath << " : " << ::strerror(errno));
         return false;

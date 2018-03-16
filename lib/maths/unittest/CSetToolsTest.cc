@@ -51,36 +51,24 @@ void CSetToolsTest::testInplaceSetDifference(void) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
-            std::set_difference(A.begin(),
-                                A.end(),
-                                left.begin(),
-                                left.end(),
-                                std::back_inserter(expected));
+            std::set_difference(A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
             TDoubleVec test = A;
             maths::CSetTools::inplace_set_difference(test, left.begin(), left.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A)
-                             << ", B = " << core::CContainerPrinter::print(left)
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
                              << ", A - B = " << core::CContainerPrinter::print(test));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                                 core::CContainerPrinter::print(test));
+            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(test));
 
             TDoubleVec right;
             for (std::size_t j = i; j < boost::size(a); ++j) {
                 right.push_back(a[j]);
             }
             expected.clear();
-            std::set_difference(A.begin(),
-                                A.end(),
-                                right.begin(),
-                                right.end(),
-                                std::back_inserter(expected));
+            std::set_difference(A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
             test = A;
             maths::CSetTools::inplace_set_difference(test, right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A)
-                             << ", B = " << core::CContainerPrinter::print(right)
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
                              << ", A - B = " << core::CContainerPrinter::print(test));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                                 core::CContainerPrinter::print(test));
+            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(test));
         }
     }
 
@@ -116,8 +104,7 @@ void CSetToolsTest::testInplaceSetDifference(void) {
             LOG_DEBUG("A - B = " << core::CContainerPrinter::print(A));
         }
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(A));
+        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected), core::CContainerPrinter::print(A));
     }
 }
 
@@ -138,15 +125,10 @@ void CSetToolsTest::testSetSizes(void) {
                 left.push_back(a[j]);
             }
             TDoubleVec expected;
-            std::set_intersection(A.begin(),
-                                  A.end(),
-                                  left.begin(),
-                                  left.end(),
-                                  std::back_inserter(expected));
-            std::size_t test =
-                maths::CSetTools::setIntersectSize(A.begin(), A.end(), left.begin(), left.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = "
-                             << core::CContainerPrinter::print(left) << ", |A ^ B| = " << test);
+            std::set_intersection(A.begin(), A.end(), left.begin(), left.end(), std::back_inserter(expected));
+            std::size_t test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), left.begin(), left.end());
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(left)
+                             << ", |A ^ B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             TDoubleVec right;
@@ -154,29 +136,17 @@ void CSetToolsTest::testSetSizes(void) {
                 right.push_back(a[j]);
             }
             expected.clear();
-            std::set_intersection(A.begin(),
-                                  A.end(),
-                                  right.begin(),
-                                  right.end(),
-                                  std::back_inserter(expected));
-            test =
-                maths::CSetTools::setIntersectSize(A.begin(), A.end(), right.begin(), right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = "
-                             << core::CContainerPrinter::print(right) << ", |A ^ B| = " << test);
+            std::set_intersection(A.begin(), A.end(), right.begin(), right.end(), std::back_inserter(expected));
+            test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), right.begin(), right.end());
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(A) << ", B = " << core::CContainerPrinter::print(right)
+                             << ", |A ^ B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
 
             expected.clear();
-            std::set_union(left.begin(),
-                           left.end(),
-                           right.begin(),
-                           right.end(),
-                           std::back_inserter(expected));
-            test = maths::CSetTools::setUnionSize(left.begin(),
-                                                  left.end(),
-                                                  right.begin(),
-                                                  right.end());
-            LOG_DEBUG("A = " << core::CContainerPrinter::print(left) << ", B = "
-                             << core::CContainerPrinter::print(right) << ", |A U B| = " << test);
+            std::set_union(left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(expected));
+            test = maths::CSetTools::setUnionSize(left.begin(), left.end(), right.begin(), right.end());
+            LOG_DEBUG("A = " << core::CContainerPrinter::print(left)
+                             << ", B = " << core::CContainerPrinter::print(right) << ", |A U B| = " << test);
             CPPUNIT_ASSERT_EQUAL(expected.size(), test);
         }
     }
@@ -207,8 +177,7 @@ void CSetToolsTest::testSetSizes(void) {
             LOG_DEBUG("B = " << core::CContainerPrinter::print(B));
         }
 
-        std::size_t test =
-            maths::CSetTools::setIntersectSize(A.begin(), A.end(), B.begin(), B.end());
+        std::size_t test = maths::CSetTools::setIntersectSize(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
             LOG_DEBUG("|A ^ B| = " << test);
@@ -265,17 +234,12 @@ void CSetToolsTest::testJaccard(void) {
         B.erase(std::unique(B.begin(), B.end()), B.end());
 
         TSizeVec AIntersectB;
-        std::set_intersection(A.begin(),
-                              A.end(),
-                              B.begin(),
-                              B.end(),
-                              std::back_inserter(AIntersectB));
+        std::set_intersection(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AIntersectB));
 
         TSizeVec AUnionB;
         std::set_union(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AUnionB));
 
-        double expected =
-            static_cast<double>(AIntersectB.size()) / static_cast<double>(AUnionB.size());
+        double expected = static_cast<double>(AIntersectB.size()) / static_cast<double>(AUnionB.size());
         double actual = maths::CSetTools::jaccard(A.begin(), A.end(), B.begin(), B.end());
 
         if ((t + 1) % 10 == 0) {
@@ -322,11 +286,7 @@ void CSetToolsTest::testOverlap(void) {
         B.erase(std::unique(B.begin(), B.end()), B.end());
 
         TSizeVec AIntersectB;
-        std::set_intersection(A.begin(),
-                              A.end(),
-                              B.begin(),
-                              B.end(),
-                              std::back_inserter(AIntersectB));
+        std::set_intersection(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(AIntersectB));
 
         std::size_t min = std::min(A.size(), B.size());
 
@@ -344,15 +304,14 @@ void CSetToolsTest::testOverlap(void) {
 CppUnit::Test* CSetToolsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSetToolsTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testInplaceSetDifference",
+                                                                 &CSetToolsTest::testInplaceSetDifference));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testInplaceSetDifference",
-                                               &CSetToolsTest::testInplaceSetDifference));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testSetSizes",
-                                                                 &CSetToolsTest::testSetSizes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testJaccard",
-                                                                 &CSetToolsTest::testJaccard));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testOverlap",
-                                                                 &CSetToolsTest::testOverlap));
+        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testSetSizes", &CSetToolsTest::testSetSizes));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testJaccard", &CSetToolsTest::testJaccard));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSetToolsTest>("CSetToolsTest::testOverlap", &CSetToolsTest::testOverlap));
 
     return suiteOfTests;
 }

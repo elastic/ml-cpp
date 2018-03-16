@@ -85,9 +85,7 @@ public:
                   double maximumAnomalousProbability);
 
         //! Compute the overall anomaly score and aggregate probability.
-        bool operator()(const TDoubleVec& probabilities,
-                        double& overallAnomalyScore,
-                        double& overallProbability) const;
+        bool operator()(const TDoubleVec& probabilities, double& overallAnomalyScore, double& overallProbability) const;
 
     private:
         //! The weight to assign the joint probability.
@@ -133,8 +131,7 @@ public:
         //! \param[in] confidence The quantile central confidence interval.
         //! \param[out] lowerBound The quantile lower bound of \p score.
         //! \param[out] upperBound The quantile upper bound of \p score.
-        void
-        quantile(double score, double confidence, double& lowerBound, double& upperBound) const;
+        void quantile(double score, double confidence, double& lowerBound, double& upperBound) const;
 
         //! Updates the quantile summaries with the total of
         //! \p scores.
@@ -179,8 +176,7 @@ public:
         typedef std::vector<TDoubleDoublePr> TDoubleDoublePrVec;
         typedef TDoubleDoublePrVec::const_iterator TDoubleDoublePrVecCItr;
         typedef std::greater<double> TGreaterDouble;
-        typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble>
-            TMaxValueAccumulator;
+        typedef maths::CBasicStatistics::COrderStatisticsStack<double, 1u, TGreaterDouble> TMaxValueAccumulator;
 
     private:
         //! Used to convert raw scores in to integers so that we
@@ -287,8 +283,7 @@ public:
     static bool normalizerFromJson(const std::string& json, CNormalizer& normalizer);
 
     //! Populate \p normalizer from the restore traverser
-    static bool normalizerFromJson(core::CStateRestoreTraverser& traverser,
-                                   CNormalizer& normalizer);
+    static bool normalizerFromJson(core::CStateRestoreTraverser& traverser, CNormalizer& normalizer);
 
     //! Convert \p normalizer to its JSON representation with a restoration
     //! cue and description specified by the caller

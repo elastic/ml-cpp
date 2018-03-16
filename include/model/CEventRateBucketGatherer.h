@@ -109,8 +109,7 @@ public:
     typedef SEventRateFeatureData::TDouble1VecDoublePr TDouble1VecDoublePr;
     typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPr TStrCRefDouble1VecDoublePrPr;
     typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVec TStrCRefDouble1VecDoublePrPrVec;
-    typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec
-        TStrCRefDouble1VecDoublePrPrVecVec;
+    typedef SEventRateFeatureData::TStrCRefDouble1VecDoublePrPrVecVec TStrCRefDouble1VecDoublePrPrVecVec;
     typedef std::pair<std::size_t, SEventRateFeatureData> TSizeFeatureDataPr;
     typedef std::vector<TSizeFeatureDataPr> TSizeFeatureDataPrVec;
     typedef std::pair<TSizeSizePr, SEventRateFeatureData> TSizeSizePrFeatureDataPr;
@@ -226,9 +225,7 @@ public:
     //! contain two fields. The first field should contain the over clause
     //! field value. The second field should the by clause field value
     //! or a generic name if none was specified.
-    virtual bool processFields(const TStrCPtrVec& fieldValues,
-                               CEventData& result,
-                               CResourceMonitor& resourceMonitor);
+    virtual bool processFields(const TStrCPtrVec& fieldValues, CEventData& result, CResourceMonitor& resourceMonitor);
     //@}
 
     //! \name Person
@@ -279,8 +276,7 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the feature data at \p time.
-    virtual void
-    featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
+    virtual void featureData(core_t::TTime time, core_t::TTime bucketLength, TFeatureAnyPrVec& result) const;
     //@}
 
 private:
@@ -293,8 +289,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[in,out] result Append (person identifier, count) for each
     //! person. The collection is sorted by person.
-    void
-    personCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
+    void personCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the non-zero counts by person for bucketing interval
     //! containing \p time.
@@ -303,9 +298,7 @@ private:
     //! \param[in,out] result Append (person identifier, count) for each
     //! person present in the bucketing interval containing \p time. The
     //! collection is sorted by person.
-    void nonZeroPersonCounts(model_t::EFeature feature,
-                             core_t::TTime time,
-                             TFeatureAnyPrVec& result) const;
+    void nonZeroPersonCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append an indicator function for people present in the bucketing
     //! interval containing \p time.
@@ -314,8 +307,7 @@ private:
     //! \param[in,out] result Append (person identifier, 1) for each person
     //! present in the bucketing interval containing \p time. The collection
     //! is sorted by person identifier.
-    void
-    personIndicator(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
+    void personIndicator(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the mean arrival times for people present in the current
     //! bucketing interval.
@@ -324,9 +316,7 @@ private:
     //! \param[in,out] result Append (person identifier, mean arrival time)
     //! for each person present in the bucketing interval containing \p time.
     //! The collection is sorted by person identifier.
-    void personArrivalTimes(model_t::EFeature feature,
-                            core_t::TTime time,
-                            TFeatureAnyPrVec& result) const;
+    void personArrivalTimes(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the non-zero counts for each attribute by person for the
     //! bucketing interval containing \p time.
@@ -337,9 +327,7 @@ private:
     //! attribute. The collection is sorted lexicographically by key.
     //! \note We expect the pairs present to be sparse on the full outer
     //! product space of attribute and person so use a sparse encoding.
-    void nonZeroAttributeCounts(model_t::EFeature feature,
-                                core_t::TTime time,
-                                TFeatureAnyPrVec& result) const;
+    void nonZeroAttributeCounts(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique people hitting each attribute.
     //!
@@ -358,9 +346,7 @@ private:
     //! collection is sorted lexicographically by key.
     //! \note We expect the pairs present to be sparse on the full outer
     //! product space of attribute and person so use a sparse encoding.
-    void attributeIndicator(model_t::EFeature feature,
-                            core_t::TTime time,
-                            TFeatureAnyPrVec& result) const;
+    void attributeIndicator(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique values for each person
     //! in the bucketing interval containing \p time.
@@ -368,9 +354,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the unique value counts
     //! by person
-    void bucketUniqueValuesPerPerson(model_t::EFeature feature,
-                                     core_t::TTime time,
-                                     TFeatureAnyPrVec& result) const;
+    void bucketUniqueValuesPerPerson(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the number of unique values for each person and attribute
     //! in the bucketing interval containing \p time.
@@ -378,9 +362,8 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the unique value counts
     //! by person and attribute
-    void bucketUniqueValuesPerPersonAttribute(model_t::EFeature feature,
-                                              core_t::TTime time,
-                                              TFeatureAnyPrVec& result) const;
+    void
+    bucketUniqueValuesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the compressed length of the unique attributes each person
     //! hits in the bucketing interval containing \p time.
@@ -388,9 +371,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the compressed length of the
     //! unique values by person and attribute
-    void bucketCompressedLengthPerPerson(model_t::EFeature feature,
-                                         core_t::TTime time,
-                                         TFeatureAnyPrVec& result) const;
+    void bucketCompressedLengthPerPerson(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the compressed length of the unique attributes each person
     //! hits in the bucketing interval containing \p time.
@@ -408,9 +389,7 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the arrival time values
     //! by person.
-    void bucketMeanTimesPerPerson(model_t::EFeature feature,
-                                  core_t::TTime time,
-                                  TFeatureAnyPrVec& result) const;
+    void bucketMeanTimesPerPerson(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Append the time-of-day/week values of each attribute and person
     //! in the bucketing interval \p time.
@@ -418,9 +397,8 @@ private:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the arrival time values
     //! by attribute and person
-    void bucketMeanTimesPerPersonAttribute(model_t::EFeature feature,
-                                           core_t::TTime time,
-                                           TFeatureAnyPrVec& result) const;
+    void
+    bucketMeanTimesPerPersonAttribute(model_t::EFeature feature, core_t::TTime time, TFeatureAnyPrVec& result) const;
 
     //! Resize the necessary data structures so they can accommodate
     //! the person and attribute identified by \p pid and \p cid,

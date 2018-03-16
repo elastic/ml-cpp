@@ -65,9 +65,8 @@ public:
     using TShutdownFunc = std::function<void()>;
 
 public:
-    CBlockingMessageQueue(
-        RECEIVER& receiver,
-        const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
+    CBlockingMessageQueue(RECEIVER& receiver,
+                          const TShutdownFunc& shutdownFunc = &CBlockingMessageQueue::defaultShutdownFunc)
         : m_Thread(*this),
           m_ProducerCondition(m_Mutex),
           m_ConsumerCondition(m_Mutex),

@@ -48,9 +48,7 @@ private:
 
 class CSquareDerivativeAdaptor {
 public:
-    CSquareDerivativeAdaptor(const maths::CRadialBasisFunction& function,
-                             double centre,
-                             double scale)
+    CSquareDerivativeAdaptor(const maths::CRadialBasisFunction& function, double centre, double scale)
         : m_Function(&function), m_Centre(centre), m_Scale(scale) {}
 
     bool operator()(double x, double& result) const {
@@ -88,9 +86,9 @@ void CRadialBasisFunctionTest::testDerivative(void) {
             for (std::size_t k = 0u; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = gaussian.derivative(x, centres[i], scales[j]);
-                double e = (gaussian.value(x + eps, centres[i], scales[j]) -
-                            gaussian.value(x - eps, centres[i], scales[j])) /
-                           2.0 / eps;
+                double e =
+                    (gaussian.value(x + eps, centres[i], scales[j]) - gaussian.value(x - eps, centres[i], scales[j])) /
+                    2.0 / eps;
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
@@ -146,10 +144,7 @@ void CRadialBasisFunctionTest::testMean(void) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
-                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f,
-                                                                                   aa,
-                                                                                   bb,
-                                                                                   interval);
+                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                 expectedMean += interval;
             }
             expectedMean /= (b - a);
@@ -173,10 +168,7 @@ void CRadialBasisFunctionTest::testMean(void) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
-                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f,
-                                                                                   aa,
-                                                                                   bb,
-                                                                                   interval);
+                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                 expectedMean += interval;
             }
             expectedMean /= (b - a);
@@ -213,10 +205,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
-                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f,
-                                                                                   aa,
-                                                                                   bb,
-                                                                                   interval);
+                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                 expectedMean += interval;
             }
             expectedMean /= (b - a);
@@ -240,10 +229,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative(void) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
-                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f,
-                                                                                   aa,
-                                                                                   bb,
-                                                                                   interval);
+                maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                 expectedMean += interval;
             }
             expectedMean /= (b - a);
@@ -273,8 +259,7 @@ void CRadialBasisFunctionTest::testProduct(void) {
         for (std::size_t j = 0u; j < boost::size(centres); ++j) {
             for (std::size_t k = 0u; k < boost::size(scales); ++k) {
                 for (std::size_t l = 0u; l < boost::size(scales); ++l) {
-                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j]
-                                           << ", scale1 = " << scales[k]
+                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
                                            << ", scale2 = " << scales[l]);
 
                     maths::CGaussianBasisFunction gaussian;
@@ -286,14 +271,12 @@ void CRadialBasisFunctionTest::testProduct(void) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;
-                        maths::CIntegration::gaussLegendre<
-                            maths::CIntegration::OrderFive>(f, aa, bb, interval);
+                        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                         expectedProduct += interval;
                     }
                     expectedProduct /= (b - a);
 
-                    double product =
-                        gaussian.product(a, b, centres[i], centres[j], scales[k], scales[l]);
+                    double product = gaussian.product(a, b, centres[i], centres[j], scales[k], scales[l]);
                     LOG_DEBUG("expectedMean = " << expectedProduct << ", mean = " << product);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
                 }
@@ -307,8 +290,7 @@ void CRadialBasisFunctionTest::testProduct(void) {
         for (std::size_t j = 0u; j < boost::size(centres); ++j) {
             for (std::size_t k = 0u; k < boost::size(scales); ++k) {
                 for (std::size_t l = 0u; l < boost::size(scales); ++l) {
-                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j]
-                                           << ", scale1 = " << scales[k]
+                    LOG_DEBUG("centre1 = " << centres[i] << ", centre2 = " << centres[j] << ", scale1 = " << scales[k]
                                            << ", scale2 = " << scales[l]);
 
                     maths::CInverseQuadraticBasisFunction inverseQuadratic;
@@ -320,18 +302,12 @@ void CRadialBasisFunctionTest::testProduct(void) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;
-                        maths::CIntegration::gaussLegendre<
-                            maths::CIntegration::OrderFive>(f, aa, bb, interval);
+                        maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(f, aa, bb, interval);
                         expectedProduct += interval;
                     }
                     expectedProduct /= (b - a);
 
-                    double product = inverseQuadratic.product(a,
-                                                              b,
-                                                              centres[i],
-                                                              centres[j],
-                                                              scales[k],
-                                                              scales[l]);
+                    double product = inverseQuadratic.product(a, b, centres[i], centres[j], scales[k], scales[l]);
                     LOG_DEBUG("expectedProduct = " << expectedProduct << ", product = " << product);
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
                 }
@@ -343,19 +319,14 @@ void CRadialBasisFunctionTest::testProduct(void) {
 CppUnit::Test* CRadialBasisFunctionTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testDerivative",
-                                                    &CRadialBasisFunctionTest::testDerivative));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMean",
-                                                          &CRadialBasisFunctionTest::testMean));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMeanSquareDerivative",
-                                      &CRadialBasisFunctionTest::testMeanSquareDerivative));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testProduct",
-                                                          &CRadialBasisFunctionTest::testProduct));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testDerivative",
+                                                                            &CRadialBasisFunctionTest::testDerivative));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testMean",
+                                                                            &CRadialBasisFunctionTest::testMean));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
+        "CRadialBasisFunctionTest::testMeanSquareDerivative", &CRadialBasisFunctionTest::testMeanSquareDerivative));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>("CRadialBasisFunctionTest::testProduct",
+                                                                            &CRadialBasisFunctionTest::testProduct));
 
     return suiteOfTests;
 }

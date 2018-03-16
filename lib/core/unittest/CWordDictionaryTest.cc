@@ -21,18 +21,14 @@
 CppUnit::Test* CWordDictionaryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testLookups",
-                                                     &CWordDictionaryTest::testLookups));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPartOfSpeech",
-                                                     &CWordDictionaryTest::testPartOfSpeech));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testWeightingFunctors",
-                                                     &CWordDictionaryTest::testWeightingFunctors));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPerformance",
-                                                     &CWordDictionaryTest::testPerformance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testLookups",
+                                                                       &CWordDictionaryTest::testLookups));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPartOfSpeech",
+                                                                       &CWordDictionaryTest::testPartOfSpeech));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testWeightingFunctors",
+                                                                       &CWordDictionaryTest::testWeightingFunctors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>("CWordDictionaryTest::testPerformance",
+                                                                       &CWordDictionaryTest::testPerformance));
 
     return suiteOfTests;
 }
@@ -113,8 +109,7 @@ void CWordDictionaryTest::testPerformance(void) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO("Starting word dictionary throughput test at "
-             << ml::core::CTimeUtils::toTimeString(start));
+    LOG_INFO("Starting word dictionary throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     static const size_t TEST_SIZE(100000);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
@@ -133,8 +128,7 @@ void CWordDictionaryTest::testPerformance(void) {
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO("Finished word dictionary throughput test at "
-             << ml::core::CTimeUtils::toTimeString(end));
+    LOG_INFO("Finished word dictionary throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO("Word dictionary throughput test took " << (end - start) << " seconds");
 }

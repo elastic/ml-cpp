@@ -51,8 +51,7 @@ CMetricModelFactory* CMetricModelFactory::clone(void) const {
     return new CMetricModelFactory(*this);
 }
 
-CAnomalyDetectorModel*
-CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
+CAnomalyDetectorModel* CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -68,18 +67,14 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData) const {
 
     return new CMetricModel(this->modelParams(),
                             dataGatherer,
-                            this->defaultFeatureModels(features,
-                                                       dataGatherer->bucketLength(),
-                                                       0.4,
-                                                       true),
+                            this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
                             this->defaultCorrelatePriors(features),
                             this->defaultCorrelates(features),
                             influenceCalculators);
 }
 
-CAnomalyDetectorModel*
-CMetricModelFactory::makeModel(const SModelInitializationData& initData,
-                               core::CStateRestoreTraverser& traverser) const {
+CAnomalyDetectorModel* CMetricModelFactory::makeModel(const SModelInitializationData& initData,
+                                                      core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -95,18 +90,14 @@ CMetricModelFactory::makeModel(const SModelInitializationData& initData,
 
     return new CMetricModel(this->modelParams(),
                             dataGatherer,
-                            this->defaultFeatureModels(features,
-                                                       dataGatherer->bucketLength(),
-                                                       0.4,
-                                                       true),
+                            this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
                             this->defaultCorrelatePriors(features),
                             this->defaultCorrelates(features),
                             influenceCalculators,
                             traverser);
 }
 
-CDataGatherer*
-CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
+CDataGatherer* CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_Metric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -124,9 +115,8 @@ CMetricModelFactory::makeDataGatherer(const SGathererInitializationData& initDat
                              initData.s_SampleOverrideCount);
 }
 
-CDataGatherer*
-CMetricModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
-                                      core::CStateRestoreTraverser& traverser) const {
+CDataGatherer* CMetricModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                     core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_Metric,
                              m_SummaryMode,
                              this->modelParams(),
@@ -207,8 +197,7 @@ CMetricModelFactory::TPriorPtr CMetricModelFactory::defaultPrior(model_t::EFeatu
 }
 
 CMetricModelFactory::TMultivariatePriorPtr
-CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                              const SModelParams& params) const {
+CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     // Gaussian mixture for modeling (latitude, longitude).
@@ -228,8 +217,7 @@ CMetricModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
 }
 
 CMetricModelFactory::TMultivariatePriorPtr
-CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                           const SModelParams& params) const {
+CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);

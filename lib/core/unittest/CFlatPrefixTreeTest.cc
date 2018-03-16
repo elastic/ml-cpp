@@ -33,31 +33,25 @@ using namespace core;
 CppUnit::Test* CFlatPrefixTreeTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFlatPrefixTreeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<
-                          CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testBuildGivenUnsortedInput",
-                                               &CFlatPrefixTreeTest::testBuildGivenUnsortedInput));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
+        "CFlatPrefixTreeTest::testBuildGivenUnsortedInput", &CFlatPrefixTreeTest::testBuildGivenUnsortedInput));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates",
-                                 &CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testEmptyString",
-                                                     &CFlatPrefixTreeTest::testEmptyString));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testSimple",
-                                                     &CFlatPrefixTreeTest::testSimple));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testLeafAndBranch",
-                                                     &CFlatPrefixTreeTest::testLeafAndBranch));
+        new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates",
+                                                     &CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testEmptyString",
+                                                                       &CFlatPrefixTreeTest::testEmptyString));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testSimple",
+                                                                       &CFlatPrefixTreeTest::testSimple));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testLeafAndBranch",
+                                                                       &CFlatPrefixTreeTest::testLeafAndBranch));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
         "CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix",
         &CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
         "CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix",
         &CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testRandom",
-                                                     &CFlatPrefixTreeTest::testRandom));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>("CFlatPrefixTreeTest::testRandom",
+                                                                       &CFlatPrefixTreeTest::testRandom));
 
     return suiteOfTests;
 }
@@ -204,8 +198,7 @@ void CFlatPrefixTreeTest::testRandom(void) {
         CFlatPrefixTree::TStrVec suffixes;
         rng.generateWords(10, 1000, suffixes);
         for (std::size_t i = 0; i < 100000; i++) {
-            std::string key =
-                prefixes[uniformGen(prefixes.size())] + suffixes[uniformGen(suffixes.size())];
+            std::string key = prefixes[uniformGen(prefixes.size())] + suffixes[uniformGen(suffixes.size())];
             CPPUNIT_ASSERT(prefixTree.matchesStart(key));
         }
     }

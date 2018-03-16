@@ -72,10 +72,7 @@ public:
     int computeType(bool isDryRun, const std::string& str, size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
-    virtual int computeType(bool isDryRun,
-                            const TStrStrUMap& fields,
-                            const std::string& str,
-                            size_t rawStringLen) = 0;
+    virtual int computeType(bool isDryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
     //! select the records that are classified as the given type when

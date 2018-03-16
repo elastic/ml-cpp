@@ -90,25 +90,18 @@ protected:
             // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
             // allowing underscores, dots and dashes in the middle
             if (::isalnum(static_cast<unsigned char>(curChar)) ||
-                (!temp.empty() &&
-                 ((ALLOW_UNDERSCORE && curChar == '_') || (ALLOW_DOT && curChar == '.') ||
-                  (ALLOW_DASH && curChar == '-')))) {
+                (!temp.empty() && ((ALLOW_UNDERSCORE && curChar == '_') || (ALLOW_DOT && curChar == '.') ||
+                                   (ALLOW_DASH && curChar == '-')))) {
                 temp += curChar;
                 if (IGNORE_HEX) {
                     // Count dots and dashes as numeric
-                    if (!::isxdigit(static_cast<unsigned char>(curChar)) && curChar != '.' &&
-                        curChar != '-') {
+                    if (!::isxdigit(static_cast<unsigned char>(curChar)) && curChar != '.' && curChar != '-') {
                         nonHexPos = temp.length() - 1;
                     }
                 }
             } else {
                 if (!temp.empty()) {
-                    this->considerToken(fields,
-                                        nonHexPos,
-                                        temp,
-                                        tokenIds,
-                                        tokenUniqueIds,
-                                        totalWeight);
+                    this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight);
                     temp.clear();
                 }
 
@@ -122,8 +115,8 @@ protected:
             this->considerToken(fields, nonHexPos, temp, tokenIds, tokenUniqueIds, totalWeight);
         }
 
-        LOG_TRACE(str << " tokenised to " << tokenIds.size() << " tokens with total weight "
-                      << totalWeight << ": " << SIdTranslater(*this, tokenIds, ' '));
+        LOG_TRACE(str << " tokenised to " << tokenIds.size() << " tokens with total weight " << totalWeight << ": "
+                      << SIdTranslater(*this, tokenIds, ' '));
     }
 
     //! Take a string token, convert it to a numeric ID and a weighting and
@@ -144,10 +137,8 @@ protected:
     }
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec& left,
-                              size_t leftWeight,
-                              const TSizeSizePrVec& right,
-                              size_t rightWeight) const {
+    virtual double
+    similarity(const TSizeSizePrVec& left, size_t leftWeight, const TSizeSizePrVec& right, size_t rightWeight) const {
         double similarity(1.0);
 
         size_t maxWeight(std::max(leftWeight, rightWeight));
@@ -216,8 +207,7 @@ private:
             // with leading digits, and checking this first will cause the
             // check to be completely compiled away as IGNORE_LEADING_DIGIT
             // is a template argument
-            if (!IGNORE_LEADING_DIGIT && nonHexPos == 1 && token.compare(0, 2, "0x") == 0 &&
-                token.length() != 2) {
+            if (!IGNORE_LEADING_DIGIT && nonHexPos == 1 && token.compare(0, 2, "0x") == 0 && token.length() != 2) {
                 // Implies hex with 0x prefix.
                 return;
             }

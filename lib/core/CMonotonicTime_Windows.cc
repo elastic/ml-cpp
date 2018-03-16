@@ -64,8 +64,7 @@ uint64_t CMonotonicTime::nanoseconds(void) const {
 
     // Doing the division first here truncates the result to the number of
     // nanoseconds in a number of full seconds
-    uint64_t fullSecondNanoseconds((static_cast<uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) *
-                                   1000000000ULL);
+    uint64_t fullSecondNanoseconds((static_cast<uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) * 1000000000ULL);
 
     // This is the number of ticks over and above the last full second
     uint64_t remainder(static_cast<uint64_t>(largeInt.QuadPart) % m_ScalingFactor1);

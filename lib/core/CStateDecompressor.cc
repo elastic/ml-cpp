@@ -139,11 +139,10 @@ bool CStateDecompressor::CDechunkFilter::readHeader(void) {
 
     while (this->parseNext()) {
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
-            CStateCompressor::COMPRESSED_ATTRIBUTE
-                    .compare(0,
-                             CStateCompressor::COMPRESSED_ATTRIBUTE.length(),
-                             m_Handler.s_CompressedChunk,
-                             m_Handler.s_CompressedChunkLength) == 0) {
+            CStateCompressor::COMPRESSED_ATTRIBUTE.compare(0,
+                                                           CStateCompressor::COMPRESSED_ATTRIBUTE.length(),
+                                                           m_Handler.s_CompressedChunk,
+                                                           m_Handler.s_CompressedChunkLength) == 0) {
             if (this->parseNext() && m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayStart) {
                 m_Initialised = true;
                 m_BufferOffset = 0;
@@ -162,9 +161,7 @@ bool CStateDecompressor::CDechunkFilter::readHeader(void) {
     return false;
 }
 
-void CStateDecompressor::CDechunkFilter::handleRead(char* s,
-                                                    std::streamsize n,
-                                                    std::streamsize& bytesDone) {
+void CStateDecompressor::CDechunkFilter::handleRead(char* s, std::streamsize n, std::streamsize& bytesDone) {
     // Extract data from the JSON array "compressed"
     if (!m_Initialised) {
         return;
@@ -172,8 +169,7 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
 
     // Copy any outstanding data
     if (m_BufferOffset > 0) {
-        std::streamsize toCopy =
-            std::min((n - bytesDone), (m_Handler.s_CompressedChunkLength - m_BufferOffset));
+        std::streamsize toCopy = std::min((n - bytesDone), (m_Handler.s_CompressedChunkLength - m_BufferOffset));
         std::memcpy(s + bytesDone, m_Handler.s_CompressedChunk + m_BufferOffset, toCopy);
         bytesDone += toCopy;
         m_BufferOffset += toCopy;
@@ -185,28 +181,22 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
         if (m_Handler.s_Type == SRapidJsonHandler::E_TokenArrayEnd) {
             LOG_TRACE("Come to end of array");
             if (this->parseNext() && m_Handler.s_Type == SRapidJsonHandler::E_TokenKey &&
-                CStateCompressor::END_OF_STREAM_ATTRIBUTE
-                        .compare(0,
-                                 CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
-                                 m_Handler.s_CompressedChunk,
-                                 m_Handler.s_CompressedChunkLength) == 0) {
-                LOG_DEBUG("Explicit end-of-stream marker found in document with index "
-                          << m_CurrentDocNum);
+                CStateCompressor::END_OF_STREAM_ATTRIBUTE.compare(0,
+                                                                  CStateCompressor::END_OF_STREAM_ATTRIBUTE.length(),
+                                                                  m_Handler.s_CompressedChunk,
+                                                                  m_Handler.s_CompressedChunkLength) == 0) {
+                LOG_DEBUG("Explicit end-of-stream marker found in document with index " << m_CurrentDocNum);
 
-                // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the
-                // closing brace
+                // Read the value of the CStateCompressor::END_OF_STREAM_ATTRIBUTE field and the closing brace
                 if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenBool) {
-                    LOG_ERROR("Expecting bool value to follow  "
-                              << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
-                              << m_Handler.s_Type);
+                    LOG_ERROR("Expecting bool value to follow  " << CStateCompressor::END_OF_STREAM_ATTRIBUTE
+                                                                 << ", got " << m_Handler.s_Type);
                 }
 
                 while (m_NestedLevel > 0) {
-                    if (this->parseNext() &&
-                        m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
-                        LOG_ERROR("Expecting end object to follow "
-                                  << CStateCompressor::END_OF_STREAM_ATTRIBUTE << ", got "
-                                  << m_Handler.s_Type);
+                    if (this->parseNext() && m_Handler.s_Type != SRapidJsonHandler::E_TokenObjectEnd) {
+                        LOG_ERROR("Expecting end object to follow " << CStateCompressor::END_OF_STREAM_ATTRIBUTE
+                                                                    << ", got " << m_Handler.s_Type);
                     }
 
                     --m_NestedLevel;
@@ -222,9 +212,7 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
         }
         m_SentData = true;
         if (m_Handler.s_CompressedChunkLength <= (n - bytesDone)) {
-            std::memcpy(s + bytesDone,
-                        m_Handler.s_CompressedChunk,
-                        m_Handler.s_CompressedChunkLength);
+            std::memcpy(s + bytesDone, m_Handler.s_CompressedChunk, m_Handler.s_CompressedChunkLength);
             bytesDone += m_Handler.s_CompressedChunkLength;
         } else {
             std::streamsize toCopy = n - bytesDone;
@@ -236,9 +224,7 @@ void CStateDecompressor::CDechunkFilter::handleRead(char* s,
     }
 }
 
-std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s,
-                                                                std::streamsize n,
-                                                                std::streamsize bytesDone) {
+std::streamsize CStateDecompressor::CDechunkFilter::endOfStream(char* s, std::streamsize n, std::streamsize bytesDone) {
     // return [ ] if not m_Initialised
     m_EndOfStream = true;
     if (!m_SentData && bytesDone == 0) {
@@ -260,18 +246,14 @@ bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::Bool(bool) {
     return true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::String(const char* str,
-                                                                   rapidjson::SizeType length,
-                                                                   bool) {
+bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::String(const char* str, rapidjson::SizeType length, bool) {
     s_Type = E_TokenString;
     s_CompressedChunk = str;
     s_CompressedChunkLength = length;
     return true;
 }
 
-bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::Key(const char* str,
-                                                                rapidjson::SizeType length,
-                                                                bool) {
+bool CStateDecompressor::CDechunkFilter::SRapidJsonHandler::Key(const char* str, rapidjson::SizeType length, bool) {
     s_Type = E_TokenKey;
     s_CompressedChunk = str;
     s_CompressedChunkLength = length;

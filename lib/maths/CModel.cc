@@ -32,14 +32,12 @@ using TDouble2Vec = core::CSmallVector<double, 2>;
 
 //! Check if all the elements of \p lhs are less than or equal to the \p rhs.
 bool lessThanEqual(const TDouble2Vec& lhs, double rhs) {
-    return std::find_if(lhs.begin(), lhs.end(), [rhs](double lhs_) { return lhs_ > rhs; }) ==
-           lhs.end();
+    return std::find_if(lhs.begin(), lhs.end(), [rhs](double lhs_) { return lhs_ > rhs; }) == lhs.end();
 }
 
 //! Check if all the elements of \p lhs are less than or equal to the \p rhs.
 bool greaterThanEqual(const TDouble2Vec& lhs, double rhs) {
-    return std::find_if(lhs.begin(), lhs.end(), [rhs](double lhs_) { return lhs_ < rhs; }) ==
-           lhs.end();
+    return std::find_if(lhs.begin(), lhs.end(), [rhs](double lhs_) { return lhs_ < rhs; }) == lhs.end();
 }
 
 //! Get the correction to apply to the one-sided probability calculations.
@@ -147,8 +145,7 @@ double CModelAddSamplesParams::propagationInterval(void) const {
     return m_PropagationInterval;
 }
 
-CModelAddSamplesParams&
-CModelAddSamplesParams::weightStyles(const maths_t::TWeightStyleVec& styles) {
+CModelAddSamplesParams& CModelAddSamplesParams::weightStyles(const maths_t::TWeightStyleVec& styles) {
     m_WeightStyles = &styles;
     return *this;
 }
@@ -191,8 +188,7 @@ std::size_t CModelProbabilityParams::tag(void) const {
     return m_Tag;
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::addCalculation(maths_t::EProbabilityCalculation calculation) {
+CModelProbabilityParams& CModelProbabilityParams::addCalculation(maths_t::EProbabilityCalculation calculation) {
     m_Calculations.push_back(calculation);
     return *this;
 }
@@ -223,8 +219,7 @@ const CModelProbabilityParams::TBool2Vec1Vec& CModelProbabilityParams::bucketEmp
     return m_BucketEmpty;
 }
 
-CModelProbabilityParams&
-CModelProbabilityParams::weightStyles(const maths_t::TWeightStyleVec& styles) {
+CModelProbabilityParams& CModelProbabilityParams::weightStyles(const maths_t::TWeightStyleVec& styles) {
     m_WeightStyles = &styles;
     return *this;
 }
@@ -301,8 +296,7 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
     double pCorrected = (1.0 - probabilityBucketEmpty) * probability;
 
     if (!bucketEmpty) {
-        double pOneSided =
-            oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty);
+        double pOneSided = oneSidedEmptyBucketCorrection(calculation, value, probabilityBucketEmpty);
         return std::min(pOneSided + pCorrected, 1.0);
     }
 
@@ -316,24 +310,19 @@ double CModel::correctForEmptyBucket(maths_t::EProbabilityCalculation calculatio
                                      double probability) {
     if (!bucketEmpty[0] && !bucketEmpty[1]) {
         double pState = (1.0 - probabilityEmptyBucket[0]) * (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided =
-            oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, 1.0 - pState);
+        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, 1.0 - pState);
         return std::min(pOneSided + pState * probability, 1.0);
     }
 
     if (!bucketEmpty[0]) {
         double pState = (1.0 - probabilityEmptyBucket[0]) * probabilityEmptyBucket[1];
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation,
-                                                         TDouble2Vec{value},
-                                                         probabilityEmptyBucket[0]);
+        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, probabilityEmptyBucket[0]);
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
     }
 
     if (!bucketEmpty[1]) {
         double pState = probabilityEmptyBucket[0] * (1.0 - probabilityEmptyBucket[1]);
-        double pOneSided = oneSidedEmptyBucketCorrection(calculation,
-                                                         TDouble2Vec{value},
-                                                         probabilityEmptyBucket[1]);
+        double pOneSided = oneSidedEmptyBucketCorrection(calculation, TDouble2Vec{value}, probabilityEmptyBucket[1]);
         return std::min(pOneSided + pState + (1.0 - pState) * probability, 1.0);
     }
 
@@ -377,16 +366,14 @@ CModelStub::TDouble2Vec CModelStub::mode(core_t::TTime /*time*/,
     return TDouble2Vec();
 }
 
-CModelStub::TDouble2Vec1Vec
-CModelStub::correlateModes(core_t::TTime /*time*/,
-                           const maths_t::TWeightStyleVec& /*weightStyles*/,
-                           const TDouble2Vec4Vec1Vec& /*weights*/) const {
+CModelStub::TDouble2Vec1Vec CModelStub::correlateModes(core_t::TTime /*time*/,
+                                                       const maths_t::TWeightStyleVec& /*weightStyles*/,
+                                                       const TDouble2Vec4Vec1Vec& /*weights*/) const {
     return TDouble2Vec1Vec();
 }
 
-CModelStub::TDouble2Vec1Vec
-CModelStub::residualModes(const maths_t::TWeightStyleVec& /*weightStyles*/,
-                          const TDouble2Vec4Vec& /*weights*/) const {
+CModelStub::TDouble2Vec1Vec CModelStub::residualModes(const maths_t::TWeightStyleVec& /*weightStyles*/,
+                                                      const TDouble2Vec4Vec& /*weights*/) const {
     return TDouble2Vec1Vec();
 }
 
@@ -406,17 +393,15 @@ void CModelStub::detrend(const TTime2Vec1Vec& /*time*/,
                          TDouble2Vec1Vec& /*value*/) const {
 }
 
-CModelStub::TDouble2Vec CModelStub::predict(core_t::TTime /*time*/,
-                                            const TSizeDoublePr1Vec& /*correlated*/,
-                                            TDouble2Vec /*hint*/) const {
+CModelStub::TDouble2Vec
+CModelStub::predict(core_t::TTime /*time*/, const TSizeDoublePr1Vec& /*correlated*/, TDouble2Vec /*hint*/) const {
     return TDouble2Vec();
 }
 
-CModelStub::TDouble2Vec3Vec
-CModelStub::confidenceInterval(core_t::TTime /*time*/,
-                               double /*confidenceInterval*/,
-                               const maths_t::TWeightStyleVec& /*weightStyles*/,
-                               const TDouble2Vec4Vec& /*weights*/) const {
+CModelStub::TDouble2Vec3Vec CModelStub::confidenceInterval(core_t::TTime /*time*/,
+                                                           double /*confidenceInterval*/,
+                                                           const maths_t::TWeightStyleVec& /*weightStyles*/,
+                                                           const TDouble2Vec4Vec& /*weights*/) const {
     return TDouble2Vec3Vec();
 }
 
@@ -444,14 +429,12 @@ bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
     return true;
 }
 
-CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
-                                                        core_t::TTime /*time*/,
-                                                        const TDouble2Vec& /*value*/) const {
+CModelStub::TDouble2Vec
+CModelStub::winsorisationWeight(double /*derate*/, core_t::TTime /*time*/, const TDouble2Vec& /*value*/) const {
     return TDouble2Vec();
 }
 
-CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
-                                                   core_t::TTime /*time*/) const {
+CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/, core_t::TTime /*time*/) const {
     return TDouble2Vec();
 }
 

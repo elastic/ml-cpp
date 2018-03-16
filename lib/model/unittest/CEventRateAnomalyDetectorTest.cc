@@ -51,13 +51,10 @@ const std::string EMPTY_STRING;
 
 class CResultWriter : public ml::model::CHierarchicalResultsVisitor {
 public:
-    CResultWriter(const ml::model::CAnomalyDetectorModelConfig& modelConfig,
-                  const ml::model::CLimits& limits)
+    CResultWriter(const ml::model::CAnomalyDetectorModelConfig& modelConfig, const ml::model::CLimits& limits)
         : m_ModelConfig(modelConfig), m_Limits(limits), m_Calls(0) {}
 
-    void operator()(ml::model::CAnomalyDetector& detector,
-                    ml::core_t::TTime start,
-                    ml::core_t::TTime end) {
+    void operator()(ml::model::CAnomalyDetector& detector, ml::core_t::TTime start, ml::core_t::TTime end) {
         ml::model::CHierarchicalResults results;
         detector.buildResults(start, end, results);
         results.buildHierarchy();
@@ -89,19 +86,16 @@ public:
         const std::string analysisFieldValue = *node.s_Spec.s_PersonFieldValue;
         ml::core_t::TTime bucketTime = node.s_BucketStartTime;
         double anomalyFactor = node.s_RawAnomalyScore;
-        LOG_DEBUG(analysisFieldValue << " bucket time " << bucketTime << " anomalyFactor "
-                                     << anomalyFactor);
+        LOG_DEBUG(analysisFieldValue << " bucket time " << bucketTime << " anomalyFactor " << anomalyFactor);
         ++m_Calls;
         m_AllAnomalies.insert(TTimeStrPr(bucketTime, analysisFieldValue));
         m_AnomalyScores[bucketTime] += anomalyFactor;
     }
 
-    bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode& node,
-                    bool isBucketInfluencer) {
+    bool
+    operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability()
-                  << ", time:  " << time);
+                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -292,10 +286,7 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
-                        &restoredDetector,
-                        EMPTY_STRING,
-                        _1)));
+            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser, &restoredDetector, EMPTY_STRING, _1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -311,14 +302,10 @@ void CEventRateAnomalyDetectorTest::testPersist(void) {
 CppUnit::Test* CEventRateAnomalyDetectorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testAnomalies",
-                                           &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CEventRateAnomalyDetectorTest>("CEventRateAnomalyDetectorTest::testPersist",
-                                           &CEventRateAnomalyDetectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
+        "CEventRateAnomalyDetectorTest::testAnomalies", &CEventRateAnomalyDetectorTest::testAnomalies));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
+        "CEventRateAnomalyDetectorTest::testPersist", &CEventRateAnomalyDetectorTest::testPersist));
 
     return suiteOfTests;
 }

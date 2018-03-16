@@ -61,8 +61,8 @@
 #ifdef LOG_ABORT
 #undef LOG_ABORT
 #endif
-#define LOG_ABORT(message)                                                                         \
-    LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), message);                                \
+#define LOG_ABORT(message)                                                                                             \
+    LOG4CXX_FATAL(ml::core::CLogger::instance().logger(), message);                                                    \
     ml::core::CLogger::fatal()
 
 // Log at a level specified at runtime as a string, for example
@@ -71,5 +71,5 @@
 #ifdef LOG_AT_LEVEL
 #undef LOG_AT_LEVEL
 #endif
-#define LOG_AT_LEVEL(level, message)                                                               \
+#define LOG_AT_LEVEL(level, message)                                                                                   \
     LOG4CXX_LOGLS(ml::core::CLogger::instance().logger(), log4cxx::Level::toLevel(level), message)

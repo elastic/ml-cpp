@@ -67,8 +67,7 @@ public:
         }
     };
     struct MODEL_EXPORT SStoredStringPtrEqual {
-        bool operator()(const core::CStoredStringPtr& lhs,
-                        const core::CStoredStringPtr& rhs) const {
+        bool operator()(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs) const {
             return *lhs == *rhs;
         }
     };

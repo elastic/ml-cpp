@@ -27,8 +27,7 @@ namespace core {
 CStoredStringPtr::CStoredStringPtr() noexcept : m_String{} {
 }
 
-CStoredStringPtr::CStoredStringPtr(const std::string& str)
-    : m_String{boost::make_shared<const std::string>(str)} {
+CStoredStringPtr::CStoredStringPtr(const std::string& str) : m_String{boost::make_shared<const std::string>(str)} {
 }
 
 CStoredStringPtr::CStoredStringPtr(std::string&& str)

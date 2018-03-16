@@ -132,8 +132,7 @@ void CResourceMonitor::updateAllowAllocations(void) {
     std::size_t total{this->totalMemory()};
     if (m_AllowAllocations) {
         if (total > m_ByteLimitHigh) {
-            LOG_INFO("Over allocation limit. " << total << " bytes used, the limit is "
-                                               << m_ByteLimitHigh);
+            LOG_INFO("Over allocation limit. " << total << " bytes used, the limit is " << m_ByteLimitHigh);
             m_AllowAllocations = false;
         }
     } else {
@@ -194,20 +193,17 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         this->updateAllowAllocations();
     }
 
-    LOG_TRACE("Pruning models. Usage: " << total << ". Current window: " << m_PruneWindow
-                                        << " buckets");
+    LOG_TRACE("Pruning models. Usage: " << total << ". Current window: " << m_PruneWindow << " buckets");
 
     if (total < m_PruneThreshold) {
         // Expand the window
         m_PruneWindow =
-            std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
-                                                 m_Models.begin()->first->bucketLength()),
+            std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) / m_Models.begin()->first->bucketLength()),
                      m_PruneWindowMaximum);
         LOG_TRACE("Expanding window, to " << m_PruneWindow);
     } else {
         // Shrink the window
-        m_PruneWindow =
-            std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100), m_PruneWindowMinimum);
+        m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100), m_PruneWindowMinimum);
         LOG_TRACE("Shrinking window, to " << m_PruneWindow);
     }
 
@@ -251,8 +247,7 @@ void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime
 bool CResourceMonitor::needToSendReport(void) {
     // Has the usage changed by more than 1% ?
     std::size_t total{this->totalMemory()};
-    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) >
-        m_PreviousTotal / 100) {
+    if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) > m_PreviousTotal / 100) {
         return true;
     }
 
@@ -277,8 +272,7 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     m_PreviousTotal = total;
 }
 
-CResourceMonitor::SResults
-CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
+CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SResults res;
     res.s_ByFields = 0;
     res.s_OverFields = 0;

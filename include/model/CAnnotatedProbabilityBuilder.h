@@ -70,9 +70,7 @@ public:
     void build(void);
 
 private:
-    void addAttributeDescriptiveData(std::size_t cid,
-                                     double pAttribute,
-                                     SAttributeProbability& attributeProbability);
+    void addAttributeDescriptiveData(std::size_t cid, double pAttribute, SAttributeProbability& attributeProbability);
 
     void addDescriptiveData(void);
 

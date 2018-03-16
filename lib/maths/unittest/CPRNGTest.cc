@@ -47,11 +47,9 @@ void CPRNGTest::testSplitMix64(void) {
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(min[0] <
-                   (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
-    CPPUNIT_ASSERT(
-        max[0] > maths::CPRNG::CSplitMix64::max() -
-                     (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] > maths::CPRNG::CSplitMix64::max() -
+                                (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CSplitMix64 rng2 = rng1;
@@ -86,8 +84,7 @@ void CPRNGTest::testSplitMix64(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt11213b mt;
@@ -112,8 +109,7 @@ void CPRNGTest::testSplitMix64(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -155,13 +151,10 @@ void CPRNGTest::testXorOShiro128Plus(void) {
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(
-        min[0] <
-        (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
-    CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
-                                (maths::CPRNG::CXorOShiro128Plus::max() -
-                                 maths::CPRNG::CXorOShiro128Plus::min()) /
-                                    2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] >
+                   maths::CPRNG::CXorOShiro128Plus::max() -
+                       (maths::CPRNG::CXorOShiro128Plus::max() - maths::CPRNG::CXorOShiro128Plus::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CXorOShiro128Plus rng2 = rng1;
@@ -196,8 +189,7 @@ void CPRNGTest::testXorOShiro128Plus(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt19937_64 mt;
@@ -222,8 +214,7 @@ void CPRNGTest::testXorOShiro128Plus(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -281,13 +272,10 @@ void CPRNGTest::testXorShift1024Mult(void) {
         max.add(x);
     }
     LOG_DEBUG("min = " << min[0] << ", max = " << max[0]);
-    CPPUNIT_ASSERT(
-        min[0] <
-        (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
-    CPPUNIT_ASSERT(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
-                                (maths::CPRNG::CXorShift1024Mult::max() -
-                                 maths::CPRNG::CXorShift1024Mult::min()) /
-                                    2000);
+    CPPUNIT_ASSERT(min[0] < (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
+    CPPUNIT_ASSERT(max[0] >
+                   maths::CPRNG::CXorShift1024Mult::max() -
+                       (maths::CPRNG::CXorShift1024Mult::max() - maths::CPRNG::CXorShift1024Mult::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CXorShift1024Mult rng2 = rng1;
@@ -322,8 +310,7 @@ void CPRNGTest::testXorShift1024Mult(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt11213b mt;
@@ -348,8 +335,7 @@ void CPRNGTest::testXorShift1024Mult(void) {
         LOG_DEBUG("p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG("m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG("m2 = " << maths::CBasicStatistics::mean(m2));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(m1) > 0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -392,12 +378,11 @@ void CPRNGTest::testXorShift1024Mult(void) {
 CppUnit::Test* CPRNGTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPRNGTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testSplitMix64",
-                                                             &CPRNGTest::testSplitMix64));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorOShiro128Plus",
-                                                             &CPRNGTest::testXorOShiro128Plus));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorShift1024Mult",
-                                                             &CPRNGTest::testXorShift1024Mult));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testSplitMix64", &CPRNGTest::testSplitMix64));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorOShiro128Plus", &CPRNGTest::testXorOShiro128Plus));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPRNGTest>("CPRNGTest::testXorShift1024Mult", &CPRNGTest::testXorShift1024Mult));
 
     return suiteOfTests;
 }

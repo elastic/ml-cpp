@@ -32,8 +32,7 @@ namespace ml {
 namespace maths {
 
 template<std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnline<N, T>::acceptRestoreTraverser(
-    core::CStateRestoreTraverser& traverser) {
+bool CRegression::CLeastSquaresOnline<N, T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         RESTORE(STATISTIC_TAG, m_S.fromDelimited(traverser.value()))
@@ -43,8 +42,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::acceptRestoreTraverser(
 }
 
 template<std::size_t N, typename T>
-void CRegression::CLeastSquaresOnline<N, T>::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CRegression::CLeastSquaresOnline<N, T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(STATISTIC_TAG, m_S.toDelimited());
 }
 
@@ -123,9 +121,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(TArray& result, double m
 }
 
 template<std::size_t N, typename T>
-bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance,
-                                                         TMatrix& result,
-                                                         double maxCondition) const {
+bool CRegression::CLeastSquaresOnline<N, T>::covariances(double variance, TMatrix& result, double maxCondition) const {
     result = TMatrix(0.0);
 
     // Search for the covariance matrix of a non-singular subproblem.
@@ -191,8 +187,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::parameters(std::size_t n,
     LOG_TRACE("x =\n" << x);
     LOG_TRACE("y =\n" << y);
 
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
-                                Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE("singular values = " << x_.singularValues());
         return false;
@@ -221,8 +216,7 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     }
 
     this->gramian(n, x);
-    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(),
-                                Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<MATRIX> x_(x.template selfadjointView<Eigen::Upper>(), Eigen::ComputeFullU | Eigen::ComputeFullV);
     if (x_.singularValues()(0) > maxCondition * x_.singularValues()(n - 1)) {
         LOG_TRACE("singular values = " << x_.singularValues());
         return false;
@@ -232,9 +226,8 @@ bool CRegression::CLeastSquaresOnline<N, T>::covariances(std::size_t n,
     // the matrix condition above. Also, we zero initialize result
     // in the calling code so any values we don't fill in the
     // following loop are zero (as required).
-    x = (x_.matrixV() * x_.singularValues().cwiseInverse().asDiagonal() *
-         x_.matrixU().transpose()) *
-        variance / CBasicStatistics::count(m_S);
+    x = (x_.matrixV() * x_.singularValues().cwiseInverse().asDiagonal() * x_.matrixU().transpose()) * variance /
+        CBasicStatistics::count(m_S);
     for (std::size_t i = 0u; i < n; ++i) {
         result(i, i) = x(i, i);
         for (std::size_t j = 0u; j < i; ++j) {

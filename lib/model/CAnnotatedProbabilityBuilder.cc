@@ -23,8 +23,7 @@
 namespace ml {
 namespace model {
 
-CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
-    SAnnotatedProbability& annotatedProbability)
+CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability)
     : m_Result(annotatedProbability),
       m_NumberAttributeProbabilities(1),
       m_NumberOfPeople(0),
@@ -41,11 +40,10 @@ CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
     m_Result.s_Influences.clear();
 }
 
-CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(
-    SAnnotatedProbability& annotatedProbability,
-    std::size_t numberAttributeProbabilities,
-    function_t::EFunction function,
-    std::size_t numberOfPeople)
+CAnnotatedProbabilityBuilder::CAnnotatedProbabilityBuilder(SAnnotatedProbability& annotatedProbability,
+                                                           std::size_t numberAttributeProbabilities,
+                                                           function_t::EFunction function,
+                                                           std::size_t numberOfPeople)
     : m_Result(annotatedProbability),
       m_NumberAttributeProbabilities(numberAttributeProbabilities),
       m_NumberOfPeople(numberOfPeople),
@@ -79,13 +77,11 @@ void CAnnotatedProbabilityBuilder::personFrequency(double frequency, bool everSe
     }
 }
 
-void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(
-    const maths::CMultinomialConjugate* prior) {
+void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(const maths::CMultinomialConjugate* prior) {
     m_AttributeProbabilityPrior = prior;
 }
 
-void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(
-    const maths::CMultinomialConjugate* prior) {
+void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(const maths::CMultinomialConjugate* prior) {
     m_PersonAttributeProbabilityPrior = prior;
 }
 
@@ -93,43 +89,33 @@ void CAnnotatedProbabilityBuilder::probability(double p) {
     m_Result.s_Probability = p;
 }
 
-void CAnnotatedProbabilityBuilder::addAttributeProbability(
-    std::size_t cid,
-    const core::CStoredStringPtr& attribute,
-    double pAttribute,
-    double pGivenAttribute_,
-    model_t::CResultType type,
-    model_t::EFeature feature,
-    const TStoredStringPtr1Vec& correlatedAttributes,
-    const TSizeDoublePr1Vec& correlated) {
+void CAnnotatedProbabilityBuilder::addAttributeProbability(std::size_t cid,
+                                                           const core::CStoredStringPtr& attribute,
+                                                           double pAttribute,
+                                                           double pGivenAttribute_,
+                                                           model_t::CResultType type,
+                                                           model_t::EFeature feature,
+                                                           const TStoredStringPtr1Vec& correlatedAttributes,
+                                                           const TSizeDoublePr1Vec& correlated) {
     type.set(m_Result.s_ResultType.asInterimOrFinal());
-    SAttributeProbability pGivenAttribute(cid,
-                                          attribute,
-                                          pGivenAttribute_,
-                                          type,
-                                          feature,
-                                          correlatedAttributes,
-                                          correlated);
+    SAttributeProbability pGivenAttribute(
+        cid, attribute, pGivenAttribute_, type, feature, correlatedAttributes, correlated);
     this->addAttributeDescriptiveData(cid, pAttribute, pGivenAttribute);
     m_MinAttributeProbabilities.add(pGivenAttribute);
     ++m_DistinctTotalAttributes;
 }
 
-void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(
-    std::size_t cid,
-    double pAttribute,
-    SAttributeProbability& attributeProbability) {
+void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(std::size_t cid,
+                                                               double pAttribute,
+                                                               SAttributeProbability& attributeProbability) {
     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
         double concentration;
         m_AttributeProbabilityPrior->concentration(static_cast<double>(cid), concentration);
-        attributeProbability.addDescriptiveData(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                                                concentration);
+        attributeProbability.addDescriptiveData(annotated_probability::E_ATTRIBUTE_CONCENTRATION, concentration);
 
         double activityConcentration;
-        m_PersonAttributeProbabilityPrior->concentration(static_cast<double>(cid),
-                                                         activityConcentration);
-        attributeProbability.addDescriptiveData(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                                                activityConcentration);
+        m_PersonAttributeProbabilityPrior->concentration(static_cast<double>(cid), activityConcentration);
+        attributeProbability.addDescriptiveData(annotated_probability::E_ACTIVITY_CONCENTRATION, activityConcentration);
 
         if (pAttribute < maths::LARGEST_SIGNIFICANT_PROBABILITY) {
             m_DistinctRareAttributes++;
@@ -144,11 +130,11 @@ void CAnnotatedProbabilityBuilder::build(void) {
     if (m_NumberAttributeProbabilities > 0 && m_MinAttributeProbabilities.count() > 0) {
         m_MinAttributeProbabilities.sort();
         m_Result.s_AttributeProbabilities.reserve(m_MinAttributeProbabilities.count());
-        double cutoff = std::max(1.1 * m_MinAttributeProbabilities[0].s_Probability,
-                                 maths::LARGEST_SIGNIFICANT_PROBABILITY);
+        double cutoff =
+            std::max(1.1 * m_MinAttributeProbabilities[0].s_Probability, maths::LARGEST_SIGNIFICANT_PROBABILITY);
 
-        for (std::size_t i = 0u; i < m_MinAttributeProbabilities.count() &&
-                                 m_MinAttributeProbabilities[i].s_Probability <= cutoff;
+        for (std::size_t i = 0u;
+             i < m_MinAttributeProbabilities.count() && m_MinAttributeProbabilities[i].s_Probability <= cutoff;
              ++i) {
             m_Result.s_AttributeProbabilities.push_back(m_MinAttributeProbabilities[i]);
         }
@@ -157,8 +143,7 @@ void CAnnotatedProbabilityBuilder::build(void) {
 
 void CAnnotatedProbabilityBuilder::addDescriptiveData(void) {
     if (m_IsPopulation && (m_IsRare || m_IsFreqRare)) {
-        m_Result.addDescriptiveData(annotated_probability::E_PERSON_COUNT,
-                                    static_cast<double>(m_NumberOfPeople));
+        m_Result.addDescriptiveData(annotated_probability::E_PERSON_COUNT, static_cast<double>(m_NumberOfPeople));
         if (m_IsRare) {
             m_Result.addDescriptiveData(annotated_probability::E_DISTINCT_RARE_ATTRIBUTES_COUNT,
                                         static_cast<double>(m_DistinctRareAttributes));
@@ -166,10 +151,8 @@ void CAnnotatedProbabilityBuilder::addDescriptiveData(void) {
                                         static_cast<double>(m_DistinctTotalAttributes));
         } else if (m_IsFreqRare) {
             double totalConcentration = m_PersonAttributeProbabilityPrior->totalConcentration();
-            m_Result.addDescriptiveData(annotated_probability::E_RARE_ATTRIBUTES_COUNT,
-                                        m_RareAttributes);
-            m_Result.addDescriptiveData(annotated_probability::E_TOTAL_ATTRIBUTES_COUNT,
-                                        totalConcentration);
+            m_Result.addDescriptiveData(annotated_probability::E_RARE_ATTRIBUTES_COUNT, m_RareAttributes);
+            m_Result.addDescriptiveData(annotated_probability::E_TOTAL_ATTRIBUTES_COUNT, totalConcentration);
         }
     }
 }

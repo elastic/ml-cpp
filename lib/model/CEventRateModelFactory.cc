@@ -52,8 +52,7 @@ CEventRateModelFactory* CEventRateModelFactory::clone(void) const {
     return new CEventRateModelFactory(*this);
 }
 
-CAnomalyDetectorModel*
-CEventRateModelFactory::makeModel(const SModelInitializationData& initData) const {
+CAnomalyDetectorModel* CEventRateModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -69,19 +68,15 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData) cons
 
     return new CEventRateModel(this->modelParams(),
                                dataGatherer,
-                               this->defaultFeatureModels(features,
-                                                          dataGatherer->bucketLength(),
-                                                          0.4,
-                                                          true),
+                               this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
                                this->defaultCorrelatePriors(features),
                                this->defaultCorrelates(features),
                                this->defaultCategoricalPrior(),
                                influenceCalculators);
 }
 
-CAnomalyDetectorModel*
-CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
-                                  core::CStateRestoreTraverser& traverser) const {
+CAnomalyDetectorModel* CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
+                                                         core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -97,18 +92,14 @@ CEventRateModelFactory::makeModel(const SModelInitializationData& initData,
 
     return new CEventRateModel(this->modelParams(),
                                dataGatherer,
-                               this->defaultFeatureModels(features,
-                                                          dataGatherer->bucketLength(),
-                                                          0.4,
-                                                          true),
+                               this->defaultFeatureModels(features, dataGatherer->bucketLength(), 0.4, true),
                                this->defaultCorrelatePriors(features),
                                this->defaultCorrelates(features),
                                influenceCalculators,
                                traverser);
 }
 
-CDataGatherer*
-CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
+CDataGatherer* CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -126,9 +117,8 @@ CEventRateModelFactory::makeDataGatherer(const SGathererInitializationData& init
                              initData.s_SampleOverrideCount);
 }
 
-CDataGatherer*
-CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
-                                         core::CStateRestoreTraverser& traverser) const {
+CDataGatherer* CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                        core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -144,8 +134,8 @@ CEventRateModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                              traverser);
 }
 
-CEventRateModelFactory::TPriorPtr
-CEventRateModelFactory::defaultPrior(model_t::EFeature feature, const SModelParams& params) const {
+CEventRateModelFactory::TPriorPtr CEventRateModelFactory::defaultPrior(model_t::EFeature feature,
+                                                                       const SModelParams& params) const {
     // Categorical data all use the multinomial prior. The creation
     // of these priors is managed by defaultCategoricalPrior.
     if (model_t::isCategorical(feature)) {
@@ -216,8 +206,7 @@ CEventRateModelFactory::defaultPrior(model_t::EFeature feature, const SModelPara
 }
 
 CEventRateModelFactory::TMultivariatePriorPtr
-CEventRateModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                 const SModelParams& params) const {
+CEventRateModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const {
     std::size_t dimension = model_t::dimension(feature);
 
     TMultivariatePriorPtrVec priors;
@@ -232,8 +221,7 @@ CEventRateModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
 }
 
 CEventRateModelFactory::TMultivariatePriorPtr
-CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                              const SModelParams& params) const {
+CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& params) const {
     TMultivariatePriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 2u : 1u);
     TMultivariatePriorPtr multivariateNormal = this->multivariateNormalPrior(2, params);

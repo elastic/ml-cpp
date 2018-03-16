@@ -125,8 +125,7 @@ public:
             uint32_t operator()(uint32_t x) const {
                 // Note by construction:
                 //   a * x + b < p^2 + p < 2^64
-                return static_cast<uint32_t>(
-                    (static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME);
+                return static_cast<uint32_t>((static_cast<uint64_t>(m_A) * x + static_cast<uint64_t>(m_B)) % BIG_PRIME);
             }
 
             //! Print the hash function for debug.
@@ -174,8 +173,7 @@ public:
                 //   (a(1) * x(1)) mod p + a(2) * x(2) + b
                 //     < p^2 + 2*p
                 //     < 2^64
-                uint64_t h = (static_cast<uint64_t>(m_A[0]) * x1) % BIG_PRIME +
-                             static_cast<uint64_t>(m_A[1]) * x2;
+                uint64_t h = (static_cast<uint64_t>(m_A[0]) * x1) % BIG_PRIME + static_cast<uint64_t>(m_A[1]) * x2;
                 return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
                                              static_cast<uint64_t>(m_M));
             }
@@ -292,8 +290,7 @@ public:
         //! \param n The size of vectors to hash.
         //! \param m The range of the hash functions.
         //! \param result Filled in with the sampled hash functions.
-        static void
-        generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
+        static void generateHashes(std::size_t k, std::size_t n, uint32_t m, TUInt32VecHashVec& result);
 
     private:
         //! Our random number generator for sampling hash function.
@@ -453,8 +450,7 @@ namespace hash_detail {
 template<std::size_t>
 struct SMurmurHashForArchitecture {
     static std::size_t hash(const void* key, int length, std::size_t seed) {
-        return static_cast<std::size_t>(
-            CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
+        return static_cast<std::size_t>(CHashing::murmurHash32(key, length, static_cast<uint32_t>(seed)));
     }
 };
 
@@ -471,17 +467,13 @@ struct SMurmurHashForArchitecture<8> {
 
 template<typename T>
 inline std::size_t CHashing::CMurmurHash2BT<T>::operator()(const T& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(&key,
-                                                                              static_cast<int>(
-                                                                                  sizeof(key)),
-                                                                              m_Seed);
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
+        &key, static_cast<int>(sizeof(key)), m_Seed);
 }
 
 inline std::size_t CHashing::CMurmurHash2String::operator()(const std::string& key) const {
-    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(key.data(),
-                                                                              static_cast<int>(
-                                                                                  key.size()),
-                                                                              m_Seed);
+    return hash_detail::SMurmurHashForArchitecture<sizeof(std::size_t)>::hash(
+        key.data(), static_cast<int>(key.size()), m_Seed);
 }
 
 inline uint64_t CHashing::CSafeMurmurHash2String64::operator()(const std::string& key) const {

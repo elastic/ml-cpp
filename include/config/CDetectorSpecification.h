@@ -51,8 +51,7 @@ class CPenalty;
 //! is a JSON document which can be used to configure the our
 //! autodetect API or Splunk.
 class CONFIG_EXPORT CDetectorSpecification
-    : boost::equality_comparable<CDetectorSpecification,
-                                 boost::less_than_comparable<CDetectorSpecification>> {
+    : boost::equality_comparable<CDetectorSpecification, boost::less_than_comparable<CDetectorSpecification>> {
 public:
     typedef std::vector<double> TDoubleVec;
     typedef std::vector<TDoubleVec> TDoubleVecVec;
@@ -89,9 +88,7 @@ public:
     typedef std::vector<SParamScores> TParamScoresVec;
 
 public:
-    CDetectorSpecification(const CAutoconfigurerParams& params,
-                           config_t::EFunctionCategory function,
-                           std::size_t id);
+    CDetectorSpecification(const CAutoconfigurerParams& params, config_t::EFunctionCategory function, std::size_t id);
     CDetectorSpecification(const CAutoconfigurerParams& params,
                            config_t::EFunctionCategory function,
                            const std::string& argument,
@@ -143,8 +140,7 @@ public:
     void applyPenalty(double penalty, const std::string& description);
 
     //! Apply the penalty for the bucket length \p bucketLength.
-    void
-    applyPenalties(const TSizeVec& indices, const TDoubleVec& penalty, const TStrVec& description);
+    void applyPenalties(const TSizeVec& indices, const TDoubleVec& penalty, const TStrVec& description);
 
     //! Refresh all scores.
     void refreshScores(void);

@@ -25,8 +25,7 @@ const COutputHandler::TStrVec& CNullOutput::fieldNames(void) const {
     return EMPTY_FIELD_NAMES;
 }
 
-bool CNullOutput::writeRow(const TStrStrUMap& /*dataRowFields*/,
-                           const TStrStrUMap& /*overrideDataRowFields*/) {
+bool CNullOutput::writeRow(const TStrStrUMap& /*dataRowFields*/, const TStrStrUMap& /*overrideDataRowFields*/) {
     return true;
 }
 }

@@ -196,16 +196,15 @@ public:
     static bool lexicographical_compare(const T1& l1, const T1& r1) {
         return lexicographical_compare(l1, r1, SReferenceLess());
     }
-#define COMPARE(l, r)                                                                              \
-    if (comp(l, r)) {                                                                              \
-        return true;                                                                               \
-    } else if (comp(r, l)) {                                                                       \
-        return false;                                                                              \
+#define COMPARE(l, r)                                                                                                  \
+    if (comp(l, r)) {                                                                                                  \
+        return true;                                                                                                   \
+    } else if (comp(r, l)) {                                                                                           \
+        return false;                                                                                                  \
     }
     //! Lexicographical comparison of (\p l1, \p l2) and (\p r1, \p r2).
     template<typename T1, typename T2, typename COMP>
-    static bool
-    lexicographical_compare(const T1& l1, const T2& l2, const T1& r1, const T2& r2, COMP comp) {
+    static bool lexicographical_compare(const T1& l1, const T2& l2, const T1& r1, const T2& r2, COMP comp) {
         COMPARE(l1, r1);
         return comp(l2, r2);
     }
@@ -227,12 +226,8 @@ public:
         return comp(l3, r3);
     }
     template<typename T1, typename T2, typename T3>
-    static bool lexicographical_compare(const T1& l1,
-                                        const T2& l2,
-                                        const T3& l3,
-                                        const T1& r1,
-                                        const T2& r2,
-                                        const T3& r3) {
+    static bool
+    lexicographical_compare(const T1& l1, const T2& l2, const T3& l3, const T1& r1, const T2& r2, const T3& r3) {
         return lexicographical_compare(l1, l2, l3, r1, r2, r3, SReferenceLess());
     }
     //! Lexicographical comparison of (\p l1, \p l2, \p l3, \p l4) and
@@ -392,8 +387,7 @@ public:
         }
 
         template<typename T1, typename T2, typename T3>
-        inline bool operator()(const boost::tuple<T1, T2, T3>& lhs,
-                               const boost::tuple<T1, T2, T3>& rhs) const {
+        inline bool operator()(const boost::tuple<T1, T2, T3>& lhs, const boost::tuple<T1, T2, T3>& rhs) const {
             return lexicographical_compare(lhs.template get<0>(),
                                            lhs.template get<1>(),
                                            lhs.template get<2>(),
@@ -404,8 +398,7 @@ public:
         }
 
         template<typename T1, typename T2, typename T3, typename T4>
-        inline bool operator()(const boost::tuple<T1, T2, T3, T4>& lhs,
-                               const boost::tuple<T1, T2, T3, T4>& rhs) const {
+        inline bool operator()(const boost::tuple<T1, T2, T3, T4>& lhs, const boost::tuple<T1, T2, T3, T4>& rhs) const {
             return lexicographical_compare(lhs.template get<0>(),
                                            lhs.template get<1>(),
                                            lhs.template get<2>(),
@@ -458,19 +451,18 @@ public:
             return s_Less(lhs.first, rhs);
         }
 
-#define TUPLE_FIRST_LESS                                                                           \
-    template<TEMPLATE_ARGS_DECL>                                                                   \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs,                                 \
-                           const boost::tuple<TEMPLATE_ARGS>& rhs) const {                         \
-        return s_Less(lhs.template get<0>(), rhs.template get<0>());                               \
-    }                                                                                              \
-    template<TEMPLATE_ARGS_DECL>                                                                   \
-    inline bool operator()(const T1& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const {          \
-        return s_Less(lhs, rhs.template get<0>());                                                 \
-    }                                                                                              \
-    template<TEMPLATE_ARGS_DECL>                                                                   \
-    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const T1& rhs) const {          \
-        return s_Less(lhs.template get<0>(), rhs);                                                 \
+#define TUPLE_FIRST_LESS                                                                                               \
+    template<TEMPLATE_ARGS_DECL>                                                                                       \
+    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const {     \
+        return s_Less(lhs.template get<0>(), rhs.template get<0>());                                                   \
+    }                                                                                                                  \
+    template<TEMPLATE_ARGS_DECL>                                                                                       \
+    inline bool operator()(const T1& lhs, const boost::tuple<TEMPLATE_ARGS>& rhs) const {                              \
+        return s_Less(lhs, rhs.template get<0>());                                                                     \
+    }                                                                                                                  \
+    template<TEMPLATE_ARGS_DECL>                                                                                       \
+    inline bool operator()(const boost::tuple<TEMPLATE_ARGS>& lhs, const T1& rhs) const {                              \
+        return s_Less(lhs.template get<0>(), rhs);                                                                     \
     }
 
 #define TEMPLATE_ARGS_DECL typename T1, typename T2, typename T3
@@ -611,12 +603,9 @@ private:
     template<typename KEY_VECTOR, typename COMP = std::less<typename KEY_VECTOR::value_type>>
     class CIndexLess {
     public:
-        CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP())
-            : m_Keys(&keys), m_Comp(comp) {}
+        CIndexLess(const KEY_VECTOR& keys, const COMP& comp = COMP()) : m_Keys(&keys), m_Comp(comp) {}
 
-        bool operator()(std::size_t lhs, std::size_t rhs) {
-            return m_Comp((*m_Keys)[lhs], (*m_Keys)[rhs]);
-        }
+        bool operator()(std::size_t lhs, std::size_t rhs) { return m_Comp((*m_Keys)[lhs], (*m_Keys)[rhs]); }
 
     private:
         const KEY_VECTOR* m_Keys;
@@ -639,30 +628,30 @@ public:
     // is in its correct place, and we update the ordering accordingly.
     // So the containers are sorted in at most O(N) additional steps to
     // the N * log(N) taken to sort the indices.
-#define SIMULTANEOUS_SORT_IMPL                                                                     \
-    if (boost::algorithm::is_sorted(keys.begin(), keys.end(), comp)) {                             \
-        return true;                                                                               \
-    }                                                                                              \
-    typedef std::vector<std::size_t> TSizeVec;                                                     \
-    TSizeVec ordering;                                                                             \
-    ordering.reserve(keys.size());                                                                 \
-    for (std::size_t i = 0u; i < keys.size(); ++i) {                                               \
-        ordering.push_back(i);                                                                     \
-    }                                                                                              \
-    std::stable_sort(ordering.begin(), ordering.end(), CIndexLess<KEY_VECTOR, COMP>(keys, comp));  \
-    for (std::size_t i = 0u; i < ordering.size(); ++i) {                                           \
-        std::size_t j_ = i;                                                                        \
-        std::size_t j = ordering[j_];                                                              \
-        while (i != j) {                                                                           \
-            using std::swap;                                                                       \
-            swap(keys[j_], keys[j]);                                                               \
-            CUSTOM_SWAP_VALUES                                                                     \
-            ordering[j_] = j_;                                                                     \
-            j_ = j;                                                                                \
-            j = ordering[j_];                                                                      \
-        }                                                                                          \
-        ordering[j_] = j_;                                                                         \
-    }                                                                                              \
+#define SIMULTANEOUS_SORT_IMPL                                                                                         \
+    if (boost::algorithm::is_sorted(keys.begin(), keys.end(), comp)) {                                                 \
+        return true;                                                                                                   \
+    }                                                                                                                  \
+    typedef std::vector<std::size_t> TSizeVec;                                                                         \
+    TSizeVec ordering;                                                                                                 \
+    ordering.reserve(keys.size());                                                                                     \
+    for (std::size_t i = 0u; i < keys.size(); ++i) {                                                                   \
+        ordering.push_back(i);                                                                                         \
+    }                                                                                                                  \
+    std::stable_sort(ordering.begin(), ordering.end(), CIndexLess<KEY_VECTOR, COMP>(keys, comp));                      \
+    for (std::size_t i = 0u; i < ordering.size(); ++i) {                                                               \
+        std::size_t j_ = i;                                                                                            \
+        std::size_t j = ordering[j_];                                                                                  \
+        while (i != j) {                                                                                               \
+            using std::swap;                                                                                           \
+            swap(keys[j_], keys[j]);                                                                                   \
+            CUSTOM_SWAP_VALUES                                                                                         \
+            ordering[j_] = j_;                                                                                         \
+            j_ = j;                                                                                                    \
+            j = ordering[j_];                                                                                          \
+        }                                                                                                              \
+        ordering[j_] = j_;                                                                                             \
+    }                                                                                                                  \
     return true;
 
 #define CUSTOM_SWAP_VALUES swap(values[j_], values[j]);
@@ -683,21 +672,17 @@ public:
     }
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE_VECTOR>
-    static bool simultaneousSort(core::CVectorRange<KEY_VECTOR>& keys,
-                                 core::CVectorRange<VALUE_VECTOR>& values) {
+    static bool simultaneousSort(core::CVectorRange<KEY_VECTOR>& keys, core::CVectorRange<VALUE_VECTOR>& values) {
         return simultaneousSort(keys, values, std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                                         \
-    swap(values1[j_], values1[j]);                                                                 \
+#define CUSTOM_SWAP_VALUES                                                                                             \
+    swap(values1[j_], values1[j]);                                                                                     \
     swap(values2[j_], values2[j]);
     //! Simultaneously sort \p keys, \p values1 and \p values2
     //! using the \p comp order of \p keys.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename COMP>
-    static bool simultaneousSort(KEY_VECTOR& keys,
-                                 VALUE1_VECTOR& values1,
-                                 VALUE2_VECTOR& values2,
-                                 const COMP& comp) {
+    static bool simultaneousSort(KEY_VECTOR& keys, VALUE1_VECTOR& values1, VALUE2_VECTOR& values2, const COMP& comp) {
         if (keys.size() != values1.size() || values1.size() != values2.size()) {
             return false;
         }
@@ -707,80 +692,53 @@ public:
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
     static bool simultaneousSort(KEY_VECTOR& keys, VALUE1_VECTOR& values1, VALUE2_VECTOR& values2) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys, values1, values2, std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR>
     static bool simultaneousSort(core::CVectorRange<KEY_VECTOR> keys,
                                  core::CVectorRange<VALUE1_VECTOR> values1,
                                  core::CVectorRange<VALUE2_VECTOR> values2) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys, values1, values2, std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                                         \
-    swap(values1[j_], values1[j]);                                                                 \
-    swap(values2[j_], values2[j]);                                                                 \
+#define CUSTOM_SWAP_VALUES                                                                                             \
+    swap(values1[j_], values1[j]);                                                                                     \
+    swap(values2[j_], values2[j]);                                                                                     \
     swap(values3[j_], values3[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2
     //! and \p values3 using the \p comp order of \p keys.
-    template<typename KEY_VECTOR,
-             typename VALUE1_VECTOR,
-             typename VALUE2_VECTOR,
-             typename VALUE3_VECTOR,
-             typename COMP>
+    template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR, typename COMP>
     static bool simultaneousSort(KEY_VECTOR& keys,
                                  VALUE1_VECTOR& values1,
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
                                  const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size()) {
+        if (keys.size() != values1.size() || values1.size() != values2.size() || values2.size() != values3.size()) {
             return false;
         }
         SIMULTANEOUS_SORT_IMPL
     }
 #undef CUSTOM_SWAP_VALUES
     //! Overload for default operator< comparison.
-    template<typename KEY_VECTOR,
-             typename VALUE1_VECTOR,
-             typename VALUE2_VECTOR,
-             typename VALUE3_VECTOR>
-    static bool simultaneousSort(KEY_VECTOR& keys,
-                                 VALUE1_VECTOR& values1,
-                                 VALUE2_VECTOR& values2,
-                                 VALUE3_VECTOR& values3) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                values3,
-                                std::less<typename KEY_VECTOR::value_type>());
+    template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR>
+    static bool
+    simultaneousSort(KEY_VECTOR& keys, VALUE1_VECTOR& values1, VALUE2_VECTOR& values2, VALUE3_VECTOR& values3) {
+        return simultaneousSort(keys, values1, values2, values3, std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
-    template<typename KEY_VECTOR,
-             typename VALUE1_VECTOR,
-             typename VALUE2_VECTOR,
-             typename VALUE3_VECTOR>
+    template<typename KEY_VECTOR, typename VALUE1_VECTOR, typename VALUE2_VECTOR, typename VALUE3_VECTOR>
     static bool simultaneousSort(core::CVectorRange<KEY_VECTOR> keys,
                                  core::CVectorRange<VALUE1_VECTOR> values1,
                                  core::CVectorRange<VALUE2_VECTOR> values2,
                                  core::CVectorRange<VALUE3_VECTOR> values3) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                values3,
-                                std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys, values1, values2, values3, std::less<typename KEY_VECTOR::value_type>());
     }
 
-#define CUSTOM_SWAP_VALUES                                                                         \
-    swap(values1[j_], values1[j]);                                                                 \
-    swap(values2[j_], values2[j]);                                                                 \
-    swap(values3[j_], values3[j]);                                                                 \
+#define CUSTOM_SWAP_VALUES                                                                                             \
+    swap(values1[j_], values1[j]);                                                                                     \
+    swap(values2[j_], values2[j]);                                                                                     \
+    swap(values3[j_], values3[j]);                                                                                     \
     swap(values4[j_], values4[j]);
     //! Simultaneously sort \p keys, \p values1, \p values2,
     //! \p values3 and \p values4 using the \p comp order of
@@ -797,8 +755,8 @@ public:
                                  VALUE3_VECTOR& values3,
                                  VALUE4_VECTOR& values4,
                                  const COMP& comp) {
-        if (keys.size() != values1.size() || values1.size() != values2.size() ||
-            values2.size() != values3.size() || values3.size() != values4.size()) {
+        if (keys.size() != values1.size() || values1.size() != values2.size() || values2.size() != values3.size() ||
+            values3.size() != values4.size()) {
             return false;
         }
         SIMULTANEOUS_SORT_IMPL
@@ -815,12 +773,7 @@ public:
                                  VALUE2_VECTOR& values2,
                                  VALUE3_VECTOR& values3,
                                  VALUE4_VECTOR& values4) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                values3,
-                                values4,
-                                std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys, values1, values2, values3, values4, std::less<typename KEY_VECTOR::value_type>());
     }
     //! Overload for default operator< comparison.
     template<typename KEY_VECTOR,
@@ -833,12 +786,7 @@ public:
                                  core::CVectorRange<VALUE2_VECTOR> values2,
                                  core::CVectorRange<VALUE3_VECTOR> values3,
                                  core::CVectorRange<VALUE4_VECTOR> values4) {
-        return simultaneousSort(keys,
-                                values1,
-                                values2,
-                                values3,
-                                values4,
-                                std::less<typename KEY_VECTOR::value_type>());
+        return simultaneousSort(keys, values1, values2, values3, values4, std::less<typename KEY_VECTOR::value_type>());
     }
 
 #undef SIMULTANEOUS_SORT_IMPL

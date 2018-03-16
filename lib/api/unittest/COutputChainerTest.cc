@@ -33,9 +33,8 @@
 CppUnit::Test* COutputChainerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining",
-                                                    &COutputChainerTest::testChaining));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>("COutputChainerTest::testChaining",
+                                                                      &COutputChainerTest::testChaining));
 
     return suiteOfTests;
 }
@@ -81,8 +80,7 @@ void COutputChainerTest::testChaining(void) {
 
         ml::api::CLineifiedJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(
-            parser.readStream(boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
+        CPPUNIT_ASSERT(parser.readStream(boost::bind(&CMockDataProcessor::handleRecord, &mockProcessor, _1)));
     }
 
     // Check the results by re-reading the output file

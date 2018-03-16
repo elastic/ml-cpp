@@ -20,8 +20,7 @@
 CppUnit::Test* CProcessTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CProcessTest>("CProcessTest::testPids", &CProcessTest::testPids));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessTest>("CProcessTest::testPids", &CProcessTest::testPids));
 
     return suiteOfTests;
 }

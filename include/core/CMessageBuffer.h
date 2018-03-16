@@ -109,8 +109,7 @@ private:
             TMessageVec data;
 
             m_MessageBuffer.m_Buffer.flushAllMessages(data);
-            m_MessageBuffer.m_Buffer.processMessages(data,
-                                                     std::numeric_limits<core_t::TTime>::max());
+            m_MessageBuffer.m_Buffer.processMessages(data, std::numeric_limits<core_t::TTime>::max());
 
             m_IsRunning = false;
 

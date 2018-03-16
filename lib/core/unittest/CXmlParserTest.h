@@ -58,9 +58,7 @@ private:
 
     static std::string fileToString(const std::string& fileName);
 
-    static bool testAttribute(const ml::core::CXmlNode& node,
-                              const std::string& key,
-                              const std::string& expected);
+    static bool testAttribute(const ml::core::CXmlNode& node, const std::string& key, const std::string& expected);
 };
 
 #endif // INCLUDED_CXmlParserTest_h

@@ -89,8 +89,7 @@ char* CStrPTime::strPTime(const char* buf, const char* format, struct tm* tm) {
     if (zPos != std::string::npos) {
         // If there's anything except whitespace after the
         // %z it's too complicated
-        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) !=
-            std::string::npos) {
+        if (adjFormat.find_first_not_of(CStringUtils::WHITESPACE_CHARS, zPos + 2) != std::string::npos) {
             return 0;
         }
 

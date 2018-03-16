@@ -82,10 +82,7 @@ public:
         //! Total ordering by checksum breaking ties using expensive
         //! comparison on all points.
         bool operator<(const CCluster& rhs) const {
-            return COrderings::lexicographical_compare(m_Checksum,
-                                                       m_Points,
-                                                       rhs.m_Checksum,
-                                                       rhs.m_Points);
+            return COrderings::lexicographical_compare(m_Checksum, m_Points, rhs.m_Checksum, rhs.m_Points);
         }
 
         //! Get the number of points in the cluster.
@@ -173,8 +170,7 @@ public:
     void run(std::size_t improveParamsKmeansIterations,
              std::size_t improveStructureClusterSeeds,
              std::size_t improveStructureKmeansIterations) {
-        while (this->improveStructure(improveStructureClusterSeeds,
-                                      improveStructureKmeansIterations)) {
+        while (this->improveStructure(improveStructureClusterSeeds, improveStructureKmeansIterations)) {
             this->improveParams(improveParamsKmeansIterations);
         }
         this->polish(10 * improveParamsKmeansIterations);
@@ -225,10 +221,8 @@ protected:
             CCluster& cluster = newClusters.back();
             cluster.centre(newCentres[i]);
             cluster.points(newClusterPoints[i]);
-            typename TClusterCPtrVec::const_iterator j = std::lower_bound(oldClusters.begin(),
-                                                                          oldClusters.end(),
-                                                                          &cluster,
-                                                                          COrderings::SPtrLess());
+            typename TClusterCPtrVec::const_iterator j =
+                std::lower_bound(oldClusters.begin(), oldClusters.end(), &cluster, COrderings::SPtrLess());
             if (j != oldClusters.end() && **j == cluster) {
                 cluster.cost((*j)->cost());
                 preserved.insert(cluster.checksum());

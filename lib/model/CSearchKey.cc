@@ -79,8 +79,7 @@ CSearchKey::CSearchKey(int identifier,
     m_ByFieldName = CStringStore::names().get(byFieldName);
     m_OverFieldName = CStringStore::names().get(overFieldName);
     m_PartitionFieldName = CStringStore::names().get(partitionFieldName);
-    for (TStrVec::const_iterator i = influenceFieldNames.begin(); i != influenceFieldNames.end();
-         ++i) {
+    for (TStrVec::const_iterator i = influenceFieldNames.begin(); i != influenceFieldNames.end(); ++i) {
         m_InfluenceFieldNames.push_back(CStringStore::influencers().get(*i));
     }
 }
@@ -91,8 +90,7 @@ CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful
       m_UseNull(false),
       m_ExcludeFrequent(model_t::E_XF_None),
       m_Hash(0) {
-    successful =
-        traverser.traverseSubLevel(boost::bind(&CSearchKey::acceptRestoreTraverser, this, _1));
+    successful = traverser.traverseSubLevel(boost::bind(&CSearchKey::acceptRestoreTraverser, this, _1));
 }
 
 bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -105,8 +103,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
             }
         } else if (name == FUNCTION_NAME_TAG) {
             int function(-1);
-            if (core::CStringUtils::stringToType(traverser.value(), function) == false ||
-                function < 0) {
+            if (core::CStringUtils::stringToType(traverser.value(), function) == false || function < 0) {
                 LOG_ERROR("Invalid function in " << traverser.value());
                 return false;
             }
@@ -172,9 +169,8 @@ void CSearchKey::swap(CSearchKey& other) {
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
     typedef std::equal_to<std::string> TStrEqualTo;
 
-    return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier &&
-           m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
-           m_ExcludeFrequent == rhs.m_ExcludeFrequent && m_FieldName == rhs.m_FieldName &&
+    return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier && m_Function == rhs.m_Function &&
+           m_UseNull == rhs.m_UseNull && m_ExcludeFrequent == rhs.m_ExcludeFrequent && m_FieldName == rhs.m_FieldName &&
            m_ByFieldName == rhs.m_ByFieldName && m_OverFieldName == rhs.m_OverFieldName &&
            m_PartitionFieldName == rhs.m_PartitionFieldName &&
            m_InfluenceFieldNames.size() == rhs.m_InfluenceFieldNames.size()
@@ -320,8 +316,7 @@ model_t::EExcludeFrequent CSearchKey::excludeFrequent(void) const {
 }
 
 bool CSearchKey::hasField(const std::string& name) const {
-    return *m_PartitionFieldName == name || *m_OverFieldName == name || *m_ByFieldName == name ||
-           *m_FieldName == name;
+    return *m_PartitionFieldName == name || *m_OverFieldName == name || *m_ByFieldName == name || *m_FieldName == name;
 }
 
 const std::string& CSearchKey::fieldName(void) const {
@@ -365,10 +360,9 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
     // The format for this is very similar to the format used by toCue() at the
     // time of writing.  However, do NOT combine the code because the intention
     // is to simplify toCue() in the future.
-    strm << key.m_Identifier << "==" << function_t::print(key.m_Function) << '/'
-         << (key.m_UseNull ? '1' : '0') << '/' << static_cast<int>(key.m_ExcludeFrequent) << '/'
-         << *key.m_FieldName << '/' << *key.m_ByFieldName << '/' << *key.m_OverFieldName << '/'
-         << *key.m_PartitionFieldName << '/';
+    strm << key.m_Identifier << "==" << function_t::print(key.m_Function) << '/' << (key.m_UseNull ? '1' : '0') << '/'
+         << static_cast<int>(key.m_ExcludeFrequent) << '/' << *key.m_FieldName << '/' << *key.m_ByFieldName << '/'
+         << *key.m_OverFieldName << '/' << *key.m_PartitionFieldName << '/';
 
     for (size_t i = 0; i < key.m_InfluenceFieldNames.size(); ++i) {
         if (i > 0) {

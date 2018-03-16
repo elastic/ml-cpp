@@ -22,8 +22,7 @@
 namespace ml {
 namespace api {
 
-CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream& strmIn,
-                                                     bool allDocsSameStructure)
+CLineifiedJsonInputParser::CLineifiedJsonInputParser(std::istream& strmIn, bool allDocsSameStructure)
     : CLineifiedInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
@@ -46,16 +45,12 @@ bool CLineifiedJsonInputParser::readStream(const TReaderFunc& readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(document,
-                                                     fieldNames,
-                                                     fieldValRefs,
-                                                     recordFields) == false) {
+            if (this->decodeDocumentWithCommonFields(document, fieldNames, fieldValRefs, recordFields) == false) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
         } else {
-            if (this->decodeDocumentWithArbitraryFields(document, fieldNames, recordFields) ==
-                false) {
+            if (this->decodeDocumentWithArbitraryFields(document, fieldNames, recordFields) == false) {
                 LOG_ERROR("Failed to decode JSON document");
                 return false;
             }
@@ -108,8 +103,7 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
     }
 
     TStrRefVecItr refIter = fieldValRefs.begin();
-    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-         iter != document.MemberEnd();
+    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin(); iter != document.MemberEnd();
          ++iter, ++refIter) {
         if (refIter == fieldValRefs.end()) {
             LOG_ERROR("More fields than field references");
@@ -128,8 +122,7 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
             break;
         case rapidjson::kObjectType:
         case rapidjson::kArrayType:
-            LOG_ERROR(
-                "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
+            LOG_ERROR("Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
             return false;
         case rapidjson::kStringType:
             refIter->get().assign(iter->value.GetString(), iter->value.GetStringLength());
@@ -143,18 +136,15 @@ bool CLineifiedJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::
     return true;
 }
 
-bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(
-    const rapidjson::Document& document,
-    TStrVec& fieldNames,
-    TStrStrUMap& recordFields) {
+bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+                                                                  TStrVec& fieldNames,
+                                                                  TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();
     recordFields.clear();
 
-    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin();
-         iter != document.MemberEnd();
-         ++iter) {
+    for (rapidjson::Value::ConstMemberIterator iter = document.MemberBegin(); iter != document.MemberEnd(); ++iter) {
         fieldNames.push_back(std::string(iter->name.GetString(), iter->name.GetStringLength()));
 
         switch (iter->value.GetType()) {
@@ -169,17 +159,14 @@ bool CLineifiedJsonInputParser::decodeDocumentWithArbitraryFields(
             break;
         case rapidjson::kObjectType:
         case rapidjson::kArrayType:
-            LOG_ERROR(
-                "Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
+            LOG_ERROR("Can't handle nested objects/arrays in JSON documents: " << fieldNames.back());
             fieldNames.pop_back();
             return false;
         case rapidjson::kStringType:
-            recordFields[fieldNames.back()].assign(iter->value.GetString(),
-                                                   iter->value.GetStringLength());
+            recordFields[fieldNames.back()].assign(iter->value.GetString(), iter->value.GetStringLength());
             break;
         case rapidjson::kNumberType:
-            core::CStringUtils::typeToString(iter->value.GetDouble())
-                .swap(recordFields[fieldNames.back()]);
+            core::CStringUtils::typeToString(iter->value.GetDouble()).swap(recordFields[fieldNames.back()]);
             break;
         }
     }

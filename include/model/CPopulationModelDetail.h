@@ -27,26 +27,17 @@ template<typename T>
 CPopulationModel::TSizeSizePr CPopulationModel::personRange(const T& data, std::size_t pid) {
     const std::size_t minCid = 0u;
     const std::size_t maxCid = std::numeric_limits<std::size_t>::max();
-    auto begin = std::lower_bound(data.begin(),
-                                  data.end(),
-                                  std::make_pair(pid, minCid),
-                                  maths::COrderings::SFirstLess());
-    auto end = std::upper_bound(begin,
-                                data.end(),
-                                std::make_pair(pid, maxCid),
-                                maths::COrderings::SFirstLess());
-    return {static_cast<std::size_t>(begin - data.begin()),
-            static_cast<std::size_t>(end - data.begin())};
+    auto begin =
+        std::lower_bound(data.begin(), data.end(), std::make_pair(pid, minCid), maths::COrderings::SFirstLess());
+    auto end = std::upper_bound(begin, data.end(), std::make_pair(pid, maxCid), maths::COrderings::SFirstLess());
+    return {static_cast<std::size_t>(begin - data.begin()), static_cast<std::size_t>(end - data.begin())};
 }
 
 template<typename T>
 typename T::const_iterator CPopulationModel::find(const T& data, std::size_t pid, std::size_t cid) {
-    auto i = std::lower_bound(data.begin(),
-                              data.end(),
-                              std::make_pair(pid, cid),
-                              maths::COrderings::SFirstLess());
-    if (i != data.end() && (CDataGatherer::extractPersonId(*i) != pid ||
-                            CDataGatherer::extractAttributeId(*i) != cid)) {
+    auto i = std::lower_bound(data.begin(), data.end(), std::make_pair(pid, cid), maths::COrderings::SFirstLess());
+    if (i != data.end() &&
+        (CDataGatherer::extractPersonId(*i) != pid || CDataGatherer::extractAttributeId(*i) != cid)) {
         i = data.end();
     }
     return i;
@@ -59,8 +50,7 @@ CPopulationModel::extractValue(model_t::EFeature /*feature*/,
 }
 
 inline CPopulationModel::TDouble1Vec
-CPopulationModel::extractValue(model_t::EFeature feature,
-                               const std::pair<TSizeSizePr, SMetricFeatureData>& data) {
+CPopulationModel::extractValue(model_t::EFeature feature, const std::pair<TSizeSizePr, SMetricFeatureData>& data) {
     return CDataGatherer::extractData(data).s_BucketValue
                ? CDataGatherer::extractData(data).s_BucketValue->value(model_t::dimension(feature))
                : TDouble1Vec();

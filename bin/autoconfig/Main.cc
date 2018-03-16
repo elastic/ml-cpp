@@ -81,10 +81,7 @@ int main(int argc, char** argv) {
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName,
-                              isInputFileNamedPipe,
-                              outputFileName,
-                              isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL("Could not reconfigure logging");

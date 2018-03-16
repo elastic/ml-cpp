@@ -73,9 +73,7 @@ private:
     using TSizeStrSetUMap = boost::unordered_map<std::size_t, TStrSet>;
 
 private:
-    void persistExamples(std::size_t category,
-                         const TStrSet& examples,
-                         core::CStatePersistInserter& inserter) const;
+    void persistExamples(std::size_t category, const TStrSet& examples, core::CStatePersistInserter& inserter) const;
     bool restoreExamples(core::CStateRestoreTraverser& traverser);
 
     //! Truncate long examples to MAX_EXAMPLE_LENGTH bytes, appending an

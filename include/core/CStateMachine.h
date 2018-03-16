@@ -86,10 +86,8 @@ public:
     //!
     //! \note This can fail if the supplied data are inconsistent in
     //! which case the state is set to bad.
-    static CStateMachine create(const TStrVec& alphabet,
-                                const TStrVec& states,
-                                const TSizeVecVec& transitionFunction,
-                                std::size_t state);
+    static CStateMachine
+    create(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction, std::size_t state);
 
     //! \name Persistence
     //@{
@@ -128,9 +126,7 @@ protected:
 private:
     //! \brief The state of a single machine.
     struct CORE_EXPORT SMachine {
-        SMachine(const TStrVec& alphabet,
-                 const TStrVec& states,
-                 const TSizeVecVec& transitionFunction);
+        SMachine(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction);
         SMachine(const SMachine& other);
 
         //! The alphabet of action symbols \f$\Sigma\f$.
@@ -143,9 +139,7 @@ private:
 
     //! \brief A lightweight object to lookup a single machine.
     struct CORE_EXPORT SLookupMachine : boost::equality_comparable2<SLookupMachine, SMachine> {
-        SLookupMachine(const TStrVec& alphabet,
-                       const TStrVec& states,
-                       const TSizeVecVec& transitionFunction);
+        SLookupMachine(const TStrVec& alphabet, const TStrVec& states, const TSizeVecVec& transitionFunction);
 
         //! Test if two machines are equal.
         bool operator==(const SMachine& rhs) const;

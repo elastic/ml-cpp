@@ -82,16 +82,12 @@ public:
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
     //! this type of messages from other types.
-    virtual void addCommonUniqueToken(const std::string& token,
-                                      std::string& part1,
-                                      std::string& part2) const = 0;
+    virtual void addCommonUniqueToken(const std::string& token, std::string& part1, std::string& part2) const = 0;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
-    virtual void addInOrderCommonToken(const std::string& token,
-                                       bool first,
-                                       std::string& part1,
-                                       std::string& part2) const = 0;
+    virtual void
+    addInOrderCommonToken(const std::string& token, bool first, std::string& part1, std::string& part2) const = 0;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.

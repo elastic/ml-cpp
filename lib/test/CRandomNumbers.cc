@@ -81,16 +81,12 @@ void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec& mean,
     }
 }
 
-void CRandomNumbers::generatePoissonSamples(double rate,
-                                            std::size_t numberSamples,
-                                            TUIntVec& samples) {
+void CRandomNumbers::generatePoissonSamples(double rate, std::size_t numberSamples, TUIntVec& samples) {
     boost::random::poisson_distribution<> poisson(rate);
     generateSamples(m_Generator, poisson, numberSamples, samples);
 }
 
-void CRandomNumbers::generateStudentsSamples(double degreesFreedom,
-                                             std::size_t numberSamples,
-                                             TDoubleVec& samples) {
+void CRandomNumbers::generateStudentsSamples(double degreesFreedom, std::size_t numberSamples, TDoubleVec& samples) {
     boost::random::student_t_distribution<> students(degreesFreedom);
     generateSamples(m_Generator, students, numberSamples, samples);
 }
@@ -103,10 +99,7 @@ void CRandomNumbers::generateLogNormalSamples(double location,
     generateSamples(m_Generator, logNormal, numberSamples, samples);
 }
 
-void CRandomNumbers::generateUniformSamples(double a,
-                                            double b,
-                                            std::size_t numberSamples,
-                                            TDoubleVec& samples) {
+void CRandomNumbers::generateUniformSamples(double a, double b, std::size_t numberSamples, TDoubleVec& samples) {
     boost::random::uniform_real_distribution<> uniform(a, b);
     generateSamples(m_Generator, uniform, numberSamples, samples);
 }
@@ -119,10 +112,7 @@ void CRandomNumbers::generateUniformSamples(std::size_t a,
     generateSamples(m_Generator, uniform, numberSamples, samples);
 }
 
-void CRandomNumbers::generateGammaSamples(double shape,
-                                          double scale,
-                                          std::size_t numberSamples,
-                                          TDoubleVec& samples) {
+void CRandomNumbers::generateGammaSamples(double shape, double scale, std::size_t numberSamples, TDoubleVec& samples) {
     boost::random::gamma_distribution<> gamma(shape, scale);
     generateSamples(m_Generator, gamma, numberSamples, samples);
 }
@@ -148,8 +138,7 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
 
     // Map the samples to categories.
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        std::size_t j =
-            std::lower_bound(transform.begin(), transform.end(), samples[i]) - transform.begin();
+        std::size_t j = std::lower_bound(transform.begin(), transform.end(), samples[i]) - transform.begin();
         if (j == transform.size()) {
             LOG_ERROR("Expected sample " << samples[i] << " to be less than largest value in "
                                          << core::CContainerPrinter::print(transform));
@@ -183,9 +172,7 @@ void CRandomNumbers::generateDirichletSamples(const TDoubleVec& concentrations,
     }
 }
 
-void CRandomNumbers::generateWords(std::size_t length,
-                                   std::size_t numberSamples,
-                                   TStrVec& samples) {
+void CRandomNumbers::generateWords(std::size_t length, std::size_t numberSamples, TStrVec& samples) {
     const char characterSet[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                                  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z', '-',
                                  '_', ' ', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};

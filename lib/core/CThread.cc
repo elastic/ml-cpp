@@ -186,8 +186,7 @@ bool CThread::cancelBlockedIo(TThreadId threadId) {
     if (ret != 0) {
         // Don't report an error if the thread has already exited
         if (ret != ESRCH) {
-            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": "
-                                                               << ::strerror(ret));
+            LOG_ERROR("Error cancelling blocked IO in thread " << threadId << ": " << ::strerror(ret));
             return false;
         }
     }

@@ -115,18 +115,14 @@ public:
               m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
 
         //! Initialize by traversing a state document.
-        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                    core::CStateRestoreTraverser& traverser) {
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
             do {
                 const std::string& name = traverser.name();
                 RESTORE_BUILT_IN(INDEX_TAG, m_Index)
                 RESTORE(COVARIANCES_TAG, m_Covariances.fromDelimited(traverser.value()))
                 RESTORE(STRUCTURE_TAG,
                         traverser.traverseSubLevel(
-                            boost::bind(&TKMeansOnline::acceptRestoreTraverser,
-                                        &m_Structure,
-                                        boost::cref(params),
-                                        _1)))
+                            boost::bind(&TKMeansOnline::acceptRestoreTraverser, &m_Structure, boost::cref(params), _1)))
             } while (traverser.next());
 
             return true;
@@ -136,10 +132,7 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertValue(INDEX_TAG, m_Index);
             inserter.insertValue(COVARIANCES_TAG, m_Covariances.toDelimited());
-            inserter.insertLevel(STRUCTURE_TAG,
-                                 boost::bind(&TKMeansOnline::acceptPersistInserter,
-                                             m_Structure,
-                                             _1));
+            inserter.insertLevel(STRUCTURE_TAG, boost::bind(&TKMeansOnline::acceptPersistInserter, m_Structure, _1));
         }
 
         //! Efficiently swap the contents of this and \p other.
@@ -219,14 +212,11 @@ public:
         }
 
         //! Get the likelihood that \p x is from this cluster.
-        double logLikelihoodFromCluster(maths_t::EClusterWeightCalc calc,
-                                        const TPointPrecise& x) const {
+        double logLikelihoodFromCluster(maths_t::EClusterWeightCalc calc, const TPointPrecise& x) const {
             double likelihood;
             const TPointPrecise& mean = CBasicStatistics::mean(m_Covariances);
-            const TMatrixPrecise& covariances =
-                CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
-            maths_t::EFloatingPointErrorStatus status =
-                gaussianLogLikelihood(covariances, x - mean, likelihood, false);
+            const TMatrixPrecise& covariances = CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
+            maths_t::EFloatingPointErrorStatus status = gaussianLogLikelihood(covariances, x - mean, likelihood, false);
             if (status & maths_t::E_FpFailed) {
                 LOG_ERROR("Unable to compute likelihood for " << x << " and cluster " << m_Index);
                 return core::constants::LOG_MIN_DOUBLE - 1.0;
@@ -249,9 +239,8 @@ public:
         //! in the split.
         //! \param[in] indexGenerator The unique cluster identifier
         //! generator.
-        TOptionalClusterClusterPr split(CPRNG::CXorOShiro128Plus& rng,
-                                        double minimumCount,
-                                        CClustererTypes::CIndexGenerator& indexGenerator) {
+        TOptionalClusterClusterPr
+        split(CPRNG::CXorOShiro128Plus& rng, double minimumCount, CClustererTypes::CIndexGenerator& indexGenerator) {
             // We do our clustering top down to minimize space and avoid
             // making splits before we are confident they exist. This is
             // important for anomaly detection because we do *not* want
@@ -293,41 +282,27 @@ public:
             }
             TKMeansOnlineVec structure;
             m_Structure.split(split, structure);
-            LOG_TRACE("Splitting cluster " << this->index() << " at " << this->centre()
-                                           << " left = " << structure[0].print()
-                                           << ", right = " << structure[1].print());
+            LOG_TRACE("Splitting cluster " << this->index() << " at " << this->centre() << " left = "
+                                           << structure[0].print() << ", right = " << structure[1].print());
 
             std::size_t index[] = {indexGenerator.next(), indexGenerator.next()};
             indexGenerator.recycle(m_Index);
 
-            return TClusterClusterPr(CCluster(index[0],
-                                              m_DataType,
-                                              m_DecayRate,
-                                              covariances[0],
-                                              structure[0]),
-                                     CCluster(index[1],
-                                              m_DataType,
-                                              m_DecayRate,
-                                              covariances[1],
-                                              structure[1]));
+            return TClusterClusterPr(CCluster(index[0], m_DataType, m_DecayRate, covariances[0], structure[0]),
+                                     CCluster(index[1], m_DataType, m_DecayRate, covariances[1], structure[1]));
         }
 
         //! Check if this and \p other cluster should merge.
         //!
         //! \param[in] other The cluster to merge with this one.
-        bool shouldMerge(CCluster& other) {
-            return BICGain(*this, other) <= MAXIMUM_MERGE_DISTANCE;
-        }
+        bool shouldMerge(CCluster& other) { return BICGain(*this, other) <= MAXIMUM_MERGE_DISTANCE; }
 
         //! Merge this and \p other cluster.
         CCluster merge(CCluster& other, CClustererTypes::CIndexGenerator& indexGenerator) {
             CKMeansOnline<TPoint> structure(m_Structure);
             structure.merge(other.m_Structure);
-            CCluster result(indexGenerator.next(),
-                            m_DataType,
-                            m_DecayRate,
-                            m_Covariances + other.m_Covariances,
-                            structure);
+            CCluster result(
+                indexGenerator.next(), m_DataType, m_DecayRate, m_Covariances + other.m_Covariances, structure);
             indexGenerator.recycle(m_Index);
             indexGenerator.recycle(other.m_Index);
             return result;
@@ -428,8 +403,7 @@ public:
                 TCovariances covariances[2];
                 CBasicStatistics::covariancesLedoitWolf(candidate[0], covariances[0]);
                 CBasicStatistics::covariancesLedoitWolf(candidate[1], covariances[1]);
-                double n[] = {CBasicStatistics::count(covariances[0]),
-                              CBasicStatistics::count(covariances[1])};
+                double n[] = {CBasicStatistics::count(covariances[0]), CBasicStatistics::count(covariances[1])};
                 double nmin = std::min(n[0], n[1]);
 
                 // Check the count constraint.
@@ -439,8 +413,7 @@ public:
                 // Check the distance constraint.
                 double distance = BICGain(covariances[0], covariances[1]);
                 bool satisfiesDistance = (distance > MINIMUM_SPLIT_DISTANCE);
-                LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split "
-                                               << MINIMUM_SPLIT_DISTANCE << ")");
+                LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                 if (!satisfiesCount) {
                     // Recurse to the (one) node with sufficient count.
@@ -471,8 +444,7 @@ public:
                     }
 
                     distance = BICGain(covariances[0], covariances[1]);
-                    LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split "
-                                                   << MINIMUM_SPLIT_DISTANCE << ")");
+                    LOG_TRACE("BIC(1) - BIC(2) = " << distance << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
 
                     if (distance > MINIMUM_SPLIT_DISTANCE) {
                         LOG_TRACE("splitting");
@@ -482,21 +454,17 @@ public:
                         this->sphericalClusters(clusters);
                         TSizeVec indexes(boost::counting_iterator<std::size_t>(0),
                                          boost::counting_iterator<std::size_t>(clusters.size()));
-                        COrderings::simultaneousSort(clusters,
-                                                     indexes,
-                                                     typename CSphericalCluster<TPoint>::SLess());
+                        COrderings::simultaneousSort(clusters, indexes, typename CSphericalCluster<TPoint>::SLess());
                         for (std::size_t i = 0u; i < candidate.size(); ++i) {
                             for (std::size_t j = 0u; j < candidate[i].size(); ++j) {
-                                std::size_t k =
-                                    std::lower_bound(clusters.begin(),
-                                                     clusters.end(),
-                                                     candidate[i][j],
-                                                     typename CSphericalCluster<TPoint>::SLess()) -
-                                    clusters.begin();
+                                std::size_t k = std::lower_bound(clusters.begin(),
+                                                                 clusters.end(),
+                                                                 candidate[i][j],
+                                                                 typename CSphericalCluster<TPoint>::SLess()) -
+                                                clusters.begin();
                                 if (k >= clusters.size()) {
-                                    LOG_ERROR("Missing "
-                                              << candidate[i][j] << ", clusters = "
-                                              << core::CContainerPrinter::print(clusters));
+                                    LOG_ERROR("Missing " << candidate[i][j] << ", clusters = "
+                                                         << core::CContainerPrinter::print(clusters));
                                     return false;
                                 }
                                 result[i].push_back(indexes[k]);
@@ -532,12 +500,10 @@ public:
         static std::size_t nearest(const TSphericalCluster& x, const TCovariances (&c)[2]) {
             TPrecise d[] = {0, 0};
             TPointPrecise x_(x);
-            inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[0]),
-                                 x_ - CBasicStatistics::mean(c[0]),
-                                 d[0]);
-            inverseQuadraticForm(CBasicStatistics::maximumLikelihoodCovariances(c[1]),
-                                 x_ - CBasicStatistics::mean(c[1]),
-                                 d[1]);
+            inverseQuadraticForm(
+                CBasicStatistics::maximumLikelihoodCovariances(c[0]), x_ - CBasicStatistics::mean(c[0]), d[0]);
+            inverseQuadraticForm(
+                CBasicStatistics::maximumLikelihoodCovariances(c[1]), x_ - CBasicStatistics::mean(c[1]), d[1]);
             return d[0] < d[1] ? 0 : 1;
         }
 
@@ -555,9 +521,7 @@ public:
 
     private:
         //! Get the scaled decay rate for use by propagateForwardsByTime.
-        double scaledDecayRate(void) const {
-            return ::pow(0.5, static_cast<double>(N)) * m_DecayRate;
-        }
+        double scaledDecayRate(void) const { return ::pow(0.5, static_cast<double>(N)) * m_DecayRate; }
 
     private:
         //! A unique identifier for this cluster.
@@ -628,8 +592,7 @@ public:
           m_MinimumClusterFraction(),
           m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(
-            boost::bind(&CXMeansOnline::acceptRestoreTraverser, this, boost::cref(params), _1));
+        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser, this, boost::cref(params), _1));
     }
 
     //! Construct by traversing a state document.
@@ -646,8 +609,7 @@ public:
           m_MinimumClusterFraction(),
           m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(
-            boost::bind(&CXMeansOnline::acceptRestoreTraverser, this, boost::cref(params), _1));
+        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser, this, boost::cref(params), _1));
     }
 
     //! The x-means clusterer has value semantics.
@@ -701,21 +663,17 @@ public:
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            inserter.insertLevel(CLUSTER_TAG,
-                                 boost::bind(&CCluster::acceptPersistInserter, &m_Clusters[i], _1));
+            inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter, &m_Clusters[i], _1));
         }
         inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
-        inserter.insertValue(HISTORY_LENGTH_TAG,
-                             m_HistoryLength,
-                             core::CIEEE754::E_SinglePrecision);
+        inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength, core::CIEEE754::E_SinglePrecision);
         inserter.insertValue(RNG_TAG, m_Rng.toString());
         inserter.insertValue(WEIGHT_CALC_TAG, static_cast<int>(m_WeightCalc));
         inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction);
         inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount);
-        inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
-                             boost::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
-                                         &m_ClusterIndexGenerator,
-                                         _1));
+        inserter.insertLevel(
+            CLUSTER_INDEX_GENERATOR_TAG,
+            boost::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter, &m_ClusterIndexGenerator, _1));
     }
 
     //! Creates a copy of the clusterer.
@@ -781,8 +739,7 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void
-    cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const {
+    virtual void cluster(const TPointPrecise& point, TSizeDoublePr2Vec& result, double count = 1.0) const {
         result.clear();
 
         if (m_Clusters.empty()) {
@@ -822,10 +779,9 @@ public:
             result[i].second /= normalizer;
             pmax = std::max(pmax, result[i].second);
         }
-        result.erase(std::remove_if(result.begin(),
-                                    result.end(),
-                                    CProbabilityLessThan(HARD_ASSIGNMENT_THRESHOLD * pmax)),
-                     result.end());
+        result.erase(
+            std::remove_if(result.begin(), result.end(), CProbabilityLessThan(HARD_ASSIGNMENT_THRESHOLD * pmax)),
+            result.end());
         normalizer = 0.0;
         for (std::size_t i = 0u; i < result.size(); ++i) {
             normalizer += result[i].second;
@@ -849,14 +805,12 @@ public:
             }
         } else {
             typedef std::pair<double, std::size_t> TSizeDoublePr;
-            typedef CBasicStatistics::
-                COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>>
-                    TMaxAccumulator;
+            typedef CBasicStatistics::COrderStatisticsStack<TSizeDoublePr, 2, std::greater<TSizeDoublePr>>
+                TMaxAccumulator;
 
             TMaxAccumulator closest;
             for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-                closest.add(
-                    std::make_pair(m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i));
+                closest.add(std::make_pair(m_Clusters[i].logLikelihoodFromCluster(m_WeightCalc, x), i));
             }
             closest.sort();
             LOG_TRACE("closest = " << closest.print());
@@ -886,15 +840,15 @@ public:
                 // Get the weighted counts.
                 double count0 = count * p0;
                 double count1 = count * p1;
-                LOG_TRACE("Soft adding " << x << " " << count0 << " to " << cluster0->centre()
-                                         << " and " << count1 << " to " << cluster1->centre());
+                LOG_TRACE("Soft adding " << x << " " << count0 << " to " << cluster0->centre() << " and " << count1
+                                         << " to " << cluster1->centre());
 
                 cluster0->add(x, count0);
                 cluster1->add(x, count1);
                 clusters.push_back(std::make_pair(cluster0->index(), count0));
                 clusters.push_back(std::make_pair(cluster1->index(), count1));
-                if (this->maybeSplit(cluster0) || this->maybeSplit(cluster1) ||
-                    this->maybeMerge(cluster0) || this->maybeMerge(cluster1)) {
+                if (this->maybeSplit(cluster0) || this->maybeSplit(cluster1) || this->maybeMerge(cluster0) ||
+                    this->maybeMerge(cluster1)) {
                     this->cluster(x, clusters, count);
                 }
             }
@@ -941,8 +895,7 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool
-    sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
+    virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
         const CCluster* cluster = this->cluster(index);
         if (!cluster) {
             LOG_ERROR("Cluster " << index << " doesn't exist");
@@ -1023,17 +976,13 @@ public:
 
 protected:
     //! Restore by traversing a state document
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                core::CStateRestoreTraverser& traverser) {
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(CLUSTER_TAG,
                                    CCluster cluster(*this),
-                                   traverser.traverseSubLevel(
-                                       boost::bind(&CCluster::acceptRestoreTraverser,
-                                                   &cluster,
-                                                   boost::cref(params),
-                                                   _1)),
+                                   traverser.traverseSubLevel(boost::bind(
+                                       &CCluster::acceptRestoreTraverser, &cluster, boost::cref(params), _1)),
                                    m_Clusters.push_back(cluster))
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG,
                                    double decayRate,
@@ -1042,15 +991,12 @@ protected:
             RESTORE_BUILT_IN(HISTORY_LENGTH_TAG, m_HistoryLength)
             RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
             RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind(&CClustererTypes::CIndexGenerator::acceptRestoreTraverser,
-                                    &m_ClusterIndexGenerator,
-                                    _1)))
+                    traverser.traverseSubLevel(boost::bind(
+                        &CClustererTypes::CIndexGenerator::acceptRestoreTraverser, &m_ClusterIndexGenerator, _1)))
             RESTORE_SETUP_TEARDOWN(WEIGHT_CALC_TAG,
                                    int weightCalc,
                                    core::CStringUtils::stringToType(traverser.value(), weightCalc),
-                                   m_WeightCalc =
-                                       static_cast<maths_t::EClusterWeightCalc>(weightCalc))
+                                   m_WeightCalc = static_cast<maths_t::EClusterWeightCalc>(weightCalc))
             RESTORE_BUILT_IN(MINIMUM_CLUSTER_FRACTION_TAG, m_MinimumClusterFraction)
             RESTORE_BUILT_IN(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount)
         } while (traverser.next());
@@ -1112,9 +1058,8 @@ protected:
         CCluster* nearest = this->nearest(*cluster);
 
         if (nearest && nearest->shouldMerge(*cluster)) {
-            LOG_TRACE("Merging cluster " << nearest->index() << " at " << nearest->centre()
-                                         << " and cluster " << cluster->index() << " at "
-                                         << cluster->centre());
+            LOG_TRACE("Merging cluster " << nearest->index() << " at " << nearest->centre() << " and cluster "
+                                         << cluster->index() << " at " << cluster->centre());
             std::size_t index1 = nearest->index();
             std::size_t index2 = cluster->index();
             CCluster merged = nearest->merge(*cluster, m_ClusterIndexGenerator);
@@ -1134,8 +1079,7 @@ protected:
         }
 
         typedef std::pair<double, std::size_t> TDoubleSizePr;
-        typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess>
-            TMinAccumulator;
+        typedef CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1, COrderings::SFirstLess> TMinAccumulator;
 
         bool result = false;
 
@@ -1160,9 +1104,8 @@ protected:
             CCluster& cluster = m_Clusters[prune[0].second];
             CCluster* nearest = this->nearest(cluster);
             if (nearest) {
-                LOG_TRACE("Merging cluster " << cluster.index() << " at " << cluster.centre()
-                                             << " and cluster " << nearest->index() << " at "
-                                             << nearest->centre());
+                LOG_TRACE("Merging cluster " << cluster.index() << " at " << cluster.centre() << " and cluster "
+                                             << nearest->index() << " at " << nearest->centre());
                 CCluster merge = nearest->merge(cluster, m_ClusterIndexGenerator);
                 (this->mergeFunc())(cluster.index(), nearest->index(), merge.index());
                 nearest->swap(merge);

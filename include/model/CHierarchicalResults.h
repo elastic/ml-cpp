@@ -50,10 +50,8 @@ namespace hierarchical_results_detail {
 
 typedef std::vector<core::CStoredStringPtr> TStoredStringPtrVec;
 typedef std::pair<core::CStoredStringPtr, core::CStoredStringPtr> TStoredStringPtrStoredStringPtrPr;
-typedef std::pair<TStoredStringPtrStoredStringPtrPr, double>
-    TStoredStringPtrStoredStringPtrPrDoublePr;
-typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr>
-    TStoredStringPtrStoredStringPtrPrDoublePrVec;
+typedef std::pair<TStoredStringPtrStoredStringPtrPr, double> TStoredStringPtrStoredStringPtrPrDoublePr;
+typedef std::vector<TStoredStringPtrStoredStringPtrPrDoublePr> TStoredStringPtrStoredStringPtrPrDoublePrVec;
 typedef core::CSmallVector<std::string, 1> TStr1Vec;
 
 //! \brief The data fully describing a result node.
@@ -163,18 +161,14 @@ struct MODEL_EXPORT SNode {
     void swap(SNode& other);
 
     //! Persist the node state by passing information to \p inserter.
-    void acceptPersistInserter1(core::CStatePersistInserter& inserter,
-                                TNodePtrSizeUMap& nodePointers) const;
+    void acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodePtrSizeUMap& nodePointers) const;
     //! Persist the node connectivity by passing information to \p inserter.
-    void acceptPersistInserter2(core::CStatePersistInserter& inserter,
-                                const TNodePtrSizeUMap& nodePointers) const;
+    void acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const;
 
     //! Restore the node state reading state from \p traverser.
-    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
-                                 TSizeNodePtrUMap& nodePointers);
+    bool acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSizeNodePtrUMap& nodePointers);
     //! Restore the node connectivity reading state from \p traverser.
-    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
-                                 const TSizeNodePtrUMap& nodePointers);
+    bool acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, const TSizeNodePtrUMap& nodePointers);
 
     //! \name Connectivity
     //@{
@@ -263,8 +257,7 @@ public:
     typedef std::vector<SAttributeProbability> TAttributeProbabilityVec;
     typedef hierarchical_results_detail::SResultSpec TResultSpec;
     typedef core::CStoredStringPtr TStoredStringPtr;
-    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr
-        TStoredStringPtrStoredStringPtrPr;
+    typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPr TStoredStringPtrStoredStringPtrPr;
     typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePr
         TStoredStringPtrStoredStringPtrPrDoublePr;
     typedef hierarchical_results_detail::TStoredStringPtrStoredStringPtrPrDoublePrVec
@@ -273,9 +266,8 @@ public:
     typedef hierarchical_results_detail::SNode::TNodePtrSizeUMap TNodePtrSizeUMap;
     typedef hierarchical_results_detail::SNode::TSizeNodePtrUMap TSizeNodePtrUMap;
     typedef std::deque<TNode> TNodeDeque;
-    typedef std::
-        map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>
-            TStoredStringPtrStoredStringPtrPrNodeMap;
+    typedef std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>
+        TStoredStringPtrStoredStringPtrPrNodeMap;
     typedef std::map<TStoredStringPtr, TNode, maths::COrderings::SLess> TStoredStringPtrNodeMap;
 
 public:
@@ -357,8 +349,7 @@ public:
 
     //! Get the influencer identified by \p influencerName and
     //! \p influencerValue if one exists.
-    const TNode* influencer(const TStoredStringPtr& influencerName,
-                            const TStoredStringPtr& influencerValue) const;
+    const TNode* influencer(const TStoredStringPtr& influencerName, const TStoredStringPtr& influencerValue) const;
 
     //! Bottom up first visit the tree.
     void bottomUpBreadthFirst(CHierarchicalResultsVisitor& visitor) const;
@@ -474,10 +465,8 @@ protected:
     static const TNode* nearestAncestorForWhichWeWriteResults(const TNode& node);
 
     //! Check if we'll write a result for the node.
-    static bool shouldWriteResult(const CLimits& limits,
-                                  const CHierarchicalResults& results,
-                                  const TNode& node,
-                                  bool pivot);
+    static bool
+    shouldWriteResult(const CLimits& limits, const CHierarchicalResults& results, const TNode& node, bool pivot);
 
     friend class ::CHierarchicalResultsTest;
 };

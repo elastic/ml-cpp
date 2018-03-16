@@ -132,8 +132,7 @@ const double CIntegration::CGaussLegendreQuadrature::WEIGHTS10[] = {0.2955242247
                                                                     0.0666713443086881};
 
 const double CIntegration::CGaussLegendreQuadrature::ABSCISSAS1[] = {0.0};
-const double CIntegration::CGaussLegendreQuadrature::ABSCISSAS2[] = {-0.5773502691896257,
-                                                                     0.5773502691896257};
+const double CIntegration::CGaussLegendreQuadrature::ABSCISSAS2[] = {-0.5773502691896257, 0.5773502691896257};
 const double CIntegration::CGaussLegendreQuadrature::ABSCISSAS3[] = {0.0000000000000000,
                                                                      -0.7745966692414834,
                                                                      0.7745966692414834};

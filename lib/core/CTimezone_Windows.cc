@@ -89,8 +89,7 @@ bool CTimezone::timezoneName(const std::string& name) {
 
     m_Timezone = m_TimezoneDb.time_zone_from_region(name);
     if (m_Timezone == 0) {
-        LOG_ERROR("Unable to set timezone to "
-                  << name << " - operating system timezone settings will be used instead");
+        LOG_ERROR("Unable to set timezone to " << name << " - operating system timezone settings will be used instead");
         m_Name.clear();
 
         return false;
@@ -140,18 +139,14 @@ core_t::TTime CTimezone::localToUtc(struct tm& localTime) const {
     static const boost::posix_time::ptime EPOCH(boost::gregorian::date(1970, 1, 1));
 
     boost::gregorian::date dateIn(boost::gregorian::date_from_tm(localTime));
-    boost::posix_time::time_duration
-        timeIn(static_cast<boost::posix_time::time_duration::hour_type>(localTime.tm_hour),
-               static_cast<boost::posix_time::time_duration::min_type>(localTime.tm_min),
-               static_cast<boost::posix_time::time_duration::sec_type>(localTime.tm_sec));
+    boost::posix_time::time_duration timeIn(static_cast<boost::posix_time::time_duration::hour_type>(localTime.tm_hour),
+                                            static_cast<boost::posix_time::time_duration::min_type>(localTime.tm_min),
+                                            static_cast<boost::posix_time::time_duration::sec_type>(localTime.tm_sec));
 
     boost::posix_time::time_duration diff;
     try {
-        boost::local_time::local_date_time
-            boostLocal(dateIn,
-                       timeIn,
-                       m_Timezone,
-                       boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
+        boost::local_time::local_date_time boostLocal(
+            dateIn, timeIn, m_Timezone, boost::local_time::local_date_time::EXCEPTION_ON_ERROR);
         diff = boostLocal.utc_time() - EPOCH;
         localTime.tm_isdst = (boostLocal.is_dst() ? 1 : 0);
     } catch (boost::local_time::ambiguous_result&) {

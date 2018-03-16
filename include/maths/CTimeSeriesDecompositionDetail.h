@@ -334,9 +334,7 @@ public:
     //! \brief Holds and updates the components of the decomposition.
     class MATHS_EXPORT CComponents : public CHandler {
     public:
-        CComponents(double decayRate,
-                    core_t::TTime bucketLength,
-                    std::size_t seasonalComponentSize);
+        CComponents(double decayRate, core_t::TTime bucketLength, std::size_t seasonalComponentSize);
         CComponents(const CComponents& other);
 
         //! \brief Watches to see if the seasonal components state changes.
@@ -697,8 +695,7 @@ inline void swap(CTimeSeriesDecompositionDetail::CCalendarTest& lhs,
 }
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CComponents& lhs,
-                 CTimeSeriesDecompositionDetail::CComponents& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CComponents& lhs, CTimeSeriesDecompositionDetail::CComponents& rhs) {
     lhs.swap(rhs);
 }
 }

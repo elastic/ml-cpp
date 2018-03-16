@@ -43,10 +43,7 @@ static const std::string KEY_TAG("a");
 static const std::string VALUE_TAG("b");
 
 //! Helper function to add a string/int pair to JSON writer
-void addStringInt(TGenericLineWriter& writer,
-                  const std::string& name,
-                  const std::string& description,
-                  uint64_t stat) {
+void addStringInt(TGenericLineWriter& writer, const std::string& name, const std::string& description, uint64_t stat) {
     writer.StartObject();
 
     writer.String(NAME_TYPE);

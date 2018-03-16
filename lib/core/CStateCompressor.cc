@@ -27,13 +27,11 @@ const std::string CStateCompressor::COMPRESSED_ATTRIBUTE("compressed");
 const std::string CStateCompressor::END_OF_STREAM_ATTRIBUTE("eos");
 
 CStateCompressor::CStateCompressor(CDataAdder& compressedAdder)
-    : m_FilterSink(compressedAdder),
-      m_OutStream(boost::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
+    : m_FilterSink(compressedAdder), m_OutStream(boost::make_shared<CCompressOStream>(boost::ref(m_FilterSink))) {
     LOG_TRACE("New compressor");
 }
 
-CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string& index,
-                                                    const std::string& baseId) {
+CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string& index, const std::string& baseId) {
     LOG_TRACE("StateCompressor asking for index " << index);
 
     m_FilterSink.index(index, baseId);
@@ -131,9 +129,7 @@ void CStateCompressor::CChunkFilter::index(const std::string& index, const std::
     m_BaseId = baseId;
 }
 
-void CStateCompressor::CChunkFilter::writeInternal(const char* s,
-                                                   std::streamsize& written,
-                                                   std::streamsize& n) {
+void CStateCompressor::CChunkFilter::writeInternal(const char* s, std::streamsize& written, std::streamsize& n) {
     std::size_t bytesToWrite = std::min(std::size_t(n), m_MaxDocSize - m_BytesDone);
     LOG_TRACE("Writing string: " << std::string(&s[written], bytesToWrite));
     m_OStream->write("\"", 1);

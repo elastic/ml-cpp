@@ -90,18 +90,14 @@ public:
     //! - if the host name is blank
     //! - if the host name is a single label: "testmachine"
     //! - if the host name is a suffix: "co.uk", "s3.amazonaws.com"
-    //! - if the host name is a wildcard: "test.ck" (there is a rule *.ck) so test.ck is a public
-    //! suffix
+    //! - if the host name is a wildcard: "test.ck" (there is a rule *.ck) so test.ck is a public suffix
     bool registeredDomainName(const std::string& host, std::string& registereddomainname) const;
 
     //! Split a host name into
     //! 'subdomain' - token above domain
     //! 'domain' - next token above suffix (domain+suffix) is registered domain
     //! 'suffix' - TLD suffix (if available)
-    void splitHostName(const std::string& host,
-                       std::string& subDomain,
-                       std::string& domain,
-                       std::string& suffix) const;
+    void splitHostName(const std::string& host, std::string& subDomain, std::string& domain, std::string& suffix) const;
 
 private:
     enum ERuleType { E_ExceptionRule = 0, E_Rule, E_WildcardRule, E_NoMatch };
@@ -112,10 +108,7 @@ private:
     bool readLine(const std::string&);
 
     //! Internal extract domains using rules
-    void extract(const std::string& str,
-                 std::string& subDomain,
-                 std::string& domain,
-                 std::string& suffix) const;
+    void extract(const std::string& str, std::string& subDomain, std::string& domain, std::string& suffix) const;
 
     typedef std::vector<std::string::size_type> TSizeTypeVec;
 

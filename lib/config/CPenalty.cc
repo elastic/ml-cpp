@@ -67,9 +67,7 @@ const CPenalty& CPenalty::operator*=(CClosure rhs) {
     return *this;
 }
 
-void CPenalty::penalty(const CFieldStatistics& stats,
-                       double& penalty,
-                       std::string& description) const {
+void CPenalty::penalty(const CFieldStatistics& stats, double& penalty, std::string& description) const {
     this->penaltyFromMe(stats, penalty, description);
     if (scoreIsZeroFor(penalty)) {
         return;

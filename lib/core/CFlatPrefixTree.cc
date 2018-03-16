@@ -47,8 +47,7 @@ struct SCharNotEqualTo {
 };
 }
 
-CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next)
-    : s_Char(c), s_Type(type), s_Next(next) {
+CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next) : s_Char(c), s_Type(type), s_Next(next) {
 }
 
 bool CFlatPrefixTree::SNode::operator<(char rhs) const {
@@ -74,8 +73,7 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
         for (std::size_t i = 0; i < prefixes.size() - 1; ++i) {
             if (prefixes[i] == prefixes[i + 1]) {
                 LOG_ERROR(
-                    "FlatPrefixTree cannot be build from a vector containing duplicate prefixes: "
-                    << prefixes[i]);
+                    "FlatPrefixTree cannot be build from a vector containing duplicate prefixes: " << prefixes[i]);
                 return false;
             }
         }
@@ -88,8 +86,7 @@ bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     }
 
     if (m_FlatTree.size() >= NO_CHILD) {
-        LOG_ERROR("Failed to build the tree: " << m_FlatTree.size()
-                                               << " nodes were required; no more than " << NO_CHILD
+        LOG_ERROR("Failed to build the tree: " << m_FlatTree.size() << " nodes were required; no more than " << NO_CHILD
                                                << " are supported.");
         m_FlatTree.clear();
         return false;
@@ -107,16 +104,11 @@ void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
     // record their start/end indices in the prefixes vector.
     TDistinctCharVec distinctCharsWithRange;
     distinctCharsWithRange.reserve(256);
-    this->extractDistinctCharacters(prefixes,
-                                    prefixesStart,
-                                    prefixesEnd,
-                                    charPos,
-                                    distinctCharsWithRange);
+    this->extractDistinctCharacters(prefixes, prefixesStart, prefixesEnd, charPos, distinctCharsWithRange);
 
     // Now, we create the nodes of the current level: the padding node, that contains
     // the number of distinct characters, and a node for each distinct character.
-    m_FlatTree.push_back(
-        SNode(PADDING_NODE, PADDING_NODE, static_cast<uint32_t>(distinctCharsWithRange.size())));
+    m_FlatTree.push_back(SNode(PADDING_NODE, PADDING_NODE, static_cast<uint32_t>(distinctCharsWithRange.size())));
     std::size_t treeSizeBeforeNewChars = m_FlatTree.size();
     for (std::size_t i = 0; i < distinctCharsWithRange.size(); ++i) {
         SDistinctChar& distinctChar = distinctCharsWithRange[i];
@@ -128,8 +120,7 @@ void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
     for (std::size_t i = 0; i < distinctCharsWithRange.size(); ++i) {
         SDistinctChar& distinctChar = distinctCharsWithRange[i];
         if (distinctChar.s_Type != LEAF_NODE) {
-            m_FlatTree[treeSizeBeforeNewChars + i].s_Next =
-                static_cast<uint32_t>(m_FlatTree.size());
+            m_FlatTree[treeSizeBeforeNewChars + i].s_Next = static_cast<uint32_t>(m_FlatTree.size());
             this->buildRecursively(prefixes, distinctChar.s_Start, distinctChar.s_End, charPos + 1);
         }
     }

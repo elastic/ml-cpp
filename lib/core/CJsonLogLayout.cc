@@ -85,21 +85,15 @@ void CJsonLogLayout::activateOptions(Pool& /*p*/) {
 }
 
 void CJsonLogLayout::setOption(const LogString& option, const LogString& value) {
-    if (StringHelper::equalsIgnoreCase(option,
-                                       LOG4CXX_STR("LOCATIONINFO"),
-                                       LOG4CXX_STR("locationinfo"))) {
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"), LOG4CXX_STR("locationinfo"))) {
         this->locationInfo(OptionConverter::toBoolean(value, false));
     }
-    if (StringHelper::equalsIgnoreCase(option,
-                                       LOG4CXX_STR("PROPERTIES"),
-                                       LOG4CXX_STR("properties"))) {
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PROPERTIES"), LOG4CXX_STR("properties"))) {
         this->properties(OptionConverter::toBoolean(value, false));
     }
 }
 
-void CJsonLogLayout::format(LogString& output,
-                            const spi::LoggingEventPtr& event,
-                            Pool& /*p*/) const {
+void CJsonLogLayout::format(LogString& output, const spi::LoggingEventPtr& event, Pool& /*p*/) const {
     typedef rapidjson::Writer<rapidjson::StringBuffer> TStringBufferWriter;
     rapidjson::StringBuffer buffer;
     TStringBufferWriter writer(buffer);
@@ -164,8 +158,7 @@ void CJsonLogLayout::format(LogString& output,
             writer.String(PROPERTIES_NAME);
             writer.StartObject();
 
-            for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin(); i != keySet.end();
-                 ++i) {
+            for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin(); i != keySet.end(); ++i) {
                 const LogString& key = *i;
                 LogString value;
                 if (event->getMDC(key, value)) {
@@ -175,9 +168,7 @@ void CJsonLogLayout::format(LogString& output,
                     writer.String(val);
                 }
             }
-            for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin();
-                 i != propertySet.end();
-                 ++i) {
+            for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin(); i != propertySet.end(); ++i) {
                 const LogString& key = *i;
                 LogString value;
                 if (event->getProperty(key, value)) {

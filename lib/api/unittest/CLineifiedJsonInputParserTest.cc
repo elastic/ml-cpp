@@ -28,15 +28,11 @@
 CppUnit::Test* CLineifiedJsonInputParserTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLineifiedJsonInputParserTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputArbitrary",
-                                           &CLineifiedJsonInputParserTest::
-                                               testThroughputArbitrary));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CLineifiedJsonInputParserTest>("CLineifiedJsonInputParserTest::testThroughputCommon",
-                                           &CLineifiedJsonInputParserTest::testThroughputCommon));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
+        "CLineifiedJsonInputParserTest::testThroughputArbitrary",
+        &CLineifiedJsonInputParserTest::testThroughputArbitrary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLineifiedJsonInputParserTest>(
+        "CLineifiedJsonInputParserTest::testThroughputCommon", &CLineifiedJsonInputParserTest::testThroughputCommon));
 
     return suiteOfTests;
 }
@@ -139,6 +135,5 @@ void CLineifiedJsonInputParserTest::runTest(bool allDocsSameStructure) {
 
     CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
-    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start)
-                        << " seconds");
+    LOG_INFO("Parsing " << visitor.recordCount() << " records took " << (end - start) << " seconds");
 }

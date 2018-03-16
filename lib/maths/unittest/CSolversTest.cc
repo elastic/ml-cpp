@@ -128,13 +128,7 @@ void CSolversTest::testBracket(void) {
         std::size_t maxIterations = 10u;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::leftBracket(a,
-                                             b,
-                                             fa,
-                                             fb,
-                                             f,
-                                             maxIterations,
-                                             std::numeric_limits<double>::min()));
+        CPPUNIT_ASSERT(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations, std::numeric_limits<double>::min()));
         LOG_DEBUG("a = " << a << ", b = " << b << ", f(a) = " << fa << ", f(b) = " << fb
                          << ", maxIterations = " << maxIterations);
         CPPUNIT_ASSERT_EQUAL(f(a), fa);
@@ -206,8 +200,7 @@ void CSolversTest::testBisection(void) {
             CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
 
             double error = ::fabs(bestGuess - 0.7390851332151607);
-            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess)
-                                     << ", error = " << error);
+            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
             CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
@@ -251,8 +244,7 @@ void CSolversTest::testBisection(void) {
             lastInterval = b - a;
 
             double error = ::fabs(bestGuess - 2.0 / 3.0);
-            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess)
-                                     << ", error = " << error);
+            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
             CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 2.0 / 3.0));
             convergenceFactor *= (error / lastError);
             lastError = error;
@@ -337,8 +329,7 @@ void CSolversTest::testBrent(void) {
             CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
 
             double error = ::fabs(bestGuess - 0.7390851332151607);
-            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess)
-                                     << ", error = " << error);
+            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
             CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
@@ -373,8 +364,7 @@ void CSolversTest::testBrent(void) {
             CPPUNIT_ASSERT(f4(a) * f4(b) <= 0.0);
 
             double error = ::fabs(bestGuess - 2.0 / 3.0);
-            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess)
-                                     << ", error = " << error);
+            LOG_DEBUG("bestGuess = " << bestGuess << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
             CPPUNIT_ASSERT(error < ::fabs((a + b) / 2.0 - 2.0 / 3.0));
             double convergenceFactor = error / lastError;
             lastError = error;
@@ -411,15 +401,13 @@ void CSolversTest::testSublevelSet(void) {
         LOG_DEBUG("f(a) = " << f5(sublevelSet.first) << ", f(b) = " << f5(sublevelSet.second));
     }
 
-    LOG_DEBUG(
-        "*** f(x) = 1.1 * exp(-2.0*(x-4)^2) + 0.1 * exp(-(x-6)^2) + 0.4 * exp(-(x-10)^2/2) ***");
+    LOG_DEBUG("*** f(x) = 1.1 * exp(-2.0*(x-4)^2) + 0.1 * exp(-(x-6)^2) + 0.4 * exp(-(x-10)^2/2) ***");
 
     fmax = 0.9 * f6(10.0);
     for (std::size_t i = 0u; i < 15u; ++i, fmax *= 0.9) {
         LOG_DEBUG("fmax = " << fmax);
 
-        bool found =
-            CSolvers::sublevelSet(4.0, 10.0, f6(4.0), f6(10.0), &f6, fmax, 15, sublevelSet);
+        bool found = CSolvers::sublevelSet(4.0, 10.0, f6(4.0), f6(10.0), &f6, fmax, 15, sublevelSet);
 
         LOG_DEBUG("sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
         LOG_DEBUG("f(a) = " << f6(sublevelSet.first) << ", f(b) = " << f6(sublevelSet.second));
@@ -436,14 +424,13 @@ void CSolversTest::testSublevelSet(void) {
 CppUnit::Test* CSolversTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket",
-                                                                &CSolversTest::testBracket));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBisection",
-                                                                &CSolversTest::testBisection));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBrent", &CSolversTest::testBrent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testSublevelSet",
-                                                                &CSolversTest::testSublevelSet));
+        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBracket", &CSolversTest::testBracket));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBisection", &CSolversTest::testBisection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>("CSolversTest::testBrent", &CSolversTest::testBrent));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CSolversTest>("CSolversTest::testSublevelSet", &CSolversTest::testSublevelSet));
 
     return suiteOfTests;
 }

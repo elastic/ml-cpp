@@ -58,8 +58,7 @@ public:
                                         core::CStateRestoreTraverser& traverser);
 
     //! Copy from \p rhs.
-    const CSeasonalComponentAdaptiveBucketing&
-    operator=(const CSeasonalComponentAdaptiveBucketing& rhs);
+    const CSeasonalComponentAdaptiveBucketing& operator=(const CSeasonalComponentAdaptiveBucketing& rhs);
 
     //! Persist by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -83,9 +82,7 @@ public:
     //! \param[in] endTime The end of the period including \p values.
     //! \param[in] values Time ranges and the corresponding function
     //! value moments.
-    void initialValues(core_t::TTime startTime,
-                       core_t::TTime endTime,
-                       const TFloatMeanAccumulatorVec& values);
+    void initialValues(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
     std::size_t size(void) const;
@@ -191,10 +188,7 @@ private:
     //! \brief The state maintained for each bucket.
     struct SBucket {
         SBucket(void);
-        SBucket(const TRegression& regression,
-                double variance,
-                core_t::TTime firstUpdate,
-                core_t::TTime lastUpdate);
+        SBucket(const TRegression& regression, double variance, core_t::TTime firstUpdate, core_t::TTime lastUpdate);
 
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -250,8 +244,7 @@ private:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CSeasonalComponentAdaptiveBucketing& lhs,
-                 CSeasonalComponentAdaptiveBucketing& rhs) {
+inline void swap(CSeasonalComponentAdaptiveBucketing& lhs, CSeasonalComponentAdaptiveBucketing& rhs) {
     lhs.swap(rhs);
 }
 }

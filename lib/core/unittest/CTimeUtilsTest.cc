@@ -25,18 +25,17 @@
 CppUnit::Test* CTimeUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeUtilsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testNow",
-                                                                  &CTimeUtilsTest::testNow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToIso8601",
-                                                                  &CTimeUtilsTest::testToIso8601));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToLocal",
-                                                                  &CTimeUtilsTest::testToLocal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testStrptime",
-                                                                  &CTimeUtilsTest::testStrptime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testTimezone",
-                                                                  &CTimeUtilsTest::testTimezone));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testDateWords",
-                                                                  &CTimeUtilsTest::testDateWords));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testNow", &CTimeUtilsTest::testNow));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToIso8601", &CTimeUtilsTest::testToIso8601));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testToLocal", &CTimeUtilsTest::testToLocal));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testStrptime", &CTimeUtilsTest::testStrptime));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testTimezone", &CTimeUtilsTest::testTimezone));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CTimeUtilsTest>("CTimeUtilsTest::testDateWords", &CTimeUtilsTest::testDateWords));
 
     return suiteOfTests;
 }
@@ -221,8 +220,7 @@ void CTimeUtilsTest::testStrptime(void) {
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <=
-                       ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -243,8 +241,7 @@ void CTimeUtilsTest::testStrptime(void) {
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <=
-                       ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -265,8 +262,7 @@ void CTimeUtilsTest::testStrptime(void) {
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <=
-                       ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() + ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
 }
 
@@ -306,8 +302,7 @@ void CTimeUtilsTest::testTimezone(void) {
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
         CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(
-            ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
+        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
         CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
     }
 
@@ -326,8 +321,7 @@ void CTimeUtilsTest::testTimezone(void) {
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
         CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(
-            ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
+        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
         CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
     }
 
@@ -344,8 +338,7 @@ void CTimeUtilsTest::testTimezone(void) {
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
         CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(
-            ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
+        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
         CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
     }
 
@@ -357,8 +350,7 @@ void CTimeUtilsTest::testTimezone(void) {
     // Northern Territory first
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Australia/Darwin"));
     {
-        ml::core_t::TTime expected(utcExpected -
-                                   static_cast<ml::core_t::TTime>(9.5 * SECONDS_PER_HOUR));
+        ml::core_t::TTime expected(utcExpected - static_cast<ml::core_t::TTime>(9.5 * SECONDS_PER_HOUR));
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
@@ -367,8 +359,7 @@ void CTimeUtilsTest::testTimezone(void) {
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
         CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(
-            ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
+        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
         CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
     }
 
@@ -376,8 +367,7 @@ void CTimeUtilsTest::testTimezone(void) {
     // so daylight saving is in force
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Australia/Adelaide"));
     {
-        ml::core_t::TTime expected(utcExpected -
-                                   static_cast<ml::core_t::TTime>(10.5 * SECONDS_PER_HOUR));
+        ml::core_t::TTime expected(utcExpected - static_cast<ml::core_t::TTime>(10.5 * SECONDS_PER_HOUR));
         ml::core_t::TTime actual(0);
 
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
@@ -386,8 +376,7 @@ void CTimeUtilsTest::testTimezone(void) {
         CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
         CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(
-            ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
+        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeTwoHoursBehindUtc, actual));
         CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
     }
 

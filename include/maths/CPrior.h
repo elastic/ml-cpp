@@ -193,9 +193,8 @@ public:
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights) = 0;
+    virtual double
+    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
 
     //! Get the current sample offset.
     virtual double offset(void) const = 0;
@@ -208,9 +207,8 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights) = 0;
+    virtual void
+    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights) = 0;
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) = 0;
@@ -226,14 +224,12 @@ public:
     virtual double nearestMarginalLikelihoodMean(double value) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                          const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Get the local maxima of the marginal likelihood function.
-    virtual TDouble1Vec
-    marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                            const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDouble1Vec marginalLikelihoodModes(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                                const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -248,15 +244,14 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                         const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const = 0;
+    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                              const TDouble4Vec& weights = TWeights::UNIT) const = 0;
 
     //! Calculate the log marginal likelihood function integrating over the
     //! prior density function.
@@ -267,11 +262,10 @@ public:
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
-                               double& result) const = 0;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble1Vec& samples,
+                                                                          const TDouble4Vec1Vec& weights,
+                                                                          double& result) const = 0;
 
     //! Sample the marginal likelihood function.
     //!
@@ -290,8 +284,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble1Vec& samples) const = 0;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const = 0;
 
     //! Calculate minus the log of the joint c.d.f. of the marginal likelihood
     //! for a collection of independent samples from the variable.
@@ -472,9 +465,7 @@ public:
     virtual double unmarginalizedParameters(void) const;
 
     //! Get a set of sample for the prior to use in adjust offset.
-    void adjustOffsetResamples(double minimumSample,
-                               TDouble1Vec& resamples,
-                               TDouble4Vec1Vec& resamplesWeights) const;
+    void adjustOffsetResamples(double minimumSample, TDouble1Vec& resamples, TDouble4Vec1Vec& resamplesWeights) const;
 
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter

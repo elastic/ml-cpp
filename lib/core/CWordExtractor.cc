@@ -23,8 +23,7 @@ namespace core {
 
 const std::string CWordExtractor::PUNCT_CHARS("!\"'(),-./:;?[]`");
 
-void CWordExtractor::extractWordsFromMessage(const std::string& message,
-                                             std::string& messageWords) {
+void CWordExtractor::extractWordsFromMessage(const std::string& message, std::string& messageWords) {
     CWordExtractor::extractWordsFromMessage(1, message, messageWords);
 }
 
@@ -59,9 +58,7 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
         if (::isspace(static_cast<unsigned char>(thisChar))) {
             if (inWord && punctCount <= 1) {
                 if (dict.isInDictionary(curWord)) {
-                    messageWords.append(message,
-                                        wordStartPos,
-                                        messagePos - spaceCount - punctCount - wordStartPos);
+                    messageWords.append(message, wordStartPos, messagePos - spaceCount - punctCount - wordStartPos);
                     messageWords += ' ';
 
                     ++consecutive;
@@ -123,9 +120,7 @@ void CWordExtractor::extractWordsFromMessage(size_t minConsecutive,
     if (inWord && punctCount <= 1 && dict.isInDictionary(curWord)) {
         ++consecutive;
         if (consecutive >= minConsecutive) {
-            messageWords.append(message,
-                                wordStartPos,
-                                message.length() - wordStartPos - punctCount);
+            messageWords.append(message, wordStartPos, message.length() - wordStartPos - punctCount);
             messageWords += ' ';
 
             rollbackPos = messageWords.length();

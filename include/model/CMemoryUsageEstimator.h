@@ -102,4 +102,4 @@ private:
 } // model
 } // ml
 
-#endif // INCLUDED_ml_core_CMemoryUsageEstimator_h
+#endif //INCLUDED_ml_core_CMemoryUsageEstimator_h

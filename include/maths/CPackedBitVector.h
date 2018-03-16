@@ -53,8 +53,7 @@ namespace maths {
 //! number of runs in between. In practice we store one extra bit, the
 //! vector parity to allow us to extend the vector efficiently.
 class MATHS_EXPORT CPackedBitVector
-    : private boost::equality_comparable<CPackedBitVector,
-                                         boost::partially_ordered<CPackedBitVector>> {
+    : private boost::equality_comparable<CPackedBitVector, boost::partially_ordered<CPackedBitVector>> {
 public:
     typedef std::vector<bool> TBoolVec;
 

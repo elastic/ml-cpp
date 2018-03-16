@@ -235,21 +235,18 @@ private:
 
 private:
     //! Recursively build the k-d tree.
-    SNode*
-    buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
+    SNode* buildRecursively(SNode* parent, std::size_t coordinate, TPointVecItr begin, TPointVecItr end) {
         std::size_t n = static_cast<std::size_t>(end - begin) / 2;
         TPointVecItr median = begin + n;
         std::nth_element(begin, median, end, CCoordinateLess(coordinate));
         m_Nodes.push_back(SNode(parent, *median));
         SNode* node = &m_Nodes.back();
         if (median - begin > 0) {
-            SNode* leftChild =
-                this->buildRecursively(node, (coordinate + 1) % m_Dimension, begin, median);
+            SNode* leftChild = this->buildRecursively(node, (coordinate + 1) % m_Dimension, begin, median);
             node->s_LeftChild = leftChild;
         }
         if (end - median > 1) {
-            SNode* rightChild =
-                this->buildRecursively(node, (coordinate + 1) % m_Dimension, median + 1, end);
+            SNode* rightChild = this->buildRecursively(node, (coordinate + 1) % m_Dimension, median + 1, end);
             node->s_RightChild = rightChild;
         }
         return node;
@@ -278,14 +275,9 @@ private:
             }
 
             std::size_t nextCoordinate = (coordinate + 1) % m_Dimension;
-            nearest =
-                this->nearestNeighbour(point, *primary, nextCoordinate, nearest, distanceToNearest);
+            nearest = this->nearestNeighbour(point, *primary, nextCoordinate, nearest, distanceToNearest);
             if (secondary && ::fabs(distanceToHyperplane) < distanceToNearest) {
-                nearest = this->nearestNeighbour(point,
-                                                 *secondary,
-                                                 nextCoordinate,
-                                                 nearest,
-                                                 distanceToNearest);
+                nearest = this->nearestNeighbour(point, *secondary, nextCoordinate, nearest, distanceToNearest);
             }
         }
 

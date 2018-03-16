@@ -92,34 +92,33 @@ void CDetectorEnumeratorTest::testAll(void) {
         enumerator.addOverField("person");
         enumerator.generate(spec);
         LOG_DEBUG("4) detectors =\n" << print(spec, " "));
-        std::string expected =
-            "[low_|high_][non_zero_]count\n"
-            "[low_|high_]distinct_count(port)\n"
-            "[low_|high_]mean(bytes)\n"
-            "[low_|high_][non_zero_]count by 'process'\n"
-            "[low_|high_][non_zero_]count by 'parent_process'\n"
-            "[low_|high_]distinct_count(port) by 'process'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process'\n"
-            "[low_|high_]mean(bytes) by 'process'\n"
-            "[low_|high_]mean(bytes) by 'parent_process'\n"
-            "[low_|high_]count over 'machine'\n"
-            "[low_|high_]count over 'person'\n"
-            "[low_|high_]distinct_count(port) over 'machine'\n"
-            "[low_|high_]distinct_count(port) over 'person'\n"
-            "[low_|high_]mean(bytes) over 'machine'\n"
-            "[low_|high_]mean(bytes) over 'person'\n"
-            "[low_|high_]count by 'process' over 'machine'\n"
-            "[low_|high_]count by 'process' over 'person'\n"
-            "[low_|high_]count by 'parent_process' over 'machine'\n"
-            "[low_|high_]count by 'parent_process' over 'person'\n"
-            "[low_|high_]distinct_count(port) by 'process' over 'machine'\n"
-            "[low_|high_]distinct_count(port) by 'process' over 'person'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'machine'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'person'\n"
-            "[low_|high_]mean(bytes) by 'process' over 'machine'\n"
-            "[low_|high_]mean(bytes) by 'process' over 'person'\n"
-            "[low_|high_]mean(bytes) by 'parent_process' over 'machine'\n"
-            "[low_|high_]mean(bytes) by 'parent_process' over 'person'\n";
+        std::string expected = "[low_|high_][non_zero_]count\n"
+                               "[low_|high_]distinct_count(port)\n"
+                               "[low_|high_]mean(bytes)\n"
+                               "[low_|high_][non_zero_]count by 'process'\n"
+                               "[low_|high_][non_zero_]count by 'parent_process'\n"
+                               "[low_|high_]distinct_count(port) by 'process'\n"
+                               "[low_|high_]distinct_count(port) by 'parent_process'\n"
+                               "[low_|high_]mean(bytes) by 'process'\n"
+                               "[low_|high_]mean(bytes) by 'parent_process'\n"
+                               "[low_|high_]count over 'machine'\n"
+                               "[low_|high_]count over 'person'\n"
+                               "[low_|high_]distinct_count(port) over 'machine'\n"
+                               "[low_|high_]distinct_count(port) over 'person'\n"
+                               "[low_|high_]mean(bytes) over 'machine'\n"
+                               "[low_|high_]mean(bytes) over 'person'\n"
+                               "[low_|high_]count by 'process' over 'machine'\n"
+                               "[low_|high_]count by 'process' over 'person'\n"
+                               "[low_|high_]count by 'parent_process' over 'machine'\n"
+                               "[low_|high_]count by 'parent_process' over 'person'\n"
+                               "[low_|high_]distinct_count(port) by 'process' over 'machine'\n"
+                               "[low_|high_]distinct_count(port) by 'process' over 'person'\n"
+                               "[low_|high_]distinct_count(port) by 'parent_process' over 'machine'\n"
+                               "[low_|high_]distinct_count(port) by 'parent_process' over 'person'\n"
+                               "[low_|high_]mean(bytes) by 'process' over 'machine'\n"
+                               "[low_|high_]mean(bytes) by 'process' over 'person'\n"
+                               "[low_|high_]mean(bytes) by 'parent_process' over 'machine'\n"
+                               "[low_|high_]mean(bytes) by 'parent_process' over 'person'\n";
         CPPUNIT_ASSERT_EQUAL(expected, print(spec));
     }
 
@@ -206,16 +205,11 @@ void CDetectorEnumeratorTest::testAll(void) {
             "[low_|high_]distinct_count(port) by 'process' over 'machine' partition 'data_centre'\n"
             "[low_|high_]distinct_count(port) by 'process' over 'person' partition 'machine'\n"
             "[low_|high_]distinct_count(port) by 'process' over 'person' partition 'data_centre'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'machine' partition "
-            "'process'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'machine' partition "
-            "'data_centre'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition "
-            "'process'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition "
-            "'machine'\n"
-            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition "
-            "'data_centre'\n"
+            "[low_|high_]distinct_count(port) by 'parent_process' over 'machine' partition 'process'\n"
+            "[low_|high_]distinct_count(port) by 'parent_process' over 'machine' partition 'data_centre'\n"
+            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition 'process'\n"
+            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition 'machine'\n"
+            "[low_|high_]distinct_count(port) by 'parent_process' over 'person' partition 'data_centre'\n"
             "[low_|high_]mean(bytes) by 'process' over 'machine' partition 'data_centre'\n"
             "[low_|high_]mean(bytes) by 'process' over 'person' partition 'machine'\n"
             "[low_|high_]mean(bytes) by 'process' over 'person' partition 'data_centre'\n"
@@ -232,9 +226,8 @@ void CDetectorEnumeratorTest::testAll(void) {
 CppUnit::Test* CDetectorEnumeratorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CDetectorEnumeratorTest>("CDetectorEnumeratorTest::testAll",
-                                                         &CDetectorEnumeratorTest::testAll));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEnumeratorTest>("CDetectorEnumeratorTest::testAll",
+                                                                           &CDetectorEnumeratorTest::testAll));
 
     return suiteOfTests;
 }

@@ -41,9 +41,7 @@ public:
 public:
     CStringThread(std::size_t i, const TStrVec& strings) : m_I(i), m_Strings(strings) {}
 
-    void uniques(TStrCPtrUSet& result) const {
-        result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
-    }
+    void uniques(TStrCPtrUSet& result) const { result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end()); }
 
     void propagateLastThreadAssert(void) {
         if (m_LastException != 0) {
@@ -253,12 +251,10 @@ void CStringStoreTest::testMemUsage(void) {
 CppUnit::Test* CStringStoreTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore",
+                                                                    &CStringStoreTest::testStringStore));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testStringStore",
-                                                  &CStringStoreTest::testStringStore));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage",
-                                                  &CStringStoreTest::testMemUsage));
+        new CppUnit::TestCaller<CStringStoreTest>("CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
 
     return suiteOfTests;
 }

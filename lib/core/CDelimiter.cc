@@ -60,8 +60,8 @@ CDelimiter::CDelimiter(const std::string& delimiter, const std::string& followin
 
 bool CDelimiter::operator==(const CDelimiter& rhs) const {
     if (m_Valid != rhs.m_Valid || m_HaveFollowingRegex != rhs.m_HaveFollowingRegex ||
-        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime ||
-        m_Quote != rhs.m_Quote || m_Escape != rhs.m_Escape) {
+        m_WaiveFollowingRegexAfterTime != rhs.m_WaiveFollowingRegexAfterTime || m_Quote != rhs.m_Quote ||
+        m_Escape != rhs.m_Escape) {
         return false;
     }
 
@@ -86,9 +86,7 @@ bool CDelimiter::operator!=(const CDelimiter& rhs) const {
 }
 
 // Check whether the text that followed the primary delimiter was acceptable
-bool CDelimiter::isFollowingTextAcceptable(size_t searchPos,
-                                           const std::string& str,
-                                           bool timePassed) const {
+bool CDelimiter::isFollowingTextAcceptable(size_t searchPos, const std::string& str, bool timePassed) const {
     bool answer(false);
 
     if (m_HaveFollowingRegex) {
@@ -116,9 +114,7 @@ std::string CDelimiter::delimiter(void) const {
     return m_Delimiter.str();
 }
 
-void CDelimiter::tokenise(const std::string& str,
-                          CStringUtils::TStrVec& tokens,
-                          std::string& remainder) const {
+void CDelimiter::tokenise(const std::string& str, CStringUtils::TStrVec& tokens, std::string& remainder) const {
     std::string exampleDelimiter;
     this->tokenise(str, false, tokens, exampleDelimiter, remainder);
 }
@@ -181,10 +177,7 @@ void CDelimiter::tokenise(const std::string& str,
         }
 
         // Search for the delimiter
-        bool found(m_Delimiter.search(expectingQuote ? (quotePos + 1) : searchPos,
-                                      str,
-                                      delimStartPos,
-                                      delimLength));
+        bool found(m_Delimiter.search(expectingQuote ? (quotePos + 1) : searchPos, str, delimStartPos, delimLength));
         if (!found) {
             if (expectingQuote && quotePos < str.length()) {
                 // If we're expecting a quote and find one, treat this as

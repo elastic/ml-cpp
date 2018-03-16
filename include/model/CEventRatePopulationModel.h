@@ -94,8 +94,7 @@ public:
     using TFeatureData = SEventRateFeatureData;
     using TSizeSizePrFeatureDataPr = std::pair<TSizeSizePr, TFeatureData>;
     using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
-    using TFeatureSizeSizePrFeatureDataPrVecMap =
-        std::map<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
+    using TFeatureSizeSizePrFeatureDataPrVecMap = std::map<model_t::EFeature, TSizeSizePrFeatureDataPrVec>;
     using TCategoryProbabilityCache = CModelTools::CCategoryProbabilityCache;
     using TProbabilityCache = CModelTools::CProbabilityCache;
 
@@ -139,26 +138,24 @@ public:
     //! for each feature.
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CEventRatePopulationModel(
-        const SModelParams& params,
-        const TDataGathererPtr& dataGatherer,
-        const TFeatureMathsModelPtrPrVec& newFeatureModels,
-        const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-        const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
-        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
+    CEventRatePopulationModel(const SModelParams& params,
+                              const TDataGathererPtr& dataGatherer,
+                              const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                              const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                              const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                              const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
     //! Constructor used for restoring persisted models.
     //!
     //! \note The current bucket statistics are left default initialized
     //! and so must be sampled for before this model can be used.
-    CEventRatePopulationModel(
-        const SModelParams& params,
-        const TDataGathererPtr& dataGatherer,
-        const TFeatureMathsModelPtrPrVec& newFeatureModels,
-        const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
-        const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
-        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
-        core::CStateRestoreTraverser& traverser);
+    CEventRatePopulationModel(const SModelParams& params,
+                              const TDataGathererPtr& dataGatherer,
+                              const TFeatureMathsModelPtrPrVec& newFeatureModels,
+                              const TFeatureMultivariatePriorPtrPrVec& newFeatureCorrelateModelPriors,
+                              const TFeatureCorrelationsPtrPrVec& featureCorrelatesModels,
+                              const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
+                              core::CStateRestoreTraverser& traverser);
 
     //! Create a copy that will result in the same persisted state as the
     //! original.  This is effectively a copy constructor that creates a
@@ -203,10 +200,8 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid The identifier of the attribute of interest.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const;
+    virtual TDouble1Vec
+    currentBucketValue(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Get the population baseline mean of \p feature for the
     //! attribute identified by \p cid as of the start of the
@@ -240,9 +235,8 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor);
+    virtual void
+    sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Update the model with the samples of the various processes
     //! in the time interval [\p startTime, \p endTime].
@@ -250,8 +244,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void
-    sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Prune any data for people and attributes which haven't been
     //! seen for a sufficiently long period. This is based on the
@@ -313,8 +306,7 @@ public:
     virtual CModelDetailsViewPtr details(void) const;
 
     //! Get the feature data corresponding to \p feature at \p time.
-    const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,
-                                                   core_t::TTime time) const;
+    const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature, core_t::TTime time) const;
 
 private:
     //! Initialize the feature models.
@@ -348,8 +340,7 @@ private:
     virtual void updateRecycledModels(void);
 
     //! Update the correlation models.
-    virtual void refreshCorrelationModels(std::size_t resourceLimit,
-                                          CResourceMonitor& resourceMonitor);
+    virtual void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people/attributes that are pruned
     virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
@@ -367,10 +358,7 @@ private:
 
     //! Check if there are correlates for \p feature and the person and
     //! attribute identified by \p pid and \p cid, respectively.
-    bool correlates(model_t::EFeature feature,
-                    std::size_t pid,
-                    std::size_t cid,
-                    core_t::TTime time) const;
+    bool correlates(model_t::EFeature feature, std::size_t pid, std::size_t cid, core_t::TTime time) const;
 
     //! Fill in the probability calculation parameters for \p feature and
     //! person and attribute identified by \p pid and \p cid, respectively.

@@ -97,8 +97,7 @@ struct has_print_function {
 };
 
 template<typename T>
-struct has_print_function<T,
-                          typename enable_if_is<std::string (T::*)(void) const, &T::print>::type> {
+struct has_print_function<T, typename enable_if_is<std::string (T::*)(void) const, &T::print>::type> {
     typedef true_ value;
 };
 //@}

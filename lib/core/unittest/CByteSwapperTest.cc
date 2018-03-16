@@ -23,8 +23,7 @@ CppUnit::Test* CByteSwapperTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CByteSwapperTest");
 
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CByteSwapperTest>("CByteSwapperTest::testByteSwaps",
-                                                  &CByteSwapperTest::testByteSwaps));
+        new CppUnit::TestCaller<CByteSwapperTest>("CByteSwapperTest::testByteSwaps", &CByteSwapperTest::testByteSwaps));
 
     return suiteOfTests;
 }

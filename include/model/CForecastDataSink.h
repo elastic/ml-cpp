@@ -142,10 +142,7 @@ public:
               int detectorIndex);
 
     //! Write Statistics about the forecast, also marks the ending
-    void writeStats(const double progress,
-                    uint64_t runtime,
-                    const TStrUMap& messages,
-                    bool successful = true);
+    void writeStats(const double progress, uint64_t runtime, const TStrUMap& messages, bool successful = true);
 
     //! Write a scheduled message to signal that validation was successful
     void writeScheduledMessage();

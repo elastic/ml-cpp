@@ -55,10 +55,7 @@ public:
 
     //! Get the top \p n most co-occurring events by significance
     //! with events \p X.
-    void topNBySignificance(std::size_t X,
-                            std::size_t n,
-                            TSizeSizePrVec& top,
-                            TDoubleVec& significances) const;
+    void topNBySignificance(std::size_t X, std::size_t n, TSizeSizePrVec& top, TDoubleVec& significances) const;
 
     //! Get the top \p n most co-occurring events by significance.
     void topNBySignificance(std::size_t n, TSizeSizePrVec& top, TDoubleVec& significances) const;

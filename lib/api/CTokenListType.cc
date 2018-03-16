@@ -45,9 +45,7 @@ const std::string EMPTY_STRING;
 class CSizePairFirstElementLess
     : public std::binary_function<CTokenListType::TSizeSizePr, CTokenListType::TSizeSizePr, bool> {
 public:
-    bool operator()(CTokenListType::TSizeSizePr lhs, CTokenListType::TSizeSizePr rhs) {
-        return lhs.first < rhs.first;
-    }
+    bool operator()(CTokenListType::TSizeSizePr lhs, CTokenListType::TSizeSizePr rhs) { return lhs.first < rhs.first; }
 };
 }
 
@@ -93,8 +91,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             m_BaseString = traverser.value();
         } else if (name == BASE_TOKEN_ID) {
             TSizeSizePr tokenAndWeight(0, 0);
-            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) == false) {
                 LOG_ERROR("Invalid base token ID in " << traverser.value());
                 return false;
             }
@@ -107,8 +104,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             }
 
             TSizeSizePr& tokenAndWeight = m_BaseTokenIds.back();
-            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) == false) {
                 LOG_ERROR("Invalid base token weight in " << traverser.value());
                 return false;
             }
@@ -120,15 +116,13 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
                 return false;
             }
         } else if (name == OUT_OF_ORDER_COMMON_TOKEN_INDEX) {
-            if (core::CStringUtils::stringToType(traverser.value(), m_OutOfOrderCommonTokenIndex) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), m_OutOfOrderCommonTokenIndex) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
                 return false;
             }
         } else if (name == COMMON_UNIQUE_TOKEN_ID) {
             TSizeSizePr tokenAndWeight(0, 0);
-            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.first) == false) {
                 LOG_ERROR("Invalid common unique token ID in " << traverser.value());
                 return false;
             }
@@ -137,14 +131,12 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             expectWeight = true;
         } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT) {
             if (!expectWeight) {
-                LOG_ERROR("Common unique token weight precedes common unique token ID in "
-                          << traverser.value());
+                LOG_ERROR("Common unique token weight precedes common unique token ID in " << traverser.value());
                 return false;
             }
 
             TSizeSizePr& tokenAndWeight = m_CommonUniqueTokenIds.back();
-            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), tokenAndWeight.second) == false) {
                 LOG_ERROR("Invalid common unique token weight in " << traverser.value());
                 return false;
             }
@@ -152,8 +144,7 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
 
             m_CommonUniqueTokenWeight += tokenAndWeight.second;
         } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT) {
-            if (core::CStringUtils::stringToType(traverser.value(), m_OrigUniqueTokenWeight) ==
-                false) {
+            if (core::CStringUtils::stringToType(traverser.value(), m_OrigUniqueTokenWeight) == false) {
                 LOG_ERROR("Invalid maximum string length in " << traverser.value());
                 return false;
             }
@@ -342,13 +333,11 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTo
 
 bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
     TSizeSizePrVecCItr testIter = tokenIds.begin();
-    for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin(); baseIter != m_BaseTokenIds.end();
-         ++baseIter) {
+    for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin(); baseIter != m_BaseTokenIds.end(); ++baseIter) {
         // Ignore tokens that are not in the common unique tokens
-        if (std::binary_search(m_CommonUniqueTokenIds.begin(),
-                               m_CommonUniqueTokenIds.end(),
-                               *baseIter,
-                               CSizePairFirstElementLess()) == false) {
+        if (std::binary_search(
+                m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(), *baseIter, CSizePairFirstElementLess()) ==
+            false) {
             continue;
         }
 
@@ -381,9 +370,7 @@ void CTokenListType::acceptPersistInserter(core::CStatePersistInserter& inserter
     inserter.insertValue(MAX_STRING_LEN, m_MaxStringLen);
     inserter.insertValue(OUT_OF_ORDER_COMMON_TOKEN_INDEX, m_OutOfOrderCommonTokenIndex);
 
-    for (TSizeSizePrVecCItr iter = m_CommonUniqueTokenIds.begin();
-         iter != m_CommonUniqueTokenIds.end();
-         ++iter) {
+    for (TSizeSizePrVecCItr iter = m_CommonUniqueTokenIds.begin(); iter != m_CommonUniqueTokenIds.end(); ++iter) {
         inserter.insertValue(COMMON_UNIQUE_TOKEN_ID, iter->first);
         inserter.insertValue(COMMON_UNIQUE_TOKEN_WEIGHT, iter->second);
     }

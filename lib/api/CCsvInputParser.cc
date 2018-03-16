@@ -147,8 +147,7 @@ bool CCsvInputParser::parseCsvRecordFromStream(void) {
             m_WorkBufferEnd = m_WorkBufferPtr + avail;
         }
 
-        const char* delimPtr(
-            reinterpret_cast<const char*>(::memchr(m_WorkBufferPtr, RECORD_END, avail)));
+        const char* delimPtr(reinterpret_cast<const char*>(::memchr(m_WorkBufferPtr, RECORD_END, avail)));
         const char* endPtr(m_WorkBufferEnd);
         if (delimPtr != nullptr) {
             endPtr = delimPtr;
@@ -243,10 +242,9 @@ bool CCsvInputParser::parseDataRecord(const TStrRefVec& fieldValRefs) {
         while (m_LineParser.parseNext(extraField) == true) {
             ++numExtraFields;
         }
-        LOG_ERROR("Data record contains "
-                  << numExtraFields << " more fields than header:" << core_t::LINE_ENDING
-                  << m_CurrentRowStr << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING
-                  << m_FieldNameStr);
+        LOG_ERROR("Data record contains " << numExtraFields << " more fields than header:" << core_t::LINE_ENDING
+                                          << m_CurrentRowStr << core_t::LINE_ENDING << "and:" << core_t::LINE_ENDING
+                                          << m_FieldNameStr);
         return false;
     }
 
@@ -304,8 +302,7 @@ bool CCsvInputParser::CCsvLineParser::parseNextToken(const char* end, const char
     if (current == end) {
         // Allow one empty token at the end of a line
         if (!m_SeparatorAfterLastField) {
-            LOG_ERROR("Trying to read too many fields from record:" << core_t::LINE_ENDING
-                                                                    << *m_Line);
+            LOG_ERROR("Trying to read too many fields from record:" << core_t::LINE_ENDING << *m_Line);
             return false;
         }
         m_SeparatorAfterLastField = false;

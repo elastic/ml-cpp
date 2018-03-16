@@ -91,9 +91,8 @@ struct result_type_impl<F, false_> {
 //! in various ways.
 template<typename F>
 struct result_type
-    : public result_type_impl<
-          typename boost::remove_reference<F>::type,
-          typename has_result_type<typename boost::remove_reference<F>::type>::value> {};
+    : public result_type_impl<typename boost::remove_reference<F>::type,
+                              typename has_result_type<typename boost::remove_reference<F>::type>::value> {};
 
 } // composition_detail::
 

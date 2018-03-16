@@ -102,8 +102,7 @@ public:
     using api::COutputHandler::fieldNames;
 
     //! No-op.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    virtual bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
 
     // Bring the other overload of writeRow() into scope.
     using api::COutputHandler::writeRow;
@@ -115,9 +114,7 @@ public:
     void addInvalidRecords(uint64_t n);
 
     //! Add the summary for \p field.
-    void addFieldStatistics(const std::string& field,
-                            config_t::EDataType type,
-                            const CDataSummaryStatistics& summary);
+    void addFieldStatistics(const std::string& field, config_t::EDataType type, const CDataSummaryStatistics& summary);
 
     //! Add the summary for the categorical field \p field.
     void addFieldStatistics(const std::string& field,
@@ -133,7 +130,7 @@ public:
     void addDetector(const CDetectorSpecification& spec);
 
     //! Write the report.
-    // virtual void write(void) const = 0;
+    //virtual void write(void) const = 0;
     void write(void) const;
 
 protected:

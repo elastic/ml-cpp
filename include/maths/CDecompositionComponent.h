@@ -68,12 +68,10 @@ protected:
         using TDoubleVecArray = boost::array<TDoubleVec, 2>;
 
     public:
-        CPackedSplines(CSplineTypes::EType valueInterpolationType,
-                       CSplineTypes::EType varianceInterpolationType);
+        CPackedSplines(CSplineTypes::EType valueInterpolationType, CSplineTypes::EType varianceInterpolationType);
 
         //! Create by traversing a state document.
-        bool acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary,
-                                    core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(CSplineTypes::EBoundaryCondition boundary, core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -151,8 +149,7 @@ protected:
     //! \param[in] knots The spline knot points.
     //! \param[in] values The values at the spline knot points.
     //! \param[in] variances The variances at the spline knot points.
-    void
-    interpolate(const TDoubleVec& knots, const TDoubleVec& values, const TDoubleVec& variances);
+    void interpolate(const TDoubleVec& knots, const TDoubleVec& values, const TDoubleVec& variances);
 
     //! Shift the component's values by \p shift.
     void shiftLevel(double shift);

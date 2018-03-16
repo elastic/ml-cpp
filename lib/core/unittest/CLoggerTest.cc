@@ -40,17 +40,15 @@ const char* TEST_PIPE_NAME = "testfiles/testpipe";
 CppUnit::Test* CLoggerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogging",
-                                                               &CLoggerTest::testLogging));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testReconfiguration",
-                                                               &CLoggerTest::testReconfiguration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testSetLevel",
-                                                               &CLoggerTest::testSetLevel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogEnvironment",
-                                                               &CLoggerTest::testLogEnvironment));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogging", &CLoggerTest::testLogging));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testNonAsciiJsonLogging",
-                                             &CLoggerTest::testNonAsciiJsonLogging));
+        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testReconfiguration", &CLoggerTest::testReconfiguration));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testSetLevel", &CLoggerTest::testSetLevel));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testLogEnvironment", &CLoggerTest::testLogEnvironment));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>("CLoggerTest::testNonAsciiJsonLogging",
+                                                               &CLoggerTest::testNonAsciiJsonLogging));
 
     return suiteOfTests;
 }
@@ -156,10 +154,8 @@ void CLoggerTest::testSetLevel(void) {
 }
 
 void CLoggerTest::testNonAsciiJsonLogging(void) {
-    std::vector<std::string> messages{"Non-iso8859-15: 编码",
-                                      "Non-ascii: üaöä",
-                                      "Non-iso8859-15: 编码 test",
-                                      "surrogate pair: 𐐷 test"};
+    std::vector<std::string> messages{
+        "Non-iso8859-15: 编码", "Non-ascii: üaöä", "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
     std::thread reader([&loggedData] {

@@ -50,8 +50,7 @@ CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& m
 
 bool CResultNormalizer::initNormalizer(const std::string& stateFileName) {
     std::ifstream inputStream(stateFileName.c_str());
-    model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(
-        m_Normalizer.fromJsonStream(inputStream));
+    model::CHierarchicalResultsNormalizer::ERestoreOutcome outcome(m_Normalizer.fromJsonStream(inputStream));
     if (outcome != model::CHierarchicalResultsNormalizer::E_Ok) {
         LOG_ERROR("Failed to restore JSON state for quantiles");
         return false;
@@ -87,37 +86,22 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
 
     bool isValidRecord(false);
     if (m_ModelConfig.perPartitionNormalization()) {
-        isValidRecord = parseDataFields(dataRowFields,
-                                        level,
-                                        partition,
-                                        partitionValue,
-                                        person,
-                                        function,
-                                        valueFieldName,
-                                        probability);
+        isValidRecord = parseDataFields(
+            dataRowFields, level, partition, partitionValue, person, function, valueFieldName, probability);
     } else {
-        isValidRecord = parseDataFields(dataRowFields,
-                                        level,
-                                        partition,
-                                        person,
-                                        function,
-                                        valueFieldName,
-                                        probability);
+        isValidRecord = parseDataFields(dataRowFields, level, partition, person, function, valueFieldName, probability);
     }
 
-    std::string partitionKey =
-        m_ModelConfig.perPartitionNormalization() ? partition + partitionValue : partition;
+    std::string partitionKey = m_ModelConfig.perPartitionNormalization() ? partition + partitionValue : partition;
 
     if (isValidRecord) {
         const model::CAnomalyScore::CNormalizer* levelNormalizer = 0;
-        double score = probability > m_ModelConfig.maximumAnomalousProbability()
-                           ? 0.0
-                           : maths::CTools::deviation(probability);
+        double score =
+            probability > m_ModelConfig.maximumAnomalousProbability() ? 0.0 : maths::CTools::deviation(probability);
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
         } else if (level == LEAF_LEVEL) {
-            levelNormalizer =
-                m_Normalizer.leafNormalizer(partitionKey, person, function, valueFieldName);
+            levelNormalizer = m_Normalizer.leafNormalizer(partitionKey, person, function, valueFieldName);
         } else if (level == PARTITION_LEVEL) {
             levelNormalizer = m_Normalizer.partitionNormalizer(partitionKey);
         } else if (level == BUCKET_INFLUENCER_LEVEL) {
@@ -136,12 +120,11 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         } else {
             LOG_ERROR("No normalizer available"
                       " at level '"
-                      << level << "' with partition field name '" << partition
-                      << "' and person field name '" << person << "'");
+                      << level << "' with partition field name '" << partition << "' and person field name '" << person
+                      << "'");
         }
 
-        m_OutputFieldNormalizedScore =
-            (score > 0.0) ? core::CStringUtils::typeToStringPretty(score) : ZERO;
+        m_OutputFieldNormalizedScore = (score > 0.0) ? core::CStringUtils::typeToStringPretty(score) : ZERO;
     } else {
         m_OutputFieldNormalizedScore.clear();
     }

@@ -30,15 +30,12 @@ using namespace model;
 CppUnit::Test* CResourceMonitorTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceMonitorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testMonitor",
-                                                      &CResourceMonitorTest::testMonitor));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testPruning",
-                                                      &CResourceMonitorTest::testPruning));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testExtraMemory",
-                                                      &CResourceMonitorTest::testExtraMemory));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testMonitor",
+                                                                        &CResourceMonitorTest::testMonitor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testPruning",
+                                                                        &CResourceMonitorTest::testPruning));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceMonitorTest>("CResourceMonitorTest::testExtraMemory",
+                                                                        &CResourceMonitorTest::testExtraMemory));
     return suiteOfTests;
 }
 
@@ -54,8 +51,7 @@ void CResourceMonitorTest::testMonitor(void) {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig =
-        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
@@ -79,8 +75,7 @@ void CResourceMonitorTest::testMonitor(void) {
                                FIRST_TIME,
                                modelConfig.factory(key));
 
-    std::size_t mem = detector1.memoryUsage() + detector2.memoryUsage() +
-                      CStringStore::names().memoryUsage() +
+    std::size_t mem = detector1.memoryUsage() + detector2.memoryUsage() + CStringStore::names().memoryUsage() +
                       CStringStore::influencers().memoryUsage();
 
     {
@@ -294,8 +289,7 @@ void CResourceMonitorTest::testMonitor(void) {
         mon.m_CurrentAnomalyDetectorMemory += 1 + (origTotalMemory + 9) / 10;
         CPPUNIT_ASSERT(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
-        CPPUNIT_ASSERT_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10,
-                             m_CallbackResults.s_Usage);
+        CPPUNIT_ASSERT_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10, m_CallbackResults.s_Usage);
 
         // Huge increase should trigger a need
         mon.m_CurrentAnomalyDetectorMemory = 1000;
@@ -324,8 +318,7 @@ void CResourceMonitorTest::testPruning(void) {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig =
-        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
@@ -397,8 +390,7 @@ void CResourceMonitorTest::testExtraMemory(void) {
     const core_t::TTime FIRST_TIME(358556400);
     const core_t::TTime BUCKET_LENGTH(3600);
 
-    CAnomalyDetectorModelConfig modelConfig =
-        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
     CSearchKey key(1, // identifier
@@ -456,8 +448,7 @@ void CResourceMonitorTest::addTestData(core_t::TTime& firstTime,
 
     std::size_t numBuckets = 0;
 
-    for (core_t::TTime time = firstTime;
-         time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
+    for (core_t::TTime time = firstTime; time < static_cast<core_t::TTime>(firstTime + bucketLength * buckets);
          time += (bucketLength / std::max(std::size_t(1), newPeoplePerBucket))) {
         bool newBucket = false;
         for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {

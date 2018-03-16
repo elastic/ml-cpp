@@ -97,17 +97,14 @@ void CPackedBitVectorTest::testCreation(void) {
     maths::CPackedBitVector test7(bits1);
     LOG_DEBUG("test7 = " << test7);
     CPPUNIT_ASSERT_EQUAL(bits1.size(), test7.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test7.toBitVector()));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1), core::CContainerPrinter::print(test7.toBitVector()));
 
-    bool bits2_[] =
-        {true, false, false, true, true, false, false, false, false, true, true, true, true, false};
+    bool bits2_[] = {true, false, false, true, true, false, false, false, false, true, true, true, true, false};
     TBoolVec bits2(boost::begin(bits2_), boost::end(bits2_));
     maths::CPackedBitVector test8(bits2);
     LOG_DEBUG("test8 = " << test8);
     CPPUNIT_ASSERT_EQUAL(bits2.size(), test8.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2),
-                         core::CContainerPrinter::print(test8.toBitVector()));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2), core::CContainerPrinter::print(test8.toBitVector()));
 
     test::CRandomNumbers rng;
 
@@ -161,21 +158,18 @@ void CPackedBitVectorTest::testExtend(void) {
     LOG_DEBUG("test2 = " << test2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(255), test2.dimension());
     TBoolVec bits1(255, true);
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test2.toBitVector()));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1), core::CContainerPrinter::print(test2.toBitVector()));
     test2.extend(false);
     bits1.push_back(false);
     LOG_DEBUG("test2 = " << test2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(256), test2.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test2.toBitVector()));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1), core::CContainerPrinter::print(test2.toBitVector()));
 
     maths::CPackedBitVector test3(255, true);
     test3.extend(false);
     LOG_DEBUG("test3 = " << test2);
     CPPUNIT_ASSERT_EQUAL(std::size_t(256), test3.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test3.toBitVector()));
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1), core::CContainerPrinter::print(test3.toBitVector()));
 
     test::CRandomNumbers rng;
 
@@ -354,8 +348,7 @@ void CPackedBitVectorTest::testBitwiseOr(void) {
                 if (j % 10 == 0) {
                     LOG_DEBUG("or  = " << expected);
                 }
-                CPPUNIT_ASSERT_EQUAL(expected,
-                                     test[i].inner(test[j], maths::CPackedBitVector::E_OR));
+                CPPUNIT_ASSERT_EQUAL(expected, test[i].inner(test[j], maths::CPackedBitVector::E_OR));
             }
             {
                 double expected = 0.0;
@@ -366,8 +359,7 @@ void CPackedBitVectorTest::testBitwiseOr(void) {
                 if (j % 10 == 0) {
                     LOG_DEBUG("xor = " << expected);
                 }
-                CPPUNIT_ASSERT_EQUAL(expected,
-                                     test[i].inner(test[j], maths::CPackedBitVector::E_XOR));
+                CPPUNIT_ASSERT_EQUAL(expected, test[i].inner(test[j], maths::CPackedBitVector::E_XOR));
             }
         }
     }
@@ -396,27 +388,20 @@ void CPackedBitVectorTest::testPersist(void) {
 CppUnit::Test* CPackedBitVectorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testCreation",
-                                                      &CPackedBitVectorTest::testCreation));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testExtend",
-                                                      &CPackedBitVectorTest::testExtend));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testContract",
-                                                      &CPackedBitVectorTest::testContract));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testOperators",
-                                                      &CPackedBitVectorTest::testOperators));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testInner",
-                                                      &CPackedBitVectorTest::testInner));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testBitwiseOr",
-                                                      &CPackedBitVectorTest::testBitwiseOr));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testPersist",
-                                                      &CPackedBitVectorTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testCreation",
+                                                                        &CPackedBitVectorTest::testCreation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testExtend",
+                                                                        &CPackedBitVectorTest::testExtend));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testContract",
+                                                                        &CPackedBitVectorTest::testContract));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testOperators",
+                                                                        &CPackedBitVectorTest::testOperators));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testInner",
+                                                                        &CPackedBitVectorTest::testInner));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testBitwiseOr",
+                                                                        &CPackedBitVectorTest::testBitwiseOr));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>("CPackedBitVectorTest::testPersist",
+                                                                        &CPackedBitVectorTest::testPersist));
 
     return suiteOfTests;
 }

@@ -129,8 +129,7 @@ public:
     }
 
     template<typename K, typename V>
-    static bool dispatch(const boost::unordered_map<K, V>& lhs,
-                         const boost::unordered_map<K, V>& rhs) {
+    static bool dispatch(const boost::unordered_map<K, V>& lhs, const boost::unordered_map<K, V>& rhs) {
         typedef std::vector<std::pair<K, V>> TVec;
         TVec lKeys(lhs.begin(), lhs.end());
         TVec rKeys(rhs.begin(), rhs.end());
@@ -435,8 +434,8 @@ void CPersistUtilsTest::testPersistContainers(void) {
         CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
         CPPUNIT_ASSERT(collection.empty());
 
-        bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER + "2.3" +
-              core::CPersistUtils::DELIMITER + bad;
+        bad =
+            std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER + "2.3" + core::CPersistUtils::DELIMITER + bad;
         CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
         CPPUNIT_ASSERT(collection.empty());
     }
@@ -519,11 +518,8 @@ void CPersistUtilsTest::testAppend(void) {
         CPPUNIT_ASSERT(begin == end);
         LOG_DEBUG("state = " << state);
 
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(source, restored));
 
         for (int i = 15; i < 19; i++) {
@@ -537,11 +533,8 @@ void CPersistUtilsTest::testAppend(void) {
         CPPUNIT_ASSERT(begin == end);
         LOG_DEBUG("state = " << state);
 
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(source, restored));
     }
 
@@ -553,11 +546,8 @@ void CPersistUtilsTest::testAppend(void) {
         LOG_DEBUG("state = " << state);
 
         TSizeDoubleMap restored;
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
 
         for (int i = 0; i < 10; i++) {
@@ -566,11 +556,8 @@ void CPersistUtilsTest::testAppend(void) {
 
         state = core::CPersistUtils::toString(collection);
         LOG_DEBUG("state = " << state);
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
 
         // add another element
@@ -579,11 +566,8 @@ void CPersistUtilsTest::testAppend(void) {
         TSizeDoubleMap::iterator end = collection.end();
         state = core::CPersistUtils::toString(pr.first, end);
         LOG_DEBUG("state = " << state);
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
 
         pr = collection.insert(TSizeDoublePr(20, 158.0));
@@ -592,11 +576,8 @@ void CPersistUtilsTest::testAppend(void) {
         end = collection.end();
         state = core::CPersistUtils::toString(pr.first, end);
         LOG_DEBUG("state = " << state);
-        core::CPersistUtils::fromString(state,
-                                        restored,
-                                        core::CPersistUtils::DELIMITER,
-                                        core::CPersistUtils::PAIR_DELIMITER,
-                                        true);
+        core::CPersistUtils::fromString(
+            state, restored, core::CPersistUtils::DELIMITER, core::CPersistUtils::PAIR_DELIMITER, true);
         CPPUNIT_ASSERT(equal(collection, restored));
     }
 }
@@ -604,15 +585,12 @@ void CPersistUtilsTest::testAppend(void) {
 CppUnit::Test* CPersistUtilsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistContainers",
+                                                                     &CPersistUtilsTest::testPersistContainers));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistIterators",
+                                                                     &CPersistUtilsTest::testPersistIterators));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistContainers",
-                                                   &CPersistUtilsTest::testPersistContainers));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testPersistIterators",
-                                                   &CPersistUtilsTest::testPersistIterators));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testAppend",
-                                                   &CPersistUtilsTest::testAppend));
+        new CppUnit::TestCaller<CPersistUtilsTest>("CPersistUtilsTest::testAppend", &CPersistUtilsTest::testAppend));
 
     return suiteOfTests;
 }

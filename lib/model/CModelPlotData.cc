@@ -64,8 +64,7 @@ CModelPlotData::SByFieldData::SByFieldData(double lowerBound, double upperBound,
     : s_LowerBound(lowerBound), s_UpperBound(upperBound), s_Median(median), s_ValuesPerOverField() {
 }
 
-void CModelPlotData::SByFieldData::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CModelPlotData::SByFieldData::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(LOWER_BOUND_TAG, s_LowerBound, inserter);
     core::CPersistUtils::persist(UPPER_BOUND_TAG, s_UpperBound, inserter);
     core::CPersistUtils::persist(MEDIAN_TAG, s_Median, inserter);
@@ -88,9 +87,7 @@ bool CModelPlotData::SByFieldData::acceptRestoreTraverser(core::CStateRestoreTra
                 return false;
             }
         } else if (name == VALUES_PER_OVERFIELD_TAG) {
-            if (!core::CPersistUtils::restore(VALUES_PER_OVERFIELD_TAG,
-                                              s_ValuesPerOverField,
-                                              traverser)) {
+            if (!core::CPersistUtils::restore(VALUES_PER_OVERFIELD_TAG, s_ValuesPerOverField, traverser)) {
                 return false;
             }
         }
@@ -119,25 +116,19 @@ bool CModelPlotData::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
             }
             m_DataPerFeature.clear();
 
-            for (TIntStrByFieldDataUMapUMap::const_iterator i = data.begin(); i != data.end();
-                 ++i) {
-                m_DataPerFeature.insert(
-                    TFeatureStrByFieldDataUMapPr(model_t::EFeature(i->first), i->second));
+            for (TIntStrByFieldDataUMapUMap::const_iterator i = data.begin(); i != data.end(); ++i) {
+                m_DataPerFeature.insert(TFeatureStrByFieldDataUMapPr(model_t::EFeature(i->first), i->second));
             }
         } else if (name == TIME_TAG) {
             if (!core::CPersistUtils::restore(TIME_TAG, m_Time, traverser)) {
                 return false;
             }
         } else if (name == PARTITION_FIELD_NAME_TAG) {
-            if (!core::CPersistUtils::restore(PARTITION_FIELD_NAME_TAG,
-                                              m_PartitionFieldName,
-                                              traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_NAME_TAG, m_PartitionFieldName, traverser)) {
                 return false;
             }
         } else if (name == PARTITION_FIELD_VALUE_TAG) {
-            if (!core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG,
-                                              m_PartitionFieldValue,
-                                              traverser)) {
+            if (!core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG, m_PartitionFieldValue, traverser)) {
                 return false;
             }
         } else if (name == OVER_FIELD_NAME_TAG) {
@@ -194,8 +185,7 @@ CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr CModelPlotData::end(void) con
     return m_DataPerFeature.end();
 }
 
-CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature,
-                                                  const std::string& byFieldValue) {
+CModelPlotData::SByFieldData& CModelPlotData::get(const model_t::EFeature& feature, const std::string& byFieldValue) {
     // note: This creates/inserts! elements and returns a reference for writing
     // data insert happens here
     return m_DataPerFeature[feature][byFieldValue];

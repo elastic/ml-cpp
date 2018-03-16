@@ -57,10 +57,7 @@ void addArrival(CDataGatherer& gatherer, core_t::TTime time, const std::string& 
     gatherer.addArrival(fieldValues, eventData, resourceMonitor);
 }
 
-void addArrival(CDataGatherer& gatherer,
-                core_t::TTime time,
-                const std::string& person,
-                double value) {
+void addArrival(CDataGatherer& gatherer, core_t::TTime time, const std::string& person, double value) {
     CDataGatherer::TStrCPtrVec fieldValues;
     fieldValues.push_back(&person);
     std::string valueAsString(core::CStringUtils::typeToString(value));
@@ -154,8 +151,7 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
 
-    LOG_DEBUG("Memory used by model: " << model.memoryUsage() << " / "
-                                       << core::CMemory::dynamicSize(model));
+    LOG_DEBUG("Memory used by model: " << model.memoryUsage() << " / " << core::CMemory::dynamicSize(model));
 
     test::CRandomNumbers rng;
 
@@ -186,12 +182,10 @@ void CModelMemoryTest::testOnlineMetricModel(void) {
 CppUnit::Test* CModelMemoryTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
-                                                  &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel",
-                                                  &CModelMemoryTest::testOnlineMetricModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineEventRateModel",
+                                                                    &CModelMemoryTest::testOnlineEventRateModel));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>("CModelMemoryTest::testOnlineMetricModel",
+                                                                    &CModelMemoryTest::testOnlineMetricModel));
 
     return suiteOfTests;
 }

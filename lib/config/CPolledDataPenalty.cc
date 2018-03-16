@@ -66,13 +66,11 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
                     std::fill_n(std::back_inserter(penalties),
                                 indices_.size(),
                                 ::pow(0.1,
-                                      static_cast<double>(stats->timeRange()) /
-                                          static_cast<double>(*interval) /
+                                      static_cast<double>(stats->timeRange()) / static_cast<double>(*interval) /
                                           LOG_TENTH_NUMBER_POLLING_INTERVALS));
                     std::fill_n(std::back_inserter(descriptions),
                                 indices_.size(),
-                                CTools::prettyPrint(candidates[bid]) +
-                                    " is shorter than possible polling interval " +
+                                CTools::prettyPrint(candidates[bid]) + " is shorter than possible polling interval " +
                                     CTools::prettyPrint(*interval));
                 }
             }
@@ -82,12 +80,10 @@ void CPolledDataPenalty::penaltyFromMe(CDetectorSpecification& spec) const {
     }
 }
 
-CPolledDataPenalty::TOptionalTime
-CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
-    typedef maths::CBasicStatistics::COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr,
-                                                           2,
-                                                           maths::COrderings::SSecondGreater>
-        TMaxAccumulator;
+CPolledDataPenalty::TOptionalTime CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
+    typedef maths::CBasicStatistics::
+        COrderStatisticsStack<maths::CQuantileSketch::TFloatFloatPr, 2, maths::COrderings::SSecondGreater>
+            TMaxAccumulator;
 
     const maths::CQuantileSketch& F = stats.arrivalTimeDistribution();
     const maths::CQuantileSketch::TFloatFloatPrVec& knots = F.knots();
@@ -119,8 +115,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
     F.cdf(upper + 0.01 * upper, f[3]);
     mass = f[1] - f[0] + f[3] - f[2];
 
-    if (mass > this->params().polledDataMinimumMassAtInterval() &&
-        lower < this->params().polledDataJitter() * upper) {
+    if (mass > this->params().polledDataMinimumMassAtInterval() && lower < this->params().polledDataJitter() * upper) {
         return static_cast<core_t::TTime>(upper);
     } else {
     }

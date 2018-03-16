@@ -87,13 +87,10 @@ public:
                              double decayRate = 0.0);
 
     //! Construct from sample central moments.
-    CNormalMeanPrecConjugate(maths_t::EDataType dataType,
-                             const TMeanVarAccumulator& moments,
-                             double decayRate = 0.0);
+    CNormalMeanPrecConjugate(maths_t::EDataType dataType, const TMeanVarAccumulator& moments, double decayRate = 0.0);
 
     //! Construct from part of a state document.
-    CNormalMeanPrecConjugate(const SDistributionRestoreParams& params,
-                             core::CStateRestoreTraverser& traverser);
+    CNormalMeanPrecConjugate(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     // Default copy constructor and assignment operator work.
 
@@ -103,13 +100,11 @@ public:
     //! for details).
     //! \param[in] decayRate The rate at which to revert to the non-informative prior.
     //! \return A non-informative prior.
-    static CNormalMeanPrecConjugate nonInformativePrior(maths_t::EDataType dataType,
-                                                        double decayRate = 0.0);
+    static CNormalMeanPrecConjugate nonInformativePrior(maths_t::EDataType dataType, double decayRate = 0.0);
     //@}
 
     //! Reset the prior based on the sample central moments.
-    void
-    reset(maths_t::EDataType dataType, const TMeanVarAccumulator& moments, double decayRate = 0.0);
+    void reset(maths_t::EDataType dataType, const TMeanVarAccumulator& moments, double decayRate = 0.0);
 
     //! \name Prior Contract
     //@{
@@ -129,9 +124,8 @@ public:
     virtual bool needsOffset(void) const;
 
     //! No-op.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights);
+    virtual double
+    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Returns zero.
     virtual double offset(void) const;
@@ -144,9 +138,8 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights);
+    virtual void
+    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -165,14 +158,12 @@ public:
     virtual double marginalLikelihoodMean(void) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                          const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                              const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -187,10 +178,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                         const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the normal mean and precision.
@@ -203,11 +194,10 @@ public:
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
-                               double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble1Vec& samples,
+                                                                          const TDouble4Vec1Vec& weights,
+                                                                          double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -230,8 +220,7 @@ public:
     //! a scale of the likelihood variance. So we interpret the likelihood
     //! function as:\n
     //! <pre class="fragment">
-    //!   \f$\displaystyle f(x_i) = \sqrt{\frac{p}{2\pi\gamma_i}} e^{-\frac{p}{2\gamma_i}(x_i -
-    //!   m)^2}\f$
+    //!   \f$\displaystyle f(x_i) = \sqrt{\frac{p}{2\pi\gamma_i}} e^{-\frac{p}{2\gamma_i}(x_i - m)^2}\f$
     //! </pre>
     //! Here, \f$m\f$ is the mean and \f$p\f$ are the mean and precision for
     //! which this is the prior.
@@ -338,8 +327,7 @@ public:
     TDoubleDoublePr confidenceIntervalPrecision(double percentage) const;
 
     //! Check if two priors are equal to the specified tolerance.
-    bool equalTolerance(const CNormalMeanPrecConjugate& rhs,
-                        const TEqualWithTolerance& equal) const;
+    bool equalTolerance(const CNormalMeanPrecConjugate& rhs, const TEqualWithTolerance& equal) const;
     //@}
 
 private:

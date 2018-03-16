@@ -99,12 +99,10 @@ public:
                                        *node.s_Spec.s_PartitionFieldValue));
     }
 
-    bool operator()(ml::core_t::TTime time,
-                    const ml::model::CHierarchicalResults::TNode& node,
-                    bool isBucketInfluencer) {
+    bool
+    operator()(ml::core_t::TTime time, const ml::model::CHierarchicalResults::TNode& node, bool isBucketInfluencer) {
         LOG_DEBUG((isBucketInfluencer ? "BucketInfluencer" : "Influencer ")
-                  << node.s_Spec.print() << " initial score " << node.probability()
-                  << ", time:  " << time);
+                  << node.s_Spec.print() << " initial score " << node.probability() << ", time:  " << time);
 
         return true;
     }
@@ -120,15 +118,12 @@ private:
 CppUnit::Test* CResourceLimitTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitBy",
-                                                    &CResourceLimitTest::testLimitBy));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitByOver",
-                                                    &CResourceLimitTest::testLimitByOver));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLargeAllocations",
-                                                    &CResourceLimitTest::testLargeAllocations));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitBy",
+                                                                      &CResourceLimitTest::testLimitBy));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLimitByOver",
+                                                                      &CResourceLimitTest::testLimitByOver));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>("CResourceLimitTest::testLargeAllocations",
+                                                                      &CResourceLimitTest::testLargeAllocations));
     return suiteOfTests;
 }
 
@@ -137,13 +132,11 @@ void CResourceLimitTest::testLimitBy(void) {
     // turn on resource limiting and still get the same results
 
     static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407428000), BUCKET_LENGTH));
+    static const core_t::TTime FIRST_TIME(maths::CIntegerTools::ceil(core_t::TTime(1407428000), BUCKET_LENGTH));
     ::CResultWriter::TResultsVec results;
 
     {
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
         CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric,
@@ -178,8 +171,7 @@ void CResourceLimitTest::testLimitBy(void) {
     {
         // This time, repeat the test but set a resource limit to prevent
         // any models from being created.
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
         CSearchKey key(1, // identifier
                        function_t::E_IndividualMetric,
@@ -215,13 +207,11 @@ void CResourceLimitTest::testLimitByOver(void) {
     // non-limited data, but not results from limited data
 
     static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407441600), BUCKET_LENGTH));
+    static const core_t::TTime FIRST_TIME(maths::CIntegerTools::ceil(core_t::TTime(1407441600), BUCKET_LENGTH));
     ::CResultWriter::TResultsVec results;
 
     {
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
         CSearchKey key(1, // identifier
                        function_t::E_PopulationMetric,
@@ -255,8 +245,7 @@ void CResourceLimitTest::testLimitByOver(void) {
     }
 
     // Now limit after 1 sample, so only expect no results
-    CAnomalyDetectorModelConfig modelConfig =
-        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CAnomalyDetectorModelConfig modelConfig = CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
     CSearchKey key(1, // identifier
                    function_t::E_PopulationMetric,
@@ -373,10 +362,7 @@ private:
     std::size_t m_NewAttributes;
 };
 
-void addArrival(core_t::TTime time,
-                const std::string& p,
-                CDataGatherer& gatherer,
-                CResourceMonitor& resourceMonitor) {
+void addArrival(core_t::TTime time, const std::string& p, CDataGatherer& gatherer, CResourceMonitor& resourceMonitor) {
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&p);
     CEventData result;
@@ -446,13 +432,12 @@ void CResourceLimitTest::testLargeAllocations(void) {
         CResourceMonitor resourceMonitor;
         resourceMonitor.memoryLimit(std::size_t(70));
         const maths::CMultinomialConjugate conjugate;
-        ::CMockEventRateModel
-            model(factory.modelParams(),
-                  gatherer,
-                  factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
-                  conjugate,
-                  CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                  resourceMonitor);
+        ::CMockEventRateModel model(factory.modelParams(),
+                                    gatherer,
+                                    factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
+                                    conjugate,
+                                    CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
+                                    resourceMonitor);
 
         CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model.category());
         CPPUNIT_ASSERT(model.isPopulation() == false);

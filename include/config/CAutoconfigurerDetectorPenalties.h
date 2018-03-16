@@ -53,8 +53,7 @@ public:
 
 private:
     typedef boost::reference_wrapper<const CAutoconfigurerParams> TAutoconfigurerParamsCRef;
-    typedef boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties>
-        TAutoconfigurerFieldRolePenaltiesCRef;
+    typedef boost::reference_wrapper<const CAutoconfigurerFieldRolePenalties> TAutoconfigurerFieldRolePenaltiesCRef;
     typedef std::vector<TPenaltyPtr> TPenaltyPtrVec;
 
 private:

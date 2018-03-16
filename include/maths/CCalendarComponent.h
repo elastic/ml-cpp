@@ -58,14 +58,13 @@ public:
     //! computing values.
     //! \param[in] varianceInterpolationType The style of interpolation to use for
     //! computing variances.
-    CCalendarComponent(
-        const CCalendarFeature& feature,
-        std::size_t maxSize,
-        double decayRate = 0.0,
-        double minimumBucketLength = 0.0,
-        CSplineTypes::EBoundaryCondition boundaryCondition = CSplineTypes::E_Periodic,
-        CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
-        CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
+    CCalendarComponent(const CCalendarFeature& feature,
+                       std::size_t maxSize,
+                       double decayRate = 0.0,
+                       double minimumBucketLength = 0.0,
+                       CSplineTypes::EBoundaryCondition boundaryCondition = CSplineTypes::E_Periodic,
+                       CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
+                       CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
 
     //! Construct by traversing part of an state document.
     CCalendarComponent(double decayRate,
@@ -153,9 +152,7 @@ public:
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(double decayRate,
-                                double minimumBucketLength,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
 
 private:
     //! The mean and variance in collection of buckets covering the period.

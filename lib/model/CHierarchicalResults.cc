@@ -108,10 +108,9 @@ bool equal(const core::CStoredStringPtr& lhs, const core::CStoredStringPtr& rhs)
 }
 
 //! Check if both underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
-           const TStoredStringPtrStoredStringPtrPr& rhs) {
-    return unset(lhs.first) == unset(rhs.first) && *lhs.first == *rhs.first &&
-           unset(lhs.second) == unset(rhs.second) && *lhs.second == *rhs.second;
+bool equal(const TStoredStringPtrStoredStringPtrPr& lhs, const TStoredStringPtrStoredStringPtrPr& rhs) {
+    return unset(lhs.first) == unset(rhs.first) && *lhs.first == *rhs.first && unset(lhs.second) == unset(rhs.second) &&
+           *lhs.second == *rhs.second;
 }
 
 //! Orders nodes by the value of their person field.
@@ -226,10 +225,8 @@ public:
         } else {
             for (const auto& child : node.s_Children) {
                 for (const auto& influence : child->s_AnnotatedProbability.s_Influences) {
-                    if (equal({node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue},
-                              influence.first) ||
-                        equal({node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue},
-                              influence.first)) {
+                    if (equal({node.s_Spec.s_PartitionFieldName, node.s_Spec.s_PartitionFieldValue}, influence.first) ||
+                        equal({node.s_Spec.s_PersonFieldName, node.s_Spec.s_PersonFieldValue}, influence.first)) {
                         auto i = std::lower_bound(node.s_AnnotatedProbability.s_Influences.begin(),
                                                   node.s_AnnotatedProbability.s_Influences.end(),
                                                   influence.first,
@@ -266,8 +263,8 @@ SResultSpec::SResultSpec(void)
 std::string SResultSpec::print(void) const {
     return '\'' + core::CStringUtils::typeToStringPretty(s_IsSimpleCount) + '/' +
            core::CStringUtils::typeToStringPretty(s_IsPopulation) + '/' + *s_FunctionName + '/' +
-           *s_PartitionFieldName + '/' + *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' +
-           *s_PersonFieldValue + '/' + *s_ValueFieldName + '\'';
+           *s_PartitionFieldName + '/' + *s_PartitionFieldValue + '/' + *s_PersonFieldName + '/' + *s_PersonFieldValue +
+           '/' + *s_ValueFieldName + '\'';
 }
 
 void SResultSpec::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -310,20 +307,14 @@ bool SResultSpec::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser
                                int f = 0,
                                core::CPersistUtils::restore(FUNCTION_TAG, f, traverser),
                                s_Function = function_t::EFunction(f))
-        RESTORE_NO_ERROR(PARTITION_FIELD_NAME_TAG,
-                         s_PartitionFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(PARTITION_FIELD_NAME_TAG, s_PartitionFieldName = CStringStore::names().get(traverser.value()))
         RESTORE_NO_ERROR(PARTITION_FIELD_VALUE_TAG,
                          s_PartitionFieldValue = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(PERSON_FIELD_NAME_TAG,
-                         s_PersonFieldName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(PERSON_FIELD_VALUE_TAG,
-                         s_PersonFieldValue = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(VALUE_FIELD_NAME_TAG,
-                         s_ValueFieldName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(FUNCTION_NAME_TAG,
-                         s_FunctionName = CStringStore::names().get(traverser.value()))
-        RESTORE_NO_ERROR(BY_FIELD_NAME_TAG,
-                         s_ByFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(PERSON_FIELD_NAME_TAG, s_PersonFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(PERSON_FIELD_VALUE_TAG, s_PersonFieldValue = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(VALUE_FIELD_NAME_TAG, s_ValueFieldName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(FUNCTION_NAME_TAG, s_FunctionName = CStringStore::names().get(traverser.value()))
+        RESTORE_NO_ERROR(BY_FIELD_NAME_TAG, s_ByFieldName = CStringStore::names().get(traverser.value()))
     } while (traverser.next());
     return true;
 }
@@ -397,8 +388,8 @@ void SNode::propagateFields(void) {
 }
 
 std::string SNode::print(void) const {
-    return s_Spec.print() + ": " + core::CStringUtils::typeToStringPretty(this->probability()) +
-           ", " + core::CStringUtils::typeToStringPretty(s_RawAnomalyScore) +
+    return s_Spec.print() + ": " + core::CStringUtils::typeToStringPretty(this->probability()) + ", " +
+           core::CStringUtils::typeToStringPretty(s_RawAnomalyScore) +
            (s_AnnotatedProbability.s_Influences.empty()
                 ? ""
                 : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
@@ -420,8 +411,7 @@ void SNode::swap(SNode& other) {
     std::swap(s_BucketLength, other.s_BucketLength);
 }
 
-void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter,
-                                   TNodePtrSizeUMap& nodePointers) const {
+void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter, TNodePtrSizeUMap& nodePointers) const {
     std::size_t index = nodePointers.emplace(this, nodePointers.size()).first->second;
     inserter.insertValue(SELF_TAG, index);
     core::CPersistUtils::persist(SPEC_TAG, s_Spec, inserter);
@@ -436,8 +426,7 @@ void SNode::acceptPersistInserter1(core::CStatePersistInserter& inserter,
     inserter.insertValue(BUCKET_LENGTH_TAG, s_BucketLength);
 }
 
-void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter,
-                                   const TNodePtrSizeUMap& nodePointers) const {
+void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter, const TNodePtrSizeUMap& nodePointers) const {
     if (s_Parent != 0) {
         auto found = nodePointers.find(s_Parent);
         if (found == nodePointers.end()) {
@@ -457,8 +446,7 @@ void SNode::acceptPersistInserter2(core::CStatePersistInserter& inserter,
     }
 }
 
-bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
-                                    TSizeNodePtrUMap& nodePointers) {
+bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser, TSizeNodePtrUMap& nodePointers) {
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(SELF_TAG,
@@ -467,9 +455,7 @@ bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
                                nodePointers.insert(std::make_pair(index, this)))
         RESTORE(SPEC_TAG, core::CPersistUtils::restore(SPEC_TAG, s_Spec, traverser))
         RESTORE(ANNOTATED_PROBABILITY_TAG,
-                core::CPersistUtils::restore(ANNOTATED_PROBABILITY_TAG,
-                                             s_AnnotatedProbability,
-                                             traverser))
+                core::CPersistUtils::restore(ANNOTATED_PROBABILITY_TAG, s_AnnotatedProbability, traverser))
         RESTORE_BUILT_IN(DETECTOR_TAG, s_Detector);
         RESTORE_BUILT_IN(AGGREGATION_STYLE_TAG, s_AggregationStyle);
         RESTORE_BUILT_IN(SMALLEST_CHILD_TAG, s_SmallestChildProbability)
@@ -482,8 +468,7 @@ bool SNode::acceptRestoreTraverser1(core::CStateRestoreTraverser& traverser,
     return true;
 }
 
-bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser,
-                                    const TSizeNodePtrUMap& nodePointers) {
+bool SNode::acceptRestoreTraverser2(core::CStateRestoreTraverser& traverser, const TSizeNodePtrUMap& nodePointers) {
     do {
         const std::string& name = traverser.name();
         std::size_t index = 0;
@@ -572,8 +557,7 @@ void CHierarchicalResults::addModelResult(int detector,
     spec.s_PersonFieldValue = CStringStore::names().get(personFieldValue);
     spec.s_ValueFieldName = CStringStore::names().get(valueFieldName);
     spec.s_ByFieldName =
-        (model ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName())
-               : UNSET_STRING);
+        (model ? CStringStore::names().get(model->dataGatherer().searchKey().byFieldName()) : UNSET_STRING);
     TNode& leaf = this->newLeaf(spec, annotatedProbability);
     leaf.s_Model = model;
     leaf.s_BucketStartTime = bucketStartTime;
@@ -610,22 +594,14 @@ void CHierarchicalResults::buildHierarchy(void) {
 
     LOG_TRACE("Distinct values of the person field");
     {
-        aggregateLayer<SPersonValueLess>(m_Nodes.begin(),
-                                         m_Nodes.end(),
-                                         *this,
-                                         &CHierarchicalResults::newNode,
-                                         layer);
+        aggregateLayer<SPersonValueLess>(m_Nodes.begin(), m_Nodes.end(), *this, &CHierarchicalResults::newNode, layer);
         LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
     }
 
     LOG_TRACE("Distinct person field names");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPersonNameLess>(layer.begin(),
-                                        layer.end(),
-                                        *this,
-                                        &CHierarchicalResults::newNode,
-                                        newLayer);
+        aggregateLayer<SPersonNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
         LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
     }
@@ -633,11 +609,8 @@ void CHierarchicalResults::buildHierarchy(void) {
     LOG_TRACE("Distinct partition field values");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPartitionValueLess>(layer.begin(),
-                                            layer.end(),
-                                            *this,
-                                            &CHierarchicalResults::newNode,
-                                            newLayer);
+        aggregateLayer<SPartitionValueLess>(
+            layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
         LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
     }
@@ -645,11 +618,7 @@ void CHierarchicalResults::buildHierarchy(void) {
     LOG_TRACE("Distinct partition field names");
     {
         newLayer.reserve(layer.size());
-        aggregateLayer<SPartitionNameLess>(layer.begin(),
-                                           layer.end(),
-                                           *this,
-                                           &CHierarchicalResults::newNode,
-                                           newLayer);
+        aggregateLayer<SPartitionNameLess>(layer.begin(), layer.end(), *this, &CHierarchicalResults::newNode, newLayer);
         newLayer.swap(layer);
         LOG_TRACE("layer = " << core::CContainerPrinter::print(layer));
     }
@@ -678,10 +647,9 @@ void CHierarchicalResults::createPivots(void) {
     for (const auto& node : m_Nodes) {
         const auto& parentInfluences = node.s_Parent->s_AnnotatedProbability.s_Influences;
         for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
-            if (node.s_Parent && std::binary_search(parentInfluences.begin(),
-                                                    parentInfluences.end(),
-                                                    influence,
-                                                    maths::COrderings::SFirstLess())) {
+            if (node.s_Parent &&
+                std::binary_search(
+                    parentInfluences.begin(), parentInfluences.end(), influence, maths::COrderings::SFirstLess())) {
                 continue;
             }
             this->newPivot(influence.first).s_Children.push_back(&node);
@@ -709,9 +677,8 @@ const CHierarchicalResults::TNode* CHierarchicalResults::root(void) const {
     return &result;
 }
 
-const CHierarchicalResults::TNode*
-CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
-                                 const TStoredStringPtr& influencerValue) const {
+const CHierarchicalResults::TNode* CHierarchicalResults::influencer(const TStoredStringPtr& influencerName,
+                                                                    const TStoredStringPtr& influencerValue) const {
     auto i = m_PivotNodes.find({influencerName, influencerValue});
     return i != m_PivotNodes.end() ? &i->second : 0;
 }
@@ -777,19 +744,14 @@ model_t::CResultType CHierarchicalResults::resultType(void) const {
 void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     typedef TStoredStringPtrNodeMap::const_iterator TStoredStringPtrNodeMapCItr;
     typedef std::vector<TStoredStringPtrNodeMapCItr> TStoredStringPtrNodeMapCItrVec;
-    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator
-        TStoredStringPtrStoredStringPtrPrNodeMapCItr;
-    typedef std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr>
-        TStoredStringPtrStoredStringPtrPrNodeMapCItrVec;
+    typedef TStoredStringPtrStoredStringPtrPrNodeMap::const_iterator TStoredStringPtrStoredStringPtrPrNodeMapCItr;
+    typedef std::vector<TStoredStringPtrStoredStringPtrPrNodeMapCItr> TStoredStringPtrStoredStringPtrPrNodeMapCItrVec;
 
     TNodePtrSizeUMap nodePointers;
 
     for (const auto& node : m_Nodes) {
-        inserter.insertLevel(NODES_1_TAG,
-                             boost::bind(&SNode::acceptPersistInserter1,
-                                         boost::cref(node),
-                                         _1,
-                                         boost::ref(nodePointers)));
+        inserter.insertLevel(
+            NODES_1_TAG, boost::bind(&SNode::acceptPersistInserter1, boost::cref(node), _1, boost::ref(nodePointers)));
     }
 
     // Sort the keys by *value* order to ensure consistent persist state.
@@ -798,17 +760,14 @@ void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& in
     for (auto i = m_PivotNodes.begin(); i != m_PivotNodes.end(); ++i) {
         pivotIterators.push_back(i);
     }
-    std::sort(pivotIterators.begin(),
-              pivotIterators.end(),
-              core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
+    std::sort(
+        pivotIterators.begin(), pivotIterators.end(), core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
     for (auto i : pivotIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first.first, inserter);
         core::CPersistUtils::persist(PIVOT_VALUE_TAG, *i->first.second, inserter);
-        inserter.insertLevel(PIVOT_NODES_1_TAG,
-                             boost::bind(&SNode::acceptPersistInserter1,
-                                         boost::cref(i->second),
-                                         _1,
-                                         boost::ref(nodePointers)));
+        inserter.insertLevel(
+            PIVOT_NODES_1_TAG,
+            boost::bind(&SNode::acceptPersistInserter1, boost::cref(i->second), _1, boost::ref(nodePointers)));
     }
 
     // Sort the keys by *value* order to ensure consistent persist state.
@@ -822,38 +781,29 @@ void CHierarchicalResults::acceptPersistInserter(core::CStatePersistInserter& in
               core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
     for (auto i : pivotRootIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first, inserter);
-        inserter.insertLevel(PIVOT_ROOT_NODES_1_TAG,
-                             boost::bind(&SNode::acceptPersistInserter1,
-                                         boost::cref(i->second),
-                                         _1,
-                                         boost::ref(nodePointers)));
+        inserter.insertLevel(
+            PIVOT_ROOT_NODES_1_TAG,
+            boost::bind(&SNode::acceptPersistInserter1, boost::cref(i->second), _1, boost::ref(nodePointers)));
     }
 
     for (const auto& node : m_Nodes) {
-        inserter.insertLevel(NODES_2_TAG,
-                             boost::bind(&SNode::acceptPersistInserter2,
-                                         boost::cref(node),
-                                         _1,
-                                         boost::cref(nodePointers)));
+        inserter.insertLevel(
+            NODES_2_TAG, boost::bind(&SNode::acceptPersistInserter2, boost::cref(node), _1, boost::cref(nodePointers)));
     }
 
     for (auto i : pivotIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first.first, inserter);
         core::CPersistUtils::persist(PIVOT_VALUE_TAG, *i->first.second, inserter);
-        inserter.insertLevel(PIVOT_NODES_2_TAG,
-                             boost::bind(&SNode::acceptPersistInserter2,
-                                         boost::cref(i->second),
-                                         _1,
-                                         boost::cref(nodePointers)));
+        inserter.insertLevel(
+            PIVOT_NODES_2_TAG,
+            boost::bind(&SNode::acceptPersistInserter2, boost::cref(i->second), _1, boost::cref(nodePointers)));
     }
 
     for (auto i : pivotRootIterators) {
         core::CPersistUtils::persist(PIVOT_NAME_TAG, *i->first, inserter);
-        inserter.insertLevel(PIVOT_ROOT_NODES_2_TAG,
-                             boost::bind(&SNode::acceptPersistInserter2,
-                                         boost::cref(i->second),
-                                         _1,
-                                         boost::cref(nodePointers)));
+        inserter.insertLevel(
+            PIVOT_ROOT_NODES_2_TAG,
+            boost::bind(&SNode::acceptPersistInserter2, boost::cref(i->second), _1, boost::cref(nodePointers)));
     }
 }
 
@@ -865,14 +815,12 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(NODES_1_TAG,
-                               m_Nodes.push_back(SNode()),
-                               traverser.traverseSubLevel(
-                                   boost::bind(&SNode::acceptRestoreTraverser1,
-                                               boost::ref(m_Nodes.back()),
-                                               _1,
-                                               boost::ref(nodePointers))),
-                               /**/)
+        RESTORE_SETUP_TEARDOWN(
+            NODES_1_TAG,
+            m_Nodes.push_back(SNode()),
+            traverser.traverseSubLevel(
+                boost::bind(&SNode::acceptRestoreTraverser1, boost::ref(m_Nodes.back()), _1, boost::ref(nodePointers))),
+            /**/)
         if (name == NODES_2_TAG) {
             if (nodesFullyRestored > m_Nodes.size()) {
                 LOG_ERROR("Invalid restore index for node: " << nodesFullyRestored);
@@ -887,21 +835,16 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
             ++nodesFullyRestored;
             continue;
         }
-        RESTORE_NO_ERROR(PIVOT_NAME_TAG,
-                         influencerName = CStringStore::influencers().get(traverser.value()))
-        RESTORE_NO_ERROR(PIVOT_VALUE_TAG,
-                         influencerValue = CStringStore::influencers().get(traverser.value()))
+        RESTORE_NO_ERROR(PIVOT_NAME_TAG, influencerName = CStringStore::influencers().get(traverser.value()))
+        RESTORE_NO_ERROR(PIVOT_VALUE_TAG, influencerValue = CStringStore::influencers().get(traverser.value()))
         if (name == PIVOT_NODES_1_TAG) {
             if (!influencerName || !influencerValue) {
                 LOG_ERROR("Invalid influencers for node");
                 return false;
             }
-            SNode& node =
-                m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1,
-                                                       boost::ref(node),
-                                                       _1,
-                                                       boost::ref(nodePointers))) == false) {
+            SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
+            if (traverser.traverseSubLevel(boost::bind(
+                    &SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) == false) {
                 LOG_ERROR("Failed to restore pivot node");
                 return false;
             }
@@ -913,12 +856,9 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
                 LOG_ERROR("Invalid influencers for node");
                 return false;
             }
-            SNode& node =
-                m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2,
-                                                       boost::ref(node),
-                                                       _1,
-                                                       boost::cref(nodePointers))) == false) {
+            SNode& node = m_PivotNodes[TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue)];
+            if (traverser.traverseSubLevel(boost::bind(
+                    &SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) == false) {
                 LOG_ERROR("Failed to restore pivot node");
                 return false;
             }
@@ -932,10 +872,8 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser1,
-                                                       boost::ref(node),
-                                                       _1,
-                                                       boost::ref(nodePointers))) == false) {
+            if (traverser.traverseSubLevel(boost::bind(
+                    &SNode::acceptRestoreTraverser1, boost::ref(node), _1, boost::ref(nodePointers))) == false) {
                 LOG_ERROR("Failed to restore pivot node");
                 return false;
             }
@@ -948,10 +886,8 @@ bool CHierarchicalResults::acceptRestoreTraverser(core::CStateRestoreTraverser& 
                 return false;
             }
             SNode& node = m_PivotRootNodes[influencerName];
-            if (traverser.traverseSubLevel(boost::bind(&SNode::acceptRestoreTraverser2,
-                                                       boost::ref(node),
-                                                       _1,
-                                                       boost::cref(nodePointers))) == false) {
+            if (traverser.traverseSubLevel(boost::bind(
+                    &SNode::acceptRestoreTraverser2, boost::ref(node), _1, boost::cref(nodePointers))) == false) {
                 LOG_ERROR("Failed to restore pivot node");
                 return false;
             }
@@ -975,9 +911,8 @@ CHierarchicalResults::TNode& CHierarchicalResults::newNode(void) {
     return m_Nodes.back();
 }
 
-CHierarchicalResults::TNode&
-CHierarchicalResults::newLeaf(const TResultSpec& simpleSearch,
-                              SAnnotatedProbability& annotatedProbability) {
+CHierarchicalResults::TNode& CHierarchicalResults::newLeaf(const TResultSpec& simpleSearch,
+                                                           SAnnotatedProbability& annotatedProbability) {
     m_Nodes.emplace_back(simpleSearch, annotatedProbability);
     return m_Nodes.back();
 }
@@ -996,8 +931,7 @@ CHierarchicalResults::TNode& CHierarchicalResults::newPivotRoot(const TStoredStr
     return result;
 }
 
-void CHierarchicalResults::postorderDepthFirst(const TNode* node,
-                                               CHierarchicalResultsVisitor& visitor) const {
+void CHierarchicalResults::postorderDepthFirst(const TNode* node, CHierarchicalResultsVisitor& visitor) const {
     for (const auto& child : node->s_Children) {
         this->postorderDepthFirst(child, visitor);
     }
@@ -1016,15 +950,12 @@ bool CHierarchicalResultsVisitor::isLeaf(const TNode& node) {
 }
 
 bool CHierarchicalResultsVisitor::isPartitioned(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
-           unset(node.s_Spec.s_PartitionFieldValue);
+    return !((*node.s_Spec.s_PartitionFieldName).empty()) && unset(node.s_Spec.s_PartitionFieldValue);
 }
 
 bool CHierarchicalResultsVisitor::isPartition(const TNode& node) {
-    return !((*node.s_Spec.s_PartitionFieldName).empty()) &&
-           !unset(node.s_Spec.s_PartitionFieldValue) &&
-           (CHierarchicalResultsVisitor::isRoot(node) ||
-            unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
+    return !((*node.s_Spec.s_PartitionFieldName).empty()) && !unset(node.s_Spec.s_PartitionFieldValue) &&
+           (CHierarchicalResultsVisitor::isRoot(node) || unset(node.s_Parent->s_Spec.s_PartitionFieldValue));
 }
 
 bool CHierarchicalResultsVisitor::isPerson(const TNode& node) {
@@ -1036,8 +967,7 @@ bool CHierarchicalResultsVisitor::isPerson(const TNode& node) {
                unset(node.s_Parent->s_Spec.s_PersonFieldName);
     }
     return !unset(node.s_Spec.s_PersonFieldValue) &&
-           (CHierarchicalResultsVisitor::isRoot(node) ||
-            (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
+           (CHierarchicalResultsVisitor::isRoot(node) || (unset(node.s_Parent->s_Spec.s_PersonFieldValue)));
 }
 
 bool CHierarchicalResultsVisitor::isAttribute(const TNode& node) {

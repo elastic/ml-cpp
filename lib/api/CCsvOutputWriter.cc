@@ -28,10 +28,7 @@ const char CCsvOutputWriter::COMMA(',');
 const char CCsvOutputWriter::QUOTE('"');
 const char CCsvOutputWriter::RECORD_END('\n');
 
-CCsvOutputWriter::CCsvOutputWriter(bool outputMessages,
-                                   bool outputHeader,
-                                   char escape,
-                                   char separator)
+CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char escape, char separator)
     : m_StrmOut(m_StringOutputBuf),
       m_OutputMessages(outputMessages),
       m_OutputHeader(outputHeader),
@@ -115,8 +112,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     // Messages are output in arrears - this is not ideal - TODO
     if (m_OutputMessages) {
-        for (TStrStrPrSetCItr msgIter = m_Messages.begin(); msgIter != m_Messages.end();
-             ++msgIter) {
+        for (TStrStrPrSetCItr msgIter = m_Messages.begin(); msgIter != m_Messages.end(); ++msgIter) {
             m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
             LOG_DEBUG("Forwarded " << msgIter->first << '=' << msgIter->second);
         }
@@ -138,8 +134,7 @@ const COutputHandler::TStrVec& CCsvOutputWriter::fieldNames(void) const {
     return m_FieldNames;
 }
 
-bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                const TStrStrUMap& overrideDataRowFields) {
+bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR("Attempt to write data before field names");
         return false;
@@ -154,8 +149,7 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
 
     TStrVecCItr fieldNameIter = m_FieldNames.begin();
     TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
-    TStrStrUMapCItr fieldValueIter =
-        overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
+    TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
     if (fieldValueIter == overrideDataRowFields.end()) {
         fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == dataRowFields.end()) {
@@ -210,8 +204,7 @@ void CCsvOutputWriter::appendField(const std::string& field) {
     bool needOuterQuotes(false);
     for (std::string::const_iterator iter = field.begin(); iter != field.end(); ++iter) {
         char curChar(*iter);
-        if (curChar == m_Separator || curChar == QUOTE || curChar == RECORD_END ||
-            curChar == m_Escape) {
+        if (curChar == m_Separator || curChar == QUOTE || curChar == RECORD_END || curChar == m_Escape) {
             needOuterQuotes = true;
             break;
         }

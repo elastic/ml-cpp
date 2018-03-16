@@ -172,8 +172,7 @@ void CAutoconfigurer::finalise(void) {
     m_Impl->finalise();
 }
 
-bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/,
-                                   core_t::TTime& /*completeToTime*/) {
+bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/, core_t::TTime& /*completeToTime*/) {
     return true;
 }
 
@@ -191,8 +190,7 @@ api::COutputHandler& CAutoconfigurer::outputHandler(void) {
 
 //////// CAutoconfigurerImpl ////////
 
-CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params,
-                                         CReportWriter& reportWriter)
+CAutoconfigurerImpl::CAutoconfigurerImpl(const CAutoconfigurerParams& params, CReportWriter& reportWriter)
     : m_Params(params),
       m_Initialized(false),
       m_NumberRecords(0),
@@ -237,8 +235,7 @@ void CAutoconfigurerImpl::finalise(void) {
         if (const CDataSummaryStatistics* summary = m_FieldStatistics[i].summary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
-        if (const CCategoricalDataSummaryStatistics* summary =
-                m_FieldStatistics[i].categoricalSummary()) {
+        if (const CCategoricalDataSummaryStatistics* summary = m_FieldStatistics[i].categoricalSummary()) {
             m_ReportWriter.addFieldStatistics(name, type, *summary);
         }
         if (const CNumericDataSummaryStatistics* summary = m_FieldStatistics[i].numericSummary()) {
@@ -267,24 +264,22 @@ bool CAutoconfigurerImpl::extractTime(const TStrStrUMap& fieldValues, core_t::TT
     TStrStrUMapCItr i = fieldValues.find(m_Params.timeFieldName());
 
     if (i == fieldValues.end()) {
-        LOG_ERROR("No time field '" << m_Params.timeFieldName()
-                                    << "' in record:" << core_t::LINE_ENDING
+        LOG_ERROR("No time field '" << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
                                     << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
     if (m_Params.timeFieldFormat().empty()) {
         if (!core::CStringUtils::stringToType(i->second, time)) {
-            LOG_ERROR("Cannot interpret time field '"
-                      << m_Params.timeFieldName() << "' in record:" << core_t::LINE_ENDING
-                      << CAutoconfigurer::debugPrintRecord(fieldValues));
+            LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName()
+                                                      << "' in record:" << core_t::LINE_ENDING
+                                                      << CAutoconfigurer::debugPrintRecord(fieldValues));
             return false;
         }
     } else if (!core::CTimeUtils::strptime(m_Params.timeFieldFormat(), i->second, time)) {
-        LOG_ERROR("Cannot interpret time field '"
-                  << m_Params.timeFieldName() << "' using format '" << m_Params.timeFieldFormat()
-                  << "' in record:" << core_t::LINE_ENDING
-                  << CAutoconfigurer::debugPrintRecord(fieldValues));
+        LOG_ERROR("Cannot interpret time field '" << m_Params.timeFieldName() << "' using format '"
+                                                  << m_Params.timeFieldFormat() << "' in record:" << core_t::LINE_ENDING
+                                                  << CAutoconfigurer::debugPrintRecord(fieldValues));
         return false;
     }
 
@@ -325,8 +320,7 @@ void CAutoconfigurerImpl::processRecord(core_t::TTime time, const TStrStrUMap& f
     }
 }
 
-void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime time,
-                                                                const TStrStrUMap& fieldValues) {
+void CAutoconfigurerImpl::updateStatisticsAndMaybeComputeScores(core_t::TTime time, const TStrStrUMap& fieldValues) {
     CDetectorRecordDirectAddressTable::TDetectorRecordVec records;
     m_DetectorRecordFactory.detectorRecords(time, fieldValues, m_CandidateDetectors, records);
     m_DetectorCountStatistics.add(records);
@@ -397,10 +391,8 @@ void CAutoconfigurerImpl::generateCandidateDetectorsOnce(void) {
                                     &CAutoconfigurerParams::canUseForByField,
                                     &CAutoconfigurerParams::canUseForOverField,
                                     &CAutoconfigurerParams::canUseForPartitionField};
-        double scores[] = {m_FieldStatistics[i].score(
-                               m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
-                           m_FieldStatistics[i].score(
-                               m_FieldRolePenalties.metricFunctionArgumentPenalty()),
+        double scores[] = {m_FieldStatistics[i].score(m_FieldRolePenalties.categoricalFunctionArgumentPenalty()),
+                           m_FieldStatistics[i].score(m_FieldRolePenalties.metricFunctionArgumentPenalty()),
                            m_FieldStatistics[i].score(m_FieldRolePenalties.byPenalty()),
                            m_FieldStatistics[i].score(m_FieldRolePenalties.rareByPenalty()),
                            m_FieldStatistics[i].score(m_FieldRolePenalties.overPenalty()),

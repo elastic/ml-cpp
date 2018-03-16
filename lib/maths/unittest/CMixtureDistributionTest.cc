@@ -278,14 +278,12 @@ void CMixtureDistributionTest::testCdf(void) {
         TDoubleVec samples1;
         rng.generateGammaSamples(shapes[i][0],
                                  scales[i][0],
-                                 static_cast<std::size_t>(weights[i][0] *
-                                                          static_cast<double>(nSamples)),
+                                 static_cast<std::size_t>(weights[i][0] * static_cast<double>(nSamples)),
                                  samples1);
         TDoubleVec samples2;
         rng.generateGammaSamples(shapes[i][1],
                                  scales[i][1],
-                                 static_cast<std::size_t>(weights[i][1] *
-                                                          static_cast<double>(nSamples)),
+                                 static_cast<std::size_t>(weights[i][1] * static_cast<double>(nSamples)),
                                  samples2);
 
         TDoubleVec samples;
@@ -310,8 +308,7 @@ void CMixtureDistributionTest::testCdf(void) {
             double expectedCdf = static_cast<double>(p) / 100;
 
             LOG_DEBUG("percentile = " << p << "%"
-                                      << ", actual cdf = " << actualCdf
-                                      << ", expected cdf = " << expectedCdf);
+                                      << ", actual cdf = " << actualCdf << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCdf, actualCdf, 0.1 * expectedCdf);
@@ -326,21 +323,9 @@ void CMixtureDistributionTest::testQuantile(void) {
 
     // Check that the quantile is the inverse of the c.d.f.
 
-    const double weights[][3] = {{0.4, 0.3, 0.3},
-                                 {0.1, 0.4, 0.5},
-                                 {0.6, 0.2, 0.2},
-                                 {0.1, 0.8, 0.1},
-                                 {0.25, 0.3, 0.45}};
-    const double locations[][3] = {{1.0, 1.9, 2.2},
-                                   {0.9, 1.8, 3.0},
-                                   {2.0, 4.0, 4.5},
-                                   {0.1, 0.3, 0.4},
-                                   {0.2, 1.3, 4.8}};
-    const double scales[][3] = {{0.1, 0.04, 0.5},
-                                {0.8, 0.3, 0.6},
-                                {0.5, 0.3, 0.4},
-                                {0.3, 0.08, 0.9},
-                                {0.1, 0.2, 1.0}};
+    const double weights[][3] = {{0.4, 0.3, 0.3}, {0.1, 0.4, 0.5}, {0.6, 0.2, 0.2}, {0.1, 0.8, 0.1}, {0.25, 0.3, 0.45}};
+    const double locations[][3] = {{1.0, 1.9, 2.2}, {0.9, 1.8, 3.0}, {2.0, 4.0, 4.5}, {0.1, 0.3, 0.4}, {0.2, 1.3, 4.8}};
+    const double scales[][3] = {{0.1, 0.04, 0.5}, {0.8, 0.3, 0.6}, {0.5, 0.3, 0.4}, {0.3, 0.08, 0.9}, {0.1, 0.2, 1.0}};
 
     CPPUNIT_ASSERT_EQUAL(boost::size(weights), boost::size(locations));
     CPPUNIT_ASSERT_EQUAL(boost::size(locations), boost::size(scales));
@@ -373,21 +358,16 @@ void CMixtureDistributionTest::testQuantile(void) {
 CppUnit::Test* CMixtureDistributionTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testSupport",
-                                                          &CMixtureDistributionTest::testSupport));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testMode",
-                                                          &CMixtureDistributionTest::testMode));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testPdf",
-                                                          &CMixtureDistributionTest::testPdf));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testCdf",
-                                                          &CMixtureDistributionTest::testCdf));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testQuantile",
-                                                          &CMixtureDistributionTest::testQuantile));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testSupport",
+                                                                            &CMixtureDistributionTest::testSupport));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testMode",
+                                                                            &CMixtureDistributionTest::testMode));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testPdf",
+                                                                            &CMixtureDistributionTest::testPdf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testCdf",
+                                                                            &CMixtureDistributionTest::testCdf));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>("CMixtureDistributionTest::testQuantile",
+                                                                            &CMixtureDistributionTest::testQuantile));
 
     return suiteOfTests;
 }

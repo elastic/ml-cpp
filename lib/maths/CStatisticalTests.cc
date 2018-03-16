@@ -41,8 +41,7 @@ namespace {
 //! statistic, \p lambda. In particular, the significance is
 //! approximately
 //! <pre class="fragment">
-//!     \f$P(D > observed) = Q_{KS}\left(\left(\sqrt{N_e}+0.12+\frac{0.11}{\sqrt{N_e}}\right)
-//!     D\right)\f$
+//!     \f$P(D > observed) = Q_{KS}\left(\left(\sqrt{N_e}+0.12+\frac{0.11}{\sqrt{N_e}}\right) D\right)\f$
 //! </pre>
 //! where,
 //! <pre class="fragment">
@@ -87,8 +86,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(F, x);
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2
-                                                    << ", x = " << x);
+        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -104,8 +102,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         boost::math::fisher_f_distribution<> F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
     } catch (const std::exception& e) {
-        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2
-                                                    << ", x = " << x);
+        LOG_ERROR("Failed to compute significance " << e.what() << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
     }
     return 1.0;
 }
@@ -139,8 +136,7 @@ double CStatisticalTests::twoSampleKS(TDoubleVec x, TDoubleVec y) {
         D = std::max(D, ::fabs(Fx - Fy));
     }
 
-    double neff =
-        ::sqrt(static_cast<double>(nx) * static_cast<double>(ny) / static_cast<double>(nx + ny));
+    double neff = ::sqrt(static_cast<double>(nx) * static_cast<double>(ny) / static_cast<double>(nx + ny));
     double result = significance((neff + 0.12 + 0.11 / neff) * D);
     LOG_TRACE("nx = " << nx << ", ny = " << ny << ", D = " << D << ", significance = " << result);
     return result;
@@ -152,12 +148,10 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
 }
 
 CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(
-        boost::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(boost::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser, this, _1));
 }
 
-bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(
-    core::CStateRestoreTraverser& traverser) {
+bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(SIZE_TAG,
@@ -174,8 +168,7 @@ bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(
     return true;
 }
 
-void CStatisticalTests::CCramerVonMises::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
+void CStatisticalTests::CCramerVonMises::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(SIZE_TAG, m_Size);
     inserter.insertValue(T_TAG, m_T.toDelimited());
     for (std::size_t i = 0u; i < m_F.size(); ++i) {
@@ -218,11 +211,8 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
     // values.
     double tt[16];
     ptrdiff_t row =
-        CTools::truncate(std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N,
-                         ptrdiff_t(1),
-                         ptrdiff_t(12));
-    double alpha =
-        static_cast<double>(m_Size + 1 - N[row - 1]) / static_cast<double>(N[row] - N[row - 1]);
+        CTools::truncate(std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N, ptrdiff_t(1), ptrdiff_t(12));
+    double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) / static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
     for (std::size_t i = 0u; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
@@ -236,9 +226,8 @@ double CStatisticalTests::CCramerVonMises::pValue(void) const {
         return 1.0;
     }
 
-    ptrdiff_t col = CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt,
-                                     ptrdiff_t(1),
-                                     ptrdiff_t(15));
+    ptrdiff_t col =
+        CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt, ptrdiff_t(1), ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];
@@ -287,8 +276,7 @@ uint64_t CStatisticalTests::CCramerVonMises::checksum(uint64_t seed) const {
 
 const double CStatisticalTests::CCramerVonMises::P_VALUES[16] =
     {0.01, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 0.8, 0.85, 0.9, 0.95, 0.975, 0.99, 0.999};
-const std::size_t CStatisticalTests::CCramerVonMises::N[13] =
-    {2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 200, 1000};
+const std::size_t CStatisticalTests::CCramerVonMises::N[13] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 200, 1000};
 const double CStatisticalTests::CCramerVonMises::T_VALUES[13][16] = {{0.04326,
                                                                       0.04565,
                                                                       0.04962,

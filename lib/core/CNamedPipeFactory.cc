@@ -121,10 +121,9 @@ CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::st
     if (fd == -1) {
         return TIStreamP();
     }
-    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source>
-        TFileDescriptorSourceStream;
-    return TIStreamP(new TFileDescriptorSourceStream(
-        boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
+    typedef boost::iostreams::stream<boost::iostreams::file_descriptor_source> TFileDescriptorSourceStream;
+    return TIStreamP(
+        new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
@@ -133,8 +132,8 @@ CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::s
         return TOStreamP();
     }
     typedef boost::iostreams::stream<CRetryingFileDescriptorSink> TRetryingFileDescriptorSinkStream;
-    return TOStreamP(new TRetryingFileDescriptorSinkStream(
-        CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
+    return TOStreamP(
+        new TRetryingFileDescriptorSinkStream(CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
 }
 
 CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
@@ -181,8 +180,7 @@ std::string CNamedPipeFactory::defaultPath(void) {
     return path;
 }
 
-CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName,
-                                                                 bool forWrite) {
+CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN("Failed to ignore SIGPIPE - this process will not terminate "
                  "gracefully if a process it is writing to via a named pipe dies");
@@ -195,15 +193,13 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
     COsFileFuncs::TStat statbuf;
     if (COsFileFuncs::lstat(fileName.c_str(), &statbuf) == 0) {
         if ((statbuf.st_mode & S_IFMT) != S_IFIFO) {
-            LOG_ERROR("Unable to create named pipe "
-                      << fileName
-                      << " - a file "
-                         "of this name already exists, but it is not a FIFO");
+            LOG_ERROR("Unable to create named pipe " << fileName
+                                                     << " - a file "
+                                                        "of this name already exists, but it is not a FIFO");
             return -1;
         }
         if ((statbuf.st_mode & (S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH)) != 0) {
-            LOG_ERROR("Will not use pre-existing named pipe "
-                      << fileName << " - it has permissions that are too open");
+            LOG_ERROR("Will not use pre-existing named pipe " << fileName << " - it has permissions that are too open");
             return -1;
         }
     } else {
@@ -218,11 +214,9 @@ CNamedPipeFactory::TPipeHandle CNamedPipeFactory::initPipeHandle(const std::stri
 
     // The open call here will block if there is no other connection to the
     // named pipe
-    int fd = COsFileFuncs::open(fileName.c_str(),
-                                forWrite ? COsFileFuncs::WRONLY : COsFileFuncs::RDONLY);
+    int fd = COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY : COsFileFuncs::RDONLY);
     if (fd == -1) {
-        LOG_ERROR("Unable to open named pipe " << fileName
-                                               << (forWrite ? " for writing: " : " for reading: ")
+        LOG_ERROR("Unable to open named pipe " << fileName << (forWrite ? " for writing: " : " for reading: ")
                                                << ::strerror(errno));
     } else {
         // Write a test character to the pipe - this is really only necessary on

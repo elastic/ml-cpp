@@ -88,8 +88,7 @@ double count(const TWeightStyleVec& weightStyles, const TDouble4Vec& weights);
 
 //! Extract the effective sample count from a collection of weights.
 MATHS_EXPORT
-TDouble10Vec
-count(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
+TDouble10Vec count(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
@@ -99,9 +98,8 @@ double countForUpdate(const TWeightStyleVec& weightStyles, const TDouble4Vec& we
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
 MATHS_EXPORT
-TDouble10Vec countForUpdate(std::size_t dimension,
-                            const TWeightStyleVec& weightStyles,
-                            const TDouble10Vec4Vec& weights);
+TDouble10Vec
+countForUpdate(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
@@ -109,9 +107,8 @@ double seasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
-TDouble10Vec seasonalVarianceScale(std::size_t dimension,
-                                   const TWeightStyleVec& weightStyles,
-                                   const TDouble10Vec4Vec& weights);
+TDouble10Vec
+seasonalVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
@@ -119,9 +116,8 @@ double countVarianceScale(const TWeightStyleVec& weightStyles, const TDouble4Vec
 
 //! Extract the variance scale from a collection of weights.
 MATHS_EXPORT
-TDouble10Vec countVarianceScale(std::size_t dimension,
-                                const TWeightStyleVec& weightStyles,
-                                const TDouble10Vec4Vec& weights);
+TDouble10Vec
+countVarianceScale(std::size_t dimension, const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
@@ -137,8 +133,7 @@ bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles,
-                              const TDouble10Vec4Vec1Vec& weights);
+bool hasSeasonalVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights);
 
 //! Check if a non-unit count variance scale applies.
 MATHS_EXPORT
@@ -154,8 +149,7 @@ bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10V
 
 //! Check if a non-unit seasonal variance scale applies.
 MATHS_EXPORT
-bool hasCountVarianceScale(const TWeightStyleVec& weightStyles,
-                           const TDouble10Vec4Vec1Vec& weights);
+bool hasCountVarianceScale(const TWeightStyleVec& weightStyles, const TDouble10Vec4Vec1Vec& weights);
 
 //! Enumerates the possible probability of less likely sample calculations.
 //!
@@ -185,12 +179,7 @@ enum EClusterWeightCalc { E_ClustersEqualWeight, E_ClustersFractionWeight };
 //! calculations. These provide finer grained information than
 //! a pass/fail boolean which can be used to take appropriate
 //! action in the calling context.
-enum EFloatingPointErrorStatus {
-    E_FpNoErrors = 0x0,
-    E_FpOverflowed = 0x1,
-    E_FpFailed = 0x2,
-    E_FpAllErrors = 0x3
-};
+enum EFloatingPointErrorStatus { E_FpNoErrors = 0x0, E_FpOverflowed = 0x1, E_FpFailed = 0x2, E_FpAllErrors = 0x3 };
 
 //! Enumerates the cases that a collection of samples is either in
 //! the left tail, right tail or a mixture or neither of the tails
@@ -204,12 +193,7 @@ enum EFloatingPointErrorStatus {
 //!   -# Mixed or neither is used to denote the case that some are
 //!      to left, some to the right and/or some are between the left
 //!      and rightmost modes.
-enum ETail {
-    E_UndeterminedTail = 0x0,
-    E_LeftTail = 0x1,
-    E_RightTail = 0x2,
-    E_MixedOrNeitherTail = 0x3
-};
+enum ETail { E_UndeterminedTail = 0x0, E_LeftTail = 0x1, E_RightTail = 0x2, E_MixedOrNeitherTail = 0x3 };
 }
 }
 

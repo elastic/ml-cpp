@@ -57,8 +57,7 @@ const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance(
 namespace ml {
 namespace core {
 
-CLogger::CLogger(void)
-    : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName::progName()), m_OrigStderrFd(-1) {
+CLogger::CLogger(void) : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName::progName()), m_OrigStderrFd(-1) {
     CCrashHandler::installCrashHandler();
     this->reset();
 }
@@ -111,11 +110,9 @@ void CLogger::reset() {
 
         log4cxx::helpers::Properties props;
         props.put(LOG4CXX_STR("log4j.rootLogger"), LOG4CXX_STR("DEBUG, A1"));
-        props.put(LOG4CXX_STR("log4j.appender.A1"),
-                  LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
+        props.put(LOG4CXX_STR("log4j.appender.A1"), LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
         props.put(LOG4CXX_STR("log4j.appender.A1.Target"), LOG4CXX_STR("System.err"));
-        props.put(LOG4CXX_STR("log4j.appender.A1.layout"),
-                  LOG4CXX_STR("org.apache.log4j.PatternLayout"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.layout"), LOG4CXX_STR("org.apache.log4j.PatternLayout"));
 
         // The pattern includes the process ID to make it easier to see if a
         // process dies and restarts
@@ -219,15 +216,12 @@ bool CLogger::setLoggingLevel(ELevel level) {
     // change will have no effect.  Therefore, we adjust all appender thresholds
     // here as well for appenders that write to a file or the console.
     log4cxx::AppenderList appendersToChange(loggerToChange->getAllAppenders());
-    for (log4cxx::AppenderList::iterator iter = appendersToChange.begin();
-         iter != appendersToChange.end();
-         ++iter) {
+    for (log4cxx::AppenderList::iterator iter = appendersToChange.begin(); iter != appendersToChange.end(); ++iter) {
         log4cxx::Appender* appenderToChange(*iter);
 
         // Unfortunately, thresholds are a concept lower down the inheritance
         // hierarchy than the Appender base class, so we have to downcast.
-        log4cxx::WriterAppender* writerToChange(
-            dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
+        log4cxx::WriterAppender* writerToChange(dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
         if (writerToChange != 0) {
             writerToChange->setThreshold(levelToSet);
         }
@@ -255,8 +249,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
     if (m_PipeFile == 0) {
-        LOG_ERROR("Cannot log to named pipe " << pipeName
-                                              << " as it could not be opened for writing");
+        LOG_ERROR("Cannot log to named pipe " << pipeName << " as it could not be opened for writing");
         return false;
     }
 
@@ -281,8 +274,7 @@ bool CLogger::reconfigureLogJson(void) {
     props.put(LOG4CXX_STR("log4j.logger.") + logStr, LOG4CXX_STR("DEBUG, A2"));
     props.put(LOG4CXX_STR("log4j.appender.A2"), LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
     props.put(LOG4CXX_STR("log4j.appender.A2.Target"), LOG4CXX_STR("System.err"));
-    props.put(LOG4CXX_STR("log4j.appender.A2.layout"),
-              LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.layout"), LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
 
     return this->reconfigureFromProps(props);
 }
@@ -290,8 +282,8 @@ bool CLogger::reconfigureLogJson(void) {
 bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
     if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
-        LOG_ERROR("Unable to access properties file "
-                  << propertiesFile << " for logger re-initialisation: " << ::strerror(errno));
+        LOG_ERROR("Unable to access properties file " << propertiesFile
+                                                      << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
@@ -301,12 +293,11 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     log4cxx::helpers::Properties props;
     try {
         // InputStreamPtr is a smart pointer
-        log4cxx::helpers::InputStreamPtr inputStream(
-            new log4cxx::helpers::FileInputStream(propertiesFile));
+        log4cxx::helpers::InputStreamPtr inputStream(new log4cxx::helpers::FileInputStream(propertiesFile));
         props.load(inputStream);
     } catch (const log4cxx::helpers::Exception& e) {
-        LOG_ERROR("Unable to read from properties file "
-                  << propertiesFile << " for logger re-initialisation: " << e.what());
+        LOG_ERROR("Unable to read from properties file " << propertiesFile
+                                                         << " for logger re-initialisation: " << e.what());
         return false;
     }
 

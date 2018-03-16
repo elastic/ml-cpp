@@ -42,9 +42,9 @@ namespace {
 
 //! Get the desired weight for the regression model.
 double modelWeight(double targetDecayRate, double modelDecayRate) {
-    return targetDecayRate == modelDecayRate ? 1.0
-                                             : std::min(targetDecayRate, modelDecayRate) /
-                                                   std::max(targetDecayRate, modelDecayRate);
+    return targetDecayRate == modelDecayRate
+               ? 1.0
+               : std::min(targetDecayRate, modelDecayRate) / std::max(targetDecayRate, modelDecayRate);
 }
 
 //! We scale the time used for the regression model to improve
@@ -101,9 +101,7 @@ void CTrendComponent::acceptPersistInserter(core::CStatePersistInserter& inserte
     for (const auto& model : m_Models) {
         inserter.insertLevel(MODEL_TAG, boost::bind(&SModel::acceptPersistInserter, &model, _1));
     }
-    inserter.insertValue(PREDICTION_ERROR_VARIANCE_TAG,
-                         m_PredictionErrorVariance,
-                         core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(PREDICTION_ERROR_VARIANCE_TAG, m_PredictionErrorVariance, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(VALUE_MOMENTS_TAG, m_ValueMoments.toDelimited());
 }
 
@@ -115,9 +113,7 @@ bool CTrendComponent::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
         RESTORE_BUILT_IN(FIRST_UPDATE_TAG, m_FirstUpdate)
         RESTORE_BUILT_IN(LAST_UPDATE_TAG, m_LastUpdate)
         RESTORE_BUILT_IN(REGRESSION_ORIGIN_TAG, m_RegressionOrigin)
-        RESTORE(MODEL_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&SModel::acceptRestoreTraverser, &m_Models[i++], _1)))
+        RESTORE(MODEL_TAG, traverser.traverseSubLevel(boost::bind(&SModel::acceptRestoreTraverser, &m_Models[i++], _1)))
         RESTORE_BUILT_IN(PREDICTION_ERROR_VARIANCE_TAG, m_PredictionErrorVariance)
         RESTORE(VALUE_MOMENTS_TAG, m_ValueMoments.fromDelimited(traverser.value()))
     } while (traverser.next());
@@ -162,8 +158,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
     // relative difference in the component scale and the target scale.
 
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
-        m_Models[i].s_Weight.add(
-            modelWeight(m_TargetDecayRate, m_DefaultDecayRate * TIME_SCALES[i]));
+        m_Models[i].s_Weight.add(modelWeight(m_TargetDecayRate, m_DefaultDecayRate * TIME_SCALES[i]));
     }
 
     // Update the models.
@@ -176,8 +171,7 @@ void CTrendComponent::add(core_t::TTime time, double value, double weight) {
 
     double count{this->count()};
     if (count > 0.0) {
-        TMeanVarAccumulator moments{
-            CBasicStatistics::accumulator(count, prediction, m_PredictionErrorVariance)};
+        TMeanVarAccumulator moments{CBasicStatistics::accumulator(count, prediction, m_PredictionErrorVariance)};
         moments.add(value, weight);
         m_PredictionErrorVariance = CBasicStatistics::maximumLikelihoodVariance(moments);
     }
@@ -211,8 +205,7 @@ void CTrendComponent::propagateForwardsByTime(core_t::TTime interval) {
     }
 }
 
-CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
-                                                        double confidence) const {
+CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time, double confidence) const {
     if (!this->initialized()) {
         return {0.0, 0.0};
     }
@@ -230,8 +223,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
         }
     }
 
-    double prediction{a * CBasicStatistics::mean(prediction_) +
-                      b * CBasicStatistics::mean(m_ValueMoments)};
+    double prediction{a * CBasicStatistics::mean(prediction_) + b * CBasicStatistics::mean(m_ValueMoments)};
 
     if (confidence > 0.0 && m_PredictionErrorVariance > 0.0) {
         double variance{a * m_PredictionErrorVariance / std::max(this->count(), 1.0) +
@@ -243,9 +235,9 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: "
-                      << e.what() << ", prediction = " << prediction << ", variance = " << variance
-                      << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", prediction = " << prediction
+                                                                 << ", variance = " << variance
+                                                                 << ", confidence = " << confidence);
         }
     }
 
@@ -267,8 +259,8 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) co
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return {ql * variance / df, qu * variance / df};
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: "
-                      << e.what() << ", df = " << df << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", df = " << df
+                                                                 << ", confidence = " << confidence);
         }
     }
 
@@ -307,13 +299,10 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     TDoubleVec residualVariances(NUMBER_MODELS);
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         m_Models[i].s_Regression.parameters(models[i], MAX_CONDITION);
-        m_Models[i].s_Regression.covariances(m_PredictionErrorVariance,
-                                             modelCovariances[i],
-                                             MAX_CONDITION);
+        m_Models[i].s_Regression.covariances(m_PredictionErrorVariance, modelCovariances[i], MAX_CONDITION);
         modelCovariances[i] /= std::max(m_Models[i].s_Regression.count(), 1.0);
-        residualVariances[i] =
-            std::pow(CBasicStatistics::mean(m_Models[i].s_ResidualMoments), 2.0) +
-            CBasicStatistics::variance(m_Models[i].s_ResidualMoments);
+        residualVariances[i] = std::pow(CBasicStatistics::mean(m_Models[i].s_ResidualMoments), 2.0) +
+                               CBasicStatistics::variance(m_Models[i].s_ResidualMoments);
         LOG_TRACE("params      = " << core::CContainerPrinter::print(models[i]));
         LOG_TRACE("covariances = " << modelCovariances[i].toDelimited())
     }
@@ -348,16 +337,14 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double prediction{this->value(modelWeights, models, scaleTime(time, m_RegressionOrigin))};
         double ql{0.0};
         double qu{0.0};
-        double variance{a * CBasicStatistics::mean(variance_) +
-                        b * CBasicStatistics::variance(m_ValueMoments)};
+        double variance{a * CBasicStatistics::mean(variance_) + b * CBasicStatistics::variance(m_ValueMoments)};
         try {
             boost::math::normal normal{0.0, std::sqrt(variance)};
             ql = boost::math::quantile(normal, (100.0 - confidence) / 200.0);
             qu = boost::math::quantile(normal, (100.0 + confidence) / 200.0);
         } catch (const std::exception& e) {
-            LOG_ERROR("Failed calculating confidence interval: "
-                      << e.what() << ", variance = " << variance
-                      << ", confidence = " << confidence);
+            LOG_ERROR("Failed calculating confidence interval: " << e.what() << ", variance = " << variance
+                                                                 << ", confidence = " << confidence);
         }
 
         result[pillar][0] = prediction + ql;
@@ -393,8 +380,7 @@ std::string CTrendComponent::print() const {
 
 CTrendComponent::TDoubleVec CTrendComponent::factors(core_t::TTime interval) const {
     TDoubleVec result(NUMBER_MODELS);
-    double factor{m_DefaultDecayRate * static_cast<double>(interval) /
-                  static_cast<double>(core::constants::DAY)};
+    double factor{m_DefaultDecayRate * static_cast<double>(interval) / static_cast<double>(core::constants::DAY)};
     for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
         result[i] = std::exp(-TIME_SCALES[i] * factor);
     }
@@ -421,15 +407,12 @@ CTrendComponent::TDoubleVec CTrendComponent::initialForecastErrorWeights() const
 double CTrendComponent::count() const {
     TMeanAccumulator result;
     for (const auto& model : m_Models) {
-        result.add(CTools::fastLog(model.s_Regression.count()),
-                   CBasicStatistics::mean(model.s_Weight));
+        result.add(CTools::fastLog(model.s_Regression.count()), CBasicStatistics::mean(model.s_Weight));
     }
     return std::exp(CBasicStatistics::mean(result));
 }
 
-double CTrendComponent::value(const TDoubleVec& weights,
-                              const TRegressionArrayVec& models,
-                              double time) const {
+double CTrendComponent::value(const TDoubleVec& weights, const TRegressionArrayVec& models, double time) const {
     TMeanAccumulator prediction;
     for (std::size_t i = 0u; i < models.size(); ++i) {
         prediction.add(CRegression::predict(models[i], time), weights[i]);
@@ -443,8 +426,8 @@ double CTrendComponent::weightOfPrediction(core_t::TTime time) const {
         return 0.0;
     }
 
-    double extrapolateInterval{static_cast<double>(
-        CBasicStatistics::max(time - m_LastUpdate, m_FirstUpdate - time, core_t::TTime(0)))};
+    double extrapolateInterval{
+        static_cast<double>(CBasicStatistics::max(time - m_LastUpdate, m_FirstUpdate - time, core_t::TTime(0)))};
     if (extrapolateInterval == 0.0) {
         return 1.0;
     }
@@ -458,8 +441,7 @@ CTrendComponent::SModel::SModel(double weight) {
 
 void CTrendComponent::SModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WEIGHT_TAG, s_Weight.toDelimited());
-    inserter.insertLevel(REGRESSION_TAG,
-                         boost::bind(&TRegression::acceptPersistInserter, &s_Regression, _1));
+    inserter.insertLevel(REGRESSION_TAG, boost::bind(&TRegression::acceptPersistInserter, &s_Regression, _1));
     inserter.insertValue(RESIDUAL_MOMENTS_TAG, s_ResidualMoments.toDelimited());
 }
 
@@ -468,8 +450,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         const std::string& name{traverser.name()};
         RESTORE(WEIGHT_TAG, s_Weight.fromDelimited(traverser.value()))
         RESTORE(REGRESSION_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&TRegression::acceptRestoreTraverser, &s_Regression, _1)))
+                traverser.traverseSubLevel(boost::bind(&TRegression::acceptRestoreTraverser, &s_Regression, _1)))
         RESTORE(RESIDUAL_MOMENTS_TAG, s_ResidualMoments.fromDelimited(traverser.value()))
     } while (traverser.next());
     return true;

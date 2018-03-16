@@ -25,9 +25,7 @@ namespace api {
 CLineifiedXmlInputParser::CLineifiedXmlInputParser(core::CXmlParserIntf& parser,
                                                    std::istream& strmIn,
                                                    bool allDocsSameStructure)
-    : CLineifiedInputParser(strmIn),
-      m_Parser(parser),
-      m_AllDocsSameStructure(allDocsSameStructure) {
+    : CLineifiedInputParser(strmIn), m_Parser(parser), m_AllDocsSameStructure(allDocsSameStructure) {
 }
 
 bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
@@ -53,8 +51,7 @@ bool CLineifiedXmlInputParser::readStream(const TReaderFunc& readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs, recordFields) ==
-                false) {
+            if (this->decodeDocumentWithCommonFields(fieldNames, fieldValRefs, recordFields) == false) {
                 LOG_ERROR("Failed to decode XML document");
                 return false;
             }
@@ -111,8 +108,7 @@ bool CLineifiedXmlInputParser::decodeDocumentWithCommonFields(TStrVec& fieldName
     return true;
 }
 
-void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames,
-                                                                 TStrStrUMap& recordFields) {
+void CLineifiedXmlInputParser::decodeDocumentWithArbitraryFields(TStrVec& fieldNames, TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
     // make assumptions about what fields exist or what order they're in
     fieldNames.clear();

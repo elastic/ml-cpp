@@ -45,8 +45,7 @@ namespace maths {
 //! \f$P : \Omega \rightarrow \{-1, 1}\f$. It is easy to show that the
 //! expectation of
 //! <pre class="fragment">
-//!   \f$\left( \sum_{i=1}{n}{ P_i \frac{x_i - m_x}{\sigma_x} - \sum_{i=1}{n}{ P_i \frac{y_i -
-//!   m_y}{\sigma_y} \right)\f$
+//!   \f$\left( \sum_{i=1}{n}{ P_i \frac{x_i - m_x}{\sigma_x} - \sum_{i=1}{n}{ P_i \frac{y_i - m_y}{\sigma_y} \right)\f$
 //! </pre>
 //! is equal to
 //! <pre class="fragment">
@@ -74,8 +73,7 @@ public:
     typedef std::vector<TVector> TVectorVec;
     typedef boost::unordered_map<std::size_t, TVector> TSizeVectorUMap;
     typedef std::pair<TVector, CPackedBitVector> TVectorPackedBitVectorPr;
-    typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr>
-        TSizeVectorPackedBitVectorPrUMap;
+    typedef boost::unordered_map<std::size_t, TVectorPackedBitVectorPr> TSizeVectorPackedBitVectorPrUMap;
 
 public:
     CKMostCorrelated(std::size_t k, double decayRate, bool initialize = true);
@@ -178,10 +176,8 @@ protected:
 
         //! Estimate the correlation based on the projections
         //! \p px and \p py.
-        static double correlation(const TVector& px,
-                                  const CPackedBitVector& ix,
-                                  const TVector& py,
-                                  const CPackedBitVector& iy);
+        static double
+        correlation(const TVector& px, const CPackedBitVector& ix, const TVector& py, const CPackedBitVector& iy);
 
         //! Get the checksum of this object.
         uint64_t checksum(uint64_t seed) const;

@@ -28,8 +28,7 @@ namespace maths {
 CPackedBitVector::CPackedBitVector(void) : m_Dimension(0), m_First(false), m_Parity(true) {
 }
 
-CPackedBitVector::CPackedBitVector(bool bit)
-    : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
+CPackedBitVector::CPackedBitVector(bool bit) : m_Dimension(1), m_First(bit), m_Parity(true), m_RunLengths(1, 1) {
 }
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
@@ -45,9 +44,7 @@ CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
 }
 
 CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
-    : m_Dimension(static_cast<uint32_t>(bits.size())),
-      m_First(bits.empty() ? false : bits[0]),
-      m_Parity(true) {
+    : m_Dimension(static_cast<uint32_t>(bits.size())), m_First(bits.empty() ? false : bits[0]), m_Parity(true) {
     std::size_t length = 1u;
     for (std::size_t i = 1u; i < bits.size(); ++i) {
         if (bits[i] == bits[i - 1]) {
@@ -150,10 +147,8 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
 std::string CPackedBitVector::toDelimited(void) const {
     std::string result;
     result += core::CStringUtils::typeToString(m_Dimension) + core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_First)) +
-              core::CPersistUtils::DELIMITER;
-    result += core::CStringUtils::typeToString(static_cast<int>(m_Parity)) +
-              core::CPersistUtils::DELIMITER;
+    result += core::CStringUtils::typeToString(static_cast<int>(m_First)) + core::CPersistUtils::DELIMITER;
+    result += core::CStringUtils::typeToString(static_cast<int>(m_Parity)) + core::CPersistUtils::DELIMITER;
     result += core::CPersistUtils::toString(m_RunLengths);
     return result;
 }
@@ -174,19 +169,13 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 }
 
 bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
-    return m_Dimension == other.m_Dimension && m_First == other.m_First &&
-           m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;
+    return m_Dimension == other.m_Dimension && m_First == other.m_First && m_Parity == other.m_Parity &&
+           m_RunLengths == other.m_RunLengths;
 }
 
 bool CPackedBitVector::operator<(const CPackedBitVector& rhs) const {
-    return COrderings::lexicographical_compare(m_Dimension,
-                                               m_First,
-                                               m_Parity,
-                                               m_RunLengths,
-                                               rhs.m_Dimension,
-                                               rhs.m_First,
-                                               rhs.m_Parity,
-                                               rhs.m_RunLengths);
+    return COrderings::lexicographical_compare(
+        m_Dimension, m_First, m_Parity, m_RunLengths, rhs.m_Dimension, rhs.m_First, rhs.m_Parity, rhs.m_RunLengths);
 }
 
 CPackedBitVector CPackedBitVector::complement(void) const {
@@ -278,9 +267,7 @@ CPackedBitVector::TBoolVec CPackedBitVector::toBitVector(void) const {
 
     bool parity = true;
     for (std::size_t i = 0u; i < m_RunLengths.size(); ++i) {
-        std::fill_n(std::back_inserter(result),
-                    static_cast<std::size_t>(m_RunLengths[i]),
-                    parity ? m_First : !m_First);
+        std::fill_n(std::back_inserter(result), static_cast<std::size_t>(m_RunLengths[i]), parity ? m_First : !m_First);
         if (m_RunLengths[i] != MAX_RUN_LENGTH) {
             parity = !parity;
         }

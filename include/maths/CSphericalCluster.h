@@ -31,8 +31,7 @@ namespace maths {
 
 //! \brief A cluster's count and variance.
 struct MATHS_EXPORT SCountAndVariance {
-    SCountAndVariance(double count = 0.0, double variance = 0.0)
-        : s_Count(count), s_Variance(variance) {}
+    SCountAndVariance(double count = 0.0, double variance = 0.0) : s_Count(count), s_Variance(variance) {}
 
     //! The count of point in the cluster.
     double s_Count;
@@ -103,9 +102,8 @@ struct SCentralMomentsCustomAdd<CAnnotatedVector<CVectorNx1<U, N>, SCountAndVari
                            typename SCoordinate<T>::Type n,
                            CBasicStatistics::SSampleCentralMoments<T, 2>& moments) {
         typedef typename SCoordinate<T>::Type TCoordinate;
-        moments += CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n,
-                                                 T(x),
-                                                 T(x.annotation().s_Variance));
+        moments +=
+            CBasicStatistics::accumulator(TCoordinate(x.annotation().s_Count) * n, T(x), T(x.annotation().s_Variance));
     }
 };
 
@@ -121,8 +119,7 @@ struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarianc
         for (std::size_t i = 0u; i < N; ++i) {
             m(i, i) = x.annotation().s_Variance;
         }
-        covariances +=
-            CBasicStatistics::SSampleCovariances<U, N>(T(x.annotation().s_Count) * n, x, m);
+        covariances += CBasicStatistics::SSampleCovariances<U, N>(T(x.annotation().s_Count) * n, x, m);
     }
 };
 
@@ -138,15 +135,13 @@ struct SCovariancesCustomAdd<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarianc
 template<typename T, std::size_t N>
 struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>> {
     template<typename U>
-    static void
-    estimate(const std::vector<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>>& points,
-             CBasicStatistics::SSampleCovariances<U, N>& covariances) {
+    static void estimate(const std::vector<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVariance>>& points,
+                         CBasicStatistics::SSampleCovariances<U, N>& covariances) {
         U d = static_cast<U>(N);
 
         U n = CBasicStatistics::count(covariances);
         const CVectorNx1<U, N>& m = CBasicStatistics::mean(covariances);
-        const CSymmetricMatrixNxN<U, N>& s =
-            CBasicStatistics::maximumLikelihoodCovariances(covariances);
+        const CSymmetricMatrixNxN<U, N>& s = CBasicStatistics::maximumLikelihoodCovariances(covariances);
 
         double mn = s.trace() / d;
         double dn = pow2((s - CVectorNx1<U, N>(mn).diagonal()).frobenius()) / d;
@@ -156,14 +151,13 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
             CVectorNx1<U, N> ci(points[i]);
             U ni = static_cast<U>(points[i].annotation().s_Count);
             U vi = static_cast<U>(points[i].annotation().s_Variance);
-            bn += ni * pow2(((ci - m).outer() + CVectorNx1<U, N>(vi).diagonal() - s).frobenius()) /
-                  d / z;
+            bn += ni * pow2(((ci - m).outer() + CVectorNx1<U, N>(vi).diagonal() - s).frobenius()) / d / z;
         }
         bn = std::min(bn, dn);
         LOG_TRACE("m = " << mn << ", d = " << dn << ", b = " << bn);
 
-        covariances.s_Covariances = CVectorNx1<U, N>(bn / dn * mn).diagonal() +
-                                    (U(1) - bn / dn) * covariances.s_Covariances;
+        covariances.s_Covariances =
+            CVectorNx1<U, N>(bn / dn * mn).diagonal() + (U(1) - bn / dn) * covariances.s_Covariances;
     }
 
     template<typename U>
@@ -175,8 +169,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<CVectorNx1<T, N>, SCountAndVarian
 
 //! Write a description of \p cluster for debugging.
 template<typename POINT>
-std::ostream& operator<<(std::ostream& o,
-                         const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
+std::ostream& operator<<(std::ostream& o, const CAnnotatedVector<POINT, SCountAndVariance>& cluster) {
     return o << static_cast<const POINT&>(cluster) << " (" << cluster.annotation().s_Count << ","
              << ::sqrt(cluster.annotation().s_Variance) << ")";
 }

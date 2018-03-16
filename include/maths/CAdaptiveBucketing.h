@@ -53,8 +53,7 @@ namespace maths {
 //! error in approximating the function by its mean in each bucket,
 //! i.e. we'd like to minimize:
 //! <pre class="fragment">
-//!   \f$\displaystyle \max_i\left\{ \int_{[a_i,b_i]}{ \left| y(x) - \left<y\right>_{[a_i,b_i]}
-//!   \right| }dx \right\} \f$
+//!   \f$\displaystyle \max_i\left\{ \int_{[a_i,b_i]}{ \left| y(x) - \left<y\right>_{[a_i,b_i]} \right| }dx \right\} \f$
 //! </pre>
 //!
 //! Here, \f$\left<y\right>_{[a_i,b_i]} = \frac{1}{b_i-a_i}\int_{[a_i,b_i]}{y(x)}dx\f$.
@@ -92,9 +91,7 @@ public:
 protected:
     CAdaptiveBucketing(double decayRate, double minimumBucketLength);
     //! Construct by traversing a state document.
-    CAdaptiveBucketing(double decayRate,
-                       double minimumBucketLength,
-                       core::CStateRestoreTraverser& traverser);
+    CAdaptiveBucketing(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
     virtual ~CAdaptiveBucketing(void) = default;
 
     //! Efficiently swap the contents of two bucketing objects.
@@ -119,9 +116,7 @@ protected:
     //! \param[in] endTime The start of the period.
     //! \param[in] values The mean values in a regular subdivision
     //! of [\p start,\p end].
-    void initialValues(core_t::TTime startTime,
-                       core_t::TTime endTime,
-                       const TFloatMeanAccumulatorVec& values);
+    void initialValues(core_t::TTime startTime, core_t::TTime endTime, const TFloatMeanAccumulatorVec& values);
 
     //! Get the number of buckets.
     std::size_t size(void) const;

@@ -81,17 +81,13 @@ double lassoStep(double beta, double lambda, double n, double d) {
 //!
 //! The log-likelihood is proportional to
 //! <pre class="fragment">
-//!   \f$-\sum_{i=1}^{n}\log(1+\exp(-\boldsymbol{\beta}'\mathbf{x_i} y_i)) -
-//!   \sum_{j=1}^d\left(\lambda_j |\beta_j|\right)\f$
+//!   \f$-\sum_{i=1}^{n}\log(1+\exp(-\boldsymbol{\beta}'\mathbf{x_i} y_i)) - \sum_{j=1}^d\left(\lambda_j |\beta_j|\right)\f$
 //! </pre>
 //!
 //! \note That this should decrease monotonically in each iteration
 //! of the inner solver loop.
 template<typename MATRIX>
-double logLikelihood(const MATRIX& x,
-                     const TDoubleVec& y,
-                     const TDoubleVec& lambda,
-                     const TDoubleVec& beta) {
+double logLikelihood(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda, const TDoubleVec& beta) {
     typedef typename MATRIX::iterator iterator;
 
     double result = 0.0;
@@ -233,9 +229,7 @@ void CDenseMatrix::swap(CDenseMatrix& other) {
 CSparseMatrix::CSparseMatrix(void) : m_Rows(0), m_Columns(0) {
 }
 
-CSparseMatrix::CSparseMatrix(std::size_t rows,
-                             std::size_t columns,
-                             TSizeSizePrDoublePrVec& elements)
+CSparseMatrix::CSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements)
     : m_Rows(rows), m_Columns(columns) {
     m_Elements.swap(elements);
     std::sort(m_Elements.begin(), m_Elements.end(), COrderings::SFirstLess());
@@ -254,9 +248,7 @@ CCyclicCoordinateDescent::CCyclicCoordinateDescent(std::size_t maxIterations, do
 }
 
 template<typename MATRIX>
-bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x,
-                                           const TDoubleVec& y,
-                                           const TDoubleVec& lambda) {
+bool CCyclicCoordinateDescent::checkInputs(const MATRIX& x, const TDoubleVec& y, const TDoubleVec& lambda) {
     if (x.rows() == 0) {
         LOG_ERROR("No training data");
         return false;
@@ -312,8 +304,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CDenseMatrix& x,
         return false;
     }
     if (beta.size() != lambda.size()) {
-        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size()
-                                                                 << ", D = " << lambda.size());
+        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
         return false;
     }
 
@@ -341,8 +332,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
         return false;
     }
     if (beta.size() != lambda.size()) {
-        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size()
-                                                                 << ", D = " << lambda.size());
+        LOG_ERROR("Inconsistent seed parameter vector |beta| = " << beta.size() << ", D = " << lambda.size());
         return false;
     }
 
@@ -367,8 +357,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CSparseMatrix& x,
 CLogisticRegressionModel::CLogisticRegressionModel(void) : m_Beta0(0.0), m_Beta() {
 }
 
-CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta)
-    : m_Beta0(beta0), m_Beta() {
+CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta) : m_Beta0(beta0), m_Beta() {
     m_Beta.swap(beta);
 }
 
@@ -385,8 +374,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec& x, double& probabili
 
     std::size_t n = m_Beta.size();
     if (x.size() <= m_Beta[n - 1].first) {
-        LOG_ERROR("Invalid feature vector |x| = " << x.size()
-                                                  << ", D = " << m_Beta[n - 1].first + 1)
+        LOG_ERROR("Invalid feature vector |x| = " << x.size() << ", D = " << m_Beta[n - 1].first + 1)
     }
     double r = -m_Beta0;
     for (std::size_t i = 0u; i < m_Beta.size(); ++i) {
@@ -595,8 +583,8 @@ public:
     //! Add a 2-split of the training data.
     void addSplit(MATRIX& xTrain, TDoubleVec& yTrain, MATRIX& xTest, TDoubleVec& yTest) {
         if (xTrain.rows() != m_D || xTest.rows() != m_D) {
-            LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = "
-                                                      << xTest.rows() << ", D = " << m_D);
+            LOG_ERROR("Bad training data: |train| = " << xTrain.rows() << ", |test| = " << xTest.rows()
+                                                      << ", D = " << m_D);
             return;
         }
         ++m_Splits;
@@ -650,8 +638,7 @@ private:
 ////// CLassoLogisticRegression //////
 
 template<typename STORAGE>
-CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void)
-    : m_X(), m_D(0), m_Y(), m_Lambda(1.0), m_Beta() {
+CLassoLogisticRegression<STORAGE>::CLassoLogisticRegression(void) : m_X(), m_D(0), m_Y(), m_Lambda(1.0), m_Beta() {
 }
 
 template<typename STORAGE>
@@ -768,8 +755,7 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result
 
     // Create the model.
     TSizeDoublePrVec sparse;
-    sparse.reserve(
-        std::count_if(m_Beta.begin(), m_Beta.end(), boost::bind(std::greater<double>(), _1, 0.0)));
+    sparse.reserve(std::count_if(m_Beta.begin(), m_Beta.end(), boost::bind(std::greater<double>(), _1, 0.0)));
     for (std::size_t j = 0u; j < m_D; ++j) {
         if (m_Beta[j] > 0.0) {
             sparse.emplace_back(j, m_Beta[j]);
@@ -794,8 +780,7 @@ bool CLassoLogisticRegression<STORAGE>::sanityChecks(void) const {
         (m_Y[i] < 0.0 ? negative : positive) = true;
     }
     if (!negative || !positive) {
-        LOG_WARN("Only " << (negative ? "un" : "")
-                         << "interesting examples provided: problem is ill posed");
+        LOG_WARN("Only " << (negative ? "un" : "") << "interesting examples provided: problem is ill posed");
         return false;
     }
     return true;
@@ -808,8 +793,7 @@ void CLassoLogisticRegressionDense::addTrainingData(const TDoubleVec& x, bool in
         this->d() = x.size();
     }
     if (x.size() != this->d()) {
-        LOG_ERROR("Ignoring inconsistent training data |x| = " << x.size()
-                                                               << ", D = " << this->x()[0].size());
+        LOG_ERROR("Ignoring inconsistent training data |x| = " << x.size() << ", D = " << this->x()[0].size());
         return;
     }
     this->x().push_back(x);

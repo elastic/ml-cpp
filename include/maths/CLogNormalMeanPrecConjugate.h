@@ -107,11 +107,10 @@ public:
     //! \param[in] offsetMargin The margin between the smallest value and the support
     //! left end.
     //! \return A non-informative prior.
-    static CLogNormalMeanPrecConjugate
-    nonInformativePrior(maths_t::EDataType dataType,
-                        double offset = 0.0,
-                        double decayRate = 0.0,
-                        double offsetMargin = LOG_NORMAL_OFFSET_MARGIN);
+    static CLogNormalMeanPrecConjugate nonInformativePrior(maths_t::EDataType dataType,
+                                                           double offset = 0.0,
+                                                           double decayRate = 0.0,
+                                                           double offsetMargin = LOG_NORMAL_OFFSET_MARGIN);
     //@}
 
     //! \name Prior Contract
@@ -151,9 +150,8 @@ public:
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
-    virtual double adjustOffset(const TWeightStyleVec& weightStyles,
-                                const TDouble1Vec& samples,
-                                const TDouble4Vec1Vec& weights);
+    virtual double
+    adjustOffset(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Get the current offset.
     virtual double offset(void) const;
@@ -166,9 +164,8 @@ public:
     //! for more details.
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TWeightStyleVec& weightStyles,
-                            const TDouble1Vec& samples,
-                            const TDouble4Vec1Vec& weights);
+    virtual void
+    addSamples(const TWeightStyleVec& weightStyles, const TDouble1Vec& samples, const TDouble4Vec1Vec& weights);
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -187,14 +184,12 @@ public:
     virtual double marginalLikelihoodMean(void) const;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double
-    marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                           const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodMode(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                          const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-                               const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual double marginalLikelihoodVariance(const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                              const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -209,10 +204,10 @@ public:
     //! \param[in] weightStyles Optional variance scale weight styles.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
-        double percentage,
-        const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
-        const TDouble4Vec& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr
+    marginalLikelihoodConfidenceInterval(double percentage,
+                                         const TWeightStyleVec& weightStyles = TWeights::COUNT_VARIANCE,
+                                         const TDouble4Vec& weights = TWeights::UNIT) const;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the exponentiated normal mean
@@ -226,11 +221,10 @@ public:
     //! \param[out] result Filled in with the joint likelihood of \p samples.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
-                               const TDouble1Vec& samples,
-                               const TDouble4Vec1Vec& weights,
-                               double& result) const;
+    virtual maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const TWeightStyleVec& weightStyles,
+                                                                          const TDouble1Vec& samples,
+                                                                          const TDouble4Vec1Vec& weights,
+                                                                          double& result) const;
 
     //! Sample the marginal likelihood function.
     //!
@@ -391,8 +385,7 @@ public:
     TDoubleDoublePr confidenceIntervalNormalPrecision(double percentage) const;
 
     //! Check if two priors are equal to the specified tolerance.
-    bool equalTolerance(const CLogNormalMeanPrecConjugate& rhs,
-                        const TEqualWithTolerance& equal) const;
+    bool equalTolerance(const CLogNormalMeanPrecConjugate& rhs, const TEqualWithTolerance& equal) const;
     //@}
 
 private:

@@ -48,15 +48,11 @@ maths::CModelParams params(core_t::TTime bucketLength) {
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{MINIMUM_SEASONAL_SCALE};
-    return maths::CModelParams{bucketLength,
-                               learnRates[bucketLength],
-                               DECAY_RATE,
-                               minimumSeasonalVarianceScale};
+    return maths::CModelParams{bucketLength, learnRates[bucketLength], DECAY_RATE, minimumSeasonalVarianceScale};
 }
 
 maths::CNormalMeanPrecConjugate normal(void) {
-    return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData,
-                                                                DECAY_RATE);
+    return maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE);
 }
 
 maths::CMultimodalPrior multimodal(void) {
@@ -89,8 +85,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
         fuzzy.computeEpsilons(600, 10000);
 
         boost::math::normal normal{variance, std::sqrt(variance)};
-        double eps{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1)) /
-                   10000.0};
+        double eps{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1)) / 10000.0};
         LOG_DEBUG("eps = " << eps);
 
         uniques.clear();
@@ -173,8 +168,7 @@ void CModelToolsTest::testFuzzyDeduplicate(void) {
         fuzzy.computeEpsilons(600, 10000);
 
         boost::math::lognormal lognormal{variance, std::sqrt(variance)};
-        double eps{(boost::math::quantile(lognormal, 0.9) - boost::math::quantile(lognormal, 0.1)) /
-                   10000.0};
+        double eps{(boost::math::quantile(lognormal, 0.9) - boost::math::quantile(lognormal, 0.1)) / 10000.0};
         LOG_DEBUG("eps = " << eps);
 
         uniques.clear();
@@ -272,40 +266,22 @@ void CModelToolsTest::testProbabilityCache(void) {
             TTail2Vec expectedTail;
             bool conditional;
             TSize1Vec mostAnomalousCorrelate;
-            model.probability(params,
-                              time,
-                              sample,
-                              expectedProbability,
-                              expectedTail,
-                              conditional,
-                              mostAnomalousCorrelate);
+            model.probability(
+                params, time, sample, expectedProbability, expectedTail, conditional, mostAnomalousCorrelate);
 
             double probability;
             TTail2Vec tail;
-            if (cache.lookup(feature,
-                             id,
-                             sample,
-                             probability,
-                             tail,
-                             conditional,
-                             mostAnomalousCorrelate)) {
+            if (cache.lookup(feature, id, sample, probability, tail, conditional, mostAnomalousCorrelate)) {
                 ++hits;
                 error.add(std::fabs(probability - expectedProbability) / expectedProbability);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability,
-                                             probability,
-                                             0.05 * expectedProbability);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability, 0.05 * expectedProbability);
                 CPPUNIT_ASSERT_EQUAL(expectedTail[0], tail[0]);
                 CPPUNIT_ASSERT_EQUAL(false, conditional);
                 CPPUNIT_ASSERT(mostAnomalousCorrelate.empty());
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature,
-                                     id,
-                                     sample,
-                                     expectedProbability,
-                                     expectedTail,
-                                     false,
-                                     mostAnomalousCorrelate);
+                cache.addProbability(
+                    feature, id, sample, expectedProbability, expectedTail, false, mostAnomalousCorrelate);
             }
         }
 
@@ -331,35 +307,19 @@ void CModelToolsTest::testProbabilityCache(void) {
             TTail2Vec expectedTail;
             bool conditional;
             TSize1Vec mostAnomalousCorrelate;
-            model.probability(params,
-                              time,
-                              sample,
-                              expectedProbability,
-                              expectedTail,
-                              conditional,
-                              mostAnomalousCorrelate);
+            model.probability(
+                params, time, sample, expectedProbability, expectedTail, conditional, mostAnomalousCorrelate);
             LOG_DEBUG("probability = " << expectedProbability << ", tail = " << expectedTail);
 
             double probability;
             TTail2Vec tail;
-            if (cache.lookup(feature,
-                             id,
-                             sample,
-                             probability,
-                             tail,
-                             conditional,
-                             mostAnomalousCorrelate)) {
+            if (cache.lookup(feature, id, sample, probability, tail, conditional, mostAnomalousCorrelate)) {
                 // Shouldn't have any cache hits.
                 CPPUNIT_ASSERT(false);
             } else {
                 cache.addModes(feature, id, model);
-                cache.addProbability(feature,
-                                     id,
-                                     sample,
-                                     expectedProbability,
-                                     expectedTail,
-                                     false,
-                                     mostAnomalousCorrelate);
+                cache.addProbability(
+                    feature, id, sample, expectedProbability, expectedTail, false, mostAnomalousCorrelate);
             }
         }
     }
@@ -368,12 +328,10 @@ void CModelToolsTest::testProbabilityCache(void) {
 CppUnit::Test* CModelToolsTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelToolsTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelToolsTest>("CModelToolsTest::testFuzzyDeduplicate",
-                                                 &CModelToolsTest::testFuzzyDeduplicate));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CModelToolsTest>("CModelToolsTest::testProbabilityCache",
-                                                 &CModelToolsTest::testProbabilityCache));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelToolsTest>("CModelToolsTest::testFuzzyDeduplicate",
+                                                                   &CModelToolsTest::testFuzzyDeduplicate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CModelToolsTest>("CModelToolsTest::testProbabilityCache",
+                                                                   &CModelToolsTest::testProbabilityCache));
 
     return suiteOfTests;
 }

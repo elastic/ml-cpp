@@ -95,11 +95,9 @@ public:
     using TModelPtr = boost::shared_ptr<CAnomalyDetectorModel>;
     using TModelCPtr = boost::shared_ptr<const CAnomalyDetectorModel>;
     using TInfluenceCalculatorCPtr = boost::shared_ptr<const CInfluenceCalculator>;
-    using TFeatureInfluenceCalculatorCPtrPr =
-        std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
+    using TFeatureInfluenceCalculatorCPtrPr = std::pair<model_t::EFeature, TInfluenceCalculatorCPtr>;
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
-    using TFeatureInfluenceCalculatorCPtrPrVecVec =
-        std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
+    using TFeatureInfluenceCalculatorCPtrPrVecVec = std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
     using TDetectionRuleVec = std::vector<CDetectionRule>;
     using TDetectionRuleVecCRef = boost::reference_wrapper<const TDetectionRuleVec>;
     using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
@@ -197,8 +195,7 @@ public:
 
     //! Get the default correlate priors to use for correlated pairs of time
     //! series of \p features.
-    const TFeatureMultivariatePriorPtrPrVec&
-    defaultCorrelatePriors(const TFeatureVec& features) const;
+    const TFeatureMultivariatePriorPtrPrVec& defaultCorrelatePriors(const TFeatureVec& features) const;
 
     //! Get the default models for correlations of \p features.
     const TFeatureCorrelationsPtrPrVec& defaultCorrelates(const TFeatureVec& features) const;
@@ -241,13 +238,11 @@ public:
     //!
     //! \param[in] feature The feature for which to get the decomposition.
     //! \param[in] bucketLength The data bucketing length.
-    TDecompositionCPtr defaultDecomposition(model_t::EFeature feature,
-                                            core_t::TTime bucketLength) const;
+    TDecompositionCPtr defaultDecomposition(model_t::EFeature feature, core_t::TTime bucketLength) const;
 
     //! Get the influence calculators to use for each feature in \p features.
-    const TFeatureInfluenceCalculatorCPtrPrVec&
-    defaultInfluenceCalculators(const std::string& influencerName,
-                                const TFeatureVec& features) const;
+    const TFeatureInfluenceCalculatorCPtrPrVec& defaultInfluenceCalculators(const std::string& influencerName,
+                                                                            const TFeatureVec& features) const;
     //@}
 
     //! Get the search key corresponding to this factory.
@@ -371,18 +366,16 @@ protected:
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \warning Up to ten dimensions are supported.
-    TMultivariatePriorPtr multivariateNormalPrior(std::size_t dimension,
-                                                  const SModelParams& params) const;
+    TMultivariatePriorPtr multivariateNormalPrior(std::size_t dimension, const SModelParams& params) const;
 
     //! Get a multivariate multimodal prior with dimension \p dimension.
     //!
     //! \param[in] dimension The dimension.
     //! \param[in] params The model parameters.
     //! \warning Up to ten dimensions are supported.
-    TMultivariatePriorPtr
-    multivariateMultimodalPrior(std::size_t dimension,
-                                const SModelParams& params,
-                                const maths::CMultivariatePrior& modePrior) const;
+    TMultivariatePriorPtr multivariateMultimodalPrior(std::size_t dimension,
+                                                      const SModelParams& params,
+                                                      const maths::CMultivariatePrior& modePrior) const;
 
     //! Get a multivariate 1-of-n prior with dimension \p dimension.
     //!
@@ -409,8 +402,7 @@ protected:
 
 private:
     using TFeatureVecMathsModelMap = std::map<TFeatureVec, TFeatureMathsModelPtrPrVec>;
-    using TFeatureVecMultivariatePriorMap =
-        std::map<TFeatureVec, TFeatureMultivariatePriorPtrPrVec>;
+    using TFeatureVecMultivariatePriorMap = std::map<TFeatureVec, TFeatureMultivariatePriorPtrPrVec>;
     using TFeatureVecCorrelationsMap = std::map<TFeatureVec, TFeatureCorrelationsPtrPrVec>;
     using TStrFeatureVecPr = std::pair<std::string, TFeatureVec>;
     using TStrFeatureVecPrInfluenceCalculatorCPtrMap =

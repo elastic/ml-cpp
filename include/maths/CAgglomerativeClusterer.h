@@ -44,8 +44,7 @@ namespace maths {
 //!   \f$\displaystyle d_c(A,B) = min_{i,j}{d(x_i, x_j)\f$
 //! </pre>
 //!
-//! For other styles see
-//! https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
+//! For other styles see https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
 class MATHS_EXPORT CAgglomerativeClusterer {
 public:
     typedef std::vector<double> TDoubleVec;

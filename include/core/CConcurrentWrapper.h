@@ -32,8 +32,7 @@ namespace core {
 //! DESCRIPTION:\n
 //! A thread safe concurrent wrapper based on Herb Sutters Active Object Pattern.
 //!
-//! See
-//! https://channel9.msdn.com/Shows/Going+Deep/C-and-Beyond-2012-Herb-Sutter-Concurrency-and-Parallelism
+//! See https://channel9.msdn.com/Shows/Going+Deep/C-and-Beyond-2012-Herb-Sutter-Concurrency-and-Parallelism
 //!
 //! @tparam T the wrapped object
 //! @tparam QUEUE_CAPACITY internal queue capacity

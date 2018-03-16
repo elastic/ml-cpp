@@ -49,10 +49,8 @@ namespace {
 
 using TStoredStringPtr = CHierarchicalResults::TStoredStringPtr;
 using TStoredStringPtrStoredStringPtrPr = CHierarchicalResults::TStoredStringPtrStoredStringPtrPr;
-using TStoredStringPtrStoredStringPtrPrDoublePr =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
-using TStoredStringPtrStoredStringPtrPrDoublePrVec =
-    CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
+using TStoredStringPtrStoredStringPtrPrDoublePr = CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePr;
+using TStoredStringPtrStoredStringPtrPrDoublePrVec = CHierarchicalResults::TStoredStringPtrStoredStringPtrPrDoublePrVec;
 
 //! \brief Creates new detector equalizers.
 class CDetectorEqualizerFactory {
@@ -72,8 +70,7 @@ public:
 };
 
 //! Check if the underlying strings are equal.
-bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
-           const TStoredStringPtrStoredStringPtrPr& rhs) {
+bool equal(const TStoredStringPtrStoredStringPtrPr& lhs, const TStoredStringPtrStoredStringPtrPr& rhs) {
     return *lhs.first == *rhs.first && *lhs.second == *rhs.second;
 }
 
@@ -85,16 +82,12 @@ bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& in
                           double& result) {
     TStoredStringPtrStoredStringPtrPr influence(influencerName, influencerValue);
 
-    std::size_t k{static_cast<std::size_t>(std::lower_bound(influences.begin(),
-                                                            influences.end(),
-                                                            influence,
-                                                            maths::COrderings::SFirstLess()) -
-                                           influences.begin())};
+    std::size_t k{static_cast<std::size_t>(
+        std::lower_bound(influences.begin(), influences.end(), influence, maths::COrderings::SFirstLess()) -
+        influences.begin())};
 
     if (k < influences.size() && equal(influences[k].first, influence)) {
-        result = influences[k].second == 1.0
-                     ? p
-                     : std::exp(influences[k].second * maths::CTools::fastLog(p));
+        result = influences[k].second == 1.0 ? p : std::exp(influences[k].second * maths::CTools::fastLog(p));
         return true;
     }
 
@@ -111,8 +104,7 @@ const std::string LEAF_TAG("f");
 
 } // unnamed::
 
-CHierarchicalResultsAggregator::CHierarchicalResultsAggregator(
-    const CAnomalyDetectorModelConfig& modelConfig)
+CHierarchicalResultsAggregator::CHierarchicalResultsAggregator(const CAnomalyDetectorModelConfig& modelConfig)
     : TBase(TDetectorEqualizer()),
       m_Job(E_NoOp),
       m_DecayRate(modelConfig.decayRate()),
@@ -129,9 +121,8 @@ void CHierarchicalResultsAggregator::refresh(const CAnomalyDetectorModelConfig& 
     m_MaximumAnomalousProbability = modelConfig.maximumAnomalousProbability();
     for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
         for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
-            m_Parameters[i][j] =
-                modelConfig.aggregationStyleParam(static_cast<model_t::EAggregationStyle>(i),
-                                                  static_cast<model_t::EAggregationParam>(j));
+            m_Parameters[i][j] = modelConfig.aggregationStyleParam(static_cast<model_t::EAggregationStyle>(i),
+                                                                   static_cast<model_t::EAggregationParam>(j));
         }
     }
 }
@@ -140,9 +131,7 @@ void CHierarchicalResultsAggregator::clear(void) {
     this->TBase::clear();
 }
 
-void CHierarchicalResultsAggregator::visit(const CHierarchicalResults& /*results*/,
-                                           const TNode& node,
-                                           bool pivot) {
+void CHierarchicalResultsAggregator::visit(const CHierarchicalResults& /*results*/, const TNode& node, bool pivot) {
     if (isLeaf(node)) {
         this->aggregateLeaf(node);
     } else {
@@ -155,17 +144,13 @@ void CHierarchicalResultsAggregator::propagateForwardByTime(double time) {
         LOG_ERROR("Can't propagate normalizer backwards in time");
         return;
     }
-    double factor{
-        std::exp(-m_DecayRate * CDetectorEqualizer::largestProbabilityToCorrect() * time)};
+    double factor{std::exp(-m_DecayRate * CDetectorEqualizer::largestProbabilityToCorrect() * time)};
     this->age(boost::bind(&TDetectorEqualizer::age, _1, factor));
 }
 
-void CHierarchicalResultsAggregator::acceptPersistInserter(
-    core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(BUCKET_TAG,
-                         boost::bind(&TDetectorEqualizer::acceptPersistInserter,
-                                     boost::cref(this->bucketElement()),
-                                     _1));
+void CHierarchicalResultsAggregator::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertLevel(
+        BUCKET_TAG, boost::bind(&TDetectorEqualizer::acceptPersistInserter, boost::cref(this->bucketElement()), _1));
     core::CPersistUtils::persist(INFLUENCER_BUCKET_TAG, this->influencerBucketSet(), inserter);
     core::CPersistUtils::persist(INFLUENCER_TAG, this->influencerSet(), inserter);
     core::CPersistUtils::persist(PARTITION_TAG, this->partitionSet(), inserter);
@@ -173,22 +158,16 @@ void CHierarchicalResultsAggregator::acceptPersistInserter(
     core::CPersistUtils::persist(LEAF_TAG, this->leafSet(), inserter);
 }
 
-bool CHierarchicalResultsAggregator::acceptRestoreTraverser(
-    core::CStateRestoreTraverser& traverser) {
+bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         RESTORE(BUCKET_TAG,
-                traverser.traverseSubLevel(boost::bind(&TDetectorEqualizer::acceptRestoreTraverser,
-                                                       boost::ref(this->bucketElement()),
-                                                       _1)))
+                traverser.traverseSubLevel(
+                    boost::bind(&TDetectorEqualizer::acceptRestoreTraverser, boost::ref(this->bucketElement()), _1)))
         RESTORE(INFLUENCER_BUCKET_TAG,
-                core::CPersistUtils::restore(INFLUENCER_BUCKET_TAG,
-                                             this->influencerBucketSet(),
-                                             traverser));
-        RESTORE(INFLUENCER_TAG,
-                core::CPersistUtils::restore(INFLUENCER_TAG, this->influencerSet(), traverser));
-        RESTORE(PARTITION_TAG,
-                core::CPersistUtils::restore(PARTITION_TAG, this->partitionSet(), traverser));
+                core::CPersistUtils::restore(INFLUENCER_BUCKET_TAG, this->influencerBucketSet(), traverser));
+        RESTORE(INFLUENCER_TAG, core::CPersistUtils::restore(INFLUENCER_TAG, this->influencerSet(), traverser));
+        RESTORE(PARTITION_TAG, core::CPersistUtils::restore(PARTITION_TAG, this->partitionSet(), traverser));
         RESTORE(PERSON_TAG, core::CPersistUtils::restore(PERSON_TAG, this->personSet(), traverser));
         RESTORE(LEAF_TAG, core::CPersistUtils::restore(LEAF_TAG, this->leafSet(), traverser));
     } while (traverser.next());
@@ -214,8 +193,7 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode& node) {
     }
     probability = maths::CTools::truncate(probability, maths::CTools::smallestProbability(), 1.0);
     this->correctProbability(node, false, detector, probability);
-    model_t::EAggregationStyle style{isAttribute(node) ? model_t::E_AggregateAttributes
-                                                       : model_t::E_AggregatePeople};
+    model_t::EAggregationStyle style{isAttribute(node) ? model_t::E_AggregateAttributes : model_t::E_AggregatePeople};
 
     node.s_AnnotatedProbability.s_Probability = probability;
     node.s_AggregationStyle = style;
@@ -237,13 +215,7 @@ void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot
     int detector;
     int aggregation;
     TDouble1Vec detectorProbabilities;
-    this->detectorProbabilities(node,
-                                pivot,
-                                numberDetectors,
-                                partition,
-                                detector,
-                                aggregation,
-                                detectorProbabilities);
+    this->detectorProbabilities(node, pivot, numberDetectors, partition, detector, aggregation, detectorProbabilities);
     LOG_TRACE("detector = " << detector << ", aggregation = " << aggregation
                             << ", detector probabilities = " << detectorProbabilities);
 
@@ -261,11 +233,10 @@ void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot
     LOG_TRACE("probability = " << node.probability());
 }
 
-bool CHierarchicalResultsAggregator::partitionChildProbabilities(
-    const TNode& node,
-    bool pivot,
-    std::size_t& numberDetectors,
-    TIntSizePrDouble1VecUMap (&partition)[N]) {
+bool CHierarchicalResultsAggregator::partitionChildProbabilities(const TNode& node,
+                                                                 bool pivot,
+                                                                 std::size_t& numberDetectors,
+                                                                 TIntSizePrDouble1VecUMap (&partition)[N]) {
     using TSizeFSet = boost::container::flat_set<std::size_t>;
     using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
 
@@ -304,8 +275,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
         }
         pMinDescendent.add(child->s_SmallestDescendantProbability);
 
-        model_t::EAggregationStyle style{
-            static_cast<model_t::EAggregationStyle>(child->s_AggregationStyle)};
+        model_t::EAggregationStyle style{static_cast<model_t::EAggregationStyle>(child->s_AggregationStyle)};
         switch (style) {
         case model_t::E_AggregatePeople:
         case model_t::E_AggregateAttributes:
@@ -330,21 +300,19 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
     return haveResult;
 }
 
-void CHierarchicalResultsAggregator::detectorProbabilities(
-    const TNode& node,
-    bool pivot,
-    std::size_t numberDetectors,
-    const TIntSizePrDouble1VecUMap (&partition)[N],
-    int& detector,
-    int& aggregation,
-    TDouble1Vec& probabilities) {
+void CHierarchicalResultsAggregator::detectorProbabilities(const TNode& node,
+                                                           bool pivot,
+                                                           std::size_t numberDetectors,
+                                                           const TIntSizePrDouble1VecUMap (&partition)[N],
+                                                           int& detector,
+                                                           int& aggregation,
+                                                           TDouble1Vec& probabilities) {
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TIntDouble1VecFMap = boost::container::flat_map<int, TDouble1Vec>;
 
     int fallback{static_cast<int>(model_t::E_AggregatePeople)};
     detector = -3;
-    aggregation =
-        (pivot || isPartition(node) || (isPopulation(node) && isPerson(node))) ? fallback : -1;
+    aggregation = (pivot || isPartition(node) || (isPopulation(node) && isPerson(node))) ? fallback : -1;
 
     TIntDouble1VecFMap detectorProbabilities;
     detectorProbabilities.reserve(numberDetectors);
@@ -359,10 +327,8 @@ void CHierarchicalResultsAggregator::detectorProbabilities(
                 double rawAnomalyScore;
                 CAnomalyScore::compute(params[model_t::E_JointProbabilityWeight],
                                        params[model_t::E_ExtremeProbabilityWeight],
-                                       static_cast<std::size_t>(
-                                           params[model_t::E_MinExtremeSamples]),
-                                       static_cast<std::size_t>(
-                                           params[model_t::E_MaxExtremeSamples]),
+                                       static_cast<std::size_t>(params[model_t::E_MinExtremeSamples]),
+                                       static_cast<std::size_t>(params[model_t::E_MaxExtremeSamples]),
                                        m_MaximumAnomalousProbability,
                                        subset.second,
                                        rawAnomalyScore,
@@ -422,10 +388,8 @@ std::size_t CHierarchicalResultsAggregator::hash(const TNode& node) const {
     return result;
 }
 
-double CHierarchicalResultsAggregator::correctProbability(const TNode& node,
-                                                          bool pivot,
-                                                          int detector,
-                                                          double probability) {
+double
+CHierarchicalResultsAggregator::correctProbability(const TNode& node, bool pivot, int detector, double probability) {
     using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 
     if (probability < CDetectorEqualizer::largestProbabilityToCorrect()) {

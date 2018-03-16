@@ -26,12 +26,10 @@
 namespace ml {
 namespace config {
 namespace {
-const double LOG_MIN =
-    0.5 * ::log(0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_DETECTOR_SCORE);
+const double LOG_MIN = 0.5 * ::log(0.9 * constants::DETECTOR_SCORE_EPSILON / constants::MAXIMUM_DETECTOR_SCORE);
 }
 
-CLowInformationContentPenalty::CLowInformationContentPenalty(const CAutoconfigurerParams& params)
-    : CPenalty(params) {
+CLowInformationContentPenalty::CLowInformationContentPenalty(const CAutoconfigurerParams& params) : CPenalty(params) {
 }
 
 CLowInformationContentPenalty* CLowInformationContentPenalty::clone(void) const {
@@ -54,38 +52,29 @@ void CLowInformationContentPenalty::penaltyFromMe(CDetectorSpecification& spec) 
                 double penalty =
                     cardinality == 1.0
                         ? 0.0
-                        : ::exp(
-                              CTools::interpolate(this->params().lowLengthRangeForInfoContent(),
-                                                  this->params().minimumLengthRangeForInfoContent(),
-                                                  0.0,
-                                                  LOG_MIN,
-                                                  maximumLength - minimumLength)) *
-                              ::exp(CTools::interpolate(this->params()
-                                                            .lowMaximumLengthForInfoContent(),
-                                                        this->params()
-                                                            .minimumMaximumLengthForInfoContent(),
+                        : ::exp(CTools::interpolate(this->params().lowLengthRangeForInfoContent(),
+                                                    this->params().minimumLengthRangeForInfoContent(),
+                                                    0.0,
+                                                    LOG_MIN,
+                                                    maximumLength - minimumLength)) *
+                              ::exp(CTools::interpolate(this->params().lowMaximumLengthForInfoContent(),
+                                                        this->params().minimumMaximumLengthForInfoContent(),
                                                         0.0,
                                                         LOG_MIN,
                                                         maximumLength)) *
-                              ::exp(
-                                  CTools::logInterpolate(this->params().lowEntropyForInfoContent(),
-                                                         this->params()
-                                                             .minimumEntropyForInfoContent(),
-                                                         0.0,
-                                                         LOG_MIN,
-                                                         entropy / ::log(cardinality))) *
-                              ::exp(
-                                  CTools::logInterpolate(this->params()
-                                                             .lowDistinctCountForInfoContent(),
-                                                         this->params()
-                                                             .minimumDistinctCountForInfoContent(),
-                                                         LOG_MIN,
-                                                         0.0,
-                                                         cardinality));
+                              ::exp(CTools::logInterpolate(this->params().lowEntropyForInfoContent(),
+                                                           this->params().minimumEntropyForInfoContent(),
+                                                           0.0,
+                                                           LOG_MIN,
+                                                           entropy / ::log(cardinality))) *
+                              ::exp(CTools::logInterpolate(this->params().lowDistinctCountForInfoContent(),
+                                                           this->params().minimumDistinctCountForInfoContent(),
+                                                           LOG_MIN,
+                                                           0.0,
+                                                           cardinality));
                 std::string description;
                 if (penalty < 1.0) {
-                    description = "There is weak evidence that '" + *spec.argumentField() +
-                                  "' carries information";
+                    description = "There is weak evidence that '" + *spec.argumentField() + "' carries information";
                 }
                 spec.applyPenalty(penalty, description);
             }

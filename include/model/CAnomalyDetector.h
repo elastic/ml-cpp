@@ -88,11 +88,8 @@ public:
     //! A shared pointer to an instance of this class
     typedef boost::shared_ptr<CAnomalyDetector> TAnomalyDetectorPtr;
 
-    typedef std::function<void(const std::string&,
-                               const std::string&,
-                               const std::string&,
-                               const std::string&,
-                               const CModelPlotData&)>
+    typedef std::function<
+        void(const std::string&, const std::string&, const std::string&, const std::string&, const CModelPlotData&)>
         TOutputModelPlotDataFunc;
     typedef CAnomalyDetectorModelConfig::TStrSet TStrSet;
 
@@ -164,8 +161,7 @@ public:
     void zeroModelsToTime(core_t::TTime time);
 
     //! Populate the object from a state document
-    bool acceptRestoreTraverser(const std::string& partitionFieldValue,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const std::string& partitionFieldValue, core::CStateRestoreTraverser& traverser);
 
     //! Restore state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
@@ -226,14 +222,10 @@ public:
     void addRecord(core_t::TTime time, const TStrCPtrVec& fieldValues);
 
     //! Update the results with this detector model's results.
-    void buildResults(core_t::TTime bucketStartTime,
-                      core_t::TTime bucketEndTime,
-                      CHierarchicalResults& results);
+    void buildResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results);
 
     //! Update the results with this detector model's results.
-    void buildInterimResults(core_t::TTime bucketStartTime,
-                             core_t::TTime bucketEndTime,
-                             CHierarchicalResults& results);
+    void buildInterimResults(core_t::TTime bucketStartTime, core_t::TTime bucketEndTime, CHierarchicalResults& results);
 
     //! Generate the model plot data for the time series identified
     //! by \p terms.
@@ -324,9 +316,7 @@ private:
     //! Sample bucket statistics and any other state needed to compute
     //! probabilities in the interval [\p startTime, \p endTime], but
     //! does not update the model.
-    void sampleBucketStatistics(core_t::TTime startTime,
-                                core_t::TTime endTime,
-                                CResourceMonitor& resourceMonitor);
+    void sampleBucketStatistics(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
 
     //! Restores the state that was formerly part of the model ensemble class.
     //! This includes the data gatherer and the model.

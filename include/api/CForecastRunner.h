@@ -201,8 +201,7 @@ private:
     };
 
 private:
-    using TErrorFunc =
-        std::function<void(const SForecast& forecastJob, const std::string& message)>;
+    using TErrorFunc = std::function<void(const SForecast& forecastJob, const std::string& message)>;
 
 private:
     //! The worker loop

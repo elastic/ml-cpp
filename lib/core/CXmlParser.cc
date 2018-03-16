@@ -260,8 +260,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, TStrStrMap& r
     return true;
 }
 
-bool CXmlParser::evalXPathExpression(const std::string& xpathExpr,
-                                     CXmlParser::TXmlNodeVec& ret) const {
+bool CXmlParser::evalXPathExpression(const std::string& xpathExpr, CXmlParser::TXmlNodeVec& ret) const {
     ret.clear();
 
     if (m_Doc == 0 || m_XPathContext == 0) {
@@ -270,8 +269,7 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr,
     }
 
     xmlXPathObject* xpathObj(
-        xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()),
-                               m_XPathContext));
+        xmlXPathEvalExpression(reinterpret_cast<const xmlChar*>(xpathExpr.c_str()), m_XPathContext));
     if (xpathObj == 0) {
         LOG_ERROR("Unable to evaluate xpath expression " << xpathExpr);
         return false;
@@ -313,8 +311,8 @@ bool CXmlParser::evalXPathExpression(const std::string& xpathExpr,
                 const xmlChar* propName(prop->name);
                 xmlChar* propValue(xmlGetProp(nodes->nodeTab[i], propName));
 
-                attrs.push_back(CXmlNode::TStrStrPr(reinterpret_cast<const char*>(propName),
-                                                    reinterpret_cast<char*>(propValue)));
+                attrs.push_back(
+                    CXmlNode::TStrStrPr(reinterpret_cast<const char*>(propName), reinterpret_cast<char*>(propValue)));
 
                 xmlFree(propValue);
 
@@ -370,12 +368,9 @@ void CXmlParser::convert(const CXmlNodeWithChildren& root, std::string& result) 
     CXmlParser::convert(DEFAULT_INDENT_SPACES, root, result);
 }
 
-void CXmlParser::convert(size_t indentSpaces,
-                         const CXmlNodeWithChildren& root,
-                         std::string& result) {
+void CXmlParser::convert(size_t indentSpaces, const CXmlNodeWithChildren& root, std::string& result) {
     // The xmlTreeIndentString "global" is really a per-thread variable.
-    xmlTreeIndentString =
-        INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
+    xmlTreeIndentString = INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
 
     // Create a temporary document
     xmlDoc* doc(xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0")));
@@ -415,8 +410,7 @@ void CXmlParser::convert(size_t indentSpaces,
 void CXmlParser::convertChildren(const CXmlNodeWithChildren& current, xmlNode& xmlRep) {
     const CXmlNodeWithChildren::TChildNodePVec& childVec = current.children();
 
-    for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin();
-         childIter != childVec.end();
+    for (CXmlNodeWithChildren::TChildNodePVecCItr childIter = childVec.begin(); childIter != childVec.end();
          ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
         if (child != 0) {
@@ -426,22 +420,17 @@ void CXmlParser::convertChildren(const CXmlNodeWithChildren& current, xmlNode& x
                 // It's crucial to specify the value as NULL rather than
                 // an empty string, otherwise the formatting will be messed
                 // up
-                childRep = xmlNewChild(&xmlRep,
-                                       0,
-                                       reinterpret_cast<const xmlChar*>(child->name().c_str()),
-                                       0);
+                childRep = xmlNewChild(&xmlRep, 0, reinterpret_cast<const xmlChar*>(child->name().c_str()), 0);
             } else {
-                childRep =
-                    xmlNewTextChild(&xmlRep,
-                                    0,
-                                    reinterpret_cast<const xmlChar*>(child->name().c_str()),
-                                    reinterpret_cast<const xmlChar*>(child->value().c_str()));
+                childRep = xmlNewTextChild(&xmlRep,
+                                           0,
+                                           reinterpret_cast<const xmlChar*>(child->name().c_str()),
+                                           reinterpret_cast<const xmlChar*>(child->value().c_str()));
             }
 
             const CXmlNode::TStrStrPrVec& attrs = child->attributes();
 
-            for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end();
-                 ++attrIter) {
+            for (CXmlNode::TStrStrPrVecCItr attrIter = attrs.begin(); attrIter != attrs.end(); ++attrIter) {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar*>(attrIter->first.c_str()),
                            reinterpret_cast<const xmlChar*>(attrIter->second.c_str()));
@@ -456,13 +445,9 @@ void CXmlParser::convert(const std::string& root, const TStrStrMap& values, std:
     CXmlParser::convert(DEFAULT_INDENT_SPACES, root, values, result);
 }
 
-void CXmlParser::convert(size_t indentSpaces,
-                         const std::string& root,
-                         const TStrStrMap& values,
-                         std::string& result) {
+void CXmlParser::convert(size_t indentSpaces, const std::string& root, const TStrStrMap& values, std::string& result) {
     // The xmlTreeIndentString "global" is really a per-thread variable.
-    xmlTreeIndentString =
-        INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
+    xmlTreeIndentString = INDENT_SPACE_STR + MAX_INDENT_SPACES - std::min(indentSpaces, MAX_INDENT_SPACES);
 
     // Create a temporary document
     xmlDoc* doc(xmlNewDoc(reinterpret_cast<const xmlChar*>("1.0")));
@@ -495,9 +480,8 @@ void CXmlParser::convert(size_t indentSpaces,
             size_t eqPos(attribute.find(ATTRIBUTE_EQUALS));
             if (eqPos == std::string::npos || eqPos == 0) {
                 LOG_ERROR("Attribute format does not contain '"
-                          << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute
-                          << core_t::LINE_ENDING << "Map key : " << itr->first
-                          << core_t::LINE_ENDING << "Map value : " << itr->second);
+                          << ATTRIBUTE_EQUALS << "' surrounded by name and value : " << attribute << core_t::LINE_ENDING
+                          << "Map key : " << itr->first << core_t::LINE_ENDING << "Map value : " << itr->second);
             } else {
                 xmlSetProp(childRep,
                            reinterpret_cast<const xmlChar*>(attribute.substr(0, eqPos).c_str()),
@@ -591,8 +575,7 @@ bool CXmlParser::toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
     return this->toNodeHierarchy(*root, pool, 0, rootNodePtr);
 }
 
-bool CXmlParser::toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
+bool CXmlParser::toNodeHierarchy(CStringCache& cache, CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const {
     // Because both the pool and the nodes use shared pointers, it doesn't
     // matter if the pool that originally allocates the nodes is destroyed
     // before the nodes themselves.  Hence we can get away with implementing
@@ -776,10 +759,9 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
     }
 
     // Note the namespace is NULL here
-    if (xmlNewTextChild(root,
-                        0,
-                        reinterpret_cast<const xmlChar*>(name.c_str()),
-                        reinterpret_cast<const xmlChar*>(value.c_str())) == 0) {
+    if (xmlNewTextChild(
+            root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())) ==
+        0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
     }
@@ -790,9 +772,7 @@ bool CXmlParser::addNewChildNode(const std::string& name, const std::string& val
     return true;
 }
 
-bool CXmlParser::addNewChildNode(const std::string& name,
-                                 const std::string& value,
-                                 const TStrStrMap& attrs) {
+bool CXmlParser::addNewChildNode(const std::string& name, const std::string& value, const TStrStrMap& attrs) {
     if (m_Doc == 0) {
         LOG_ERROR("Cannot add to uninitialised document");
         return false;
@@ -805,10 +785,8 @@ bool CXmlParser::addNewChildNode(const std::string& name,
     }
 
     // Note the namespace is NULL here
-    xmlNode* child(xmlNewTextChild(root,
-                                   0,
-                                   reinterpret_cast<const xmlChar*>(name.c_str()),
-                                   reinterpret_cast<const xmlChar*>(value.c_str())));
+    xmlNode* child(xmlNewTextChild(
+        root, 0, reinterpret_cast<const xmlChar*>(name.c_str()), reinterpret_cast<const xmlChar*>(value.c_str())));
     if (child == 0) {
         LOG_ERROR("Unable to add new child to " << root);
         return false;
@@ -844,8 +822,7 @@ bool CXmlParser::changeChildNodeValue(const std::string& name, const std::string
             // Unlike xmlNewTextChild, xmlNodeSetContent doesn't escape special
             // characters, so we have to call xmlEncodeSpecialChars ourselves to
             // do this
-            xmlChar* encoded(
-                xmlEncodeSpecialChars(m_Doc, reinterpret_cast<const xmlChar*>(newValue.c_str())));
+            xmlChar* encoded(xmlEncodeSpecialChars(m_Doc, reinterpret_cast<const xmlChar*>(newValue.c_str())));
             xmlNodeSetContent(child, encoded);
 
             xmlFree(encoded);
@@ -882,8 +859,8 @@ bool CXmlParser::stringLatin1ToUtf8(std::string& str) {
     if (ret == -1 || inLen < static_cast<int>(str.length())) {
         LOG_ERROR("Failure converting Latin1 string to UTF-8"
                   << core_t::LINE_ENDING << "Return code: " << ret << core_t::LINE_ENDING
-                  << "Remaining length: " << inLen << core_t::LINE_ENDING << "Original string: "
-                  << str << core_t::LINE_ENDING << "Result so far: " << &buffer[0]);
+                  << "Remaining length: " << inLen << core_t::LINE_ENDING << "Original string: " << str
+                  << core_t::LINE_ENDING << "Result so far: " << &buffer[0]);
 
         return false;
     }

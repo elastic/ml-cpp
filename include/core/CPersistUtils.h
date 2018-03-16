@@ -101,15 +101,13 @@ struct persist_selector {
     typedef typename persist_container_selector<T>::value value;
 };
 template<typename T>
-struct persist_selector<T,
-                        typename enable_if_is<void (T::*)(CStatePersistInserter&) const,
-                                              &T::acceptPersistInserter>::type> {
+struct persist_selector<
+    T,
+    typename enable_if_is<void (T::*)(CStatePersistInserter&) const, &T::acceptPersistInserter>::type> {
     typedef MemberPersist value;
 };
 template<typename T>
-struct persist_selector<
-    T,
-    typename enable_if_is<std::string (T::*)(void) const, &T::toDelimited>::type> {
+struct persist_selector<T, typename enable_if_is<std::string (T::*)(void) const, &T::toDelimited>::type> {
     typedef MemberToDelimited value;
 };
 //@}
@@ -145,15 +143,12 @@ struct restore_selector {
     typedef typename restore_container_selector<T>::value value;
 };
 template<typename T>
-struct restore_selector<
-    T,
-    typename enable_if_is<bool (T::*)(CStateRestoreTraverser&), &T::acceptRestoreTraverser>::type> {
+struct restore_selector<T,
+                        typename enable_if_is<bool (T::*)(CStateRestoreTraverser&), &T::acceptRestoreTraverser>::type> {
     typedef MemberRestore value;
 };
 template<typename T>
-struct restore_selector<
-    T,
-    typename enable_if_is<bool (T::*)(const std::string&), &T::fromDelimited>::type> {
+struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&), &T::fromDelimited>::type> {
     typedef MemberFromDelimited value;
 };
 //@}
@@ -248,17 +243,13 @@ public:
             return CStringUtils::typeToString(value);
         }
 
-        std::string operator()(int8_t value) const {
-            return CStringUtils::typeToString(static_cast<int>(value));
-        }
+        std::string operator()(int8_t value) const { return CStringUtils::typeToString(static_cast<int>(value)); }
 
         std::string operator()(uint8_t value) const {
             return CStringUtils::typeToString(static_cast<unsigned int>(value));
         }
 
-        std::string operator()(int16_t value) const {
-            return CStringUtils::typeToString(static_cast<int>(value));
-        }
+        std::string operator()(int16_t value) const { return CStringUtils::typeToString(static_cast<int>(value)); }
 
         std::string operator()(uint16_t value) const {
             return CStringUtils::typeToString(static_cast<unsigned int>(value));
@@ -279,9 +270,7 @@ public:
     //! using CStringUtils functions.
     class CORE_EXPORT CBuiltinFromString {
     public:
-        CBuiltinFromString(const char pairDelimiter) : m_PairDelimiter(pairDelimiter) {
-            m_Token.reserve(15);
-        }
+        CBuiltinFromString(const char pairDelimiter) : m_PairDelimiter(pairDelimiter) { m_Token.reserve(15); }
 
         template<typename T>
         bool operator()(const std::string& token, T& value) const {
@@ -324,9 +313,7 @@ public:
             return false;
         }
 
-        bool operator()(const std::string& token, CFloatStorage& value) const {
-            return value.fromString(token);
-        }
+        bool operator()(const std::string& token, CFloatStorage& value) const { return value.fromString(token); }
 
         template<typename U, typename V>
         bool operator()(const std::string& token, std::pair<U, V>& value) const {
@@ -355,16 +342,14 @@ public:
 
     //! Entry method for objects being persisted
     template<typename T>
-    static bool
-    persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
+    static bool persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag, collection, inserter);
     }
 
     //! Wrapper for containers of built in types.
     template<typename CONTAINER>
-    static std::string toString(const CONTAINER& collection,
-                                const char delimiter = DELIMITER,
-                                const char pairDelimiter = PAIR_DELIMITER) {
+    static std::string
+    toString(const CONTAINER& collection, const char delimiter = DELIMITER, const char pairDelimiter = PAIR_DELIMITER) {
         CBuiltinToString f(pairDelimiter);
         return toString(collection, f, delimiter);
     }
@@ -378,8 +363,7 @@ public:
     //! elements.
     //! \note This should use RVO so just return the string.
     template<typename CONTAINER, typename F>
-    static std::string
-    toString(const CONTAINER& collection, const F& stringFunc, const char delimiter = DELIMITER) {
+    static std::string toString(const CONTAINER& collection, const F& stringFunc, const char delimiter = DELIMITER) {
         if (collection.empty()) {
             return std::string();
         }
@@ -390,10 +374,8 @@ public:
 
     //! Wrapper for containers of built in types.
     template<typename ITR>
-    static std::string toString(ITR& begin,
-                                ITR& end,
-                                const char delimiter = DELIMITER,
-                                const char pairDelimiter = PAIR_DELIMITER) {
+    static std::string
+    toString(ITR& begin, ITR& end, const char delimiter = DELIMITER, const char pairDelimiter = PAIR_DELIMITER) {
         CBuiltinToString f(pairDelimiter);
         return toString(begin, end, f, delimiter);
     }
@@ -409,8 +391,7 @@ public:
     //! elements.
     //! \note This should use RVO so just return the string.
     template<typename ITR, typename F>
-    static std::string
-    toString(ITR& begin, ITR& end, const F& stringFunc, const char delimiter = DELIMITER) {
+    static std::string toString(ITR& begin, ITR& end, const F& stringFunc, const char delimiter = DELIMITER) {
         std::string result = stringFunc(*begin++);
         for (/**/; begin != end; ++begin) {
             result += delimiter;
@@ -573,10 +554,7 @@ public:
             return true;
         }
 
-        if (fromString<T>(state,
-                          delimiter,
-                          stringFunc,
-                          std::inserter(collection, collection.end())) == false) {
+        if (fromString<T>(state, delimiter, stringFunc, std::inserter(collection, collection.end())) == false) {
             collection.clear();
             return false;
         }
@@ -605,11 +583,8 @@ public:
     //! bool (const std::string &, CONTAINER::value_type &)
     //! \endcode
     template<typename ITR, typename F>
-    static bool fromString(const std::string& state,
-                           const F& stringFunc,
-                           ITR begin,
-                           ITR end,
-                           const char delimiter = DELIMITER) {
+    static bool
+    fromString(const std::string& state, const F& stringFunc, ITR begin, ITR end, const char delimiter = DELIMITER) {
 
         if (state.empty()) {
             return true;
@@ -622,17 +597,13 @@ public:
             return false;
         }
 
-        return fromString<typename std::iterator_traits<ITR>::value_type>(state,
-                                                                          delimiter,
-                                                                          stringFunc,
-                                                                          begin);
+        return fromString<typename std::iterator_traits<ITR>::value_type>(state, delimiter, stringFunc, begin);
     }
 
 private:
     //! Restores to an insertion iterator.
     template<typename T, typename F, typename ITR>
-    static bool
-    fromString(const std::string& state, const char delimiter, const F& stringFunc, ITR inserter) {
+    static bool fromString(const std::string& state, const char delimiter, const F& stringFunc, ITR inserter) {
         std::size_t delimPos = state.find(delimiter);
         if (delimPos == std::string::npos) {
             T element;
@@ -703,8 +674,7 @@ public:
     }
 
     template<typename A, typename B>
-    static void
-    dispatch(const std::string& tag, const std::pair<A, B>& t, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const std::pair<A, B>& t, CStatePersistInserter& inserter) {
         inserter.insertLevel(tag, boost::bind(&newLevel<A, B>, boost::cref(t), _1));
     }
 
@@ -723,13 +693,11 @@ template<>
 class CPersisterImpl<ContainerPersist> {
 public:
     template<typename T>
-    static void
-    dispatch(const std::string& tag, const T& container, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const T& container, CStatePersistInserter& inserter) {
         doInsert(tag,
                  container,
                  inserter,
-                 boost::integral_constant<bool,
-                                          boost::is_arithmetic<typename T::value_type>::value>(),
+                 boost::integral_constant<bool, boost::is_arithmetic<typename T::value_type>::value>(),
                  boost::false_type());
     }
 
@@ -754,9 +722,7 @@ public:
             }
 
             // Sort the values to ensure consistent persist state.
-            std::sort(iterators.begin(), iterators.end(), [](TCItr lhs, TCItr rhs) {
-                return *lhs < *rhs;
-            });
+            std::sort(iterators.begin(), iterators.end(), [](TCItr lhs, TCItr rhs) { return *lhs < *rhs; });
             doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
         }
     }
@@ -776,16 +742,13 @@ public:
         }
 
         // Sort the keys to ensure consistent persist state.
-        std::sort(iterators.begin(), iterators.end(), [](TCItr lhs, TCItr rhs) {
-            return lhs->first < rhs->first;
-        });
+        std::sort(iterators.begin(), iterators.end(), [](TCItr lhs, TCItr rhs) { return lhs->first < rhs->first; });
         doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
     }
 
     //! Specialisation for std::string, which has iterators but doesn't need
     //! to be split up into individual characters
-    static void
-    dispatch(const std::string& tag, const std::string& str, CStatePersistInserter& inserter) {
+    static void dispatch(const std::string& tag, const std::string& str, CStatePersistInserter& inserter) {
         inserter.insertValue(tag, str);
     }
 
@@ -814,11 +777,7 @@ private:
                          boost::false_type) {
         typedef typename T::const_iterator TCItr;
         inserter.insertLevel(tag,
-                             boost::bind(&newLevel<TCItr>,
-                                         container.begin(),
-                                         container.end(),
-                                         container.size(),
-                                         _1));
+                             boost::bind(&newLevel<TCItr>, container.begin(), container.end(), container.size(), _1));
     }
 
     //! Handle the case for a non-built-in type, which will be added
@@ -826,18 +785,10 @@ private:
     //!
     //! \note Type T is an iterator
     template<typename T>
-    static void doInsert(const std::string& tag,
-                         const T& t,
-                         CStatePersistInserter& inserter,
-                         boost::false_type,
-                         boost::true_type) {
+    static void
+    doInsert(const std::string& tag, const T& t, CStatePersistInserter& inserter, boost::false_type, boost::true_type) {
         typedef boost::indirect_iterator<typename T::const_iterator> TCItr;
-        inserter.insertLevel(tag,
-                             boost::bind(&newLevel<TCItr>,
-                                         TCItr(t.begin()),
-                                         TCItr(t.end()),
-                                         t.size(),
-                                         _1));
+        inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>, TCItr(t.begin()), TCItr(t.end()), t.size(), _1));
     }
 
     //! Dispatch a collection of items
@@ -894,8 +845,7 @@ public:
     }
 
     template<typename A, typename B>
-    static bool
-    dispatch(const std::string& tag, std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
@@ -943,15 +893,12 @@ public:
         return doTraverse(tag,
                           container,
                           traverser,
-                          boost::integral_constant<
-                              bool,
-                              boost::is_arithmetic<typename T::value_type>::value>());
+                          boost::integral_constant<bool, boost::is_arithmetic<typename T::value_type>::value>());
     }
 
     //! Specialisation for std::string, which has iterators but doesn't
     //! need to be split up into individual characters
-    static bool
-    dispatch(const std::string& tag, std::string& str, CStateRestoreTraverser& traverser) {
+    static bool dispatch(const std::string& tag, std::string& str, CStateRestoreTraverser& traverser) {
         if (traverser.name() == tag) {
             str = traverser.value();
         }
@@ -1003,10 +950,7 @@ private:
 
 private:
     template<typename T>
-    static bool doTraverse(const std::string& tag,
-                           T& container,
-                           CStateRestoreTraverser& traverser,
-                           boost::true_type) {
+    static bool doTraverse(const std::string& tag, T& container, CStateRestoreTraverser& traverser, boost::true_type) {
         bool ret = true;
         if (traverser.name() == tag) {
             ret = CPersistUtils::fromString(traverser.value(), container);
@@ -1015,18 +959,14 @@ private:
     }
 
     template<typename T>
-    static bool doTraverse(const std::string& tag,
-                           T& container,
-                           CStateRestoreTraverser& traverser,
-                           boost::false_type) {
+    static bool doTraverse(const std::string& tag, T& container, CStateRestoreTraverser& traverser, boost::false_type) {
         bool ret = true;
         if (traverser.name() == tag) {
             if (!traverser.hasSubLevel()) {
                 LOG_ERROR("SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(
-                boost::bind<bool>(SSubLevel(), boost::ref(container), _1));
+            ret = traverser.traverseSubLevel(boost::bind<bool>(SSubLevel(), boost::ref(container), _1));
         }
         return ret;
     }

@@ -49,8 +49,7 @@ struct SIteratorType<const VECTOR> {
 //! \brief Implements assignment.
 template<typename VECTOR>
 struct SDoAssign {
-    static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs,
-                                                const CVectorRange<VECTOR>& rhs) {
+    static const CVectorRange<VECTOR>& dispatch(CVectorRange<VECTOR>& lhs, const CVectorRange<VECTOR>& rhs) {
         if (rhs.base() != lhs.base()) {
             lhs.assign(rhs.begin(), rhs.end());
         } else {
@@ -171,9 +170,7 @@ public:
     void reserve(size_type size) { m_Vector->reserve((size + m_Vector->size()) - this->size()); }
     //! Get the number of elements which can be held in the currently
     //! allocated storage.
-    size_type capacity(void) const {
-        return (m_Vector->capacity() - m_Vector->size()) + this->size();
-    }
+    size_type capacity(void) const { return (m_Vector->capacity() - m_Vector->size()) + this->size(); }
 
     //! Clear the contents.
     void clear(void) {

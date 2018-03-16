@@ -72,10 +72,9 @@ public:
 
     //! As above, but also supply the first processor persistence
     //! function at construction time.
-    CBackgroundPersister(
-        core_t::TTime periodicPersistInterval,
-        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-        core::CDataAdder& dataAdder);
+    CBackgroundPersister(core_t::TTime periodicPersistInterval,
+                         const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
+                         core::CDataAdder& dataAdder);
 
     ~CBackgroundPersister(void);
 
@@ -107,8 +106,7 @@ public:
     //! Set the first processor persist function, which is used to start the
     //! chain of background persistence.  This will be rejected if a
     //! background persistence is currently in progress.
-    bool firstProcessorPeriodicPersistFunc(
-        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
+    bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
 
     //! Check whether a background persist is appropriate now, and if it is
     //! then start it by calling the first processor periodic persist

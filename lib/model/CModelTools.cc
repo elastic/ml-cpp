@@ -40,14 +40,10 @@ using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1
 //! \brief Visitor to add a probability to variant of possible
 //! aggregation styles.
 struct SAddProbability : public boost::static_visitor<void> {
-    void operator()(double probability,
-                    double weight,
-                    maths::CJointProbabilityOfLessLikelySamples& aggregator) const {
+    void operator()(double probability, double weight, maths::CJointProbabilityOfLessLikelySamples& aggregator) const {
         aggregator.add(probability, weight);
     }
-    void operator()(double probability,
-                    double /*weight*/,
-                    maths::CProbabilityOfExtremeSample& aggregator) const {
+    void operator()(double probability, double /*weight*/, maths::CProbabilityOfExtremeSample& aggregator) const {
         aggregator.add(probability);
     }
 };
@@ -123,15 +119,13 @@ void CModelTools::CFuzzyDeduplicate::add(TDouble2Vec value) {
     ++m_Count;
     if (m_RandomSample.size() < 100) {
         m_RandomSample.push_back(std::move(value));
-    } else if (maths::CSampling::uniformSample(m_Rng, 0.0, 1.0) <
-               100.0 / static_cast<double>(m_Count)) {
+    } else if (maths::CSampling::uniformSample(m_Rng, 0.0, 1.0) < 100.0 / static_cast<double>(m_Count)) {
         std::size_t evict{maths::CSampling::uniformSample(m_Rng, 0, m_RandomSample.size())};
         m_RandomSample[evict].swap(value);
     }
 }
 
-void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
-                                                     std::size_t desiredNumberSamples) {
+void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength, std::size_t desiredNumberSamples) {
     m_Quantize = m_Count > 0;
     if (m_Quantize) {
         m_QuantizedValues.reserve(std::min(m_Count, desiredNumberSamples));
@@ -147,8 +141,7 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
                 std::size_t p90{(9 * values.size()) / 10};
                 std::nth_element(values.begin(), values.begin() + p10, values.end());
                 std::nth_element(values.begin() + p10 + 1, values.begin() + p90, values.end());
-                m_ValueEps[i] =
-                    (values[p90] - values[p10]) / static_cast<double>(desiredNumberSamples);
+                m_ValueEps[i] = (values[p90] - values[p10]) / static_cast<double>(desiredNumberSamples);
             }
         }
         m_Count = 0;
@@ -156,19 +149,17 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDouble2Vec value) {
-    return !m_Quantize
-               ? m_Count++
-               : m_QuantizedValues
-                     .emplace(boost::unordered::piecewise_construct,
-                              std::forward_as_tuple(this->quantize(time), this->quantize(value)),
-                              std::forward_as_tuple(m_QuantizedValues.size()))
-                     .first->second;
+    return !m_Quantize ? m_Count++
+                       : m_QuantizedValues
+                             .emplace(boost::unordered::piecewise_construct,
+                                      std::forward_as_tuple(this->quantize(time), this->quantize(value)),
+                                      std::forward_as_tuple(m_QuantizedValues.size()))
+                             .first->second;
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
     for (std::size_t i = 0u; i < value.size(); ++i) {
-        value[i] =
-            m_ValueEps[i] > 0.0 ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i]) : value[i];
+        value[i] = m_ValueEps[i] > 0.0 ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i]) : value[i];
     }
     return value;
 }
@@ -177,19 +168,14 @@ core_t::TTime CModelTools::CFuzzyDeduplicate::quantize(core_t::TTime time) const
     return maths::CIntegerTools::floor(time, m_TimeEps);
 }
 
-std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::
-operator()(const TTimeDouble2VecPr& value) const {
-    return static_cast<std::size_t>(
-        std::accumulate(value.second.begin(),
-                        value.second.end(),
-                        static_cast<uint64_t>(value.first),
-                        [](uint64_t seed, double v) {
-                            return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
-                        }));
+std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::operator()(const TTimeDouble2VecPr& value) const {
+    return static_cast<std::size_t>(std::accumulate(
+        value.second.begin(), value.second.end(), static_cast<uint64_t>(value.first), [](uint64_t seed, double v) {
+            return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
+        }));
 }
 
-CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style)
-    : m_Style(style), m_TotalWeight(0.0) {
+CModelTools::CProbabilityAggregator::CProbabilityAggregator(EStyle style) : m_Style(style), m_TotalWeight(0.0) {
 }
 
 bool CModelTools::CProbabilityAggregator::empty(void) const {
@@ -213,8 +199,7 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, dou
 void CModelTools::CProbabilityAggregator::add(double probability, double weight) {
     m_TotalWeight += weight;
     for (auto&& aggregator : m_Aggregators) {
-        boost::apply_visitor(boost::bind<void>(SAddProbability(), probability, weight, _1),
-                             aggregator.first);
+        boost::apply_visitor(boost::bind<void>(SAddProbability(), probability, weight, _1), aggregator.first);
     }
 }
 
@@ -240,10 +225,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
             n += aggregator.second;
         }
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(),
-                                                        aggregator.second / n,
-                                                        boost::ref(p),
-                                                        _1),
+            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), aggregator.second / n, boost::ref(p), _1),
                                       aggregator.first)) {
                 return false;
             }
@@ -253,8 +235,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     case E_Min: {
         TMinAccumulator p_;
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), boost::ref(p_), _1),
-                                      aggregator.first)) {
+            if (!boost::apply_visitor(boost::bind<bool>(SReadProbability(), boost::ref(p_), _1), aggregator.first)) {
                 return false;
             }
         }
@@ -273,12 +254,10 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     return true;
 }
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void)
-    : m_Prior(0), m_SmallestProbability(1.0) {
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(void) : m_Prior(0), m_SmallestProbability(1.0) {
 }
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(
-    const maths::CMultinomialConjugate& prior)
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior)
     : m_Prior(&prior), m_SmallestProbability(1.0) {
 }
 
@@ -303,14 +282,12 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     }
 
     std::size_t index;
-    result = (!m_Prior->index(static_cast<double>(attribute), index) || index >= m_Cache.size())
-                 ? m_SmallestProbability
-                 : m_Cache[index];
+    result = (!m_Prior->index(static_cast<double>(attribute), index) || index >= m_Cache.size()) ? m_SmallestProbability
+                                                                                                 : m_Cache[index];
     return true;
 }
 
-void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CTools::CLessLikelyProbability");
     core::CMemoryDebug::dynamicSize("m_Cache", m_Cache, mem->addChild());
     if (m_Prior) {
@@ -326,23 +303,19 @@ std::size_t CModelTools::CCategoryProbabilityCache::memoryUsage(void) const {
     return mem;
 }
 
-CModelTools::CProbabilityCache::CProbabilityCache(double maximumError)
-    : m_MaximumError(maximumError) {
+CModelTools::CProbabilityCache::CProbabilityCache(double maximumError) : m_MaximumError(maximumError) {
 }
 
 void CModelTools::CProbabilityCache::clear(void) {
     m_Caches.clear();
 }
 
-void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
-                                              std::size_t id,
-                                              const maths::CModel& model) {
+void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature, std::size_t id, const maths::CModel& model) {
     if (model_t::dimension(feature) == 1) {
         TDouble1Vec& modes{m_Caches[{feature, id}].s_Modes};
         if (modes.empty()) {
-            TDouble2Vec1Vec modes_(
-                model.residualModes(maths::CConstantWeights::COUNT_VARIANCE,
-                                    maths::CConstantWeights::unit<TDouble2Vec>(1)));
+            TDouble2Vec1Vec modes_(model.residualModes(maths::CConstantWeights::COUNT_VARIANCE,
+                                                       maths::CConstantWeights::unit<TDouble2Vec>(1)));
             for (const auto& mode : modes_) {
                 modes.push_back(mode[0]);
             }
@@ -359,11 +332,8 @@ void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     bool conditional,
                                                     const TSize1Vec& mostAnomalousCorrelate) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
-        m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0],
-                                                        SProbability{probability,
-                                                                     tail,
-                                                                     conditional,
-                                                                     mostAnomalousCorrelate});
+        m_Caches[{feature, id}].s_Probabilities.emplace(
+            value[0][0], SProbability{probability, tail, conditional, mostAnomalousCorrelate});
     }
 }
 

@@ -67,8 +67,7 @@ bool CDetectionRule::apply(ERuleAction action,
 
     for (std::size_t i = 0; i < m_Conditions.size(); ++i) {
         bool conditionResult =
-            m_Conditions[i]
-                .test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
+            m_Conditions[i].test(model, feature, resultType, !m_TargetFieldName.empty(), pid, cid, time);
         switch (m_ConditionsConnective) {
         case E_Or:
             if (conditionResult == true) {
@@ -92,9 +91,7 @@ bool CDetectionRule::apply(ERuleAction action,
     return false;
 }
 
-bool CDetectionRule::isInScope(const CAnomalyDetectorModel& model,
-                               std::size_t pid,
-                               std::size_t cid) const {
+bool CDetectionRule::isInScope(const CAnomalyDetectorModel& model, std::size_t pid, std::size_t cid) const {
     if (m_TargetFieldName.empty() || m_TargetFieldValue.empty()) {
         return true;
     }

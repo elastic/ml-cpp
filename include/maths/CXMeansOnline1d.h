@@ -129,8 +129,7 @@ public:
         explicit CCluster(const CXMeansOnline1d& clusterer);
 
         //! Construct by traversing a state document
-        bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                    core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to the supplied inserter
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -169,10 +168,7 @@ public:
         double logLikelihoodFromCluster(maths_t::EClusterWeightCalc calc, double point) const;
 
         //! Get \p numberSamples from this cluster.
-        void sample(std::size_t numberSamples,
-                    double smallest,
-                    double largest,
-                    TDoubleVec& samples) const;
+        void sample(std::size_t numberSamples, double smallest, double largest, TDoubleVec& samples) const;
 
         //! Try and find a split by a full search of the binary tree
         //! of possible optimal 2-splits of the data.
@@ -219,9 +215,7 @@ public:
         std::size_t memoryUsage(void) const;
 
     private:
-        CCluster(std::size_t index,
-                 const CNormalMeanPrecConjugate& prior,
-                 const CNaturalBreaksClassifier& structure);
+        CCluster(std::size_t index, const CNormalMeanPrecConjugate& prior, const CNaturalBreaksClassifier& structure);
 
     private:
         //! A unique identifier for this cluster.
@@ -274,8 +268,7 @@ public:
                     const TMergeFunc& mergeFunc = CDoNothing());
 
     //! Construct by traversing a state document.
-    CXMeansOnline1d(const SDistributionRestoreParams& params,
-                    core::CStateRestoreTraverser& traverser);
+    CXMeansOnline1d(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Construct by traversing a state document.
     CXMeansOnline1d(const SDistributionRestoreParams& params,
@@ -388,8 +381,7 @@ public:
 
 private:
     typedef CBasicStatistics::COrderStatisticsStack<double, 1> TMinAccumulator;
-    typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>>
-        TMaxAccumulator;
+    typedef CBasicStatistics::COrderStatisticsStack<double, 1, std::greater<double>> TMaxAccumulator;
 
 private:
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -413,8 +405,7 @@ private:
 
 private:
     //! Restore by traversing a state document.
-    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser);
 
     //! Get the cluster with the index \p index.
     const CCluster* cluster(std::size_t index) const;

@@ -27,8 +27,7 @@ CXmlNodeWithChildren::CXmlNodeWithChildren(void) : CXmlNode() {
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name) : CXmlNode(name) {
 }
 
-CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value)
-    : CXmlNode(name, value) {
+CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name, const std::string& value) : CXmlNode(name, value) {
 }
 
 CXmlNodeWithChildren::CXmlNodeWithChildren(const std::string& name,
@@ -83,8 +82,7 @@ std::string CXmlNodeWithChildren::dump(size_t indent) const {
     strRep += core_t::LINE_ENDING;
 
     // Now add children at next level of indenting
-    for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end();
-         ++childIter) {
+    for (TChildNodePVecCItr childIter = m_Children.begin(); childIter != m_Children.end(); ++childIter) {
         const CXmlNodeWithChildren* child = childIter->get();
         if (child != 0) {
             strRep += child->dump(indent + 1);

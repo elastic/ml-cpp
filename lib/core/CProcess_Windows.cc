@@ -77,11 +77,7 @@ const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
 CProcess::CProcess(void)
-    : m_IsService(false),
-      m_Initialised(false),
-      m_Running(false),
-      m_MlMainFunc(0),
-      m_ServiceHandle(0) {
+    : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0), m_ServiceHandle(0) {
 }
 
 CProcess& CProcess::instance(void) {
@@ -251,8 +247,7 @@ void WINAPI CProcess::serviceMain(DWORD argc, char* argv[]) {
 
         serviceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
         serviceStatus.dwControlsAccepted = 0;
-        serviceStatus.dwWin32ExitCode =
-            (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
+        serviceStatus.dwWin32ExitCode = (ret == EXIT_SUCCESS ? NO_ERROR : ERROR_SERVICE_SPECIFIC_ERROR);
         serviceStatus.dwServiceSpecificExitCode = static_cast<DWORD>(ret);
         serviceStatus.dwCheckPoint = 0;
         serviceStatus.dwWaitHint = 0;

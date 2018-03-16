@@ -33,14 +33,10 @@ using namespace model;
 CppUnit::Test* CDynamicStringIdRegistryTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDynamicStringIdRegistryTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testAddName",
-                                          &CDynamicStringIdRegistryTest::testAddName));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CDynamicStringIdRegistryTest>("CDynamicStringIdRegistryTest::testPersist",
-                                          &CDynamicStringIdRegistryTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
+        "CDynamicStringIdRegistryTest::testAddName", &CDynamicStringIdRegistryTest::testAddName));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDynamicStringIdRegistryTest>(
+        "CDynamicStringIdRegistryTest::testPersist", &CDynamicStringIdRegistryTest::testPersist));
 
     return suiteOfTests;
 }
@@ -49,31 +45,25 @@ void CDynamicStringIdRegistryTest::testAddName(void) {
     LOG_DEBUG("*** testAddName ***");
 
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person",
-                                      stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
 
     bool personAdded = false;
     std::string person1("foo");
     std::string person2("bar");
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                         registry.addName(person1, 100, resourceMonitor, personAdded));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), registry.addName(person1, 100, resourceMonitor, personAdded));
     CPPUNIT_ASSERT(personAdded);
 
     personAdded = false;
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                         registry.addName(person2, 200, resourceMonitor, personAdded));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), registry.addName(person2, 200, resourceMonitor, personAdded));
     CPPUNIT_ASSERT(personAdded);
     personAdded = false;
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                         registry.addName(person1, 300, resourceMonitor, personAdded));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), registry.addName(person1, 300, resourceMonitor, personAdded));
     CPPUNIT_ASSERT(personAdded == false);
 
     std::string person3("noot");
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                         registry.addName(person3, 400, resourceMonitor, personAdded));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), registry.addName(person3, 400, resourceMonitor, personAdded));
     CPPUNIT_ASSERT(personAdded);
     personAdded = false;
 
@@ -92,8 +82,7 @@ void CDynamicStringIdRegistryTest::testAddName(void) {
     CPPUNIT_ASSERT(registry.isIdActive(2));
 
     std::string person4("recycled");
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                         registry.addName(person4, 500, resourceMonitor, personAdded));
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), registry.addName(person4, 500, resourceMonitor, personAdded));
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), registry.numberNames());
     CPPUNIT_ASSERT_EQUAL(std::size_t(3), registry.numberActiveNames());
     CPPUNIT_ASSERT(registry.isIdActive(0));
@@ -105,10 +94,8 @@ void CDynamicStringIdRegistryTest::testPersist(void) {
     LOG_DEBUG("*** testPersist ***");
 
     CResourceMonitor resourceMonitor;
-    CDynamicStringIdRegistry registry("person",
-                                      stat_t::E_NumberNewPeople,
-                                      stat_t::E_NumberNewPeopleNotAllowed,
-                                      stat_t::E_NumberNewPeopleRecycled);
+    CDynamicStringIdRegistry registry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
 
     bool addedPerson = false;
     std::string person1("foo");
@@ -127,12 +114,9 @@ void CDynamicStringIdRegistryTest::testPersist(void) {
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
-    CDynamicStringIdRegistry restoredRegistry("person",
-                                              stat_t::E_NumberNewPeople,
-                                              stat_t::E_NumberNewPeopleNotAllowed,
-                                              stat_t::E_NumberNewPeopleRecycled);
-    traverser.traverseSubLevel(
-        boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry, _1));
+    CDynamicStringIdRegistry restoredRegistry(
+        "person", stat_t::E_NumberNewPeople, stat_t::E_NumberNewPeopleNotAllowed, stat_t::E_NumberNewPeopleRecycled);
+    traverser.traverseSubLevel(boost::bind(&CDynamicStringIdRegistry::acceptRestoreTraverser, &restoredRegistry, _1));
 
     std::string restoredXml;
     {

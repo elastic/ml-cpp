@@ -64,8 +64,7 @@ void CTimingXmlOutputterHook::successfulTestAdded(CppUnit::XmlDocument* /*docume
     testElement->elementFor(NAME_TAG)->setContent(m_TopPath + '.' + m_TestPath + '.' + testName);
 
     testElement->addElement(new CppUnit::XmlElement(TEST_PATH_TAG, m_TestPath + '/' + testName));
-    testElement->addElement(
-        new CppUnit::XmlElement(TIME_TAG, this->toSecondsStr(m_TestTimer.timeForTest(testName))));
+    testElement->addElement(new CppUnit::XmlElement(TIME_TAG, this->toSecondsStr(m_TestTimer.timeForTest(testName))));
 }
 
 void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument* /*document*/,
@@ -75,11 +74,9 @@ void CTimingXmlOutputterHook::statisticsAdded(CppUnit::XmlDocument* /*document*/
     }
 
     statisticsElement->addElement(
-        new CppUnit::XmlElement(TOTAL_ELAPSED_TIME_TAG,
-                                this->toSecondsStr(m_TestTimer.totalTime())));
+        new CppUnit::XmlElement(TOTAL_ELAPSED_TIME_TAG, this->toSecondsStr(m_TestTimer.totalTime())));
     statisticsElement->addElement(
-        new CppUnit::XmlElement(AVERAGE_TEST_CASE_TIME_TAG,
-                                this->toSecondsStr(m_TestTimer.averageTime())));
+        new CppUnit::XmlElement(AVERAGE_TEST_CASE_TIME_TAG, this->toSecondsStr(m_TestTimer.averageTime())));
 }
 
 std::string CTimingXmlOutputterHook::toSecondsStr(uint64_t ms) {

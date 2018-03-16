@@ -43,19 +43,16 @@ const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
 const std::string EMPTY_STRING;
 }
 
-bool CTimeSeriesDecompositionStateSerialiser::
-operator()(const STimeSeriesDecompositionRestoreParams& params,
-           TDecompositionPtr& result,
-           core::CStateRestoreTraverser& traverser) const {
+bool CTimeSeriesDecompositionStateSerialiser::operator()(const STimeSeriesDecompositionRestoreParams& params,
+                                                         TDecompositionPtr& result,
+                                                         core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults = 0;
 
     do {
         const std::string& name = traverser.name();
         if (name == TIME_SERIES_DECOMPOSITION_TAG) {
-            result.reset(new CTimeSeriesDecomposition(params.s_DecayRate,
-                                                      params.s_MinimumBucketLength,
-                                                      params.s_ComponentSize,
-                                                      traverser));
+            result.reset(new CTimeSeriesDecomposition(
+                params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize, traverser));
             ++numResults;
         } else if (name == TIME_SERIES_DECOMPOSITION_STUB_TAG) {
             result.reset(new CTimeSeriesDecompositionStub());
@@ -75,20 +72,17 @@ operator()(const STimeSeriesDecompositionRestoreParams& params,
     return true;
 }
 
-void CTimeSeriesDecompositionStateSerialiser::
-operator()(const CTimeSeriesDecompositionInterface& decomposition,
-           core::CStatePersistInserter& inserter) const {
+void CTimeSeriesDecompositionStateSerialiser::operator()(const CTimeSeriesDecompositionInterface& decomposition,
+                                                         core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition) != 0) {
         inserter.insertLevel(TIME_SERIES_DECOMPOSITION_TAG,
                              boost::bind(&CTimeSeriesDecomposition::acceptPersistInserter,
-                                         dynamic_cast<const CTimeSeriesDecomposition*>(
-                                             &decomposition),
+                                         dynamic_cast<const CTimeSeriesDecomposition*>(&decomposition),
                                          _1));
     } else if (dynamic_cast<const CTimeSeriesDecompositionStub*>(&decomposition) != 0) {
         inserter.insertValue(TIME_SERIES_DECOMPOSITION_STUB_TAG, "");
     } else {
-        LOG_ERROR("Decomposition with type '" << typeid(decomposition).name()
-                                              << "' has no defined name");
+        LOG_ERROR("Decomposition with type '" << typeid(decomposition).name() << "' has no defined name");
     }
 }
 }

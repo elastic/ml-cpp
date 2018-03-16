@@ -48,9 +48,8 @@ public:
 public:
     //! Construct the appropriate CPrior sub-class from its state
     //! document representation. Sets \p result to NULL on failure.
-    bool operator()(const SModelRestoreParams& params,
-                    TModelPtr& result,
-                    core::CStateRestoreTraverser& traverser) const;
+    bool
+    operator()(const SModelRestoreParams& params, TModelPtr& result, core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter
     void operator()(const CModel& model, core::CStatePersistInserter& inserter) const;

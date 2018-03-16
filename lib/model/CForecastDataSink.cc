@@ -106,10 +106,7 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
       m_MemoryUsage(memoryUsage) {
 }
 
-void CForecastDataSink::writeStats(const double progress,
-                                   uint64_t runtime,
-                                   const TStrUMap& messages,
-                                   bool successful) {
+void CForecastDataSink::writeStats(const double progress, uint64_t runtime, const TStrUMap& messages, bool successful) {
     rapidjson::Document doc = m_Writer.makeDoc();
 
     this->writeCommonStatsFields(doc);

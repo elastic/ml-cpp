@@ -66,13 +66,11 @@ public:
     void addSamples(const handy_typedefs::TDouble1Vec& samples);
 
     //! Wrapper which takes care of weights.
-    maths_t::EFloatingPointErrorStatus
-    jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec& samples, double& result) const;
+    maths_t::EFloatingPointErrorStatus jointLogMarginalLikelihood(const handy_typedefs::TDouble1Vec& samples,
+                                                                  double& result) const;
 
     //! Wrapper which takes care of weights.
-    bool minusLogJointCdf(const handy_typedefs::TDouble1Vec& samples,
-                          double& lowerBound,
-                          double& upperBound) const;
+    bool minusLogJointCdf(const handy_typedefs::TDouble1Vec& samples, double& lowerBound, double& upperBound) const;
 
     //! Wrapper which takes care of weights.
     bool minusLogJointCdfComplement(const handy_typedefs::TDouble1Vec& samples,
@@ -172,8 +170,7 @@ public:
         : PRIOR(prior), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
     CPriorTestInterfaceMixin(const CPriorTestInterfaceMixin& other)
-        : PRIOR(static_cast<const PRIOR&>(other)),
-          CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
+        : PRIOR(static_cast<const PRIOR&>(other)), CPriorTestInterface(static_cast<maths::CPrior&>(*this)) {}
 
     virtual ~CPriorTestInterfaceMixin(void) {}
 
@@ -181,9 +178,7 @@ public:
     void swap(CPriorTestInterfaceMixin& other) { this->PRIOR::swap(other); }
 
     //! Clone the object.
-    virtual CPriorTestInterfaceMixin* clone(void) const {
-        return new CPriorTestInterfaceMixin(*this);
-    }
+    virtual CPriorTestInterfaceMixin* clone(void) const { return new CPriorTestInterfaceMixin(*this); }
 };
 
 //! \brief Kernel for checking normalization with CPrior::expectation.
@@ -217,10 +212,7 @@ public:
 
     bool operator()(const maths::CVectorNx1<double, N>& x, double& result) const {
         m_X[0].assign(x.begin(), x.end());
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT,
-                                            m_X,
-                                            SINGLE_UNIT,
-                                            result);
+        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, result);
         result = std::exp(result);
         return true;
     }
@@ -234,9 +226,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CUnitKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+handy_typedefs::TDouble10Vec4Vec1Vec
+    CUnitKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the mean of a multivariate prior.
 template<std::size_t N>
@@ -244,14 +235,10 @@ class CMeanKernel {
 public:
     CMeanKernel(const maths::CMultivariatePrior& prior) : m_Prior(&prior), m_X(1) {}
 
-    bool operator()(const maths::CVectorNx1<double, N>& x,
-                    maths::CVectorNx1<double, N>& result) const {
+    bool operator()(const maths::CVectorNx1<double, N>& x, maths::CVectorNx1<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT,
-                                            m_X,
-                                            SINGLE_UNIT,
-                                            likelihood);
+        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);
         likelihood = std::exp(likelihood);
         result = x * likelihood;
         return true;
@@ -266,26 +253,20 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CMeanKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+handy_typedefs::TDouble10Vec4Vec1Vec
+    CMeanKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! \brief The kernel for computing the variance of a multivariate prior.
 template<std::size_t N>
 class CCovarianceKernel {
 public:
-    CCovarianceKernel(const maths::CMultivariatePrior& prior,
-                      const maths::CVectorNx1<double, N>& mean)
+    CCovarianceKernel(const maths::CMultivariatePrior& prior, const maths::CVectorNx1<double, N>& mean)
         : m_Prior(&prior), m_Mean(mean), m_X(1) {}
 
-    bool operator()(const maths::CVectorNx1<double, N>& x,
-                    maths::CSymmetricMatrixNxN<double, N>& result) const {
+    bool operator()(const maths::CVectorNx1<double, N>& x, maths::CSymmetricMatrixNxN<double, N>& result) const {
         m_X[0].assign(x.begin(), x.end());
         double likelihood;
-        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT,
-                                            m_X,
-                                            SINGLE_UNIT,
-                                            likelihood);
+        m_Prior->jointLogMarginalLikelihood(maths::CConstantWeights::COUNT, m_X, SINGLE_UNIT, likelihood);
         likelihood = std::exp(likelihood);
         result = (x - m_Mean).outer() * likelihood;
         return true;
@@ -301,9 +282,8 @@ private:
 };
 
 template<std::size_t N>
-handy_typedefs::TDouble10Vec4Vec1Vec CCovarianceKernel<N>::SINGLE_UNIT(
-    1,
-    handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
+handy_typedefs::TDouble10Vec4Vec1Vec
+    CCovarianceKernel<N>::SINGLE_UNIT(1, handy_typedefs::TDouble10Vec4Vec(1, handy_typedefs::TDouble10Vec(N, 1.0)));
 
 //! A constant function.
 double constant(core_t::TTime time);

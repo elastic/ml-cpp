@@ -41,8 +41,7 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(vo
     return nodePtr;
 }
 
-CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(std::string name,
-                                                                              std::string value) {
+CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(std::string name, std::string value) {
     CXmlNodeWithChildren::TXmlNodeWithChildrenP nodePtr(this->newNode());
 
     // We take advantage of friendship here to set the node's name and value
@@ -53,9 +52,7 @@ CXmlNodeWithChildren::TXmlNodeWithChildrenP CXmlNodeWithChildrenPool::newNode(st
 }
 
 CXmlNodeWithChildren::TXmlNodeWithChildrenP
-CXmlNodeWithChildrenPool::newNode(const std::string& name,
-                                  double value,
-                                  CIEEE754::EPrecision precision) {
+CXmlNodeWithChildrenPool::newNode(const std::string& name, double value, CIEEE754::EPrecision precision) {
     return this->newNode(name, CStringUtils::typeToStringPrecise(value, precision));
 }
 

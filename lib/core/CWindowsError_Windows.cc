@@ -39,14 +39,14 @@ uint32_t CWindowsError::errorCode(void) const {
 std::string CWindowsError::errorString(void) const {
     char message[BUFFER_SIZE] = {'\0'};
 
-    DWORD msgLen(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-                                   FORMAT_MESSAGE_MAX_WIDTH_MASK,
-                               0,
-                               m_ErrorCode,
-                               0,
-                               message,
-                               BUFFER_SIZE,
-                               0));
+    DWORD msgLen(
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                      0,
+                      m_ErrorCode,
+                      0,
+                      message,
+                      BUFFER_SIZE,
+                      0));
     if (msgLen == 0) {
         return "unknown error code (" + CStringUtils::typeToString(m_ErrorCode) + ')';
     }
@@ -57,14 +57,14 @@ std::string CWindowsError::errorString(void) const {
 std::ostream& operator<<(std::ostream& os, const CWindowsError& windowsError) {
     char message[BUFFER_SIZE] = {'\0'};
 
-    DWORD msgLen(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-                                   FORMAT_MESSAGE_MAX_WIDTH_MASK,
-                               0,
-                               windowsError.m_ErrorCode,
-                               0,
-                               message,
-                               BUFFER_SIZE,
-                               0));
+    DWORD msgLen(
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                      0,
+                      windowsError.m_ErrorCode,
+                      0,
+                      message,
+                      BUFFER_SIZE,
+                      0));
     if (msgLen == 0) {
         os << "unknown error code (" << windowsError.m_ErrorCode << ')';
     } else {

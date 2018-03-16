@@ -59,8 +59,7 @@ void CQDigestTest::testAdd(void) {
 
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
-        CPPUNIT_ASSERT_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"),
-                             qDigest.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"), qDigest.print());
     }
 
     {
@@ -71,10 +70,9 @@ void CQDigestTest::testAdd(void) {
             std::string("1 | 5 | { \"[0,0],1,1\" \"[0,1],0,1\" }"),
             std::string("2 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[0,1],0,2\" }"),
             std::string("3 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[0,3],0,3\" }"),
-            std::string("4 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" "
-                        "\"[0,3],0,4\" }"),
-            std::string("5 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" "
-                        "\"[4,4],1,1\" \"[0,7],0,5\" }"),
+            std::string("4 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[0,3],0,4\" }"),
+            std::string(
+                "5 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[4,4],1,1\" \"[0,7],0,5\" }"),
         };
 
         for (std::size_t i = 0u; i < 5u; ++i) {
@@ -92,8 +90,7 @@ void CQDigestTest::testAdd(void) {
     {
         typedef std::multiset<uint64_t> TUInt64Set;
 
-        const double expectedMaxErrors[] =
-            {0.007, 0.01, 0.12, 0.011, 0.016, 0.018, 0.023, 0.025, 0.02};
+        const double expectedMaxErrors[] = {0.007, 0.01, 0.12, 0.011, 0.016, 0.018, 0.023, 0.025, 0.02};
 
         CRandomNumbers generator;
 
@@ -122,14 +119,13 @@ void CQDigestTest::testAdd(void) {
                     uint32_t quantile;
                     qDigest.quantile(q, quantile);
 
-                    std::size_t rank =
-                        std::distance(orderedSamples.begin(), orderedSamples.lower_bound(quantile));
+                    std::size_t rank = std::distance(orderedSamples.begin(), orderedSamples.lower_bound(quantile));
 
                     double error = (static_cast<double>(rank) - q * n) / n;
 
                     if ((i + 1) % 1000 == 0) {
-                        LOG_DEBUG("q = " << q << ", quantile = " << quantile << ", rank = " << rank
-                                         << ", n = " << n << ", error " << error);
+                        LOG_DEBUG("q = " << q << ", quantile = " << quantile << ", rank = " << rank << ", n = " << n
+                                         << ", error " << error);
                     }
 
                     CPPUNIT_ASSERT(::fabs(error) < 0.06);
@@ -187,8 +183,7 @@ void CQDigestTest::testCdf(void) {
         double upperBound;
         qDigest.cdf(summary[i].first, 0.0, lowerBound, upperBound);
 
-        LOG_DEBUG("x = " << summary[i].first << ", F(x) >= " << lowerBound
-                         << ", F(x) <= " << upperBound);
+        LOG_DEBUG("x = " << summary[i].first << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
         double fx = static_cast<double>(summary[i].second) / 100.0;
 
@@ -282,8 +277,7 @@ void CQDigestTest::testSummary(void) {
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3), (7, 4)]"),
-                             core::CContainerPrinter::print(summary));
+        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3), (7, 4)]"), core::CContainerPrinter::print(summary));
     }
 }
 
@@ -379,12 +373,8 @@ void CQDigestTest::testPropagateForwardByTime(void) {
 
         TMeanAccumlator diff;
         for (std::size_t i = 0; i < cdfLower.size(); ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(cdfLower[i],
-                                         cdfLowerAged[i],
-                                         std::min(5e-5, 2e-3 * cdfLower[i]));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(cdfUpper[i],
-                                         cdfUpperAged[i],
-                                         std::min(5e-5, 2e-3 * cdfUpper[i]));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(cdfLower[i], cdfLowerAged[i], std::min(5e-5, 2e-3 * cdfLower[i]));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(cdfUpper[i], cdfUpperAged[i], std::min(5e-5, 2e-3 * cdfUpper[i]));
             diff.add(::fabs(cdfLower[i] - cdfLowerAged[i]));
             diff.add(::fabs(cdfUpper[i] - cdfUpperAged[i]));
         }
@@ -459,11 +449,10 @@ void CQDigestTest::testScale(void) {
         LOG_DEBUG("After scaling " << qDigest.print());
         CPPUNIT_ASSERT(qDigest.checkInvariants());
 
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
-                        " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" \"[24,24],10,10\""
-                        " \"[45,45],10,10\" \"[0,63],0,100\" }"),
-            qDigest.print());
+        CPPUNIT_ASSERT_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
+                                         " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" \"[24,24],10,10\""
+                                         " \"[45,45],10,10\" \"[0,63],0,100\" }"),
+                             qDigest.print());
 
         // Test that adding more values after scaling works
         for (std::size_t i = 0; i < 10; ++i) {
@@ -519,9 +508,7 @@ void CQDigestTest::testScale(void) {
             double maxType2 = 0.0;
             double totalType2 = 0.0;
 
-            uint32_t end = static_cast<uint32_t>(
-                               scales[i] * *std::max_element(samples.begin(), samples.end())) +
-                           1;
+            uint32_t end = static_cast<uint32_t>(scales[i] * *std::max_element(samples.begin(), samples.end())) + 1;
             for (uint32_t j = 0; j < end; ++j) {
                 double expectedLowerBound;
                 double expectedUpperBound;
@@ -530,10 +517,9 @@ void CQDigestTest::testScale(void) {
                 double lowerBound;
                 double upperBound;
                 qDigest.cdf(j, 0.0, lowerBound, upperBound);
-                double type1 = ::fabs(expectedLowerBound - lowerBound) +
-                               ::fabs(expectedUpperBound - upperBound);
-                double type2 = std::max(lowerBound - expectedLowerBound, 0.0) +
-                               std::max(expectedUpperBound - upperBound, 0.0);
+                double type1 = ::fabs(expectedLowerBound - lowerBound) + ::fabs(expectedUpperBound - upperBound);
+                double type2 =
+                    std::max(lowerBound - expectedLowerBound, 0.0) + std::max(expectedUpperBound - upperBound, 0.0);
                 maxType1 = std::max(maxType1, type1);
                 totalType1 += type1;
                 maxType2 = std::max(maxType2, type2);
@@ -585,8 +571,8 @@ void CQDigestTest::testPersist(void) {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&CQDigest::acceptRestoreTraverser, &restoredQDigest, _1)));
+        CPPUNIT_ASSERT(
+            traverser.traverseSubLevel(boost::bind(&CQDigest::acceptRestoreTraverser, &restoredQDigest, _1)));
     }
 
     CPPUNIT_ASSERT(restoredQDigest.checkInvariants());
@@ -605,21 +591,16 @@ void CQDigestTest::testPersist(void) {
 CppUnit::Test* CQDigestTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CQDigestTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testAdd", &CQDigestTest::testAdd));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testMerge", &CQDigestTest::testMerge));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testCdf", &CQDigestTest::testCdf));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testAdd", &CQDigestTest::testAdd));
+        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testSummary", &CQDigestTest::testSummary));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPropagateForwardByTime",
+                                                                &CQDigestTest::testPropagateForwardByTime));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testScale", &CQDigestTest::testScale));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testMerge", &CQDigestTest::testMerge));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testCdf", &CQDigestTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testSummary",
-                                                                &CQDigestTest::testSummary));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPropagateForwardByTime",
-                                              &CQDigestTest::testPropagateForwardByTime));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testScale", &CQDigestTest::testScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPersist",
-                                                                &CQDigestTest::testPersist));
+        new CppUnit::TestCaller<CQDigestTest>("CQDigestTest::testPersist", &CQDigestTest::testPersist));
 
     return suiteOfTests;
 }

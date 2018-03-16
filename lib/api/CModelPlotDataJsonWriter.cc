@@ -38,12 +38,10 @@ const std::string CModelPlotDataJsonWriter::MEDIAN("model_median");
 const std::string CModelPlotDataJsonWriter::ACTUAL("actual");
 const std::string CModelPlotDataJsonWriter::BUCKET_SPAN("bucket_span");
 
-CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream)
-    : m_Writer(outStream) {
+CModelPlotDataJsonWriter::CModelPlotDataJsonWriter(core::CJsonOutputStreamWrapper& outStream) : m_Writer(outStream) {
 }
 
-void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
-                                         const model::CModelPlotData& data) {
+void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId, const model::CModelPlotData& data) {
     const std::string& partitionFieldName = data.partitionFieldName();
     const std::string& partitionFieldValue = data.partitionFieldValue();
     const std::string& overFieldName = data.overFieldName();
@@ -51,8 +49,7 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
     core_t::TTime time = data.time();
     int detectorIndex = data.detectorIndex();
 
-    for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin(); featureItr != data.end();
-         ++featureItr) {
+    for (TFeatureStrByFieldDataUMapUMapCItr featureItr = data.begin(); featureItr != data.end(); ++featureItr) {
         std::string feature = model_t::print(featureItr->first);
         const TStrByFieldDataUMap& byDataMap = featureItr->second;
         for (TStrByFieldDataUMapCItr byItr = byDataMap.begin(); byItr != byDataMap.end(); ++byItr) {
@@ -93,10 +90,7 @@ void CModelPlotDataJsonWriter::writeFlat(const std::string& jobId,
                                        doc);
                     if (!overFieldName.empty()) {
                         m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, overFieldName, doc);
-                        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
-                                                         keyValue.first,
-                                                         doc,
-                                                         true);
+                        m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE, keyValue.first, doc, true);
                     }
                     m_Writer.addDoubleFieldToObj(ACTUAL, keyValue.second, doc);
 

@@ -44,8 +44,7 @@ public:
     //! A collection of data to record memory usage information for
     //! arbitrary components
     struct CORE_EXPORT SMemoryUsage {
-        SMemoryUsage(const std::string& name, std::size_t memory)
-            : s_Name(name), s_Memory(memory), s_Unused(0) {}
+        SMemoryUsage(const std::string& name, std::size_t memory) : s_Name(name), s_Memory(memory), s_Unused(0) {}
 
         SMemoryUsage(const std::string& name, std::size_t memory, std::size_t unused)
             : s_Name(name), s_Memory(memory), s_Unused(unused) {}

@@ -172,11 +172,10 @@ void CBoundingBoxTest::testCloserTo(void) {
 CppUnit::Test* CBoundingBoxTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBoundingBoxTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testAdd",
-                                                                    &CBoundingBoxTest::testAdd));
     suiteOfTests->addTest(
-        new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testCloserTo",
-                                                  &CBoundingBoxTest::testCloserTo));
+        new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testAdd", &CBoundingBoxTest::testAdd));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CBoundingBoxTest>("CBoundingBoxTest::testCloserTo", &CBoundingBoxTest::testCloserTo));
 
     return suiteOfTests;
 }

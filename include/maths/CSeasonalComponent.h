@@ -65,14 +65,13 @@ public:
     //! computing values.
     //! \param[in] varianceInterpolationType The style of interpolation to use for
     //! computing variances.
-    CSeasonalComponent(
-        const CSeasonalTime& time,
-        std::size_t maxSize,
-        double decayRate = 0.0,
-        double minimumBucketLength = 0.0,
-        CSplineTypes::EBoundaryCondition boundaryCondition = CSplineTypes::E_Periodic,
-        CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
-        CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
+    CSeasonalComponent(const CSeasonalTime& time,
+                       std::size_t maxSize,
+                       double decayRate = 0.0,
+                       double minimumBucketLength = 0.0,
+                       CSplineTypes::EBoundaryCondition boundaryCondition = CSplineTypes::E_Periodic,
+                       CSplineTypes::EType valueInterpolationType = CSplineTypes::E_Cubic,
+                       CSplineTypes::EType varianceInterpolationType = CSplineTypes::E_Linear);
 
     //! Construct by traversing part of an state document.
     CSeasonalComponent(double decayRate,
@@ -198,9 +197,7 @@ public:
 
 private:
     //! Create by traversing a state document.
-    bool acceptRestoreTraverser(double decayRate,
-                                double minimumBucketLength,
-                                core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(double decayRate, double minimumBucketLength, core::CStateRestoreTraverser& traverser);
 
     //! Get a jitter to apply to the prediction time.
     core_t::TTime jitter(core_t::TTime time);

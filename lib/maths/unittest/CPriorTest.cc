@@ -97,8 +97,7 @@ void CPriorTest::testExpectation(void) {
 
     test::CRandomNumbers rng;
 
-    CNormalMeanPrecConjugate prior(
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData));
+    CNormalMeanPrecConjugate prior(maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData));
 
     TDoubleVec samples;
     rng.generateNormalSamples(1.0, 1.5, 10000u, samples);
@@ -122,8 +121,7 @@ void CPriorTest::testExpectation(void) {
     for (std::size_t n = 1; n < 10; ++n) {
         double variance;
         CPPUNIT_ASSERT(prior.expectation(CVariance(prior.mean()), n, variance));
-        LOG_DEBUG("n = " << n << ", variance = " << variance
-                         << ", error = " << ::fabs(variance - trueVariance));
+        LOG_DEBUG("n = " << n << ", variance = " << variance << ", error = " << ::fabs(variance - trueVariance));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(trueVariance, variance, varianceErrors[n - 1]);
     }
 
@@ -143,8 +141,8 @@ void CPriorTest::testExpectation(void) {
 CppUnit::Test* CPriorTest::suite(void) {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPriorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPriorTest>("CPriorTest::testExpectation",
-                                                              &CPriorTest::testExpectation));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CPriorTest>("CPriorTest::testExpectation", &CPriorTest::testExpectation));
 
     return suiteOfTests;
 }

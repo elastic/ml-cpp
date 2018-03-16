@@ -44,8 +44,7 @@ CCountingModelFactory* CCountingModelFactory::clone(void) const {
     return new CCountingModelFactory(*this);
 }
 
-CAnomalyDetectorModel*
-CCountingModelFactory::makeModel(const SModelInitializationData& initData) const {
+CAnomalyDetectorModel* CCountingModelFactory::makeModel(const SModelInitializationData& initData) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -54,9 +53,8 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData) const
     return new CCountingModel(this->modelParams(), dataGatherer);
 }
 
-CAnomalyDetectorModel*
-CCountingModelFactory::makeModel(const SModelInitializationData& initData,
-                                 core::CStateRestoreTraverser& traverser) const {
+CAnomalyDetectorModel* CCountingModelFactory::makeModel(const SModelInitializationData& initData,
+                                                        core::CStateRestoreTraverser& traverser) const {
     TDataGathererPtr dataGatherer = initData.s_DataGatherer;
     if (!dataGatherer) {
         LOG_ERROR("NULL data gatherer");
@@ -65,8 +63,7 @@ CCountingModelFactory::makeModel(const SModelInitializationData& initData,
     return new CCountingModel(this->modelParams(), dataGatherer, traverser);
 }
 
-CDataGatherer*
-CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
+CDataGatherer* CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initData) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -84,9 +81,8 @@ CCountingModelFactory::makeDataGatherer(const SGathererInitializationData& initD
                              0);
 }
 
-CDataGatherer*
-CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
-                                        core::CStateRestoreTraverser& traverser) const {
+CDataGatherer* CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
+                                                       core::CStateRestoreTraverser& traverser) const {
     return new CDataGatherer(model_t::E_EventRate,
                              m_SummaryMode,
                              this->modelParams(),
@@ -102,21 +98,18 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
                              traverser);
 }
 
-CCountingModelFactory::TPriorPtr
-CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
-                                    const SModelParams& /*params*/) const {
+CCountingModelFactory::TPriorPtr CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
+                                                                     const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
-CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
-                                                const SModelParams& /*params*/) const {
+CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorPtr
-CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
-                                             const SModelParams& /*params*/) const {
+CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/, const SModelParams& /*params*/) const {
     return boost::make_shared<maths::CMultivariateConstantPrior>(2);
 }
 

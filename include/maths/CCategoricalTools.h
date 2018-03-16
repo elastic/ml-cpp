@@ -84,8 +84,7 @@ public:
     //!
     //! For a category \f$k\f$, this is:
     //! <pre class="fragment">
-    //!   \f$\displaystyle \sum_{\{\{n_j\}:\sum{n_j}=n\}} H(n_k) n!
-    //!   \prod_{j=1}^m\frac{p_j^{n_j}}{n_j!}\f$
+    //!   \f$\displaystyle \sum_{\{\{n_j\}:\sum{n_j}=n\}} H(n_k) n! \prod_{j=1}^m\frac{p_j^{n_j}}{n_j!}\f$
     //! </pre>
     //! where \f$H(.)\f$ denotes the Heavyside function.\n\n
     //! Summing over all other categories it is clear that this is just
@@ -99,9 +98,7 @@ public:
     //!
     //! This computes the expectation of:
     //! <pre class="fragment">
-    //!   \f$\displaystyle
-    //!   E[unique(Y)]=\sum_{\{\{n_j\}:n_j>0,\sum{n_j}=n\}}kn!\prod_{j=1}^k{\frac{p_j^{n_j}}{n_j!}}
-    //!   \f$
+    //!   \f$\displaystyle E[unique(Y)]=\sum_{\{\{n_j\}:n_j>0,\sum{n_j}=n\}}kn!\prod_{j=1}^k{\frac{p_j^{n_j}}{n_j!}} \f$
     //! </pre>
     //! Here, \f$Y\f$ denotes the set of \p n random samples from a
     //! multinomial with m categories.
@@ -113,8 +110,7 @@ public:
     //!
     //! \warning It is the callers responsibility to ensure that the
     //! probabilities are normalized.
-    static bool
-    expectedDistinctCategories(const TDoubleVec& probabilities, double n, double& result);
+    static bool expectedDistinctCategories(const TDoubleVec& probabilities, double n, double& result);
 
     //! Get the log of the binomial coefficient \f$\binom{n}{m}\f$.
     static double logBinomialCoefficient(std::size_t n, std::size_t m);

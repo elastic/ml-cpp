@@ -72,20 +72,16 @@ void CRapidJsonLineWriterTest::testDoublePrecissionDtoa(void) {
     char buffer[100];
 
     char* end = rapidjson::internal::dtoa(3e-5, buffer);
-    CPPUNIT_ASSERT_EQUAL(std::string("0.00003"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    CPPUNIT_ASSERT_EQUAL(std::string("0.00003"), std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(2e-20, buffer, 20);
-    CPPUNIT_ASSERT_EQUAL(std::string("2e-20"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    CPPUNIT_ASSERT_EQUAL(std::string("2e-20"), std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-308, buffer);
-    CPPUNIT_ASSERT_EQUAL(std::string("1e-308"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    CPPUNIT_ASSERT_EQUAL(std::string("1e-308"), std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-300, buffer, 20);
-    CPPUNIT_ASSERT_EQUAL(std::string("0.0"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    CPPUNIT_ASSERT_EQUAL(std::string("0.0"), std::string(buffer, static_cast<size_t>(end - buffer)));
 
     // test the limit, to not hardcode the string we check that it is not 0.0
     end = rapidjson::internal::dtoa(std::numeric_limits<double>::denorm_min(), buffer);
@@ -129,14 +125,10 @@ void CRapidJsonLineWriterTest::microBenchmark(void) {
 CppUnit::Test* CRapidJsonLineWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonLineWriterTest");
 
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CRapidJsonLineWriterTest>("CRapidJsonLineWriterTest::testDoublePrecissionDtoa",
-                                      &CRapidJsonLineWriterTest::testDoublePrecissionDtoa));
-    suiteOfTests->addTest(
-        new CppUnit::TestCaller<
-            CRapidJsonLineWriterTest>("CRapidJsonLineWriterTest::testDoublePrecission",
-                                      &CRapidJsonLineWriterTest::testDoublePrecission));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
+        "CRapidJsonLineWriterTest::testDoublePrecissionDtoa", &CRapidJsonLineWriterTest::testDoublePrecissionDtoa));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
+        "CRapidJsonLineWriterTest::testDoublePrecission", &CRapidJsonLineWriterTest::testDoublePrecission));
 
     // microbenchmark, enable if you are interested
     /*suiteOfTests->addTest( new CppUnit::TestCaller<CRapidJsonLineWriterTest>(

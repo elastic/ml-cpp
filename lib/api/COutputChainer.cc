@@ -65,8 +65,7 @@ const COutputHandler::TStrVec& COutputChainer::fieldNames(void) const {
     return m_FieldNames;
 }
 
-bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
-                              const TStrStrUMap& overrideDataRowFields) {
+bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR("Attempt to output data before field names");
         return false;
@@ -81,8 +80,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
          fieldNameIter != m_FieldNames.end() && preComputedHashIter != m_Hashes.end() &&
          fieldRefIter != m_WorkRecordFieldRefs.end();
          ++fieldNameIter, ++preComputedHashIter, ++fieldRefIter) {
-        TStrStrUMapCItr fieldValueIter =
-            overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
+        TStrStrUMapCItr fieldValueIter = overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
         if (fieldValueIter == overrideDataRowFields.end()) {
             fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
             if (fieldValueIter == dataRowFields.end()) {
@@ -110,8 +108,7 @@ void COutputChainer::finalise(void) {
     m_DataProcessor.finalise();
 }
 
-bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
-                                  core_t::TTime& completeToTime) {
+bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime) {
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 

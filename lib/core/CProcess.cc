@@ -27,8 +27,7 @@ const char* CProcess::STARTED_MSG("Process Started.");
 const char* CProcess::STOPPING_MSG("Process Shutting Down.");
 const char* CProcess::STOPPED_MSG("Process Exiting.");
 
-CProcess::CProcess(void)
-    : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {
+CProcess::CProcess(void) : m_IsService(false), m_Initialised(false), m_Running(false), m_MlMainFunc(0) {
 }
 
 CProcess& CProcess::instance(void) {

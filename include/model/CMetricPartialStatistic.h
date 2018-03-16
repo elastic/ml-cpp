@@ -57,8 +57,7 @@ template<class STATISTIC>
 class CMetricPartialStatistic {
 public:
     typedef core::CSmallVector<double, 1> TDouble1Vec;
-    typedef maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator
-        TMeanAccumulator;
+    typedef maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator TMeanAccumulator;
 
 public:
     static const std::string VALUE_TAG;
@@ -136,8 +135,7 @@ public:
 
     //! Get the memory used by the statistic.
     inline std::size_t memoryUsage(void) const {
-        return sizeof(*this) + core::CMemory::dynamicSize(m_Value) +
-               core::CMemory::dynamicSize(m_Time);
+        return sizeof(*this) + core::CMemory::dynamicSize(m_Value) + core::CMemory::dynamicSize(m_Time);
     }
 
     //! Print partial statistic

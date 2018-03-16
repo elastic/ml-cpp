@@ -90,8 +90,7 @@ public:
     //!
     //! \note This is intended for map lookups when one doesn't want
     //! to copy the strings.
-    typedef std::pair<boost::reference_wrapper<const std::string>,
-                      boost::reference_wrapper<const CSearchKey>>
+    typedef std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>>
         TStrCRefKeyCRefPr;
 
 public:
@@ -229,9 +228,7 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key);
 class CStrKeyPrHash {
 public:
     std::size_t operator()(const CSearchKey::TStrKeyPr& key) const { return this->hash(key); }
-    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr& key) const {
-        return this->hash(key);
-    }
+    std::size_t operator()(const CSearchKey::TStrCRefKeyCRefPr& key) const { return this->hash(key); }
 
 private:
     template<typename T>
@@ -249,16 +246,13 @@ public:
     bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrKeyPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
-                    const CSearchKey::TStrKeyPr& rhs) const {
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs, const CSearchKey::TStrKeyPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrKeyPr& lhs,
-                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
+    bool operator()(const CSearchKey::TStrKeyPr& lhs, const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
         return this->equal(lhs, rhs);
     }
-    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs,
-                    const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
+    bool operator()(const CSearchKey::TStrCRefKeyCRefPr& lhs, const CSearchKey::TStrCRefKeyCRefPr& rhs) const {
         return this->equal(lhs, rhs);
     }
 

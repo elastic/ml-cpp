@@ -128,8 +128,7 @@ public:
         double operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const;
         double operator()(const normal& normal_, double x, maths_t::ETail& tail) const;
         double operator()(const students_t& students, double x, maths_t::ETail& tail) const;
-        double
-        operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const;
+        double operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& tail) const;
         double operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const;
         double operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const;
         double operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const;
@@ -137,8 +136,7 @@ public:
 
     private:
         //! Check the value is supported.
-        bool
-        check(const TDoubleDoublePr& support, double x, double& px, maths_t::ETail& tail) const;
+        bool check(const TDoubleDoublePr& support, double x, double& px, maths_t::ETail& tail) const;
 
         //! Update the tail.
         void tail(double x, double mode, maths_t::ETail& tail) const;
@@ -163,8 +161,7 @@ public:
         //!
         //! and approximate the indicator function as
         //! <pre class="fragment">
-        //!   \f$\displaystyle I(f(s) < f(x)) \approx (1+e^{-k})
-        //!   \frac{e^{-k(f(s)/f(x)-1)}}{1+e^{-k(f(s)/f(x)-1)}}\f$
+        //!   \f$\displaystyle I(f(s) < f(x)) \approx (1+e^{-k}) \frac{e^{-k(f(s)/f(x)-1)}}{1+e^{-k(f(s)/f(x)-1)}}\f$
         //! </pre>
         //!
         //! Note that the larger the value of \f$k\f$ the better the
@@ -192,11 +189,7 @@ public:
         //! \param[in] logFx The log of the p.d.f. at the sample.
         //! \param[in] a The left end of the interval to integrate.
         //! \param[in] b The left end of the interval to integrate.
-        CMixtureProbabilityOfLessLikelySample(std::size_t n,
-                                              double x,
-                                              double logFx,
-                                              double a,
-                                              double b);
+        CMixtureProbabilityOfLessLikelySample(std::size_t n, double x, double logFx, double a, double b);
 
         //! Reinitialize the object for computing the the probability
         //! of \f$\{y : f(y) <= f(x)\}\f$.
@@ -230,10 +223,7 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template<typename LOGF, typename EQUAL>
-        bool leftTail(const LOGF& logf,
-                      std::size_t iterations,
-                      const EQUAL& equal,
-                      double& result) const;
+        bool leftTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
 
         //! Find the right tail argument with the same p.d.f. value
         //! as the sample.
@@ -251,10 +241,7 @@ public:
         //! the log of the mixture p.d.f. It is expected to have a function
         //! like signature double (double).
         template<typename LOGF, typename EQUAL>
-        bool rightTail(const LOGF& logf,
-                       std::size_t iterations,
-                       const EQUAL& equal,
-                       double& result) const;
+        bool rightTail(const LOGF& logf, std::size_t iterations, const EQUAL& equal, double& result) const;
 
         //! Compute the probability of a less likely sample.
         //!
@@ -489,9 +476,7 @@ private:
         }
 
         //! Lookup log2 for a given mantissa.
-        const double& operator[](uint64_t mantissa) const {
-            return m_Table[mantissa >> FAST_LOG_SHIFT];
-        }
+        const double& operator[](uint64_t mantissa) const { return m_Table[mantissa >> FAST_LOG_SHIFT]; }
 
     private:
         //! The quantized log base 2 for the mantissa range.
@@ -639,8 +624,7 @@ public:
 
     //! Component-wise truncation of stack vectors.
     template<typename T, std::size_t N>
-    static CVectorNx1<T, N>
-    truncate(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& a, const CVectorNx1<T, N>& b) {
+    static CVectorNx1<T, N> truncate(const CVectorNx1<T, N>& x, const CVectorNx1<T, N>& a, const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
         for (std::size_t i = 0u; i < N; ++i) {
             result(i) = truncate(result(i), a(i), b(i));
@@ -660,9 +644,8 @@ public:
 
     //! Component-wise truncation of small vector.
     template<typename T, std::size_t N>
-    static core::CSmallVector<T, N> truncate(const core::CSmallVector<T, N>& x,
-                                             const core::CSmallVector<T, N>& a,
-                                             const core::CSmallVector<T, N>& b) {
+    static core::CSmallVector<T, N>
+    truncate(const core::CSmallVector<T, N>& x, const core::CSmallVector<T, N>& a, const core::CSmallVector<T, N>& b) {
         core::CSmallVector<T, N> result(x);
         for (std::size_t i = 0u; i < result.size(); ++i) {
             result[i] = truncate(result[i], a[i], b[i]);

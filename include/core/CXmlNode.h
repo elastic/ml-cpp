@@ -95,8 +95,7 @@ public:
     //! type
     template<typename TYPE>
     bool attribute(const std::string& name, TYPE& value) const {
-        TStrStrPrVecCItr iter =
-            std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
+        TStrStrPrVecCItr iter = std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
         if (iter == m_Attributes.end()) {
             return false;
         }
@@ -114,8 +113,7 @@ public:
     //! convertible to a string using CStringUtils.
     template<typename TYPE>
     bool attribute(const std::string& name, const TYPE& value, bool overwrite) {
-        TStrStrPrVecItr iter =
-            std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
+        TStrStrPrVecItr iter = std::find_if(m_Attributes.begin(), m_Attributes.end(), CFirstElementEquals(name));
         if (iter == m_Attributes.end()) {
             m_Attributes.push_back(TStrStrPr(name, CStringUtils::typeToString(value)));
             return true;

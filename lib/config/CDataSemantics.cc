@@ -61,8 +61,7 @@ public:
         for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
             double ci = maths::CBasicStatistics::count(m_Categories[i]);
             double vi = maths::CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
-            double si =
-                std::max(3.0 * ::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
+            double si = std::max(3.0 * ::sqrt(vi), 1.0 / boost::math::constants::root_two_pi<double>());
             scale.add(static_cast<double>(counts[i]) / si, ci);
         }
         return maths::CBasicStatistics::mean(scale);
@@ -150,14 +149,12 @@ void CDataSemantics::add(const std::string& example) {
         m_Smallest.add(value);
         m_Largest.add(value);
     } else if (m_NonNumericValues.size() < 2 &&
-               std::find(m_NonNumericValues.begin(), m_NonNumericValues.end(), trimmed) ==
-                   m_NonNumericValues.end()) {
+               std::find(m_NonNumericValues.begin(), m_NonNumericValues.end(), trimmed) == m_NonNumericValues.end()) {
         m_NonNumericValues.push_back(trimmed);
     }
 
     if (m_DistinctValues.size() < 3 &&
-        std::find(m_DistinctValues.begin(), m_DistinctValues.end(), example) ==
-            m_DistinctValues.end()) {
+        std::find(m_DistinctValues.begin(), m_DistinctValues.end(), example) == m_DistinctValues.end()) {
         m_DistinctValues.push_back(example);
     }
 
@@ -217,8 +214,7 @@ config_t::EDataType CDataSemantics::realType(void) const {
 }
 
 config_t::EDataType CDataSemantics::integerType(void) const {
-    return m_Smallest[0] < maths::COrdinal(uint64_t(0)) ? config_t::E_Integer
-                                                        : config_t::E_PositiveInteger;
+    return m_Smallest[0] < maths::COrdinal(uint64_t(0)) ? config_t::E_Integer : config_t::E_PositiveInteger;
 }
 
 bool CDataSemantics::isNumeric(void) const {
@@ -250,9 +246,7 @@ bool CDataSemantics::GMMGoodFit(void) const {
     LOG_TRACE("offset = " << offset);
 
     double categoricalBIC = static_cast<double>(N - 1) * logc;
-    for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-         i != m_EmpiricalDistribution.end();
-         ++i) {
+    for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin(); i != m_EmpiricalDistribution.end(); ++i) {
         double ni = static_cast<double>(i->second);
         categoricalBIC -= 2.0 * ni * ::log(ni / m_Count);
     }
@@ -265,9 +259,7 @@ bool CDataSemantics::GMMGoodFit(void) const {
         double scale = 1.0;
         {
             CMixtureData scaling(m_Count, N);
-            for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-                 i != m_EmpiricalDistribution.end();
-                 ++i) {
+            for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin(); i != m_EmpiricalDistribution.end(); ++i) {
                 double xi = i->first.asDouble();
                 double ni = static_cast<double>(i->second);
                 scaling.add(xi, ni);
@@ -278,9 +270,7 @@ bool CDataSemantics::GMMGoodFit(void) const {
 
         CMixtureData light(m_Count, N);
         CMixtureData heavy(m_Count, N);
-        for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-             i != m_EmpiricalDistribution.end();
-             ++i) {
+        for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin(); i != m_EmpiricalDistribution.end(); ++i) {
             double xi = smallest + scale * (i->first.asDouble() - smallest);
             double ni = static_cast<double>(i->second);
             light.add(xi, ni);
@@ -293,26 +283,20 @@ bool CDataSemantics::GMMGoodFit(void) const {
 
             double lightGmmBIC = light.parameters() * logc;
             double heavyGmmBIC = heavy.parameters() * logc;
-            for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin();
-                 i != m_EmpiricalDistribution.end();
-                 ++i) {
+            for (TOrdinalSizeUMapCItr i = m_EmpiricalDistribution.begin(); i != m_EmpiricalDistribution.end(); ++i) {
                 double xi = smallest + scale * (i->first.asDouble() - smallest);
                 double ni = static_cast<double>(i->second);
                 double fx = light.pdf(xi);
                 double gx = 1.0 / (xi + offset) * heavy.pdf(::log(xi + offset));
-                lightGmmBIC -=
-                    2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(fx));
-                heavyGmmBIC -=
-                    2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(gx));
+                lightGmmBIC -= 2.0 * ni * (fx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(fx));
+                heavyGmmBIC -= 2.0 * ni * (gx == 0.0 ? boost::numeric::bounds<double>::lowest() : ::log(gx));
             }
             LOG_TRACE("light BIC = " << lightGmmBIC << ", heavy BIC = " << heavyGmmBIC);
 
             if (std::min(lightGmmBIC, heavyGmmBIC) < categoricalBIC) {
                 return true;
             }
-        } catch (const std::exception& e) {
-            LOG_ERROR("Failed to compute BIC for " << m << " modes: " << e.what());
-        }
+        } catch (const std::exception& e) { LOG_ERROR("Failed to compute BIC for " << m << " modes: " << e.what()); }
     }
 
     return false;

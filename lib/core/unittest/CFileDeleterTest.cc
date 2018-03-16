@@ -25,8 +25,8 @@
 CppUnit::Test* CFileDeleterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFileDeleterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFileDeleterTest>("CFileDeleterTest::testDelete",
-                                                                    &CFileDeleterTest::testDelete));
+    suiteOfTests->addTest(
+        new CppUnit::TestCaller<CFileDeleterTest>("CFileDeleterTest::testDelete", &CFileDeleterTest::testDelete));
 
     return suiteOfTests;
 }
@@ -42,14 +42,10 @@ void CFileDeleterTest::testDelete(void) {
             testFile << "to be deleted" << std::endl;
         } // The file should exist by the time the stream is closed here
 
-        CPPUNIT_ASSERT_EQUAL(0,
-                             ml::core::COsFileFuncs::access(fileName.c_str(),
-                                                            ml::core::COsFileFuncs::EXISTS));
+        CPPUNIT_ASSERT_EQUAL(0, ml::core::COsFileFuncs::access(fileName.c_str(), ml::core::COsFileFuncs::EXISTS));
     } // The file should be deleted here
 
-    CPPUNIT_ASSERT_EQUAL(-1,
-                         ml::core::COsFileFuncs::access(fileName.c_str(),
-                                                        ml::core::COsFileFuncs::EXISTS));
+    CPPUNIT_ASSERT_EQUAL(-1, ml::core::COsFileFuncs::access(fileName.c_str(), ml::core::COsFileFuncs::EXISTS));
 
     CPPUNIT_ASSERT_EQUAL(ENOENT, errno);
 }

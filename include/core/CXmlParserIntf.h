@@ -68,25 +68,21 @@ public:
     //! This is much more efficient than making repeated calls to
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool
-    toNodeHierarchy(CStringCache& cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool
-    toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                    CStringCache& cache,
-                    CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
+    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                                 CStringCache& cache,
+                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const = 0;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy

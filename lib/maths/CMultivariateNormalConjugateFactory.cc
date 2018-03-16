@@ -36,23 +36,23 @@ public:
 };
 }
 
-#define CREATE_PRIOR(N)                                                                            \
-    switch (N) {                                                                                   \
-    case 2:                                                                                        \
-        ptr.reset(CFactory<2>::make(FACTORY_ARGS));                                                \
-        break;                                                                                     \
-    case 3:                                                                                        \
-        ptr.reset(CFactory<3>::make(FACTORY_ARGS));                                                \
-        break;                                                                                     \
-    case 4:                                                                                        \
-        ptr.reset(CFactory<4>::make(FACTORY_ARGS));                                                \
-        break;                                                                                     \
-    case 5:                                                                                        \
-        ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                                \
-        break;                                                                                     \
-    default:                                                                                       \
-        LOG_ERROR("Unsupported dimension " << N);                                                  \
-        break;                                                                                     \
+#define CREATE_PRIOR(N)                                                                                                \
+    switch (N) {                                                                                                       \
+    case 2:                                                                                                            \
+        ptr.reset(CFactory<2>::make(FACTORY_ARGS));                                                                    \
+        break;                                                                                                         \
+    case 3:                                                                                                            \
+        ptr.reset(CFactory<3>::make(FACTORY_ARGS));                                                                    \
+        break;                                                                                                         \
+    case 4:                                                                                                            \
+        ptr.reset(CFactory<4>::make(FACTORY_ARGS));                                                                    \
+        break;                                                                                                         \
+    case 5:                                                                                                            \
+        ptr.reset(CFactory<5>::make(FACTORY_ARGS));                                                                    \
+        break;                                                                                                         \
+    default:                                                                                                           \
+        LOG_ERROR("Unsupported dimension " << N);                                                                      \
+        break;                                                                                                         \
     }
 
 CMultivariateNormalConjugateFactory::TPriorPtr

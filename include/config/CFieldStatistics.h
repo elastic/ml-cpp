@@ -75,9 +75,7 @@ public:
 private:
     typedef std::pair<core_t::TTime, std::string> TTimeStrPr;
     typedef std::vector<TTimeStrPr> TTimeStrPrVec;
-    typedef boost::variant<CDataSummaryStatistics,
-                           CCategoricalDataSummaryStatistics,
-                           CNumericDataSummaryStatistics>
+    typedef boost::variant<CDataSummaryStatistics, CCategoricalDataSummaryStatistics, CNumericDataSummaryStatistics>
         TDataSummaryStatistics;
 
 private:

@@ -24,8 +24,7 @@ CTokenListReverseSearchCreatorIntf::CTokenListReverseSearchCreatorIntf(const std
 CTokenListReverseSearchCreatorIntf::~CTokenListReverseSearchCreatorIntf(void) {
 }
 
-void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string& /*part1*/,
-                                                             std::string& /*part2*/) const {
+void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string& /*part1*/, std::string& /*part2*/) const {
     // Default is to do nothing
 }
 

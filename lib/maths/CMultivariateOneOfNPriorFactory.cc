@@ -20,11 +20,10 @@
 namespace ml {
 namespace maths {
 
-CMultivariateOneOfNPriorFactory::TPriorPtr
-CMultivariateOneOfNPriorFactory::nonInformative(std::size_t dimension,
-                                                maths_t::EDataType dataType,
-                                                double decayRate,
-                                                const TPriorPtrVec& models) {
+CMultivariateOneOfNPriorFactory::TPriorPtr CMultivariateOneOfNPriorFactory::nonInformative(std::size_t dimension,
+                                                                                           maths_t::EDataType dataType,
+                                                                                           double decayRate,
+                                                                                           const TPriorPtrVec& models) {
     return TPriorPtr(new CMultivariateOneOfNPrior(dimension, models, dataType, decayRate));
 }
 
