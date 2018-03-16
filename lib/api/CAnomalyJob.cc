@@ -86,6 +86,10 @@ const std::string HIERARCHICAL_RESULTS_TAG("f");
 const std::string LATEST_RECORD_TIME_TAG("h");
 const std::string MODEL_PLOT_TAG("i");
 const std::string LAST_RESULTS_TIME_TAG("j");
+
+//! The minimum version required to read the state corresponding to a model snapshot.
+//! This should be updated every time there is a breaking change to the model state.
+const std::string MODEL_SNAPSHOT_MIN_VERSION("6.3.0");
 }
 
 // Statics
@@ -1372,6 +1376,7 @@ bool CAnomalyJob::persistState(const std::string &descriptionPrefix,
             if (m_PersistCompleteFunc)
             {
                 CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
+                        MODEL_SNAPSHOT_MIN_VERSION,
                         snapshotTimestamp,
                         descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
                         snapShotId,
