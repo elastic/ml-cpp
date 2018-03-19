@@ -178,7 +178,6 @@ TOptionalChangeDescription CUnivariateTimeSeriesChangeDetector::change()
             && evidences[0] > evidences[1] + m_MinimumDeltaBicToDetect / 2.0
             && evidences[0] > EXPECTED_EVIDENCE_THRESHOLD_MULTIPLIER * expectedEvidence)
         {
-            LOG_DEBUG("expected = " << expectedEvidence);
             return (*candidates[0].second)->change();
         }
     }
