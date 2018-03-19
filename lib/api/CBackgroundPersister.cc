@@ -180,6 +180,12 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(const TFirstProcess
 
 bool CBackgroundPersister::startBackgroundPersist(void)
 {
+    if (this->isBusy())
+    {
+        LOG_WARN("Cannot start background persist as a previous "
+            "persist is still in progress");
+        return false;
+    }
     return this->startBackgroundPersist(core::CTimeUtils::now());
 }
 
