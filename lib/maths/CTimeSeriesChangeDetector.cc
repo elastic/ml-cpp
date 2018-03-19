@@ -425,13 +425,13 @@ CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const TDecompositionPtr &
 bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                         core::CStateRestoreTraverser &traverser)
 {
+    if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false)
+    {
+        return false;
+    }
     do
     {
         const std::string name{traverser.name()};
-        if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false)
-        {
-            return false;
-        }
         RESTORE(SHIFT_TAG, m_Shift.fromDelimited(traverser.value()))
         RESTORE_BUILT_IN(RESIDUAL_MODEL_MODE_TAG, m_ResidualModelMode)
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
@@ -552,13 +552,13 @@ CUnivariateTimeShiftModel::CUnivariateTimeShiftModel(const TDecompositionPtr &tr
 bool CUnivariateTimeShiftModel::acceptRestoreTraverser(const SModelRestoreParams &params,
                                                        core::CStateRestoreTraverser &traverser)
 {
+    if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false)
+    {
+        return false;
+    }
     do
     {
         const std::string name{traverser.name()};
-        if (this->CUnivariateChangeModel::acceptRestoreTraverser(params, traverser) == false)
-        {
-            return false;
-        }
         RESTORE(RESIDUAL_MODEL_TAG, this->restoreResidualModel(params.s_DistributionParams, traverser))
     }
     while (traverser.next());
