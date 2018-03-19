@@ -47,6 +47,13 @@ namespace api
 //! are that a lot of memory is being used by the temporary
 //! copy of the data to be persisted.
 //!
+//! Persistence happens in a background thread and further
+//! persistence requests via the startBackgroundPersist*() methods
+//! will be rejected if the background thread is executing.
+//! However, calls to startBackgroundPersist() and
+//! startBackgroundPersistIfAppropriate() are not thread safe and
+//! must not be made concurrently.
+//!
 //! IMPLEMENTATION DECISIONS:\n
 //! This class expects to call a persistence function taking
 //! just the data adder as an argument.  It's easy to wrap up
@@ -107,9 +114,15 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         //! called.
         bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc &firstProcessorPeriodicPersistFunc);
 
-        //! Check whether a background persist is appropriate now, and if it is
-        //! then start it by calling the first processor periodic persist
-        //! function.
+        //! Start a background persist is one is not running.
+        //! Calls the first processor periodic persist function first.
+        //! Concurrent calls to this method are not threadsafe.
+        bool startBackgroundPersist(void);
+
+        //! If the periodic persist interval has passed since the last persist
+        //! then it is appropriate to persist now.  Start it by calling the
+        //! first processor periodic persist function.
+        //! Concurrent calls to this method are not threadsafe.
         bool startBackgroundPersistIfAppropriate(void);
 
     private:
@@ -130,6 +143,10 @@ class API_EXPORT CBackgroundPersister : private core::CNonCopyable
         };
 
     private:
+        //! Persist in the background setting the last persist time
+        //! to timeOfPersistence
+        bool startBackgroundPersist(core_t::TTime timeOfPersistence);
+
         //! When this function is called a background persistence will be
         //! triggered unless there is already one in progress.
         bool startPersist(void);
