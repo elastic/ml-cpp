@@ -352,7 +352,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
             double weight{1.0};
             if (m_MinMaxLogLikelihoodToUseFeature)
             {
-                weight = CTools::smoothHeaviside(
+                weight = CTools::logisticFunction(
                              (maxLogLikelihood[0] - *m_MinMaxLogLikelihoodToUseFeature)
                             / std::fabs(*m_MinMaxLogLikelihoodToUseFeature), 0.1);
             }

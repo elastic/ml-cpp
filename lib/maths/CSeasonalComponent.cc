@@ -268,7 +268,7 @@ double CSeasonalComponent::delta(core_t::TTime time,
         // a delta for the case that the difference from the mean
         // is 1/3 of the range. We force the delta to zero for values
         // significantly smaller than this.
-        double scale{CTools::smoothHeaviside(3.0 * min[0] / minmax.range(), 0.1, 1.0)};
+        double scale{CTools::logisticFunction(3.0 * min[0] / minmax.range(), 0.1, 1.0)};
         scale = CTools::truncate(1.002 * scale - 0.001, 0.0, 1.0);
 
         return -scale * min[0] * CTools::sign(shortPeriodValue);

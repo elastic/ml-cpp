@@ -170,8 +170,8 @@ void CTimeSeriesDecompositionTest::testSuperpositionOfSines(void)
     //file << "plot(t(1:length(fe)), fe, 'r');\n";
     //file << "plot(t(1:length(r)), r, 'k');\n";
 
-    CPPUNIT_ASSERT(totalSumResidual < 0.018 * totalSumValue);
-    CPPUNIT_ASSERT(totalMaxResidual < 0.021 * totalMaxValue);
+    CPPUNIT_ASSERT(totalSumResidual < 0.019 * totalSumValue);
+    CPPUNIT_ASSERT(totalMaxResidual < 0.020 * totalMaxValue);
     CPPUNIT_ASSERT(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -1760,7 +1760,7 @@ void CTimeSeriesDecompositionTest::testLongTermTrendAndPeriodicity(void)
                 totalMaxValue += maxValue;
 
                 CPPUNIT_ASSERT(sumResidual / sumValue < 0.4);
-                CPPUNIT_ASSERT(maxResidual / maxValue < 0.4);
+                CPPUNIT_ASSERT(maxResidual / maxValue < 0.45);
             }
             lastDay += DAY;
         }
@@ -2152,9 +2152,9 @@ void CTimeSeriesDecompositionTest::testConditionOfTrend(void)
 
     maths::CTimeSeriesDecomposition decomposition(0.0005, bucketLength);
     TDoubleVec noise;
-    for (core_t::TTime time = 0; time < 10 * YEAR; time += 6 * HOUR)
+    for (core_t::TTime time = 0; time < 9 * YEAR; time += 6 * HOUR)
     {
-        rng.generateNormalSamples(0.0, 3.0, 1, noise);
+        rng.generateNormalSamples(0.0, 4.0, 1, noise);
         decomposition.addPoint(time, trend(time) + noise[0]);
         if (time > 10 * WEEK)
         {

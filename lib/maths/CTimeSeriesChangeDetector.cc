@@ -189,8 +189,8 @@ bool CUnivariateTimeSeriesChangeDetector::stopTesting() const
     core_t::TTime range{m_TimeRange.range()};
     if (range > m_MinimumTimeToDetect)
     {
-        double scale{0.5 + CTools::smoothHeaviside(2.0 * m_CurrentEvidenceOfChange
-                                                       / m_MinimumDeltaBicToDetect, 0.2, 1.0)};
+        double scale{0.5 + CTools::logisticFunction(2.0 * m_CurrentEvidenceOfChange
+                                                        / m_MinimumDeltaBicToDetect, 0.2, 1.0)};
         return  static_cast<double>(range)
               > m_MinimumTimeToDetect + scale * static_cast<double>(
                                                     m_MaximumTimeToDetect - m_MinimumTimeToDetect);
