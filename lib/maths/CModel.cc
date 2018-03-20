@@ -131,9 +131,9 @@ core_t::TTime CModelParams::minimumTimeToDetectChange(core_t::TTime timeSinceLas
 {
     // If there was a recent change then there is a chance that this is
     // a reversion of the previous change. We reversions to occur faster.
-    double revertFactor{CTools::smoothHeaviside(  static_cast<double>(timeSinceLastChangePoint)
-                                                / static_cast<double>(m_MaximumTimeToTestForChange),
-                                                0.1, 1.0)};
+    double revertFactor{CTools::logisticFunction(  static_cast<double>(timeSinceLastChangePoint)
+                                                 / static_cast<double>(m_MaximumTimeToTestForChange),
+                                                 0.1, 1.0)};
     return static_cast<core_t::TTime>(std::ceil( (0.3 + 0.7 * revertFactor)
                                                 * static_cast<double>(m_MinimumTimeToDetectChange)));
 }
