@@ -302,8 +302,8 @@ class CCheckScores : public model::CHierarchicalResultsVisitor
         {
             LOG_DEBUG(node.s_Spec.print()
                       << " score = " << node.s_RawAnomalyScore
-                      << ", expected score = " << maths::CTools::deviation(node.probability()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::deviation(node.probability()),
+                      << ", expected score = " << maths::CTools::anomalyScore(node.probability()));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::anomalyScore(node.probability()),
                                          node.s_RawAnomalyScore,
                                          1e-10);
         }
@@ -1618,7 +1618,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
             double probability = extract.leafNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability() ?
-                           0.0 : maths::CTools::deviation(probability);
+                           0.0 : maths::CTools::anomalyScore(probability);
             itr->second->updateQuantiles(score);
         }
         for (std::size_t j = 0u; j < extract.leafNodes().size(); ++j)
@@ -1631,7 +1631,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
                 double probability = extract.leafNodes()[j]->probability();
                 // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability() ?
-                               0.0 : maths::CTools::deviation(probability);
+                               0.0 : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.leafNodes()[j]->s_NormalizedAnomalyScore);
                 CPPUNIT_ASSERT(itr->second->normalize(score));
                 expectedNormalized.push_back(score);
@@ -1659,7 +1659,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
             double probability = extract.personNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability() ?
-                           0.0 : maths::CTools::deviation(probability);
+                           0.0 : maths::CTools::anomalyScore(probability);
             itr->second->updateQuantiles(score);
         }
         for (std::size_t j = 0u; j < extract.personNodes().size(); ++j)
@@ -1672,7 +1672,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
                 double probability = extract.personNodes()[j]->probability();
                 // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability() ?
-                               0.0 : maths::CTools::deviation(probability);
+                               0.0 : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.personNodes()[j]->s_NormalizedAnomalyScore);
                 CPPUNIT_ASSERT(itr->second->normalize(score));
                 expectedNormalized.push_back(score);
@@ -1699,7 +1699,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
             double probability = extract.partitionNodes()[j]->probability();
             // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability() ?
-                           0.0 : maths::CTools::deviation(probability);
+                           0.0 : maths::CTools::anomalyScore(probability);
             itr->second->updateQuantiles(score);
         }
         for (std::size_t j = 0u; j < extract.partitionNodes().size(); ++j)
@@ -1711,7 +1711,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
                 double probability = extract.partitionNodes()[j]->probability();
                 // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability() ?
-                               0.0 : maths::CTools::deviation(probability);
+                               0.0 : maths::CTools::anomalyScore(probability);
                 normalized.push_back(extract.partitionNodes()[j]->s_NormalizedAnomalyScore);
                 CPPUNIT_ASSERT(itr->second->normalize(score));
                 expectedNormalized.push_back(score);
@@ -1726,7 +1726,7 @@ void CHierarchicalResultsTest::testNormalizer(void)
         double probability = results.root()->probability();
         // This truncation condition needs to be kept the same as the one in CHierarchicalResultsNormalizer::visit()
         double score = probability > modelConfig.maximumAnomalousProbability() ?
-                       0.0 : maths::CTools::deviation(probability);
+                       0.0 : maths::CTools::anomalyScore(probability);
 
         expectedNormalizers.find(std::string("r"))->second->updateQuantiles(score);
         expectedNormalizers.find(std::string("r"))->second->normalize(score);
